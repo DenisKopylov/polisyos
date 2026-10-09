@@ -63,9 +63,7 @@ class CachingArtifactStore:
             return bool(self._default_manifest_owner().has(selected))
         if self._write_through:
             try:
-                _owner_manifest, owner_selected_ref = self._resolve_write_through_view(
-                    selected
-                )
+                _owner_manifest, owner_selected_ref = self._resolve_write_through_view(selected)
             except (FileNotFoundError, KeyError):
                 return False
             if _has_manifest_view(self._local, owner_selected_ref):
@@ -118,9 +116,7 @@ class CachingArtifactStore:
             raw_manifest_reader = getattr(self._remote, "get_manifest_bytes", None)
             exact_view_importer = getattr(self._local, "import_exact_view", None)
             raw_manifest_bytes = (
-                raw_manifest_reader(selected)
-                if callable(raw_manifest_reader)
-                else None
+                raw_manifest_reader(selected) if callable(raw_manifest_reader) else None
             )
             if isinstance(raw_manifest_bytes, bytes) and callable(exact_view_importer):
                 manifest = ArtifactManifest.model_validate_json(raw_manifest_bytes)
@@ -161,16 +157,12 @@ class CachingArtifactStore:
                             # importer independently checks the signature's
                             # manifest digest before persisting it.
                             try:
-                                current_default_bytes = default_manifest_reader(
-                                    owner_default_ref
-                                )
+                                current_default_bytes = default_manifest_reader(owner_default_ref)
                             except (FileNotFoundError, KeyError):
                                 current_default_bytes = None
                             if current_default_bytes == raw_manifest_bytes:
                                 try:
-                                    candidate_signature_bytes = signature_reader(
-                                        owner_default_ref
-                                    )
+                                    candidate_signature_bytes = signature_reader(owner_default_ref)
                                 except FileNotFoundError:
                                     candidate_signature_bytes = None
                             else:
@@ -295,9 +287,7 @@ class CachingArtifactStore:
             if not _has_manifest_view(self._local, owner_selected_ref):
                 return owner_manifest
             local_manifest = self._local.get_manifest(owner_selected_ref)
-            if _manifest_view_identity(local_manifest) != _manifest_view_identity(
-                owner_manifest
-            ):
+            if _manifest_view_identity(local_manifest) != _manifest_view_identity(owner_manifest):
                 raise ArtifactIntegrityError(
                     "Local cache returned a different manifest view than the durable owner"
                 )
@@ -316,6 +306,22 @@ class CachingArtifactStore:
                 exc,
             )
         return self._remote.get_manifest(selected)
+
+    def get_manifest_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
+        """Return raw manifest bytes from the owner that defines this view.
+
+        Raw profile consumers must observe the owner's exact sidecar bytes. A
+        typed local cache hit is insufficient because model validation can fill
+        omitted defaults before a reader checks profile completeness.
+        """
+        owner = self._default_manifest_owner()
+        reader = getattr(owner, "get_manifest_bytes", None)
+        if not callable(reader):
+            raise TypeError("Durable artifact owner must expose get_manifest_bytes")
+        manifest_bytes = reader(artifact_id)
+        if not isinstance(manifest_bytes, bytes):
+            raise TypeError("Artifact owner get_manifest_bytes() must return bytes")
+        return manifest_bytes
 
     def put_bytes(self, data: bytes, opts: PutOptions) -> ArtifactRef:
         ref = self._local.put_bytes(data, opts)
@@ -373,8 +379,7 @@ class CachingArtifactStore:
                 or requested_ref.media_type != owner_ref.media_type
                 or (
                     requested_ref.manifest_profile_sha256 is not None
-                    and requested_ref.manifest_profile_sha256
-                    != owner_ref.manifest_profile_sha256
+                    and requested_ref.manifest_profile_sha256 != owner_ref.manifest_profile_sha256
                 )
             )
         ):
@@ -397,9 +402,7 @@ class CachingArtifactStore:
             return False
         local_manifest = self._local.get_manifest(local_ref)
         remote_manifest = self._remote.get_manifest(remote_ref)
-        return _manifest_view_identity(local_manifest) == _manifest_view_identity(
-            remote_manifest
-        )
+        return _manifest_view_identity(local_manifest) == _manifest_view_identity(remote_manifest)
 
     def iter_artifact_ids(self) -> list[ArtifactID]:
         """List IDs whose selector-free views belong to the configured write owner."""

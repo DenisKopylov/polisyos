@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
+import errno
 import hashlib
 import json
 import os
 import re
 import shutil
+import stat
 import tarfile
 import tempfile
-from contextlib import suppress
+from collections.abc import Iterator
+from contextlib import ExitStack, contextmanager, suppress
 from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path, PurePosixPath
@@ -47,6 +50,151 @@ class IntegrityVerificationReport(Protocol):
     """Minimal integrity report protocol used by import verification helpers."""
 
     ok: bool
+
+
+class _TransferReadStream(Protocol):
+    """Byte-only source used to snapshot an incoming transfer member."""
+
+    def read(self, size: int = -1) -> bytes: ...
+
+
+@dataclass(frozen=True, slots=True)
+class TransferMemberSnapshot:
+    """Measured content identity for one member admitted from a transfer."""
+
+    sha256: str
+    byte_size: int
+    metadata: bytes | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class TransferAdmission:
+    """Exact no-op refs and the unclaimed artifact set admitted for publication."""
+
+    exact_refs: tuple[ArtifactRef, ...]
+    pending_artifact_ids: frozenset[str]
+
+
+def snapshot_transfer_member(member: str, stream: _TransferReadStream) -> TransferMemberSnapshot:
+    """Hash actual incoming bytes while retaining only bounded metadata members."""
+    metadata_member = not member.endswith(".blob")
+    byte_limit = 8 * 1024 * 1024 if member.endswith(".manifest.json") else 1024 * 1024
+    digest = hashlib.sha256()
+    metadata = bytearray()
+    byte_size = 0
+    while chunk := stream.read(1024 * 1024):
+        digest.update(chunk)
+        byte_size += len(chunk)
+        if metadata_member:
+            if byte_size > byte_limit:
+                raise ArtifactIntegrityError("CAS import metadata exceeds its size bound")
+            metadata.extend(chunk)
+    return TransferMemberSnapshot(
+        sha256=digest.hexdigest(),
+        byte_size=byte_size,
+        metadata=bytes(metadata) if metadata_member else None,
+    )
+
+
+def validate_transfer_signatures(members: dict[str, TransferMemberSnapshot]) -> None:
+    """Verify each supplied signature envelope binds measured blob and manifest bytes."""
+    for member, snapshot in sorted(members.items()):
+        if not member.endswith(".sig"):
+            continue
+        artifact_id = artifact_id_from_member(member)
+        if artifact_id is None or snapshot.metadata is None:
+            raise ArtifactIntegrityError("CAS import signature member is unbound")
+        manifest_member = member.removesuffix(".sig") + ".manifest.json"
+        manifest = members.get(manifest_member)
+        blob_member = (
+            f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}/{artifact_id.hex}.blob"
+        )
+        blob = members.get(blob_member)
+        if manifest is None or manifest.metadata is None or blob is None:
+            raise ArtifactIntegrityError("CAS import signature targets a missing member")
+        try:
+            signature = DetachedSignature.model_validate_json(snapshot.metadata)
+            manifest_sha = hashlib.sha256(manifest.metadata).hexdigest()
+            if (
+                signature.version != SIGNATURE_FORMAT_VERSION
+                or signature.algorithm != SIGNATURE_ALGORITHM
+                or signature.statement.type != SIGNATURE_STATEMENT_TYPE
+                or signature.artifact_id != str(artifact_id)
+                or signature.statement.blob_sha256 != blob.sha256
+                or signature.statement.manifest_sha256 != manifest_sha
+            ):
+                raise ArtifactIntegrityError("CAS import signature binding mismatch")
+        except (TypeError, ValueError) as exc:
+            raise ArtifactIntegrityError("CAS import signature is invalid") from exc
+
+
+@contextmanager
+def _opened_archive(source: Path) -> Iterator[tarfile.TarFile]:
+    """Keep one no-follow regular archive inode open for intake and staging reads."""
+    source_stat = source.lstat()
+    if not stat.S_ISREG(source_stat.st_mode):
+        raise ValueError("Transfer archive source must be a regular file")
+    try:
+        descriptor = os.open(
+            source,
+            os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0),
+        )
+    except OSError as exc:
+        if exc.errno in {errno.ELOOP, errno.ENXIO, errno.ENODEV, errno.EISDIR}:
+            raise ValueError("Transfer archive source must be a regular file") from exc
+        raise
+    with os.fdopen(descriptor, "rb") as stream:
+        if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+            raise ValueError("Transfer archive source must be a regular file")
+        with tarfile.open(fileobj=stream, mode="r:*") as archive:
+            yield archive
+
+
+def _read_directory_inventory(descriptor: int) -> bytes | None:
+    """Read the optional inventory relative to a pinned no-follow directory."""
+    try:
+        member = os.open(
+            "export_manifest.json",
+            os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0),
+            dir_fd=descriptor,
+        )
+    except FileNotFoundError:
+        return None
+    with os.fdopen(member, "rb") as stream:
+        metadata = os.fstat(stream.fileno())
+        if not stat.S_ISREG(metadata.st_mode) or metadata.st_size > 8 * 1024 * 1024:
+            raise ValueError("Transfer inventory must be a bounded regular file")
+        return stream.read(8 * 1024 * 1024 + 1)
+
+
+def _iter_directory_members(
+    descriptor: int,
+) -> Iterator[tuple[str, BinaryIO | None]]:
+    """Read members relative to the pinned transfer root without following links."""
+    for directory, directories, files, parent in os.fwalk(
+        ".", topdown=True, follow_symlinks=False, dir_fd=descriptor
+    ):
+        directories.sort()
+        for name in tuple(directories):
+            metadata = os.stat(name, dir_fd=parent, follow_symlinks=False)
+            if not stat.S_ISDIR(metadata.st_mode):
+                directories.remove(name)
+                yield (PurePosixPath(directory) / name).as_posix(), None
+        for name in sorted(files):
+            relative = (PurePosixPath(directory) / name).as_posix()
+            metadata = os.stat(name, dir_fd=parent, follow_symlinks=False)
+            if not stat.S_ISREG(metadata.st_mode):
+                yield relative, None
+                continue
+            member = os.open(
+                name,
+                os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0),
+                dir_fd=parent,
+            )
+            with os.fdopen(member, "rb") as stream:
+                if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+                    raise ValueError(f"Transfer member must be a regular file: {relative}")
+                yield relative, stream
 
 
 class CASMemberReceipt(Protocol):
@@ -218,9 +366,7 @@ def _validate_directory_export(target: Path) -> set[Path]:
     )
     if previous_members is None:
         raise ValueError("Owned export directory marker has no members inventory")
-    owned_paths = {
-        target / Path(*PurePosixPath(member).parts) for member in previous_members
-    }
+    owned_paths = {target / Path(*PurePosixPath(member).parts) for member in previous_members}
     for member in previous_members:
         path = target / Path(*PurePosixPath(member).parts)
         _reject_symlink_components(path, target, member=member)
@@ -234,13 +380,9 @@ def _validate_directory_export(target: Path) -> set[Path]:
         while parent != target:
             owned_entries.add(parent)
             parent = parent.parent
-    foreign_entries = [
-        path for path in target.rglob("*") if path not in owned_entries
-    ]
+    foreign_entries = [path for path in target.rglob("*") if path not in owned_entries]
     if foreign_entries:
-        raise ValueError(
-            "Refusing to remove unowned files or entries from an export directory"
-        )
+        raise ValueError("Refusing to remove unowned files or entries from an export directory")
     return owned_paths | {marker}
 
 
@@ -258,9 +400,7 @@ def _publish_directory_generation(staging_root: Path, target: Path) -> None:
         os.replace(staging_root, target)
         return
 
-    previous_root = Path(
-        tempfile.mkdtemp(prefix=f".{target.name}.previous-", dir=target.parent)
-    )
+    previous_root = Path(tempfile.mkdtemp(prefix=f".{target.name}.previous-", dir=target.parent))
     previous_root.rmdir()
     os.replace(target, previous_root)
     try:
@@ -411,9 +551,7 @@ def _validate_staged_manifest_views(
         manifest = ArtifactManifest.model_validate_json(manifest_path.read_bytes())
         validate_manifest_identity(artifact_id, manifest)
         if manifest.byte_size != blob_size:
-            raise ArtifactIntegrityError(
-                f"Transfer manifest byte size mismatch for {artifact_id}"
-            )
+            raise ArtifactIntegrityError(f"Transfer manifest byte size mismatch for {artifact_id}")
         profile_sha256 = member_profile_sha256(member)
         if profile_sha256 is not None and ManifestLifecycle.profile_sha256(manifest) != (
             profile_sha256
@@ -434,8 +572,7 @@ def _validate_staged_signatures(
         sig_path = staging_root / Path(*PurePosixPath(sig_member).parts)
         signature_stem = sig_member.removesuffix(".sig")
         blob_member = (
-            f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}"
-            f"/{artifact_id.hex}.blob"
+            f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}/{artifact_id.hex}.blob"
         )
         manifest_member = f"{signature_stem}.manifest.json"
         blob_path = staging_root / Path(*PurePosixPath(blob_member).parts)
@@ -468,9 +605,7 @@ def _validate_staged_signatures(
 
 def export_subgraph(
     *,
-    open_member: Callable[
-        [ArtifactID | ArtifactRef, str], AbstractContextManager[CASMemberStream]
-    ],
+    open_member: Callable[[ArtifactID | ArtifactRef, str], AbstractContextManager[CASMemberStream]],
     member_name: Callable[[ArtifactID | ArtifactRef, str], str],
     artifact_ids: Iterable[ArtifactID | ArtifactRef | str],
     target: Path,
@@ -489,8 +624,7 @@ def export_subgraph(
         request = ref or artifact_id
         requests_by_key[(artifact_id.hex, profile_sha256 or "default")] = request
     requests = [
-        requests_by_key[key]
-        for key in sorted(requests_by_key, key=lambda item: (item[0], item[1]))
+        requests_by_key[key] for key in sorted(requests_by_key, key=lambda item: (item[0], item[1]))
     ]
     requested_ids = {key[0] for key in requests_by_key}
     exported_ids: set[str] = set()
@@ -577,9 +711,7 @@ def export_subgraph(
     else:
         _validate_directory_export(target)
         target_mode = target.stat().st_mode & 0o7777
-        staging_root = Path(
-            tempfile.mkdtemp(prefix=f".{target.name}.staging-", dir=target.parent)
-        )
+        staging_root = Path(tempfile.mkdtemp(prefix=f".{target.name}.staging-", dir=target.parent))
         try:
             for request in requests:
                 artifact_id, profile_sha256, _ref = artifact_reference_parts(request)
@@ -632,15 +764,20 @@ def export_subgraph(
         missing_manifests=missing_manifests,
     )
 
+
 def import_subgraph(
     *,
     root: Path,
     verify_artifact: Callable[[ArtifactID | ArtifactRef, Path], IntegrityVerificationReport],
     publish_staged: Callable[[Path, set[str], set[str]], tuple[ArtifactRef, ...]],
+    admit_members: Callable[
+        [dict[str, TransferMemberSnapshot]],
+        AbstractContextManager[TransferAdmission],
+    ],
     source: Path,
     verify_integrity: bool = False,
 ) -> ImportReport:
-    """Import a CAS export through an owned, verified staging generation."""
+    """Admit a content-bound transfer before staging or publishing CAS members."""
     imported_artifacts: set[str] = set()
     binding_failures: set[str] = set()
     skipped_entries: list[str] = []
@@ -648,117 +785,172 @@ def import_subgraph(
     staged_members: set[str] = set()
     seen_members: set[str] = set()
     total_bytes = [0]
+    source_handles = ExitStack()
+    staging_root: Path | None = None
     if root.is_symlink():
         raise ValueError("CAS root must not be a symlink")
     root.mkdir(parents=True, exist_ok=True)
-    staging_root = Path(tempfile.mkdtemp(prefix=".cas-import-", dir=root))
 
     try:
+        if source.is_symlink():
+            raise ValueError("Transfer source must not be a symlink")
+        source_is_directory = source.is_dir()
+        directory_descriptor: int | None = None
+        tar: tarfile.TarFile | None = None
         inventory_data: bytes | None = None
-        if source.is_dir():
-            if source.is_symlink():
-                raise ValueError("Transfer directory must not be a symlink")
-            manifest_path = source / "export_manifest.json"
-            if manifest_path.is_file() and not manifest_path.is_symlink():
-                inventory_data = manifest_path.read_bytes()
+        if source_is_directory:
+            directory_descriptor = os.open(
+                source,
+                os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0),
+            )
+            source_handles.callback(os.close, directory_descriptor)
+            inventory_data = _read_directory_inventory(directory_descriptor)
         else:
-            with tarfile.open(source, "r:*") as tar:
-                manifest_members = [
-                    member
-                    for member in tar.getmembers()
-                    if (
-                        member.isfile()
-                        and safe_member_path(member.name)
-                        == PurePosixPath("export_manifest.json")
-                    )
-                ]
-                if len(manifest_members) > 1:
-                    raise ValueError("Transfer contains duplicate export manifests")
-                if manifest_members:
-                    extracted = tar.extractfile(manifest_members[0])
-                    if extracted is None:
-                        raise ValueError("Transfer export manifest cannot be read")
-                    with extracted:
-                        inventory_data = extracted.read()
+            tar = source_handles.enter_context(_opened_archive(source))
+            manifest_members = [
+                member
+                for member in tar.getmembers()
+                if (
+                    member.isfile()
+                    and safe_member_path(member.name) == PurePosixPath("export_manifest.json")
+                )
+            ]
+            if len(manifest_members) > 1:
+                raise ValueError("Transfer contains duplicate export manifests")
+            if manifest_members:
+                info = manifest_members[0]
+                if info.size > 8 * 1024 * 1024:
+                    raise ValueError("Transfer inventory exceeds its size bound")
+                extracted = tar.extractfile(info)
+                if extracted is None:
+                    raise ValueError("Transfer export manifest cannot be read")
+                with extracted:
+                    inventory_data = extracted.read(8 * 1024 * 1024 + 1)
 
         allowed_members, bindings = _parse_inventory(
             inventory_data or b"{}",
             require_inventory=verify_integrity,
         )
 
-        if source.is_dir():
-            for path in sorted(source.rglob("*")):
-                if path.is_symlink():
-                    skipped_entries.append(str(path.relative_to(source)))
-                    continue
-                if not path.is_file():
-                    continue
-                relative = path.relative_to(source).as_posix()
-                safe_path = safe_member_path(relative)
-                if safe_path is None:
-                    skipped_entries.append(relative)
-                    continue
-                if safe_path == PurePosixPath("export_manifest.json"):
-                    continue
-                member = safe_path.as_posix()
-                _reject_symlink_components(path, source, member=member)
-                if allowed_members is not None and member not in allowed_members:
-                    skipped_entries.append(member)
-                    continue
-                with path.open("rb") as stream:
-                    _stage_member(
-                        staging_root=staging_root,
-                        safe_path=safe_path,
-                        data=stream,
-                        allowed_members=allowed_members,
-                        bindings=bindings,
-                        binding_failures=binding_failures,
-                        seen_members=seen_members,
-                        imported_artifacts=imported_artifacts,
-                        total_bytes=total_bytes,
-                    )
-                staged_members.add(member)
-        else:
-            with tarfile.open(source, "r:*") as tar:
-                for member in tar.getmembers():
-                    safe_path = safe_member_path(member.name)
+        def incoming_members() -> Iterator[tuple[PurePosixPath, _TransferReadStream]]:
+            if source_is_directory:
+                if directory_descriptor is None:
+                    raise RuntimeError("Directory intake descriptor is unavailable")
+                for relative, stream in _iter_directory_members(directory_descriptor):
+                    safe_path = safe_member_path(relative)
+                    if stream is None or safe_path is None:
+                        if relative not in skipped_entries:
+                            skipped_entries.append(relative)
+                        continue
                     if safe_path == PurePosixPath("export_manifest.json"):
                         continue
-                    if not member.isfile():
-                        skipped_entries.append(member.name)
+                    if allowed_members is not None and safe_path.as_posix() not in allowed_members:
+                        if relative not in skipped_entries:
+                            skipped_entries.append(relative)
                         continue
-                    if safe_path is None:
-                        skipped_entries.append(member.name)
-                        continue
-                    member_name = safe_path.as_posix()
-                    if allowed_members is not None and member_name not in allowed_members:
-                        skipped_entries.append(member_name)
-                        continue
-                    extracted = tar.extractfile(member)
-                    if extracted is None:
-                        skipped_entries.append(member.name)
-                        continue
-                    with extracted:
-                        _stage_member(
-                            staging_root=staging_root,
-                            safe_path=safe_path,
-                            data=extracted,
-                            allowed_members=allowed_members,
-                            bindings=bindings,
-                            binding_failures=binding_failures,
-                            seen_members=seen_members,
-                            imported_artifacts=imported_artifacts,
-                            total_bytes=total_bytes,
-                        )
-                    staged_members.add(member_name)
+                    yield safe_path, stream
+                return
+
+            if tar is None:
+                raise RuntimeError("Archive intake handle is unavailable")
+            for archive_member in tar.getmembers():
+                safe_path = safe_member_path(archive_member.name)
+                if safe_path == PurePosixPath("export_manifest.json"):
+                    continue
+                if not archive_member.isfile() or safe_path is None:
+                    if archive_member.name not in skipped_entries:
+                        skipped_entries.append(archive_member.name)
+                    continue
+                if allowed_members is not None and safe_path.as_posix() not in allowed_members:
+                    if safe_path.as_posix() not in skipped_entries:
+                        skipped_entries.append(safe_path.as_posix())
+                    continue
+                extracted = tar.extractfile(archive_member)
+                if extracted is None:
+                    if archive_member.name not in skipped_entries:
+                        skipped_entries.append(archive_member.name)
+                    continue
+                with extracted:
+                    yield safe_path, extracted
+
+        intake: dict[str, TransferMemberSnapshot] = {}
+        for safe_path, stream in incoming_members():
+            member_name = safe_path.as_posix()
+            if member_name in intake:
+                raise ValueError(f"Duplicate transfer member: {member_name}")
+            snapshot = snapshot_transfer_member(member_name, stream)
+            intake[member_name] = snapshot
+            artifact_id = artifact_id_from_member(member_name)
+            if artifact_id is None:
+                raise ValueError(f"Transfer member is not a CAS artifact: {member_name}")
+            imported_artifacts.add(str(artifact_id))
+            expected = bindings.get(member_name)
+            if expected is not None and expected != (snapshot.sha256, snapshot.byte_size):
+                binding_failures.add(str(artifact_id))
+            if member_name.endswith(".blob") and snapshot.sha256 != artifact_id.hex:
+                binding_failures.add(str(artifact_id))
 
         if allowed_members is not None:
-            missing_members = allowed_members - staged_members
+            missing_members = allowed_members - set(intake)
             if missing_members:
                 raise ValueError(
-                    "Transfer is missing inventory members: "
-                    + ", ".join(sorted(missing_members))
+                    "Transfer is missing inventory members: " + ", ".join(sorted(missing_members))
                 )
+
+        intake_total_bytes = sum(snapshot.byte_size for snapshot in intake.values())
+        validate_transfer_signatures(intake)
+        if binding_failures:
+            return ImportReport(
+                imported_files=0,
+                imported_artifacts=len(imported_artifacts),
+                total_bytes=intake_total_bytes,
+                source=source,
+                skipped_entries=skipped_entries,
+                verification_failed=sorted(binding_failures),
+            )
+
+        admission = source_handles.enter_context(admit_members(intake))
+        if not admission.pending_artifact_ids:
+            return ImportReport(
+                imported_files=0,
+                imported_artifacts=len(imported_artifacts),
+                total_bytes=intake_total_bytes,
+                source=source,
+                skipped_entries=skipped_entries,
+                verification_failed=[],
+                imported_refs=admission.exact_refs,
+            )
+
+        staging_root = Path(tempfile.mkdtemp(prefix=".cas-import-", dir=root))
+        snapshot_bindings = {
+            name: (snapshot.sha256, snapshot.byte_size) for name, snapshot in intake.items()
+        }
+        staged_artifacts: set[str] = set()
+        for safe_path, stream in incoming_members():
+            member_name = safe_path.as_posix()
+            artifact_id = artifact_id_from_member(member_name)
+            if artifact_id is None or str(artifact_id) not in admission.pending_artifact_ids:
+                continue
+            _stage_member(
+                staging_root=staging_root,
+                safe_path=safe_path,
+                data=stream,
+                allowed_members=allowed_members,
+                bindings=snapshot_bindings,
+                binding_failures=binding_failures,
+                seen_members=seen_members,
+                imported_artifacts=staged_artifacts,
+                total_bytes=total_bytes,
+            )
+            staged_members.add(member_name)
+
+        expected_staged = {
+            member
+            for member in intake
+            if str(artifact_id_from_member(member)) in admission.pending_artifact_ids
+        }
+        if expected_staged != staged_members:
+            raise ValueError("Transfer changed its admitted member set before staging")
 
         staged_by_artifact: dict[str, set[str]] = {}
         for member in staged_members:
@@ -767,7 +959,7 @@ def import_subgraph(
                 staged_by_artifact.setdefault(str(artifact_id), set()).add(member)
 
         if verify_integrity:
-            for artifact_ref in sorted(imported_artifacts):
+            for artifact_ref in sorted(staged_artifacts):
                 artifact_id = ArtifactID.model_validate(artifact_ref)
                 artifact_members = staged_by_artifact.get(artifact_ref, set())
                 blob_member = (
@@ -775,9 +967,7 @@ def import_subgraph(
                     f"/{artifact_id.hex}.blob"
                 )
                 manifest_members = sorted(
-                    member
-                    for member in artifact_members
-                    if member.endswith(".manifest.json")
+                    member for member in artifact_members if member.endswith(".manifest.json")
                 )
                 if blob_member not in artifact_members or not manifest_members:
                     raise ValueError(
@@ -800,8 +990,7 @@ def import_subgraph(
                     else:
                         manifest = ArtifactManifest.model_validate_json(
                             (
-                                staging_root
-                                / Path(*PurePosixPath(manifest_member).parts)
+                                staging_root / Path(*PurePosixPath(manifest_member).parts)
                             ).read_bytes()
                         )
                         selected = ArtifactRef(
@@ -816,26 +1005,32 @@ def import_subgraph(
                         break
 
         verification_failed = sorted(set(verification_failed) | binding_failures)
-        _validate_staged_signatures(staging_root, imported_artifacts, staged_members)
+        _validate_staged_signatures(staging_root, staged_artifacts, staged_members)
         if verification_failed:
             return ImportReport(
                 imported_files=0,
                 imported_artifacts=len(imported_artifacts),
-                total_bytes=total_bytes[0],
+                total_bytes=intake_total_bytes,
                 source=source,
                 skipped_entries=skipped_entries,
                 verification_failed=verification_failed,
             )
 
-        imported_refs = publish_staged(staging_root, staged_members, imported_artifacts)
+        imported_refs = admission.exact_refs + publish_staged(
+            staging_root,
+            staged_members,
+            staged_artifacts,
+        )
         return ImportReport(
             imported_files=len(staged_members),
             imported_artifacts=len(imported_artifacts),
-            total_bytes=total_bytes[0],
+            total_bytes=intake_total_bytes,
             source=source,
             skipped_entries=skipped_entries,
             verification_failed=[],
             imported_refs=imported_refs,
         )
     finally:
-        shutil.rmtree(staging_root, ignore_errors=True)
+        source_handles.close()
+        if staging_root is not None:
+            shutil.rmtree(staging_root, ignore_errors=True)

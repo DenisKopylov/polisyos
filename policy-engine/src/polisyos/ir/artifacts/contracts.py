@@ -3,8 +3,15 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, ClassVar, Protocol, runtime_checkable
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Protocol,
+    runtime_checkable,
+)
 
 from pydantic import BaseModel, ConfigDict, RootModel, field_validator
 
@@ -112,18 +119,44 @@ class PutOptions:
     canon: CanonInfo | None = None
 
 
+type _MetadataOption = BaseModel | Mapping[str, Any]
+
+
+class ArtifactViewRef(Protocol):
+    """Describe an exact artifact view without importing its owning store layer."""
+
+    @property
+    def artifact_id(self) -> object: ...
+
+    @property
+    def kind(self) -> str: ...
+
+    @property
+    def media_type(self) -> str: ...
+
+    @property
+    def manifest_profile_sha256(self) -> str | None: ...
+
+
+type ArtifactSelector = ArtifactID | ArtifactViewRef | Mapping[str, Any] | str
+
+
 @dataclass(frozen=True)
 class StorePutOptions:
-    """Duck-typed options compatible with core FileSystemCAS.put_json."""
+    """Typed metadata projection compatible with Core ``ArtifactWriteOptions``."""
 
     kind: str
     media_type: str
-    schema: dict[str, Any] | None = None
-    producer: Any = None
-    env: Any = None
-    inputs: list[dict[str, Any]] | None = None
-    canon: dict[str, Any] | None = None
-    governance: dict[str, Any] | None = None
+    schema: _MetadataOption | None = None
+    producer: _MetadataOption | None = None
+    env: _MetadataOption | None = None
+    inputs: list[_MetadataOption] | None = None
+    canon: _MetadataOption | None = None
+    governance: _MetadataOption | None = None
+    tenant_context: _MetadataOption | None = None
+    same_input_closure: _MetadataOption | None = None
+    authority: _MetadataOption | None = None
+    warnings: list[_MetadataOption] | None = None
 
 
 @runtime_checkable
@@ -133,13 +166,17 @@ class ArtifactStore(Protocol):
     def put_json(
         self,
         obj: Any,
-        opts: Any,
+        opts: StorePutOptions | Mapping[str, Any],
         canon_spec: CanonSpec | None = None,
     ) -> Any: ...
 
-    def get_bytes(self, artifact_id: Any) -> bytes: ...
+    def get_bytes(self, artifact_id: ArtifactSelector) -> bytes: ...
 
-    def get_manifest(self, artifact_id: Any) -> Any: ...
+    def get_manifest(self, artifact_id: ArtifactSelector) -> Any: ...
+
+    def get_manifest_bytes(self, artifact_id: ArtifactSelector) -> bytes:
+        """Return the exact raw sidecar bytes for this ID or selected view."""
+        ...
 
     def iter_artifact_ids(self) -> list[Any]: ...
 
@@ -173,11 +210,13 @@ def to_store_put_options(opts: PutOptions) -> StorePutOptions:
     """Convert to store put options."""
     schema = opts.schema.model_dump(mode="python") if opts.schema is not None else None
     canon = opts.canon.model_dump(mode="python") if opts.canon is not None else None
-    inputs = [entry.model_dump(mode="python") for entry in (opts.inputs or [])] or None
+    input_payloads: list[_MetadataOption] = []
+    for entry in opts.inputs or []:
+        input_payloads.append(entry.model_dump(mode="python"))
+    inputs = input_payloads or None
+    governance_option = getattr(opts, "governance", None)
     governance = (
-        opts.governance.model_dump(mode="python")
-        if getattr(opts, "governance", None) is not None
-        else None
+        governance_option.model_dump(mode="python") if governance_option is not None else None
     )
     return StorePutOptions(
         kind=opts.kind,
@@ -199,16 +238,28 @@ def normalize_artifact_ref(ref: Any) -> dict[str, str]:
     media_type = payload.get("media_type")
     if artifact_id is None or kind is None or media_type is None:
         raise ValueError("artifact ref payload must include artifact_id, kind, media_type")
-    return {
+    normalized = {
         "artifact_id": str(artifact_id),
         "kind": str(kind),
         "media_type": str(media_type),
     }
+    manifest_profile_sha256 = payload.get("manifest_profile_sha256")
+    if manifest_profile_sha256 is not None:
+        if (
+            not isinstance(manifest_profile_sha256, str)
+            or not manifest_profile_sha256.startswith("sha256:")
+            or _SHA256_HEX_RE.fullmatch(manifest_profile_sha256.removeprefix("sha256:")) is None
+        ):
+            raise ValueError("artifact ref profile selector must be sha256:<64 lowercase hex>")
+        normalized["manifest_profile_sha256"] = manifest_profile_sha256
+    return normalized
 
 
 __all__ = [
     "ArtifactID",
+    "ArtifactSelector",
     "ArtifactStore",
+    "ArtifactViewRef",
     "CanonInfo",
     "InputRef",
     "PutOptions",

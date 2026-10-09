@@ -76,6 +76,8 @@ from ._signature_ops import (
 from ._transfer_ops import (
     ExportReport,
     ImportReport,
+    TransferAdmission,
+    TransferMemberSnapshot,
 )
 from ._transfer_ops import (
     artifact_id_from_member as _artifact_id_from_member,
@@ -95,10 +97,17 @@ from ._transfer_ops import (
 from ._transfer_ops import (
     safe_member_path as _safe_member_path,
 )
+from ._transfer_ops import (
+    snapshot_transfer_member as _snapshot_transfer_member,
+)
+from ._transfer_ops import (
+    validate_transfer_signatures as _validate_transfer_signatures,
+)
 from .ids import ArtifactID
 from .manifest import (
     ArtifactManifest,
     ArtifactRef,
+    ArtifactTenantContextInfo,
     CanonInfo,
     _coerce_input_ref,
     artifact_ref_identity_key,
@@ -436,9 +445,9 @@ class FileSystemCAS:
         if self._ownership_index.root != canonical_root:
             raise ValueError("filesystem_cas_ownership_root_mismatch")
         self.root = canonical_root
-        self._public_read_store_identity = "sha256:" + hashlib.sha256(
-            os.fsencode(str(self.root))
-        ).hexdigest()
+        self._public_read_store_identity = (
+            "sha256:" + hashlib.sha256(os.fsencode(str(self.root))).hexdigest()
+        )
         self._public_read_store_token = object()
         self._governed_public_read_owner_tokens: set[object] = set()
         self._coordinator = self._ownership_index._coordinator
@@ -614,11 +623,7 @@ class FileSystemCAS:
             identity[0] != str(artifact_id)
             or identity[3] != manifest_profile_sha256
             or current_operation
-            not in {
-                row[0]
-                for row in capability.operation_refs
-                if row[1:] == identity
-            }
+            not in {row[0] for row in capability.operation_refs if row[1:] == identity}
             or not self._ownership_index._public_read_closure_matches(
                 capability.record_id,
                 store_identity=capability.store_identity,
@@ -1181,15 +1186,19 @@ class FileSystemCAS:
             if tenant_id is None:
                 exists = not self._ownership_index.has_any_tenant_claim(aid)
             else:
-                exists = self._ownership_index.is_view_owned_by(
-                    aid,
-                    profile_sha256,
-                    tenant_id=tenant_id,
-                    cell_id=cell_id,
-                ) if profile_sha256 is not None else self._ownership_index.is_owned_by(
-                    aid,
-                    tenant_id=tenant_id,
-                    cell_id=cell_id,
+                exists = (
+                    self._ownership_index.is_view_owned_by(
+                        aid,
+                        profile_sha256,
+                        tenant_id=tenant_id,
+                        cell_id=cell_id,
+                    )
+                    if profile_sha256 is not None
+                    else self._ownership_index.is_owned_by(
+                        aid,
+                        tenant_id=tenant_id,
+                        cell_id=cell_id,
+                    )
                 )
         if ref is not None and exists:
             try:
@@ -1215,9 +1224,7 @@ class FileSystemCAS:
         shared blob ownership.
         """
         aid = (
-            ArtifactID.model_validate(artifact_id)
-            if isinstance(artifact_id, str)
-            else artifact_id
+            ArtifactID.model_validate(artifact_id) if isinstance(artifact_id, str) else artifact_id
         )
         if re.fullmatch(r"sha256:[0-9a-f]{64}", manifest_profile_sha256) is None:
             raise ValueError("manifest_profile_sha256 must be sha256:<64 lowercase hex>")
@@ -1345,9 +1352,7 @@ class FileSystemCAS:
             if signature.statement.manifest_sha256 != hashlib.sha256(manifest_bytes).hexdigest():
                 raise ArtifactIntegrityError(f"Signature manifest digest mismatch for {aid}")
 
-        prefix = (
-            f"artifacts/sha256/{aid.hex[:2]}/{aid.hex[2:4]}/{aid.hex}"
-        )
+        prefix = f"artifacts/sha256/{aid.hex[:2]}/{aid.hex[2:4]}/{aid.hex}"
         blob_member = f"{prefix}.blob"
         manifest_member = (
             f"{prefix}.manifest.json"
@@ -1358,41 +1363,54 @@ class FileSystemCAS:
         if signature_bytes is not None:
             members.add(manifest_member.removesuffix(".manifest.json") + ".sig")
 
-        staging_root = Path(tempfile.mkdtemp(prefix=".cas-import-exact-", dir=self.root))
-
-        def write_staged_member(member: str, payload: bytes) -> None:
-            safe_path = _safe_member_path(member)
-            if safe_path is None or safe_path.as_posix() != member:
-                raise ArtifactIntegrityError("CAS exact import member path is unsafe")
-            target = staging_root / Path(*safe_path.parts)
-            target.parent.mkdir(parents=True, exist_ok=True)
-            descriptor = os.open(
-                target,
-                os.O_WRONLY
-                | os.O_CREAT
-                | os.O_EXCL
-                | getattr(os, "O_NOFOLLOW", 0),
-                0o600,
+        intake = {
+            blob_member: TransferMemberSnapshot(content_hash(data), len(data)),
+            manifest_member: TransferMemberSnapshot(
+                content_hash(manifest_bytes), len(manifest_bytes), manifest_bytes
+            ),
+        }
+        if signature_bytes is not None:
+            signature_member = manifest_member.removesuffix(".manifest.json") + ".sig"
+            intake[signature_member] = TransferMemberSnapshot(
+                content_hash(signature_bytes), len(signature_bytes), signature_bytes
             )
-            with os.fdopen(descriptor, "wb") as stream:
-                stream.write(payload)
-                stream.flush()
-                os.fsync(stream.fileno())
 
-        try:
-            write_staged_member(blob_member, data)
-            write_staged_member(manifest_member, manifest_bytes)
-            if signature_bytes is not None:
-                signature_member = manifest_member.removesuffix(".manifest.json") + ".sig"
-                write_staged_member(signature_member, signature_bytes)
-            imported = self._publish_staged_import(
-                staging_root,
-                members,
-                {str(aid)},
-            )
-        finally:
-            if staging_root.exists() and not staging_root.is_symlink():
-                shutil.rmtree(staging_root)
+        with self._admit_import_members(intake) as admission:
+            if not admission.pending_artifact_ids:
+                imported = admission.exact_refs
+            else:
+                staging_root = Path(tempfile.mkdtemp(prefix=".cas-import-exact-", dir=self.root))
+
+                def write_staged_member(member: str, payload: bytes) -> None:
+                    safe_path = _safe_member_path(member)
+                    if safe_path is None or safe_path.as_posix() != member:
+                        raise ArtifactIntegrityError("CAS exact import member path is unsafe")
+                    target = staging_root / Path(*safe_path.parts)
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    descriptor = os.open(
+                        target,
+                        os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0),
+                        0o600,
+                    )
+                    with os.fdopen(descriptor, "wb") as stream:
+                        stream.write(payload)
+                        stream.flush()
+                        os.fsync(stream.fileno())
+
+                try:
+                    write_staged_member(blob_member, data)
+                    write_staged_member(manifest_member, manifest_bytes)
+                    if signature_bytes is not None:
+                        signature_member = manifest_member.removesuffix(".manifest.json") + ".sig"
+                        write_staged_member(signature_member, signature_bytes)
+                    imported = self._publish_staged_import(
+                        staging_root,
+                        members,
+                        {str(aid)},
+                    )
+                finally:
+                    if staging_root.exists() and not staging_root.is_symlink():
+                        shutil.rmtree(staging_root)
 
         expected_profile = requested_profile or profile_sha256
         selected = next(
@@ -1445,9 +1463,7 @@ class FileSystemCAS:
             if profile_sha256 is not None:
                 actual_profile = self._manifests.profile_sha256(manifest)
                 if actual_profile != profile_sha256:
-                    raise ArtifactIntegrityError(
-                        f"Selected manifest profile mismatch for {aid}"
-                    )
+                    raise ArtifactIntegrityError(f"Selected manifest profile mismatch for {aid}")
             if ref is not None and (
                 ref.kind != manifest.kind or ref.media_type != manifest.media_type
             ):
@@ -1487,8 +1503,7 @@ class FileSystemCAS:
             or intent["blob_sha256"] != f"sha256:{artifact_id.hex}"
             or len(signature_specs) != 1
             or signature_specs[0]["selector"] != signature_selector
-            or signature_specs[0]["signature_sha256"]
-            != content_hash(signature_bytes, prefix=True)
+            or signature_specs[0]["signature_sha256"] != content_hash(signature_bytes, prefix=True)
         ):
             raise ArtifactTransactionPendingError(
                 artifact_id,
@@ -1561,9 +1576,7 @@ class FileSystemCAS:
             tenant_id: str | None = None
             cell_id: str | None = None
             if self._ownership_enforced:
-                tenant_id, cell_id = self._resolve_owner(
-                    required=self._ownership_requires_scope
-                )
+                tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
             owner = (
                 {"tenant_id": tenant_id, "cell_id": cell_id}
                 if self._ownership_enforced and tenant_id is not None
@@ -1598,10 +1611,9 @@ class FileSystemCAS:
                 )
             blob_path, _default_manifest = self._paths(aid)
             manifest_path = self._manifest_path_for_ref(aid, profile_sha256)
-            if (
-                self._ownership_index._path_has_symlink_component(blob_path)
-                or self._ownership_index._path_has_symlink_component(manifest_path)
-            ):
+            if self._ownership_index._path_has_symlink_component(
+                blob_path
+            ) or self._ownership_index._path_has_symlink_component(manifest_path):
                 raise ArtifactIntegrityError("CAS signature binding crosses a symlink")
             manifest_bytes = manifest_path.read_bytes()
             manifest = ArtifactManifest.model_validate_json(manifest_bytes)
@@ -1614,8 +1626,7 @@ class FileSystemCAS:
                 raise ArtifactIntegrityError(f"Blob sha256 mismatch for {aid}")
             if (
                 signature.statement.blob_sha256 != aid.hex
-                or signature.statement.manifest_sha256
-                != hashlib.sha256(manifest_bytes).hexdigest()
+                or signature.statement.manifest_sha256 != hashlib.sha256(manifest_bytes).hexdigest()
             ):
                 raise ValueError("signature statement does not match the selected artifact view")
 
@@ -1747,9 +1758,7 @@ class FileSystemCAS:
             signer_identity=signer_identity,
             read_blob=lambda selected_id: self.get_bytes(selected),
             read_manifest_bytes=lambda selected_id: self.get_manifest_bytes(selected),
-            write_signature=lambda selected_id, signature: self.put_signature(
-                selected, signature
-            ),
+            write_signature=lambda selected_id, signature: self.put_signature(selected, signature),
             load_snapshot=lambda selected_id: self._load_verified_snapshot(selected),
         )
 
@@ -1767,11 +1776,7 @@ class FileSystemCAS:
             supplied_id = getattr(artifact_id, "artifact_id", artifact_id)
             if isinstance(supplied_id, ArtifactID):
                 supplied_id = supplied_id.root
-            result_id = (
-                supplied_id
-                if isinstance(supplied_id, str)
-                else "<malformed-artifact-id>"
-            )
+            result_id = supplied_id if isinstance(supplied_id, str) else "<malformed-artifact-id>"
             message = (
                 "Malformed artifact reference"
                 if isinstance(artifact_id, ArtifactRef)
@@ -1890,8 +1895,10 @@ class FileSystemCAS:
 
     def _transaction_stage_relative(self, operation_id: str, name: str) -> str:
         return (
-            self._coordinator.transaction_root / "stage" / operation_id / name
-        ).relative_to(self.root).as_posix()
+            (self._coordinator.transaction_root / "stage" / operation_id / name)
+            .relative_to(self.root)
+            .as_posix()
+        )
 
     def _ensure_transaction_stage(
         self,
@@ -1918,9 +1925,11 @@ class FileSystemCAS:
                 raise ArtifactIntegrityError("CAS transaction stage digest mismatch")
             return stage_path
         if final_path.exists():
-            if final_path.is_symlink() or not final_path.is_file() or _file_content_hash(
-                final_path
-            ) != expected_sha256.removeprefix("sha256:"):
+            if (
+                final_path.is_symlink()
+                or not final_path.is_file()
+                or _file_content_hash(final_path) != expected_sha256.removeprefix("sha256:")
+            ):
                 raise ArtifactIntegrityError("CAS transaction final member mismatch")
             return None
         return self._stage_transaction_member(operation_id, name, data)
@@ -2053,14 +2062,18 @@ class FileSystemCAS:
             raise ArtifactTransactionPendingError(artifact_id, surface="artifact")
 
         blob_path, default_manifest_path = self._paths(artifact_id)
-        blob_stage = self._ensure_transaction_stage(
-            operation_id=intent["operation_id"],
-            name="blob.stage",
-            recorded_path=intent["blob_stage"],
-            data=data,
-            expected_sha256="sha256:" + sha,
-            final_path=blob_path,
-        ) if intent["blob_stage"] is not None else None
+        blob_stage = (
+            self._ensure_transaction_stage(
+                operation_id=intent["operation_id"],
+                name="blob.stage",
+                recorded_path=intent["blob_stage"],
+                data=data,
+                expected_sha256="sha256:" + sha,
+                final_path=blob_path,
+            )
+            if intent["blob_stage"] is not None
+            else None
+        )
         if intent["blob_stage"] is None and not blob_path.is_file():
             raise ArtifactIntegrityError("CAS transaction blob stage is unavailable")
         self._publish_transaction_member(
@@ -2140,14 +2153,13 @@ class FileSystemCAS:
             tenant_id: str | None = None
             cell_id: str | None = None
             if self._ownership_enforced:
-                tenant_id, cell_id = self._resolve_owner(
-                    required=self._ownership_requires_scope
-                )
+                tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
             owner = (
                 {"tenant_id": tenant_id, "cell_id": cell_id}
                 if self._ownership_enforced and tenant_id is not None
                 else None
             )
+            self._require_bound_context_for_owner(opts.tenant_context, owner)
             prior_intent = self._ownership_index._read_transaction_intent(aid)
             if prior_intent is not None:
                 if self._ownership_index._committed_intent_matches_current_state(prior_intent):
@@ -2192,12 +2204,9 @@ class FileSystemCAS:
                     tenant_id=tenant_id,
                     cell_id=cell_id,
                 )
-                skip_default_manifest = (
-                    not default_owner_admitted
-                    and (
-                        default_manifest_path.exists()
-                        or self._ownership_index.has_any_tenant_claim(aid)
-                    )
+                skip_default_manifest = not default_owner_admitted and (
+                    default_manifest_path.exists()
+                    or self._ownership_index.has_any_tenant_claim(aid)
                 )
 
             default_bytes: bytes | None = None
@@ -2220,15 +2229,15 @@ class FileSystemCAS:
                 if self._manifests.profile_projection(existing_view) != (
                     self._manifests.profile_projection(manifest)
                 ):
-                    raise ArtifactIntegrityError(
-                        f"Manifest profile digest collision for {aid}"
-                    )
+                    raise ArtifactIntegrityError(f"Manifest profile digest collision for {aid}")
 
             will_create_default = not skip_default_manifest and default_bytes is None
             will_create_view = view_bytes is None
             operation_id = uuid.uuid4().hex
             blob_stage_rel = (
-                None if blob_preexisted else self._transaction_stage_relative(
+                None
+                if blob_preexisted
+                else self._transaction_stage_relative(
                     operation_id,
                     "blob.stage",
                 )
@@ -2249,9 +2258,7 @@ class FileSystemCAS:
                 intent_views.append(
                     {
                         "selector": "default",
-                        "manifest_profile_sha256": (
-                            default_profile_sha256 or profile_sha256
-                        ),
+                        "manifest_profile_sha256": (default_profile_sha256 or profile_sha256),
                         "manifest_sha256": content_hash(expected_default_bytes, prefix=True),
                         "manifest_stage": default_stage_rel,
                     }
@@ -2277,11 +2284,7 @@ class FileSystemCAS:
                     "blob_reader": not will_create_default,
                     "view_owners": [profile_sha256],
                 }
-            affected_profiles = (
-                [profile_sha256]
-                if will_create_view or owner is not None
-                else []
-            )
+            affected_profiles = [profile_sha256] if will_create_view or owner is not None else []
             intent: dict[str, object] = {
                 "schema_version": _TRANSACTION_INTENT_SCHEMA_V3,
                 "status": "pending",
@@ -2302,9 +2305,7 @@ class FileSystemCAS:
                 "signatures": [],
                 "request_sha256": "",
             }
-            intent["request_sha256"] = self._ownership_index._transaction_request_digest(
-                intent
-            )
+            intent["request_sha256"] = self._ownership_index._transaction_request_digest(intent)
             self._ownership_index.write_transaction_intent(aid, intent, lease=lease)
 
             try:
@@ -2382,8 +2383,8 @@ class FileSystemCAS:
         self._require_input_owners(opts)
 
         if not self._hpc_enabled or self._tracer is None:
-            _deduplicated, ref_profile_sha256 = (
-                self._put_blob_and_manifest_once(data=data, opts=opts, aid=aid, sha=sha)
+            _deduplicated, ref_profile_sha256 = self._put_blob_and_manifest_once(
+                data=data, opts=opts, aid=aid, sha=sha
             )
             ref = ArtifactRef(
                 artifact_id=aid,
@@ -2668,8 +2669,7 @@ class FileSystemCAS:
                 if (
                     final_path.is_symlink()
                     or not final_path.is_file()
-                    or _file_content_hash(final_path)
-                    != expected_sha256.removeprefix("sha256:")
+                    or _file_content_hash(final_path) != expected_sha256.removeprefix("sha256:")
                 ):
                     raise ArtifactIntegrityError(
                         f"Immutable CAS member conflicts: {member}"
@@ -2764,20 +2764,291 @@ class FileSystemCAS:
                 if (
                     stage_path.is_symlink()
                     or not stage_path.is_file()
-                    or _file_content_hash(stage_path)
-                    != expected_sha256.removeprefix("sha256:")
+                    or _file_content_hash(stage_path) != expected_sha256.removeprefix("sha256:")
                 ):
                     raise ArtifactIntegrityError("CAS import stage publication conflict") from None
             if stage_path.is_symlink() or not stage_path.is_file():
                 raise ArtifactIntegrityError("CAS import stage publication is unsafe")
             _atomic_write_module.fsync_directory(stage_path.parent)
 
-        if (
-            stage_path.stat().st_dev != self.root.stat().st_dev
-            or _file_content_hash(stage_path) != expected_sha256.removeprefix("sha256:")
-        ):
+        if stage_path.stat().st_dev != self.root.stat().st_dev or _file_content_hash(
+            stage_path
+        ) != expected_sha256.removeprefix("sha256:"):
             raise ArtifactIntegrityError("CAS import staged member digest mismatch")
         return stage_path
+
+    @staticmethod
+    def _require_bound_context_for_owner(
+        context: ArtifactTenantContextInfo | None,
+        owner: dict[str, str | None] | None,
+        *,
+        require_bound: bool = False,
+    ) -> None:
+        """Match an optional persisted tenant/cell context to the active CAS owner."""
+        if owner is None:
+            return
+        tenant_id = owner["tenant_id"]
+        if tenant_id is None:
+            raise ArtifactOwnershipError("Scoped CAS owner has no concrete tenant")
+        if context is None:
+            if require_bound:
+                raise ArtifactOwnershipError(
+                    f"Import is not owned by tenant {tenant_id}: manifest has no bound context"
+                )
+            return
+        if context.tenant_id != tenant_id:
+            raise ArtifactOwnershipError("Manifest is bound to a different tenant")
+        if context.cell_id != owner["cell_id"]:
+            raise ArtifactOwnershipError("Manifest is bound to a different cell")
+
+    def _require_import_input_owners(
+        self,
+        source_by_artifact: dict[str, dict[str, Any]],
+        owner: dict[str, str | None] | None,
+    ) -> None:
+        """Resolve every imported lineage ref against an existing or incoming exact view."""
+        if not self._ownership_enforced:
+            return
+        tenant_id = owner["tenant_id"] if owner is not None else None
+        if owner is not None and tenant_id is None:
+            raise ArtifactOwnershipError("Scoped import owner has no concrete tenant")
+        for source_info in source_by_artifact.values():
+            for source_view in source_info["source_views"]:
+                for raw_input_ref in source_view["manifest"].inputs:
+                    input_ref = _coerce_input_ref(raw_input_ref)
+                    input_id = input_ref.artifact_id
+                    if owner is None:
+                        self._require_blob_owner(
+                            input_id,
+                            operation=f"import input:{input_ref.role}",
+                        )
+                        self._require_manifest_view_owner(
+                            input_id,
+                            input_ref.manifest_profile_sha256,
+                            operation=f"import input manifest:{input_ref.role}",
+                        )
+                        continue
+
+                    if self._ownership_index.has_any_tenant_claim(input_id):
+                        self._ownership_index.require_blob_reader(
+                            input_id,
+                            tenant_id=tenant_id,
+                            cell_id=owner["cell_id"],
+                            operation=f"import input:{input_ref.role}",
+                        )
+                        if input_ref.manifest_profile_sha256 is None:
+                            self._ownership_index.require_owner(
+                                input_id,
+                                tenant_id=tenant_id,
+                                cell_id=owner["cell_id"],
+                                operation=f"import input manifest:{input_ref.role}",
+                            )
+                        else:
+                            self._ownership_index.require_view_owner(
+                                input_id,
+                                input_ref.manifest_profile_sha256,
+                                tenant_id=tenant_id,
+                                cell_id=owner["cell_id"],
+                                operation=f"import input manifest:{input_ref.role}",
+                            )
+                        continue
+
+                    imported_input = source_by_artifact.get(input_id.hex)
+                    if imported_input is None:
+                        raise ArtifactOwnershipError(
+                            f"Unclaimed import input {input_id} is not part of the same import"
+                        )
+                    source_profiles = {view["profile"] for view in imported_input["source_views"]}
+                    has_default_view = any(
+                        view["member"].endswith(f"{input_id.hex}.manifest.json")
+                        for view in imported_input["source_views"]
+                    )
+                    if input_ref.manifest_profile_sha256 is None:
+                        input_is_in_import = has_default_view
+                    else:
+                        input_is_in_import = input_ref.manifest_profile_sha256 in source_profiles
+                    if not input_is_in_import:
+                        raise ArtifactOwnershipError(
+                            f"Import does not carry the selected input view for {input_id}"
+                        )
+
+    @contextmanager
+    def _admit_import_members(
+        self,
+        members: dict[str, TransferMemberSnapshot],
+    ) -> Iterator[TransferAdmission]:
+        """Admit only exact owned views or fully measured unclaimed inputs.
+
+        A claimed artifact can only be a byte-for-byte no-op for the exact
+        default/profile view already owned by the active tenant. New scoped
+        imports must carry a manifest bound to that active tenant and cell.
+        The exclusive leases remain held until the caller finishes staging and
+        publication, so admission cannot race an owner-generation change.
+        """
+        _validate_transfer_signatures(members)
+        grouped: dict[str, dict[str, TransferMemberSnapshot]] = {}
+        for member, snapshot in members.items():
+            safe_path = _safe_member_path(member)
+            artifact_id = _artifact_id_from_member(member)
+            if safe_path is None or safe_path.as_posix() != member or artifact_id is None:
+                raise ArtifactIntegrityError(f"Unsafe import intake member: {member}")
+            if not member.endswith(".blob"):
+                metadata_limit = (
+                    8 * 1024 * 1024 if member.endswith(".manifest.json") else 1024 * 1024
+                )
+                if snapshot.metadata is None or snapshot.byte_size > metadata_limit:
+                    raise ArtifactIntegrityError("CAS import metadata is unavailable or oversized")
+                if hashlib.sha256(snapshot.metadata).hexdigest() != snapshot.sha256:
+                    raise ArtifactIntegrityError("CAS import metadata digest mismatch")
+            grouped.setdefault(str(artifact_id), {})[member] = snapshot
+
+        lock_ids: dict[str, ArtifactID] = {}
+        parsed: dict[str, list[dict[str, Any]]] = {}
+        for value, artifact_members in grouped.items():
+            artifact_id = ArtifactID.model_validate(value)
+            lock_ids[artifact_id.hex] = artifact_id
+            prefix = (
+                f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}/{artifact_id.hex}"
+            )
+            blob = artifact_members.get(prefix + ".blob")
+            if blob is None or blob.sha256 != artifact_id.hex:
+                raise ArtifactIntegrityError(f"Import blob content does not match {artifact_id}")
+            views: list[dict[str, Any]] = []
+            for member, snapshot in sorted(artifact_members.items()):
+                if not member.endswith(".manifest.json"):
+                    continue
+                if snapshot.metadata is None:
+                    raise ArtifactIntegrityError("Import manifest bytes unavailable")
+                manifest = ArtifactManifest.model_validate_json(snapshot.metadata)
+                _validate_manifest_identity(artifact_id, manifest)
+                if manifest.byte_size != blob.byte_size:
+                    raise ArtifactIntegrityError(f"Manifest byte size mismatch for {artifact_id}")
+                profile = self._manifests.profile_sha256(manifest)
+                encoded_profile = _member_profile_sha256(member)
+                if encoded_profile is not None and encoded_profile != profile:
+                    raise ArtifactIntegrityError(
+                        f"Selected manifest profile mismatch for {artifact_id}"
+                    )
+                for raw_input_ref in manifest.inputs:
+                    input_ref = _coerce_input_ref(raw_input_ref)
+                    lock_ids[input_ref.artifact_id.hex] = input_ref.artifact_id
+                views.append(
+                    {
+                        "member": member,
+                        "manifest": manifest,
+                        "profile": profile,
+                    }
+                )
+            if not views:
+                raise ArtifactIntegrityError(f"Import is missing manifest views for {artifact_id}")
+            parsed[value] = views
+
+        with self._coordinator.artifact_leases(lock_ids.values(), exclusive=True):
+            owner: dict[str, str | None] | None = None
+            if self._ownership_enforced:
+                tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
+                if tenant_id is not None:
+                    owner = {"tenant_id": tenant_id, "cell_id": cell_id}
+            source_by_artifact = {
+                artifact_id.hex: {
+                    "source_views": [
+                        {
+                            "member": view["member"],
+                            "manifest": view["manifest"],
+                            "profile": view["profile"],
+                        }
+                        for view in views
+                    ]
+                }
+                for value, views in parsed.items()
+                for artifact_id in (ArtifactID.model_validate(value),)
+            }
+            self._require_import_input_owners(source_by_artifact, owner)
+
+            exact_refs: list[ArtifactRef] = []
+            pending_artifact_ids: set[str] = set()
+            for value, artifact_members in grouped.items():
+                artifact_id = ArtifactID.model_validate(value)
+                for view in parsed[value]:
+                    self._require_bound_context_for_owner(
+                        view["manifest"].tenant_context,
+                        owner,
+                    )
+                if not self._ownership_index.has_any_tenant_claim(artifact_id):
+                    pending_artifact_ids.add(value)
+                    continue
+                if owner is None:
+                    raise ArtifactOwnershipError(
+                        f"Artifact {artifact_id} import requires its current tenant owner"
+                    )
+                self._ownership_index.require_no_pending_transaction(artifact_id)
+                for view in parsed[value]:
+                    member = view["member"]
+                    profile = view["profile"]
+                    selected_profile = _member_profile_sha256(member)
+                    claims = self._ownership_index._transaction_claims_for(
+                        artifact_id,
+                        tenant_id=owner["tenant_id"],
+                        cell_id=owner["cell_id"],
+                        manifest_profile_sha256=profile,
+                    )
+                    owns_view = (
+                        claims["default_owner"]
+                        if selected_profile is None
+                        else profile in claims["view_owners"]
+                    )
+                    if not owns_view:
+                        raise ArtifactOwnershipError(
+                            f"Artifact {artifact_id} exact view is not owned by tenant "
+                            f"{owner['tenant_id']}"
+                        )
+                    exact_refs.append(
+                        ArtifactRef(
+                            artifact_id=artifact_id,
+                            kind=view["manifest"].kind,
+                            media_type=view["manifest"].media_type,
+                            manifest_profile_sha256=selected_profile,
+                        )
+                    )
+                for member, snapshot in artifact_members.items():
+                    path = self.root / Path(*member.split("/"))
+                    if self._ownership_index._path_has_symlink_component(path):
+                        raise ArtifactIntegrityError("Existing imported member crosses a symlink")
+                    try:
+                        mode = path.lstat().st_mode
+                    except FileNotFoundError:
+                        raise ArtifactOwnershipError(
+                            "Claimed import must already contain the exact complete view"
+                        ) from None
+                    if not stat.S_ISREG(mode):
+                        raise ArtifactIntegrityError(
+                            "Existing imported member is not a regular file"
+                        )
+                    if self._stream_file_digest(path) != (snapshot.sha256, snapshot.byte_size):
+                        raise ArtifactOwnershipError(
+                            "Claimed import differs from its exact owned bytes/view"
+                        )
+                for view in parsed[value]:
+                    owned_signature = view["member"].removesuffix(".manifest.json") + ".sig"
+                    if (
+                        owned_signature not in artifact_members
+                        and (self.root / owned_signature).exists()
+                    ):
+                        raise ArtifactOwnershipError(
+                            "Claimed import omits its exact owned signature"
+                        )
+            yield TransferAdmission(
+                exact_refs=tuple(
+                    sorted(
+                        exact_refs,
+                        key=lambda ref: (
+                            ref.artifact_id.hex,
+                            ref.manifest_profile_sha256 or "",
+                        ),
+                    )
+                ),
+                pending_artifact_ids=frozenset(pending_artifact_ids),
+            )
 
     def _publish_staged_import(
         self,
@@ -2785,7 +3056,44 @@ class FileSystemCAS:
         members: set[str],
         artifact_refs: set[str],
     ) -> tuple[ArtifactRef, ...]:
-        """Publish each imported artifact through its durable owner transaction."""
+        """Re-admit staged bytes before the durable owner transaction publishes them."""
+        try:
+            staging_root.relative_to(self.root)
+        except ValueError as exc:
+            raise ArtifactIntegrityError("CAS import stage escaped its owner root") from exc
+        if self._ownership_index._path_has_symlink_component(staging_root):
+            raise ArtifactIntegrityError("CAS import staging root crosses a symlink")
+        intake: dict[str, TransferMemberSnapshot] = {}
+        for member in sorted(members):
+            safe_path = _safe_member_path(member)
+            artifact_id = _artifact_id_from_member(member)
+            if safe_path is None or safe_path.as_posix() != member or artifact_id is None:
+                raise ArtifactIntegrityError(f"Unsafe staged member: {member}")
+            path = staging_root / Path(*safe_path.parts)
+            if self._ownership_index._path_has_symlink_component(path):
+                raise ArtifactIntegrityError("CAS import member crosses a symlink")
+            descriptor = os.open(
+                path,
+                os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0),
+            )
+            with os.fdopen(descriptor, "rb") as stream:
+                if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+                    raise ArtifactIntegrityError("CAS import member is not a regular file")
+                intake[member] = _snapshot_transfer_member(member, stream)
+        with self._admit_import_members(intake) as admission:
+            if not admission.pending_artifact_ids:
+                return admission.exact_refs
+            if set(artifact_refs) != set(admission.pending_artifact_ids):
+                raise ArtifactIntegrityError("Admitted import set differs from staged artifacts")
+            return self._publish_admitted_staged_import(staging_root, members, artifact_refs)
+
+    def _publish_admitted_staged_import(
+        self,
+        staging_root: Path,
+        members: set[str],
+        artifact_refs: set[str],
+    ) -> tuple[ArtifactRef, ...]:
+        """Publish already-admitted members through durable owner transactions."""
         try:
             staging_root.relative_to(self.root)
         except ValueError as exc:
@@ -2805,16 +3113,13 @@ class FileSystemCAS:
         if set(staged_by_artifact) != set(artifact_refs):
             raise ArtifactIntegrityError("Staged artifact set does not match transfer inventory")
 
-        artifact_ids = tuple(
-            ArtifactID.model_validate(value) for value in sorted(artifact_refs)
-        )
+        artifact_ids = tuple(ArtifactID.model_validate(value) for value in sorted(artifact_refs))
         source_by_artifact: dict[str, dict[str, Any]] = {}
         lock_ids: dict[str, ArtifactID] = {aid.hex: aid for aid in artifact_ids}
         for artifact_id in artifact_ids:
             artifact_members = staged_by_artifact[str(artifact_id)]
             prefix = (
-                f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}"
-                f"/{artifact_id.hex}"
+                f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}/{artifact_id.hex}"
             )
             blob_member = f"{prefix}.blob"
             if blob_member not in artifact_members:
@@ -2906,81 +3211,19 @@ class FileSystemCAS:
             tenant_id: str | None = None
             cell_id: str | None = None
             if self._ownership_enforced:
-                tenant_id, cell_id = self._resolve_owner(
-                    required=self._ownership_requires_scope
-                )
+                tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
             owner = (
                 {"tenant_id": tenant_id, "cell_id": cell_id}
                 if self._ownership_enforced and tenant_id is not None
                 else None
             )
-            if self._ownership_enforced:
-                for source_info in source_by_artifact.values():
-                    for source_view in source_info["source_views"]:
-                        for raw_input_ref in source_view["manifest"].inputs:
-                            input_ref = _coerce_input_ref(raw_input_ref)
-                            input_id = input_ref.artifact_id
-                            if owner is None:
-                                self._require_blob_owner(
-                                    input_id,
-                                    operation=f"import input:{input_ref.role}",
-                                )
-                                self._require_manifest_view_owner(
-                                    input_id,
-                                    input_ref.manifest_profile_sha256,
-                                    operation=f"import input manifest:{input_ref.role}",
-                                )
-                                continue
-
-                            if self._ownership_index.has_any_tenant_claim(input_id):
-                                self._ownership_index.require_blob_reader(
-                                    input_id,
-                                    tenant_id=owner["tenant_id"],
-                                    cell_id=owner["cell_id"],
-                                    operation=f"import input:{input_ref.role}",
-                                )
-                                if input_ref.manifest_profile_sha256 is None:
-                                    self._ownership_index.require_owner(
-                                        input_id,
-                                        tenant_id=owner["tenant_id"],
-                                        cell_id=owner["cell_id"],
-                                        operation=f"import input manifest:{input_ref.role}",
-                                    )
-                                else:
-                                    self._ownership_index.require_view_owner(
-                                        input_id,
-                                        input_ref.manifest_profile_sha256,
-                                        tenant_id=owner["tenant_id"],
-                                        cell_id=owner["cell_id"],
-                                        operation=f"import input manifest:{input_ref.role}",
-                                    )
-                                continue
-
-                            imported_input = source_by_artifact.get(input_id.hex)
-                            if imported_input is None:
-                                raise ArtifactOwnershipError(
-                                    "Unclaimed import input "
-                                    f"{input_id} is not part of the same import"
-                                )
-                            source_profiles = {
-                                view["profile"] for view in imported_input["source_views"]
-                            }
-                            has_default_view = any(
-                                view["member"].endswith(
-                                    f"{input_id.hex}.manifest.json"
-                                )
-                                for view in imported_input["source_views"]
-                            )
-                            if input_ref.manifest_profile_sha256 is None:
-                                input_is_in_import = has_default_view
-                            else:
-                                input_is_in_import = (
-                                    input_ref.manifest_profile_sha256 in source_profiles
-                                )
-                            if not input_is_in_import:
-                                raise ArtifactOwnershipError(
-                                    f"Import does not carry the selected input view for {input_id}"
-                                )
+            for source_info in source_by_artifact.values():
+                for source_view in source_info["source_views"]:
+                    self._require_bound_context_for_owner(
+                        source_view["manifest"].tenant_context,
+                        owner,
+                    )
+            self._require_import_input_owners(source_by_artifact, owner)
 
             for artifact_id in artifact_ids:
                 self._require_unclaimed_target_if_unscoped(artifact_id, operation="import")
@@ -3030,11 +3273,7 @@ class FileSystemCAS:
                             or default_existing_profile == profile_sha256
                         )
                     )
-                    view_targets = (
-                        [default_manifest_path]
-                        if can_use_default
-                        else []
-                    )
+                    view_targets = [default_manifest_path] if can_use_default else []
                     selected_view_path = self._layout.view_manifest_path(
                         artifact_id,
                         profile_sha256,
@@ -3044,9 +3283,7 @@ class FileSystemCAS:
 
                     for target_path in view_targets:
                         selector = (
-                            "default"
-                            if target_path == default_manifest_path
-                            else profile_sha256
+                            "default" if target_path == default_manifest_path else profile_sha256
                         )
                         self._prepare_import_destination(
                             target_path,
@@ -3077,8 +3314,7 @@ class FileSystemCAS:
                         }
                         previous = desired_views.get(selector)
                         if previous is not None and (
-                            previous["manifest_sha256"] != digest
-                            or previous["path"] != target_path
+                            previous["manifest_sha256"] != digest or previous["path"] != target_path
                         ):
                             raise ArtifactIntegrityError(
                                 f"Conflicting imported manifest views for {artifact_id}"
@@ -3089,8 +3325,9 @@ class FileSystemCAS:
                         if signature_bytes is None:
                             continue
                         if (
-                            DetachedSignature.model_validate_json(signature_bytes)
-                            .statement.manifest_sha256
+                            DetachedSignature.model_validate_json(
+                                signature_bytes
+                            ).statement.manifest_sha256
                             != hashlib.sha256(manifest_data).hexdigest()
                         ):
                             raise ArtifactIntegrityError(
@@ -3145,15 +3382,13 @@ class FileSystemCAS:
                     and ("default" in desired_views or current_claims["default_owner"])
                 )
                 blob_reader_claim = bool(
-                    owner is not None
-                    and (not default_claim or current_claims["blob_reader"])
+                    owner is not None and (not default_claim or current_claims["blob_reader"])
                 )
-                profile_claims = sorted(
-                    {
-                        entry["profile"]
-                        for entry in desired_views.values()
-                    }
-                ) if owner is not None else []
+                profile_claims = (
+                    sorted({entry["profile"] for entry in desired_views.values()})
+                    if owner is not None
+                    else []
+                )
                 missing_profile_claims = set()
                 for profile in profile_claims:
                     profile_claim = self._ownership_index._transaction_claims_for(
@@ -3202,8 +3437,10 @@ class FileSystemCAS:
 
                 blob_member_sha = source_info["blob_sha256"]
                 default_created_at = next(
-                    iter(source_view["manifest"].created_at.isoformat()
-                         for source_view in source_info["source_views"])
+                    iter(
+                        source_view["manifest"].created_at.isoformat()
+                        for source_view in source_info["source_views"]
+                    )
                 )
                 operation_id = uuid.uuid4().hex
                 stage_names = {
@@ -3285,12 +3522,9 @@ class FileSystemCAS:
                     self._remove_transaction_stage(prior["operation_id"])
                     prior = None
                 if prior is not None:
-                    prior_views = {
-                        spec["selector"]: spec for spec in prior["views"]
-                    }
+                    prior_views = {spec["selector"]: spec for spec in prior["views"]}
                     prior_signature_specs = {
-                        spec["selector"]: spec
-                        for spec in prior.get("signatures", [])
+                        spec["selector"]: spec for spec in prior.get("signatures", [])
                     }
                     if (
                         prior["mode"] != "import"
@@ -3317,9 +3551,7 @@ class FileSystemCAS:
                         {
                             "selector": selector,
                             "signature_sha256": entry["sha256"],
-                            "signature_stage": prior_signature_specs[selector][
-                                "signature_stage"
-                            ],
+                            "signature_stage": prior_signature_specs[selector]["signature_stage"],
                         }
                         for selector, entry in sorted(desired_signatures.items())
                     ]
@@ -3341,9 +3573,7 @@ class FileSystemCAS:
                                 surface=f"manifest:{selector}",
                             )
                     for selector, spec in prior_signature_specs.items():
-                        if desired_signatures[selector]["sha256"] != spec[
-                            "signature_sha256"
-                        ]:
+                        if desired_signatures[selector]["sha256"] != spec["signature_sha256"]:
                             raise ArtifactTransactionPendingError(
                                 artifact_id,
                                 surface=f"signature:{selector}",
@@ -3358,16 +3588,13 @@ class FileSystemCAS:
                         intent["blob_stage"] is None
                         and not any(view["manifest_stage"] for view in intent["views"])
                         and not any(
-                            signature["signature_stage"]
-                            for signature in intent["signatures"]
+                            signature["signature_stage"] for signature in intent["signatures"]
                         )
                         and not ambient_affected
                         and not affected_profiles
                     ):
                         for selector, entry in desired_views.items():
-                            selected_profile = (
-                                None if selector == "default" else entry["profile"]
-                            )
+                            selected_profile = None if selector == "default" else entry["profile"]
                             reference = ArtifactRef(
                                 artifact_id=artifact_id,
                                 kind=entry["manifest"].kind,
@@ -3434,9 +3661,9 @@ class FileSystemCAS:
                             for source_view in source_info["source_views"]
                             if source_view["signature_data"] == entry["data"]
                         )
-                        source_member = source_signature["member"].removesuffix(
-                            ".manifest.json"
-                        ) + ".sig"
+                        source_member = (
+                            source_signature["member"].removesuffix(".manifest.json") + ".sig"
+                        )
                         signature_source = staging_root / Path(*source_member.split("/"))
                         signature_stage = self._stage_import_source(
                             operation_id=operation_id,
@@ -3583,8 +3810,7 @@ class FileSystemCAS:
             if (artifact_hex, "default:blob") not in members:
                 raise ArtifactIntegrityError("cas_inventory_blob_missing")
             if not any(
-                key[0] == artifact_hex and key[1].endswith(":manifest.json")
-                for key in members
+                key[0] == artifact_hex and key[1].endswith(":manifest.json") for key in members
             ):
                 raise ArtifactIntegrityError("cas_inventory_manifest_missing")
             for member_key, _path in (
@@ -3655,8 +3881,8 @@ class FileSystemCAS:
         )
         try:
             with self._coordinator.root_exclusive():
-                names_before, ids_before, generation_before = (
-                    self._capture_default_inventory_state(owner_scope=owner_scope)
+                names_before, ids_before, generation_before = self._capture_default_inventory_state(
+                    owner_scope=owner_scope
                 )
         except (ArtifactIntegrityError, OSError, ValueError, TypeError) as exc:
             raise ArtifactIntegrityError("cas_batch_inventory_capture_failed") from exc
@@ -3668,16 +3894,14 @@ class FileSystemCAS:
 
         try:
             with self._coordinator.root_exclusive():
-                names_after, ids_after, generation_after = (
-                    self._capture_default_inventory_state(owner_scope=owner_scope)
+                names_after, ids_after, generation_after = self._capture_default_inventory_state(
+                    owner_scope=owner_scope
                 )
         except (ArtifactIntegrityError, OSError, ValueError, TypeError) as exc:
             raise ArtifactIntegrityError("cas_batch_inventory_recheck_failed") from exc
-        visible_membership_changed = (
-            names_before != names_after
-            or tuple(artifact_id.hex for artifact_id in ids_after)
-            != tuple(sorted(processed))
-        )
+        visible_membership_changed = names_before != names_after or tuple(
+            artifact_id.hex for artifact_id in ids_after
+        ) != tuple(sorted(processed))
         owner_generation_changed = generation_before != generation_after
         if visible_membership_changed:
             raise ArtifactIntegrityError("cas_batch_inventory_changed_during_scan")
@@ -3893,6 +4117,7 @@ class FileSystemCAS:
                     profile_sha256,
                     operation="export_manifest",
                 )
+
         def member_name(request: ArtifactID | ArtifactRef, member: str) -> str:
             aid, profile_sha256, _ref = _artifact_reference(request)
             return self._member_name(aid, member, profile_sha256)
@@ -3917,6 +4142,7 @@ class FileSystemCAS:
             root=self.root,
             verify_artifact=self._verify_staged_artifact,
             publish_staged=self._publish_staged_import,
+            admit_members=self._admit_import_members,
             source=source,
             verify_integrity=verify_integrity,
         )

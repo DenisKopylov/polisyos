@@ -1,0 +1,9 @@
+{
+  "schema": "policyos.e02.c06_can.r2_author_publication_input_verification.v1",
+  "source_sha": "2762cec321d0cc78874abb986736dab54e2fb189",
+  "signed_review": "/workspace/orch02-r2/reviews/c06-can-independent-final-native-review-2762cec3.json",
+  "verified_moderate_artifacts": 33,
+  "total_bytes": 790613,
+  "all_bytes_size_SHA256_verified": true,
+  "not_new_test_execution": true
+}

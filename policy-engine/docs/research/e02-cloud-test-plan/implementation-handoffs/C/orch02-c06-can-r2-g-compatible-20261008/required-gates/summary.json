@@ -1,0 +1,44 @@
+{
+  "source_sha": "2762cec321d0cc78874abb986736dab54e2fb189",
+  "source_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+  "base_sha": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "required_fresh_input_checks": [
+    {
+      "gate": "canonical Node22 frozen pnpm",
+      "outcome": "PASS",
+      "evidence": "required-gates/node/command.json"
+    },
+    {
+      "gate": "fulldefaultarchitecture",
+      "outcome": "FAIL",
+      "returncode": 1,
+      "wall_seconds": 512.1179972310001,
+      "evidence": "required-gates/architecture-summary.json +completecommand/stdout/stderr",
+      "diagnostics": [
+        "155newdeep-import rows",
+        "38unresolvedpublicexport rows",
+        "OpenAPIdrift",
+        "trustdrift"
+      ],
+      "P41": "not_established"
+    },
+    {
+      "gate": "requiredruntimeproduction_invocation wrapper currentGinputonce",
+      "outcome": "PASS_partial_static_only",
+      "returncode": 0,
+      "wall_seconds": 602.6586389099994,
+      "evidence": "required-gates/invocation-summary.json +completecommand/stdout/stderr",
+      "runtime_invocation_established": false,
+      "new_unresolved": [],
+      "regressions": [],
+      "tracked_Python_denominator": 5960,
+      "source_Python_denominator": 2700,
+      "owned_boundary_classification": "required-gates/invocation-boundary-classification.json"
+    }
+  ],
+  "candidate_source_mutation_during_gate_epoch": false,
+  "mandatory_global_release_gate_status": "architecture FAIL; source acceptance/selectedcomposition/required closeout remains G",
+  "source_acceptance": "not_issued_by_G",
+  "formal_closure_ids": [],
+  "no_hook_bypass_or_shared_baseline_policy_lock_generated_changes": true
+}

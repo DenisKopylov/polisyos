@@ -1,0 +1,242 @@
+{
+  "at": "2026-10-08T18:18:26.573189+00:00",
+  "source_commit": "2762cec321d0cc78874abb986736dab54e2fb189",
+  "base_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "source_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+  "branch": "refs/heads/codex/e02-C-orch02-c06-can-r2-g-compatible",
+  "status": "",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-08-e02-c06-ir-reader-profile.toml",
+    "policy-engine/src/polisyos/ir/artifacts/README.md",
+    "policy-engine/src/polisyos/ir/artifacts/io.py",
+    "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py"
+  ],
+  "ready_artifact_shape": [
+    "source_commit",
+    "source_tree",
+    "artifacts",
+    "custody",
+    "independent_consumer_wave"
+  ],
+  "checked_candidate_paths": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-c06-ir-reader-profile.toml",
+      "blob": "d400b3d86a640be60ca321194bc612f151733102",
+      "bytes": 1897,
+      "sha256": "69b6434c3dc1ef6610c002c575c863e51c63c052b9f2e4d468c30f1fedc2e582"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/README.md",
+      "blob": "ab2e0ed8e0e571cb58ae29ee7647a59e2c7852c9",
+      "bytes": 4005,
+      "sha256": "340b1b8938e789b76c134f3031e4b59dbe3c0b5f21aa34174c18a93ce1fde6cf"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "blob": "a815bcd7b3cd15322512c2086724d73ac1c32328",
+      "bytes": 4721,
+      "sha256": "29e538571b87a68afb703eb96558942746e8caaeed0d27b67ff03628866a684d"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+      "blob": "3d496f7582011219aee485518aa3ab53fa4004f8",
+      "bytes": 16170,
+      "sha256": "91dbd1581e1811328e0520899aadeb9154eb24cbcf4df0360c40c3bf294ec870"
+    }
+  ],
+  "checked_dependencies": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "candidate_blob": "e17ac9b37fd899612eda0f80ab204b76dfe25222",
+      "G_blob": "e17ac9b37fd899612eda0f80ab204b76dfe25222"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "candidate_blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+      "G_blob": "72127a25ff25d4a034d376ba1452f54e96914931"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "candidate_blob": "3c76237c88f4a667ab71e9e70037eb91a1d83f10",
+      "G_blob": "3c76237c88f4a667ab71e9e70037eb91a1d83f10"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+      "candidate_blob": "610a563ce506be29c3606b4229ae4ab427920d5f",
+      "G_blob": "610a563ce506be29c3606b4229ae4ab427920d5f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "candidate_blob": "418c9db4c37ea56510fe179585fc708acb8a3795",
+      "G_blob": "418c9db4c37ea56510fe179585fc708acb8a3795"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "candidate_blob": "ca14a6bf9cec51292cf457243f38191892c5828a",
+      "G_blob": "ca14a6bf9cec51292cf457243f38191892c5828a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/canonical.py",
+      "candidate_blob": "25fa43311ba8a04a25845a1863898399a7eed958",
+      "G_blob": "25fa43311ba8a04a25845a1863898399a7eed958"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+      "candidate_blob": "9c7220fc3b1516ae102770078bf16d98f2d9414a",
+      "G_blob": "9c7220fc3b1516ae102770078bf16d98f2d9414a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "candidate_blob": "a815bcd7b3cd15322512c2086724d73ac1c32328",
+      "G_blob": "37a433addcec7453347e3a581a4e05c4b60d5f03"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+      "candidate_blob": "02167bbe1c34c7b6501c37a122186a5aa0ea9d90",
+      "G_blob": "02167bbe1c34c7b6501c37a122186a5aa0ea9d90"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+      "candidate_blob": "26b15390105b5c478824f899754af9a0f6bc64d8",
+      "G_blob": "26b15390105b5c478824f899754af9a0f6bc64d8"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/registry/refs.py",
+      "candidate_blob": "5c64514b14c9d1df0f167a6a572551f3546c7019",
+      "G_blob": "5c64514b14c9d1df0f167a6a572551f3546c7019"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+      "candidate_blob": "3d496f7582011219aee485518aa3ab53fa4004f8",
+      "G_blob": "b1583a98989ab64a53a12c9cafc19b220836087b"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+      "candidate_blob": "0576973cf69602c48acae759d4fc2c8769b9994f",
+      "G_blob": "0576973cf69602c48acae759d4fc2c8769b9994f"
+    },
+    {
+      "path": "policy-engine/architecture/imports/policy.toml",
+      "candidate_blob": "3ba18adb3a7d69dafe7c87ee5686968de0994ad4",
+      "G_blob": "3ba18adb3a7d69dafe7c87ee5686968de0994ad4"
+    },
+    {
+      "path": "policy-engine/architecture/imports/exceptions.toml",
+      "candidate_blob": "04bebe01f2d39f0d0fcacb2ff66a109a2baf1ed3",
+      "G_blob": "04bebe01f2d39f0d0fcacb2ff66a109a2baf1ed3"
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "candidate_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+      "G_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5"
+    },
+    {
+      "path": "policy-engine/architecture/generated_artifacts.toml",
+      "candidate_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+      "G_blob": "6621206f112833142f966ce8318f3f6b48e3e57d"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "candidate_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "G_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "candidate_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "G_blob": "85f1fb2150a4da454fee02108565381d44f56730"
+    },
+    {
+      "path": "policy-engine/mypy.ini",
+      "candidate_blob": "594ab4d060735c68b3d135f836908b096874801d",
+      "G_blob": "594ab4d060735c68b3d135f836908b096874801d"
+    },
+    {
+      "path": "policy-engine/ruff.toml",
+      "candidate_blob": "a0928fffdad2d96d6030fc23584801beac45b560",
+      "G_blob": "a0928fffdad2d96d6030fc23584801beac45b560"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/mypy_plugin.py",
+      "candidate_blob": "1a9008d27f83c73e1a8e0eb8f3ec6a8d0a0eb280",
+      "G_blob": "1a9008d27f83c73e1a8e0eb8f3ec6a8d0a0eb280"
+    }
+  ],
+  "input_origin_verdict": "author observations only; no independent runtime claim",
+  "input_artifacts": [
+    {
+      "path": "/workspace/orch02-r2/c06-can/frozen-candidate.json",
+      "bytes": 3686,
+      "sha256": "9c7886624d74ea180c35aa493549f1854e358b53d00b4635d3ebbaf0cdb9cf39"
+    },
+    {
+      "path": "/workspace/orch02-r2/c06-can/selected-dependency-composition.json",
+      "bytes": 9342,
+      "sha256": "5eaa8d204543b4d44f0ffcdf5ca7cbf396174f62781c4c8b6f7f78e1f9439884"
+    },
+    {
+      "path": "/workspace/orch02-r2/c06-can/ready-artifact-manifest.json",
+      "bytes": 4688,
+      "sha256": "e5481bbc5c29361140a589e898a48470855c9cdd20238704f358c674fe98a075"
+    },
+    {
+      "path": "/workspace/orch02-r2/c06-can/finite-compatibility-matrix.json",
+      "bytes": 53656,
+      "sha256": "9e880b1074edc6d2fbcb9767cdfc33a5bb51c84d3b067365b164dfa50a680ae5"
+    },
+    {
+      "path": "/workspace/orch02-r2/c06-can/compatibility_matrix.py",
+      "bytes": 10485,
+      "sha256": "a95eb5ed20c9edf03eb2fcabbd36b3f60e77bc95233a71e79f9dd1a2d14bc040"
+    },
+    {
+      "path": "/workspace/orch02-r2/c06-can/core-owner-packet.json",
+      "bytes": 11186,
+      "sha256": "2cef28ec7df14c46c1e9d2277cdd842cee1a4c0ba78da89fd17b9a4f75de455d"
+    }
+  ],
+  "author_matrix_inputs": {
+    "physical_cases": 14,
+    "actual_origin_denominator": 84,
+    "classification": "input recipe reviewed, independent native evidence separate"
+  },
+  "native_selected_inputs": [
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+      "blob": "3d496f7582011219aee485518aa3ab53fa4004f8",
+      "sha256": "91dbd1581e1811328e0520899aadeb9154eb24cbcf4df0360c40c3bf294ec870",
+      "bytes": 16170
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+      "blob": "0576973cf69602c48acae759d4fc2c8769b9994f",
+      "sha256": "058fd8c5f7c117a189b9cd86c6e369339c561e5bb38f9cb904d1257a07c9d6cd",
+      "bytes": 7246
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_hte_backtest.py",
+      "blob": "550fdf4693e48f0c0a59bef1148d3ba0d6de6d80",
+      "sha256": "33464026dff7531c58b2cecfed626e8a4c047b2448535396523f40e48bf18819",
+      "bytes": 6649
+    },
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "bytes": 9664
+    },
+    {
+      "path": "policy-engine/tests/quarantine.toml",
+      "blob": "44e45aa1996ab5fc1c57330b237dd5f562347b33",
+      "sha256": "3cd9b583ef697b890efbb764933eaa4125bd0ce328426c83777492b1a7d5b5e1",
+      "bytes": 492
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007
+    }
+  ],
+  "source_acceptance": "not_issued_by_G",
+  "formal_closure_ids": []
+}

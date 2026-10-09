@@ -1,0 +1,1217 @@
+{
+  "schema": "policyos.e02.c06_can.r2_finite_compatibility_matrix.v1",
+  "author": "/root/c06_can_writer",
+  "fixture_only": true,
+  "source_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+  "prospective_base": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "cases": [
+    {
+      "case": "default-current-Core-put_json-shared-subset",
+      "artifact_id": "sha256:cc00493adc47460457072899ef2725dceded333903193eb4985e4e0549efd61a",
+      "exact_payload_utf8": "{\"amount\":{\"_type\":\"decimal\",\"value\":\"12.30\"}}",
+      "payload_sha256": "cc00493adc47460457072899ef2725dceded333903193eb4985e4e0549efd61a",
+      "payload_bytes": 46,
+      "complete_persisted_JSON_mode_manifest": true,
+      "read_manifest_canon": {
+        "name": "polisyos.canon.json",
+        "version": "0.2.0",
+        "forbid_floats": true,
+        "forbid_nan_inf": true,
+        "exclude_none": true,
+        "max_depth": 128,
+        "sort_keys": true,
+        "separators": [
+          ",",
+          ":"
+        ],
+        "ensure_ascii": false
+      },
+      "actual_fresh_reader": "<class 'polisyos.core.artifacts.store.FileSystemCAS'>",
+      "typed_result": {
+        "type": "dict",
+        "value": {
+          "amount": {
+            "type": "Decimal",
+            "value": "12.30"
+          }
+        }
+      },
+      "error": null,
+      "reader_manifest_calls": 1,
+      "reader_payload_calls": 1,
+      "stored_bytes_unchanged": true,
+      "minimum_read_rule": "Complete name polisyos.canon.json/version0.2.0 profile with strict field types, JSON separator-list normalization, persisted max_depth, IR historical supported typed tags. Profile metadata does not establish emitter or authority.",
+      "limitation": null
+    },
+    {
+      "case": "default-current-IR-producer-typed-consumer",
+      "artifact_id": "sha256:1334e45cac5da242da116b056fde71522e56e428775faf02442ef6da1d721801",
+      "exact_payload_utf8": "{\"aggregation_policy\":null,\"backtest_config_ref\":null,\"cas_artifact_id\":null,\"decision_packet_ref\":null,\"degraded\":false,\"degraded_reasons\":[],\"detected_biases\":[],\"historical_data_ref\":null,\"metadata\":{},\"model_spec_ref\":null,\"n_metrics_evaluated\":0,\"n_scenarios\":0,\"overall_bias_direction\":\"neutral\",\"overall_coverage_probability\":null,\"overall_macro_rmse\":null,\"overall_mae\":null,\"overall_mape\":null,\"overall_r_squared\":null,\"overall_rmse\":null,\"policy_spec_ref\":null,\"prediction_mode_effective\":null,\"prediction_mode_requested\":null,\"report_id\":\"bt.finite.G\",\"scenarios\":[],\"schema_version\":\"1.0\",\"trust_eligible\":true,\"trust_grade\":null,\"trust_score\":null}",
+      "payload_sha256": "1334e45cac5da242da116b056fde71522e56e428775faf02442ef6da1d721801",
+      "payload_bytes": 661,
+      "complete_persisted_JSON_mode_manifest": true,
+      "read_manifest_canon": {
+        "name": "polisyos.canon.json",
+        "version": "0.2.0",
+        "forbid_floats": false,
+        "forbid_nan_inf": true,
+        "exclude_none": true,
+        "max_depth": 128,
+        "sort_keys": true,
+        "separators": [
+          ",",
+          ":"
+        ],
+        "ensure_ascii": false
+      },
+      "actual_fresh_reader": "<class 'polisyos.core.artifacts.store.FileSystemCAS'>",
+      "typed_result": {
+        "type": "BacktestReport",
+        "report_id": "bt.finite.G",
+        "n_scenarios": 0
+      },
+      "error": null,
+      "reader_manifest_calls": 1,
+      "reader_payload_calls": 1,
+      "stored_bytes_unchanged": true,
+      "minimum_read_rule": "Complete name polisyos.canon.json/version0.2.0 profile with strict field types, JSON separator-list normalization, persisted max_depth, IR historical supported typed tags. Profile metadata does not establish emitter or authority.",
+      "limitation": null
+    },
+    {
+      "case": "nondefault-Core-canon-options",
+      "artifact_id": "sha256:ae62b2762f72be8f7ee4422f035af7cf26ef0f3054d33e583d6dfa2449e74b0c",
+      "exact_payload_utf8": "{\"label\": \"\\u0434\", \"value\": {\"_type\": \"float\", \"repr\": \"1.5\"}, \"empty\": null}",
+      "payload_sha256": "ae62b2762f72be8f7ee4422f035af7cf26ef0f3054d33e583d6dfa2449e74b0c",
+      "payload_bytes": 78,
+      "complete_persisted_JSON_mode_manifest": true,
+      "read_manifest_canon": {
+        "name": "polisyos.canon.json",
+        "version": "0.2.0",
+        "forbid_floats": false,
+        "forbid_nan_inf": true,
+        "exclude_none": false,
+        "max_depth": 128,
+        "sort_keys": false,
+        "separators": [
+          ", ",
+          ": "
+        ],
+        "ensure_ascii": true
+      },
+      "actual_fresh_reader": "<class 'polisyos.core.artifacts.store.FileSystemCAS'>",
+      "typed_result": {
+        "type": "dict",
+        "value": {
+          "label": {
+            "type": "str",
+            "value": "д"
+          },
+          "value": {
+            "type": "float",
+            "value": 1.5
+          },
+          "empty": {
+            "type": "NoneType",
+            "value": null
+          }
+        }
+      },
+      "error": null,
+      "reader_manifest_calls": 1,
+      "reader_payload_calls": 1,
+      "stored_bytes_unchanged": true,
+      "minimum_read_rule": "Complete name polisyos.canon.json/version0.2.0 profile with strict field types, JSON separator-list normalization, persisted max_depth, IR historical supported typed tags. Profile metadata does not establish emitter or authority.",
+      "limitation": null
+    },
+    {
+      "case": "profile-less-historical-bytes",
+      "artifact_id": "sha256:48208f9428d64634bd8e28ff345bf0eab60d53c18fa2fbdb0b9bc1e84df2b5f6",
+      "exact_payload_utf8": "{\"value\":1}",
+      "payload_sha256": "48208f9428d64634bd8e28ff345bf0eab60d53c18fa2fbdb0b9bc1e84df2b5f6",
+      "payload_bytes": 11,
+      "complete_persisted_JSON_mode_manifest": true,
+      "read_manifest_canon": null,
+      "actual_fresh_reader": "<class 'polisyos.core.artifacts.store.FileSystemCAS'>",
+      "typed_result": null,
+      "error": {
+        "type": "CanonViolation",
+        "message": "unsupported_ir_canon_profile"
+      },
+      "reader_manifest_calls": 1,
+      "reader_payload_calls": 0,
+      "stored_bytes_unchanged": true,
+      "minimum_read_rule": "Complete name polisyos.canon.json/version0.2.0 profile with strict field types, JSON separator-list normalization, persisted max_depth, IR historical supported typed tags. Profile metadata does not establish emitter or authority.",
+      "limitation": "Historical profile-less artifact support is not ratified; explicit refusal retained."
+    },
+    {
+      "case": "current-Core-only-float_hex",
+      "artifact_id": "sha256:98031d88f20c7022d4ecec4b688ba21a238ea9b129af3edc3a5fa5d46c150106",
+      "exact_payload_utf8": "{\"_type\":\"float_hex\",\"value\":\"0x1.8p+1\"}",
+      "payload_sha256": "98031d88f20c7022d4ecec4b688ba21a238ea9b129af3edc3a5fa5d46c150106",
+      "payload_bytes": 40,
+      "complete_persisted_JSON_mode_manifest": true,
+      "read_manifest_canon": {
+        "name": "polisyos.canon.json",
+        "version": "0.2.0",
+        "forbid_floats": true,
+        "forbid_nan_inf": true,
+        "exclude_none": true,
+        "max_depth": 128,
+        "sort_keys": true,
+        "separators": [
+          ",",
+          ":"
+        ],
+        "ensure_ascii": false
+      },
+      "actual_fresh_reader": "<class 'polisyos.core.artifacts.store.FileSystemCAS'>",
+      "typed_result": null,
+      "error": {
+        "type": "CanonViolation",
+        "message": "Unknown canonical _type: 'float_hex'"
+      },
+      "reader_manifest_calls": 1,
+      "reader_payload_calls": 1,
+      "stored_bytes_unchanged": true,
+      "minimum_read_rule": "Complete name polisyos.canon.json/version0.2.0 profile with strict field types, JSON separator-list normalization, persisted max_depth, IR historical supported typed tags. Profile metadata does not establish emitter or authority.",
+      "limitation": "C02/G must ratify distinct supported tag profile or pair with IR encoder; shared name/version alone does not imply full Core→IR compatibility."
+    },
+    {
+      "case": "current-Core-only-bytes_hex",
+      "artifact_id": "sha256:56bad52cd870168c29b423db0593adf16e1bd98aa7655bd2000dbc6657187f56",
+      "exact_payload_utf8": "{\"_type\":\"bytes_hex\",\"value\":\"00ff\"}",
+      "payload_sha256": "56bad52cd870168c29b423db0593adf16e1bd98aa7655bd2000dbc6657187f56",
+      "payload_bytes": 36,
+      "complete_persisted_JSON_mode_manifest": true,
+      "read_manifest_canon": {
+        "name": "polisyos.canon.json",
+        "version": "0.2.0",
+        "forbid_floats": true,
+        "forbid_nan_inf": true,
+        "exclude_none": true,
+        "max_depth": 128,
+        "sort_keys": true,
+        "separators": [
+          ",",
+          ":"
+        ],
+        "ensure_ascii": false
+      },
+      "actual_fresh_reader": "<class 'polisyos.core.artifacts.store.FileSystemCAS'>",
+      "typed_result": null,
+      "error": {
+        "type": "CanonViolation",
+        "message": "Unknown canonical _type: 'bytes_hex'"
+      },
+      "reader_manifest_calls": 1,
+      "reader_payload_calls": 1,
+      "stored_bytes_unchanged": true,
+      "minimum_read_rule": "Complete name polisyos.canon.json/version0.2.0 profile with strict field types, JSON separator-list normalization, persisted max_depth, IR historical supported typed tags. Profile metadata does not establish emitter or authority.",
+      "limitation": "C02/G must ratify distinct supported tag profile or pair with IR encoder; shared name/version alone does not imply full Core→IR compatibility."
+    },
+    {
+      "case": "current-Core-only-array_digest",
+      "artifact_id": "sha256:5637be6b3b4f0de2929bb2d0e371b885b55760021b2bfe0ab59dcd065008aff3",
+      "exact_payload_utf8": "{\"_type\":\"array_digest\",\"digest\":\"sha256:abc\",\"length\":2}",
+      "payload_sha256": "5637be6b3b4f0de2929bb2d0e371b885b55760021b2bfe0ab59dcd065008aff3",
+      "payload_bytes": 57,
+      "complete_persisted_JSON_mode_manifest": true,
+      "read_manifest_canon": {
+        "name": "polisyos.canon.json",
+        "version": "0.2.0",
+        "forbid_floats": true,
+        "forbid_nan_inf": true,
+        "exclude_none": true,
+        "max_depth": 128,
+        "sort_keys": true,
+        "separators": [
+          ",",
+          ":"
+        ],
+        "ensure_ascii": false
+      },
+      "actual_fresh_reader": "<class 'polisyos.core.artifacts.store.FileSystemCAS'>",
+      "typed_result": null,
+      "error": {
+        "type": "CanonViolation",
+        "message": "Unknown canonical _type: 'array_digest'"
+      },
+      "reader_manifest_calls": 1,
+      "reader_payload_calls": 1,
+      "stored_bytes_unchanged": true,
+      "minimum_read_rule": "Complete name polisyos.canon.json/version0.2.0 profile with strict field types, JSON separator-list normalization, persisted max_depth, IR historical supported typed tags. Profile metadata does not establish emitter or authority.",
+      "limitation": "C02/G must ratify distinct supported tag profile or pair with IR encoder; shared name/version alone does not imply full Core→IR compatibility."
+    },
+    {
+      "case": "raw-Core-bypass-shaped-profile",
+      "artifact_id": "sha256:98031d88f20c7022d4ecec4b688ba21a238ea9b129af3edc3a5fa5d46c150106",
+      "exact_payload_utf8": "{\"_type\":\"float_hex\",\"value\":\"0x1.8p+1\"}",
+      "payload_sha256": "98031d88f20c7022d4ecec4b688ba21a238ea9b129af3edc3a5fa5d46c150106",
+      "payload_bytes": 40,
+      "complete_persisted_JSON_mode_manifest": true,
+      "read_manifest_canon": {
+        "name": "polisyos.canon.json",
+        "version": "0.2.0",
+        "forbid_floats": true,
+        "forbid_nan_inf": true,
+        "exclude_none": true,
+        "max_depth": 128,
+        "sort_keys": true,
+        "separators": [
+          ",",
+          ":"
+        ],
+        "ensure_ascii": false
+      },
+      "actual_fresh_reader": "<class 'polisyos.core.artifacts.store.FileSystemCAS'>",
+      "typed_result": null,
+      "error": {
+        "type": "CanonViolation",
+        "message": "Unknown canonical _type: 'float_hex'"
+      },
+      "reader_manifest_calls": 1,
+      "reader_payload_calls": 1,
+      "stored_bytes_unchanged": true,
+      "minimum_read_rule": "Complete name polisyos.canon.json/version0.2.0 profile with strict field types, JSON separator-list normalization, persisted max_depth, IR historical supported typed tags. Profile metadata does not establish emitter or authority.",
+      "limitation": "Reader cannot intercept raw Core writes; actual IR tag rejection still occurs after bytes."
+    },
+    {
+      "case": "missing-persisted-profile-field",
+      "artifact_id": "sha256:cc00493adc47460457072899ef2725dceded333903193eb4985e4e0549efd61a",
+      "exact_payload_utf8": "{\"amount\":{\"_type\":\"decimal\",\"value\":\"12.30\"}}",
+      "payload_sha256": "cc00493adc47460457072899ef2725dceded333903193eb4985e4e0549efd61a",
+      "payload_bytes": 46,
+      "complete_persisted_JSON_mode_manifest": true,
+      "read_manifest_canon": {
+        "name": "polisyos.canon.json",
+        "version": "0.2.0",
+        "forbid_floats": true,
+        "forbid_nan_inf": true,
+        "exclude_none": true,
+        "sort_keys": true,
+        "separators": [
+          ",",
+          ":"
+        ],
+        "ensure_ascii": false
+      },
+      "actual_fresh_reader": "<class 'polisyos.core.artifacts.store.FileSystemCAS'>",
+      "typed_result": null,
+      "error": {
+        "type": "CanonViolation",
+        "message": "unsupported_ir_canon_profile"
+      },
+      "reader_manifest_calls": 1,
+      "reader_payload_calls": 0,
+      "stored_bytes_unchanged": true,
+      "minimum_read_rule": "Complete name polisyos.canon.json/version0.2.0 profile with strict field types, JSON separator-list normalization, persisted max_depth, IR historical supported typed tags. Profile metadata does not establish emitter or authority.",
+      "limitation": null
+    },
+    {
+      "case": "mismatch-persisted-profile-version",
+      "artifact_id": "sha256:48208f9428d64634bd8e28ff345bf0eab60d53c18fa2fbdb0b9bc1e84df2b5f6",
+      "exact_payload_utf8": "{\"value\":1}",
+      "payload_sha256": "48208f9428d64634bd8e28ff345bf0eab60d53c18fa2fbdb0b9bc1e84df2b5f6",
+      "payload_bytes": 11,
+      "complete_persisted_JSON_mode_manifest": true,
+      "read_manifest_canon": {
+        "name": "polisyos.canon.json",
+        "version": "0.3.0",
+        "forbid_floats": true,
+        "forbid_nan_inf": true,
+        "exclude_none": true,
+        "max_depth": 128,
+        "sort_keys": true,
+        "separators": [
+          ",",
+          ":"
+        ],
+        "ensure_ascii": false
+      },
+      "actual_fresh_reader": "<class 'polisyos.core.artifacts.store.FileSystemCAS'>",
+      "typed_result": null,
+      "error": {
+        "type": "CanonViolation",
+        "message": "unsupported_ir_canon_profile"
+      },
+      "reader_manifest_calls": 1,
+      "reader_payload_calls": 0,
+      "stored_bytes_unchanged": true,
+      "minimum_read_rule": "Complete name polisyos.canon.json/version0.2.0 profile with strict field types, JSON separator-list normalization, persisted max_depth, IR historical supported typed tags. Profile metadata does not establish emitter or authority.",
+      "limitation": null
+    },
+    {
+      "case": "malformed-fake-profile-field",
+      "artifact_id": "sha256:cc00493adc47460457072899ef2725dceded333903193eb4985e4e0549efd61a",
+      "exact_payload_utf8": "{\"amount\":{\"_type\":\"decimal\",\"value\":\"12.30\"}}",
+      "payload_sha256": "cc00493adc47460457072899ef2725dceded333903193eb4985e4e0549efd61a",
+      "payload_bytes": 46,
+      "complete_persisted_JSON_mode_manifest": true,
+      "read_manifest_canon": {
+        "name": "polisyos.canon.json",
+        "version": "0.2.0",
+        "forbid_floats": true,
+        "forbid_nan_inf": true,
+        "exclude_none": true,
+        "max_depth": true,
+        "sort_keys": true,
+        "separators": [
+          ",",
+          ":"
+        ],
+        "ensure_ascii": false
+      },
+      "actual_fresh_reader": "<class 'polisyos.core.artifacts.store.FileSystemCAS'>",
+      "typed_result": null,
+      "error": {
+        "type": "CanonViolation",
+        "message": "unsupported_ir_canon_profile"
+      },
+      "reader_manifest_calls": 1,
+      "reader_payload_calls": 0,
+      "stored_bytes_unchanged": true,
+      "minimum_read_rule": "Complete name polisyos.canon.json/version0.2.0 profile with strict field types, JSON separator-list normalization, persisted max_depth, IR historical supported typed tags. Profile metadata does not establish emitter or authority.",
+      "limitation": null
+    },
+    {
+      "case": "shaped-profile-is-not-producer-attestation",
+      "artifact_id": "sha256:45ad93d73171ea0139bdcfebb9eb613c2a5ae9aa299bf98faa4592b2446e1d87",
+      "exact_payload_utf8": "{\"value\":1.5}",
+      "payload_sha256": "45ad93d73171ea0139bdcfebb9eb613c2a5ae9aa299bf98faa4592b2446e1d87",
+      "payload_bytes": 13,
+      "complete_persisted_JSON_mode_manifest": true,
+      "read_manifest_canon": {
+        "name": "polisyos.canon.json",
+        "version": "0.2.0",
+        "forbid_floats": true,
+        "forbid_nan_inf": true,
+        "exclude_none": true,
+        "max_depth": 128,
+        "sort_keys": true,
+        "separators": [
+          ",",
+          ":"
+        ],
+        "ensure_ascii": false
+      },
+      "actual_fresh_reader": "<class 'polisyos.core.artifacts.store.FileSystemCAS'>",
+      "typed_result": {
+        "type": "dict",
+        "value": {
+          "value": {
+            "type": "float",
+            "value": 1.5
+          }
+        }
+      },
+      "error": null,
+      "reader_manifest_calls": 1,
+      "reader_payload_calls": 1,
+      "stored_bytes_unchanged": true,
+      "minimum_read_rule": "Complete name polisyos.canon.json/version0.2.0 profile with strict field types, JSON separator-list normalization, persisted max_depth, IR historical supported typed tags. Profile metadata does not establish emitter or authority.",
+      "limitation": "A raw numeric float under a shaped forbid_floats=true profile is decoded. Reader validates profile ABI/depth/tag set, not producer conformance, institutional provenance, or every serialization assertion. C02/G owns emitter/profile binding; no producer authority claim."
+    },
+    {
+      "case": "typed-adapter-write-options-warning-preserved",
+      "artifact_id": "sha256:48208f9428d64634bd8e28ff345bf0eab60d53c18fa2fbdb0b9bc1e84df2b5f6",
+      "exact_payload_utf8": "{\"value\":1}",
+      "payload_sha256": "48208f9428d64634bd8e28ff345bf0eab60d53c18fa2fbdb0b9bc1e84df2b5f6",
+      "actual_persisted_warning_count": 1,
+      "requested_warning_count": 1,
+      "typed_result": {
+        "type": "dict",
+        "value": {
+          "value": {
+            "type": "int",
+            "value": 1
+          }
+        }
+      },
+      "minimum_rule": "Current Core typed ArtifactWriteOptions preserves metadata; generic Mapping coercion drops new fields.",
+      "limitation": null
+    },
+    {
+      "case": "mapping-adapter-write-options-warning-loss",
+      "artifact_id": "sha256:48208f9428d64634bd8e28ff345bf0eab60d53c18fa2fbdb0b9bc1e84df2b5f6",
+      "exact_payload_utf8": "{\"value\":1}",
+      "payload_sha256": "48208f9428d64634bd8e28ff345bf0eab60d53c18fa2fbdb0b9bc1e84df2b5f6",
+      "actual_persisted_warning_count": 0,
+      "requested_warning_count": 1,
+      "typed_result": {
+        "type": "dict",
+        "value": {
+          "value": {
+            "type": "int",
+            "value": 1
+          }
+        }
+      },
+      "minimum_rule": "Current Core typed ArtifactWriteOptions preserves metadata; generic Mapping coercion drops new fields.",
+      "limitation": "Actionable C02/G _coerce_write_options extension/capability refusal seam. C06 changes no Core writer/default."
+    }
+  ],
+  "case_denominator": 14,
+  "actual_polysios_file_origin_denominator": 84,
+  "origins": [
+    {
+      "module": "polisyos",
+      "path": "policy-engine/src/polisyos/__init__.py",
+      "blob": "a1b746537b78f1e2e6c5e8f288df8174fb936906",
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c",
+      "bytes": 24,
+      "selected_G_blob": "a1b746537b78f1e2e6c5e8f288df8174fb936906",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.common",
+      "path": "policy-engine/src/polisyos/common/__init__.py",
+      "blob": "696045bd775c9a9fe4023217628e686bf76b78f3",
+      "sha256": "80cb9fa767bae18ffe0514ca9b1fb09f45263c754a921b77671d3deada89e080",
+      "bytes": 1336,
+      "selected_G_blob": "696045bd775c9a9fe4023217628e686bf76b78f3",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.common.async_tools",
+      "path": "policy-engine/src/polisyos/common/async_tools.py",
+      "blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+      "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+      "bytes": 11846,
+      "selected_G_blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.common.canonical",
+      "path": "policy-engine/src/polisyos/common/canonical.py",
+      "blob": "25fa43311ba8a04a25845a1863898399a7eed958",
+      "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41",
+      "bytes": 10154,
+      "selected_G_blob": "25fa43311ba8a04a25845a1863898399a7eed958",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.common.hashing",
+      "path": "policy-engine/src/polisyos/common/hashing.py",
+      "blob": "796af1b64e6ae530cb6d880bbff54803e8298a47",
+      "sha256": "4ecfe5e4ed78585a25dfd4ee7de1eee10f4d4b467bca95fd6716537a68ef3ead",
+      "bytes": 3345,
+      "selected_G_blob": "796af1b64e6ae530cb6d880bbff54803e8298a47",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.common.logger",
+      "path": "policy-engine/src/polisyos/common/logger.py",
+      "blob": "db809a0db12ca6dbe3dccf318f2d2e21cde7bb2e",
+      "sha256": "d496cd41f388b185cc4c9c9bcb5d7f7c2c3eecba02fc9f437ae5f02f2201e5a0",
+      "bytes": 8631,
+      "selected_G_blob": "db809a0db12ca6dbe3dccf318f2d2e21cde7bb2e",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.common.serialization",
+      "path": "policy-engine/src/polisyos/common/serialization.py",
+      "blob": "7811e996a306ec3a6a2b4d7c7c670fdf8d85e735",
+      "sha256": "03c7fc1756449d77aff0819a79038c632724a398fee1091b2423bffca9d93d24",
+      "bytes": 12881,
+      "selected_G_blob": "7811e996a306ec3a6a2b4d7c7c670fdf8d85e735",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core",
+      "path": "policy-engine/src/polisyos/core/__init__.py",
+      "blob": "5964150861173fd27143d44363fda0ddd1b6f7e4",
+      "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40",
+      "bytes": 11696,
+      "selected_G_blob": "5964150861173fd27143d44363fda0ddd1b6f7e4",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.artifacts",
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "blob": "70c7131a170f4860334e59965bc951347bc12365",
+      "sha256": "bf4757743e4618d1576f62a1a34a4469f0988b6f42a8708554f9b2696ba10a7f",
+      "bytes": 3273,
+      "selected_G_blob": "70c7131a170f4860334e59965bc951347bc12365",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.artifacts._atomic_write",
+      "path": "policy-engine/src/polisyos/core/artifacts/_atomic_write.py",
+      "blob": "4f355498b5a615865c5c190bba9f2510316b93ad",
+      "sha256": "afa41fe64aa388d65ec89db504d2f651447c5a92b5a8cea0384a6793c924ebcf",
+      "bytes": 4074,
+      "selected_G_blob": "4f355498b5a615865c5c190bba9f2510316b93ad",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.artifacts._integrity_ops",
+      "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+      "blob": "62b91c37ce1953949d730faa4d16874e53aa4e38",
+      "sha256": "c85c7c0a79abfde0131206dc7a98a360ef5cfd6bf19cdd199bb6fa8e40ff5c34",
+      "bytes": 9809,
+      "selected_G_blob": "62b91c37ce1953949d730faa4d16874e53aa4e38",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.artifacts._layout",
+      "path": "policy-engine/src/polisyos/core/artifacts/_layout.py",
+      "blob": "f51a8cf732778ddeec4bdcc10522b2adf0ae873f",
+      "sha256": "693f2a119d9b413e3091f0fbf5b1dc093ad3786c7af5cc15ed0c3209e660f194",
+      "bytes": 1987,
+      "selected_G_blob": "f51a8cf732778ddeec4bdcc10522b2adf0ae873f",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.artifacts._manifest_lifecycle",
+      "path": "policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+      "blob": "cba03f8d7542954cb20dbc84a746a24baafda64e",
+      "sha256": "b0948bf37ec2fd9e7d0b893db319b63bfdc21290564a7aa414e80a97cbebf966",
+      "bytes": 6664,
+      "selected_G_blob": "cba03f8d7542954cb20dbc84a746a24baafda64e",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.artifacts._signature_ops",
+      "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+      "blob": "ffb37071a03e0b9b18071b5a5106905247e1b665",
+      "sha256": "4473a4742a27ff022f59383b201a0473838931aa58d635a061c99ba8b6b6af93",
+      "bytes": 14616,
+      "selected_G_blob": "ffb37071a03e0b9b18071b5a5106905247e1b665",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.artifacts._transfer_ops",
+      "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "blob": "45cf88375672c34a590d6971f1e9ef56f208b029",
+      "sha256": "7d131caba0deae2ddc9762e2c5a989d51934b3e731e0d6552047bec46d902812",
+      "bytes": 34143,
+      "selected_G_blob": "45cf88375672c34a590d6971f1e9ef56f208b029",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.artifacts.async_store",
+      "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+      "blob": "a664d69d1d0ba58841c530a901783977072523b2",
+      "sha256": "6b50f6cc1cf136e6eac66c3ff72745481495a13e18ab0d2ae8209f88863919fe",
+      "bytes": 6366,
+      "selected_G_blob": "a664d69d1d0ba58841c530a901783977072523b2",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.artifacts.backends",
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/__init__.py",
+      "blob": "cbf733e7d9fb984bdcf2e68888e8863adfc7ed33",
+      "sha256": "c1b63ae18ac92ae67fac24338d775c0dd17253682d0240e32f92bd98398a998a",
+      "bytes": 74,
+      "selected_G_blob": "cbf733e7d9fb984bdcf2e68888e8863adfc7ed33",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.artifacts.backends.config",
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/config.py",
+      "blob": "93c144f77b44c9e9300d7479b7f5b8c86e766345",
+      "sha256": "0c942402af1a304c32bccd285fd78a3aeeebc13a1f02c23b3242c1f6ead2f99d",
+      "bytes": 8035,
+      "selected_G_blob": "93c144f77b44c9e9300d7479b7f5b8c86e766345",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.artifacts.cas_integrity_report",
+      "path": "policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+      "blob": "c0ecac7e433443ebdce04272b7e8412c3e560477",
+      "sha256": "52ff5c08997516419f0097ae2710dcc5d602a12aaaa55a5b290be101c7b1bc2d",
+      "bytes": 5438,
+      "selected_G_blob": "c0ecac7e433443ebdce04272b7e8412c3e560477",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.artifacts.graph",
+      "path": "policy-engine/src/polisyos/core/artifacts/graph.py",
+      "blob": "d64f8cef24a186730ea8a66455c6a94f8c79fe00",
+      "sha256": "26fe822573a2c9787fafe015195121b70a1a2a7ff89e3bf20d182a92d4909e1f",
+      "bytes": 5861,
+      "selected_G_blob": "d64f8cef24a186730ea8a66455c6a94f8c79fe00",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.artifacts.ids",
+      "path": "policy-engine/src/polisyos/core/artifacts/ids.py",
+      "blob": "f187d1becd6ea2d1c6bbac2a50263c700f385ab5",
+      "sha256": "96ab03d78510679bb9195ce79a58dd1559be8f7ccf1de2e6d10031c172ae07e6",
+      "bytes": 2794,
+      "selected_G_blob": "f187d1becd6ea2d1c6bbac2a50263c700f385ab5",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.artifacts.ir_adapter",
+      "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "blob": "e17ac9b37fd899612eda0f80ab204b76dfe25222",
+      "sha256": "7b4b5a674282165e7d6ec89bf345d47fd02c6682cf60c7ce8e4cc1b90f60dcc4",
+      "bytes": 5181,
+      "selected_G_blob": "e17ac9b37fd899612eda0f80ab204b76dfe25222",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.artifacts.manifest",
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "blob": "3c76237c88f4a667ab71e9e70037eb91a1d83f10",
+      "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d",
+      "bytes": 12758,
+      "selected_G_blob": "3c76237c88f4a667ab71e9e70037eb91a1d83f10",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.artifacts.ownership",
+      "path": "policy-engine/src/polisyos/core/artifacts/ownership.py",
+      "blob": "6e4af36382211f1abcc7dbb8128491c2dd4e06f7",
+      "sha256": "79216c9596812628119769a4dcdb9520c04dd097df5501e1b878e5270fd98b9a",
+      "bytes": 98037,
+      "selected_G_blob": "6e4af36382211f1abcc7dbb8128491c2dd4e06f7",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.artifacts.protocol",
+      "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "blob": "418c9db4c37ea56510fe179585fc708acb8a3795",
+      "sha256": "2a45894dd5f69a377248fdb80b5157ed99bffdcf2362908c5a2c6e93d68d72d2",
+      "bytes": 5379,
+      "selected_G_blob": "418c9db4c37ea56510fe179585fc708acb8a3795",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.artifacts.registry",
+      "path": "policy-engine/src/polisyos/core/artifacts/registry.py",
+      "blob": "50ae012e30b3f7f84de5b6e00e28a1301114a5f9",
+      "sha256": "e665dc55703db9d4c4a9b4f4040c665a8a85c300ae9c668d67480f6241ccaf28",
+      "bytes": 992,
+      "selected_G_blob": "50ae012e30b3f7f84de5b6e00e28a1301114a5f9",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.artifacts.signing",
+      "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+      "blob": "cc3082cdf613707d6df284266fc8c97e565bba84",
+      "sha256": "5d4a19ab6a2c8b5caacb3c7c74caf3625c24d4e5e51873d131292a682738b568",
+      "bytes": 27542,
+      "selected_G_blob": "cc3082cdf613707d6df284266fc8c97e565bba84",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.artifacts.store",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+      "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+      "bytes": 173575,
+      "selected_G_blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.artifacts.write_contract",
+      "path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+      "blob": "610a563ce506be29c3606b4229ae4ab427920d5f",
+      "sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef",
+      "bytes": 1137,
+      "selected_G_blob": "610a563ce506be29c3606b4229ae4ab427920d5f",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.canon",
+      "path": "policy-engine/src/polisyos/core/canon/__init__.py",
+      "blob": "a0b19b5ce6a9bfd9f5d4149fbdbe76429d14fe29",
+      "sha256": "e33a7486224d5e15cd418ac4dab69bb38ac6b1593d739a4b7ac24ea4d477dfb3",
+      "bytes": 606,
+      "selected_G_blob": "a0b19b5ce6a9bfd9f5d4149fbdbe76429d14fe29",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.canon.canon_json",
+      "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "blob": "ca14a6bf9cec51292cf457243f38191892c5828a",
+      "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95",
+      "bytes": 1882,
+      "selected_G_blob": "ca14a6bf9cec51292cf457243f38191892c5828a",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.canon.hashing",
+      "path": "policy-engine/src/polisyos/core/canon/hashing.py",
+      "blob": "0007ba9acac60ad77c58f85355eacece9150df56",
+      "sha256": "a32caf919317c5667ac02bde68fa6a1d0fa064e1edeb44c89bc066a14a9272c0",
+      "bytes": 2352,
+      "selected_G_blob": "0007ba9acac60ad77c58f85355eacece9150df56",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.components",
+      "path": "policy-engine/src/polisyos/core/components/__init__.py",
+      "blob": "473a0a59dbd5ce6bf1bc56884357f17572ce6f97",
+      "sha256": "7be43542a1e235b4a32cb13f2a0924fac8cc43087433515c063f7f7b683dfd89",
+      "bytes": 3896,
+      "selected_G_blob": "473a0a59dbd5ce6bf1bc56884357f17572ce6f97",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.components.bootstrap",
+      "path": "policy-engine/src/polisyos/core/components/bootstrap.py",
+      "blob": "d1cc3baabe15db526f66c8a57782fb44eb002f27",
+      "sha256": "6a5d7216f16bd1d659cc8b9876d776fcc862bc18c0bfd27b58247b0b771b4d10",
+      "bytes": 6574,
+      "selected_G_blob": "d1cc3baabe15db526f66c8a57782fb44eb002f27",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.components.capabilities",
+      "path": "policy-engine/src/polisyos/core/components/capabilities.py",
+      "blob": "d191649c4931df237e75ee7b7711fcbb3882c821",
+      "sha256": "899ac56d56e4c85e1447c707c1e8637ef9798cc2b1a7373b002a84cadfed9a8a",
+      "bytes": 1274,
+      "selected_G_blob": "d191649c4931df237e75ee7b7711fcbb3882c821",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.components.compliance",
+      "path": "policy-engine/src/polisyos/core/components/compliance.py",
+      "blob": "f01deed0d2e6257fb4ba9905acb1c46709581650",
+      "sha256": "b34a3adb344e6332d2912faee4156f64d800bac5f9244920b41a2080325c1e1b",
+      "bytes": 16405,
+      "selected_G_blob": "f01deed0d2e6257fb4ba9905acb1c46709581650",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.components.discovery",
+      "path": "policy-engine/src/polisyos/core/components/discovery.py",
+      "blob": "54efe19873fc8087426120eb6fcff5e0bd48fc5d",
+      "sha256": "d82889dc55e74b6e80d4243364a980e2f763c65930a803c9b8efdfbb074e7b22",
+      "bytes": 42689,
+      "selected_G_blob": "54efe19873fc8087426120eb6fcff5e0bd48fc5d",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.components.ids",
+      "path": "policy-engine/src/polisyos/core/components/ids.py",
+      "blob": "1bc3173672a668d955b7187403026af9c78787d8",
+      "sha256": "7cac29d83cbe0775829892a9e32339c53ef7b06c0dabef95e9341b99e26c5c6c",
+      "bytes": 9713,
+      "selected_G_blob": "1bc3173672a668d955b7187403026af9c78787d8",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.components.metadata",
+      "path": "policy-engine/src/polisyos/core/components/metadata.py",
+      "blob": "8dc3a616b855fb1f7c2a5193abd37525c7e2b0ac",
+      "sha256": "efba84687477aaf838aa55db88c82eedfdbbc0b414020d9190cc6e2b0b10df05",
+      "bytes": 2587,
+      "selected_G_blob": "8dc3a616b855fb1f7c2a5193abd37525c7e2b0ac",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.components.protocols",
+      "path": "policy-engine/src/polisyos/core/components/protocols.py",
+      "blob": "1ac91730868ddc315a18d6863f34e3058d806a53",
+      "sha256": "a755d4f4bf0c008265afc9be48f84f854c0604d9d0aa669bc8c872d834af7a01",
+      "bytes": 1362,
+      "selected_G_blob": "1ac91730868ddc315a18d6863f34e3058d806a53",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.components.registry",
+      "path": "policy-engine/src/polisyos/core/components/registry.py",
+      "blob": "7a5952a4f8461ea09bbfb360e5a354c475a56b2b",
+      "sha256": "e15806f4df623df06293e3e50ded6c160b9e3f14257174b263608734fbdc41fe",
+      "bytes": 9040,
+      "selected_G_blob": "7a5952a4f8461ea09bbfb360e5a354c475a56b2b",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.discovery",
+      "path": "policy-engine/src/polisyos/core/discovery/__init__.py",
+      "blob": "b0295a41b4286a344e04d41fde653e36f2a149a7",
+      "sha256": "050b0b60b19d7ae358b9927baa279b8efc70f999b18a083b62ee7588c9a474ce",
+      "bytes": 536,
+      "selected_G_blob": "b0295a41b4286a344e04d41fde653e36f2a149a7",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.discovery.base",
+      "path": "policy-engine/src/polisyos/core/discovery/base.py",
+      "blob": "dddb72dfe46791c1a6959b37862f8d894ebfb1b3",
+      "sha256": "c6ca686a2823557950e9e801419f404ee58c5f7b74666c2a9518719db9f0f7bf",
+      "bytes": 5733,
+      "selected_G_blob": "dddb72dfe46791c1a6959b37862f8d894ebfb1b3",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.errors",
+      "path": "policy-engine/src/polisyos/core/errors/__init__.py",
+      "blob": "3e5f2a2d2ed7f54ea09b04e3a86f47a564be42de",
+      "sha256": "e1bbe5e46a1f67d2c9d01175400036782717be128130ab15c63768af1003cdec",
+      "bytes": 210,
+      "selected_G_blob": "3e5f2a2d2ed7f54ea09b04e3a86f47a564be42de",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.errors.base",
+      "path": "policy-engine/src/polisyos/core/errors/base.py",
+      "blob": "ab56a6e4cc36ab91891415b25819cd70ef57c743",
+      "sha256": "f013683b373b4bf947dbdaf0b5e6fc4c830da6fa6b74ef431d59a215bbbeaaed",
+      "bytes": 2349,
+      "selected_G_blob": "ab56a6e4cc36ab91891415b25819cd70ef57c743",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.observability",
+      "path": "policy-engine/src/polisyos/core/observability/__init__.py",
+      "blob": "13b7588762d07a9ac2e56b7858195fdcfaa97230",
+      "sha256": "13e425237dd9ce7dfc45a18eb5a57f77cad6196d72a97f30450bcb19fdf61377",
+      "bytes": 21332,
+      "selected_G_blob": "13b7588762d07a9ac2e56b7858195fdcfaa97230",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.observability._metrics_helpers",
+      "path": "policy-engine/src/polisyos/core/observability/_metrics_helpers.py",
+      "blob": "f21a2f51a87bb8233bcb7bdcb2402e9b759c7d2c",
+      "sha256": "d168be218d7a3e9dfbb457342127d088d65ee31b417d5766d6a5bc4588964355",
+      "bytes": 2439,
+      "selected_G_blob": "f21a2f51a87bb8233bcb7bdcb2402e9b759c7d2c",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.observability._metrics_registry_base",
+      "path": "policy-engine/src/polisyos/core/observability/_metrics_registry_base.py",
+      "blob": "1ae17bbe492d61218375968e7b37c932ec8a42a1",
+      "sha256": "922eac01d723a6e30070fd887f469b8c6c0c735d922b1fb76185cb0e47d62f85",
+      "bytes": 49658,
+      "selected_G_blob": "1ae17bbe492d61218375968e7b37c932ec8a42a1",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.observability.config",
+      "path": "policy-engine/src/polisyos/core/observability/config.py",
+      "blob": "2c548ee17173274a7cbb517e18552573007e3eb8",
+      "sha256": "08cacb20670ed714ce97f90e0d42a9ce5ce4f57b629395fe70fba4dd2d5e0be0",
+      "bytes": 5902,
+      "selected_G_blob": "2c548ee17173274a7cbb517e18552573007e3eb8",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.observability.decorators",
+      "path": "policy-engine/src/polisyos/core/observability/decorators.py",
+      "blob": "c4202269fd0dfb972657ea63c8439ce184fed6a7",
+      "sha256": "909bf120a4650ee6ef0f0b6d0e02af3d23283c172e77e8646aad976c4913d27d",
+      "bytes": 10267,
+      "selected_G_blob": "c4202269fd0dfb972657ea63c8439ce184fed6a7",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.observability.determinism",
+      "path": "policy-engine/src/polisyos/core/observability/determinism.py",
+      "blob": "59bca8e6f153dc9f35e0f5fbea521b381f11da66",
+      "sha256": "989adf82b32a6ea03d11c11920364d97cc2fb64982b5bc54006b76b36e4bd7de",
+      "bytes": 1982,
+      "selected_G_blob": "59bca8e6f153dc9f35e0f5fbea521b381f11da66",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.observability.logs",
+      "path": "policy-engine/src/polisyos/core/observability/logs.py",
+      "blob": "e49a4164b1502e600c22efe3f08b10ca5b5d6d6e",
+      "sha256": "9d51eda431ee4a4d9e839866500d792e4f527c1bec08731f247a5ad083d72f4f",
+      "bytes": 5563,
+      "selected_G_blob": "e49a4164b1502e600c22efe3f08b10ca5b5d6d6e",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.observability.metrics",
+      "path": "policy-engine/src/polisyos/core/observability/metrics.py",
+      "blob": "92afd54998f40b3630588cda1f9fd50695c54d5c",
+      "sha256": "9148d24d122b591e2a9f16d1aaafee161dd37746cbab024686b1750e549ba022",
+      "bytes": 292,
+      "selected_G_blob": "92afd54998f40b3630588cda1f9fd50695c54d5c",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.observability.metrics_parts",
+      "path": "policy-engine/src/polisyos/core/observability/metrics_parts.py",
+      "blob": "08d4cfc6cc012243904d280470ec0fa49d1eadd4",
+      "sha256": "45d3d3183677aeed557e0d410cdce412387c29e526bc33c81c16ad324a4287ac",
+      "bytes": 40462,
+      "selected_G_blob": "08d4cfc6cc012243904d280470ec0fa49d1eadd4",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.observability.pricing",
+      "path": "policy-engine/src/polisyos/core/observability/pricing.py",
+      "blob": "68b79e01df6d9c66dd6a4558a2d89c8246144e9c",
+      "sha256": "3a0920548c07468519635b3e9f1dc9c579d8e423739b4b83a001e73d032fe311",
+      "bytes": 2148,
+      "selected_G_blob": "68b79e01df6d9c66dd6a4558a2d89c8246144e9c",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.observability.propagation",
+      "path": "policy-engine/src/polisyos/core/observability/propagation.py",
+      "blob": "ff635c68cd5b8c6f808b3733bc2370c9e58428d2",
+      "sha256": "0662550de014f5f6eefbb85a371328503f630186b9df376d610fd444fd843a96",
+      "bytes": 6189,
+      "selected_G_blob": "ff635c68cd5b8c6f808b3733bc2370c9e58428d2",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.observability.tracer",
+      "path": "policy-engine/src/polisyos/core/observability/tracer.py",
+      "blob": "2e0b0303eba54574e0a746abd1003768fc41f6ab",
+      "sha256": "bac8b15dc232b3e1589198d68e89c2e785f0cf7d5f80352344fba99644b71a8d",
+      "bytes": 14594,
+      "selected_G_blob": "2e0b0303eba54574e0a746abd1003768fc41f6ab",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.registry",
+      "path": "policy-engine/src/polisyos/core/registry/__init__.py",
+      "blob": "d0dbdf77cff76fe6fc12a3719976b6df10ffd1aa",
+      "sha256": "3c0133c05fcda3e0270a117f54ca2b401f1e2dce02c2291c247c786a2e4f6e6d",
+      "bytes": 2084,
+      "selected_G_blob": "d0dbdf77cff76fe6fc12a3719976b6df10ffd1aa",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.registry.base",
+      "path": "policy-engine/src/polisyos/core/registry/base.py",
+      "blob": "045b8003f9f93e7005bc0aa50ea25ee3a660218f",
+      "sha256": "140b47ccc131641a2a3cf3bbb91f899e6ef7429348ba2be3bd59afa7b275a015",
+      "bytes": 4727,
+      "selected_G_blob": "045b8003f9f93e7005bc0aa50ea25ee3a660218f",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.registry.generic",
+      "path": "policy-engine/src/polisyos/core/registry/generic.py",
+      "blob": "0563b4217dc587d2f60d502d5b5edf7dd0f5ea90",
+      "sha256": "b1e1708fa846adf841fc4f54faa126c0b2605f005ce12c0c1e1ce9a79758553c",
+      "bytes": 6303,
+      "selected_G_blob": "0563b4217dc587d2f60d502d5b5edf7dd0f5ea90",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.security",
+      "path": "policy-engine/src/polisyos/core/security/__init__.py",
+      "blob": "7641c716036cef618a6c99c97eec4edb53c7f00f",
+      "sha256": "eaf1cfb96501a334d6f4f164bec3921fb209e2b28fd764eb448a52617cd96564",
+      "bytes": 18510,
+      "selected_G_blob": "7641c716036cef618a6c99c97eec4edb53c7f00f",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.security.db_backend",
+      "path": "policy-engine/src/polisyos/core/security/db_backend.py",
+      "blob": "fcf1961a70cdeecb6ec600e702fba5f4a5fb1a55",
+      "sha256": "e2a24be263f3afe4faa445cf0b0500cfeacec2fbe1949a911b138f8ba4c84727",
+      "bytes": 6549,
+      "selected_G_blob": "fcf1961a70cdeecb6ec600e702fba5f4a5fb1a55",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.security.exceptions",
+      "path": "policy-engine/src/polisyos/core/security/exceptions.py",
+      "blob": "40e2281a27f2c42e9d4186b030d2f3edb5bbb1a6",
+      "sha256": "7ec972cde8fc7da7d79b553a4ea5441cffff35add96787c5ffab515250083f92",
+      "bytes": 2766,
+      "selected_G_blob": "40e2281a27f2c42e9d4186b030d2f3edb5bbb1a6",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.core.security.tenant_context",
+      "path": "policy-engine/src/polisyos/core/security/tenant_context.py",
+      "blob": "5645cf0bf4f8633dc02e800ae28f4496f8d421a9",
+      "sha256": "f9051375fa189e5bc3e020356eccc4d14f6c1e6402080cd4261396ef3b56c9e0",
+      "bytes": 4174,
+      "selected_G_blob": "5645cf0bf4f8633dc02e800ae28f4496f8d421a9",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.ir",
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "blob": "2b0699140cb734b833204332398d05ff3bc8faa2",
+      "sha256": "48610c596a941bb1c0b53d761d93d2a60e0f8ecda035681500e53e1f5bce8954",
+      "bytes": 39303,
+      "selected_G_blob": "2b0699140cb734b833204332398d05ff3bc8faa2",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.ir._internal",
+      "path": "policy-engine/src/polisyos/ir/_internal/__init__.py",
+      "blob": "e52c60e2615b2dc86dbde59a863b12adcf4669d3",
+      "sha256": "26efcf5ea5aa8d7138a675fef7ccd2f17083279ddf38f6fda5c028830dab3756",
+      "bytes": 91,
+      "selected_G_blob": "e52c60e2615b2dc86dbde59a863b12adcf4669d3",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.ir._internal.validation",
+      "path": "policy-engine/src/polisyos/ir/_internal/validation.py",
+      "blob": "9164ebe1a441bee8a4694acfc0437d484590d55b",
+      "sha256": "d1cb68bfec95789a5067cf352adae538875297e67423dc344f3453885b2d8b4b",
+      "bytes": 11801,
+      "selected_G_blob": "9164ebe1a441bee8a4694acfc0437d484590d55b",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.ir.analytics",
+      "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+      "blob": "f5a321bb6cffa61d0bf854f1a531b090a974bca6",
+      "sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174",
+      "bytes": 1152,
+      "selected_G_blob": "f5a321bb6cffa61d0bf854f1a531b090a974bca6",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.ir.analytics.backtest",
+      "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+      "blob": "26b15390105b5c478824f899754af9a0f6bc64d8",
+      "sha256": "d1a0ee6fd24077f63cd0ba81f745df1ac4c6831cd8e7a68e9aeae6bc5f6cb80c",
+      "bytes": 10339,
+      "selected_G_blob": "26b15390105b5c478824f899754af9a0f6bc64d8",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.ir.api",
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "blob": "d0a7d0e26e625e38557e1cf7b88853bf1cac1d6b",
+      "sha256": "5330aa6b4da8b3f61df54006e193b879c0acb2d52a1f19e779ddf3332a788372",
+      "bytes": 48048,
+      "selected_G_blob": "d0a7d0e26e625e38557e1cf7b88853bf1cac1d6b",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.ir.artifacts",
+      "path": "policy-engine/src/polisyos/ir/artifacts/__init__.py",
+      "blob": "c96397492332b5a5d896f1c990c5bfe34513f693",
+      "sha256": "0ed2e21568bd6e97323957da0a8970ca172b64a61a8b77e8ed6cb773bb550134",
+      "bytes": 1915,
+      "selected_G_blob": "c96397492332b5a5d896f1c990c5bfe34513f693",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.ir.artifacts.contracts",
+      "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+      "blob": "9c7220fc3b1516ae102770078bf16d98f2d9414a",
+      "sha256": "9caecf307c06ca3efe13b7b234d10e860e734bfd415823e3cd6650f3d0ed1c9b",
+      "bytes": 6659,
+      "selected_G_blob": "9c7220fc3b1516ae102770078bf16d98f2d9414a",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.ir.artifacts.io",
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "blob": "a815bcd7b3cd15322512c2086724d73ac1c32328",
+      "sha256": "29e538571b87a68afb703eb96558942746e8caaeed0d27b67ff03628866a684d",
+      "bytes": 4721,
+      "selected_G_blob": "37a433addcec7453347e3a581a4e05c4b60d5f03",
+      "equals_selected_G": false
+    },
+    {
+      "module": "polisyos.ir.artifacts.lineage",
+      "path": "policy-engine/src/polisyos/ir/artifacts/lineage.py",
+      "blob": "f6a31539326275a200adf3574b19e9b9eafa0d54",
+      "sha256": "52627f8886454ecb4b3d23435754eb3e68ecd8245761765bf2eef02a8c6722ff",
+      "bytes": 11349,
+      "selected_G_blob": "f6a31539326275a200adf3574b19e9b9eafa0d54",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.ir.artifacts.transport",
+      "path": "policy-engine/src/polisyos/ir/artifacts/transport.py",
+      "blob": "97e9659b4d0587b8bb3f91e2e2d25a6d81d21b8e",
+      "sha256": "ae135cb10626f01d4bae2d5f9853cc133be4ea80650b15920f375b6246eb6a0d",
+      "bytes": 9178,
+      "selected_G_blob": "97e9659b4d0587b8bb3f91e2e2d25a6d81d21b8e",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.ir.kernel",
+      "path": "policy-engine/src/polisyos/ir/kernel/__init__.py",
+      "blob": "defe43d23655f9e4e095fd2aa62a6031b942429a",
+      "sha256": "1a1124a1b02cca8854bb0f42b56fa8ec97363d2025b351557c2f2bf9eec4b04a",
+      "bytes": 778,
+      "selected_G_blob": "defe43d23655f9e4e095fd2aa62a6031b942429a",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.ir.kernel.base",
+      "path": "policy-engine/src/polisyos/ir/kernel/base.py",
+      "blob": "cbb0c4b122ecf0ac9fbebbcab84dd2348c6265c8",
+      "sha256": "ca08c309aefc4d39bc5d96850e44c8801f30441f49c67da4aa3aed92d9091607",
+      "bytes": 2195,
+      "selected_G_blob": "cbb0c4b122ecf0ac9fbebbcab84dd2348c6265c8",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.ir.model_layer",
+      "path": "policy-engine/src/polisyos/ir/model_layer/__init__.py",
+      "blob": "aa2c8ac5e927963512184cb84e6c5b29ff55b6b1",
+      "sha256": "7ed768ff9143dc957510f4f22ac51c44bb2c2791a68b5209185cd2eb8bb72993",
+      "bytes": 133,
+      "selected_G_blob": "aa2c8ac5e927963512184cb84e6c5b29ff55b6b1",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.ir.model_layer.canon",
+      "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+      "blob": "02167bbe1c34c7b6501c37a122186a5aa0ea9d90",
+      "sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b",
+      "bytes": 2555,
+      "selected_G_blob": "02167bbe1c34c7b6501c37a122186a5aa0ea9d90",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.ir.model_layer.types",
+      "path": "policy-engine/src/polisyos/ir/model_layer/types.py",
+      "blob": "5e2e88fb82b83c4ec0e77791122d3def2ea72538",
+      "sha256": "9420f2ccde75f9ffe37a1f2acacd37b330aac1489daf77a42da9ab6da1c6bde6",
+      "bytes": 2238,
+      "selected_G_blob": "5e2e88fb82b83c4ec0e77791122d3def2ea72538",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.ir.observation",
+      "path": "policy-engine/src/polisyos/ir/observation/__init__.py",
+      "blob": "c5c2c3f01edc752ac231c4414975d42ca159aefe",
+      "sha256": "b230861e7a7deb64941bbe5393073cc825f45924634e531efa943d27da4f6686",
+      "bytes": 25386,
+      "selected_G_blob": "c5c2c3f01edc752ac231c4414975d42ca159aefe",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.ir.observation.contracts",
+      "path": "policy-engine/src/polisyos/ir/observation/contracts.py",
+      "blob": "51ab79b8b1e3ce7f4c2dbf971a74ab22e7f6b6ec",
+      "sha256": "4154ee4d25e789791e2d590e73425f1856f376e01deb73d8225257ef8415b6c7",
+      "bytes": 9657,
+      "selected_G_blob": "51ab79b8b1e3ce7f4c2dbf971a74ab22e7f6b6ec",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.ir.registry",
+      "path": "policy-engine/src/polisyos/ir/registry/__init__.py",
+      "blob": "cb6c56e385a1cdebe29389eb8c642c9fbc53404f",
+      "sha256": "edebf2f8452d62b447bc593d9935c75183857653b281f82fd46dc571e38116f2",
+      "bytes": 144,
+      "selected_G_blob": "cb6c56e385a1cdebe29389eb8c642c9fbc53404f",
+      "equals_selected_G": true
+    },
+    {
+      "module": "polisyos.ir.registry.refs",
+      "path": "policy-engine/src/polisyos/ir/registry/refs.py",
+      "blob": "5c64514b14c9d1df0f167a6a572551f3546c7019",
+      "sha256": "4135199d208ea8970114df0d53a45b92f4e880b32451387a59de43be4987ed19",
+      "bytes": 39552,
+      "selected_G_blob": "5c64514b14c9d1df0f167a6a572551f3546c7019",
+      "equals_selected_G": true
+    }
+  ],
+  "unresolved_module_origins": [],
+  "scope": "Actual current-G producers/CAS fresh readers and typed IR consumer; author finite mechanism evidence pending independent review/tester reconciliation. No integrated/source acceptance or formal closure.",
+  "source_acceptance": "not_issued_by_G",
+  "formal_closure_ids": []
+}

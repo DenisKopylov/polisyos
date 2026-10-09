@@ -1,0 +1,213 @@
+{
+  "schema": "policyos.e02.c06_can.r2_core_compatibility_owner_packet.v1",
+  "original_unit": "C",
+  "execution_role": "C06-CAN reader",
+  "finding_id": "LA-021",
+  "prospective_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "reader_candidate_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+  "recipient": "C02 canonical Core producer/adapter owner and G composition/compatibility adjudicator",
+  "authority": "engineering proposal and recomputed portable boundary observations; no ratification, source admission or formal finding closure",
+  "source_inputs": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "G_blob": "e17ac9b37fd899612eda0f80ab204b76dfe25222",
+      "candidate_blob": "e17ac9b37fd899612eda0f80ab204b76dfe25222",
+      "same_G": true,
+      "bytes": 5181,
+      "sha256": "7b4b5a674282165e7d6ec89bf345d47fd02c6682cf60c7ce8e4cc1b90f60dcc4"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+      "G_blob": "610a563ce506be29c3606b4229ae4ab427920d5f",
+      "candidate_blob": "610a563ce506be29c3606b4229ae4ab427920d5f",
+      "same_G": true,
+      "bytes": 1137,
+      "sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "G_blob": "3c76237c88f4a667ab71e9e70037eb91a1d83f10",
+      "candidate_blob": "3c76237c88f4a667ab71e9e70037eb91a1d83f10",
+      "same_G": true,
+      "bytes": 12758,
+      "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "G_blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+      "candidate_blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+      "same_G": true,
+      "bytes": 173575,
+      "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "G_blob": "ca14a6bf9cec51292cf457243f38191892c5828a",
+      "candidate_blob": "ca14a6bf9cec51292cf457243f38191892c5828a",
+      "same_G": true,
+      "bytes": 1882,
+      "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+      "G_blob": "02167bbe1c34c7b6501c37a122186a5aa0ea9d90",
+      "candidate_blob": "02167bbe1c34c7b6501c37a122186a5aa0ea9d90",
+      "same_G": true,
+      "bytes": 2555,
+      "sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/canonical.py",
+      "G_blob": "25fa43311ba8a04a25845a1863898399a7eed958",
+      "candidate_blob": "25fa43311ba8a04a25845a1863898399a7eed958",
+      "same_G": true,
+      "bytes": 10154,
+      "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+      "G_blob": "9c7220fc3b1516ae102770078bf16d98f2d9414a",
+      "candidate_blob": "9c7220fc3b1516ae102770078bf16d98f2d9414a",
+      "same_G": true,
+      "bytes": 6659,
+      "sha256": "9caecf307c06ca3efe13b7b234d10e860e734bfd415823e3cd6650f3d0ed1c9b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "G_blob": "37a433addcec7453347e3a581a4e05c4b60d5f03",
+      "candidate_blob": "a815bcd7b3cd15322512c2086724d73ac1c32328",
+      "same_G": false,
+      "bytes": 4721,
+      "sha256": "29e538571b87a68afb703eb96558942746e8caaeed0d27b67ff03628866a684d"
+    }
+  ],
+  "finite_matrix": {
+    "path": "finite-compatibility-matrix.json",
+    "sha256": "9e880b1074edc6d2fbcb9767cdfc33a5bb51c84d3b067365b164dfa50a680ae5",
+    "case_denominator": 14,
+    "exact_payload_and_typed_result_per_case": "#/cases",
+    "actual_origins_complete_for_this_process": 84,
+    "independent_reconciliation": "Source review hashes all84authororigins; separate independent50checks/11actualCAS witnesses plusmatchedremovals signed2762 source"
+  },
+  "immediately_ready_decisions": [
+    {
+      "subject": "Default current artifact",
+      "observed": "Current Core put_json shared Decimal subset and actual default IR producer→fresh typed BacktestReport both succeed. Full CAS JSON-mode manifest profile persists.",
+      "proposed_disposition": "Ready bounded reader pairing with existing IR encoder for IR-facing payloads; no need to block this portable positive on whole G freeze.",
+      "minimum_rule": "Current complete polisyos.canon.json 0.2.0 profile, strict field ABI, supported IR tag set and persisted depth; actual encoder path pinned."
+    },
+    {
+      "subject": "Profile-less historical artifact",
+      "observed": "Real FileSystemCAS put_bytes with canon=None refuses before get_bytes.",
+      "proposed_disposition": "Explicit unsupported historical compatibility until C02/G approve an existing migration/read contract; never synthesize a default profile."
+    },
+    {
+      "subject": "Nondefault Core/options",
+      "observed": "Stored nondefault separators, ensure_ascii, sort_keys, exclude_none, forbid_floats=false shared float payload decode as original typed values with exact unchanged bytes.",
+      "proposed_disposition": "Bounded option interoperability shown for fixture; other serialization/provenance claims remain unestablished, not implied by profile shape."
+    },
+    {
+      "subject": "Core-only tag set and raw-Core bypass",
+      "observed": "Core float_hex/bytes_hex/array_digest artifacts carry same canon name/version as IR; fresh IR decoder refuses each tag after exactly one payload read. Existing IR adapter rejects these tags before persistence. Raw Core put_bytes bypass remains possible.",
+      "proposed_disposition": "Keep IR strict rejection and pair IR-facing writers with existing IR adapter. Core/global tag/profile version decision belongs C02/G; no silent wider reader fallback or old writer overlay."
+    }
+  ],
+  "actionable_seams": [
+    {
+      "id": "CAN-R2-EMITTER-CONFORMANCE",
+      "class": "profile ABI versus actual producer conformance/provenance",
+      "actual_existing_site": "policy-engine/src/polisyos/core/artifacts/store.py::FileSystemCAS.put_bytes; ir/artifacts/io.py::get_json_artifact validates supported metadata/depth and IR tags",
+      "exact_falsifier": {
+        "stored_bytes_utf8": "{\"value\":1.5}",
+        "supplied_canon": "CoreCanonInfo() declares forbid_floats=true",
+        "actual_fresh_IR_result": {
+          "value": 1.5
+        },
+        "payload_calls": 1
+      },
+      "property_proxy_divergence": "Complete supported profile permits decoding; it does not establish that raw bytes were emitted by that encoder or obey every declared serialization assertion.",
+      "proposed_smallest_existing_capability": "C02/G select and bind existing IR adapter/encoder to IR-facing artifact emission, with source-qualified byte oracle and tag-set compatibility rule. If full producer conformance is required at reader admission, C02/G supplies an existing verifier/bound manifest profile contract; do not treat current name/version as an emitter attestation.",
+      "C06_delta": "None to Core/adapter/defaults. Reader remains strict on presented metadata ABI, persisted depth and IR tag decoding. All raw-member/provenance/default-materialization examples belong the same declared bounded ABI-versus-conformance class, owned C02/G; no guard ladder.",
+      "additional_source_only_worked_example": "Independent actual CAS witness confirms all nine omitted raw-sidecar canon fields are materialized by Core get_manifest before presented Mapping admission. This belongs the same profile-ABI versus raw-member/emitter/provenance/view-binding class."
+    },
+    {
+      "id": "CAN-R2-OPTION-COERCION",
+      "class": "existing generic adapter coercion drops existing typed write metadata",
+      "actual_existing_site": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py::_coerce_write_options",
+      "actual_typed_contract": "ArtifactWriteOptions has tenant_context, same_input_closure, authority, warnings; generic constructor omits these four fields. Exact contract/adapter Git blobs pinned above.",
+      "exact_falsifier": {
+        "same_payload_utf8": "{\"value\":1}",
+        "declared_warning": {
+          "code": "fixture-warning",
+          "msg": "portable option discriminator"
+        },
+        "typed_ArtifactWriteOptions_persisted_warning_count": 1,
+        "equivalent_Mapping_persisted_warning_count": 0
+      },
+      "proposed_patch_requirement": {
+        "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+        "owner": "C02/G",
+        "change": "Extend existing _coerce_write_options coercion across the full current ArtifactWriteOptions metadata contract, validating each existing manifest DTO, or refuse unsupported Mapping fields rather than silently drop them. Preserve typed ArtifactWriteOptions pass-through and existing IR encoder/CanonSpec.",
+        "new_DTO_or_store": "none",
+        "current_missing_constructor_fields": [
+          "tenant_context",
+          "same_input_closure",
+          "authority",
+          "warnings"
+        ],
+        "explicit_companion_contracts": [
+          "ArtifactTenantContextInfo",
+          "ArtifactSameInputClosureInfo",
+          "ArtifactAuthorityInfo",
+          "WarningRecord"
+        ],
+        "minimal_actual_caller_choice_pending_owner_patch": "Use current typed ArtifactWriteOptions for metadata-bearing adapter calls. Default existing IR StorePutOptions does not promise these authority fields.",
+        "negative_selectors": [
+          "Mapping requested warning must be preserved or explicitly refused",
+          "Mapping unknown metadata field must not silently become authority",
+          "Typed ArtifactWriteOptions preservation positive",
+          "Remove preservation/refusal while retaining field markers must fail the metadata consumer test"
+        ]
+      },
+      "C06_delta": "No Core source edit; exact ready seam/discriminator delivered to owner."
+    }
+  ],
+  "required_consumer_inputs": {
+    "public_callable_current": "polisyos.core.artifacts.ensure_ir_artifact_store/build_ir_artifact_store (existing Core facade) → existing IR put_json_artifact/get_json_artifact; typed load_backtest_report result in the portable witness",
+    "desired_profile_source": "Persisted complete actual manifest profile, not a new reader-selected default",
+    "required_surface_owner": "G for compatibility/migration/public/generated companions; C02 for Core producer contract",
+    "production_data_needed_for_generic_witness": false
+  },
+  "scoped_out": [
+    "Full historical/external compatibility",
+    "Core-only tag interoperability approval",
+    "Installed G-composed package PASS (prior36x2 belongs490 source and prior dependency contour)",
+    "Institutional provenance/authority",
+    "Any production tuple or payload upload",
+    "Whole LA-021 closure"
+  ],
+  "source_acceptance": "not_issued_by_G",
+  "formal_closure_ids": [],
+  "independent_consumer_evidence": {
+    "manifest": "/workspace/orch02-r2/native-c06/can-final-manifest.json",
+    "sha256": "5e98d8d68f44f8ef2e2a08f4b6d0cc1ea2ecdda723064c6036c03c50bb56c697",
+    "final_review": "/workspace/orch02-r2/reviews/c06-can-independent-final-native-review-2762cec3.json",
+    "source_sha": "2762cec321d0cc78874abb986736dab54e2fb189",
+    "source_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+    "counts_semantics": {
+      "native50": {
+        "IR_adapter_actual_CAS_reader_cases": 40,
+        "storage_source_AST_only": 1,
+        "in_memory_protocol_cases": 2,
+        "HTE_actual_CAS_persist_roundtrips": 3,
+        "HTE_model_constructor_invariants": 4
+      },
+      "independent11_actual_CAS_boundaries": {
+        "shaped_profile_raw_numeric_float_conformance_failure": 1,
+        "raw_sidecar_default_materialization_fields": 9,
+        "typed_vs_mapping_warning_loss": 1
+      }
+    },
+    "typed_warning_vs_Mapping_loss": "Witness confirms typed1 versusMapping0 atsame actualpayload hash"
+  }
+}

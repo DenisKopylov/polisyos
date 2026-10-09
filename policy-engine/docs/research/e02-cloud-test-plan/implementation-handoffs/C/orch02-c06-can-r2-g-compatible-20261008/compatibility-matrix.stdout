@@ -1,0 +1,27 @@
+{
+  "cases": 14,
+  "case_names": [
+    "default-current-Core-put_json-shared-subset",
+    "default-current-IR-producer-typed-consumer",
+    "nondefault-Core-canon-options",
+    "profile-less-historical-bytes",
+    "current-Core-only-float_hex",
+    "current-Core-only-bytes_hex",
+    "current-Core-only-array_digest",
+    "raw-Core-bypass-shaped-profile",
+    "missing-persisted-profile-field",
+    "mismatch-persisted-profile-version",
+    "malformed-fake-profile-field",
+    "shaped-profile-is-not-producer-attestation",
+    "typed-adapter-write-options-warning-preserved",
+    "mapping-adapter-write-options-warning-loss"
+  ],
+  "polysios_file_origins": 84,
+  "G_nonidentical_origins": [
+    [
+      "polisyos.ir.artifacts.io",
+      "policy-engine/src/polisyos/ir/artifacts/io.py"
+    ]
+  ],
+  "unresolved_origins": []
+}

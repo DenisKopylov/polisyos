@@ -1,0 +1,200 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "draft": false,
+  "unit": "C",
+  "slice": "orch02-c06-can-r2-g-compatible",
+  "role": "C06-CAN canonical reader author",
+  "closure_ids": [],
+  "finding_ids": [
+    "LA-021"
+  ],
+  "bundle_ids": [
+    "CAN-01"
+  ],
+  "slice_base_sha": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "candidate_tree_sha": "70051ecf56771a59c0ecc468e975e7878b66f728",
+  "implementation_commits": [
+    "2762cec321d0cc78874abb986736dab54e2fb189"
+  ],
+  "branch": "codex/e02-C-orch02-c06-can-r2-g-compatible",
+  "prior_history": {
+    "old_base": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+    "prior_reader_source": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+    "preserved_old_topic_head": "6602fbd087ef31d3f8eff42e94fc1fc074326d45",
+    "old_lane": "/workspace/orch02-c06-can",
+    "old_native_qualification": "95 native/36 direct wheel/36 rebuilt wheel remain490 and old885-origin contour; not replayed/transferred as G PASS"
+  },
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-08-e02-c06-ir-reader-profile.toml",
+    "policy-engine/src/polisyos/ir/artifacts/README.md",
+    "policy-engine/src/polisyos/ir/artifacts/io.py",
+    "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py"
+  ],
+  "pathwise_reconciliation": "initial-pathwise-reconciliation.json + frozen-candidate.json",
+  "complete_selected_composition": "selected-dependency-composition.json (whole immutable source tree plus23explicit contract/gate inputs and complete foreign-hunk equality)",
+  "actual_admission_receipt": "/workspace/orch02-r2/admission/c06-can-g-commission.json",
+  "checks": [
+    {
+      "scope": "author focused currentG compatibility",
+      "outcome": "PASS",
+      "counts": 10,
+      "evidence": "author-fixture.command.json/fullstdoutstderr",
+      "source_tree": "70051ecf56771a59c0ecc468e975e7878b66f728"
+    },
+    {
+      "scope": "author scoped Ruff/format/strict mypy",
+      "outcome": "PASS",
+      "evidence": "author-quality-checks.json/fullstdoutstderr",
+      "source_tree": "70051ecf56771a59c0ecc468e975e7878b66f728"
+    },
+    {
+      "scope": "finite actualG matrix with exact stored bytes/fresh typed values/84actualpolisyosfileorigins",
+      "outcome": "14cases observed, positives and strict negative/refusal plus2explicit bounded Core seams",
+      "evidence": "finite-compatibility-matrix.json + compatibility_matrix.py/fullstdoutstderr",
+      "independence": "author fixture preparation; pending nonauthor reconciliation"
+    },
+    {
+      "scope": "independent currentG affected consumer/origins/property-removal wave",
+      "outcome": "PASS_BOUNDED_source_and_affected_consumer_evidence",
+      "prior_native_transfer": false,
+      "source_sha": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "source_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+      "evidence": "native/can-final-manifest.json + all_complete_deciding_outputs/removal_minimal_diffs/source_origins",
+      "independent_reviewer": "/root/native_c06 execution + /root/recovery_review finalhash/output/JUnit/origin reconciliation",
+      "test_denominator_semantics": {
+        "native50": {
+          "IR_adapter_actual_CAS_reader_cases": 40,
+          "storage_source_AST_only": 1,
+          "in_memory_protocol_cases": 2,
+          "HTE_actual_CAS_persist_roundtrips": 3,
+          "HTE_model_constructor_invariants": 4
+        },
+        "independent11_actual_CAS_boundaries": {
+          "shaped_profile_raw_numeric_float_conformance_failure": 1,
+          "raw_sidecar_default_materialization_fields": 9,
+          "typed_vs_mapping_warning_loss": 1
+        }
+      },
+      "selected_native_product_origins": 387,
+      "G_nonidentical_modules": [
+        "polisyos.ir.artifacts.io"
+      ],
+      "identifiability_loaded": false,
+      "matched_removals": [
+        {
+          "kind": "original_reader",
+          "expected_failing_cases": 21,
+          "errors": 0,
+          "source_helpers_markers_preserved": true
+        },
+        {
+          "kind": "complete_field_guard_only",
+          "expected_failing_cases": 9,
+          "errors": 0,
+          "source_helpers_markers_preserved": true
+        },
+        {
+          "kind": "separator_normalization_only",
+          "expected_failing_cases": 2,
+          "errors": 0,
+          "source_helpers_markers_preserved": true
+        }
+      ],
+      "preflight_qualification": "Named input-preflight file timestamp18:18 postdates first native18:15; treated as supplemental immutable input reconciliation. Actual runner preexecution HEAD/clean guard and per-process end source/origins independently bind the execution; no contemporaneous preflight claim."
+    },
+    {
+      "scope": "scoped changed source import policy",
+      "outcome": "PASS_one_changed_source_file_zero_policy_violations",
+      "evidence": "author-import-check.json/imports.stdout/imports.stderr",
+      "cycle_qualification": "one broad cycle warning; cycles_enforced=false, no cycle closure or global architecture PASS inferred"
+    },
+    {
+      "scope": "global architecture/generated families",
+      "outcome": "FAIL",
+      "P41_inherited_attribution": "not_established",
+      "evidence": "required-gates/architecture-summary.json +completecommand/stdout/stderr",
+      "source_sha": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "source_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+      "actual_returncode": 1,
+      "full_required_default_family_count": 4,
+      "UNRUN_family_count": 0
+    },
+    {
+      "scope": "global production invocation scanner",
+      "outcome": "PASS_partial_static_model_only",
+      "concrete_actual_boundary_witness": "Finite actual producer→persistedJSONmanifest→fresh typedreader and strict refusal/removal sourcequalified2762; no whole runtime/callgraph claim",
+      "evidence": "required-gates/invocation-summary.json +completecommand/stdout/stderr",
+      "source_sha": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "source_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+      "actual_returncode": 0,
+      "runtime_invocation_established": false,
+      "actual_owned_unresolved_sites_classification": "required-gates/invocation-boundary-classification.json (6completeownsites; dataclass representation branchUNRUN)"
+    }
+  ],
+  "independent_review": {
+    "verdict": "GO_source_only",
+    "reviewer": "/root/recovery_review",
+    "immutable_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+    "source_commit": "2762cec321d0cc78874abb986736dab54e2fb189",
+    "reports": [
+      "/workspace/orch02-r2/reviews/c06-can-independent-source-review-70051ecf.json",
+      "/workspace/orch02-r2/reviews/c06-can-independent-source-review-70051ecf.md"
+    ]
+  },
+  "property": {
+    "statement": "IR reader accepts a complete supported persisted JSON-mode Mapping profile, uses persisted depth, preserves strict IR tag ABI and refuses malformed/unsupported/missing fields before payload bytes. Actual default current-G producers and fresh typed consumers are checked.",
+    "producer": "Current selectedG CoreToIR adapter or currentCore FileSystemCAS put_json on shared supported subset",
+    "artifact": "Real temporary FileSystemCAS exact blob+complete persistedJSONmode manifest",
+    "bridge": "get_json_artifact→supported profile→get_bytes→IRdecoder; typed load_backtest_report",
+    "consumer": "Fresh reopened CAS+typedBacktestReport or typedDecimal/float values",
+    "negative_controls": "Inherited complete-field/schema tests plus currentG actualpersistedprofileless/mismatch/Coretag/rawbypass and matched removal pending directtester",
+    "proxy_divergence": "Name/version/shape alone cannot establish tag-set interoperability or producer conformance; raw shapedprofile numericfloat and generic options warnings loss recorded in ownerpacket"
+  },
+  "predicate_basis": "recomputed actual portable byte/profile/call observations plus independently_reconciled source/origin/deciding-output evidence; institutionally_supplied authority not_established",
+  "owner_packet": "core-owner-packet.json",
+  "limitations_and_next_owner": [
+    "C02/G ratify Core/IR tag/profile/history/options contract; C06 does not import old writer overlay or change Core defaults.",
+    "Default shared-subset positive is ready; profileless history remains strict reject.",
+    "Shaped profile ABI is not producer/authority attestation; no fake origin law invented.",
+    "G separately selects original completed candidate source and public/generated companions.",
+    "Broad portable replay follows selected G freeze; no main/integration changes.",
+    "Core manifest model default materialization and raw sidecar/explicit manifest-view binding are not observed by this presented-profile reader contract; same C02/G ABI-versus-conformance residual, no additional property guard claimed.",
+    "Storage protocol AST case tests source imports and is fixture/source evidence only; protocol-store helpers execute an in-memory store, not installed packaging.",
+    "Four HTE contract tests are constructor/model invariants, not persisted reader proof; actual HTE/policy/backtest persistence cases separately ran.",
+    "Actual selected native product-module file denominator387 is reconciled only for this process. Unexecuted sibling consumers, installed packaging and fullG runtime are not established.",
+    "Identifiability not loaded in any new selected CAN process; all other observed suppliers equal currentG source, so no previous old-supplier native proof is transferred.",
+    "Core-only tags float_hex/bytes_hex/array_digest remain rejected after payload read despite matching profile names/version.",
+    "Profile-less real history remains refused before payload access; no migration/default synthesis decision issued.",
+    "Raw shaped profile cannot establish serialization conformance/provenance: real Core put_bytes raw numeric float is decoded despite forbid_floats=true.",
+    "Actual default-view raw sidecars missing any of nine schema-derived fields are materialized by Core get_manifest before IR strict presented Mapping; original persisted-field presence is not proven.",
+    "Typed ArtifactWriteOptions preserves warning1, equivalent Mapping loses warning0 through unchanged Core adapter coercion; C02/G owns extension/refusal decision.",
+    "CurrentG full required default architecture remains FAIL on155deep rows/38unresolvedexports/OpenAPI/trustdrift; no baseline/policy/lock/generated waiver or P41inherited assertion.",
+    "CurrentG scanner exit0 is partial with9215unresolved mechanisms/140088receiver calls; measured runtime only selected actualCAS boundaries. Dataclass-manifest lookup branch is explicitlyUNRUN."
+  ],
+  "source_acceptance": "not_issued_by_G",
+  "technical_proposal": "Ready bounded currentG strict presented-profile reader and measured affected consumer/removal candidate. Required global architecture remains FAIL; G source acceptance/compatibility/formal closure separate.",
+  "formal_closure_ids": [],
+  "independent_final_native_review": {
+    "verdict": "GO_BOUNDED_SOURCE_AND_AFFECTED_NATIVE_EVIDENCE",
+    "reviewer": "/root/recovery_review",
+    "path": "reviews/c06-can-independent-final-native-review-2762cec3.json",
+    "sha256": "a1857a91c3108e8bb757946c888b4c8e67da132b6ce8c72683205e47228e3dc8",
+    "source_sha": "2762cec321d0cc78874abb986736dab54e2fb189",
+    "source_tree": "70051ecf56771a59c0ecc468e975e7878b66f728"
+  },
+  "full_input_DAG": {
+    "prospective_base_sha": "dee58973f7673299070b7c7374f419b0adb8175c",
+    "prospective_base_tree": "4caee698bd9a6c61277a1608bb38376b669f0372",
+    "source_sha": "2762cec321d0cc78874abb986736dab54e2fb189",
+    "source_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+    "source_parent_exactly_prospective_base": true,
+    "complete_nonowned_source_tree_bytes": "All other immutable tree paths exactly equal G; git diff base/source has exactly four leased source/test/docs/release paths",
+    "prior_source_lineage": "Old recovery basef00/source490 and topic6602 preserved as references, no foreign old whole snapshots or Corewriter overlays imported",
+    "supplier_and_gate_objects": "selected-dependency-composition.json pins23exact directcontract/test/gate/lock objects; actual native and finite module origin contours separate"
+  },
+  "capability_state_or_finding_state": "candidate source implemented and selected bounded portable defining/consumer/removal evidence delivered; source admission, public compatibility ratification and formal finding closure remain separately G/C02 decisions",
+  "required_gate_epoch": "fresh2762/baseGdee scan and fulldefaultarchitecture input epoch, prior490 diagnostics not transferred",
+  "P40_bucket": "Same explicit profile ABI versus serialization/provenance/raw-member/default-materialization/selected-view/coercion compatibility class. Additional examples are classified to C02/G companion decision and trigger no C06 source ladder.",
+  "artifact_custody": "publication-map.json resolves external source-qualified original artifact references to exact tracked moderate copies. Full static scanner171680518B stays locally Gitignored with SHA256; retained private generated source/outputs not published.",
+  "independent_gate_handoff_review": "pending nonauthor final artifact/required-gate review before separatehandoffcommit/publication"
+}

@@ -1,0 +1,154 @@
+{
+  "source_sha": "2762cec321d0cc78874abb986736dab54e2fb189",
+  "source_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+  "base_sha": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "outcome": "FAIL",
+  "command": "required-gates/architecture/command.json",
+  "actual_returncode": 1,
+  "wall_seconds": 512.1179972310001,
+  "max_rss_kib": 1115852,
+  "stdout_bytes": 131991,
+  "stdout_sha256": "6126cc75114528bf3324d516d21067a84547d606afe2069d4285a44c22c55bdf",
+  "full_stdout_line_denominator": 2140,
+  "deep_import_rows": 155,
+  "unresolved_export_rows": 38,
+  "all_stdout_rows_read": true,
+  "full_default_required_families": [
+    "runtime-openapi-snapshot",
+    "runtime-api-client",
+    "runtime-dashboard-api-types",
+    "trust-claim-posture-register"
+  ],
+  "family_execution_UNRUN": false,
+  "family_isolation_escape": false,
+  "optional_or_standalone_Atlas_included": false,
+  "generated_output_fingerprints": [
+    {
+      "family": "runtime-api-client",
+      "path": "packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "generated_bytes": 31276,
+      "generated_sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506",
+      "current_bytes": 31276,
+      "current_sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506",
+      "equal_current": true
+    },
+    {
+      "family": "runtime-api-client",
+      "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "generated_bytes": 108061,
+      "generated_sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd",
+      "current_bytes": 108061,
+      "current_sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd",
+      "equal_current": true
+    },
+    {
+      "family": "runtime-api-client",
+      "path": "packages/runtime-api-client/types.ts",
+      "generated_bytes": 951543,
+      "generated_sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4",
+      "current_bytes": 951543,
+      "current_sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4",
+      "equal_current": true
+    },
+    {
+      "family": "runtime-dashboard-api-types",
+      "path": "apps/runtime-dashboard/src/api/types.ts",
+      "generated_bytes": 791736,
+      "generated_sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c",
+      "current_bytes": 791736,
+      "current_sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c",
+      "equal_current": true
+    },
+    {
+      "family": "runtime-openapi-snapshot",
+      "path": "schemas/runtime_api_v1.openapi.json",
+      "generated_bytes": 2812414,
+      "generated_sha256": "4b225783d429e583651f6e132802678354ddaf7f14fa45f20a2dde7f77ec3f8a",
+      "current_bytes": 2812414,
+      "current_sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a",
+      "equal_current": false
+    },
+    {
+      "family": "trust-claim-posture-register",
+      "path": "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "generated_bytes": 2376644,
+      "generated_sha256": "70015556b449e3f62702cb0a4280bfc04728ecc90cb41c3c3193e7be26042d2c",
+      "current_bytes": 2365635,
+      "current_sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba",
+      "equal_current": false
+    }
+  ],
+  "client_dashboard_qualification": "Generator-observed client3/dashboard1 match committed schema input. This does not prove refreshed downstream chain from the separately regenerated drifted OpenAPI.",
+  "actual_global_diagnostics": [
+    "deep_import_baseline_drift",
+    "155new_deep_import_rows",
+    "38unresolved_public_export_rows",
+    "runtime_openapi_drift",
+    "trust_claim_posture_register_drift"
+  ],
+  "own_io_new_deep_import_rows": [],
+  "P41": "not_established; exact pre-work slice-base replay/full-input-denominator zero-overlap not demonstrated, no inherited/waiver assertion",
+  "source_policy_baseline_lock_generated_changes": "none",
+  "retained_private_workspace": "/workspace/orch02-r2/c06-can/generated-freshness-2762",
+  "retained_private_source_copies_not_published": true,
+  "generated_output_file_denominator": 6,
+  "generated_output_file_enumerator": "Every regular file under each of four actual private outputs/<family> trees; no omission by guessed output filename",
+  "private_copied_source_fingerprints": [
+    {
+      "path": "schemas/runtime_api_v1.openapi.json",
+      "copied_source_bytes": 2812414,
+      "copied_source_sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a",
+      "current_source_bytes": 2812414,
+      "current_source_sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a",
+      "equal": true
+    },
+    {
+      "path": "src/polisyos/ir/artifacts/io.py",
+      "copied_source_bytes": 4721,
+      "copied_source_sha256": "29e538571b87a68afb703eb96558942746e8caaeed0d27b67ff03628866a684d",
+      "current_source_bytes": 4721,
+      "current_source_sha256": "29e538571b87a68afb703eb96558942746e8caaeed0d27b67ff03628866a684d",
+      "equal": true
+    },
+    {
+      "path": "tools/devx/architecture/guardrails.py",
+      "copied_source_bytes": 136743,
+      "copied_source_sha256": "6068c84d43217d19d9b96c65fd36d0a239297da6f98840e8994e6b04ec3fae2e",
+      "current_source_bytes": 136743,
+      "current_source_sha256": "6068c84d43217d19d9b96c65fd36d0a239297da6f98840e8994e6b04ec3fae2e",
+      "equal": true
+    },
+    {
+      "path": "pyproject.toml",
+      "copied_source_bytes": 11007,
+      "copied_source_sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "current_source_bytes": 11007,
+      "current_source_sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "equal": true
+    },
+    {
+      "path": "uv.lock",
+      "copied_source_bytes": 779204,
+      "copied_source_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "current_source_bytes": 779204,
+      "current_source_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "equal": true
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "copied_source_bytes": 482583,
+      "copied_source_sha256": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+      "current_source_bytes": 482583,
+      "current_source_sha256": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+      "equal": true
+    },
+    {
+      "path": "package.json",
+      "copied_source_bytes": 802,
+      "copied_source_sha256": "9b0fda729ff501b08fa5f4b1a2d783e3000425b187776b0fc6831a9e04ee070f",
+      "current_source_bytes": 802,
+      "current_source_sha256": "9b0fda729ff501b08fa5f4b1a2d783e3000425b187776b0fc6831a9e04ee070f",
+      "equal": true
+    }
+  ]
+}

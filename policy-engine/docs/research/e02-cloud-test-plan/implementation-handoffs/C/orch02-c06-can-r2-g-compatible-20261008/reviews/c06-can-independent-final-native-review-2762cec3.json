@@ -1,0 +1,964 @@
+{
+  "schema": "orch02r2.c06-can.independent-final-native-evidence-review.v1",
+  "reviewer": "/root/recovery_review",
+  "observed_utc": "2026-10-08T18:28:46.967429+00:00",
+  "source": "2762cec321d0cc78874abb986736dab54e2fb189",
+  "tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+  "parent_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "source_review": "/workspace/orch02-r2/reviews/c06-can-independent-source-review-70051ecf.json",
+  "manifest": {
+    "path": "/workspace/orch02-r2/native-c06/can-final-manifest.json",
+    "bytes": 34867,
+    "sha256": "5e98d8d68f44f8ef2e2a08f4b6d0cc1ea2ecdda723064c6036c03c50bb56c697",
+    "git_blob": "989c7db84eb4fa48eaf5f87415eb0d0cfc15199b"
+  },
+  "verified_artifacts": [
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-input-preflight.json",
+      "bytes": 9527,
+      "sha256": "2e7fcca9f16e27bd0584f751c76c1da67f92910e74bada62c55df9d605228863",
+      "git_blob": "4041bc396c24dbe86b8e4aef347279dc15fb1c6d"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/harness/run_receipt.py",
+      "bytes": 2565,
+      "sha256": "58b497ebcc4637e953f0fa675922100712951bd800f18f715f2280e8dada5f9a",
+      "git_blob": "3150e184d373cda4e3948b5280b71a6ed5c2a253"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/harness/pytest_source_bound.py",
+      "bytes": 6269,
+      "sha256": "b4ad42370086c198108b5d6664087db32f28b94f0b2639e1429ad29b9f53d789",
+      "git_blob": "b76099909e6887f7404c2763b6082535e6354645"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/harness/test_can_boundaries.py",
+      "bytes": 6201,
+      "sha256": "81e9147e3202374ec48e9a548c56a291a6e2e8ceded46ad972d8ae8371ce0619",
+      "git_blob": "2069fe45d494e6388137d57faa26c68964943c97"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-native/command.json",
+      "bytes": 2093,
+      "sha256": "9021fbcd69ed2e5b41b4168fe79978a5c1775ac0de9e4684c21a5183e9b98184",
+      "git_blob": "049eb2e943c050e447e59a5b9fbdee7665d0572a"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-native/stdout.txt",
+      "bytes": 7891,
+      "sha256": "8c851a34bdda8f89fb61251297e3633133ddaeb152e60b412726854953c70a76",
+      "git_blob": "408e3eac7a899b486e440195a1d452bd38359389"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-native/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-native/junit.xml",
+      "bytes": 8336,
+      "sha256": "40c19be66cd00e112d3c01644ae26910f1dc1f1ee143d100ede252d7d2c878f3",
+      "git_blob": "a50144a185f713dd9a1a45e05a481efd3b37486f"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-native/origins.json",
+      "bytes": 259678,
+      "sha256": "455356bb0b72d0f3d01ec28caf9304a7b29b9e8252e0c84981228d11fc9dd6d3",
+      "git_blob": "6279736ef50d6b5e31266edcde64255982bd0357"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-boundary-witnesses/command.json",
+      "bytes": 2049,
+      "sha256": "536986aa5b47547fc7b1bb20bf002440d37a683a3b9c68828e83273f97b9ad63",
+      "git_blob": "a34fd90a09d87c78fe2d68b9b9264707fae555fd"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-boundary-witnesses/stdout.txt",
+      "bytes": 16794,
+      "sha256": "7bffd6c2663172bf906549ad1d338dc03629c879048da8a9498572e40069a550",
+      "git_blob": "49aeddaebe4c437a7e220db2d97028c626c17693"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-boundary-witnesses/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-boundary-witnesses/junit.xml",
+      "bytes": 2071,
+      "sha256": "50b91a93297c36d111d14bdc94df45a8f71cde41ab6264fd401adfab0c5ac52d",
+      "git_blob": "4bab387c86a104617b35111fc76857c574b85a47"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-boundary-witnesses/origins.json",
+      "bytes": 63012,
+      "sha256": "e9c24b7055f579fb6688000dea5260c7f85ce9b5daeb4865d285c0f2676540f5",
+      "git_blob": "c87696e5b94d3d205c5ee4c30d9c62ebd8ba29a1"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-remove-original-reader/command.json",
+      "bytes": 2434,
+      "sha256": "79b15ebf96628ababb8f1057bb1bef0723c4b5fc6de7f62e8e5570b610453233",
+      "git_blob": "6c330cb2e4b416a854376e6d6a57939c974da6a7"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-remove-original-reader/stdout.txt",
+      "bytes": 54749,
+      "sha256": "d2aff2a63ed37fdebdfb9a50feaa76d87bc0bd04acbd21a105845034002e759e",
+      "git_blob": "fc6becccfed187eddbd92fea764ebbbaa049c626"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-remove-original-reader/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-remove-original-reader/junit.xml",
+      "bytes": 52433,
+      "sha256": "23eee297018f4391f128ea4e4230339404bed2eae10040be32f29a4f6ad3eb89",
+      "git_blob": "a877de1ef86ec7385078ffd0aaf1180607efc698"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-remove-original-reader/origins.json",
+      "bytes": 65446,
+      "sha256": "b6678149e7b1e6f08f3bd3af50adefea380605827b315053814eca2e3084f168",
+      "git_blob": "198e6ce465b50a82af690cfd268d131768704b95"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-remove-complete-field-guard/command.json",
+      "bytes": 2363,
+      "sha256": "13c2b6fd902b9736a6868ba94f472943fd476cced08945f920378d8c7569017a",
+      "git_blob": "8d2c5501a52b67836f9abc19659ce2cd427f1c41"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-remove-complete-field-guard/stdout.txt",
+      "bytes": 17487,
+      "sha256": "c9ab92ee545439b9f57d5103692fa7a81de492883802c5ed951f4316f0c08059",
+      "git_blob": "cbd1ef0ee6a75ea691446f88c80d7d8d45a4c7f8"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-remove-complete-field-guard/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-remove-complete-field-guard/junit.xml",
+      "bytes": 15809,
+      "sha256": "af38606b59a66b626889556394717ce4f48e33c65dd8dda311932e5f07405995",
+      "git_blob": "fed252fd5920e7c5a8083de7a977ec31d361a2f2"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-remove-complete-field-guard/origins.json",
+      "bytes": 65451,
+      "sha256": "48486028c99e2b86be4b6a866c056648815524aad3c58b06fab5a66dcc3c7ecc",
+      "git_blob": "c1eaec3a63e6f6e36718437c7712d5b883aa81b4"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-remove-separator-normalization/command.json",
+      "bytes": 2413,
+      "sha256": "0e8764917fb5493bae9637ff0cba5e61c401fc62c83396862d04573c8dd5e02e",
+      "git_blob": "d9ee3138e28c5217a3a31632892188617b1fd97e"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-remove-separator-normalization/stdout.txt",
+      "bytes": 12388,
+      "sha256": "69bbe8fc799272532e74d6567e8ca43ee8c577b6d66d178664d45cd8e63b99ba",
+      "git_blob": "0001dde020d9628964e5f2ea251a145c5ce955d4"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-remove-separator-normalization/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-remove-separator-normalization/junit.xml",
+      "bytes": 11089,
+      "sha256": "18c9a197d5c08fe5d0b3c2b900bddc7a9ee0d909316630bc032cc8fe03c1ab87",
+      "git_blob": "fb5caf1041b1a61e19adf051e7b5b17a90ef376d"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/can-remove-separator-normalization/origins.json",
+      "bytes": 65454,
+      "sha256": "4d8e8245852d01d58ff20c83311d97579b3f9bbd7b531b2809662e3ef28f785a",
+      "git_blob": "1609bb08387a48fddcaec6178b32ba0d781aa104"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/mutants/can-original-reader/mutation.diff",
+      "bytes": 774,
+      "sha256": "21ddeecfdf47299b2141caa59023a510ca08a5989240784e98f64c34ae572e31",
+      "git_blob": "ffaedc1d2499eb931a5822438686d1ffa3528a7e"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/mutants/can-complete-field-guard/mutation.diff",
+      "bytes": 494,
+      "sha256": "a379348ee759275f7eed5a33b02556cfbf7202133ca4058859b148d6031aac3f",
+      "git_blob": "7f0c8e628fa09cfea606dfd0d73820fd0a649c93"
+    },
+    {
+      "path": "/workspace/orch02-r2/native-c06/mutants/can-separator-normalization/mutation.diff",
+      "bytes": 476,
+      "sha256": "e82c72cb6164e01ff0eec4ff530ba198bcf18bd21c0efb5085bcfe5ca6050beb",
+      "git_blob": "23bba120c5228b270a951544ce135b9f2c5432c3"
+    }
+  ],
+  "all_deciding_output_bytes_and_JUnit_read": true,
+  "waves_independently_reconciled": [
+    {
+      "name": "can-native",
+      "source": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "returncode": 0,
+      "case_counts": {
+        "PASS": 50,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "cases": [
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_adapter_round_trips_backtest_report",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ensure_ir_artifact_store_preserves_existing_adapter",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_adapter_persists_decimal_bytes_that_the_ir_reader_accepts",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_adapter_rejects_incompatible_tags_before_persisting[core-only-float-hex]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_adapter_rejects_incompatible_tags_before_persisting[core-only-bytes-hex]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_adapter_rejects_incompatible_tags_before_persisting[core-only-array-digest]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_adapter_rejects_incompatible_tags_before_persisting[unknown-synonym]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_adapter_rejects_incompatible_tags_before_persisting[malformed-tag-kind]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_adapter_rejects_incompatible_tags_before_persisting[nested-core-only-float-hex]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_accepts_complete_json_manifest_mapping_without_byte_mutation",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_uses_nondefault_persisted_depth_through_existing_g_producer",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates0]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates1]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates2]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates3]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates4]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates5]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates6]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates7]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates8]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[None]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[name]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[version]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[forbid_floats]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[forbid_nan_inf]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[exclude_none]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[max_depth]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[sort_keys]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[separators]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[ensure_ascii]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_current_core_default_put_json_round_trips_through_fresh_ir_reader",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_default_ir_artifact_reopens_as_typed_backtest_report",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_nondefault_current_core_options_keep_shared_ir_values",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_profileless_historical_cas_artifact_is_refused_before_bytes",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_current_core_only_tags_are_refused_by_fresh_ir_reader[payload0-{\"_type\":\"float_hex\",\"value\":\"0x1.8p+1\"}]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_current_core_only_tags_are_refused_by_fresh_ir_reader[payload1-{\"_type\":\"bytes_hex\",\"value\":\"00ff\"}]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_current_core_only_tags_are_refused_by_fresh_ir_reader[payload2-{\"_type\":\"array_digest\",\"digest\":\"sha256:abc\",\"length\":2}]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_actual_persisted_mismatched_profile_refuses_before_bytes[profile0]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_actual_persisted_mismatched_profile_refuses_before_bytes[profile1]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_raw_core_bypass_with_shaped_profile_cannot_authorize_core_only_tag",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_storage_protocol_boundaries",
+          "name": "test_protocol_boundary_helpers_do_not_import_concrete_cas_details",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_storage_protocol_boundaries",
+          "name": "test_compiler_report_helpers_accept_protocol_store",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_storage_protocol_boundaries",
+          "name": "test_registry_bundle_build_and_load_work_with_protocol_store",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.ir.test_hte_backtest",
+          "name": "test_hte_result_persist_round_trip",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.ir.test_hte_backtest",
+          "name": "test_policy_recommendation_persist_round_trip",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.ir.test_hte_backtest",
+          "name": "test_hte_result_normalizes_n_samples_consistently",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.ir.test_hte_backtest",
+          "name": "test_hte_result_is_frozen_report_contract",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.ir.test_hte_backtest",
+          "name": "test_policy_recommendation_normalizes_targeting_efficiency_consistently",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.ir.test_hte_backtest",
+          "name": "test_policy_recommendation_is_frozen_report_contract",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "tests.unit.ir.test_hte_backtest",
+          "name": "test_backtest_report_persist_round_trip",
+          "outcome": "PASS"
+        }
+      ],
+      "complete_origin_count": 387,
+      "all_origin_hashes_reconciled": true,
+      "mutation_origins": [],
+      "G_nonidentical_product_modules": [
+        "polisyos.ir.artifacts.io"
+      ],
+      "wall_seconds": 11.806656794000446,
+      "max_rss_kib": 255896,
+      "no_timeout": true
+    },
+    {
+      "name": "can-boundary-witnesses",
+      "source": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "returncode": 0,
+      "case_counts": {
+        "PASS": 11,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "cases": [
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_actual_raw_core_profile_is_not_serialization_conformance",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_actual_raw_sidecar_missing_fields_are_materialized_by_core[name]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_actual_raw_sidecar_missing_fields_are_materialized_by_core[version]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_actual_raw_sidecar_missing_fields_are_materialized_by_core[forbid_floats]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_actual_raw_sidecar_missing_fields_are_materialized_by_core[forbid_nan_inf]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_actual_raw_sidecar_missing_fields_are_materialized_by_core[exclude_none]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_actual_raw_sidecar_missing_fields_are_materialized_by_core[max_depth]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_actual_raw_sidecar_missing_fields_are_materialized_by_core[sort_keys]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_actual_raw_sidecar_missing_fields_are_materialized_by_core[separators]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_actual_raw_sidecar_missing_fields_are_materialized_by_core[ensure_ascii]",
+          "outcome": "PASS"
+        },
+        {
+          "classname": "orch02-r2.native-c06.harness.test_can_boundaries",
+          "name": "test_typed_vs_mapping_write_options_warning_boundary",
+          "outcome": "PASS"
+        }
+      ],
+      "complete_origin_count": 80,
+      "all_origin_hashes_reconciled": true,
+      "mutation_origins": [],
+      "G_nonidentical_product_modules": [
+        "polisyos.ir.artifacts.io"
+      ],
+      "wall_seconds": 8.017547774999912,
+      "max_rss_kib": 102100,
+      "no_timeout": true
+    },
+    {
+      "name": "can-remove-original-reader",
+      "source": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "returncode": 1,
+      "case_counts": {
+        "PASS": 0,
+        "FAIL": 21,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "cases": [
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_uses_nondefault_persisted_depth_through_existing_g_producer",
+          "outcome": "FAIL",
+          "deciding_message": "polisyos.ir.model_layer.canon.CanonViolation: Canonical JSON recursion depth exceeds max_depth=128",
+          "full_failure_text_sha256": "68af676e728fd6161953d7b382dcff61c004671361f23e15e21e12aa76b81b67"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates0]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "fcb69b20cbf1b33a6106672a25fb8155a90925a7b2d748c05572b4042b3d9b2a"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates1]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "895860c0a1ae55a45e0ec50dbe6886c2feab98b678ecab2b8448dcd9ecc5f050"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates2]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "fb581a5b0f4c0db6ac3b3a3afbcb31d7aa4d2efaacaff9861cf563b41be50e20"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates3]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "bb9d15873b8f45ce1e78c0497644e66f73728d5307262eab66396dff57fe93d6"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates4]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "375740ce09fd9f343a4f123375bab985baef0b7cabcbdb5b037fbe6826bd5667"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates5]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "b526b53ca987534454e1a04337f6bb4ccd1ec9c672c4fe1488ede32213dd426b"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates6]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "4f78cc28513cedec6d4abb86ada9c655e1e8dee71bcc1b658129a0ef3b03376d"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates7]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "d604e46e883f4cca1d6ed9e747b4fb1b04cd4e2cc474a89117531083967c6ac3"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[profile_updates8]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "ba5ae4fe581f5f344a684d4418425fff3a9926618a948672fdfba44163e5aba7"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_refuses_fake_mapping_profiles_before_payload_bytes[None]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "94e11dff5d944761148be07f81f27960eb5e88d70ad2e3e3f8296a5513fd8861"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[name]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "f049142eb4223e7266e5c9dd9fa2a69101aeca35f738795a2d6c94a057be07e8"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[version]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "ee0adbee55db8006a2a27a75b87e517ed3258f5fe2833f04c58d37655e8bd299"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[forbid_floats]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "cc56d4388c5346663b98e9162a59c02684e7b66871b7d85c94906392c3ec7443"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[forbid_nan_inf]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "79ecc944bf02d813ab823adbd040e33237ad2af1580d6e0ff672240e13e9f85d"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[exclude_none]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "2524df77b1aa9ffd407b545c5874c9413cb3060894c786de2fffc8b46fd0b2a2"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[max_depth]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "8c6cb74fa5a6a9986369b16d165c9e82b88ac167ae16ff63001106b81157b00e"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[sort_keys]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "29b11e2c13ffeed05e60a50650bd65b3a3872c9a3ed42e3f94806f08d0165fb6"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[separators]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "ba9d5438ca835cb28d90e8a35249851beb2eb3008ce59c2d17822a1c388c5fc6"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[ensure_ascii]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "fd8f480109a8f8d7cdb50ee3c53e6deec54b4819e06ff8c4ef13605dd480d7af"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_profileless_historical_cas_artifact_is_refused_before_bytes",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "471406101d44cf2d8479d1d5b75f29ea6f9550ce762f41b03796809fa35bd8a9"
+        }
+      ],
+      "complete_origin_count": 84,
+      "all_origin_hashes_reconciled": true,
+      "mutation_origins": [
+        {
+          "module": "polisyos.ir.artifacts.io",
+          "origin": "/workspace/orch02-r2/native-c06/mutants/can-original-reader/io.py",
+          "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+          "bytes": 4513,
+          "sha256": "350506f57684f62ae61c9a9a8f6c741317dae9f7c452f158fd484793e775e8e8",
+          "git_blob": "7bd89dd36402912538f34398fef23b37f1654603"
+        }
+      ],
+      "G_nonidentical_product_modules": [
+        "polisyos.ir.artifacts.io"
+      ],
+      "wall_seconds": 9.107640391001041,
+      "max_rss_kib": 107468,
+      "no_timeout": true
+    },
+    {
+      "name": "can-remove-complete-field-guard",
+      "source": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "returncode": 1,
+      "case_counts": {
+        "PASS": 0,
+        "FAIL": 9,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "cases": [
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[name]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "f963a2b808540738ae8348f07bea4d131515eb2df722c236c9dc4e2f456667b7"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[version]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "505ef9f8c8baf249c7c3c7179631d5bf9e66ac305bb93453392917c637822881"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[forbid_floats]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "2529b2d954c18fa1043af26031f77681a0e31b0a4de3ae7cf9187f7315ab2b70"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[forbid_nan_inf]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "5e3bc6b7775ad994d10a3fe23f6e8907e4e1e30582d9691e991f6fd5957948f8"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[exclude_none]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "9924da43c561b09800d10a77c5ab74b02ecd8e1f8c95c9050c9d6f69125ab5e6"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[max_depth]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "747d7f3ba2580f9d3539ccb6b23f0d0a09cecc005889fcc6391cd97835b3d787"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[sort_keys]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "2e70f895958b1a5a54be460642913064b557877c6d1b15961dae1c2d74e15898"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[separators]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "cc67a19d8a0515af845570f25001d1435b09f191cc974559eaa5023d0da1168b"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_requires_every_persisted_profile_field_before_bytes[ensure_ascii]",
+          "outcome": "FAIL",
+          "deciding_message": "Failed: DID NOT RAISE <class 'polisyos.ir.model_layer.canon.CanonViolation'>",
+          "full_failure_text_sha256": "dd79e7452f7d6a5bd9440ce9f77c3b2e2f5b44923e53d0374493b0c5c87e2458"
+        }
+      ],
+      "complete_origin_count": 84,
+      "all_origin_hashes_reconciled": true,
+      "mutation_origins": [
+        {
+          "module": "polisyos.ir.artifacts.io",
+          "origin": "/workspace/orch02-r2/native-c06/mutants/can-complete-field-guard/io.py",
+          "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+          "bytes": 4733,
+          "sha256": "90532afd1210ae2b1715de93e660627ef6033aab2b80a94a3d4711f75160b432",
+          "git_blob": "8f463581817c86917faf70b6bea0e2659cd1822e"
+        }
+      ],
+      "G_nonidentical_product_modules": [
+        "polisyos.ir.artifacts.io"
+      ],
+      "wall_seconds": 6.865868254999441,
+      "max_rss_kib": 106796,
+      "no_timeout": true
+    },
+    {
+      "name": "can-remove-separator-normalization",
+      "source": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "returncode": 1,
+      "case_counts": {
+        "PASS": 0,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "cases": [
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_ir_reader_accepts_complete_json_manifest_mapping_without_byte_mutation",
+          "outcome": "FAIL",
+          "deciding_message": "polisyos.ir.model_layer.canon.CanonViolation: unsupported_ir_canon_profile",
+          "full_failure_text_sha256": "3a7374e4a1240c96be427f0653c59637a64c28ee9e08e7650ef7b28d542efee1"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_ir_adapter",
+          "name": "test_nondefault_current_core_options_keep_shared_ir_values",
+          "outcome": "FAIL",
+          "deciding_message": "polisyos.ir.model_layer.canon.CanonViolation: unsupported_ir_canon_profile",
+          "full_failure_text_sha256": "bcb347c8904259d9cf0ffb90fd3be35e64fe2166f772d234e64c04b757ec282c"
+        }
+      ],
+      "complete_origin_count": 84,
+      "all_origin_hashes_reconciled": true,
+      "mutation_origins": [
+        {
+          "module": "polisyos.ir.artifacts.io",
+          "origin": "/workspace/orch02-r2/native-c06/mutants/can-separator-normalization/io.py",
+          "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+          "bytes": 4740,
+          "sha256": "6bf315edf8f89f1b59b21e2d37b881bdde30ee4218eafd4fd4833338f7944bd9",
+          "git_blob": "69293dff89c6b5f255bdab3ae7375b25e1975eb6"
+        }
+      ],
+      "G_nonidentical_product_modules": [
+        "polisyos.ir.artifacts.io"
+      ],
+      "wall_seconds": 6.490283305000048,
+      "max_rss_kib": 106712,
+      "no_timeout": true
+    }
+  ],
+  "matched_removal_reconstruction": [
+    {
+      "name": "original-reader",
+      "canonical_source": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "canonical_path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "reconstruction_sha256": "350506f57684f62ae61c9a9a8f6c741317dae9f7c452f158fd484793e775e8e8",
+      "minimal_diff": {
+        "path": "/workspace/orch02-r2/native-c06/mutants/can-original-reader/mutation.diff",
+        "bytes": 774,
+        "sha256": "21ddeecfdf47299b2141caa59023a510ca08a5989240784e98f64c34ae572e31"
+      },
+      "only_requested_property_removed": true,
+      "same_owned_test_bytes": true
+    },
+    {
+      "name": "complete-field-guard",
+      "canonical_source": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "canonical_path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "reconstruction_sha256": "90532afd1210ae2b1715de93e660627ef6033aab2b80a94a3d4711f75160b432",
+      "minimal_diff": {
+        "path": "/workspace/orch02-r2/native-c06/mutants/can-complete-field-guard/mutation.diff",
+        "bytes": 494,
+        "sha256": "a379348ee759275f7eed5a33b02556cfbf7202133ca4058859b148d6031aac3f"
+      },
+      "only_requested_property_removed": true,
+      "same_owned_test_bytes": true
+    },
+    {
+      "name": "separator-normalization",
+      "canonical_source": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "canonical_path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "reconstruction_sha256": "6bf315edf8f89f1b59b21e2d37b881bdde30ee4218eafd4fd4833338f7944bd9",
+      "minimal_diff": {
+        "path": "/workspace/orch02-r2/native-c06/mutants/can-separator-normalization/mutation.diff",
+        "bytes": 476,
+        "sha256": "e82c72cb6164e01ff0eec4ff530ba198bcf18bd21c0efb5085bcfe5ca6050beb"
+      },
+      "only_requested_property_removed": true,
+      "same_owned_test_bytes": true
+    }
+  ],
+  "test_denominator_semantics": {
+    "native50": {
+      "IR_adapter_actual_CAS_reader_cases": 40,
+      "storage_source_AST_only": 1,
+      "in_memory_protocol_cases": 2,
+      "HTE_actual_CAS_persist_roundtrips": 3,
+      "HTE_model_constructor_invariants": 4
+    },
+    "independent11_actual_CAS_boundaries": {
+      "shaped_profile_raw_numeric_float_conformance_failure": 1,
+      "raw_sidecar_default_materialization_fields": 9,
+      "typed_vs_mapping_warning_loss": 1
+    }
+  },
+  "deciding_literals": {
+    "default_Core_Decimal": "Fresh FileSystemCAS→JSON-mode complete Mapping→IR Decimal roundtrip actualbytes retained",
+    "persisted_depth": "Depth129 succeeds only when stored max_depth used; original-reader mutation fails actual max_depth128 decoder",
+    "presented_missing_fields": "Nine missing presented Mapping fields raise before get_bytes; guard-only removal nine DIDNOTRAISE",
+    "separator_normalization": "JSON list separators converted internally to tuple without mutating input; normalization-only removal two actual tuple validation refusals",
+    "raw_profile_residual": "Actual Core put_bytes payload fraction1.5 accepted by IR under canon forbid_floats=true; declaration not producer conformance",
+    "raw_sidecar_residual": "All nine actually omitted persisted sidecar fields defaulted by Core get_manifest into complete view; originalrawpresence not established",
+    "options_contract_residual": "Same actual payload hash; typed warnings1, Mapping warnings0 in unchanged Core adapter"
+  },
+  "P40": {
+    "bucket": "same declared Core/IR profile/provenance/view/coercion compatibility class; not new CAN-reader escape requiring owned source ladder",
+    "smallest_closing_capability": "Canonical C02/G producer profile/tag/conformance/provenance plus manifest view identity and typed/mapping write-option coercion contract; reader cannot certify original raw fields after defaults",
+    "bounded_current_claim": "Strict complete supported PRESENTED Mapping refusal and persisted decode options; real finite compatible producer/consumer pairings only"
+  },
+  "P41": "not_established; no exact slice-base full-gate zero-overlap proof",
+  "verdict": "GO_BOUNDED_SOURCE_AND_AFFECTED_NATIVE_EVIDENCE",
+  "source_acceptance_G": false,
+  "formal_closure": [],
+  "replay_by_reviewer": false,
+  "limitations": [
+    "Storage protocol AST case tests source imports and is fixture/source evidence only; protocol-store helpers execute an in-memory store, not installed packaging.",
+    "Four HTE contract tests are constructor/model invariants, not persisted reader proof; actual HTE/policy/backtest persistence cases separately ran.",
+    "Actual selected native product-module file denominator387 is reconciled only for this process. Unexecuted sibling consumers, installed packaging and fullG runtime are not established.",
+    "Identifiability not loaded in any new selected CAN process; all other observed suppliers equal currentG source, so no previous old-supplier native proof is transferred.",
+    "Core-only tags float_hex/bytes_hex/array_digest remain rejected after payload read despite matching profile names/version.",
+    "Profile-less real history remains refused before payload access; no migration/default synthesis decision issued.",
+    "Raw shaped profile cannot establish serialization conformance/provenance: real Core put_bytes raw numeric float is decoded despite forbid_floats=true.",
+    "Actual default-view raw sidecars missing any of nine schema-derived fields are materialized by Core get_manifest before IR strict presented Mapping; original persisted-field presence is not proven.",
+    "Typed ArtifactWriteOptions preserves warning1, equivalent Mapping loses warning0 through unchanged Core adapter coercion; C02/G owns extension/refusal decision."
+  ],
+  "preflight_timing": "Named input-preflight file timestamp18:18 postdates first native18:15; treated as supplemental immutable input reconciliation. Actual runner preexecution HEAD/clean guard and per-process end source/origins independently bind the execution; no contemporaneous preflight claim."
+}

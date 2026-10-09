@@ -1,0 +1,51 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "polisyos.runtime.quality.production_invocation",
+    "--repo-root",
+    "/workspace/orch02-r2-c06-can/policy-engine",
+    "--base",
+    "dee58973f7673299070b7c7374f419b0adb8175c",
+    "--receipt",
+    "/workspace/orch02-r2-c06-can/policy-engine/_build/orch02-r2-c06-can/production-invocation.json"
+  ],
+  "cwd": "/workspace/orch02-r2-c06-can/policy-engine",
+  "pid": 49242,
+  "start_utc": "2026-10-08T19:16:01.578180+00:00",
+  "end_utc": "2026-10-08T19:26:04.236744+00:00",
+  "wall_seconds": 602.6586389099994,
+  "returncode": 0,
+  "wait_status": 0,
+  "signal": null,
+  "resource_method": "os.wait4 exact direct child; Linux ru_maxrss KiB",
+  "max_rss_kib": 8446068,
+  "user_seconds": 546.07259,
+  "system_seconds": 52.703511,
+  "timeout": null,
+  "harness_python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "selected_environment": {
+    "PYTHONPATH": "/workspace/orch02-r2-c06-can/policy-engine/src:/workspace/orch02-r2-c06-can/policy-engine",
+    "PYTHONHOME": null,
+    "PYTHONDONTWRITEBYTECODE": null,
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+    "JAX_PLATFORMS": null,
+    "JAX_PLATFORM_NAME": null,
+    "XLA_PYTHON_CLIENT_PREALLOCATE": null,
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "UV_PROJECT_ENVIRONMENT": null
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 1379,
+      "sha256": "4c34534eedf99bac4125e9b1a21f0718398e89959c737730cb2eab189a115ba6"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

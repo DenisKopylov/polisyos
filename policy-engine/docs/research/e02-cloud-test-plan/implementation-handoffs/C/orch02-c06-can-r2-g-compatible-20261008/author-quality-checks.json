@@ -1,0 +1,120 @@
+{
+  "scope": "Author focused checks on exact reviewed candidate, no native/architecture claim",
+  "checks": [
+    {
+      "name": "ruff",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/ir/artifacts/io.py",
+        "tests/unit/core/artifacts/test_ir_adapter.py"
+      ],
+      "cwd": "/workspace/orch02-r2-c06-can/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 0.08064694200038502,
+      "frozen_index_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+      "PYTHONPATH": "/workspace/orch02-r2-c06-can/policy-engine/src:/workspace/orch02-r2-c06-can/policy-engine",
+      "strict_flags_preserved": true,
+      "stdout": {
+        "path": "/workspace/orch02-r2/c06-can/ruff.stdout",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "stderr": {
+        "path": "/workspace/orch02-r2/c06-can/ruff.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "format",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/ir/artifacts/io.py",
+        "tests/unit/core/artifacts/test_ir_adapter.py"
+      ],
+      "cwd": "/workspace/orch02-r2-c06-can/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 0.0735292040008062,
+      "frozen_index_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+      "PYTHONPATH": "/workspace/orch02-r2-c06-can/policy-engine/src:/workspace/orch02-r2-c06-can/policy-engine",
+      "strict_flags_preserved": true,
+      "stdout": {
+        "path": "/workspace/orch02-r2/c06-can/format.stdout",
+        "bytes": 26,
+        "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+      },
+      "stderr": {
+        "path": "/workspace/orch02-r2/c06-can/format.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "mypy",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "mypy",
+        "--config-file",
+        "mypy.ini",
+        "--follow-imports=silent",
+        "--cache-dir",
+        "/workspace/orch02-r2/c06-can/mypy-cache",
+        "src/polisyos/ir/artifacts/io.py"
+      ],
+      "cwd": "/workspace/orch02-r2-c06-can/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 5.125842171000841,
+      "frozen_index_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+      "PYTHONPATH": "/workspace/orch02-r2-c06-can/policy-engine/src:/workspace/orch02-r2-c06-can/policy-engine",
+      "strict_flags_preserved": true,
+      "stdout": {
+        "path": "/workspace/orch02-r2/c06-can/mypy.stdout",
+        "bytes": 42,
+        "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+      },
+      "stderr": {
+        "path": "/workspace/orch02-r2/c06-can/mypy.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "diff-check",
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "cwd": "/workspace/orch02-r2-c06-can/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 0.017553920999489492,
+      "frozen_index_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+      "PYTHONPATH": "/workspace/orch02-r2-c06-can/policy-engine/src:/workspace/orch02-r2-c06-can/policy-engine",
+      "strict_flags_preserved": true,
+      "stdout": {
+        "path": "/workspace/orch02-r2/c06-can/diff-check.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/workspace/orch02-r2/c06-can/diff-check.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "profile": {
+    "python": "Python 3.14.2",
+    "ruff": "ruff 0.14.10",
+    "mypy": "mypy 1.19.1 (compiled: yes)"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "source_commit": "2762cec321d0cc78874abb986736dab54e2fb189",
+  "required_gates_full_inputs": "required-gates/source-inputs.json",
+  "shared_profile": "read-only /workspace/polisyos/policy-engine/.venv Python3.14.2; no shared lockfile/env mutation",
+  "managed_PATH_prefix": [
+    "/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin",
+    "/workspace/.polisyos-environment/uv/bin"
+  ],
+  "node_provisioning": "corepack pnpm install --frozen-lockfile --ignore-scripts exit0 before architecture TypeScript scanner",
+  "Python_Node_baseline_deviation": false,
+  "uv_version": "0.9.21",
+  "corepack_version": "0.36.0",
+  "pnpm_version": "10.33.2",
+  "profile_notes": [
+    "Default host Node24 is not used by required architecture gate.",
+    "Inherited proxy/TLS maintained; no credential overrides.",
+    "Version observation invoked from actual product root resolves pinned packageManager. Earlier ancillary version probe from /workspace lacked packageManager and attempted unavailable npm/latest; probe ERROR corrected cwd, no bootstrap/gate replay or source/env mutation."
+  ],
+  "no_artificial_compute_quota": true,
+  "serialize_resource": "One high-memory graph after C12 finished; light/default architecture concurrently",
+  "candidate_source_docs_mutations_during_gates": false
+}

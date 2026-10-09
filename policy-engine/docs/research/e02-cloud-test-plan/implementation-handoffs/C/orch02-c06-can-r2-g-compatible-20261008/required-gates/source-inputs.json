@@ -1,0 +1,69 @@
+{
+  "source_sha": "2762cec321d0cc78874abb986736dab54e2fb189",
+  "source_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+  "base_sha": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "source_scope": "Exact currentG composition; prior490 graph/architecture results not transferred",
+  "runner_harness": {
+    "path": "/workspace/orch02-r2/native-c06/harness/run_receipt.py",
+    "sha256": "58b497ebcc4637e953f0fa675922100712951bd800f18f715f2280e8dada5f9a"
+  },
+  "entrypoints_and_inputs": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/production_invocation.py",
+      "actual_source_origin": "/workspace/orch02-r2-c06-can/policy-engine/src/polisyos/runtime/quality/production_invocation.py",
+      "blob": "08474ca1c4ed05c21d338a734c36113c4667132b",
+      "base_blob": "08474ca1c4ed05c21d338a734c36113c4667132b",
+      "bytes": 27007,
+      "sha256": "cf3ce1dcc120fe321a2d2e77295a368f178764a9d0158b8896307f146400b286",
+      "same_base": true
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/check_production_invocation.py",
+      "actual_source_origin": "/workspace/orch02-r2-c06-can/policy-engine/tools/quality/validation/check_production_invocation.py",
+      "blob": "3f0eac6929ec5edc043219f436483e1d365ac326",
+      "base_blob": "3f0eac6929ec5edc043219f436483e1d365ac326",
+      "bytes": 241,
+      "sha256": "783347e6bf973eb7c3e598965dbadac541f7c8f09b7f27210c0b1806ba6f2ea3",
+      "same_base": true
+    },
+    {
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "actual_source_origin": "/workspace/orch02-r2-c06-can/policy-engine/tools/devx/architecture/guardrails.py",
+      "blob": "857be8f06a84656c12fbcd8415eabfc6bf18ee10",
+      "base_blob": "857be8f06a84656c12fbcd8415eabfc6bf18ee10",
+      "bytes": 136743,
+      "sha256": "6068c84d43217d19d9b96c65fd36d0a239297da6f98840e8994e6b04ec3fae2e",
+      "same_base": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "actual_source_origin": "/workspace/orch02-r2-c06-can/policy-engine/src/polisyos/ir/artifacts/io.py",
+      "blob": "a815bcd7b3cd15322512c2086724d73ac1c32328",
+      "base_blob": "37a433addcec7453347e3a581a4e05c4b60d5f03",
+      "bytes": 4721,
+      "sha256": "29e538571b87a68afb703eb96558942746e8caaeed0d27b67ff03628866a684d",
+      "same_base": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "actual_source_origin": "/workspace/orch02-r2-c06-can/policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "blob": "e17ac9b37fd899612eda0f80ab204b76dfe25222",
+      "base_blob": "e17ac9b37fd899612eda0f80ab204b76dfe25222",
+      "bytes": 5181,
+      "sha256": "7b4b5a674282165e7d6ec89bf345d47fd02c6682cf60c7ce8e4cc1b90f60dcc4",
+      "same_base": true
+    },
+    {
+      "path": "policy-engine/architecture/production_invocation/policy.toml",
+      "source_absent": true
+    }
+  ],
+  "tools": {
+    "python": "Python 3.14.2",
+    "node": "v22.23.3",
+    "uv": "uv 0.9.21"
+  },
+  "execution": "Actual wrapper scans now once current inputs. Runtime dynamic calls not established by scanner; actual CAS/test calls separate.",
+  "tracked_status_snapshot": "",
+  "observation_timing": "Supplemental immutable source-byte/status binding captured after invocation command started and before architecture command started. No contemporaneous invocation preflight claim. Invocation itself recomputes exact Git base/current source and captures its input manifest."
+}

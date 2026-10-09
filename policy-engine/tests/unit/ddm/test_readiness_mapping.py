@@ -19,16 +19,17 @@ from polisyos.ddm.readiness import map_readiness
 
 
 def test_metric_budget_policy_has_one_canonical_contract_owner() -> None:
+    import polisyos.ddm.readiness as readiness
     from polisyos.ddm.contracts.metric_budget import (
         MetricBudgetPolicy as CanonicalMetricBudgetPolicy,
     )
     from polisyos.ddm.readiness import MetricBudgetPolicy as PublicMetricBudgetPolicy
-    from polisyos.ddm.readiness.readiness_mapper import (
-        MetricBudgetPolicy as MapperMetricBudgetPolicy,
-    )
+    from polisyos.ddm.readiness import readiness_mapper
 
     assert PublicMetricBudgetPolicy is CanonicalMetricBudgetPolicy
-    assert MapperMetricBudgetPolicy is CanonicalMetricBudgetPolicy
+    assert readiness_mapper.MetricBudgetPolicy is CanonicalMetricBudgetPolicy
+    assert "MetricBudgetPolicy" in readiness.__all__
+    assert "MetricBudgetPolicy" in readiness_mapper.__all__
 
     policy = CanonicalMetricBudgetPolicy(
         model_id="model",

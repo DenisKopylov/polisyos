@@ -79,6 +79,14 @@ def test_root_and_integration_facades_forward_one_event_contract_owner() -> None
         assert getattr(integration, name) is owner
         assert getattr(ddm, name) is owner
 
+    calibration_projection = canonical.CalibrationValidityProjection
+    assert legacy.CalibrationValidityProjection is calibration_projection
+    assert integration.CalibrationValidityProjection is calibration_projection
+    assert "CalibrationValidityProjection" in legacy.__all__
+    assert "CalibrationValidityProjection" in integration.__all__
+    assert set(contract_names) <= set(legacy.__all__)
+    assert set(contract_names) <= set(integration.__all__)
+    assert set(contract_names) <= set(ddm.__all__)
     assert ddm.DriftAndDegradationMonitor.__module__.startswith("polisyos.ddm.")
 
 

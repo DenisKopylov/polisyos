@@ -19,8 +19,7 @@ publication, promotion, accessibility-conformance, or product authority. No
 finding in this document unfreezes a route, approves a migration, or proves a
 surface safe.
 
-The audit executes the [DS1 task plan](../../plans/active/atlas-slices/DS1-live-application-audit.md),
-uses the controlled vocabularies frozen by
+The audit uses the controlled vocabularies frozen by
 [DS0](../../brand/ATLAS_SOURCE_OF_TRUTH.md), and judges maturity against the
 [surface constitution](../../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md).
 
@@ -29,8 +28,9 @@ uses the controlled vocabularies frozen by
 Every inventory row carries `C/P/A/B/U/V/S/N/T`: typed contract, producer,
 persisted artifact/state, orchestration or transport bridge, consumer,
 verification, surface, negative test, and semantic test. `I`, `M`, and `O`
-mean implemented, missing, and out of scope. The aggregate readiness follows
-the DS1 plan's weakest-link rule; the adoption verdict is independent.
+mean implemented, missing, and out of scope. Aggregate readiness is derived
+from the weakest link in this capability chain; the adoption verdict is
+independent.
 
 ## Denominator Reconciliation And Coverage Proof
 

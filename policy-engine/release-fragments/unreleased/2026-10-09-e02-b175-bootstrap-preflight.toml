@@ -1,0 +1,17 @@
+id = "2026-10-09-e02-b175-bootstrap-preflight"
+title = "Refuse invalid bootstrap observations before sampling"
+type = "changed"
+component = "scientist-backtesting"
+owner = "scientist"
+summary = "Bootstrap entrypoints now refuse non-numeric, non-finite, empty, or non-1-D observations before RNG construction or statistic evaluation, preserving the declared sampling unit and statistic identity."
+evidence = ["tests/unit/scientist/methods/backtesting/test_bootstrap.py", "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s3-empirical/bootstrap-b175-focused.stdout.txt"]
+compatibility = "Existing valid one-dimensional bootstrap inputs, named statistics, output intervals, and seeding behavior are unchanged. Multi-dimensional inputs now fail with BootstrapValidationError(code=invalid_dimensions) before callbacks or random draws; flattening them would change the declared observations."
+change_class = "internal"
+surface_classification = "Internal Scientist backtesting behavior; no generated-client or external API surface."
+migration = "No persisted-data migration. Callers must supply a finite one-dimensional observation vector and a defined statistic."
+api = "bootstrap_metric and bootstrap_scenario_metrics share a finite one-dimensional preflight; the statistic identity is recorded in BootstrapCI and survives consumer readback."
+limitations = "This validates the local empirical input shape and declared statistic only. It does not establish external observation provenance or statistical adequacy of a caller-supplied custom callable."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/methods/backtesting/README.md"]
+runbook_docs = []

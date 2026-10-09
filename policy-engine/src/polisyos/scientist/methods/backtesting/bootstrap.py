@@ -75,17 +75,7 @@ def bootstrap_metric(
     seed:
         Random seed for reproducibility.
     """
-    arr = np.asarray(values, dtype=float)
-    if arr.size == 0:
-        raise BootstrapValidationError(
-            "bootstrap_metric requires at least one observed value",
-            code="empty_values",
-        )
-    if not np.isfinite(arr).all():
-        raise BootstrapValidationError(
-            "bootstrap_metric requires finite observed values",
-            code="non_finite_values",
-        )
+    arr = _prepare_observations(values, entrypoint="bootstrap_metric")
     if n_bootstrap <= 0:
         raise BootstrapValidationError(
             "n_bootstrap must be greater than zero",
@@ -153,7 +143,7 @@ def bootstrap_scenario_metrics(
     seed: int | None = None,
 ) -> dict[str, BootstrapCI]:
     """Compute bootstrap CIs for RMSE, MAE, and MAPE-like statistics."""
-    arr = np.asarray(errors, dtype=float)
+    arr = _prepare_observations(errors, entrypoint="bootstrap_scenario_metrics")
     results: dict[str, BootstrapCI] = {}
 
     results["mae"] = bootstrap_metric(
@@ -175,6 +165,44 @@ def bootstrap_scenario_metrics(
     )
 
     return results
+
+
+def _prepare_observations(
+    values: list[float] | np.ndarray,
+    *,
+    entrypoint: str,
+) -> np.ndarray:
+    """Validate a bootstrap observation vector before callbacks or RNG use.
+
+    Bootstrap resampling treats each input element as one exchangeable
+    observation. Accepting a matrix and letting NumPy's scalar reducers flatten
+    or aggregate it would silently change that sampling unit.
+    """
+    try:
+        arr = np.asarray(values, dtype=float)
+    except (OverflowError, TypeError, ValueError) as exc:
+        raise BootstrapValidationError(
+            f"{entrypoint} requires numeric observed values",
+            code="invalid_values",
+        ) from exc
+
+    if arr.ndim != 1:
+        raise BootstrapValidationError(
+            f"{entrypoint} requires one-dimensional observations",
+            code="invalid_dimensions",
+            details={"ndim": arr.ndim},
+        )
+    if arr.size == 0:
+        raise BootstrapValidationError(
+            f"{entrypoint} requires at least one observed value",
+            code="empty_values",
+        )
+    if not np.isfinite(arr).all():
+        raise BootstrapValidationError(
+            f"{entrypoint} requires finite observed values",
+            code="non_finite_values",
+        )
+    return arr
 
 
 def _resolve_statistic(statistic: str | StatisticFn) -> StatisticFn:

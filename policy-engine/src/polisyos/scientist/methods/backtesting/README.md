@@ -37,3 +37,8 @@ governance calibration и backtest matrix контуром.
 - Exports: 25
 - Недавний delta: пакет теперь является upstream для `BacktestMatrixRunner`
   в `scientist.governance`
+- `bootstrap_metric` and `bootstrap_scenario_metrics` validate a finite one-dimensional
+  observation vector before constructing the RNG or evaluating a statistic. Named statistic
+  identity is retained in the result; matrix flattening is refused because it would change the
+  bootstrap sampling unit. The B175 falsifier and focused verification are recorded in the E02 S3
+  empirical handoff.

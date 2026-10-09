@@ -4,28 +4,16 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
-import csv
-import gzip
-import hashlib
-import io
 import json
-import math
 import os
 import re
 import time
-import zipfile
-from collections import OrderedDict, defaultdict, deque
-from dataclasses import dataclass, replace
+from collections import deque
 from datetime import UTC, datetime, timedelta
 from importlib import import_module
-from itertools import islice
-from pathlib import Path
-from typing import TYPE_CHECKING, Any
-from urllib.parse import urlparse
+from typing import TYPE_CHECKING, Any, cast
 
-import aiohttp
 import duckdb
-import pandas as pd
 
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
@@ -40,7 +28,6 @@ from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts im
     ObservationShardResult,
     ObservationWriteItem,
     SupportSketch,
-    WriterFlushState,
     _ObservationRuntimeMetrics,
     _SourceBudgetWindow,
 )
@@ -53,21 +40,11 @@ from polisyos.data_forge.domains.catalog.batch.core_sources.writers import (
     _ObservationCapabilityCache,
     _ObservationFetchDeduper,
 )
-from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
-    country_scope_members,
-    iso2_to_iso3,
-    iso2_to_numeric,
-    normalize_country_code,
-)
-from polisyos.data_forge.domains.catalog.knowledge.proxy_penalties import metric_proxy_alignments
 from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
-    AlignmentMethod,
     VariableAlignment,
-    align_semantic,
-    calibrate_alignment_confidence,
     load_seed_alignments,
 )
-from polisyos.data_forge.kernel.pipeline.manifests import write_raw_manifest, write_stage_manifest
+from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
 from polisyos.data_forge.read_api.academic import CANONICAL_VARIABLES
 from polisyos.fabric.connectors.base import (
     AsyncFetchLease,
@@ -81,15 +58,18 @@ from polisyos.fabric.connectors.profiles.resolver import (
     resolve_connection_config,
     resolve_execution_policy,
 )
-from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
-from polisyos.fabric.connectors.sources.sdmx_source import SDMXSourceConnector
-from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
-from polisyos.fabric.connectors.sources.unpd import UNPDConnector
-from polisyos.fabric.connectors.sources.who import WHOConnector
-from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+    from pathlib import Path
+
     from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
+    from polisyos.data_forge.domains.catalog.batch.core_sources.loaders import (
+        _BudgetWaitObserver,
+        _RecordResult,
+    )
+    from polisyos.fabric.connectors.base import ConnectionHandle, SourceConnector
+    from polisyos.ir.connectors import FetchResult
 
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
     resolve_core_sources_compatibility_binding,
@@ -215,113 +195,262 @@ _ILO_INFERRED_DIMENSION_TOKENS: frozenset[str] = frozenset(
 )
 
 
-__OWNER_BOUND_PROXIES: dict[str, Any] = {}
+__OWNER_BOUND_PROXIES: dict[str, object] = {}
 
 
-def __resolve_implementation_dependency(name: str, owner: str) -> Any:
+def __resolve_implementation_dependency(name: str, owner: str) -> object:
     """Resolve a split-module dependency without facade-global injection."""
     has_context_override, context_override = resolve_core_sources_compatibility_binding(
         f"{__package__}.{owner}", name
     )
     if has_context_override:
-        return context_override
+        return cast("object", context_override)
     override = globals().get(name)
     if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
         return override
     module = import_module(f"{__package__}.{owner}")
-    return getattr(module, name)
+    return cast("object", getattr(module, name))
 
 
-def __make_implementation_proxy(name: str, owner: str) -> Any:
+def __make_implementation_proxy[**P, R](name: str, owner: str) -> Callable[P, R]:
     """Create a lazy, owner-bound compatibility callable for this module."""
 
-    def __proxy(*args: Any, **kwargs: Any) -> Any:
-        return __resolve_implementation_dependency(name, owner)(*args, **kwargs)
+    def __proxy(*args: P.args, **kwargs: P.kwargs) -> R:
+        implementation = __resolve_implementation_dependency(name, owner)
+        return cast("Callable[P, R]", implementation)(*args, **kwargs)
 
-    return __proxy
+    __OWNER_BOUND_PROXIES[name] = __proxy
+    return cast("Callable[P, R]", globals().setdefault(name, __proxy))
 
 
-for __dependency_name, __dependency_owner in (
-    ("_append_shard_result", "validators"),
-    ("_apply_dimension_order_to_snapshot", "transformers"),
-    ("_build_catalog_alignments", "registry"),
-    ("_build_catalog_observation_plans", "registry"),
-    ("_build_core_output_receipt", "validators"),
-    ("_build_observation_shards", "validators"),
-    ("_build_observation_shards_from_sketches", "registry"),
-    ("_build_support_sketches", "registry"),
-    ("_canonicalize_observation_request_filters", "transformers"),
-    ("_capability_failure_supports_fallback", "validators"),
-    ("_capability_failures_by_source", "validators"),
-    ("_capability_snapshot_cache_key", "writers"),
-    ("_capability_snapshot_fresh", "writers"),
-    ("_chunked_observation_requests", "validators"),
-    ("_configure_observation_writer_connection", "writers"),
-    ("_deserialize_async_fetch_lease", "writers"),
-    ("_deserialize_writer_state", "validators"),
-    ("_empty_result_proves_unsupported", "validators"),
-    ("_empty_signature_cache_hit", "validators"),
-    ("_ensure_registry_tables", "registry"),
-    ("_fetch_remote_bulk_rows", "loaders"),
-    ("_filter_wvs_bulk_rows", "transformers"),
-    ("_filters_to_tuple", "transformers"),
-    ("_hydrate_support_sketch_dimension_orders", "writers"),
-    ("_hydrate_work_package_dimension_orders", "writers"),
-    ("_insert_generic_observations", "writers"),
-    ("_iter_observation_write_item_batches", "writers"),
-    ("_legacy_ingest_observations", "writers"),
-    ("_load_capability_snapshot_state", "writers"),
-    ("_load_catalog_transport_datasets", "registry"),
-    ("_load_observation_checkpoint_state", "validators"),
-    ("_load_source_budget_windows", "validators"),
-    ("_load_support_sketch_state", "writers"),
-    ("_load_work_package_state", "writers"),
-    ("_log_rate_limited_warning", "writers"),
-    ("_merge_observation_stats", "loaders"),
-    ("_observation_mode_phases", "registry"),
-    ("_observation_payload_row_limit", "transformers"),
-    ("_planner_split_shard_from_capability", "validators"),
-    ("_prune_expired_capability_failures", "validators"),
-    ("_prune_expired_support_cache", "validators"),
-    ("_prepare_core_output_resume", "validators"),
-    ("_record_shard_result", "validators"),
-    ("_records_from_payload", "loaders"),
-    ("_rewrite_sdmx_requests_with_dimension_key", "transformers"),
-    ("_seed_alignments_path", "loaders"),
-    ("_serialize_async_fetch_lease", "writers"),
-    ("_serialize_capability_failure", "validators"),
-    ("_serialize_capability_snapshot_state", "writers"),
-    ("_serialize_source_budget_windows", "validators"),
-    ("_serialize_support_sketch_state", "writers"),
-    ("_serialize_work_package_state", "writers"),
-    ("_serialize_writer_state", "validators"),
-    ("_shard_completed", "validators"),
-    ("_shard_countries", "transformers"),
-    ("_shard_prefers_async_fetch", "validators"),
-    ("_shard_supported_by_capability", "validators"),
-    ("_source_completion_pct_by_phase", "validators"),
-    ("_source_runtime_lane_count", "registry"),
-    ("_split_shard_for_retry", "validators"),
-    ("_split_shard_for_retry_async", "validators"),
-    ("_store_shard_result", "validators"),
-    ("_strip_geo_filters", "transformers"),
-    ("_support_cache_key", "validators"),
-    ("_support_cache_proves_unsupported", "validators"),
-    ("_support_sketch_id", "writers"),
-    ("_update_support_cache", "validators"),
-    ("_update_unsupported_signature_cache", "validators"),
-    ("_upsert_alignment_audit", "registry"),
-    ("_upsert_catalog_alignments", "registry"),
-    ("_upsert_catalog_registry_datasets", "registry"),
-    ("_upsert_legacy_registry_datasets", "writers"),
-    ("_upsert_seed_alignments", "writers"),
-    ("_write_core_ingest_stage_progress", "validators"),
-    ("_write_observation_checkpoint_state", "validators"),
-    ("_write_observation_ingest_manifests", "writers"),
-):
-    __proxy = __make_implementation_proxy(__dependency_name, __dependency_owner)
-    __OWNER_BOUND_PROXIES[__dependency_name] = __proxy
-    globals().setdefault(__dependency_name, __proxy)
+_append_shard_result: Callable[..., object] = __make_implementation_proxy(
+    "_append_shard_result", "validators"
+)
+_apply_dimension_order_to_snapshot: Callable[..., object] = __make_implementation_proxy(
+    "_apply_dimension_order_to_snapshot", "transformers"
+)
+_build_catalog_alignments: Callable[..., object] = __make_implementation_proxy(
+    "_build_catalog_alignments", "registry"
+)
+_build_catalog_observation_plans: Callable[..., object] = __make_implementation_proxy(
+    "_build_catalog_observation_plans", "registry"
+)
+_build_core_output_receipt: Callable[..., object] = __make_implementation_proxy(
+    "_build_core_output_receipt", "validators"
+)
+_build_observation_shards: Callable[..., object] = __make_implementation_proxy(
+    "_build_observation_shards", "validators"
+)
+_build_observation_shards_from_sketches: Callable[..., object] = __make_implementation_proxy(
+    "_build_observation_shards_from_sketches", "registry"
+)
+_build_support_sketches: Callable[..., object] = __make_implementation_proxy(
+    "_build_support_sketches", "registry"
+)
+_canonicalize_observation_request_filters: Callable[..., object] = __make_implementation_proxy(
+    "_canonicalize_observation_request_filters", "transformers"
+)
+_capability_failure_supports_fallback: Callable[..., object] = __make_implementation_proxy(
+    "_capability_failure_supports_fallback", "validators"
+)
+_capability_failures_by_source: Callable[..., object] = __make_implementation_proxy(
+    "_capability_failures_by_source", "validators"
+)
+_capability_snapshot_cache_key: Callable[..., object] = __make_implementation_proxy(
+    "_capability_snapshot_cache_key", "writers"
+)
+_capability_snapshot_fresh: Callable[..., object] = __make_implementation_proxy(
+    "_capability_snapshot_fresh", "writers"
+)
+_chunked_observation_requests: Callable[..., object] = __make_implementation_proxy(
+    "_chunked_observation_requests", "validators"
+)
+_configure_observation_writer_connection: Callable[..., object] = __make_implementation_proxy(
+    "_configure_observation_writer_connection", "writers"
+)
+_deserialize_async_fetch_lease: Callable[..., object] = __make_implementation_proxy(
+    "_deserialize_async_fetch_lease", "writers"
+)
+_deserialize_writer_state: Callable[..., object] = __make_implementation_proxy(
+    "_deserialize_writer_state", "validators"
+)
+_empty_result_proves_unsupported: Callable[..., object] = __make_implementation_proxy(
+    "_empty_result_proves_unsupported", "validators"
+)
+_empty_signature_cache_hit: Callable[..., object] = __make_implementation_proxy(
+    "_empty_signature_cache_hit", "validators"
+)
+_ensure_registry_tables: Callable[..., object] = __make_implementation_proxy(
+    "_ensure_registry_tables", "registry"
+)
+_fetch_remote_bulk_rows: Callable[..., object] = __make_implementation_proxy(
+    "_fetch_remote_bulk_rows", "loaders"
+)
+_filter_wvs_bulk_rows: Callable[..., object] = __make_implementation_proxy(
+    "_filter_wvs_bulk_rows", "transformers"
+)
+_filters_to_tuple: Callable[..., object] = __make_implementation_proxy(
+    "_filters_to_tuple", "transformers"
+)
+_hydrate_support_sketch_dimension_orders: Callable[..., object] = __make_implementation_proxy(
+    "_hydrate_support_sketch_dimension_orders", "writers"
+)
+_hydrate_work_package_dimension_orders: Callable[..., object] = __make_implementation_proxy(
+    "_hydrate_work_package_dimension_orders", "writers"
+)
+_insert_generic_observations: Callable[..., object] = __make_implementation_proxy(
+    "_insert_generic_observations", "writers"
+)
+_iter_observation_write_item_batches: Callable[..., object] = __make_implementation_proxy(
+    "_iter_observation_write_item_batches", "writers"
+)
+_legacy_ingest_observations: Callable[..., object] = __make_implementation_proxy(
+    "_legacy_ingest_observations", "writers"
+)
+_load_capability_snapshot_state: Callable[..., object] = __make_implementation_proxy(
+    "_load_capability_snapshot_state", "writers"
+)
+_load_catalog_transport_datasets: Callable[..., object] = __make_implementation_proxy(
+    "_load_catalog_transport_datasets", "registry"
+)
+_load_observation_checkpoint_state: Callable[..., object] = __make_implementation_proxy(
+    "_load_observation_checkpoint_state", "validators"
+)
+_load_source_budget_windows: Callable[..., object] = __make_implementation_proxy(
+    "_load_source_budget_windows", "validators"
+)
+_load_support_sketch_state: Callable[..., object] = __make_implementation_proxy(
+    "_load_support_sketch_state", "writers"
+)
+_load_work_package_state: Callable[..., object] = __make_implementation_proxy(
+    "_load_work_package_state", "writers"
+)
+_log_rate_limited_warning: Callable[..., object] = __make_implementation_proxy(
+    "_log_rate_limited_warning", "writers"
+)
+_merge_observation_stats: Callable[..., object] = __make_implementation_proxy(
+    "_merge_observation_stats", "loaders"
+)
+_observation_mode_phases: Callable[..., object] = __make_implementation_proxy(
+    "_observation_mode_phases", "registry"
+)
+_observation_payload_row_limit: Callable[..., object] = __make_implementation_proxy(
+    "_observation_payload_row_limit", "transformers"
+)
+_planner_split_shard_from_capability: Callable[..., object] = __make_implementation_proxy(
+    "_planner_split_shard_from_capability", "validators"
+)
+_prune_expired_capability_failures: Callable[..., object] = __make_implementation_proxy(
+    "_prune_expired_capability_failures", "validators"
+)
+_prune_expired_support_cache: Callable[..., object] = __make_implementation_proxy(
+    "_prune_expired_support_cache", "validators"
+)
+_prepare_core_output_resume: Callable[..., object] = __make_implementation_proxy(
+    "_prepare_core_output_resume", "validators"
+)
+_record_shard_result: Callable[..., object] = __make_implementation_proxy(
+    "_record_shard_result", "validators"
+)
+_records_from_payload: Callable[..., object] = __make_implementation_proxy(
+    "_records_from_payload", "loaders"
+)
+_rewrite_sdmx_requests_with_dimension_key: Callable[..., object] = __make_implementation_proxy(
+    "_rewrite_sdmx_requests_with_dimension_key", "transformers"
+)
+_seed_alignments_path: Callable[..., object] = __make_implementation_proxy(
+    "_seed_alignments_path", "loaders"
+)
+_serialize_async_fetch_lease: Callable[..., object] = __make_implementation_proxy(
+    "_serialize_async_fetch_lease", "writers"
+)
+_serialize_capability_failure: Callable[..., object] = __make_implementation_proxy(
+    "_serialize_capability_failure", "validators"
+)
+_serialize_capability_snapshot_state: Callable[..., object] = __make_implementation_proxy(
+    "_serialize_capability_snapshot_state", "writers"
+)
+_serialize_source_budget_windows: Callable[..., object] = __make_implementation_proxy(
+    "_serialize_source_budget_windows", "validators"
+)
+_serialize_support_sketch_state: Callable[..., object] = __make_implementation_proxy(
+    "_serialize_support_sketch_state", "writers"
+)
+_serialize_work_package_state: Callable[..., object] = __make_implementation_proxy(
+    "_serialize_work_package_state", "writers"
+)
+_serialize_writer_state: Callable[..., object] = __make_implementation_proxy(
+    "_serialize_writer_state", "validators"
+)
+_shard_completed: Callable[..., object] = __make_implementation_proxy(
+    "_shard_completed", "validators"
+)
+_shard_countries: Callable[..., object] = __make_implementation_proxy(
+    "_shard_countries", "transformers"
+)
+_shard_prefers_async_fetch: Callable[..., object] = __make_implementation_proxy(
+    "_shard_prefers_async_fetch", "validators"
+)
+_shard_supported_by_capability: Callable[..., object] = __make_implementation_proxy(
+    "_shard_supported_by_capability", "validators"
+)
+_source_completion_pct_by_phase: Callable[..., object] = __make_implementation_proxy(
+    "_source_completion_pct_by_phase", "validators"
+)
+_source_runtime_lane_count: Callable[..., object] = __make_implementation_proxy(
+    "_source_runtime_lane_count", "registry"
+)
+_split_shard_for_retry: Callable[..., object] = __make_implementation_proxy(
+    "_split_shard_for_retry", "validators"
+)
+_split_shard_for_retry_async: Callable[..., object] = __make_implementation_proxy(
+    "_split_shard_for_retry_async", "validators"
+)
+_store_shard_result: Callable[..., object] = __make_implementation_proxy(
+    "_store_shard_result", "validators"
+)
+_strip_geo_filters: Callable[..., object] = __make_implementation_proxy(
+    "_strip_geo_filters", "transformers"
+)
+_support_cache_key: Callable[..., object] = __make_implementation_proxy(
+    "_support_cache_key", "validators"
+)
+_support_cache_proves_unsupported: Callable[..., object] = __make_implementation_proxy(
+    "_support_cache_proves_unsupported", "validators"
+)
+_support_sketch_id: Callable[..., object] = __make_implementation_proxy(
+    "_support_sketch_id", "writers"
+)
+_update_support_cache: Callable[..., object] = __make_implementation_proxy(
+    "_update_support_cache", "validators"
+)
+_update_unsupported_signature_cache: Callable[..., object] = __make_implementation_proxy(
+    "_update_unsupported_signature_cache", "validators"
+)
+_upsert_alignment_audit: Callable[..., object] = __make_implementation_proxy(
+    "_upsert_alignment_audit", "registry"
+)
+_upsert_catalog_alignments: Callable[..., object] = __make_implementation_proxy(
+    "_upsert_catalog_alignments", "registry"
+)
+_upsert_catalog_registry_datasets: Callable[..., object] = __make_implementation_proxy(
+    "_upsert_catalog_registry_datasets", "registry"
+)
+_upsert_legacy_registry_datasets: Callable[..., object] = __make_implementation_proxy(
+    "_upsert_legacy_registry_datasets", "writers"
+)
+_upsert_seed_alignments: Callable[..., object] = __make_implementation_proxy(
+    "_upsert_seed_alignments", "writers"
+)
+_write_core_ingest_stage_progress: Callable[..., object] = __make_implementation_proxy(
+    "_write_core_ingest_stage_progress", "validators"
+)
+_write_observation_checkpoint_state: Callable[..., object] = __make_implementation_proxy(
+    "_write_observation_checkpoint_state", "validators"
+)
+_write_observation_ingest_manifests: Callable[..., object] = __make_implementation_proxy(
+    "_write_observation_ingest_manifests", "writers"
+)
 
 
 def run_core_sources_ingest(config: DatasetBatchConfig) -> CoreSourcesIngestStats:
@@ -549,7 +678,7 @@ def _resolve_source_execution_policy(
     )
 
 
-def _policy_attr(policy: SourceExecutionPolicy, name: str, default: Any) -> Any:
+def _policy_attr(policy: SourceExecutionPolicy, name: str, default: object) -> object:
     return getattr(policy, name, default)
 
 
@@ -1974,8 +2103,8 @@ async def _fetch_observation_rows_with_retries(
     state_lock: asyncio.Lock,
     capability_snapshot: DatasetCapabilitySnapshot | None = None,
     async_fetch_leases: dict[str, Any] | None = None,
-    record_result: Any | None = None,
-    budget_wait_observer: Any | None = None,
+    record_result: _RecordResult | None = None,
+    budget_wait_observer: _BudgetWaitObserver | None = None,
 ) -> list[dict[str, Any]]:
     attempts = 0
     fetch_key = ObservationFetchKey(
@@ -2034,8 +2163,8 @@ async def _invoke_fetch_observation_rows(
     state_lock: asyncio.Lock,
     capability_snapshot: DatasetCapabilitySnapshot | None = None,
     async_fetch_leases: dict[str, Any] | None = None,
-    record_result: Any | None = None,
-    budget_wait_observer: Any | None = None,
+    record_result: _RecordResult | None = None,
+    budget_wait_observer: _BudgetWaitObserver | None = None,
 ) -> list[dict[str, Any]]:
     try:
         return await __resolve_implementation_dependency("_fetch_observation_rows", "api")(
@@ -2114,7 +2243,7 @@ async def _acquire_source_budget_slot(
     policy: SourceExecutionPolicy,
     budget_windows: dict[str, _SourceBudgetWindow],
     state_lock: asyncio.Lock,
-    budget_wait_observer: Any | None = None,
+    budget_wait_observer: _BudgetWaitObserver | None = None,
 ) -> None:
     if policy.requests_per_hour is None:
         return
@@ -2142,17 +2271,17 @@ async def _acquire_source_budget_slot(
 
 
 async def _execute_source_fetch(
-    connector: Any,
-    handle: Any,
+    connector: SourceConnector[object],
+    handle: ConnectionHandle,
     request: FetchRequest,
     *,
     source: str,
     policy: SourceExecutionPolicy,
     budget_windows: dict[str, _SourceBudgetWindow],
     state_lock: asyncio.Lock,
-    record_result: Any | None = None,
-    budget_wait_observer: Any | None = None,
-) -> Any:
+    record_result: _RecordResult | None = None,
+    budget_wait_observer: _BudgetWaitObserver | None = None,
+) -> FetchResult[object]:
     await _acquire_source_budget_slot(
         source=source,
         policy=policy,
@@ -2171,15 +2300,15 @@ async def _execute_source_fetch(
 
 
 async def _execute_source_describe(
-    connector: Any,
-    handle: Any,
+    connector: SourceConnector[object],
+    handle: ConnectionHandle,
     *,
     dataset_id: str,
     source: str,
     policy: SourceExecutionPolicy,
     budget_windows: dict[str, _SourceBudgetWindow],
     state_lock: asyncio.Lock,
-    budget_wait_observer: Any | None = None,
+    budget_wait_observer: _BudgetWaitObserver | None = None,
 ) -> DatasetCapabilitySnapshot | None:
     await _acquire_source_budget_slot(
         source=source,
@@ -2222,7 +2351,7 @@ async def _describe_observation_plan(
     capability_failures: dict[str, Any],
     budget_windows: dict[str, _SourceBudgetWindow],
     state_lock: asyncio.Lock,
-    budget_wait_observer: Any | None = None,
+    budget_wait_observer: _BudgetWaitObserver | None = None,
 ) -> DatasetCapabilitySnapshot | None:
     key = _capability_snapshot_cache_key(plan)
     async with state_lock:
@@ -2311,8 +2440,8 @@ async def _fetch_observation_rows(
     state_lock: asyncio.Lock,
     capability_snapshot: DatasetCapabilitySnapshot | None = None,
     async_fetch_leases: dict[str, Any] | None = None,
-    record_result: Any | None = None,
-    budget_wait_observer: Any | None = None,
+    record_result: _RecordResult | None = None,
+    budget_wait_observer: _BudgetWaitObserver | None = None,
 ) -> list[dict[str, Any]]:
     plan = shard.plan
     start_year = shard.start_year
@@ -2565,16 +2694,16 @@ async def _fetch_observation_rows(
 
 
 async def _fetch_request_variants(
-    connector: Any,
-    handle: Any,
+    connector: SourceConnector[object],
+    handle: ConnectionHandle,
     requests: list[FetchRequest],
     *,
     source: str,
     policy: SourceExecutionPolicy,
     budget_windows: dict[str, _SourceBudgetWindow],
     state_lock: asyncio.Lock,
-    record_result: Any | None = None,
-    budget_wait_observer: Any | None = None,
+    record_result: _RecordResult | None = None,
+    budget_wait_observer: _BudgetWaitObserver | None = None,
     stop_after_first_success: bool = False,
 ) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
@@ -2611,8 +2740,8 @@ async def _fetch_request_variants(
 
 
 async def _fetch_request_variants_async(
-    connector: Any,
-    handle: Any,
+    connector: SourceConnector[object],
+    handle: ConnectionHandle,
     requests: list[FetchRequest],
     *,
     source: str,
@@ -2621,8 +2750,8 @@ async def _fetch_request_variants_async(
     state_lock: asyncio.Lock,
     async_fetch_leases: dict[str, Any],
     lease_key: str,
-    record_result: Any | None = None,
-    budget_wait_observer: Any | None = None,
+    record_result: _RecordResult | None = None,
+    budget_wait_observer: _BudgetWaitObserver | None = None,
 ) -> list[dict[str, Any]]:
     if not requests:
         return []

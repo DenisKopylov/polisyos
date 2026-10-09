@@ -61,20 +61,31 @@ skip_suffixes = {".pyc", ".pyo"}
 skip_names = {".DS_Store"}
 
 
+def product_path_parts(path: Path) -> tuple[str, ...]:
+    try:
+        return path.relative_to(product_root).parts
+    except ValueError:
+        return ()
+
+
 def should_skip(path: Path) -> bool:
-    if any(part in skip_parts for part in path.parts):
+    parts = product_path_parts(path)
+    if any(part in skip_parts for part in parts):
         return True
     if path.name in skip_names:
         return True
     if path.suffix in skip_suffixes:
         return True
-    if ".egg-info" in path.parts:
+    if any(part.endswith(".egg-info") for part in parts):
         return True
     return False
 
 
 def should_skip_subtree(path: Path) -> bool:
-    return any(part in skip_parts for part in path.parts) or ".egg-info" in path.parts
+    parts = product_path_parts(path)
+    return any(part in skip_parts for part in parts) or any(
+        part.endswith(".egg-info") for part in parts
+    )
 
 
 def iter_paths(root: Path):

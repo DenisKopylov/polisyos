@@ -2,54 +2,22 @@
 
 from __future__ import annotations
 
-import asyncio
-import contextlib
-import csv
-import gzip
 import hashlib
-import io
 import json
-import math
-import os
 import re
-import time
-import zipfile
-from collections import OrderedDict, defaultdict, deque
-from dataclasses import dataclass, replace
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from importlib import import_module
-from itertools import islice
-from pathlib import Path
-from typing import TYPE_CHECKING, Any
-from urllib.parse import urlparse
+from typing import TYPE_CHECKING, cast
 
-import aiohttp
-import duckdb
-import pandas as pd
-
-from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
     CatalogTransportDataset,
-    CoreSourcesIngestStats,
-    ObservationFetchKey,
-    ObservationFetchPayload,
-    ObservationInsertStats,
     ObservationPlan,
     ObservationShard,
-    ObservationShardResult,
-    ObservationWriteItem,
     SupportSketch,
-    WriterFlushState,
-    _ObservationRuntimeMetrics,
-    _SourceBudgetWindow,
 )
-from polisyos.data_forge.domains.catalog.batch.checkpoints import load_json, write_json
 from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
-    country_scope_members,
-    iso2_to_iso3,
     iso2_to_numeric,
-    normalize_country_code,
 )
 from polisyos.data_forge.domains.catalog.knowledge.proxy_penalties import metric_proxy_alignments
 from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
@@ -59,29 +27,18 @@ from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
     calibrate_alignment_confidence,
     load_seed_alignments,
 )
-from polisyos.data_forge.kernel.pipeline.manifests import write_raw_manifest, write_stage_manifest
 from polisyos.data_forge.read_api.academic import CANONICAL_VARIABLES
-from polisyos.fabric.connectors.base import (
-    AsyncFetchLease,
-    ConnectionConfig,
-    DatasetCapabilitySnapshot,
-    FetchRequest,
-)
-from polisyos.fabric.connectors.profiles.models import SourceExecutionPolicy
-from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
-from polisyos.fabric.connectors.profiles.resolver import (
-    resolve_connection_config,
-    resolve_execution_policy,
-)
-from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
-from polisyos.fabric.connectors.sources.sdmx_source import SDMXSourceConnector
-from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
-from polisyos.fabric.connectors.sources.unpd import UNPDConnector
-from polisyos.fabric.connectors.sources.who import WHOConnector
-from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 
 if TYPE_CHECKING:
+    import asyncio
+    from collections.abc import Callable
+    from pathlib import Path
+
+    import duckdb
+
     from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
+    from polisyos.fabric.connectors.base import DatasetCapabilitySnapshot
+    from polisyos.fabric.connectors.profiles.models import SourceExecutionPolicy
 
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
     resolve_core_sources_compatibility_binding,
@@ -227,58 +184,83 @@ _ILO_INFERRED_DIMENSION_TOKENS: frozenset[str] = frozenset(
 )
 
 
-__OWNER_BOUND_PROXIES: dict[str, Any] = {}
+__OWNER_BOUND_PROXIES: dict[str, object] = {}
 
 
-def __resolve_implementation_dependency(name: str, owner: str) -> Any:
+def __resolve_implementation_dependency(name: str, owner: str) -> object:
     """Resolve a split-module dependency without facade-global injection."""
     has_context_override, context_override = resolve_core_sources_compatibility_binding(
         f"{__package__}.{owner}", name
     )
     if has_context_override:
-        return context_override
+        return cast("object", context_override)
     override = globals().get(name)
     if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
         return override
     module = import_module(f"{__package__}.{owner}")
-    return getattr(module, name)
+    return cast("object", getattr(module, name))
 
 
-def __make_implementation_proxy(name: str, owner: str) -> Any:
+def __make_implementation_proxy[**P, R](name: str, owner: str) -> Callable[P, R]:
     """Create a lazy, owner-bound compatibility callable for this module."""
 
-    def __proxy(*args: Any, **kwargs: Any) -> Any:
-        return __resolve_implementation_dependency(name, owner)(*args, **kwargs)
+    def __proxy(*args: P.args, **kwargs: P.kwargs) -> R:
+        implementation = __resolve_implementation_dependency(name, owner)
+        return cast("Callable[P, R]", implementation)(*args, **kwargs)
 
-    return __proxy
+    __OWNER_BOUND_PROXIES[name] = __proxy
+    return cast("Callable[P, R]", globals().setdefault(name, __proxy))
 
 
-for __dependency_name, __dependency_owner in (
-    ("_capability_dimension_values", "validators"),
-    ("_capability_snapshot_cache_key", "writers"),
-    ("_eurostat_filters_for_countries", "transformers"),
-    ("_infer_dimension_order_for_plan", "writers"),
-    ("_load_json_dict", "transformers"),
-    ("_normalize_dimension_order", "writers"),
-    ("_observation_countries", "transformers"),
-    ("_observation_frequency_rank", "transformers"),
-    ("_observation_shard_id", "validators"),
-    ("_observation_time_window_years", "validators"),
-    ("_policy_attr", "api"),
-    ("_policy_bool_attr", "api"),
-    ("_policy_int_attr", "api"),
-    ("_policy_optional_int_attr", "api"),
-    ("_policy_str_attr", "api"),
-    ("_sdmx_filters_for_countries", "transformers"),
-    ("_shard_prefers_async_fetch", "validators"),
-    ("_support_sketch_id", "writers"),
-    ("_to_iso3", "transformers"),
-    ("_tokenize", "transformers"),
-    ("_year_windows", "validators"),
-):
-    __proxy = __make_implementation_proxy(__dependency_name, __dependency_owner)
-    __OWNER_BOUND_PROXIES[__dependency_name] = __proxy
-    globals().setdefault(__dependency_name, __proxy)
+_capability_dimension_values: Callable[..., object] = __make_implementation_proxy(
+    "_capability_dimension_values", "validators"
+)
+_capability_snapshot_cache_key: Callable[..., object] = __make_implementation_proxy(
+    "_capability_snapshot_cache_key", "writers"
+)
+_eurostat_filters_for_countries: Callable[..., object] = __make_implementation_proxy(
+    "_eurostat_filters_for_countries", "transformers"
+)
+_infer_dimension_order_for_plan: Callable[..., object] = __make_implementation_proxy(
+    "_infer_dimension_order_for_plan", "writers"
+)
+_load_json_dict: Callable[..., object] = __make_implementation_proxy(
+    "_load_json_dict", "transformers"
+)
+_normalize_dimension_order: Callable[..., object] = __make_implementation_proxy(
+    "_normalize_dimension_order", "writers"
+)
+_observation_countries: Callable[..., object] = __make_implementation_proxy(
+    "_observation_countries", "transformers"
+)
+_observation_frequency_rank: Callable[..., object] = __make_implementation_proxy(
+    "_observation_frequency_rank", "transformers"
+)
+_observation_shard_id: Callable[..., object] = __make_implementation_proxy(
+    "_observation_shard_id", "validators"
+)
+_observation_time_window_years: Callable[..., object] = __make_implementation_proxy(
+    "_observation_time_window_years", "validators"
+)
+_policy_attr: Callable[..., object] = __make_implementation_proxy("_policy_attr", "api")
+_policy_bool_attr: Callable[..., object] = __make_implementation_proxy("_policy_bool_attr", "api")
+_policy_int_attr: Callable[..., object] = __make_implementation_proxy("_policy_int_attr", "api")
+_policy_optional_int_attr: Callable[..., object] = __make_implementation_proxy(
+    "_policy_optional_int_attr", "api"
+)
+_policy_str_attr: Callable[..., object] = __make_implementation_proxy("_policy_str_attr", "api")
+_sdmx_filters_for_countries: Callable[..., object] = __make_implementation_proxy(
+    "_sdmx_filters_for_countries", "transformers"
+)
+_shard_prefers_async_fetch: Callable[..., object] = __make_implementation_proxy(
+    "_shard_prefers_async_fetch", "validators"
+)
+_support_sketch_id: Callable[..., object] = __make_implementation_proxy(
+    "_support_sketch_id", "writers"
+)
+_to_iso3: Callable[..., object] = __make_implementation_proxy("_to_iso3", "transformers")
+_tokenize: Callable[..., object] = __make_implementation_proxy("_tokenize", "transformers")
+_year_windows: Callable[..., object] = __make_implementation_proxy("_year_windows", "validators")
 
 
 def _ensure_registry_tables(con: duckdb.DuckDBPyConnection) -> None:

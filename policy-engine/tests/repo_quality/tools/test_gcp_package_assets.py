@@ -215,6 +215,32 @@ def test_gcp_archive_accepts_excluded_symlinks_without_archiving_them(tmp_path):
     assert not any("__pycache__" in name or name.endswith(".pyc") for name in members)
 
 
+def test_gcp_archive_excludes_distribution_named_egg_info_components(tmp_path):
+    source = "assets/item.yaml"
+    (workspace, product) = _project_fixture(
+        tmp_path, _force_include_manifest(source, "polisyos/assets/item.yaml")
+    )
+    configured_source = product / source
+    configured_source.parent.mkdir(parents=True)
+    configured_source.write_text("manifest source bytes\n")
+    (product / "src/kept.py").write_text("selected source\n")
+    literal_metadata = product / "src/.egg-info"
+    distribution_metadata = product / "src/polisyos.egg-info"
+    literal_metadata.mkdir()
+    distribution_metadata.mkdir()
+    (literal_metadata / "PKG-INFO").write_text("literal metadata\n")
+    (distribution_metadata / "PKG-INFO").write_text("distribution metadata\n")
+
+    output = workspace / "archives"
+    result = _run_packager(product, output)
+    assert result.returncode == 0, result.stdout + result.stderr
+    (archive_path,) = output.glob("*.tar.gz")
+    members = _archive_files(archive_path)
+    assert members["policy-engine/src/kept.py"] == b"selected source\n"
+    assert "policy-engine/src/.egg-info/PKG-INFO" not in members
+    assert "policy-engine/src/polisyos.egg-info/PKG-INFO" not in members
+
+
 def test_gcp_archive_refuses_special_members_before_opening_archive(tmp_path):
     source = "assets/item.yaml"
     (workspace, product) = _project_fixture(

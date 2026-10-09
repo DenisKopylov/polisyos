@@ -59,6 +59,52 @@ class TestBootstrapMetric:
                 seed=42,
             )
 
+    @pytest.mark.parametrize("entrypoint", ["metric", "scenario"])
+    def test_two_dimensional_observations_refuse_before_callback_or_rng(self, monkeypatch, entrypoint):
+        callback_calls = 0
+        rng_calls = []
+
+        def forbidden_rng(seed=None):
+            rng_calls.append(seed)
+            raise AssertionError("invalid observations reached RNG construction")
+
+        def statistic(values):
+            nonlocal callback_calls
+            callback_calls += 1
+            return float(np.mean(values))
+
+        monkeypatch.setattr(np.random, "default_rng", forbidden_rng)
+        values = np.array([[1.0, 2.0], [3.0, 4.0]])
+
+        error = None
+        try:
+            if entrypoint == "metric":
+                bootstrap_metric(values, statistic=statistic, n_bootstrap=2, seed=42)
+            else:
+                bootstrap_scenario_metrics(values, n_bootstrap=2, seed=42)
+        except Exception as exc:
+            error = exc
+
+        assert callback_calls == 0
+        assert rng_calls == []
+        assert isinstance(error, BootstrapValidationError)
+        assert error.code == "invalid_dimensions"
+
+    def test_unknown_statistic_refuses_before_rng_construction(self, monkeypatch):
+        rng_calls = []
+
+        def forbidden_rng(seed=None):
+            rng_calls.append(seed)
+            raise AssertionError("unknown statistic reached RNG construction")
+
+        monkeypatch.setattr(np.random, "default_rng", forbidden_rng)
+
+        with pytest.raises(BootstrapValidationError) as error:
+            bootstrap_metric([1.0, 2.0], statistic="medain", n_bootstrap=1, seed=42)
+
+        assert error.value.code == "unknown_statistic"
+        assert rng_calls == []
+
     @pytest.mark.parametrize("non_finite", [np.nan, np.inf])
     def test_non_finite_observations_are_rejected(self, non_finite):
         with pytest.raises(BootstrapValidationError, match="finite"):

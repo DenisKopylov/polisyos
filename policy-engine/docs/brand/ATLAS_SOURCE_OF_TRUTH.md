@@ -38,11 +38,12 @@ MACHINE contracts:
   and [19-slice example](../../architecture/atlas_surfaces/surface-readiness-ledger.example.json).
 
 The decisions derive from the
-[surface constitution](../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md)
-and execute the Phase A closure contract in the
-[Revision 2 master plan](../plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md).
-If either governing document changes a load-bearing rule, this record must be
-reviewed rather than locally patched around it.
+[surface constitution](../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md).
+The [Phase-A synthesis](../reference/frontend/atlas-phase-a-synthesis.md)
+records the DS0–DS2 closure results and their limits; the current Atlas master
+plan governs execution sequencing. If the constitution or that plan changes a
+load-bearing rule, this record must be reviewed rather than locally patched
+around it.
 
 ## Decision Register
 
@@ -66,8 +67,9 @@ Atlas has one authority hierarchy, with one owner per purpose:
 1. The Universal Policy Design constitution remains the system constitution.
 2. The [Atlas surface constitution](../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md)
    owns normative surface law.
-3. The [Revision 2 master plan](../plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md)
-   owns Atlas execution order, slice boundaries, and GY gates.
+3. The current Atlas master plan owns execution order, slice boundaries, and
+   GY gates. The [Phase-A synthesis](../reference/frontend/atlas-phase-a-synthesis.md)
+   records DS0–DS2 outcomes but does not activate Phase B or override GY gates.
 4. This record owns DS0 source dispositions; the
    [adoption-ledger schema](../../architecture/atlas_surfaces/adoption-ledger.schema.json)
    and [source-level instance](../../architecture/atlas_surfaces/adoption-ledger.example.json)
@@ -81,7 +83,7 @@ Atlas has one authority hierarchy, with one owner per purpose:
 | --- | --- | --- | --- |
 | Living v4: `apps/runtime-dashboard/src/shared/ui/**`, styles, and `designTokens.ts` | `retained_current_production_baseline`; adoption posture `wrap_then_strangle` | Remains live until admitted replacements have consumers and evidence | Every live counterpart affected by a v15 token/component/pattern verdict; no bulk removal |
 | [Atlas design-system v4 doc](./ATLAS_DESIGN_SYSTEM.md) and [v4 adoption record](./ATLAS_V4_ADOPTION.md) | `superseded_as_canonical` | Retained as dated v4 rationale, ADR links, deliberate deltas, and migration evidence | Whether each retained v4 decision survives v15 comparison; ADR-047 stays in force unless superseded through ADR process |
-| [v7 product/marketing/client plan](../plans/active/POLICYOS_ATLAS_PRODUCT_MARKETING_CLIENT_SURFACES_MASTER_PLAN.md) | `superseded_as_execution_master` | Retained as material for DS11-DS13 only | Later task plans incorporate or explicitly reject retained trust, publication, and accountability material |
+| v7 product/marketing/client plan | `superseded_as_execution_master` | Retained as material for DS11-DS13 only | Later task plans incorporate or explicitly reject retained trust, publication, and accountability material |
 | [v15 archive](../../design/atlas-v15/README.md) | `evidence_source_pending_adjudication`; `implemented_but_not_orchestrated` | Immutable sha256-pinned input | Token sets, 56 components, state matrices, forms, responsive/data-viz grammar, themes/accessibility modes, governance, i18n, Figma, content, security/privacy UX, and product patterns, item by item |
 
 The two vision-superseded frontend plans move to `docs/plans/archive/` under

@@ -1,0 +1,180 @@
+{
+  "schema": "policyos.e02.orch02.independent_review.v1",
+  "reviewer": "/root/recovery_review",
+  "author": "/root/c12_writer",
+  "original_unit": "C",
+  "review_kind": "C12 mandatory invocation diagnostic compact handoff/evidence review",
+  "verdict": "GO for normal own-topic publication of completed FAIL diagnostic packet; no G source acceptance or formal closure",
+  "source": "192c8b935b824e2e4d38276f10d3061877207e9f",
+  "source_tree": "46d748c61419ea4093cae25bc4111935b41f1a58",
+  "actual_whole_execution_head": "77be2bb933d26363fb163ae5f36623a3bddaf061",
+  "actual_whole_execution_tree": "9c24d5ddafcd1796377440dec82edf61ade82628",
+  "base": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+  "reviewed_handoff_commit": "0a613e861a45981cf1f2808d5934d6d355147f13",
+  "reviewed_handoff_tree": "083320766a3b6356bd7e9a3f4d4fc62d6fd32844",
+  "followup_identity": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-invocation-followup-20261008.json",
+    "git_blob": "12531c746865c7165c44793b94ee2a023f40390b",
+    "bytes": 7792,
+    "sha256": "14ab371ce4095339899a732b83e6709f843a9720d6ccee5ac3fc19d86c5f5f5f"
+  },
+  "main_identity": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008.json",
+    "git_blob": "29cae666ec547cced72e284fb725646a8fa2e098",
+    "bytes": 54623,
+    "sha256": "8180fd45fa61a1e5e2d890ee832f24d18665f0c607c9b68a1af32115da9a2720"
+  },
+  "all_sources_and_prior_evidence_preserved": {
+    "source_postimages": 6,
+    "prior_packet_paths_byte_equal": 71,
+    "prior_checks_exact_unchanged": 10,
+    "delta_docs_paths": 10,
+    "total_source_to_handoff_docs_paths": 82,
+    "diff_check_exit": 0,
+    "attached_clean": true,
+    "main_changed_keys": [
+      "quality_limitations",
+      "receipt_footprint",
+      "checks",
+      "quality_followups"
+    ]
+  },
+  "measurement": {
+    "required_gate_outcome": "FAIL",
+    "completed_diagnostic_status": "UNRESOLVED",
+    "exit_code": 3,
+    "coverage": "partial",
+    "wall_seconds": 327.74465620499996,
+    "maxrss_kib": 8371260,
+    "resource_scope": "exact wait4 child invocation, not summed hostmemory",
+    "timeout": null,
+    "regressions": [],
+    "new_unresolved_count": 5,
+    "new_unresolved_candidates": [
+      "polisyos.lex.knowledge.search.LegalKnowledgeGraph.hybrid_search",
+      "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_entities_by_vector",
+      "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_facts_by_vector",
+      "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_provisions_by_vector",
+      "polisyos.lex.knowledge.store.LegalQueryProfile.from_generation"
+    ],
+    "all5_changed_true_lost_path_false_no_terminus_no_deferral": true,
+    "runtime_invocation_established": false
+  },
+  "full_evidence_verification": {
+    "complete_raw_JSON_read": {
+      "path": "/workspace/orch02-c12/policy-engine/_build/e02-C-orch02-c12-recovery/production-invocation-192.json",
+      "bytes": 170816679,
+      "sha256": "406c54d77d7547d60b4443ccbb40f18f040e97a5359243f5e3d0237c07fb3934",
+      "ignored": true,
+      "complete_JSON_parsed": true
+    },
+    "all4output_stream_hashes_verified": true,
+    "all7tracked_manifest_artifacts": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/invocation.command.json",
+        "git_blob": "d3cc81b7344244663d59f95d08a9cefef5316a0d",
+        "bytes": 13956,
+        "sha256": "63d280860fde313d71be0badc655780eebd64bfbbf0acc3e133096acd90efc3b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/invocation.receipt.json",
+        "git_blob": "b11043f44f85cbdd94a329fd1ab09e272d5ef6ba",
+        "bytes": 14949,
+        "sha256": "8a16f2d9220c13939c1e6db20257c1ffdd79c9410e1a93d92afb0ac554078f98"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/invocation.stdout.txt",
+        "git_blob": "4971314b528fcb653dd4e239b0f0efbf9b21c5bb",
+        "bytes": 1752,
+        "sha256": "a8ae012fc84ad7b38779847a578a583d3b392e87acb308426661fc5c1d3a1ba3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/invocation.stderr.txt",
+        "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/origin.stdout.txt",
+        "git_blob": "0ba745abdc18282a9d14f7e8f8ca9dc42ae65a3f",
+        "bytes": 346,
+        "sha256": "b8593a8cd3626e4cd9d932870f6000c6c7ce8052be41808ff5221d0ded3f9a48"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/origin.stderr.txt",
+        "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/quality/production-invocation-final-192/diagnostic-extract.json",
+        "git_blob": "a69bc141dbbdd32d7a1e035555d7a9a80309187a",
+        "bytes": 27613,
+        "sha256": "459fc6d25f18f481e0028cce8e501548e1d8a8eb94a2699d50cbee04268a9db3"
+      }
+    ],
+    "extract_exact_matches_full_raw": true,
+    "complete_selected_input_denominator": {
+      "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+      "current_files": 5908,
+      "base_files": 5908,
+      "source_files": 2702,
+      "current_sha256": "da838073e817b176522d23e1cd0322f8114d16b325e2351c53dca515b5efcea5",
+      "base_sha256": "b58230a633e0e3deaaf939b20c1d2c8502d267cedd4601a7a40ba635db23afb8"
+    },
+    "selected_input_partitions": {
+      "src": 2702,
+      "tools": 445,
+      "tests": 2761
+    },
+    "all_public_concrete_candidates": 13106,
+    "candidate_status_counts": {
+      "unresolved_by_construction": 9216,
+      "uninvoked": 2156,
+      "static_path": 1734
+    },
+    "static_roots": 401,
+    "all_unresolved_receiver_count": 139838,
+    "instrument_register_wrapper_input_binding": "Exact source192/whole77/basec60 instrument+register+wrapper bytes independently verified, selected source pyproject+locks unchanged; actualoriginownsrc and Python3.14.2",
+    "whole_source_input_reconciliation": "Independent every selected current/base Gitblob read+currentworktree equality, streamed exact sorted UTF8SIG canonical jsonmappinghash, no audit/graph rerun",
+    "ignored_raw_not_tracked": true,
+    "full_input_scope_does_not_claim_full_runtime_scope": true
+  },
+  "named_served_caller_requirement": {
+    "state": "deferred/not_established",
+    "owners": [
+      "C10/A actual incoming request/context/profile consumer",
+      "G exact selected shared contract/caller/public companion leases",
+      "L01 authentic local tuple; L02 admitted authentic read-only consumer"
+    ],
+    "named_current_G_caller": "runtime/http/services/control/lex_pipeline.py#search_lex_graph remains text-only; served typed profile and canonical encoder bridge is required separately",
+    "required_terminus": "actual incoming request/effective purpose/profile -> retained expected relevant Legal generation -> matching canonical query encoder -> fresh reader and actual response/persisted readback with discriminating unchanged-negative call-removal",
+    "reason": "This direct-call model leaves HTTP/DI/callback/reflection/deferred execution unresolved. Fixture/native tests and static diagnostics do not establish ordinary served production vector invocation. No invented default profile, parallel producer/caller or diagnostic-clearing deferrals added."
+  },
+  "current_G_caller_binding": {
+    "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+    "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py",
+    "git_blob": "5c1f8bba235764741a64aca54f953846bccddc25",
+    "bytes": 11198,
+    "sha256": "dfc4910d4b5ae6785939437b6190912e14a0e1ca43ca48fdf9a0b63f0044ade7",
+    "actual_caller_behavior": "LexPipelineMixin.search_lex_graph constructs graph then calls text_search; no typed retained LegalQueryProfile/queryencoder/vector invocation."
+  },
+  "P40_classification": "5 unresolved static source paths stay within already-declared served/dynamic invocation boundary. No new product-mechanism class, source repair, deferral laundering or recursive scope expansion inferred. New required quality observation remains FAIL.",
+  "source_acceptance": "not_admitted_by_G",
+  "formal_G_closure": false,
+  "formal_closure_ids": [],
+  "unmeasured": [
+    "HTTP router dispatch",
+    "dependency injection/container dispatch",
+    "event-bus dispatch",
+    "registered callback invocation",
+    "deferred lambda/coroutine execution and generator resumption",
+    "reflection and dynamic receiver/factory resolution",
+    "runtime execution, persisted business receipts, and gate substance"
+  ],
+  "prior_architecture_FULL_FAIL_historical_UNRUN_mypyFAIL14_native36_and_residual_unchanged": true,
+  "native_or_graph_replay_performed_by_reviewer": false,
+  "publication_requirements": "Separate docs-only review metadata commit may copy these reports, preserve all82 evidence and source bytes, then normal topic push/fetch/readback.",
+  "external_full_verification": "/workspace/orch02-recovery/reviews/c12-invocation-handoff-verification-0a613e86.json",
+  "external_complete_raw_review": "/workspace/orch02-recovery/reviews/c12-independent-invocation-complete-evidence-review-192c8b93.json"
+}

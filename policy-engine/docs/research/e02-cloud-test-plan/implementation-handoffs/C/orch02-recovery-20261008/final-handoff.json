@@ -1,0 +1,273 @@
+{
+  "schema": "policyos.e02.orch02.recovery_final_handoff.v1",
+  "draft": false,
+  "original_unit": "C",
+  "coordinator": "/root",
+  "source_writers_are_direct_helpers_only": true,
+  "previous_executor_error": {
+    "exact_error": "failed to query executor configuration capabilities",
+    "taxonomy": "setup ERROR; no product FAIL; broken VM not waited"
+  },
+  "current_G": {
+    "sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+    "tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+    "composition": "not selected/admitted by G",
+    "last_remote_ref_verified_at_utc": "2026-10-08T17:09:57.907910+00:00",
+    "source_selection_status": "No changed composition or source acceptance was issued to these lanes; G owns selection."
+  },
+  "recovery": "All required blobs decoded exactly through GitHub git/blobs read API, Git blob SHA1 and manifest SHA256 verified; C12 unified_patch extracted,6 full postimages match; faithfulC05 V5 10 postimages match. Blob SHAs never used as commit/tree checkouts.",
+  "admission": "Actual freshhost writable remote/toolchain/storage verified; four exact own-base writer lane create/resume receipts PASS. Coordinator owns only unique docs/harness custody.",
+  "roles": [
+    {
+      "role": "C05",
+      "topic": "codex/e02-C-orch02-c05-recovery",
+      "base": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "source": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "source_tree": "47950716278e09cd1c4ddf6fa0acefbcdd013e50",
+      "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008.json",
+      "published_head": "2a7f9bf8f02aa8e751614f751b6d9ee2af2dfe5e",
+      "native": {
+        "full_affected": 103,
+        "DFI03": 43,
+        "DFK02": 36,
+        "retrieval": 24,
+        "additional_readers": 9,
+        "total": 112,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0,
+        "matched_negative": "Profile/seed contributions, proxy/WVS warm caches, normalized real empty-plan legacy dispatcher, and actual bulk forwarding. Two final deciding probes retain raw INCONCLUSIVE labels while independently observed literal stale values/refusal discriminate; historical V1 setup/classifier errors also retained."
+      },
+      "quality": {
+        "ruff": "FAIL99",
+        "mypy": "FAIL14",
+        "format_imports": "PASS",
+        "architecture": "FAIL scoped nongenerated; generated freshness remains separate G scope",
+        "static_invocation": "FAIL exit3 UNRESOLVED/partial; runtime invocation not established",
+        "P41": "not_established"
+      },
+      "limits": [
+        "All headers including Accept, credentials, remote/corpus revisions, injected profiles and atomic concurrent snapshots excluded.",
+        "Full LA041 output/resume/source-registry consolidation not closed.",
+        "LA032 only scoped supplier/reader requirement; C-W19 inventory/source authority not established.",
+        "Bulk1vs4 real registry snapshots proves owned call count, not whole performance."
+      ],
+      "status": "source frozen; separate docs publication and qualified receipts",
+      "published_tree": "fe3e10ca4e87ef13e07390dfadc1dff0ecfbc80b",
+      "handoff_sha256": "67a31b4897b034d19c21018fbc399530dd445bc9aba25220c138b32b7f003be5",
+      "handoff_git_blob": "efa3af6759985e07470681a69dd6d91b6464a42b",
+      "docs_readback_count": 123,
+      "remote_readback": "root independently fetched exact topic; complete unique docs bytes match local; source footprint unchanged"
+    },
+    {
+      "role": "C06-DFK",
+      "topic": "codex/e02-C-orch02-c06-dfk-recovery",
+      "base": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+      "source": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+      "source_tree": "e0ca5462ec6f38f91e4d2ebedf1bf2f18f2c9f99",
+      "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/handoff.json",
+      "native": {
+        "full_affected": 31,
+        "real_Git_protocol_cases": 20,
+        "census_selected_and_read": 13650,
+        "census_total_tracked": 13745,
+        "census_excluded": 95,
+        "census_utf8_and_byte_reads": 13650,
+        "census_independent_every_path_byte_oracle": true,
+        "installed_direct_wheel": 9,
+        "installed_sdist_rebuilt_wheel": 9,
+        "matched_negative": "Old parser9 expected failures/5preservation passes; source/docs/markers retained.",
+        "full_census": "340.214s,exit0; first300s external harness timeout preserved as ERROR.",
+        "protocol_selection_boundary": "Staged rename old source is absent from selected Git index set; unstaged Y=R intent-to-add leaves missing old tracked source selected and census refuses with exit2. Both protocol endpoints preserved."
+      },
+      "quality": {
+        "architecture": "FAIL full; initial doc-write isolation witnesses separately corrected on only affected families",
+        "static_invocation": "Exit0,400.618s PASS of partial static model; runtime invocation not established.",
+        "P41": "not_established",
+        "ruff_format_strict_mypy": "PASS",
+        "changed_src_import_gate": "SKIP: zero changed src Python inputs; child0 is not an import PASS",
+        "required_entrypoint_equivalence": "Executed tools CLI imports canonical runtime.main directly; source and callable identity and __main__ AST SystemExit(main()) match. Same valid explicit flags, no alternative checker; help/prog/signal outcomes remain separately qualified."
+      },
+      "limits": [
+        "Finite selected Git-visible UTF8 local text census only; ignored/binary/computed/external/historical absence not established.",
+        "Wheel/sdist exact member/RECORD checks and fresh installed consumers are separate; no complete installed/external retirement or legacy deletion permission."
+      ],
+      "status": "source frozen; separate docs publication and qualified receipts",
+      "published_head": "e4bd1527c941ff880a5d34898c57428c7be4b1cc",
+      "published_tree": "ac28670d3de31221e3f553902d4287fb8e482c40",
+      "handoff_sha256": "e3f3d00da1dc4711d46e9e75e59e3b7ccd10633193cb892f9ae73a4ab50ec849",
+      "handoff_git_blob": "dc5a67337d4bf0425a4a1e15e14669ae3fef5890",
+      "docs_readback_count": 175,
+      "remote_readback": "root independently fetched exact topic; complete unique docs bytes match local; source footprint unchanged"
+    },
+    {
+      "role": "C06-CAN",
+      "topic": "codex/e02-C-orch02-c06-can-recovery",
+      "base": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "source": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+      "source_tree": "7e73132dd639bf03e40a27dd5f12837d916aeb3f",
+      "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/handoff.json",
+      "native": {
+        "full_affected": 62,
+        "direct_consumers": 29,
+        "independent_CAS_probes": 4,
+        "total": 95,
+        "installed_direct_wheel": 36,
+        "installed_sdist_rebuilt_wheel": 36,
+        "installed_source_only_AST_case_deselected": 1,
+        "matched_negative": "Original reader21 failures, separators-only2 failures, complete-profile guard-only9 failures, preservation controls pass."
+      },
+      "quality": {
+        "ruff_format_strict_mypy_imports": "PASS",
+        "architecture": "FAIL full; initial doc-write isolation witness separately corrected only affected trust family",
+        "static_invocation": "First -9 command ERROR despite optimistic emitted status; same-source/base serial retry exit0,450.441s PASS of partial static model only. Complete first/retry diagnostic bytes identical; runtime invocation not established.",
+        "P41": "not_established",
+        "required_entrypoint_equivalence": "Executed tools CLI imports canonical runtime.main directly; source and callable identity and __main__ AST SystemExit(main()) match. Same valid explicit flags, no alternative checker; help/prog/signal outcomes remain separately qualified."
+      },
+      "limits": [
+        "Reader-only; current producer/put_json/adapter contract untouched, no e3/55b overlay.",
+        "C02/G decides profile-less history, nondefault Core/options/tag-set compatibility and raw-Core bypass.",
+        "Actual loaded885 file origin contour includes older identifiability supplier versus G032, alongside intended IO delta; own-base native/package PASS is not G composed PASS."
+      ],
+      "status": "source frozen; separate docs publication and qualified receipts",
+      "published_head": "6602fbd087ef31d3f8eff42e94fc1fc074326d45",
+      "published_tree": "5c281ce135abc9e7e25ae75268c09fa8316a63c6",
+      "handoff_sha256": "618f70ecdcb652c69f3eb302914c0903d35c2d915b34191269479c34b0dcb605",
+      "handoff_git_blob": "d9867fea12fe0a559743f99271f5e2719e0a13fb",
+      "docs_readback_count": 140,
+      "remote_readback": "root independently fetched exact topic; complete unique docs bytes match local; source footprint unchanged"
+    },
+    {
+      "role": "C12",
+      "topic": "codex/e02-C-orch02-c12-recovery",
+      "base": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "source": "192c8b935b824e2e4d38276f10d3061877207e9f",
+      "source_tree": "46d748c61419ea4093cae25bc4111935b41f1a58",
+      "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008.json",
+      "native": {
+        "full_affected": 36,
+        "EMB03": 31,
+        "kernel_embeddings": 5,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0,
+        "matched_negative": "Samecorpus/assets G0->G1 stale retained request refuses beforeencode/HNSW. Onlyrequest-profile guard removal invokes actualencoder/index; restoredrefusal and freshmatching G1 reopenedreader pass."
+      },
+      "quality": {
+        "ruff_format_imports": "PASS",
+        "mypy": "FAIL14 on unchanged store contour",
+        "architecture": "Fresh full default gate FAIL on exact192 through docs427;431.762s,noUNRUN/noisolation escapes. Historical677UNRUN retained.",
+        "P41": "not_established",
+        "architecture_scope": "Four default required generated families completed; optional families and standalone Atlas not included.",
+        "generated_chain_boundary": "Client/dashboard clean outputs consume committed schema; they do not prove the separately regenerated drifted OpenAPI family chain is refreshed. G selects and regenerates shared companions.",
+        "static_invocation": "FAIL exit3 UNRESOLVED, partial static coverage,327.7447s; no regressions, five new dynamic unresolved candidates; runtime invocation explicitly not established. Required wrapper executed on source192 through docs77be/basec60, complete outputs and 5908/5908 tracked Python input closure independently reconciled."
+      },
+      "limits": [
+        "Immutable request intent supplies desiredgeneration/model; no new reader selector/compatibilityGraph.embedding_model source.",
+        "Native substituted-callable residual under same assets/hash/profile remains declared.",
+        "No current-law authority or whole LA040/LA042 retirement; G publicfacade/API/generated companions and C10 actual served binding required."
+      ],
+      "status": "source frozen; separate docs publication and qualified receipts",
+      "published_head": "9c46da826c3d54b6d0a13cc1772bda4b2c646e68",
+      "published_tree": "99e992c598468fdfe6d5bc17d4d77951e52117e0",
+      "handoff_sha256": "75c5c5b108ebe5ff437be2656fbe77de235802b2ed00fdb71ae37fdadb783f5a",
+      "handoff_git_blob": "a1252d4d636b38458ada55834b27b44465819258",
+      "handoff_bytes": 55961,
+      "docs_readback_count": 84,
+      "remote_readback": "root independently fetched exact topic; all 84 unique docs byte/hash identities match local; all six source postimages unchanged",
+      "static_invocation_execution_whole_head": "77be2bb933d26363fb163ae5f36623a3bddaf061",
+      "architecture_execution_whole_head": "427068292f7e0e50a12441affe72f167a899c45b"
+    }
+  ],
+  "source_acceptance": "not_admitted_by_G",
+  "proposed_criterion_outcome": "Supported finite own-base mechanics demonstrated; whole original findings remain held",
+  "formal_closure_ids": [],
+  "portable_broad_replay": "UNRUN intentionally; G/C13 only after selected composition freeze",
+  "minimal_authentic_local_L01_L02_pair": "not_established in exact current-G carried metadata; no payload/asset upload or fabricated production tuple",
+  "integration_requirements": [
+    {
+      "owner": "G",
+      "required": "Select complete DFI->CAT->Legal ancestry and DFK baseline; all ownbase/G preimages and dependencies are in qualified packets. Return changedcomposition delta to canonical pathowner for new lineage/review; preserve all hunks/foreignchanges."
+    },
+    {
+      "owner": "G/C13",
+      "required": "Freeze selected composition, shared lock/API/generated/public companions, then exactly one broad portable replay with fresh affected consumer/source origins."
+    },
+    {
+      "owner": "C02/G",
+      "required": "CAN strict genericreader receipt precedes deployment; decide Core/canon/options compatibility, profilelesshistory and raw-Core tagsetbypass without importing oldwriteroverlay."
+    },
+    {
+      "owner": "C10/A plus G",
+      "required": "Actual servedrequest retains desired Legal generation/model/profile before current reader changes and supplies canonicalencoder. Actual Catalog caller passes CatalogRunProfile to existing retrieval/output. Core/lex_pipeline/public contract path leases assigned by G."
+    },
+    {
+      "owner": "L01/L02",
+      "required": "Only smallest authentic local selected source/profile or Legal DB/index/generation/model/membership/encoder tuple with opaque refs/hashes and localoracle. Existing metadata does not establish authority or presentday tuple."
+    },
+    {
+      "owner": "G/C-W19/L01/L02",
+      "required": "Reuse demonstrated LA032 newtargets/legacypriors/donor quantity through one realproducer/versioned source-state inventory and FOUR existingreaders. D3household/labor builder is nonmatching; no secondproducer."
+    },
+    {
+      "owner": "G/Product plus canonical C-W15",
+      "required": "LA023 explicit bounded existing onecall trained artifact/warmactor with unsupported fullcrosscall optimizer/RNG/episode/configresume, or extend existing TrainingCarry/artifact bridge. No thirdPPOloop, no newonecallPASS/wholecontinuation from thisread-onlyresearch."
+    }
+  ],
+  "final_publication_readback": {
+    "status": "COMPLETE for all four writer topics",
+    "root_verified_unique_docs": 522,
+    "source_footprints_unchanged_at_publication": true,
+    "review_source_delta_and_native_evidence": "Independent nonauthor reviews qualify each source freeze and final docs followup; static GO and diagnostic coverage remain distinct from native PASS.",
+    "coordinator_topic": "codex/e02-C-orch02-recovery-coordination",
+    "coordinator_publication": "This aggregate is published separately after its final scope review; its exact commit/tree/readback is a separate post-publication artifact, not a guessed self-reference."
+  },
+  "complete_source_footprint_against_G": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-recovery-20261008/selected-G-preimage-reconciliation.json",
+    "publication_commit": "f1209c946f3469d3f6dbdf11da7a4ba8b68436a2",
+    "git_blob": "419987e7856fdc22b5de5fe4cb7242edea376f08",
+    "sha256": "19e23364db1e60b6e76412e7fe47186f3708d2e99196d03946b915e8536af7cb",
+    "own_paths": 24,
+    "existing_preimage_differences": {
+      "C05": 8,
+      "C06-DFK": 3,
+      "C06-CAN": 0,
+      "C12": 4
+    },
+    "new_path_counts": {
+      "C05": 2,
+      "C06-DFK": 1,
+      "C06-CAN": 1,
+      "C12": 2
+    },
+    "all_new_path_absence_checked": true,
+    "scope": "Footprint only; per-role complete source/test/dependency/companion/DAG and runtime-origin inventories remain separately bound."
+  },
+  "coordination_inputs_commit": "de1a2e698cb4819239ec1a970ff683e4404f6b34",
+  "local_host_toolchain": {
+    "initial_actual": "Linux x86_64 writable remote Git lanes; shared Python3.14.2; default Node24/uv0.12.19 deviations retained in admission observations",
+    "required_architecture_tools": "Managed Node22.23.3 and uv0.9.21 from /workspace/.polisyos-environment; pinned pnpm frozen/ignore-scripts per lane before measurement; isolated generated freshness roots; no tracked lock/generated mutation",
+    "resource_errors": "Initial CAN static command -9 plus observed host oom_kill1 retained, exact attribution not inferred; one serial retry on same immutable inputs completes. No artificial cloud quota or timeout."
+  },
+  "prepared_at_utc": "2026-10-08T17:10:38.771376+00:00",
+  "source_application": "Applied recovered deltas to their admitted exact own-base lanes. C05 faithful V5 and C12 faithful full postimages verified before separately reviewed style/type deltas; C06 DFK/CAN independently frozen. No product paths written by coordinator.",
+  "review_application_evidence_acceptance_separation": {
+    "review": "nonauthor static/source and final handoff GO on exact immutable refs",
+    "application": "four independently admitted own-base candidate lanes",
+    "native_evidence": "bounded real consumers/removals/package evidence with complete deciding outputs and source origins",
+    "engineering_checks": "recorded PASS/FAIL/SKIP/UNRUN/ERROR, no P41 waiver inferred",
+    "source_acceptance": "not_admitted_by_G",
+    "proposed_criterion_outcome": "finite mechanism support only",
+    "formal_closure_ids": []
+  },
+  "custody_documents": [
+    "recovery-manifest.json",
+    "selected-G-preimage-reconciliation.json",
+    "independent-preimage-review.json",
+    "partner-availability-final.json",
+    "c05-root-remote-readback.json",
+    "c06-root-final-remote-readback.json",
+    "c12-root-final-invocation-remote-readback.json",
+    "final-reviews/"
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "uname",
+        "-a"
+      ],
+      "exit_code": 0,
+      "stdout": "Linux 31e1e2bb84ff 6.18.44 #1 SMP Sat Sep 26 20:02:31 UTC 2026 x86_64 GNU/Linux\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "df",
+        "-h",
+        "/workspace"
+      ],
+      "exit_code": 0,
+      "stdout": "Filesystem      Size  Used Avail Use% Mounted on\noverlay          32G  2.3G   28G   8% /\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "free",
+        "-h"
+      ],
+      "exit_code": 0,
+      "stdout": "               total        used        free      shared  buff/cache   available\nMem:            17Gi       845Mi        14Gi       156Ki       2.6Gi        16Gi\nSwap:             0B          0B          0B\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "cat",
+        "/sys/fs/cgroup/memory.max"
+      ],
+      "exit_code": 0,
+      "stdout": "17179869184\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "git version 2.52.0\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "uv",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "uv 0.12.19 (x86_64-unknown-linux-gnu)\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "node",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "v24.19.0\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "corepack",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "0.34.6\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "Python 3.14.2\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/polisyos",
+        "remote",
+        "-v"
+      ],
+      "exit_code": 0,
+      "stdout": "origin\thttps://github.com/DenisKopylov/polisyos.git (fetch)\norigin\thttps://github.com/DenisKopylov/polisyos.git (push)\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/polisyos",
+        "ls-remote",
+        "origin",
+        "refs/heads/codex/e02-integration"
+      ],
+      "exit_code": 0,
+      "stdout": "0321633c0e6d9a87bccfbbe889a4998934c52dd3\trefs/heads/codex/e02-integration\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/polisyos",
+        "status",
+        "--porcelain=v1"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/polisyos",
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "exit_code": 0,
+      "stdout": "worktree /workspace/polisyos\nHEAD 198076863e143dea9f89f02734b13d50dae3eed5\nbranch refs/heads/work\n\nworktree /workspace/orch02-c05\nHEAD 8dfa7f3c544461c0ff081861848fcc5d8523da5b\nbranch refs/heads/codex/e02-C-orch02-c05-recovery\n\nworktree /workspace/orch02-c06-can\nHEAD f00dd7661a8d3329fb1fa1b049decb0d1d2f277b\nbranch refs/heads/codex/e02-C-orch02-c06-can-recovery\n\nworktree /workspace/orch02-c06-dfk\nHEAD a13f6c1acfe15a6750d71c6e86521f119d794def\nbranch refs/heads/codex/e02-C-orch02-c06-dfk-recovery\n\nworktree /workspace/orch02-c12\nHEAD c60e37e7833b2dbb22af1868e31dc3f519d6a4f2\nbranch refs/heads/codex/e02-C-orch02-c12-recovery\n\n",
+      "stderr": ""
+    }
+  ],
+  "writable_probe": "/workspace/orch02-recovery/environment/writable-probe",
+  "app_baseline": "Python3.14.2 present",
+  "node_baseline_deviation": "actual24.19.0 vs required22.x",
+  "uv_deviation": "actual0.12.19 vs canonical0.9.21",
+  "no_integrated_runtime_verdict": true
+}

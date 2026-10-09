@@ -1,0 +1,558 @@
+{
+  "schema": "policyos.e02.orch02.preimage_reconciliation.v1",
+  "coordinator": "/root",
+  "current_G": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "mode": "Read-only exact Git object comparison for complete own source footprints; dependency/DAG closure in qualified per-role packets",
+  "roles": [
+    {
+      "role": "C05",
+      "base": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "source": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "source_tree": "47950716278e09cd1c4ddf6fa0acefbcdd013e50",
+      "paths": [
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-c05-catalog-profile-currentness.toml",
+          "base": {
+            "state": "absent"
+          },
+          "G": {
+            "state": "absent"
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "ed976b6fe22e57bf37ae63f3ec89854a5cabee1e",
+            "sha256": "3e10fb94ab32847bcf4a899556ae839261bb797a16744427e7b809cfd5366da1",
+            "bytes": 2409
+          },
+          "preimage_matches_G": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md",
+          "base": {
+            "state": "present",
+            "git_blob": "6aee56a6b6a1aac7563613355c8011f3909c70d6",
+            "sha256": "0eaaf0432d18d2cba4f9aa762a0fb17e379ecb3f65f86e4f469c106aa1187d83",
+            "bytes": 5309
+          },
+          "G": {
+            "state": "present",
+            "git_blob": "4f40f366c18ab5e17f4c5ff22fb5337923304208",
+            "sha256": "488cc5139b5e208a3b9341d391c48c876f5e02e8dcecd7b9117eb19d94431d72",
+            "bytes": 4847
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "3c6b8e9cb0dc396eea833d6fa2d516e60f700c9c",
+            "sha256": "1e5d5625be675506bdaf1a159b2265ecede75103c7910da3663289f53e2576a9",
+            "bytes": 7336
+          },
+          "preimage_matches_G": false
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+          "base": {
+            "state": "present",
+            "git_blob": "ca2ecfd6227edcce605bbc3091cddc6b38a86d55",
+            "sha256": "2e701953fb196a961b863d5512ff77b63f51d799a7cd2354892d2d22fc180aad",
+            "bytes": 10912
+          },
+          "G": {
+            "state": "present",
+            "git_blob": "f688aee6a609a5d7e7c7f656cef89659928783c0",
+            "sha256": "a36c29470453ce0a5465a8f7ed9cb5c2c9f890c8d4bae098c05dd37fd2aa941b",
+            "bytes": 9406
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "b7369e1f1f79576691a7a7b1d424847b1ef2eb07",
+            "sha256": "984c132b22716ccd0e22c175b4437e8943f9f68dbae1c08c44efdb480630b51a",
+            "bytes": 15496
+          },
+          "preimage_matches_G": false
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+          "base": {
+            "state": "present",
+            "git_blob": "5761244862016d7c14835fa1aa9610e4c46e689d",
+            "sha256": "21df92502db9ad60ab40da24a0ab93ab027ad2c5b8841b908f03582dbedcb640",
+            "bytes": 65809
+          },
+          "G": {
+            "state": "present",
+            "git_blob": "fb6d0f4d9bbc52b20cbdf0ceec88e411348948ba",
+            "sha256": "fd7b207553fc7ec7e0747a5981ab93c3c9469639fbd214e9eda7edd423fb7574",
+            "bytes": 65343
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "553e036c992f74cc69c7c672944388479526b85c",
+            "sha256": "563161e6de302abae5af6c7dbd58fef3555158f60f8dd06969900dd5a5c90186",
+            "bytes": 66460
+          },
+          "preimage_matches_G": false
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+          "base": {
+            "state": "present",
+            "git_blob": "b380babb25e7479ad4cc751e4009df8684332ecb",
+            "sha256": "6c0b577c76a57a89ba7a54ce48dca9ddd8a3ae58c53fb4736a868e02b8450fcb",
+            "bytes": 84024
+          },
+          "G": {
+            "state": "present",
+            "git_blob": "7f2da42fadbeb5a0ccd1ae8b1d3b2f0e9844a25d",
+            "sha256": "78d7666e95c310c6ef0e2651135377eb0ecdb71523d95506f4987f799d9b23c4",
+            "bytes": 80809
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "1155f3befa77d13e85e241cc3ab51353bb13fd18",
+            "sha256": "0f3dc393ca07fb702db41a7e815d8b04218e275cfbc656c29641ad48edba7c66",
+            "bytes": 85189
+          },
+          "preimage_matches_G": false
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+          "base": {
+            "state": "absent"
+          },
+          "G": {
+            "state": "absent"
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "6805747595f68ae20491a59459bebc3ce685ead3",
+            "sha256": "27fda210162bfcd1934b17251a54dc1219ed8c4a2407bee3572c64e029521ed5",
+            "bytes": 1584
+          },
+          "preimage_matches_G": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+          "base": {
+            "state": "present",
+            "git_blob": "6051df0d52dfa67ccfedf6eb39f85fdc5e7ae930",
+            "sha256": "8ccfc12e02dfc6d702afdc42de2e8608627b67250cd42084bd82e1ef2ea094bc",
+            "bytes": 5953
+          },
+          "G": {
+            "state": "present",
+            "git_blob": "e6dda2023438f9c65f3ee59c5959c154092b11fa",
+            "sha256": "589026e8fb6751b04039baed5794e4df152caa15d218805bbb7bffc8ada137fe",
+            "bytes": 5973
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "f2ec1bfbd185df599ed23e668da9facad1560bbf",
+            "sha256": "bb582119da0cae49ca12fd85795a528edb8ec4b7d196c63aa480572ee6bd6088",
+            "bytes": 6489
+          },
+          "preimage_matches_G": false
+        },
+        {
+          "path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+          "base": {
+            "state": "present",
+            "git_blob": "db82bce59407cebe887060fde8831d5cdec5c770",
+            "sha256": "557a19e085145c2e2ebb31bcd189fb284a17b5221638abffd4f79b354ec13abe",
+            "bytes": 42301
+          },
+          "G": {
+            "state": "present",
+            "git_blob": "115db3f1239630ef609e2bc69f9f0922a0c198cd",
+            "sha256": "95f64bdbd3294850356035827c5289356ad5e8d4990c35e548a4744fb98eaebb",
+            "bytes": 40634
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "bd2fd09dbbf2191cfb081a0d763671587368cf35",
+            "sha256": "deec5f1fa7bcda0140e9aaf79265aed97bc9c0181d077210557b8ba3a518a9bc",
+            "bytes": 42586
+          },
+          "preimage_matches_G": false
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_dfi_03.py",
+          "base": {
+            "state": "present",
+            "git_blob": "b5bce675d93a1c3d30d6c92b7491e76bca016e86",
+            "sha256": "1c42de909fb1669d09e58cd6d69a7514fe2bff5a8b94a303ac2ff9108f4c0040",
+            "bytes": 53521
+          },
+          "G": {
+            "state": "present",
+            "git_blob": "e61580cd72b37ab1e430f335174e694eba58c4ad",
+            "sha256": "4a3dba132870dffe82ae94b331698b276e940139c4454a03194d86359804422f",
+            "bytes": 9182
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "d1d40d167adaaf0984d00b1c4e27dd0cc636f90e",
+            "sha256": "298a8aa19e46f3d508bec214c5a713ccb272612e0945b263336514fd69475735",
+            "bytes": 87926
+          },
+          "preimage_matches_G": false
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_dfk_02.py",
+          "base": {
+            "state": "present",
+            "git_blob": "d94ca9df44a8e424e2deee6529993f31b360fc21",
+            "sha256": "b7c855565f136f23414e56385b47f97b5044e255d0d262ff1de71d7d42709c00",
+            "bytes": 19625
+          },
+          "G": {
+            "state": "present",
+            "git_blob": "1e8263b473c448fc39a85e6169d305079b51050c",
+            "sha256": "d46249ac5481d4e46250c3db0d817be57e01b96a7aa04e1ba81d04f33d123ddd",
+            "bytes": 6978
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "6955626335354c08af77bf86a312c80f18ae0525",
+            "sha256": "4c82ba30b9f3fefd746a4aea29f1d6a736351f9748193333db2e79dd480c2439",
+            "bytes": 23880
+          },
+          "preimage_matches_G": false
+        }
+      ],
+      "all_paths_count": 10,
+      "existing_preimage_differences": 8,
+      "new_paths": 2,
+      "all_source_commits_since_own_base": [
+        "b297fe0986feaa0d56c61d991f04bbc6a1e3ca36",
+        "0bde01f5febf3b6e66315c864bc0cc20b0776068",
+        "66151f3b7c806fdd0af0e6b2f71762e4defcc023"
+      ]
+    },
+    {
+      "role": "C06-DFK",
+      "base": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+      "source": "cbbfffd367fe283813a8177575d26c0ede8d20c4",
+      "source_tree": "e0ca5462ec6f38f91e4d2ebedf1bf2f18f2c9f99",
+      "paths": [
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-orch02-c06-dfk-census.toml",
+          "base": {
+            "state": "absent"
+          },
+          "G": {
+            "state": "absent"
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "761efc1851fdd680aa4db1d47f58a4297d162ec7",
+            "sha256": "734b4049cd7e0744d1c309d035318cd7963bcaf5d50d3a5e959799c101aeed72",
+            "bytes": 1258
+          },
+          "preimage_matches_G": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md",
+          "base": {
+            "state": "present",
+            "git_blob": "9149f31b0bb40b0e6bc9093a5108ac70ec73d9c1",
+            "sha256": "24a7202818a37389870a2faeb0adadfa88119f8bb5b261a2b106c33e07c3d747",
+            "bytes": 702
+          },
+          "G": {
+            "state": "present",
+            "git_blob": "14960b46e17bebfafcd832f90f09af6ac4820a78",
+            "sha256": "13c80371b35999deb45f8fd1251cf79e9ea51039100167aa433189055409225e",
+            "bytes": 163
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "80b8bc5c1da0cb41126bc85dfa30ded4bcf0e17f",
+            "sha256": "17ad9a3d03d7974797a1eb603b306c616c9ac28ef3df08ca705615f4fff408f9",
+            "bytes": 1076
+          },
+          "preimage_matches_G": false
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+          "base": {
+            "state": "present",
+            "git_blob": "259ba6b535826766f43f02669a30bcf9b6117cd2",
+            "sha256": "7bacac863afa4959dc5ba3e3a350ed9763540d6f96d434b63c45bc5f8b358322",
+            "bytes": 33975
+          },
+          "G": {
+            "state": "present",
+            "git_blob": "dc67765fe998e51f1b838ad28cba8222712e4cfc",
+            "sha256": "6264576cce04bd0f753b763623c715eec4c9ffef69cf1c261c93523212326d56",
+            "bytes": 6768
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "cd6a4456e835c5551093278b0335ff8f0765cce3",
+            "sha256": "50b7e03df66b767ad3bde207017fa5538c38f1241559b9ed693ceafa07f80709",
+            "bytes": 43828
+          },
+          "preimage_matches_G": false
+        },
+        {
+          "path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+          "base": {
+            "state": "present",
+            "git_blob": "dd9d831d2dcf46a35886cc6ef57bf24faa8423cb",
+            "sha256": "03327a7ca9cb0b2c3d34eff2119d6210b3373f0b3bb3876f6cc396dfd4070b3e",
+            "bytes": 31035
+          },
+          "G": {
+            "state": "absent"
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "ae838dc362ae33f2a01b984f42d959b74f80183e",
+            "sha256": "02e9123c9be4606840cedad30504417a9e5fe46235437ce0003df7264e9ecff2",
+            "bytes": 31675
+          },
+          "preimage_matches_G": false
+        }
+      ],
+      "all_paths_count": 4,
+      "existing_preimage_differences": 3,
+      "new_paths": 1,
+      "all_source_commits_since_own_base": [
+        "66fce37eed873311259f111cf28c6b342cb6ae23",
+        "cbbfffd367fe283813a8177575d26c0ede8d20c4"
+      ]
+    },
+    {
+      "role": "C06-CAN",
+      "base": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b",
+      "source": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+      "source_tree": "7e73132dd639bf03e40a27dd5f12837d916aeb3f",
+      "paths": [
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-08-e02-c06-ir-reader-profile.toml",
+          "base": {
+            "state": "absent"
+          },
+          "G": {
+            "state": "absent"
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "8098c3492e507f65ea8173e8dcc4f30af04ae319",
+            "sha256": "59bf26569d2c490bae347553d689d1bbf70c7a5064a0b3a92ce9269e3d95fcc0",
+            "bytes": 1680
+          },
+          "preimage_matches_G": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/artifacts/README.md",
+          "base": {
+            "state": "present",
+            "git_blob": "9d6573ca431d74f3627586e65724a28bba06af07",
+            "sha256": "27ccb0785783c7f0cb0daea24164fe8a35c2657da214ab33ade5d08b2133fa08",
+            "bytes": 2974
+          },
+          "G": {
+            "state": "present",
+            "git_blob": "9d6573ca431d74f3627586e65724a28bba06af07",
+            "sha256": "27ccb0785783c7f0cb0daea24164fe8a35c2657da214ab33ade5d08b2133fa08",
+            "bytes": 2974
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "e88e3557ae75645a4af7a9ea0616553739ff0dc5",
+            "sha256": "2e725d6229e93b98070e3dd483ca69374bf8a100008d7ec51f6946cf8008a307",
+            "bytes": 3412
+          },
+          "preimage_matches_G": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+          "base": {
+            "state": "present",
+            "git_blob": "37a433addcec7453347e3a581a4e05c4b60d5f03",
+            "sha256": "e876f8d65572ef11992a5ba7336decffea966af7e5b6df12a48ec7dae25b08f3",
+            "bytes": 1857
+          },
+          "G": {
+            "state": "present",
+            "git_blob": "37a433addcec7453347e3a581a4e05c4b60d5f03",
+            "sha256": "e876f8d65572ef11992a5ba7336decffea966af7e5b6df12a48ec7dae25b08f3",
+            "bytes": 1857
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "a815bcd7b3cd15322512c2086724d73ac1c32328",
+            "sha256": "29e538571b87a68afb703eb96558942746e8caaeed0d27b67ff03628866a684d",
+            "bytes": 4721
+          },
+          "preimage_matches_G": true
+        },
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+          "base": {
+            "state": "present",
+            "git_blob": "b1583a98989ab64a53a12c9cafc19b220836087b",
+            "sha256": "446539b83f6d7d6235d5acfeb0e9579a1f3deb8810d56eca48e2c0e6e533eb57",
+            "bytes": 3113
+          },
+          "G": {
+            "state": "present",
+            "git_blob": "b1583a98989ab64a53a12c9cafc19b220836087b",
+            "sha256": "446539b83f6d7d6235d5acfeb0e9579a1f3deb8810d56eca48e2c0e6e533eb57",
+            "bytes": 3113
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "166a8e4e83b215cda8bc831f45abe47f1104db4e",
+            "sha256": "ae119000b7af559ce72b3edab4ed71c0d7416ff3e814a8ac2cc83e3ba06853f6",
+            "bytes": 8672
+          },
+          "preimage_matches_G": true
+        }
+      ],
+      "all_paths_count": 4,
+      "existing_preimage_differences": 0,
+      "new_paths": 1,
+      "all_source_commits_since_own_base": [
+        "4901e26841e2be0ae6ef393754abed5cafb1e2d4"
+      ]
+    },
+    {
+      "role": "C12",
+      "base": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "source": "192c8b935b824e2e4d38276f10d3061877207e9f",
+      "source_tree": "46d748c61419ea4093cae25bc4111935b41f1a58",
+      "paths": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/parallel-20261008-c12-request-intent.md",
+          "base": {
+            "state": "absent"
+          },
+          "G": {
+            "state": "absent"
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "3a9e4fb39e262bf34feaf58851ae94798db8e95f",
+            "sha256": "ee156e57302c5edb025252a3a36c14ab5b9131d200298ef1c239db76d80fac63",
+            "bytes": 6290
+          },
+          "preimage_matches_G": true
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-08-legal-request-generation-intent.toml",
+          "base": {
+            "state": "absent"
+          },
+          "G": {
+            "state": "absent"
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "34d2476c3ab6f5faac8e62a99d3b05bae4b10c55",
+            "sha256": "163a13a4d19a319b8770a581cc47bc4008f90dc8c7c744f12d64001dc3f20dc1",
+            "bytes": 2308
+          },
+          "preimage_matches_G": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/lex/knowledge/README.md",
+          "base": {
+            "state": "present",
+            "git_blob": "58b9f6782d3592f1d49fd2b1d28b02acec1c6232",
+            "sha256": "286c6c991150f558b89f1969412d1a6ca64fdaa8bc70aad8e89d7b163db97a82",
+            "bytes": 4483
+          },
+          "G": {
+            "state": "present",
+            "git_blob": "5bb71b6fc1a5229dfee5fe0043afdd8d0763622c",
+            "sha256": "505790b027867c20c88640698d7f98d90de101b73b20d3bbcac5f229397c427b",
+            "bytes": 3498
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "15ef2244c71a5162e2772127eb56fdabbf57fd18",
+            "sha256": "f7e3ab550a4634b509f3a47962f5719c521ed6f7855c54b1bd68ddde641d1c48",
+            "bytes": 6429
+          },
+          "preimage_matches_G": false
+        },
+        {
+          "path": "policy-engine/src/polisyos/lex/knowledge/search.py",
+          "base": {
+            "state": "present",
+            "git_blob": "a25674788cf0d7305cbb60db5172aa113fd5c8cf",
+            "sha256": "ad8ec70a8be151a7c3e72fe13c39b2081a437024233652385087de7ace7e4c37",
+            "bytes": 20881
+          },
+          "G": {
+            "state": "present",
+            "git_blob": "ed7710c10a76913b0f0e209481baf65129943270",
+            "sha256": "0f1416336ca5fa3d7e689d463df9f0a6af499fad84e31dfc111b780082555328",
+            "bytes": 19200
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "58925aa6754b4decdbc7dcc236bd76e516827002",
+            "sha256": "384d9377c3fe8f0fef6142d3f9b7161c5a3cf46a927f6136462e60aa5199b9cb",
+            "bytes": 21240
+          },
+          "preimage_matches_G": false
+        },
+        {
+          "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+          "base": {
+            "state": "present",
+            "git_blob": "95c2ab216c5c4bd60c71bf13eb1e0c1596d8df8a",
+            "sha256": "b2b6057aa40bda9c0b9db983d4a91d0110ce3913e7bcf3f3c82364f3bee1a05e",
+            "bytes": 104887
+          },
+          "G": {
+            "state": "present",
+            "git_blob": "9a01a6c2cd2baa0ae29736b526153046ae2e822a",
+            "sha256": "a2863ef4fe24653bff1518588fc3df6430911d21bc41fc219b281f239b6231dc",
+            "bytes": 93645
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "5831a8c63410a1b002970e7cd82e43b780f92342",
+            "sha256": "7027efe1b04286f3fc9b07f8ab42f1a410e0cfbbd7938771469487b604b2d481",
+            "bytes": 108831
+          },
+          "preimage_matches_G": false
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+          "base": {
+            "state": "present",
+            "git_blob": "27f18067fc33723a4d147df1f1bff2d5c1dcece5",
+            "sha256": "fcfeba71464a8a058e1b2bf6ad958508fbef88c0cac75fe761db10236bc36b69",
+            "bytes": 39055
+          },
+          "G": {
+            "state": "present",
+            "git_blob": "0267e54b7143b862b703a3b99aa24e383ea490a2",
+            "sha256": "f2f34bb3b01fd0daebcd9cc1956045519f972d90c6f843b565bc3e038bceb162",
+            "bytes": 11370
+          },
+          "postimage": {
+            "state": "present",
+            "git_blob": "b555dd0e9770a095400857675b64e6cffdeeace2",
+            "sha256": "b966282f9084b31a852e232aaee8f268864d486ccebd9a8fff55ce2e757ab89c",
+            "bytes": 49372
+          },
+          "preimage_matches_G": false
+        }
+      ],
+      "all_paths_count": 6,
+      "existing_preimage_differences": 4,
+      "new_paths": 2,
+      "all_source_commits_since_own_base": [
+        "677e60985d98c8a1aeca1c85a1583ac9396bdf3d",
+        "192c8b935b824e2e4d38276f10d3061877207e9f"
+      ]
+    }
+  ],
+  "source_acceptance": "G composition not selected; no source overlay applied to G"
+}

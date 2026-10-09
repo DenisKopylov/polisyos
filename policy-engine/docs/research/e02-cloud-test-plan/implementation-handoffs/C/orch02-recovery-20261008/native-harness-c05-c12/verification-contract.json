@@ -1,0 +1,28 @@
+{
+  "schema": "orch02.C05-C12.independent-native-contract.v1",
+  "scope": "Read-only exact frozen writer commits; isolated outputs/env; no children; no production assets",
+  "full_gates": {
+    "C05": ["tests/unit/remediation/test_dfi_03.py", "tests/unit/remediation/test_dfk_02.py", "tests/unit/fabric/test_retrieval_service_catalog.py"],
+    "C12": ["tests/unit/remediation/test_emb_03.py", "tests/unit/data_forge/kernel/test_embeddings.py"]
+  },
+  "C05": [
+    {"requirement": "same-ID byte/profile/policy changes invalidate producer, receipts and fresh reader before reuse", "observables": ["fresh stale benchmark partial/currentfalse before producer", "WorldBank real connect/fetch URL + actual ds_observations value", "actual ds_variable_alignments evidence", "checkpoint=stage=current receipt after repair", "fresh recovered benchmark skips without third fetch"]},
+    {"requirement": "unchanged and mtime-only remain reusable", "observables": ["same basis", "no extra fetch", "same current receipt"]},
+    {"requirement": "typed run profile and mandatory seed fail closed", "observables": ["missing/foreign profile refusal", "None versus explicit empty", "disabled/missing/cyclic seed typed rejection", "warm and fresh public RetrievalService.resolve selected IDs"]},
+    {"requirement": "actual warm policy readers consume changed bytes", "observables": ["literal proxy SQL penalty0.2->0.4", "selected WVS normalized condition weighted_mean->weighted_mode", "actual warm harvest title", "YAML/XLSX/static fallback selected branch", "selected versus unselected asset I/O", "optional absence/empty/present identity"]},
+    {"requirement": "normalized legacy dispatch and bulk policy snapshot remain effective", "observables": ["real delegated empty-plan parallel/legacy branch", "spellings normalize to same signature", "real DuckDB three-cell binary_12 value0->continuous value2", "one actual WVS policy snapshot per operation"]},
+    {"requirement": "matched property removal keeps markers and proves semantic divergence", "observables": ["freeze one material contribution before first producer; observe stale full-ready/current over old evidence", "obsolete warm snapshot with fresh basis leaves actual SQL/title/condition stale", "omit operation-bound forwarding; actual read count rises while numeric controls remain"]}
+  ],
+  "C12": [
+    {"requirement": "request -> immutable per-table profile -> actual encoding -> native selected index", "observables": ["same model/generation target positive", "wrong/missing/stale/unpaired/malformed/duplicate request refuses before encode/knn", "actual current membership/assets/matrix/HNSW pairing", "pre/post encoder mutation refusal"]},
+    {"requirement": "G0 intent refuses newly selected G1 with same corpus/assets", "observables": ["different generation IDs but equal generation basis", "G0 stale encode0/knn0", "remove only request-profile predicate: actual encode + native target", "restore stale refusal", "fresh matching G1 reader target"]},
+    {"requirement": "request guard cannot replace existing encoder and membership gates", "observables": ["full semantic file remains green", "withdrawal/empty membership expectations maintained", "wrong same-dimension weights/tokenizer/normalization/rule refuse", "raw vector cannot bypass actual intake"]}
+  ],
+  "boundaries": [
+    "C05 all headers including Accept, credentials/auth overlays, raw remote version and independent injected profile registries remain declared residuals",
+    "C12 asset identity cannot attest replaced callable behavior; wrong-direction same-assets encoder is bounded falsifier",
+    "LA032 inventory/producer quantity and C10/L01/L02 production pairing remain separately owned; generic fixture PASS cannot settle them",
+    "No static review, metadata applicability or historic source receipt is labeled native PASS"
+  ],
+  "evidence": ["exact source SHA/tree/branch/status", "source/test/config/lock/companion origins", "actual interpreter/native package version+origin+hash", "full stdout/stderr/JUnit", "wall/RSS and measured timeout", "matched removal quantity/delta+semantic actual outputs", "disk before/after"]
+}

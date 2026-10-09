@@ -1,0 +1,1876 @@
+{
+  "schema": "policyos.e02.orch02-r2.independent-coordinator-final-publication-custody.v1",
+  "auditor": "/root/publication_audit; direct/no children/no source edits",
+  "at_utc": "2026-10-08T20:44:42.646116+00:00",
+  "verdict": "PASS_DOCS_ONLY_PUBLICATION_SOURCE_CUSTODY",
+  "remote": {
+    "topic": "codex/e02-C-orch02-recovery-coordination",
+    "independent_readback_ref": "refs/readback/orch02-r2-publication-audit/coordinator-final-50feba75",
+    "HEAD": "50feba754bf1232244130916d32a7d7a7be476c4",
+    "tree": "74a0e063c3bf80911ef0a076863b49f7febd4697",
+    "parent": "e5e32e19b69d1847b153efc0b83987fdd28e68c2"
+  },
+  "actual_host_lane": {
+    "path": "/workspace/orch02-coordination",
+    "branch": "codex/e02-C-orch02-recovery-coordination",
+    "HEAD": "50feba754bf1232244130916d32a7d7a7be476c4",
+    "status": "",
+    "actual_registry": "worktree /workspace/polisyos\nHEAD 198076863e143dea9f89f02734b13d50dae3eed5\nbranch refs/heads/work\n\nworktree /workspace/orch02-c05\nHEAD eee090e345d1121d3d53cdd93a7ab32f818d5ef7\nbranch refs/heads/codex/e02-C-orch02-c05-recovery\n\nworktree /workspace/orch02-c05-r2-gproposal\nHEAD 42987be62c48356211e1ce4397ca67cd45249997\nbranch refs/heads/codex/e02-C-orch02-c05-r2-gproposal\n\nworktree /workspace/orch02-c06-can\nHEAD 6602fbd087ef31d3f8eff42e94fc1fc074326d45\nbranch refs/heads/codex/e02-C-orch02-c06-can-recovery\n\nworktree /workspace/orch02-c06-dfk\nHEAD e4bd1527c941ff880a5d34898c57428c7be4b1cc\nbranch refs/heads/codex/e02-C-orch02-c06-dfk-recovery\n\nworktree /workspace/orch02-c12\nHEAD fcf164eb1c5bb54786462e67ba2537313b33b90d\nbranch refs/heads/codex/e02-C-orch02-c12-recovery\n\nworktree /workspace/orch02-coordination\nHEAD 50feba754bf1232244130916d32a7d7a7be476c4\nbranch refs/heads/codex/e02-C-orch02-recovery-coordination\n\nworktree /workspace/orch02-r2-c06-can\nHEAD 328d91dfee230aeb67ad1168e83b2ece8183d725\nbranch refs/heads/codex/e02-C-orch02-c06-can-r2-g-compatible\n\nworktree /workspace/orch02-r2-c06-dfk-g\nHEAD 6c565cd65899d91bda370416651555eee143e194\nbranch refs/heads/codex/e02-C-orch02-r2-c06-dfk-g\n\n"
+  },
+  "new_namespace": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/",
+  "new_document_count": 33,
+  "new_document_total_bytes": 2050605,
+  "new_document_rows": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/G-owner-decisions.json",
+      "git_blob": "c957d54777bb1d018d156c159be22a792da3dca8",
+      "bytes": 9803,
+      "sha256": "bd28a088d71466d9abd253fad0c1342f11ebbfeb8d26535f75465efbc107f81b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/README.md",
+      "git_blob": "ea626b503bded8933851d45bf3ac7f361799fe24",
+      "bytes": 5569,
+      "sha256": "c7c8c17244c20e42c7068142d69149df84e7d7d4f29d6a61680b251075de5f68"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/C10-catalog-caller-requirement.json",
+      "git_blob": "aeca17c12435b22b3e99508733ba382f7c5c6cc5",
+      "bytes": 2815,
+      "sha256": "ac16770f4fa86b98aa70b2b28764e2a6588b1e582895a3fd4e6f6da614b87897"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/G-final-remote-readback.json",
+      "git_blob": "563feea4d2452265e6192ad0ae77c8848e47fd0f",
+      "bytes": 413,
+      "sha256": "8dd0e456a00879a004f73ee76df42dd6ac437056fac2288b9c9e656185aa2a33"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/G-product-reconciliation.json",
+      "git_blob": "86b7be147bed76a3f31dd1e995e6eb33fd10bc40",
+      "bytes": 7927,
+      "sha256": "49b5ef4eb2db4885ea095512c1b8d6205e0396ef56454ba6589104b66c965f69"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/auditor-execution-profile.json",
+      "git_blob": "39bc4936aa689a63e2d4a306f1cb2a91692d4062",
+      "bytes": 1290,
+      "sha256": "fbfd0eb916678d557bdd24502ab33346bec3cdd937c664f55f3b3f765b32b9fb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/c05-G-proposal-publication-patch-custody-audit.json",
+      "git_blob": "9a9382ecc9ec27032d68430c047833c3b6b32ac3",
+      "bytes": 49520,
+      "sha256": "61d96becfd5cb6baa7aeae0bfaf86765be84040e80b2becbe1f2957bd8ffac91"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/c05-full-architecture-final-for-coordinator.json",
+      "git_blob": "65c2c3532b6566dd2db30986ccfd8043368c9f48",
+      "bytes": 6463,
+      "sha256": "704428bac37e9ced35b10eb90ff27a72281245291d3ff297e34c753c306150a0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/c05-publication-source-custody-audit.json",
+      "git_blob": "2f33c1ff495b3059d2290801ab6e7a2e1b9c18be",
+      "bytes": 703755,
+      "sha256": "93dfb4d4ab4c732210c10a4c18da5d2908bb38d18b6ffc3eebc9155ded668206"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/c06-can-publication-source-custody-audit.json",
+      "git_blob": "23486097cb714c34cc4a2b0b69ace00f842b9097",
+      "bytes": 96770,
+      "sha256": "4185db99b45ce55347bebb7f30a84fe61c2f0ece1c33780dc7f29302823fabdf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/c06-dfk-publication-source-custody-audit.json",
+      "git_blob": "63ba6c73945d25e9344a0b22861fca015f92ce2d",
+      "bytes": 322056,
+      "sha256": "625f42528f8373e6388bb678b167942c0607ab03dbf87af13adec15bcfea738e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/c06-dfk-source-parent-mutant-byte-custody-supplement.json",
+      "git_blob": "d6bf0a2ea6286d766994b854a7c2659a7350bba5",
+      "bytes": 4479,
+      "sha256": "80e04d59613861fe76ac5a5c599c8e4f199fbb6bff74a6a9075486b6cc09f3d9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/c12-publication-source-custody-audit.json",
+      "git_blob": "4fe56813af4de318509f0b16c7cbe3b85661313c",
+      "bytes": 122769,
+      "sha256": "5e838f91deb7d30a15f916c497ea10b7715d4254237dc90951b507603511222a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/completed-publication-audits-four-writers-common-and-G-proposal.json",
+      "git_blob": "f2b684c4cd759502d769c36ed14cf59b1a28141f",
+      "bytes": 3456,
+      "sha256": "914d6b694a4c9ef15c52caddb4d23773d86605d9ee092686ce402ab9e323309e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/coordinator-inputs-publication-source-custody-audit.json",
+      "git_blob": "3e969ab0c566f18adaefdf2fdb459d97976ca2c6",
+      "bytes": 20737,
+      "sha256": "d0bcec5d9aabd5a47dcfdeb212925b863e0695a011709531e41933dad1aa96b0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/custody/late-remote-source-check.json",
+      "git_blob": "ce4db684c7885f53b74d2c50a295687dbe479db9",
+      "bytes": 1180,
+      "sha256": "63ca120f751ec6c142c26bfe725ac416742226b819661db566af324ef4755724"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/final-handoff.json",
+      "git_blob": "11f0226185b667e289900f61c4b47dcb8604c3cd",
+      "bytes": 35001,
+      "sha256": "4ebd1485c7e47dd62d98b04771734807988d61fd3ff0446947a1180fbfbc229a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/manifest.json",
+      "git_blob": "84b0b99ef977d118df92be54a109bd4e423984d8",
+      "bytes": 8374,
+      "sha256": "a82ab2c7e3f82ee0514e6d62e42c8883325522558a3c79f3b59715576df7defc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c05-independent-G-owner-requirements-delta-review-ab1aa6a9.json",
+      "git_blob": "94b4404cac3d09c621d347735a44854fd803c233",
+      "bytes": 3126,
+      "sha256": "e31581a106408115c1fab82eed14d0ea694f8fb8aac2529add017aaeece72ca1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c05-independent-G-owner-requirements-delta-review-ab1aa6a9.md",
+      "git_blob": "6d930bb732ba6522b635002b2f66237130b23db1",
+      "bytes": 1001,
+      "sha256": "3a92a4820f890f3071095f8c6d9b288d263fa471cc346e7994b2d0d1136a171b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c05-independent-G-owner-requirements-review-clarification-ab1aa6a9.json",
+      "git_blob": "1f9c29fc3752abc04a87ec72234cb998676145bd",
+      "bytes": 1734,
+      "sha256": "17282cd4431d24a5ab034412c9885b0460e9f659f0e15ed9b90c31f195ad4a31"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c05-independent-G-proposal-review-0e7a4658.json",
+      "git_blob": "a5d4d85acbbbf0a6ea86843927a9734a142edb98",
+      "bytes": 38720,
+      "sha256": "68f228ebeaa889f8ca8c01ed089020d7e29f9483f0683acea4d1d71a2455fe75"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c05-independent-G-proposal-review-0e7a4658.md",
+      "git_blob": "165a80e04a8d8fd550d5f11d78c0e30420670df9",
+      "bytes": 1295,
+      "sha256": "736b35909e1c1568de9e5741c8675f1606e5a9e4eaf1847f48cecd3e2091974f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c05-independent-final-native-review-5ccbfa15.json",
+      "git_blob": "2af778352f66d1a7487acd0cf4cbc481ad7ec6bd",
+      "bytes": 66631,
+      "sha256": "07184d8625d77ea694b3cac4f9f1cf75b17bc3b33e3f048f7f9825fb55bf76e0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c05-independent-final-native-review-5ccbfa15.md",
+      "git_blob": "dccd2de0c7d103c66d533a9806954288a9ace459",
+      "bytes": 1447,
+      "sha256": "d151820fc689d04f88e5646ce8f73a3f839828269abb4ec32252e1ad4d2a1310"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c05-independent-final-quality-handoff-review-4a9af506.json",
+      "git_blob": "df5030360d877b169c109f72762b0b01b5f0e3ba",
+      "bytes": 231380,
+      "sha256": "3f6672b7dfbdeebd2f676f76c48b84c6ed9d65e4ac90dd83289d88847ed7d56d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c05-independent-final-quality-handoff-review-4a9af506.md",
+      "git_blob": "5c550b8f1cb8d1f3164ae1d08fd8230626c3fe3f",
+      "bytes": 1487,
+      "sha256": "49a3aa6bbcb32a15045804e64dc109e461c1588f2e555adcbb525769d07bd254"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c06-can-independent-final-quality-handoff-review-2762cec3.json",
+      "git_blob": "6417dc0d86e406fda5cf4f0204c4a5454ee9f559",
+      "bytes": 98942,
+      "sha256": "7d8b57652f0946fe840cb6f57128b35edf4bd4495d236659613bf6a15bab0ffd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c06-can-independent-final-quality-handoff-review-2762cec3.md",
+      "git_blob": "0b7fde94fa6cb63521a0d405b7a510367dd7c560",
+      "bytes": 1523,
+      "sha256": "44e9179f199b886daa23b897a688a3e14b25b2a704f68656b4f0018bbb18f86e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c06-dfk-independent-final-native-handoff-review-3a0d5549.json",
+      "git_blob": "edfdac85d859780ee007726ab5be6f9382398202",
+      "bytes": 134038,
+      "sha256": "267a120b75654dd89b13011edcb384550bb102d8a839b0f33f4acdf933a71d3d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c06-dfk-independent-final-native-handoff-review-3a0d5549.md",
+      "git_blob": "f9bc1c5da8b8de6007483abe732a4bcc2d485260",
+      "bytes": 1072,
+      "sha256": "43004e166cde7c9882f88634986cc2bd14bcd65027a6c7040b66b6c71a12422e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c12-independent-final-quality-handoff-review-a47ec396.json",
+      "git_blob": "486d24837c46bd17bd19d003eaeda40f5ef2aa44",
+      "bytes": 64298,
+      "sha256": "3ee641eae70749e960f49cc708e68fbc82bc28d4673999e4a16019c57fad56ab"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c12-independent-final-quality-handoff-review-a47ec396.md",
+      "git_blob": "5ca25bd809e6848e9ed4ac4dc7798b755788020f",
+      "bytes": 1534,
+      "sha256": "fb1b799cf1e5c016ca5559b0605fbf7f51e54e0e6cbed08bb9e91e5b466efeeb"
+    }
+  ],
+  "complete_manifest": {
+    "32of32_rows_verified": true,
+    "manifest_blob": "84b0b99ef977d118df92be54a109bd4e423984d8",
+    "bytes": 8374,
+    "sha256": "a82ab2c7e3f82ee0514e6d62e42c8883325522558a3c79f3b59715576df7defc",
+    "manifest_self_excluded_as_declared": true,
+    "no_tracked_source_snapshots_or_large_raw_graphs": true
+  },
+  "ordinary_author_publication": {
+    "readback_path": "/workspace/orch02-r2/coordination-final-publication/readback.json",
+    "bytes": 14030,
+    "sha256": "dd984fa61f3b431004a6ba26afad2f359ab2673545845fa22e901059c83c12b6",
+    "all33_actual_bytes_equal": true,
+    "commands": [
+      {
+        "name": "commit",
+        "argv": [
+          "git",
+          "commit",
+          "-m",
+          "docs(e02): deliver ORCH02 r2 typed repairs and owner packets"
+        ],
+        "cwd": "/workspace/orch02-coordination",
+        "returncode": 0,
+        "wall_seconds": 0.077687112003332,
+        "stdout_sha256": "e1a83f578cc9db14f2dbb06d5135615bdafc8bba599443b2e3e7466a8b0caf4d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "push",
+        "argv": [
+          "git",
+          "push",
+          "origin",
+          "codex/e02-C-orch02-recovery-coordination"
+        ],
+        "cwd": "/workspace/orch02-coordination",
+        "returncode": 0,
+        "wall_seconds": 2.596507918999123,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "f902861f169086a62e356b999fd35cf722c7a23a2b621a4d2914427b21ec1433"
+      },
+      {
+        "name": "fetch-readback",
+        "argv": [
+          "git",
+          "fetch",
+          "origin",
+          "refs/heads/codex/e02-C-orch02-recovery-coordination:refs/readback/orch02-r2-final/coordinator"
+        ],
+        "cwd": "/workspace/orch02-coordination",
+        "returncode": 0,
+        "wall_seconds": 0.6471280210025725,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "0d4af3fe267193ecc1260993b171fc4d5aa48ea6e4f2f3842a5b1d2d4ac99f84"
+      }
+    ]
+  },
+  "exact_foreign_tree_invariance": {
+    "before_tree": "c6f7eee86568425e5659c0a4fb8786d7c0b45077",
+    "after_tree": "74a0e063c3bf80911ef0a076863b49f7febd4697",
+    "all_existing_tree_entries_unchanged": true,
+    "only33new_research_docs": true,
+    "product_source_tests_tools_policies_baselines_locks_generated_paths_unchanged": true,
+    "old49input_docs_and_old522_receipt_payloads_not_replayed": true,
+    "main_worktree_HEAD": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "main_or_integration_publication_by_auditor": false
+  },
+  "complete_moderate_report_copies": [
+    {
+      "delivery_path": "custody/C10-catalog-caller-requirement.json",
+      "external_path": "/workspace/orch02-r2/C10-catalog-caller-requirement.json",
+      "exact_copy": true,
+      "bytes": 2815,
+      "sha256": "ac16770f4fa86b98aa70b2b28764e2a6588b1e582895a3fd4e6f6da614b87897",
+      "git_blob": "aeca17c12435b22b3e99508733ba382f7c5c6cc5",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "custody/G-final-remote-readback.json",
+      "external_path": "/workspace/orch02-r2/G-final-remote-readback.json",
+      "exact_copy": true,
+      "bytes": 413,
+      "sha256": "8dd0e456a00879a004f73ee76df42dd6ac437056fac2288b9c9e656185aa2a33",
+      "git_blob": "563feea4d2452265e6192ad0ae77c8848e47fd0f",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "custody/G-product-reconciliation.json",
+      "external_path": "/workspace/orch02-r2/G-product-reconciliation.json",
+      "exact_copy": true,
+      "bytes": 7927,
+      "sha256": "49b5ef4eb2db4885ea095512c1b8d6205e0396ef56454ba6589104b66c965f69",
+      "git_blob": "86b7be147bed76a3f31dd1e995e6eb33fd10bc40",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "custody/auditor-execution-profile.json",
+      "external_path": "/workspace/orch02-r2/publication-audit/auditor-execution-profile.json",
+      "exact_copy": true,
+      "bytes": 1290,
+      "sha256": "fbfd0eb916678d557bdd24502ab33346bec3cdd937c664f55f3b3f765b32b9fb",
+      "git_blob": "39bc4936aa689a63e2d4a306f1cb2a91692d4062",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "custody/c05-G-proposal-publication-patch-custody-audit.json",
+      "external_path": "/workspace/orch02-r2/publication-audit/c05-G-proposal-publication-patch-custody-audit.json",
+      "exact_copy": true,
+      "bytes": 49520,
+      "sha256": "61d96becfd5cb6baa7aeae0bfaf86765be84040e80b2becbe1f2957bd8ffac91",
+      "git_blob": "9a9382ecc9ec27032d68430c047833c3b6b32ac3",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "custody/c05-full-architecture-final-for-coordinator.json",
+      "external_path": "/workspace/orch02-r2/c05-full-architecture-final-for-coordinator.json",
+      "exact_copy": true,
+      "bytes": 6463,
+      "sha256": "704428bac37e9ced35b10eb90ff27a72281245291d3ff297e34c753c306150a0",
+      "git_blob": "65c2c3532b6566dd2db30986ccfd8043368c9f48",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "custody/c05-publication-source-custody-audit.json",
+      "external_path": "/workspace/orch02-r2/publication-audit/c05-publication-source-custody-audit.json",
+      "exact_copy": true,
+      "bytes": 703755,
+      "sha256": "93dfb4d4ab4c732210c10a4c18da5d2908bb38d18b6ffc3eebc9155ded668206",
+      "git_blob": "2f33c1ff495b3059d2290801ab6e7a2e1b9c18be",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "custody/c06-can-publication-source-custody-audit.json",
+      "external_path": "/workspace/orch02-r2/publication-audit/c06-can-publication-source-custody-audit.json",
+      "exact_copy": true,
+      "bytes": 96770,
+      "sha256": "4185db99b45ce55347bebb7f30a84fe61c2f0ece1c33780dc7f29302823fabdf",
+      "git_blob": "23486097cb714c34cc4a2b0b69ace00f842b9097",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "custody/c06-dfk-publication-source-custody-audit.json",
+      "external_path": "/workspace/orch02-r2/publication-audit/c06-dfk-publication-source-custody-audit.json",
+      "exact_copy": true,
+      "bytes": 322056,
+      "sha256": "625f42528f8373e6388bb678b167942c0607ab03dbf87af13adec15bcfea738e",
+      "git_blob": "63ba6c73945d25e9344a0b22861fca015f92ce2d",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "custody/c06-dfk-source-parent-mutant-byte-custody-supplement.json",
+      "external_path": "/workspace/orch02-r2/publication-audit/c06-dfk-source-parent-mutant-byte-custody-supplement.json",
+      "exact_copy": true,
+      "bytes": 4479,
+      "sha256": "80e04d59613861fe76ac5a5c599c8e4f199fbb6bff74a6a9075486b6cc09f3d9",
+      "git_blob": "d6bf0a2ea6286d766994b854a7c2659a7350bba5",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "custody/c12-publication-source-custody-audit.json",
+      "external_path": "/workspace/orch02-r2/publication-audit/c12-publication-source-custody-audit.json",
+      "exact_copy": true,
+      "bytes": 122769,
+      "sha256": "5e838f91deb7d30a15f916c497ea10b7715d4254237dc90951b507603511222a",
+      "git_blob": "4fe56813af4de318509f0b16c7cbe3b85661313c",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "custody/completed-publication-audits-four-writers-common-and-G-proposal.json",
+      "external_path": "/workspace/orch02-r2/publication-audit/completed-publication-audits-four-writers-common-and-G-proposal.json",
+      "exact_copy": true,
+      "bytes": 3456,
+      "sha256": "914d6b694a4c9ef15c52caddb4d23773d86605d9ee092686ce402ab9e323309e",
+      "git_blob": "f2b684c4cd759502d769c36ed14cf59b1a28141f",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "custody/coordinator-inputs-publication-source-custody-audit.json",
+      "external_path": "/workspace/orch02-r2/publication-audit/coordinator-inputs-publication-source-custody-audit.json",
+      "exact_copy": true,
+      "bytes": 20737,
+      "sha256": "d0bcec5d9aabd5a47dcfdeb212925b863e0695a011709531e41933dad1aa96b0",
+      "git_blob": "3e969ab0c566f18adaefdf2fdb459d97976ca2c6",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "custody/late-remote-source-check.json",
+      "external_path": "/workspace/orch02-r2/late-remote-source-check.json",
+      "exact_copy": true,
+      "bytes": 1180,
+      "sha256": "63ca120f751ec6c142c26bfe725ac416742226b819661db566af324ef4755724",
+      "git_blob": "ce4db684c7885f53b74d2c50a295687dbe479db9",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "reviews/c05-independent-G-owner-requirements-delta-review-ab1aa6a9.json",
+      "external_path": "/workspace/orch02-r2/reviews/c05-independent-G-owner-requirements-delta-review-ab1aa6a9.json",
+      "exact_copy": true,
+      "bytes": 3126,
+      "sha256": "e31581a106408115c1fab82eed14d0ea694f8fb8aac2529add017aaeece72ca1",
+      "git_blob": "94b4404cac3d09c621d347735a44854fd803c233",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "reviews/c05-independent-G-owner-requirements-delta-review-ab1aa6a9.md",
+      "external_path": "/workspace/orch02-r2/reviews/c05-independent-G-owner-requirements-delta-review-ab1aa6a9.md",
+      "exact_copy": true,
+      "bytes": 1001,
+      "sha256": "3a92a4820f890f3071095f8c6d9b288d263fa471cc346e7994b2d0d1136a171b",
+      "git_blob": "6d930bb732ba6522b635002b2f66237130b23db1",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "reviews/c05-independent-G-owner-requirements-review-clarification-ab1aa6a9.json",
+      "external_path": "/workspace/orch02-r2/reviews/c05-independent-G-owner-requirements-review-clarification-ab1aa6a9.json",
+      "exact_copy": true,
+      "bytes": 1734,
+      "sha256": "17282cd4431d24a5ab034412c9885b0460e9f659f0e15ed9b90c31f195ad4a31",
+      "git_blob": "1f9c29fc3752abc04a87ec72234cb998676145bd",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "reviews/c05-independent-G-proposal-review-0e7a4658.json",
+      "external_path": "/workspace/orch02-r2/reviews/c05-independent-G-proposal-review-0e7a4658.json",
+      "exact_copy": true,
+      "bytes": 38720,
+      "sha256": "68f228ebeaa889f8ca8c01ed089020d7e29f9483f0683acea4d1d71a2455fe75",
+      "git_blob": "a5d4d85acbbbf0a6ea86843927a9734a142edb98",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "reviews/c05-independent-G-proposal-review-0e7a4658.md",
+      "external_path": "/workspace/orch02-r2/reviews/c05-independent-G-proposal-review-0e7a4658.md",
+      "exact_copy": true,
+      "bytes": 1295,
+      "sha256": "736b35909e1c1568de9e5741c8675f1606e5a9e4eaf1847f48cecd3e2091974f",
+      "git_blob": "165a80e04a8d8fd550d5f11d78c0e30420670df9",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "reviews/c05-independent-final-native-review-5ccbfa15.json",
+      "external_path": "/workspace/orch02-r2/reviews/c05-independent-final-native-review-5ccbfa15.json",
+      "exact_copy": true,
+      "bytes": 66631,
+      "sha256": "07184d8625d77ea694b3cac4f9f1cf75b17bc3b33e3f048f7f9825fb55bf76e0",
+      "git_blob": "2af778352f66d1a7487acd0cf4cbc481ad7ec6bd",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "reviews/c05-independent-final-native-review-5ccbfa15.md",
+      "external_path": "/workspace/orch02-r2/reviews/c05-independent-final-native-review-5ccbfa15.md",
+      "exact_copy": true,
+      "bytes": 1447,
+      "sha256": "d151820fc689d04f88e5646ce8f73a3f839828269abb4ec32252e1ad4d2a1310",
+      "git_blob": "dccd2de0c7d103c66d533a9806954288a9ace459",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "reviews/c05-independent-final-quality-handoff-review-4a9af506.json",
+      "external_path": "/workspace/orch02-r2/reviews/c05-independent-final-quality-handoff-review-4a9af506.json",
+      "exact_copy": true,
+      "bytes": 231380,
+      "sha256": "3f6672b7dfbdeebd2f676f76c48b84c6ed9d65e4ac90dd83289d88847ed7d56d",
+      "git_blob": "df5030360d877b169c109f72762b0b01b5f0e3ba",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "reviews/c05-independent-final-quality-handoff-review-4a9af506.md",
+      "external_path": "/workspace/orch02-r2/reviews/c05-independent-final-quality-handoff-review-4a9af506.md",
+      "exact_copy": true,
+      "bytes": 1487,
+      "sha256": "49a3aa6bbcb32a15045804e64dc109e461c1588f2e555adcbb525769d07bd254",
+      "git_blob": "5c550b8f1cb8d1f3164ae1d08fd8230626c3fe3f",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "reviews/c06-can-independent-final-quality-handoff-review-2762cec3.json",
+      "external_path": "/workspace/orch02-r2/reviews/c06-can-independent-final-quality-handoff-review-2762cec3.json",
+      "exact_copy": true,
+      "bytes": 98942,
+      "sha256": "7d8b57652f0946fe840cb6f57128b35edf4bd4495d236659613bf6a15bab0ffd",
+      "git_blob": "6417dc0d86e406fda5cf4f0204c4a5454ee9f559",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "reviews/c06-can-independent-final-quality-handoff-review-2762cec3.md",
+      "external_path": "/workspace/orch02-r2/reviews/c06-can-independent-final-quality-handoff-review-2762cec3.md",
+      "exact_copy": true,
+      "bytes": 1523,
+      "sha256": "44e9179f199b886daa23b897a688a3e14b25b2a704f68656b4f0018bbb18f86e",
+      "git_blob": "0b7fde94fa6cb63521a0d405b7a510367dd7c560",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "reviews/c06-dfk-independent-final-native-handoff-review-3a0d5549.json",
+      "external_path": "/workspace/orch02-r2/reviews/c06-dfk-independent-final-native-handoff-review-3a0d5549.json",
+      "exact_copy": true,
+      "bytes": 134038,
+      "sha256": "267a120b75654dd89b13011edcb384550bb102d8a839b0f33f4acdf933a71d3d",
+      "git_blob": "edfdac85d859780ee007726ab5be6f9382398202",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "reviews/c06-dfk-independent-final-native-handoff-review-3a0d5549.md",
+      "external_path": "/workspace/orch02-r2/reviews/c06-dfk-independent-final-native-handoff-review-3a0d5549.md",
+      "exact_copy": true,
+      "bytes": 1072,
+      "sha256": "43004e166cde7c9882f88634986cc2bd14bcd65027a6c7040b66b6c71a12422e",
+      "git_blob": "f9bc1c5da8b8de6007483abe732a4bcc2d485260",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "reviews/c12-independent-final-quality-handoff-review-a47ec396.json",
+      "external_path": "/workspace/orch02-r2/reviews/c12-independent-final-quality-handoff-review-a47ec396.json",
+      "exact_copy": true,
+      "bytes": 64298,
+      "sha256": "3ee641eae70749e960f49cc708e68fbc82bc28d4673999e4a16019c57fad56ab",
+      "git_blob": "486d24837c46bd17bd19d003eaeda40f5ef2aa44",
+      "independent_exact_copy": true
+    },
+    {
+      "delivery_path": "reviews/c12-independent-final-quality-handoff-review-a47ec396.md",
+      "external_path": "/workspace/orch02-r2/reviews/c12-independent-final-quality-handoff-review-a47ec396.md",
+      "exact_copy": true,
+      "bytes": 1534,
+      "sha256": "fb1b799cf1e5c016ca5559b0605fbf7f51e54e0e6cbed08bb9e91e5b466efeeb",
+      "git_blob": "5ca25bd809e6848e9ed4ac4dc7798b755788020f",
+      "independent_exact_copy": true
+    }
+  ],
+  "original_candidate_publication_and_source_bindings": [
+    {
+      "role": "C05",
+      "source": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+      "source_tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+      "source_parents": [
+        "2734ee49f6985ff2bd7ad6e3c4d6089a7d7848ca"
+      ],
+      "topic": "codex/e02-C-orch02-c05-recovery",
+      "published_head": "eee090e345d1121d3d53cdd93a7ab32f818d5ef7",
+      "published_tree": "4a9af5064f47b795bfb5d00533b19f2e39bcb1c9",
+      "source_acceptance": "not_issued_by_G",
+      "formal_closure_ids": [],
+      "native_summary": {
+        "affected_cases": 119,
+        "passed": 119,
+        "errors": 0,
+        "skips": 0,
+        "matched_removals": "profile, benchmark/seed, WVS selection; actual session reuse2FAIL and WVS forwarding1FAIL",
+        "initial_changed_source": "2734ee49f6985ff2bd7ad6e3c4d6089a7d7848ca",
+        "initial_result": "117PASS+2FAIL preserved; forward repair restores canonical context/global/owner resolver at exactly3 consumers"
+      },
+      "typing_summary": "Final scoped Ruff/format and strict six-source mypy PASS with pinned private PyYAML/pandas stubs. Shared environment separately has2 missing-stub errors only; no source/type weakening.",
+      "architecture_summary": {
+        "outcome": "FAIL",
+        "scope": "full_required_default_gate",
+        "rows": 160,
+        "full_default_gate": {
+          "schema": "policyos.ORCH02.r2.coordinator_C05_final_full_architecture_binding.v1",
+          "derivation": "Root read-only binding of canonical actual terminal capture; independent final reviewer separately validates gate/source/custody. No gate execution or source edits by coordinator.",
+          "outcome": "FAIL",
+          "source_sha": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+          "source_tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+          "capture_path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15",
+          "actual_returncode": 1,
+          "wall_seconds": 375.6799151689993,
+          "max_rss_kib": 1111400,
+          "argv": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "-m",
+            "tools.cli",
+            "architecture",
+            "guardrails",
+            "check",
+            "--generated-freshness-workspace-root",
+            "/workspace/orch02-r2/c05/generated-freshness-5ccbfa15",
+            "--generated-freshness-uv-cache-dir",
+            "/workspace/.polisyos-environment/cache/uv"
+          ],
+          "cwd": "/workspace/orch02-c05/policy-engine",
+          "source_clean_before_after": true,
+          "tracked_python_input_count": 5909,
+          "tracked_python_inputs_intact": true,
+          "issues": {
+            "total": 160,
+            "deep_imports": 157,
+            "owned_edges": 6,
+            "other_edges": 151,
+            "baseline": 1,
+            "generated_drift": 2
+          },
+          "family_denominator": 4,
+          "output_denominator": 6,
+          "family_status_counts": {
+            "PASS": 2,
+            "FAIL": 2,
+            "UNRUN": 0,
+            "UNESTABLISHED": 0
+          },
+          "family_isolation_escape_rows": [],
+          "UNRUN_rows": [],
+          "family_outputs": [
+            {
+              "family": "runtime-openapi-snapshot",
+              "status": "FAIL",
+              "outputs": [
+                {
+                  "family": "runtime-openapi-snapshot",
+                  "path": "schemas/runtime_api_v1.openapi.json",
+                  "generated": {
+                    "bytes": 2812414,
+                    "sha256": "ea698f0ecd27151ec6e6cedf658e332c2777cbed9e6c0d82182db47d12d18a6d"
+                  },
+                  "current": {
+                    "bytes": 2812414,
+                    "sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a"
+                  },
+                  "matches_current": false
+                }
+              ]
+            },
+            {
+              "family": "runtime-api-client",
+              "status": "PASS",
+              "outputs": [
+                {
+                  "family": "runtime-api-client",
+                  "path": "packages/runtime-api-client/canonicalRuntimeApiClient.js",
+                  "generated": {
+                    "bytes": 31276,
+                    "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+                  },
+                  "current": {
+                    "bytes": 31276,
+                    "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+                  },
+                  "matches_current": true
+                },
+                {
+                  "family": "runtime-api-client",
+                  "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+                  "generated": {
+                    "bytes": 108061,
+                    "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+                  },
+                  "current": {
+                    "bytes": 108061,
+                    "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+                  },
+                  "matches_current": true
+                },
+                {
+                  "family": "runtime-api-client",
+                  "path": "packages/runtime-api-client/types.ts",
+                  "generated": {
+                    "bytes": 951543,
+                    "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+                  },
+                  "current": {
+                    "bytes": 951543,
+                    "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+                  },
+                  "matches_current": true
+                }
+              ]
+            },
+            {
+              "family": "runtime-dashboard-api-types",
+              "status": "PASS",
+              "outputs": [
+                {
+                  "family": "runtime-dashboard-api-types",
+                  "path": "apps/runtime-dashboard/src/api/types.ts",
+                  "generated": {
+                    "bytes": 791736,
+                    "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+                  },
+                  "current": {
+                    "bytes": 791736,
+                    "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+                  },
+                  "matches_current": true
+                }
+              ]
+            },
+            {
+              "family": "trust-claim-posture-register",
+              "status": "FAIL",
+              "outputs": [
+                {
+                  "family": "trust-claim-posture-register",
+                  "path": "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+                  "generated": {
+                    "bytes": 2376644,
+                    "sha256": "a8d6c1638690961fb33745bfdbb9ed4df6a4cf4a4d3828d3288459aeb487b119"
+                  },
+                  "current": {
+                    "bytes": 2365635,
+                    "sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba"
+                  },
+                  "matches_current": false
+                }
+              ]
+            }
+          ],
+          "qualified_client_dashboard_comparison": "Successful generation compares each family to committed schema input; this is not a refreshed downstream chain from separately regenerated OpenAPI.",
+          "P41": "not_established",
+          "scope_correction": "Both prior working4/final5ccb checks were nongenerated only; this distinct required-default measurement fills previously unmeasured families, no old result transferred.",
+          "records": [
+            {
+              "path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/command.json",
+              "bytes": 4575,
+              "sha256": "1f38738288a34de1311cbe257448ab04df1dbee80cbb12a5606476c8f3b0ae83"
+            },
+            {
+              "path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/scoped-readback.json",
+              "bytes": 14188,
+              "sha256": "ad860182d5fc7c3825106d325bacf2f39735d1621c99c998cbd78b1656fe0202"
+            },
+            {
+              "path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/node-command.json",
+              "bytes": 1064,
+              "sha256": "7c0cbb673ca4520fa8efa37077f80d5e5b5d56f4c4ebcf824ce99615c8e4421e"
+            },
+            {
+              "path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/stdout.txt",
+              "bytes": 122327,
+              "sha256": "65f31ce8dc308c2150809703c8075ef34f305c5d0865cbc61e28f89ee634065a"
+            },
+            {
+              "path": "/workspace/orch02-r2/c05/required-architecture-full-5ccbfa15/stderr.txt",
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          ],
+          "generated_source_snapshots_or_outputs_published": false,
+          "source_acceptance_issued": false,
+          "formal_closure_ids": []
+        },
+        "previous_scope_limited_reports": {
+          "outcome": "FAIL_NONGENERATED_SCOPE_ONLY",
+          "scope": "nongenerated",
+          "rows": 158,
+          "owned_illegal_import_edges": 6,
+          "required_full_default_gate": "PENDING_new_unmeasured_generated_families",
+          "previous_working4_full_description": "CORRECTED_bothworking4_and_finalscoped_commands_skippedgenerated"
+        },
+        "owned_illegal_import_edges": 6
+      },
+      "invocation_summary": {
+        "outcome": "UNRESOLVED_PARTIAL_STATIC_MODEL",
+        "actual_returncode": 3,
+        "wall_seconds": 500.1519627380003,
+        "max_rss_kib": 8369920,
+        "runtime_invocation_established": false
+      },
+      "prior_native_transfer": false,
+      "independent_normal_remote_publication_custody": [
+        {
+          "report": "custody/c05-publication-source-custody-audit.json",
+          "bytes": 703755,
+          "sha256": "93dfb4d4ab4c732210c10a4c18da5d2908bb38d18b6ffc3eebc9155ded668206",
+          "git_blob": "2f33c1ff495b3059d2290801ab6e7a2e1b9c18be",
+          "verdict": "PASS_PUBLICATION_SOURCE_CUSTODY_ONLY"
+        }
+      ]
+    },
+    {
+      "role": "C06-DFK",
+      "source": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+      "source_tree": "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a",
+      "source_parents": [
+        "dee58973f7673299070b7c7374f419b0adb8175c"
+      ],
+      "topic": "codex/e02-C-orch02-r2-c06-dfk-g",
+      "published_head": "6c565cd65899d91bda370416651555eee143e194",
+      "published_tree": "c2740b7eb4e0b49cf30fec1582545bea54593a79",
+      "source_acceptance": "not_issued_by_G",
+      "formal_closure_ids": [],
+      "native_summary": {
+        "physical_affected_family": "DFK01 35 + current-G DFK02 10 =45PASS",
+        "actual_git_cli_cases": "6PASS; same old-classifier removal6FAIL",
+        "additional_output_boundary_cases": "4SARIF/JUnit +1JSON missing-selected-path PASS",
+        "DFK02_supplier": "Current G, not final C05 composition"
+      },
+      "typing_summary": "Scoped Ruff/format/strict mypy PASS; no changed-src import gate is SKIP, never package-import PASS.",
+      "architecture_summary": {
+        "outcome": "FAIL",
+        "scope": "full required default4 generated families",
+        "rows": 196,
+        "UNRUN_families": 0
+      },
+      "invocation_summary": {
+        "outcome": "EXIT0_PARTIAL_STATIC_MODEL_ONLY",
+        "actual_returncode": 0,
+        "runtime_invocation_established": false
+      },
+      "prior_native_transfer": false,
+      "independent_normal_remote_publication_custody": [
+        {
+          "report": "custody/c06-dfk-publication-source-custody-audit.json",
+          "bytes": 322056,
+          "sha256": "625f42528f8373e6388bb678b167942c0607ab03dbf87af13adec15bcfea738e",
+          "git_blob": "63ba6c73945d25e9344a0b22861fca015f92ce2d",
+          "verdict": "PASS_PUBLICATION_SOURCE_CUSTODY_ONLY"
+        }
+      ]
+    },
+    {
+      "role": "C06-CAN",
+      "source": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "source_tree": "70051ecf56771a59c0ecc468e975e7878b66f728",
+      "source_parents": [
+        "dee58973f7673299070b7c7374f419b0adb8175c"
+      ],
+      "topic": "codex/e02-C-orch02-c06-can-r2-g-compatible",
+      "published_head": "328d91dfee230aeb67ad1168e83b2ece8183d725",
+      "published_tree": "f499af13ffb094745d0f58a9013b768a953c2390",
+      "source_acceptance": "not_issued_by_G",
+      "formal_closure_ids": [],
+      "native_summary": {
+        "checks": 50,
+        "denominator": {
+          "IR_adapter_actual_CAS": 40,
+          "source_AST": 1,
+          "in_memory_protocol": 2,
+          "HTE_actual_CAS_roundtrips": 3,
+          "HTE_constructor_invariants": 4
+        },
+        "additional_actual_CAS_residual_witnesses": 11,
+        "matched_removals": "original reader21FAIL; complete-field guard9FAIL; separator normalization2FAIL"
+      },
+      "typing_summary": "Scoped Ruff/format/strict mypy and one changed-source import policy PASS; global cycle warning retained.",
+      "architecture_summary": {
+        "outcome": "FAIL",
+        "scope": "full required default4 generated families",
+        "rows": 196,
+        "UNRUN_families": 0
+      },
+      "invocation_summary": {
+        "outcome": "EXIT0_PARTIAL_STATIC_MODEL_ONLY",
+        "actual_returncode": 0,
+        "runtime_invocation_established": false,
+        "dataclass_manifest_branch": "UNRUN"
+      },
+      "prior_native_transfer": false,
+      "independent_normal_remote_publication_custody": [
+        {
+          "report": "custody/c06-can-publication-source-custody-audit.json",
+          "bytes": 96770,
+          "sha256": "4185db99b45ce55347bebb7f30a84fe61c2f0ece1c33780dc7f29302823fabdf",
+          "git_blob": "23486097cb714c34cc4a2b0b69ace00f842b9097",
+          "verdict": "PASS_PUBLICATION_SOURCE_CUSTODY_ONLY"
+        }
+      ]
+    },
+    {
+      "role": "C12",
+      "source": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+      "source_tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+      "source_parents": [
+        "fd3898acf23212c14b0fea62647e882c81d4f479"
+      ],
+      "topic": "codex/e02-C-orch02-c12-recovery",
+      "published_head": "fcf164eb1c5bb54786462e67ba2537313b33b90d",
+      "published_tree": "e0ad136df2f004bc87cdb596c3955a88913b3ff1",
+      "source_acceptance": "not_issued_by_G",
+      "formal_closure_ids": [],
+      "native_summary": {
+        "unique_affected_passes": 58,
+        "primary": "45PASS",
+        "additional_previously_omitted_affected_consumers": "13PASS",
+        "full_semantic_collection": 64,
+        "semantic_affected": 50,
+        "unchanged_producer_constructor_cases_excluded_explicitly": 14,
+        "separate_complete_filter_file": "8PASS (already in primary)",
+        "matched_removals": "guard-only removal: same9 expectedFAIL with actual encode/knn counters; intact guards refuse before those calls. Same24 numeric cases12scientific FAIL+12zero PASS"
+      },
+      "typing_summary": "Final exact store/search strict mypy PASS with private pinned hnswlib stub; final Ruff/format PASS. Stale677 receipt not final source qualification.",
+      "architecture_summary": {
+        "outcome": "FAIL",
+        "scope": "full required default4 generated families",
+        "rows": 157,
+        "owned_illegal_import_edges": 2,
+        "UNRUN_families": 0
+      },
+      "invocation_summary": {
+        "outcome": "ERROR_INCOMPLETE_AUTHOR_PROCESS_CAPTURE",
+        "actual_returncode": null,
+        "wall_seconds": null,
+        "max_rss_kib": null,
+        "raw_receipt_bytes": 170878513,
+        "raw_receipt_sha256": "f085965bdedca04acf47ae5cdc2f9f7c316b1e0d04dead869fde1ff69b93e50b",
+        "runtime_invocation_established": false,
+        "interpretation": "Partial static stdout exists; terminal wait4 capture was lost. No inferred exit3/OOM; no unchanged170MB replay."
+      },
+      "prior_native_transfer": false,
+      "independent_normal_remote_publication_custody": [
+        {
+          "report": "custody/c12-publication-source-custody-audit.json",
+          "bytes": 122769,
+          "sha256": "5e838f91deb7d30a15f916c497ea10b7715d4254237dc90951b507603511222a",
+          "git_blob": "4fe56813af4de318509f0b16c7cbe3b85661313c",
+          "verdict": "PASS_PUBLICATION_SOURCE_CUSTODY_ONLY"
+        }
+      ]
+    }
+  ],
+  "actual_four_and_G_proposal_independent_readback_refs": [
+    {
+      "role": "C05",
+      "report": "custody/c05-publication-source-custody-audit.json",
+      "verdict": "PASS_PUBLICATION_SOURCE_CUSTODY_ONLY",
+      "actual_independent_remote_ref": "refs/readback/orch02-r2-publication-audit/c05-final-eee090e3",
+      "remote_head": "eee090e345d1121d3d53cdd93a7ab32f818d5ef7",
+      "remote_tree": "4a9af5064f47b795bfb5d00533b19f2e39bcb1c9",
+      "exact_Git_ref_match": true,
+      "independent_current_immutable_ref_matches": true
+    },
+    {
+      "role": "C06-DFK",
+      "report": "custody/c06-dfk-publication-source-custody-audit.json",
+      "verdict": "PASS_PUBLICATION_SOURCE_CUSTODY_ONLY",
+      "actual_independent_remote_ref": "refs/readback/orch02-r2-publication-audit/c06-dfk-6c565cd6",
+      "remote_head": "6c565cd65899d91bda370416651555eee143e194",
+      "remote_tree": "c2740b7eb4e0b49cf30fec1582545bea54593a79",
+      "exact_Git_ref_match": true,
+      "independent_current_immutable_ref_matches": true
+    },
+    {
+      "role": "C06-CAN",
+      "report": "custody/c06-can-publication-source-custody-audit.json",
+      "verdict": "PASS_PUBLICATION_SOURCE_CUSTODY_ONLY",
+      "actual_independent_remote_ref": "refs/readback/orch02-r2-publication-audit/c06-can-328d91df",
+      "remote_head": "328d91dfee230aeb67ad1168e83b2ece8183d725",
+      "remote_tree": "f499af13ffb094745d0f58a9013b768a953c2390",
+      "exact_Git_ref_match": true,
+      "independent_current_immutable_ref_matches": true
+    },
+    {
+      "role": "C12",
+      "report": "custody/c12-publication-source-custody-audit.json",
+      "verdict": "PASS_PUBLICATION_SOURCE_CUSTODY_ONLY",
+      "actual_independent_remote_ref": "refs/readback/orch02-r2-publication-audit/c12-fcf164eb",
+      "remote_head": "fcf164eb1c5bb54786462e67ba2537313b33b90d",
+      "remote_tree": "e0ad136df2f004bc87cdb596c3955a88913b3ff1",
+      "exact_Git_ref_match": true,
+      "independent_current_immutable_ref_matches": true
+    },
+    {
+      "role": "C05_G_proposal_only",
+      "report": "custody/c05-G-proposal-publication-patch-custody-audit.json",
+      "verdict": "PASS_DOCS_AND_UNAPPLIED_PATCH_CUSTODY_ONLY",
+      "actual_independent_remote_ref": "refs/readback/orch02-r2-publication-audit/c05-gproposal-42987be6",
+      "remote_head": "42987be62c48356211e1ce4397ca67cd45249997",
+      "remote_tree": "ab1aa6a9cfe98d4a613fe04f83cc4bd56124c628",
+      "exact_Git_ref_match": true,
+      "only31docs_product_unchanged_from_G": true,
+      "independent_current_immutable_ref_matches": true
+    }
+  ],
+  "direct_pinned_artifact_metadata": [
+    {
+      "commit": "328d91dfee230aeb67ad1168e83b2ece8183d725",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-r2-g-compatible-20261008/core-owner-packet.json",
+      "bytes": 12120,
+      "sha256": "48f5bb2efbae9f493aef035cd0e482dda57759a735ba838cd22eac22a59b9910",
+      "git_blob": "18830701c2d97b4c00fac5fa6a63f843ee698a69",
+      "match": true,
+      "Git_pointer_and_size_independently_verified": true,
+      "payload_not_reread_in_aggregate_audit": true
+    },
+    {
+      "commit": "328d91dfee230aeb67ad1168e83b2ece8183d725",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-r2-g-compatible-20261008/handoff.json",
+      "bytes": 13361,
+      "sha256": "d8aabe6cdbdd80e8908502788467e729d784d7d38cb3f15b961232042aa71a95",
+      "git_blob": "f5e6bdbd633ca398ce01b3b5df35f123db4ad29c",
+      "match": true,
+      "Git_pointer_and_size_independently_verified": true,
+      "payload_not_reread_in_aggregate_audit": true
+    },
+    {
+      "commit": "42987be62c48356211e1ce4397ca67cd45249997",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/handoff.json",
+      "bytes": 5172,
+      "sha256": "ae4d6dd31fd3f809721e5af1224e4c738d4e6beb0a9c08660daad0e73802d2f3",
+      "git_blob": "93d20f01b37def885306f6246f2997d3921ba8d2",
+      "match": true,
+      "Git_pointer_and_size_independently_verified": true,
+      "payload_not_reread_in_aggregate_audit": true
+    },
+    {
+      "commit": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/scoped-requirements.json",
+      "bytes": 14034,
+      "sha256": "8266e1ef68a1707744c78864c492b2094b6344cfebe41da6ffe789bb03e1c250",
+      "git_blob": "625e56fbebe85564bd81a0f1cf67dca2d9c1030b",
+      "match": true,
+      "Git_pointer_and_size_independently_verified": true,
+      "payload_not_reread_in_aggregate_audit": true
+    },
+    {
+      "commit": "6c565cd65899d91bda370416651555eee143e194",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-c06-dfk-current-g-20261008/handoff.json",
+      "bytes": 9552,
+      "sha256": "70935e224afe3d2155390076decbb5f6b3c31b54853a90d1a01ca8b2f3dec326",
+      "git_blob": "b07d8bc09c9fc64d0946f5adcb22563f3ae5cd73",
+      "match": true,
+      "Git_pointer_and_size_independently_verified": true,
+      "payload_not_reread_in_aggregate_audit": true
+    },
+    {
+      "commit": "eee090e345d1121d3d53cdd93a7ab32f818d5ef7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/handoff.json",
+      "bytes": 9772,
+      "sha256": "093dde1287777952782277092e0596a5d36611cfdb5fe11f5bab8a6e9628fd71",
+      "git_blob": "d448e2a45fa12ef7d9ccd0bdee70817459d5d606",
+      "match": true,
+      "Git_pointer_and_size_independently_verified": true,
+      "payload_not_reread_in_aggregate_audit": true
+    },
+    {
+      "commit": "fcf164eb1c5bb54786462e67ba2537313b33b90d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008.json",
+      "bytes": 20565,
+      "sha256": "307af7013495b021978fce66507e2a789fbff6120f565e98993bcddd8e8a9a2d",
+      "git_blob": "d8c723953256bf86ce83934599f7e3988f4bc269",
+      "match": true,
+      "Git_pointer_and_size_independently_verified": true,
+      "payload_not_reread_in_aggregate_audit": true
+    },
+    {
+      "commit": "fcf164eb1c5bb54786462e67ba2537313b33b90d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/companions/C10-A-served-handshake-proposal.json",
+      "bytes": 15596,
+      "sha256": "cb5e98af0a186742cd5c78b2a509533457ac3a2057515bdab257aaab18a7a78f",
+      "git_blob": "dfebea9bc79f4977bfd23649ffb02ab659fe505e",
+      "match": true,
+      "Git_pointer_and_size_independently_verified": true,
+      "payload_not_reread_in_aggregate_audit": true
+    },
+    {
+      "commit": "fcf164eb1c5bb54786462e67ba2537313b33b90d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/companions/existing-Legal-typed-call-proposal.py",
+      "bytes": 1827,
+      "sha256": "7d24410a127b5098777de5639ff17abf8aef9b36f8a6beb49df88ea83d00cf69",
+      "git_blob": "226351a9ea076b68a5ee168beed1f8783e68c8f9",
+      "match": true,
+      "Git_pointer_and_size_independently_verified": true,
+      "payload_not_reread_in_aggregate_audit": true
+    }
+  ],
+  "C05_review_clarification": {
+    "schema": "policyos.e02.orch02-r2.independent-review-wording-clarification.v1",
+    "at_utc": "2026-10-08T20:25:53.782105+00:00",
+    "reviewer": "/root/recovery_review",
+    "original_reports_immutable": [
+      {
+        "path": "/workspace/orch02-r2/reviews/c05-independent-G-owner-requirements-delta-review-ab1aa6a9.json",
+        "SHA256": "e31581a106408115c1fab82eed14d0ea694f8fb8aac2529add017aaeece72ca1"
+      },
+      {
+        "path": "/workspace/orch02-r2/reviews/c05-independent-G-owner-requirements-delta-review-ab1aa6a9.md",
+        "SHA256": "3a92a4820f890f3071095f8c6d9b288d263fa471cc346e7994b2d0d1136a171b"
+      }
+    ],
+    "exact_reviewed_trees": {
+      "before": "0e7a465844ec7b98b59755c329f1dbb4ef4f9080",
+      "after": "ab1aa6a9cfe98d4a613fe04f83cc4bd56124c628"
+    },
+    "incorrect_original_field": "prior28_docs_and_owned14_foreign4_patches_unchanged:true",
+    "precise_correction": "27 existing docs unchanged; one existing handoff.json changed only by additive current_owner_requirements pointer; three new owner-requirement/remote-check docs added. All owned14/foreign4 patch bytes and reconstructed postimages unchanged.",
+    "complete_change_taxonomy": {
+      "existing_docs_total": 28,
+      "existing_docs_unchanged": 27,
+      "existing_docs_changed": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/handoff.json"
+      ],
+      "new_docs_count": 3
+    },
+    "finding_class": "Review metadata wording correction, not a product or evidence-byte failure. Original exact4path diff and bounded GO were correct.",
+    "prior_G_docs_only_GO_unchanged": true,
+    "source_application_native_integrated_acceptance_or_formal_closure_not_added": true,
+    "no_source_edits_replays": true
+  },
+  "independent_docs_reviewer": {
+    "path": "/workspace/orch02-r2/reviews/coordinator-independent-final-docs-review-74a0e063.json",
+    "bytes": 38436,
+    "sha256": "e15254a6a201adda82a44f943f3d8fdef89de426fe31239c58336526bb0cd296",
+    "reviewer": "/root/coordinator_review",
+    "author": "/root",
+    "verdict": "GO_DOCS_ONLY_ORDINARY_COMMIT_AND_NORMAL_TOPIC_PUBLICATION_ON_EXACT_74a0e063_WITH_EXPLICIT_ENGINEERING_FAIL_ERROR_AND_OWNER_HOLDS",
+    "exact_tree": "74a0e063c3bf80911ef0a076863b49f7febd4697",
+    "findings": [],
+    "publication_review_outside_published_tree": true
+  },
+  "limits_preserved": {
+    "required_quality_limits": {
+      "global_architecture": "FAIL. Initial C05 working4/final5ccb architecture scopes both skipped generated checks; that full-gate description is corrected and the separately captured complete default gate binds its own outcome. C06/C12fullrequireddefaultgeneratedfamilies completed. OpenAPI/trust drift and public exports/baseline findings are preserved; no policy/baseline/expiry/lock/generated changes to hide findings.",
+      "P41": "not_established_no_exact_slice_base_full_denominator_zero_overlap_replay",
+      "invocation": "Finite partial static diagnostics classified; actual portable boundary witnesses qualify only their observed mechanisms. C12 terminal captureERROR remains ERROR.",
+      "hooks": "UNRUN_no_active_native_hooks_installed; actual core.hooksPath unset and only samples observed. Ordinary commits/pushes; no bypass.",
+      "runtime_profile": "Python3.14.2 product/native; pinned private stubs without shared lock changes; managed Node22.23.3 frozenpnpm10.33.2. Root orchestrationPython3.12.14 and observed initial defaultNode24/uv deviations explicit in receipts."
+    },
+    "criterion_boundaries": {
+      "C05": "Finite currentness/session/SQL/WVS/retrieval mechanisms only. No whole LA041 output/resume integrity, source-registry consolidation, performancePASS, credentials/remote corpus/headers/concurrent atomic snapshot closure.",
+      "C06_DFK": "Census parser repair/adoption candidate only, no installed/external retirement or permission deleting legacy families.",
+      "C06_CAN": "Presented persisted profile ABI/shared tags/depth only; C02/G ratifies history/options/raw-byte compatibility/provenance.",
+      "LA023": "Separate explicit existing one-call artifact versus unsupported cross-call resume, or existing TrainingCarry optimizer/RNG/episode/config extension decision. No third PPO loop or whole continuation claim.",
+      "C12": "Immutable request intent and actual selected encoder/member/index consumer boundaries on portable fixtures only. No current-law authority or whole LA040/LA042 retirement.",
+      "production": "Minimal authentic local L01/L02 tuple not established; bounded portable positives/negatives complete independently. No production assets/private corpus uploads."
+    },
+    "composition": {
+      "G_based_ready_sources": [
+        "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+        "2762cec321d0cc78874abb986736dab54e2fb189"
+      ],
+      "original_own_base_repaired_sources": [
+        "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+        "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7"
+      ],
+      "selected_integrated_composition": null,
+      "broad_portable_C13_replay": "UNRUN_await_selected_G_freeze",
+      "source_selection_and_companions": "G alone adjudicates original candidate commits and owned/foreign companion proposals; no main/integration publication"
+    },
+    "review_application_native_source_formal_distinct": true,
+    "source_acceptance_issued": false,
+    "formal_closure_ids": [],
+    "integrated_PASS": false,
+    "production_tuple_established": false,
+    "native_or_scanner_replayed": false,
+    "C05_G_patch_applied": false,
+    "scope": "Readback/durable byte and immutable source custody, not new source review/runtime/G acceptance or closure."
+  },
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "--no-tags",
+        "origin",
+        "refs/heads/codex/e02-C-orch02-recovery-coordination:refs/readback/orch02-r2-publication-audit/coordinator-final-50feba75"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.5783291199986706,
+      "stdout_bytes": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "",
+      "stderr": "From https://github.com/DenisKopylov/polisyos\n * [new branch]          codex/e02-C-orch02-recovery-coordination -> refs/readback/orch02-r2-publication-audit/coordinator-final-50feba75\n"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/readback/orch02-r2-publication-audit/coordinator-final-50feba75"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.004181035001238342,
+      "stdout_bytes": 41,
+      "stdout_sha256": "c84e592df560d392d8d811b2afba1561ad33cb248cb005305565e016f524cfce",
+      "stdout": "50feba754bf1232244130916d32a7d7a7be476c4\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/readback/orch02-r2-publication-audit/coordinator-final-50feba75^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.0033157969992316794,
+      "stdout_bytes": 41,
+      "stdout_sha256": "db19fd41d28a058c68ed1d77a7d140b47894dcd28ba29186a6a24f81d112726a",
+      "stdout": "74a0e063c3bf80911ef0a076863b49f7febd4697\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/readback/orch02-r2-publication-audit/coordinator-final-50feba75^"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.003700006996950833,
+      "stdout_bytes": 41,
+      "stdout_sha256": "8a01d64d5f43c9db46c810085fa0607581164e9a72020d1c04590a34dae57e1c",
+      "stdout": "e5e32e19b69d1847b153efc0b83987fdd28e68c2\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.0034815459985111374,
+      "stdout_bytes": 1201,
+      "stdout_sha256": "f4df2772659aa6d6687a8dd328da40c9a52a46632d9441e4f0e0dac14b56148b",
+      "stdout": "worktree /workspace/polisyos\nHEAD 198076863e143dea9f89f02734b13d50dae3eed5\nbranch refs/heads/work\n\nworktree /workspace/orch02-c05\nHEAD eee090e345d1121d3d53cdd93a7ab32f818d5ef7\nbranch refs/heads/codex/e02-C-orch02-c05-recovery\n\nworktree /workspace/orch02-c05-r2-gproposal\nHEAD 42987be62c48356211e1ce4397ca67cd45249997\nbranch refs/heads/codex/e02-C-orch02-c05-r2-gproposal\n\nworktree /workspace/orch02-c06-can\nHEAD 6602fbd087ef31d3f8eff42e94fc1fc074326d45\nbranch refs/heads/codex/e02-C-orch02-c06-can-recovery\n\nworktree /workspace/orch02-c06-dfk\nHEAD e4bd1527c941ff880a5d34898c57428c7be4b1cc\nbranch refs/heads/codex/e02-C-orch02-c06-dfk-recovery\n\nworktree /workspace/orch02-c12\nHEAD fcf164eb1c5bb54786462e67ba2537313b33b90d\nbranch refs/heads/codex/e02-C-orch02-c12-recovery\n\nworktree /workspace/orch02-coordination\nHEAD 50feba754bf1232244130916d32a7d7a7be476c4\nbranch refs/heads/codex/e02-C-orch02-recovery-coordination\n\nworktree /workspace/orch02-r2-c06-can\nHEAD 328d91dfee230aeb67ad1168e83b2ece8183d725\nbranch refs/heads/codex/e02-C-orch02-c06-can-r2-g-compatible\n\nworktree /workspace/orch02-r2-c06-dfk-g\nHEAD 6c565cd65899d91bda370416651555eee143e194\nbranch refs/heads/codex/e02-C-orch02-r2-c06-dfk-g\n\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "--full-tree",
+        "50feba754bf1232244130916d32a7d7a7be476c4"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.07267840300119133,
+      "stdout_bytes": 3377294,
+      "stdout_sha256": "03c2ee22438825ff6850450ca4fe3fb38fa6315120600051a30207bde3a64ccc",
+      "stdout": null,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "--full-tree",
+        "e5e32e19b69d1847b153efc0b83987fdd28e68c2"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.04873695399874123,
+      "stdout_bytes": 3370396,
+      "stdout_sha256": "74617f1dde384f48d75f05d7c5165825fe7d6af54939c8af77dc16392719a938",
+      "stdout": null,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "eee090e345d1121d3d53cdd93a7ab32f818d5ef7^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.004779292001330759,
+      "stdout_bytes": 41,
+      "stdout_sha256": "5eb0bbaf846dec4e911a84a51a0665c30096d980995aadf25b849d0a304ded4f",
+      "stdout": "4a9af5064f47b795bfb5d00533b19f2e39bcb1c9\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.003636636000010185,
+      "stdout_bytes": 41,
+      "stdout_sha256": "b05a36d98a11fbb8fbc2caa63ade406de395b9fd8333371801919099280c140e",
+      "stdout": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "-s",
+        "--format=%P",
+        "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.006731661000230815,
+      "stdout_bytes": 41,
+      "stdout_sha256": "0523508aa88234695d1e12b0338d50b2886d087920de310926a03992bf124453",
+      "stdout": "2734ee49f6985ff2bd7ad6e3c4d6089a7d7848ca\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6c565cd65899d91bda370416651555eee143e194^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.0030696609974256717,
+      "stdout_bytes": 41,
+      "stdout_sha256": "c841d305f091e56652296a84336bb2a01bd6373d11f0a129b5e5a713f90e10b8",
+      "stdout": "c2740b7eb4e0b49cf30fec1582545bea54593a79\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.002583257002697792,
+      "stdout_bytes": 41,
+      "stdout_sha256": "31fdb42d5fe84e93a023557936d3ba59baf74d6fa6dc9c358a1aa8ee7e40a8b2",
+      "stdout": "1e2e7c6ca7948f3c2b771af431bd0d73510fec3a\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "-s",
+        "--format=%P",
+        "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.0037413140016724356,
+      "stdout_bytes": 41,
+      "stdout_sha256": "702fcd3f429d4ebaf94c4909e5a78d37a1267eb684e669740ef0592a370fc93d",
+      "stdout": "dee58973f7673299070b7c7374f419b0adb8175c\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "328d91dfee230aeb67ad1168e83b2ece8183d725^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.005908289000217337,
+      "stdout_bytes": 41,
+      "stdout_sha256": "9f77317abfbf7038c2b08c20faca733a69b1378f22494065197f442cf84a1b16",
+      "stdout": "f499af13ffb094745d0f58a9013b768a953c2390\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "2762cec321d0cc78874abb986736dab54e2fb189^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.0024364390010305215,
+      "stdout_bytes": 41,
+      "stdout_sha256": "ca68ee08641c40b016d320e8fdad61e5b67736689f84068ee48d70a2b13dde47",
+      "stdout": "70051ecf56771a59c0ecc468e975e7878b66f728\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "-s",
+        "--format=%P",
+        "2762cec321d0cc78874abb986736dab54e2fb189"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.003949156998714898,
+      "stdout_bytes": 41,
+      "stdout_sha256": "702fcd3f429d4ebaf94c4909e5a78d37a1267eb684e669740ef0592a370fc93d",
+      "stdout": "dee58973f7673299070b7c7374f419b0adb8175c\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "fcf164eb1c5bb54786462e67ba2537313b33b90d^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.003083978001086507,
+      "stdout_bytes": 41,
+      "stdout_sha256": "0917907f3d7fe0961b5b55dcdd7b23f53231d39948ce059f23dacf9891bc3feb",
+      "stdout": "e0ad136df2f004bc87cdb596c3955a88913b3ff1\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.005180423999263439,
+      "stdout_bytes": 41,
+      "stdout_sha256": "c878c4148848788f76f5e97e260878a8bbf968b4286bbac2ee0444b1a9a3bc8f",
+      "stdout": "2e40b42e506b5dbae790f809368c308631cdaac4\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "-s",
+        "--format=%P",
+        "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.0054096120002213866,
+      "stdout_bytes": 41,
+      "stdout_sha256": "14d3bbe894d36e30fac48cc1d2496d6caf164865c1c7623bab82d22a8b6bc805",
+      "stdout": "fd3898acf23212c14b0fea62647e882c81d4f479\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/readback/orch02-r2-publication-audit/c05-final-eee090e3"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.002034190998529084,
+      "stdout_bytes": 41,
+      "stdout_sha256": "855cabdea2d1a495154608c6f4240eedcc613cae6cd38462ea834a85bb9b3f4d",
+      "stdout": "eee090e345d1121d3d53cdd93a7ab32f818d5ef7\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/readback/orch02-r2-publication-audit/c05-final-eee090e3^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.0025562810005794745,
+      "stdout_bytes": 41,
+      "stdout_sha256": "5eb0bbaf846dec4e911a84a51a0665c30096d980995aadf25b849d0a304ded4f",
+      "stdout": "4a9af5064f47b795bfb5d00533b19f2e39bcb1c9\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/readback/orch02-r2-publication-audit/c06-dfk-6c565cd6"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.0025145219988189638,
+      "stdout_bytes": 41,
+      "stdout_sha256": "5188a66409062cd27261f47686593f8577ba3db34fcc270755eb456f2cc5cc31",
+      "stdout": "6c565cd65899d91bda370416651555eee143e194\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/readback/orch02-r2-publication-audit/c06-dfk-6c565cd6^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.004615384998032823,
+      "stdout_bytes": 41,
+      "stdout_sha256": "c841d305f091e56652296a84336bb2a01bd6373d11f0a129b5e5a713f90e10b8",
+      "stdout": "c2740b7eb4e0b49cf30fec1582545bea54593a79\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/readback/orch02-r2-publication-audit/c06-can-328d91df"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.002445841000735527,
+      "stdout_bytes": 41,
+      "stdout_sha256": "a7c19686946462d766165fe1af0a67566fab1c72dc7d9c027365a1e32513300b",
+      "stdout": "328d91dfee230aeb67ad1168e83b2ece8183d725\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/readback/orch02-r2-publication-audit/c06-can-328d91df^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.002869384999939939,
+      "stdout_bytes": 41,
+      "stdout_sha256": "9f77317abfbf7038c2b08c20faca733a69b1378f22494065197f442cf84a1b16",
+      "stdout": "f499af13ffb094745d0f58a9013b768a953c2390\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/readback/orch02-r2-publication-audit/c12-fcf164eb"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.002524343999539269,
+      "stdout_bytes": 41,
+      "stdout_sha256": "a5056ac850981a555e4c86f5ccb6684cc719fb4e4fc155cb55c9a2cded7933c4",
+      "stdout": "fcf164eb1c5bb54786462e67ba2537313b33b90d\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/readback/orch02-r2-publication-audit/c12-fcf164eb^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.0025527380021230783,
+      "stdout_bytes": 41,
+      "stdout_sha256": "0917907f3d7fe0961b5b55dcdd7b23f53231d39948ce059f23dacf9891bc3feb",
+      "stdout": "e0ad136df2f004bc87cdb596c3955a88913b3ff1\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/readback/orch02-r2-publication-audit/c05-gproposal-42987be6"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.002188850998209091,
+      "stdout_bytes": 41,
+      "stdout_sha256": "739ea196393aa8cf084104f4678de3bb99618e1ff79f9c613eb6b12febe0107a",
+      "stdout": "42987be62c48356211e1ce4397ca67cd45249997\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/readback/orch02-r2-publication-audit/c05-gproposal-42987be6^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.004562095997243887,
+      "stdout_bytes": 41,
+      "stdout_sha256": "905293f3a79510cf39087c50ce0db8b3d9e5bcb29c085bec058860a9e1578363",
+      "stdout": "ab1aa6a9cfe98d4a613fe04f83cc4bd56124c628\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "328d91dfee230aeb67ad1168e83b2ece8183d725:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-r2-g-compatible-20261008/core-owner-packet.json"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.0026065349993587006,
+      "stdout_bytes": 41,
+      "stdout_sha256": "dcd47904bebbc7ae2466aef44265b4fe112355a6772cb74f0458716fd0765614",
+      "stdout": "18830701c2d97b4c00fac5fa6a63f843ee698a69\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "-s",
+        "18830701c2d97b4c00fac5fa6a63f843ee698a69"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.002613422999274917,
+      "stdout_bytes": 6,
+      "stdout_sha256": "1690a242b024954814e33cb336bcc82a56a8b625a2d77473aa94c0d1ee3eca7e",
+      "stdout": "12120\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "328d91dfee230aeb67ad1168e83b2ece8183d725:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-r2-g-compatible-20261008/handoff.json"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.003017107999767177,
+      "stdout_bytes": 41,
+      "stdout_sha256": "3459fa66770c2bd01361e777f2bf72296d058123c327e2e62d02e8b0100b0222",
+      "stdout": "f5e6bdbd633ca398ce01b3b5df35f123db4ad29c\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "-s",
+        "f5e6bdbd633ca398ce01b3b5df35f123db4ad29c"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.0029471960006048903,
+      "stdout_bytes": 6,
+      "stdout_sha256": "03efb1aba2b29652804f13ae8a8e29593f5346022c54c1c80e3fd36f19c50a98",
+      "stdout": "13361\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "42987be62c48356211e1ce4397ca67cd45249997:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/handoff.json"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.004743137000332354,
+      "stdout_bytes": 41,
+      "stdout_sha256": "c1c7fd8f0b32b4cd9bf95706fb5edfdee1718744c1c33339dd15171fd4947abb",
+      "stdout": "93d20f01b37def885306f6246f2997d3921ba8d2\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "-s",
+        "93d20f01b37def885306f6246f2997d3921ba8d2"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.003136747000098694,
+      "stdout_bytes": 5,
+      "stdout_sha256": "f3513ffc07333102e44bd541bc5b6e6ddf0bf56d85c6b4cb7b0753e78b9b2d9c",
+      "stdout": "5172\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-recovery-20261008/scoped-requirements.json"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.0034797129992512055,
+      "stdout_bytes": 41,
+      "stdout_sha256": "0336f350196b9029a7f5122203593a5e4b898e701a43a966037c81dacdba082d",
+      "stdout": "625e56fbebe85564bd81a0f1cf67dca2d9c1030b\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "-s",
+        "625e56fbebe85564bd81a0f1cf67dca2d9c1030b"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.0024787379988993052,
+      "stdout_bytes": 6,
+      "stdout_sha256": "1d87dc38f97fc329cbbf4d532a3646c3f073210cad47725ad0815e40303bed79",
+      "stdout": "14034\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6c565cd65899d91bda370416651555eee143e194:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-c06-dfk-current-g-20261008/handoff.json"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.004306819999328582,
+      "stdout_bytes": 41,
+      "stdout_sha256": "bb249ce28ffddb11a35ce98407db34e70b1e96299ae930a58d1c5283add0ffa6",
+      "stdout": "b07d8bc09c9fc64d0946f5adcb22563f3ae5cd73\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "-s",
+        "b07d8bc09c9fc64d0946f5adcb22563f3ae5cd73"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.0024242699983005878,
+      "stdout_bytes": 5,
+      "stdout_sha256": "33b74a14a981f94cf8ab4c33fb8d30cb3b500da92fbb66f6759927ff393f44a9",
+      "stdout": "9552\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "eee090e345d1121d3d53cdd93a7ab32f818d5ef7:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-20261008/handoff.json"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.004143214002397144,
+      "stdout_bytes": 41,
+      "stdout_sha256": "7b79d605f8490a22ec5b048cd33f389d5615a54f18e81f774faa76a5f909125e",
+      "stdout": "d448e2a45fa12ef7d9ccd0bdee70817459d5d606\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "-s",
+        "d448e2a45fa12ef7d9ccd0bdee70817459d5d606"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.002286679999087937,
+      "stdout_bytes": 5,
+      "stdout_sha256": "ac20f02bf1eaea5fb2706e83097762d046e88e8450305c6385270deb472070bb",
+      "stdout": "9772\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "fcf164eb1c5bb54786462e67ba2537313b33b90d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008.json"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.0027934099998674355,
+      "stdout_bytes": 41,
+      "stdout_sha256": "27da8c602c91ddac0ae6d940ea1418bcf08ffd3f806d7b0748f0586d86f54fdf",
+      "stdout": "d8c723953256bf86ce83934599f7e3988f4bc269\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "-s",
+        "d8c723953256bf86ce83934599f7e3988f4bc269"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.0027259870003035758,
+      "stdout_bytes": 6,
+      "stdout_sha256": "17fa60d4013a6bd56bf8742d0fa5512b6febc1bd5e288360a75548b87181e940",
+      "stdout": "20565\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "fcf164eb1c5bb54786462e67ba2537313b33b90d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/companions/C10-A-served-handshake-proposal.json"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.00463143000160926,
+      "stdout_bytes": 41,
+      "stdout_sha256": "97d5268894b821efc0722f451e04f06cce98d0608cc8097eda22eb4d2dd93320",
+      "stdout": "dfebea9bc79f4977bfd23649ffb02ab659fe505e\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "-s",
+        "dfebea9bc79f4977bfd23649ffb02ab659fe505e"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.003633430002082605,
+      "stdout_bytes": 6,
+      "stdout_sha256": "d6e4bd480e9161f9981ba1126ece460ca4a1483fadd2a5258912a20317c81c72",
+      "stdout": "15596\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "fcf164eb1c5bb54786462e67ba2537313b33b90d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/companions/existing-Legal-typed-call-proposal.py"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.0035976520011899993,
+      "stdout_bytes": 41,
+      "stdout_sha256": "63028a61bc867924335095842017814464feac37a21dc9de91293c23ce764650",
+      "stdout": "226351a9ea076b68a5ee168beed1f8783e68c8f9\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "-s",
+        "226351a9ea076b68a5ee168beed1f8783e68c8f9"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.0025814100008574314,
+      "stdout_bytes": 5,
+      "stdout_sha256": "3c97978d85080cdb3dd37fbd05efcfb468cc812fba535db8a39383faa6faeee0",
+      "stdout": "1827\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.003894890000083251,
+      "stdout_bytes": 41,
+      "stdout_sha256": "304ec378276319b722f39cbdc2a0fdce0a8ba2c1c859c4b8e57ecb52a891ade8",
+      "stdout": "198076863e143dea9f89f02734b13d50dae3eed5\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "e5e32e19b69d1847b153efc0b83987fdd28e68c2^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "wall_seconds": 0.0038501380004163366,
+      "stdout_bytes": 41,
+      "stdout_sha256": "c33035766a1a0d7aff26db230ff684c55f6bb48751dfad2b5f6b859cbbefbc32",
+      "stdout": "c6f7eee86568425e5659c0a4fb8786d7c0b45077\n",
+      "stderr": ""
+    }
+  ],
+  "audit_errors": [],
+  "wall_seconds": 1.108135532002052
+}

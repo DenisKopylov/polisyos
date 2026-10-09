@@ -1,0 +1,1628 @@
+{
+  "schema": "policyos.e02.orch02-r2.independent-C05-final-native-review.v1",
+  "reviewer": "/root/recovery_review",
+  "at_utc": "2026-10-08T20:03:45.687451+00:00",
+  "verdict": "GO_BOUNDED_EXACT_SOURCE_AFFECTED_NATIVE_CONSUMER_AND_MATCHED_PROPERTY_REMOVAL_EVIDENCE",
+  "source_commit": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+  "source_tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+  "final_receipt": {
+    "path": "/workspace/orch02-r2/native-c05-c12/c05-native-final-receipt-5ccbfa15.json",
+    "bytes": 1212361,
+    "SHA256": "76dd1fa4f704d07e0c09550d181e856b8d795303031a48c1356766969839d5f5",
+    "Git_blob_identity": "eec06517c7318e9353ae8bca42a843a8a4068f06"
+  },
+  "executed_harness_ledger": {
+    "path": "/workspace/orch02-r2/native-c05-c12/c05-executed-harness-ledger.json",
+    "bytes": 3084,
+    "SHA256": "f142967bc6dd34b85621c9ce3d9a072355e3f91a0de9eacb8bd9fc2a6990d9e0",
+    "Git_blob_identity": "c62f8d1667075ec45092f946be865c3189f5772b"
+  },
+  "commands": [
+    {
+      "name": "c05-5ccb-affected-native",
+      "raw_exit": 0,
+      "source_binding_intact": true,
+      "wall_seconds": 94.22794814200097,
+      "resource": {
+        "measurement": "Linux wait4 actual command child usage",
+        "user_seconds": 82.376646,
+        "system_seconds": 10.717187,
+        "maximum_resident_set_size_kib": 361212,
+        "input_blocks": 0,
+        "output_blocks": 197816,
+        "voluntary_context_switches": 129232,
+        "involuntary_context_switches": 7422
+      },
+      "JUnit": {
+        "cases": 119,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "semantic_label": null,
+      "loaded_owned_module_names": 432,
+      "complete_stdout": {
+        "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/stdout.txt",
+        "bytes": 639,
+        "SHA256": "fa52396ca9044511fcdc741272442abcc2cfe8e40347de737cd49952ea71f6de",
+        "Git_blob_identity": "005dbc45a61883aec328c177751aaae6bfd07273"
+      },
+      "complete_stderr": {
+        "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/stderr.txt",
+        "bytes": 0,
+        "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "Git_blob_identity": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+      }
+    },
+    {
+      "name": "c05-5ccb-profile-control",
+      "raw_exit": 0,
+      "source_binding_intact": true,
+      "wall_seconds": 14.383826903000227,
+      "resource": {
+        "measurement": "Linux wait4 actual command child usage",
+        "user_seconds": 12.510086,
+        "system_seconds": 2.873328,
+        "maximum_resident_set_size_kib": 276924,
+        "input_blocks": 0,
+        "output_blocks": 27272,
+        "voluntary_context_switches": 17754,
+        "involuntary_context_switches": 586
+      },
+      "JUnit": null,
+      "semantic_label": "PASS",
+      "loaded_owned_module_names": 380,
+      "complete_stdout": {
+        "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-control/stdout.txt",
+        "bytes": 10258,
+        "SHA256": "a021a717f5456706a427d9e607587cf71395ad9cda518a5735f2590ecd62909c",
+        "Git_blob_identity": "5754d66d21a1a69e0830a2c98c9c310820469b4d"
+      },
+      "complete_stderr": {
+        "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-control/stderr.txt",
+        "bytes": 189,
+        "SHA256": "eb1b311b33bfa641b9e86170ca3a3dd8f459b02946b5d2a9dbd82676545d0a12",
+        "Git_blob_identity": "2f38337753772011aee0e8136fa295d54f6339c8"
+      }
+    },
+    {
+      "name": "c05-5ccb-profile-removed",
+      "raw_exit": 0,
+      "source_binding_intact": true,
+      "wall_seconds": 8.409001099000307,
+      "resource": {
+        "measurement": "Linux wait4 actual command child usage",
+        "user_seconds": 8.028666,
+        "system_seconds": 1.068092,
+        "maximum_resident_set_size_kib": 281144,
+        "input_blocks": 0,
+        "output_blocks": 27176,
+        "voluntary_context_switches": 13286,
+        "involuntary_context_switches": 123
+      },
+      "JUnit": null,
+      "semantic_label": "DISCRIMINATING",
+      "loaded_owned_module_names": 380,
+      "complete_stdout": {
+        "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-removed/stdout.txt",
+        "bytes": 29550,
+        "SHA256": "9fd9ef2b4c24c1427d65a0f8a3b5a92aadc3615d3e2a485a8f0caa860dfbf1e1",
+        "Git_blob_identity": "c2fcf345bf81284bf9bcf863863325b577627b93"
+      },
+      "complete_stderr": {
+        "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-removed/stderr.txt",
+        "bytes": 189,
+        "SHA256": "6f73f270f4925de9107e02e414cbcacf34b095b928434471eaf599f3de60766f",
+        "Git_blob_identity": "383d48eb6ac67729855fa31be136688be4c79f07"
+      }
+    },
+    {
+      "name": "c05-5ccb-seed-control",
+      "raw_exit": 0,
+      "source_binding_intact": true,
+      "wall_seconds": 11.095012122001208,
+      "resource": {
+        "measurement": "Linux wait4 actual command child usage",
+        "user_seconds": 10.503089,
+        "system_seconds": 1.5080230000000001,
+        "maximum_resident_set_size_kib": 278504,
+        "input_blocks": 0,
+        "output_blocks": 27216,
+        "voluntary_context_switches": 18718,
+        "involuntary_context_switches": 166
+      },
+      "JUnit": null,
+      "semantic_label": "PASS",
+      "loaded_owned_module_names": 380,
+      "complete_stdout": {
+        "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-control/stdout.txt",
+        "bytes": 10806,
+        "SHA256": "7767495ba6417daa54195281564fe4beb7ef0ff27d117fe911f30e3a1466574c",
+        "Git_blob_identity": "b1941c75e6cfc0d877c66b0f8a5d73711217c524"
+      },
+      "complete_stderr": {
+        "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-control/stderr.txt",
+        "bytes": 189,
+        "SHA256": "16b34ae43cd2b829230a3fe7c52b391013ad418f7e10feab3251532ed6b14bd0",
+        "Git_blob_identity": "ec5e05a455ef50b52c47dce76b031e7f2bbead4b"
+      }
+    },
+    {
+      "name": "c05-5ccb-seed-removed",
+      "raw_exit": 0,
+      "source_binding_intact": true,
+      "wall_seconds": 13.492845369000861,
+      "resource": {
+        "measurement": "Linux wait4 actual command child usage",
+        "user_seconds": 11.671391,
+        "system_seconds": 2.442104,
+        "maximum_resident_set_size_kib": 279408,
+        "input_blocks": 0,
+        "output_blocks": 27280,
+        "voluntary_context_switches": 11449,
+        "involuntary_context_switches": 1031
+      },
+      "JUnit": null,
+      "semantic_label": "DISCRIMINATING",
+      "loaded_owned_module_names": 380,
+      "complete_stdout": {
+        "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/stdout.txt",
+        "bytes": 30021,
+        "SHA256": "4953abd1540ba8cd98c6d23a1a4da4eac8831c82f6208bb4324b1d99d32f9bc5",
+        "Git_blob_identity": "99cfe5ecf79b76c87517063a60377447058c6d36"
+      },
+      "complete_stderr": {
+        "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/stderr.txt",
+        "bytes": 189,
+        "SHA256": "c5ca350cb33f0feda9329fabba6496a7b512bfe816dd6b34e619918c4029a7dd",
+        "Git_blob_identity": "517bc631b2fe2861e1699e2263d2991168df630d"
+      }
+    },
+    {
+      "name": "c05-5ccb-wvs-control",
+      "raw_exit": 0,
+      "source_binding_intact": true,
+      "wall_seconds": 4.781610739000826,
+      "resource": {
+        "measurement": "Linux wait4 actual command child usage",
+        "user_seconds": 3.970458,
+        "system_seconds": 1.061955,
+        "maximum_resident_set_size_kib": 268568,
+        "input_blocks": 0,
+        "output_blocks": 328,
+        "voluntary_context_switches": 28,
+        "involuntary_context_switches": 53
+      },
+      "JUnit": null,
+      "semantic_label": "PASS",
+      "loaded_owned_module_names": 376,
+      "complete_stdout": {
+        "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-control/stdout.txt",
+        "bytes": 4547,
+        "SHA256": "7419b84f8c88a2ea6fe74795237dedfdd3e154ed0e4df02adc407a3c5582db1e",
+        "Git_blob_identity": "719c7725e550d608ca01cd5ae45941b102c04777"
+      },
+      "complete_stderr": {
+        "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-control/stderr.txt",
+        "bytes": 220,
+        "SHA256": "b12abe92051a873c467495aa67853858885dfd251f72f266778c602f4e3e2c7d",
+        "Git_blob_identity": "8673b9b9a7b2a19e3d2f3ae549a4fc88b0d71e20"
+      }
+    },
+    {
+      "name": "c05-5ccb-wvs-removed",
+      "raw_exit": 0,
+      "source_binding_intact": true,
+      "wall_seconds": 4.83039406700118,
+      "resource": {
+        "measurement": "Linux wait4 actual command child usage",
+        "user_seconds": 4.035774,
+        "system_seconds": 1.099069,
+        "maximum_resident_set_size_kib": 268700,
+        "input_blocks": 0,
+        "output_blocks": 328,
+        "voluntary_context_switches": 22,
+        "involuntary_context_switches": 61
+      },
+      "JUnit": null,
+      "semantic_label": "DISCRIMINATING",
+      "loaded_owned_module_names": 376,
+      "complete_stdout": {
+        "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-removed/stdout.txt",
+        "bytes": 4649,
+        "SHA256": "b025d0ec80588ae108842a7d27cc49b9e4082ac35a22fa35f264b7b804ed9083",
+        "Git_blob_identity": "1f8643b344cf1a2a364db9b91279f169cb0b2fb7"
+      },
+      "complete_stderr": {
+        "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-removed/stderr.txt",
+        "bytes": 220,
+        "SHA256": "8b5226cc62f93e85738a152d86023e881848bb1cc1e4b91ba01ec416eab9145b",
+        "Git_blob_identity": "ba3847369b41e530fca7a0c84c81aedf46740098"
+      }
+    },
+    {
+      "name": "c05-5ccb-session-reuse-removed",
+      "raw_exit": 1,
+      "source_binding_intact": true,
+      "wall_seconds": 7.660611375998997,
+      "resource": {
+        "measurement": "Linux wait4 actual command child usage",
+        "user_seconds": 6.717885,
+        "system_seconds": 1.231673,
+        "maximum_resident_set_size_kib": 294640,
+        "input_blocks": 0,
+        "output_blocks": 8928,
+        "voluntary_context_switches": 1531,
+        "involuntary_context_switches": 110
+      },
+      "JUnit": {
+        "cases": 2,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "semantic_label": null,
+      "loaded_owned_module_names": 378,
+      "complete_stdout": {
+        "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed/stdout.txt",
+        "bytes": 10479,
+        "SHA256": "28fa581e6c24ade17162428bd012bab67e461f09d32bb6f3a8c9ded61d9f7460",
+        "Git_blob_identity": "4f0b6ca9f7b58310a3973db27749715d544a184c"
+      },
+      "complete_stderr": {
+        "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed/stderr.txt",
+        "bytes": 0,
+        "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "Git_blob_identity": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+      }
+    },
+    {
+      "name": "c05-5ccb-wvs-forwarding-removed",
+      "raw_exit": 1,
+      "source_binding_intact": true,
+      "wall_seconds": 7.451565847000893,
+      "resource": {
+        "measurement": "Linux wait4 actual command child usage",
+        "user_seconds": 6.260841,
+        "system_seconds": 1.491947,
+        "maximum_resident_set_size_kib": 302420,
+        "input_blocks": 0,
+        "output_blocks": 336,
+        "voluntary_context_switches": 98,
+        "involuntary_context_switches": 75
+      },
+      "JUnit": {
+        "cases": 1,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "semantic_label": null,
+      "loaded_owned_module_names": 376,
+      "complete_stdout": {
+        "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/stdout.txt",
+        "bytes": 2926,
+        "SHA256": "d2801023bfe0f65648a31a85e508e65de4dddda786bc90092f0ddb2b1dc65b70",
+        "Git_blob_identity": "f45258e9ba70828c4a3af2414d4b17990cfd7ea1"
+      },
+      "complete_stderr": {
+        "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/stderr.txt",
+        "bytes": 0,
+        "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "Git_blob_identity": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+      }
+    }
+  ],
+  "all_complete_deciding_output_bindings": [
+    {
+      "command": "c05-5ccb-affected-native",
+      "name": "command.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/command.json",
+      "bytes": 5028,
+      "SHA256": "b6bd1b81cbce12f89e547c7c75447b88c6b3b5c827d781a7eddd606d8faceea5"
+    },
+    {
+      "command": "c05-5ccb-affected-native",
+      "name": "junit.xml",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/junit.xml",
+      "bytes": 20387,
+      "SHA256": "ecca9de6dc6e48c9a09a2893d37174704605bed47567e936e4b4a64b483a041c"
+    },
+    {
+      "command": "c05-5ccb-affected-native",
+      "name": "session-events.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/session-events.json",
+      "bytes": 8581,
+      "SHA256": "a318f03ac37d8bef70995bf81f042ea04aaa18adda1fbbe805b936fe9cc6b6b1"
+    },
+    {
+      "command": "c05-5ccb-affected-native",
+      "name": "stdout.txt",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/stdout.txt",
+      "bytes": 639,
+      "SHA256": "fa52396ca9044511fcdc741272442abcc2cfe8e40347de737cd49952ea71f6de"
+    },
+    {
+      "command": "c05-5ccb-affected-native",
+      "name": "runtime-binding-events.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/runtime-binding-events.json",
+      "bytes": 549,
+      "SHA256": "285f7460c0d4c5c1205faf367926dcd5bf7fdde9d55a073119dfaf2ffb0eccf9"
+    },
+    {
+      "command": "c05-5ccb-affected-native",
+      "name": "runtime-origins.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/runtime-origins.json",
+      "bytes": 104814,
+      "SHA256": "53720865752a37ac303d0f94c797cb15dba23f9d8f26ca63467fdbe95edb0f15"
+    },
+    {
+      "command": "c05-5ccb-affected-native",
+      "name": "stderr.txt",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/stderr.txt",
+      "bytes": 0,
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "c05-5ccb-affected-native",
+      "name": "selected-tests.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/selected-tests.json",
+      "bytes": 17687,
+      "SHA256": "0e6339ff2b886c386508d771a5955ba77f9b17e6911a92029462b34b08de4c02"
+    },
+    {
+      "command": "c05-5ccb-affected-native",
+      "name": "resource.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-affected-native/resource.json",
+      "bytes": 293,
+      "SHA256": "84dd0bc506d14e6b029148d4c7028688396901a1f5ca7d05e677500ab7603487"
+    },
+    {
+      "command": "c05-5ccb-profile-control",
+      "name": "semantic.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-control/semantic.json",
+      "bytes": 10258,
+      "SHA256": "a021a717f5456706a427d9e607587cf71395ad9cda518a5735f2590ecd62909c"
+    },
+    {
+      "command": "c05-5ccb-profile-control",
+      "name": "command.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-control/command.json",
+      "bytes": 3258,
+      "SHA256": "2b4168faee559e8deaf3c2e286bfae6b962cc75726fd0bf8639c723d9218b33c"
+    },
+    {
+      "command": "c05-5ccb-profile-control",
+      "name": "stdout.txt",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-control/stdout.txt",
+      "bytes": 10258,
+      "SHA256": "a021a717f5456706a427d9e607587cf71395ad9cda518a5735f2590ecd62909c"
+    },
+    {
+      "command": "c05-5ccb-profile-control",
+      "name": "runtime-origins.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-control/runtime-origins.json",
+      "bytes": 92353,
+      "SHA256": "617dc4af01a80ca76cd5218b3ccfd53b1578747cef15875f5ceb54cae237a0ff"
+    },
+    {
+      "command": "c05-5ccb-profile-control",
+      "name": "stderr.txt",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-control/stderr.txt",
+      "bytes": 189,
+      "SHA256": "eb1b311b33bfa641b9e86170ca3a3dd8f459b02946b5d2a9dbd82676545d0a12"
+    },
+    {
+      "command": "c05-5ccb-profile-control",
+      "name": "resource.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-control/resource.json",
+      "bytes": 289,
+      "SHA256": "9042827daaa36f0715049ed09086c9d3d690750ad087970fe69fc3219b08f262"
+    },
+    {
+      "command": "c05-5ccb-profile-removed",
+      "name": "semantic.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-removed/semantic.json",
+      "bytes": 29550,
+      "SHA256": "9fd9ef2b4c24c1427d65a0f8a3b5a92aadc3615d3e2a485a8f0caa860dfbf1e1"
+    },
+    {
+      "command": "c05-5ccb-profile-removed",
+      "name": "command.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-removed/command.json",
+      "bytes": 3259,
+      "SHA256": "1cab886c96016a3bab6b9df56c287d7d1b96adbd42f8b9edc4b3c0d98e351000"
+    },
+    {
+      "command": "c05-5ccb-profile-removed",
+      "name": "stdout.txt",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-removed/stdout.txt",
+      "bytes": 29550,
+      "SHA256": "9fd9ef2b4c24c1427d65a0f8a3b5a92aadc3615d3e2a485a8f0caa860dfbf1e1"
+    },
+    {
+      "command": "c05-5ccb-profile-removed",
+      "name": "runtime-origins.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-removed/runtime-origins.json",
+      "bytes": 92353,
+      "SHA256": "617dc4af01a80ca76cd5218b3ccfd53b1578747cef15875f5ceb54cae237a0ff"
+    },
+    {
+      "command": "c05-5ccb-profile-removed",
+      "name": "stderr.txt",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-removed/stderr.txt",
+      "bytes": 189,
+      "SHA256": "6f73f270f4925de9107e02e414cbcacf34b095b928434471eaf599f3de60766f"
+    },
+    {
+      "command": "c05-5ccb-profile-removed",
+      "name": "resource.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-profile-removed/resource.json",
+      "bytes": 288,
+      "SHA256": "bb05ae6e645a160b67a2aa206c00f34df9b0452a1c35c2e0b4b89b6161b1120f"
+    },
+    {
+      "command": "c05-5ccb-seed-control",
+      "name": "semantic.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-control/semantic.json",
+      "bytes": 10806,
+      "SHA256": "7767495ba6417daa54195281564fe4beb7ef0ff27d117fe911f30e3a1466574c"
+    },
+    {
+      "command": "c05-5ccb-seed-control",
+      "name": "command.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-control/command.json",
+      "bytes": 3249,
+      "SHA256": "86e6426f986b84749d3d979059dec5365b5241a1f9b332c393af1fb78c610fde"
+    },
+    {
+      "command": "c05-5ccb-seed-control",
+      "name": "stdout.txt",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-control/stdout.txt",
+      "bytes": 10806,
+      "SHA256": "7767495ba6417daa54195281564fe4beb7ef0ff27d117fe911f30e3a1466574c"
+    },
+    {
+      "command": "c05-5ccb-seed-control",
+      "name": "runtime-origins.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-control/runtime-origins.json",
+      "bytes": 92353,
+      "SHA256": "617dc4af01a80ca76cd5218b3ccfd53b1578747cef15875f5ceb54cae237a0ff"
+    },
+    {
+      "command": "c05-5ccb-seed-control",
+      "name": "stderr.txt",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-control/stderr.txt",
+      "bytes": 189,
+      "SHA256": "16b34ae43cd2b829230a3fe7c52b391013ad418f7e10feab3251532ed6b14bd0"
+    },
+    {
+      "command": "c05-5ccb-seed-control",
+      "name": "resource.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-control/resource.json",
+      "bytes": 299,
+      "SHA256": "ee13497dfdca6412cb462aaeb71fc358243e126de2e572bc316e266a78635d3e"
+    },
+    {
+      "command": "c05-5ccb-seed-removed",
+      "name": "semantic.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/semantic.json",
+      "bytes": 30021,
+      "SHA256": "4953abd1540ba8cd98c6d23a1a4da4eac8831c82f6208bb4324b1d99d32f9bc5"
+    },
+    {
+      "command": "c05-5ccb-seed-removed",
+      "name": "command.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/command.json",
+      "bytes": 3251,
+      "SHA256": "923da30f94665ad75a4d96175bd3c6192739e5967e38e367f4b5d3f9e417312e"
+    },
+    {
+      "command": "c05-5ccb-seed-removed",
+      "name": "stdout.txt",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/stdout.txt",
+      "bytes": 30021,
+      "SHA256": "4953abd1540ba8cd98c6d23a1a4da4eac8831c82f6208bb4324b1d99d32f9bc5"
+    },
+    {
+      "command": "c05-5ccb-seed-removed",
+      "name": "runtime-origins.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/runtime-origins.json",
+      "bytes": 92353,
+      "SHA256": "617dc4af01a80ca76cd5218b3ccfd53b1578747cef15875f5ceb54cae237a0ff"
+    },
+    {
+      "command": "c05-5ccb-seed-removed",
+      "name": "stderr.txt",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/stderr.txt",
+      "bytes": 189,
+      "SHA256": "c5ca350cb33f0feda9329fabba6496a7b512bfe816dd6b34e619918c4029a7dd"
+    },
+    {
+      "command": "c05-5ccb-seed-removed",
+      "name": "resource.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-seed-removed/resource.json",
+      "bytes": 290,
+      "SHA256": "ad1e1baadc22de9daea0ed83431ca949e337a1517d917fd3ff21a9f298e502a4"
+    },
+    {
+      "command": "c05-5ccb-wvs-control",
+      "name": "semantic.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-control/semantic.json",
+      "bytes": 4547,
+      "SHA256": "7419b84f8c88a2ea6fe74795237dedfdd3e154ed0e4df02adc407a3c5582db1e"
+    },
+    {
+      "command": "c05-5ccb-wvs-control",
+      "name": "command.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-control/command.json",
+      "bytes": 3243,
+      "SHA256": "525d108f256122bd4bca6781903483f4915b80509942686f86cf6699fe232333"
+    },
+    {
+      "command": "c05-5ccb-wvs-control",
+      "name": "stdout.txt",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-control/stdout.txt",
+      "bytes": 4547,
+      "SHA256": "7419b84f8c88a2ea6fe74795237dedfdd3e154ed0e4df02adc407a3c5582db1e"
+    },
+    {
+      "command": "c05-5ccb-wvs-control",
+      "name": "runtime-origins.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-control/runtime-origins.json",
+      "bytes": 91207,
+      "SHA256": "4dfbb006973406436d45aab5ef8ac456485ca936888f67e38c08cfa4a4d76491"
+    },
+    {
+      "command": "c05-5ccb-wvs-control",
+      "name": "stderr.txt",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-control/stderr.txt",
+      "bytes": 220,
+      "SHA256": "b12abe92051a873c467495aa67853858885dfd251f72f266778c602f4e3e2c7d"
+    },
+    {
+      "command": "c05-5ccb-wvs-control",
+      "name": "resource.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-control/resource.json",
+      "bytes": 282,
+      "SHA256": "bc76a39338dc307dab2e8ad6921577fc9da016f5f7a9346acc272c90d8845162"
+    },
+    {
+      "command": "c05-5ccb-wvs-removed",
+      "name": "semantic.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-removed/semantic.json",
+      "bytes": 4649,
+      "SHA256": "b025d0ec80588ae108842a7d27cc49b9e4082ac35a22fa35f264b7b804ed9083"
+    },
+    {
+      "command": "c05-5ccb-wvs-removed",
+      "name": "command.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-removed/command.json",
+      "bytes": 3248,
+      "SHA256": "145c143ed4c07f0ebd5093cecbf5f2c37fdffd6789eb74706f930c86aa02cb18"
+    },
+    {
+      "command": "c05-5ccb-wvs-removed",
+      "name": "stdout.txt",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-removed/stdout.txt",
+      "bytes": 4649,
+      "SHA256": "b025d0ec80588ae108842a7d27cc49b9e4082ac35a22fa35f264b7b804ed9083"
+    },
+    {
+      "command": "c05-5ccb-wvs-removed",
+      "name": "runtime-origins.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-removed/runtime-origins.json",
+      "bytes": 91207,
+      "SHA256": "4dfbb006973406436d45aab5ef8ac456485ca936888f67e38c08cfa4a4d76491"
+    },
+    {
+      "command": "c05-5ccb-wvs-removed",
+      "name": "stderr.txt",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-removed/stderr.txt",
+      "bytes": 220,
+      "SHA256": "8b5226cc62f93e85738a152d86023e881848bb1cc1e4b91ba01ec416eab9145b"
+    },
+    {
+      "command": "c05-5ccb-wvs-removed",
+      "name": "resource.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-removed/resource.json",
+      "bytes": 282,
+      "SHA256": "0787dfccd85433425fda0d26b49388c3a0d99cb49e97e8834be21cf7839ca3b5"
+    },
+    {
+      "command": "c05-5ccb-session-reuse-removed",
+      "name": "command.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed/command.json",
+      "bytes": 3622,
+      "SHA256": "2085142aba4a35030209337ae4700106831f6840a3c2a515a88a0ad77371d7e3"
+    },
+    {
+      "command": "c05-5ccb-session-reuse-removed",
+      "name": "junit.xml",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed/junit.xml",
+      "bytes": 10612,
+      "SHA256": "090fe350f64d7089bb840f1f98151962b238e3d72c48d10e6301baf8b2d44ede"
+    },
+    {
+      "command": "c05-5ccb-session-reuse-removed",
+      "name": "session-events.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed/session-events.json",
+      "bytes": 7173,
+      "SHA256": "f29a9f6f23c984db476d0d65d9243fd4e3053f32d91290fb3b5ba02bfe630192"
+    },
+    {
+      "command": "c05-5ccb-session-reuse-removed",
+      "name": "stdout.txt",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed/stdout.txt",
+      "bytes": 10479,
+      "SHA256": "28fa581e6c24ade17162428bd012bab67e461f09d32bb6f3a8c9ded61d9f7460"
+    },
+    {
+      "command": "c05-5ccb-session-reuse-removed",
+      "name": "runtime-origins.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed/runtime-origins.json",
+      "bytes": 91791,
+      "SHA256": "4760a6b0f2dc2bb5208f98b99b3ec960603c7b77b3f1bdf196496d261b0b2511"
+    },
+    {
+      "command": "c05-5ccb-session-reuse-removed",
+      "name": "stderr.txt",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed/stderr.txt",
+      "bytes": 0,
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "c05-5ccb-session-reuse-removed",
+      "name": "selected-tests.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed/selected-tests.json",
+      "bytes": 651,
+      "SHA256": "9060dcb7198094de02e3cad59ae32bb340b84a5b7eae8c4e5bda722ff08b1fd4"
+    },
+    {
+      "command": "c05-5ccb-session-reuse-removed",
+      "name": "resource.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-session-reuse-removed/resource.json",
+      "bytes": 286,
+      "SHA256": "cadf390d4bd6562b27d2706889bb7fc08a35a22469a742de3d64870d98ed9e85"
+    },
+    {
+      "command": "c05-5ccb-wvs-forwarding-removed",
+      "name": "command.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/command.json",
+      "bytes": 3566,
+      "SHA256": "61095fe590695de24787a30bcbc82cc7596f8b0f0a156aa63804bd491e8d73bd"
+    },
+    {
+      "command": "c05-5ccb-wvs-forwarding-removed",
+      "name": "junit.xml",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/junit.xml",
+      "bytes": 2765,
+      "SHA256": "7c560775d11e9c81b718ac0ce038d5cf0aae466515ebbdeb387057e0125643a0"
+    },
+    {
+      "command": "c05-5ccb-wvs-forwarding-removed",
+      "name": "wvs-events.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/wvs-events.json",
+      "bytes": 3221,
+      "SHA256": "ce80fecd7e197a418fa93995d9d4e32e1dae7bdb7093c1cb22728be015c658d9"
+    },
+    {
+      "command": "c05-5ccb-wvs-forwarding-removed",
+      "name": "stdout.txt",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/stdout.txt",
+      "bytes": 2926,
+      "SHA256": "d2801023bfe0f65648a31a85e508e65de4dddda786bc90092f0ddb2b1dc65b70"
+    },
+    {
+      "command": "c05-5ccb-wvs-forwarding-removed",
+      "name": "runtime-origins.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/runtime-origins.json",
+      "bytes": 91207,
+      "SHA256": "f9147aa663542e0feb09f2899b50e411e35073ec0ef4b2606d1527feaaa394cb"
+    },
+    {
+      "command": "c05-5ccb-wvs-forwarding-removed",
+      "name": "stderr.txt",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/stderr.txt",
+      "bytes": 0,
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "c05-5ccb-wvs-forwarding-removed",
+      "name": "selected-tests.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/selected-tests.json",
+      "bytes": 527,
+      "SHA256": "dcea33b33aad6ac089b1d4b63d3d76ae4cf7f8372c5c9f0666fb4088efa6c956"
+    },
+    {
+      "command": "c05-5ccb-wvs-forwarding-removed",
+      "name": "resource.json",
+      "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/resource.json",
+      "bytes": 282,
+      "SHA256": "e48bf9e1c7e748617c3f04d26bd6d52569f134e036890891a4f465d2bfa69ae4"
+    }
+  ],
+  "source_origin_reconciliation": {
+    "distinct_exact_Git_inputs": 437,
+    "all_rows_SHA_blob_size_match": true,
+    "all_observed_polysyos_tools_names_candidate_bound": true,
+    "all_named_native_library_hashes_verified": true,
+    "outside_or_mismatch": [],
+    "final_selection119_equal_initial_nodeids": true,
+    "full48DFI03_36DFK02_24catalogretrieval_plus10borrowed1external": true
+  },
+  "literal_deciding_semantics": {
+    "profile": {
+      "control_events": 27,
+      "all_control_assertions_hold": true,
+      "minimal_removed_quantity": {
+        "kind": "member",
+        "quantity": "freeze only resolved_profile_registry contribution bytes before first producer",
+        "held_markers": true,
+        "source_files_changed": false
+      },
+      "unchanged_marker_byte_comparisons": [
+        {
+          "line": 1819,
+          "expression": "registry_path.read_bytes() == registry_bytes",
+          "holds": true,
+          "actual_left": {
+            "bytes": 286,
+            "sha256": "230722766aaebf068dd8e7e7c69c8ade1f8639b863e19afc70cc7737f908016b"
+          },
+          "expected_right": {
+            "bytes": 286,
+            "sha256": "230722766aaebf068dd8e7e7c69c8ade1f8639b863e19afc70cc7737f908016b"
+          },
+          "fetch_urls": [
+            "https://example.test/original"
+          ]
+        },
+        {
+          "line": 1820,
+          "expression": "config.stage_state_path.read_bytes() == marker_bytes",
+          "holds": true,
+          "actual_left": {
+            "bytes": 20996,
+            "sha256": "c37d3de476221389b744ad577e69e079fcd32bc83932f13b807cbf95abf7e1b9"
+          },
+          "expected_right": {
+            "bytes": 20996,
+            "sha256": "c37d3de476221389b744ad577e69e079fcd32bc83932f13b807cbf95abf7e1b9"
+          },
+          "fetch_urls": [
+            "https://example.test/original"
+          ]
+        },
+        {
+          "line": 1821,
+          "expression": "config.observation_ingest_checkpoint_path.read_bytes() == checkpoint_bytes",
+          "holds": true,
+          "actual_left": {
+            "bytes": 4454,
+            "sha256": "e37450d8e9909637473b15e817c2dbacda0ce6769894e92255254fc3f48cfcce"
+          },
+          "expected_right": {
+            "bytes": 4454,
+            "sha256": "e37450d8e9909637473b15e817c2dbacda0ce6769894e92255254fc3f48cfcce"
+          },
+          "fetch_urls": [
+            "https://example.test/original"
+          ]
+        },
+        {
+          "line": 1822,
+          "expression": "config.benchmark_report_path.read_bytes() == report_bytes",
+          "holds": true,
+          "actual_left": {
+            "bytes": 25062,
+            "sha256": "4245ccea6eb7611a076d25cd0237ca032dc99b612655cabdbbfbfb3e5338bbc8"
+          },
+          "expected_right": {
+            "bytes": 25062,
+            "sha256": "4245ccea6eb7611a076d25cd0237ca032dc99b612655cabdbbfbfb3e5338bbc8"
+          },
+          "fetch_urls": [
+            "https://example.test/original"
+          ]
+        }
+      ],
+      "deciding_actual_scalar_events": [
+        {
+          "line": 1837,
+          "expression": "'benchmark' not in stale.skipped_stages",
+          "holds": false,
+          "actual_left": "benchmark",
+          "expected_right": [
+            "benchmark"
+          ],
+          "fetch_urls": [
+            "https://example.test/original"
+          ],
+          "held_evidence": [
+            [
+              "seed_worldbank_wdi;source=worldbank"
+            ]
+          ]
+        },
+        {
+          "line": 1839,
+          "expression": "partial['evaluation_mode'] == 'partial-eval'",
+          "holds": false,
+          "actual_left": "full-ready",
+          "expected_right": "partial-eval",
+          "fetch_urls": [
+            "https://example.test/original"
+          ],
+          "held_evidence": [
+            [
+              "seed_worldbank_wdi;source=worldbank"
+            ]
+          ]
+        },
+        {
+          "line": 1840,
+          "expression": "partial['metrics']['benchmark_partial_eval'] == 1",
+          "holds": false,
+          "actual_left": 0,
+          "expected_right": 1,
+          "fetch_urls": [
+            "https://example.test/original"
+          ],
+          "held_evidence": [
+            [
+              "seed_worldbank_wdi;source=worldbank"
+            ]
+          ]
+        },
+        {
+          "line": 1841,
+          "expression": "partial['diagnostic_context']['core_output_receipt_current'] is False",
+          "holds": false,
+          "actual_left": true,
+          "expected_right": false,
+          "fetch_urls": [
+            "https://example.test/original"
+          ],
+          "held_evidence": [
+            [
+              "seed_worldbank_wdi;source=worldbank"
+            ]
+          ]
+        }
+      ],
+      "interpretation": "Benchmark-only invocation incorrectly skips/retains old full-ready/current=True/partial0 report before producer repair. No claim the mutant freshly recomputed it. Final119 positive fullproducerrepair remains independently executed."
+    },
+    "seed": {
+      "control_events": 29,
+      "all_control_assertions_hold": true,
+      "minimal_removed_quantity": {
+        "kind": "member",
+        "quantity": "freeze only seed_variable_alignments contribution bytes before first producer",
+        "held_markers": true,
+        "source_files_changed": false
+      },
+      "unchanged_marker_byte_comparisons": [
+        {
+          "line": 1819,
+          "expression": "registry_path.read_bytes() == registry_bytes",
+          "holds": true,
+          "actual_left": {
+            "bytes": 286,
+            "sha256": "230722766aaebf068dd8e7e7c69c8ade1f8639b863e19afc70cc7737f908016b"
+          },
+          "expected_right": {
+            "bytes": 286,
+            "sha256": "230722766aaebf068dd8e7e7c69c8ade1f8639b863e19afc70cc7737f908016b"
+          },
+          "fetch_urls": [
+            "https://example.test/original"
+          ]
+        },
+        {
+          "line": 1820,
+          "expression": "config.stage_state_path.read_bytes() == marker_bytes",
+          "holds": true,
+          "actual_left": {
+            "bytes": 20911,
+            "sha256": "dce8a35576fc8cb3afb4ffcf2cdf08586e8d5db4db3f165588f080eb15b9d963"
+          },
+          "expected_right": {
+            "bytes": 20911,
+            "sha256": "dce8a35576fc8cb3afb4ffcf2cdf08586e8d5db4db3f165588f080eb15b9d963"
+          },
+          "fetch_urls": [
+            "https://example.test/original"
+          ]
+        },
+        {
+          "line": 1821,
+          "expression": "config.observation_ingest_checkpoint_path.read_bytes() == checkpoint_bytes",
+          "holds": true,
+          "actual_left": {
+            "bytes": 4454,
+            "sha256": "4dadbf7578861d8ca20abd77bd26a92244040e2e6a59bb5eb98b41f5dc4a9df2"
+          },
+          "expected_right": {
+            "bytes": 4454,
+            "sha256": "4dadbf7578861d8ca20abd77bd26a92244040e2e6a59bb5eb98b41f5dc4a9df2"
+          },
+          "fetch_urls": [
+            "https://example.test/original"
+          ]
+        },
+        {
+          "line": 1822,
+          "expression": "config.benchmark_report_path.read_bytes() == report_bytes",
+          "holds": true,
+          "actual_left": {
+            "bytes": 25056,
+            "sha256": "effce930f465d519710dd89f3235d851f62adb9d6ed94474cb6a998cf0979e35"
+          },
+          "expected_right": {
+            "bytes": 25056,
+            "sha256": "effce930f465d519710dd89f3235d851f62adb9d6ed94474cb6a998cf0979e35"
+          },
+          "fetch_urls": [
+            "https://example.test/original"
+          ]
+        }
+      ],
+      "deciding_actual_scalar_events": [
+        {
+          "line": 1837,
+          "expression": "'benchmark' not in stale.skipped_stages",
+          "holds": false,
+          "actual_left": "benchmark",
+          "expected_right": [
+            "benchmark"
+          ],
+          "fetch_urls": [
+            "https://example.test/original"
+          ],
+          "held_evidence": [
+            [
+              "seed_worldbank_wdi;source=worldbank"
+            ]
+          ]
+        },
+        {
+          "line": 1839,
+          "expression": "partial['evaluation_mode'] == 'partial-eval'",
+          "holds": false,
+          "actual_left": "full-ready",
+          "expected_right": "partial-eval",
+          "fetch_urls": [
+            "https://example.test/original"
+          ],
+          "held_evidence": [
+            [
+              "seed_worldbank_wdi;source=worldbank"
+            ]
+          ]
+        },
+        {
+          "line": 1840,
+          "expression": "partial['metrics']['benchmark_partial_eval'] == 1",
+          "holds": false,
+          "actual_left": 0,
+          "expected_right": 1,
+          "fetch_urls": [
+            "https://example.test/original"
+          ],
+          "held_evidence": [
+            [
+              "seed_worldbank_wdi;source=worldbank"
+            ]
+          ]
+        },
+        {
+          "line": 1841,
+          "expression": "partial['diagnostic_context']['core_output_receipt_current'] is False",
+          "holds": false,
+          "actual_left": true,
+          "expected_right": false,
+          "fetch_urls": [
+            "https://example.test/original"
+          ],
+          "held_evidence": [
+            [
+              "seed_worldbank_wdi;source=worldbank"
+            ]
+          ]
+        }
+      ],
+      "interpretation": "Benchmark-only invocation incorrectly skips/retains old full-ready/current=True/partial0 report before producer repair. No claim the mutant freshly recomputed it. Final119 positive fullproducerrepair remains independently executed."
+    },
+    "wvs_warm_reader": {
+      "deciding_events": [
+        {
+          "line": 2189,
+          "expression": "changed_rows[0]['aggregation_method'] == 'weighted_mode'",
+          "holds": false,
+          "actual_left": "weighted_mean",
+          "expected_right": "weighted_mode"
+        },
+        {
+          "line": 2193,
+          "expression": "json.loads(normalized[-1])['aggregation_method'] == 'weighted_mode'",
+          "holds": false,
+          "actual_left": "weighted_mean",
+          "expected_right": "weighted_mode"
+        }
+      ],
+      "property": {
+        "kind": "cache-core",
+        "quantity": "restore obsolete path-only warm snapshot in actual owner reader; current basis remains",
+        "held_markers": true,
+        "source_files_changed": false
+      },
+      "boundary": "Actual aggregation and normalizedcondition annotations diverge; scalarfixturevalue1 stays equal, not numerical mean/mode discrimination."
+    },
+    "sessions": {
+      "intact": {
+        "schema": "orch02r2.actual-c05-session-probe.v1",
+        "mode": "observe",
+        "raw_pytest_exitstatus": 0,
+        "events": [
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+            "kind": "fixture_setup",
+            "mode": "observe",
+            "canonical_cache_origin": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py"
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+            "kind": "actual_canonical_cache_get",
+            "cache_id": 139883410480944,
+            "handle_id": 139883410728784,
+            "previous_handle_id": null,
+            "reuse_removed": false
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+            "kind": "actual_connector_session",
+            "connector": "worldbank",
+            "handle_id": 139883410728784,
+            "session_id": 139883431776944,
+            "native_type": "aiohttp.client.ClientSession",
+            "closed": false
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+            "kind": "actual_canonical_cache_get",
+            "cache_id": 139883410480944,
+            "handle_id": 139883410728784,
+            "previous_handle_id": 139883410728784,
+            "reuse_removed": false
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+            "kind": "actual_connector_session",
+            "connector": "worldbank",
+            "handle_id": 139883410728784,
+            "session_id": 139883431776944,
+            "native_type": "aiohttp.client.ClientSession",
+            "closed": false
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+            "kind": "actual_canonical_cache_close",
+            "cache_id": 139883410480944,
+            "all_observed_sessions_closed": true,
+            "observed_sessions": {
+              "139883410728784": {
+                "session_id": 139883431776944,
+                "closed": true
+              }
+            },
+            "deliberate_mutant_orphan_cleanup_handles": [],
+            "worldbank_session_state_none": true
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+            "kind": "actual_persisted_ingest",
+            "completed_shards": 2,
+            "failures": 0,
+            "observations": 2,
+            "actual_sql_values": [
+              [
+                2.5
+              ],
+              [
+                2.5
+              ]
+            ]
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+            "kind": "fixture_setup",
+            "mode": "observe",
+            "canonical_cache_origin": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py"
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+            "kind": "actual_canonical_cache_get",
+            "cache_id": 139883782401360,
+            "handle_id": 139883409253664,
+            "previous_handle_id": null,
+            "reuse_removed": false
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+            "kind": "actual_connector_session",
+            "connector": "worldbank",
+            "handle_id": 139883409253664,
+            "session_id": 139883431785680,
+            "native_type": "aiohttp.client.ClientSession",
+            "closed": false
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+            "kind": "actual_canonical_cache_get",
+            "cache_id": 139883782401360,
+            "handle_id": 139883409253664,
+            "previous_handle_id": 139883409253664,
+            "reuse_removed": false
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+            "kind": "actual_connector_session",
+            "connector": "worldbank",
+            "handle_id": 139883409253664,
+            "session_id": 139883431785680,
+            "native_type": "aiohttp.client.ClientSession",
+            "closed": false
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+            "kind": "actual_canonical_cache_close",
+            "cache_id": 139883782401360,
+            "all_observed_sessions_closed": true,
+            "observed_sessions": {
+              "139883409253664": {
+                "session_id": 139883431785680,
+                "closed": true
+              }
+            },
+            "deliberate_mutant_orphan_cleanup_handles": [],
+            "worldbank_session_state_none": true
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+            "kind": "actual_persisted_ingest",
+            "completed_shards": 0,
+            "failures": 2,
+            "observations": 0,
+            "actual_sql_values": []
+          },
+          {
+            "nodeid": "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_parallel_observation_ingest_uses_eurostat_async_path",
+            "kind": "fixture_setup",
+            "mode": "observe",
+            "canonical_cache_origin": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py"
+          },
+          {
+            "nodeid": "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_parallel_observation_ingest_uses_eurostat_async_path",
+            "kind": "actual_canonical_cache_close",
+            "cache_id": 139883157664208,
+            "all_observed_sessions_closed": true,
+            "observed_sessions": {},
+            "deliberate_mutant_orphan_cleanup_handles": [],
+            "worldbank_session_state_none": true
+          },
+          {
+            "nodeid": "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_parallel_observation_ingest_uses_eurostat_async_path",
+            "kind": "actual_persisted_ingest",
+            "completed_shards": 3,
+            "failures": 0,
+            "observations": 1,
+            "actual_sql_values": [
+              [
+                1.0
+              ]
+            ]
+          }
+        ],
+        "reports": [
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+            "when": "setup",
+            "outcome": "passed"
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+            "when": "call",
+            "outcome": "passed"
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+            "when": "teardown",
+            "outcome": "passed"
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+            "when": "setup",
+            "outcome": "passed"
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+            "when": "call",
+            "outcome": "passed"
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+            "when": "teardown",
+            "outcome": "passed"
+          },
+          {
+            "nodeid": "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_parallel_observation_ingest_uses_eurostat_async_path",
+            "when": "setup",
+            "outcome": "passed"
+          },
+          {
+            "nodeid": "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_parallel_observation_ingest_uses_eurostat_async_path",
+            "when": "call",
+            "outcome": "passed"
+          },
+          {
+            "nodeid": "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_parallel_observation_ingest_uses_eurostat_async_path",
+            "when": "teardown",
+            "outcome": "passed"
+          }
+        ],
+        "removed_quantity": null,
+        "actual_retained": [
+          "canonical cache class and original connect/get_session/fetch/disconnect",
+          "owned API dispatch/lifecycle",
+          "real ClientSession and DuckDB rows",
+          "unchanged owned assertions"
+        ],
+        "parallel_boundary": "Borrowed Eurostat async transport/capability callbacks controlled by its owned fixture; observe actual API cache-close/SQL/lease assertions, no claim an absent lazy HTTP session was created",
+        "source_files_changed": false
+      },
+      "matched_removal": {
+        "schema": "orch02r2.actual-c05-session-probe.v1",
+        "mode": "remove_reuse",
+        "raw_pytest_exitstatus": 1,
+        "events": [
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+            "kind": "fixture_setup",
+            "mode": "remove_reuse",
+            "canonical_cache_origin": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py"
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+            "kind": "actual_canonical_cache_get",
+            "cache_id": 139728879902336,
+            "handle_id": 139728875416576,
+            "previous_handle_id": null,
+            "reuse_removed": true
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+            "kind": "actual_connector_session",
+            "connector": "worldbank",
+            "handle_id": 139728875416576,
+            "session_id": 139728879908384,
+            "native_type": "aiohttp.client.ClientSession",
+            "closed": false
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+            "kind": "actual_canonical_cache_get",
+            "cache_id": 139728879902336,
+            "handle_id": 139728876406880,
+            "previous_handle_id": 139728875416576,
+            "reuse_removed": true
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+            "kind": "actual_connector_session",
+            "connector": "worldbank",
+            "handle_id": 139728876406880,
+            "session_id": 139728876011936,
+            "native_type": "aiohttp.client.ClientSession",
+            "closed": false
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+            "kind": "actual_canonical_cache_close",
+            "cache_id": 139728879902336,
+            "all_observed_sessions_closed": true,
+            "observed_sessions": {
+              "139728875416576": {
+                "session_id": 139728879908384,
+                "closed": true
+              },
+              "139728876406880": {
+                "session_id": 139728876011936,
+                "closed": true
+              }
+            },
+            "deliberate_mutant_orphan_cleanup_handles": [
+              139728875416576
+            ],
+            "worldbank_session_state_none": true
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+            "kind": "actual_persisted_ingest",
+            "completed_shards": 2,
+            "failures": 0,
+            "observations": 2,
+            "actual_sql_values": [
+              [
+                2.5
+              ],
+              [
+                2.5
+              ]
+            ]
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+            "kind": "fixture_setup",
+            "mode": "remove_reuse",
+            "canonical_cache_origin": "/workspace/orch02-c05/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py"
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+            "kind": "actual_canonical_cache_get",
+            "cache_id": 139728876150352,
+            "handle_id": 139728876954272,
+            "previous_handle_id": null,
+            "reuse_removed": true
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+            "kind": "actual_connector_session",
+            "connector": "worldbank",
+            "handle_id": 139728876954272,
+            "session_id": 139728879907376,
+            "native_type": "aiohttp.client.ClientSession",
+            "closed": false
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+            "kind": "actual_canonical_cache_get",
+            "cache_id": 139728876150352,
+            "handle_id": 139728736414080,
+            "previous_handle_id": 139728876954272,
+            "reuse_removed": true
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+            "kind": "actual_connector_session",
+            "connector": "worldbank",
+            "handle_id": 139728736414080,
+            "session_id": 139728879907040,
+            "native_type": "aiohttp.client.ClientSession",
+            "closed": false
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+            "kind": "actual_canonical_cache_close",
+            "cache_id": 139728876150352,
+            "all_observed_sessions_closed": true,
+            "observed_sessions": {
+              "139728876954272": {
+                "session_id": 139728879907376,
+                "closed": true
+              },
+              "139728736414080": {
+                "session_id": 139728879907040,
+                "closed": true
+              }
+            },
+            "deliberate_mutant_orphan_cleanup_handles": [
+              139728876954272
+            ],
+            "worldbank_session_state_none": true
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+            "kind": "actual_persisted_ingest",
+            "completed_shards": 0,
+            "failures": 2,
+            "observations": 0,
+            "actual_sql_values": []
+          }
+        ],
+        "reports": [
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+            "when": "setup",
+            "outcome": "passed"
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+            "when": "call",
+            "outcome": "failed"
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[False]",
+            "when": "teardown",
+            "outcome": "passed"
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+            "when": "setup",
+            "outcome": "passed"
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+            "when": "call",
+            "outcome": "failed"
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_real_catalog_session_is_reused_and_closed_by_legacy_api[True]",
+            "when": "teardown",
+            "outcome": "passed"
+          }
+        ],
+        "removed_quantity": "Only worldbank existing-cache reuse; force canonical connect per request",
+        "actual_retained": [
+          "canonical cache class and original connect/get_session/fetch/disconnect",
+          "owned API dispatch/lifecycle",
+          "real ClientSession and DuckDB rows",
+          "unchanged owned assertions"
+        ],
+        "parallel_boundary": "Borrowed Eurostat async transport/capability callbacks controlled by its owned fixture; observe actual API cache-close/SQL/lease assertions, no claim an absent lazy HTTP session was created",
+        "source_files_changed": false
+      },
+      "isolation_boundary": "Original canonical cache.close closes current handle; observer disconnects only deliberately orphaned older handle on same loop, preserving native2.5 rows/error2failures. No independentproduct cleanup PASS for orphaned mutant quantity."
+    },
+    "wvs_call_count": {
+      "events": {
+        "schema": "orch02r2.actual-wvs-operation-policy-removal.v1",
+        "raw_pytest_exitstatus": 1,
+        "removed_quantity": "Only response_type forwarding; original normalizer reloads actual policy for each real SQL cell",
+        "retained": [
+          "real DuckDB CSV relation/filter/aggregation",
+          "actual current snapshot policy reader",
+          "unchanged source/test bytes/markers/owned assertions"
+        ],
+        "events": [
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation",
+            "kind": "actual_policy_snapshot_read",
+            "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/basetemp/test_wvs_bulk_resolves_current0/wvs.yaml"
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation",
+            "kind": "actual_policy_snapshot_read",
+            "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/basetemp/test_wvs_bulk_resolves_current0/wvs.yaml"
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation",
+            "kind": "actual_normalizer_without_forwarding",
+            "indicator": "A165",
+            "raw_value": "2",
+            "omitted_response_type": "binary_12",
+            "actual_result": 0.0
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation",
+            "kind": "actual_policy_snapshot_read",
+            "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/basetemp/test_wvs_bulk_resolves_current0/wvs.yaml"
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation",
+            "kind": "actual_normalizer_without_forwarding",
+            "indicator": "A165",
+            "raw_value": "2",
+            "omitted_response_type": "binary_12",
+            "actual_result": 0.0
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation",
+            "kind": "actual_policy_snapshot_read",
+            "path": "/workspace/orch02-r2/native-c05-c12/raw/c05-5ccb-wvs-forwarding-removed/basetemp/test_wvs_bulk_resolves_current0/wvs.yaml"
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation",
+            "kind": "actual_normalizer_without_forwarding",
+            "indicator": "A165",
+            "raw_value": "2",
+            "omitted_response_type": "binary_12",
+            "actual_result": 0.0
+          },
+          {
+            "nodeid": "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation",
+            "kind": "actual_duckdb_bulk_result",
+            "actual_rows": {
+              "A165": [
+                {
+                  "country_code": "UA",
+                  "survey_year": 2020,
+                  "wave": 7,
+                  "value": 0.0,
+                  "sample_size": 3,
+                  "weighted_sample_size": 3.0,
+                  "sample_weight_field": "S017",
+                  "aggregation_method": "weighted_mean",
+                  "data_shape": "survey_repeated_cross_section",
+                  "observation_grain": "country_survey_year_wave"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "actual_policy_reads": 4,
+      "actual_native_SQL_cells": 3,
+      "aggregate": {
+        "country_code": "UA",
+        "survey_year": 2020,
+        "wave": 7,
+        "value": 0.0,
+        "sample_size": 3,
+        "weighted_sample_size": 3.0,
+        "sample_weight_field": "S017",
+        "aggregation_method": "weighted_mean",
+        "data_shape": "survey_repeated_cross_section",
+        "observation_grain": "country_survey_year_wave"
+      },
+      "boundary": "Unchanged owned firstoperation reads1assertion observes4, numericalinitial0/sample3 preserved; secondpolicyphase not reached by mutant, no throughput/globalperformance claim."
+    },
+    "dispatch": {
+      "owner_country_results": "UKR",
+      "actual_dispatch_calls": [
+        [
+          "canonical_owner",
+          "UA"
+        ],
+        [
+          "loader_override",
+          "UA"
+        ],
+        [
+          "request_context",
+          "UA"
+        ],
+        [
+          "loader_override",
+          "UA"
+        ]
+      ],
+      "actual_scalar_transformer_results": [
+        {
+          "raw": "2.5",
+          "actual_result": 2.5
+        },
+        {
+          "raw": "not-a-number",
+          "actual_result": null
+        }
+      ],
+      "oracle": "actual loader consumer output and delegated canonical transformer; context lifetime restored"
+    }
+  },
+  "historical_RED": {
+    "source_sha": "2734ee49f6985ff2bd7ad6e3c4d6089a7d7848ca",
+    "receipt": "/workspace/orch02-r2/native-c05-c12/c05-native-initial-receipt-2734ee49.json",
+    "receipt_sha256": "10c9993e2d1c545aef53a50264959575525f0d49f6cadddfa17ef7e5f69be947",
+    "cases": 119,
+    "passed": 117,
+    "failures": 2,
+    "errors": 0,
+    "skips": 0,
+    "actual_class": "Restored existing context-before-global-before-owner resolution entry at3 affected consumers; initial raw RED preserved, no test/harness changes"
+  },
+  "P40_bucket": "NEW typed-loader dispatch class repaired by existing canonicalresolver at3exactpreviouslyexplicit consumer sites; prior2734 RED remains historical, final119 unchanged assertions PASS. Profile/seed/warmreader and operation/session controls are bounded existing classes.",
+  "quality": "Separate sourcequality binding18bd7a...; finalrequired invocation/architecture not inferred from native.",
+  "remaining_limits": [
+    "No G composition, source adoption, formal closure, production corpus, architecture or complete locked runtime profile acceptance inferred",
+    "Full119 on new5ccb inputs explicitly authorized after actual2734 RED; old661112/36/scanner not replayed",
+    "Only covered sequential profile policy currentness; ALL headers/credentials/auth overlays, remote versions, concurrent atomic snapshots and arbitrary retrieval registry injections remain declared boundaries",
+    "Legacy empty-plan dispatcher test is branch witness, not nonempty legacy data proof; new real legacyWorldBank2cases separately prove actual session reuse/cleanup and native SQL rows",
+    "Borrowed Eurostat parallel transport/capability callbacks controlled by fixture; actual API/cache close/SQL exercised, absent lazy HTTP session not claimed",
+    "WVS core cache removal decides actual aggregation annotation reader quantity, not numerical mean-versus-mode divergence; call-count removal only owned operation1vs4, no whole performance claim",
+    "Direct assertion observer scripts retain raw semantic events and classifier labels separately; no fabricated JUnit counts for those drivers"
+  ],
+  "source_accepted_by_G": false,
+  "formal_closure_ids": [],
+  "reviewer_source_edits_native_execution_or_test_replays": false
+}

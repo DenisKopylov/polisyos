@@ -1,0 +1,474 @@
+{
+  "admin_records": [
+    {
+      "HEAD": "ref: refs/heads/codex/e02-C-orch02-c05-recovery",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/orch02-c05",
+      "commondir": "../..",
+      "gitdir": "/workspace/orch02-c05/.git",
+      "worktree": "/workspace/orch02-c05"
+    }
+  ],
+  "branch_exists": true,
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/polisyos/policy-engine",
+        "check-ref-format",
+        "refs/heads/codex/e02-C-orch02-c05-recovery"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/polisyos/policy-engine",
+        "check-ref-format",
+        "--branch",
+        "codex/e02-C-orch02-c05-recovery"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "codex/e02-C-orch02-c05-recovery\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/polisyos/policy-engine",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/polisyos/policy-engine",
+        "worktree",
+        "list",
+        "--porcelain",
+        "-z"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "worktree /workspace/polisyos\u0000HEAD 198076863e143dea9f89f02734b13d50dae3eed5\u0000branch refs/heads/work\u0000\u0000worktree /workspace/orch02-c05\u0000HEAD 8dfa7f3c544461c0ff081861848fcc5d8523da5b\u0000branch refs/heads/codex/e02-C-orch02-c05-recovery\u0000\u0000"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/polisyos",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/polisyos",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/polisyos",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/polisyos",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/work\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/polisyos",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "198076863e143dea9f89f02734b13d50dae3eed5\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/orch02-c05",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/orch02-c05\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/orch02-c05",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/orch02-c05",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/workspace/polisyos/.git/worktrees/orch02-c05\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/orch02-c05",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-C-orch02-c05-recovery\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/orch02-c05",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "8dfa7f3c544461c0ff081861848fcc5d8523da5b\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/polisyos/policy-engine",
+        "show-ref",
+        "--verify",
+        "--quiet",
+        "refs/heads/codex/e02-C-orch02-c05-recovery"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/polisyos/policy-engine",
+        "worktree",
+        "list",
+        "--porcelain",
+        "-z"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "worktree /workspace/polisyos\u0000HEAD 198076863e143dea9f89f02734b13d50dae3eed5\u0000branch refs/heads/work\u0000\u0000worktree /workspace/orch02-c05\u0000HEAD 8dfa7f3c544461c0ff081861848fcc5d8523da5b\u0000branch refs/heads/codex/e02-C-orch02-c05-recovery\u0000\u0000"
+    }
+  ],
+  "complete_verdict": true,
+  "filesystem_reads": [
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 524488,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees"
+      },
+      "status": "observed"
+    },
+    {
+      "members": [
+        "/workspace/polisyos/.git/worktrees/orch02-c05"
+      ],
+      "operation": "iterdir",
+      "path": "/workspace/polisyos/.git/worktrees",
+      "predicate_class": "recomputed",
+      "status": "read"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/orch02-c05",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 524489,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos/.git/worktrees/orch02-c05"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 27,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/orch02-c05/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "8b68c35e47eb19ddd647f87364403d10d0fce938afd55387e5ec0724612d003a",
+      "status": "read",
+      "text": "/workspace/orch02-c05/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/orch02-c05/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 48,
+      "operation": "read_bytes",
+      "path": "/workspace/polisyos/.git/worktrees/orch02-c05/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "a5750a266c1769033f67a5325c4074718357c1d8e587f51f7e539ea662d4fd58",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-C-orch02-c05-recovery\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos/.git/worktrees/orch02-c05/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/workspace/polisyos/.git/worktrees/orch02-c05/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/polisyos",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 9223372036855900668,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/orch02-c05",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 524491,
+        "kind": "directory",
+        "resolved": "/workspace/orch02-c05"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/orch02-c05/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 524493,
+        "kind": "file",
+        "resolved": "/workspace/orch02-c05/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 54,
+      "operation": "read_bytes",
+      "path": "/workspace/orch02-c05/.git",
+      "predicate_class": "recomputed",
+      "sha256": "e6bf7b7495c950770958d8c36f8a1d8417b085e47c189a00f4998c52db4847ca",
+      "status": "read",
+      "text": "gitdir: /workspace/polisyos/.git/worktrees/orch02-c05\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/workspace/orch02-c05",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 27,
+        "exists": true,
+        "inode": 524491,
+        "kind": "directory",
+        "resolved": "/workspace/orch02-c05"
+      },
+      "status": "observed"
+    }
+  ],
+  "findings": [],
+  "finished_at": "2026-10-08T15:42:21.030799+00:00",
+  "measurement": {
+    "file_type_denominator": "Git porcelain/ref outputs; gitdir, commondir, HEAD, optional locked and .git markers; filesystem lstat/iterdir",
+    "path_denominator": "all Git worktree registrations, all linked admin directories, their required records and live backlinks, requested path",
+    "predicate_class": "independently_reconciled",
+    "selector": "exact branch ref AND exact worktree root; create availability or resume attachment"
+  },
+  "path_state": {
+    "device": 27,
+    "exists": true,
+    "inode": 524491,
+    "kind": "directory",
+    "resolved": "/workspace/orch02-c05"
+  },
+  "registrations": [
+    {
+      "HEAD": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "branch": "refs/heads/work",
+      "live": {
+        "branch": "refs/heads/work",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git",
+        "head": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "root": "/workspace/polisyos"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 9223372036855900668,
+        "kind": "directory",
+        "resolved": "/workspace/polisyos"
+      },
+      "worktree": "/workspace/polisyos"
+    },
+    {
+      "HEAD": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "admin_dir": "/workspace/polisyos/.git/worktrees/orch02-c05",
+      "branch": "refs/heads/codex/e02-C-orch02-c05-recovery",
+      "live": {
+        "branch": "refs/heads/codex/e02-C-orch02-c05-recovery",
+        "common_dir": "/workspace/polisyos/.git",
+        "git_dir": "/workspace/polisyos/.git/worktrees/orch02-c05",
+        "head": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "root": "/workspace/orch02-c05"
+      },
+      "path_state": {
+        "device": 27,
+        "exists": true,
+        "inode": 524491,
+        "kind": "directory",
+        "resolved": "/workspace/orch02-c05"
+      },
+      "worktree": "/workspace/orch02-c05"
+    }
+  ],
+  "repository_common_dir": "/workspace/polisyos/.git",
+  "requested": {
+    "branch": "codex/e02-C-orch02-c05-recovery",
+    "mode": "resume",
+    "path": "/workspace/orch02-c05"
+  },
+  "schema_version": "polisyos.workspace.worktree-admission.v1",
+  "selector_predicate_class": "consumer_asserted",
+  "started_at": "2026-10-08T15:42:20.974573+00:00",
+  "status": "admitted",
+  "unresolved_by_construction": [
+    {
+      "boundary": "moved_directories_outside_registered_paths",
+      "detail": "No wider filesystem/mount search; missing registered directories do not prove abandonment or prune safety."
+    },
+    {
+      "boundary": "non_atomic_observation",
+      "detail": "Git and filesystem reads are sequential, not an atomic snapshot; changes after or between reads can escape observation."
+    },
+    {
+      "boundary": "name_reservation",
+      "detail": "This read-only command reserves nothing. Root serializes commissioning, reruns immediately before creation and reads back exact attachment afterward."
+    },
+    {
+      "boundary": "external_prompt_writers",
+      "detail": "Receipt does not intercept or enforce arbitrary commissioning prompts."
+    }
+  ],
+  "unresolved_inputs": []
+}

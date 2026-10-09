@@ -1,0 +1,25 @@
+{
+  "observed_at_utc": "2026-10-08T16:26:52.433079+00:00",
+  "memory_max_bytes": 17179869184,
+  "memory_current_bytes": 3599863808,
+  "memory_events": {
+    "low": 0,
+    "high": 0,
+    "max": 116518,
+    "oom": 3,
+    "oom_kill": 1,
+    "oom_group_kill": 0
+  },
+  "observed_command_signal": {
+    "source_role": "C06-CAN",
+    "source_sha": "4901e26841e2be0ae6ef393754abed5cafb1e2d4",
+    "command_kind": "static production invocation diagnostic",
+    "returncode": -9,
+    "max_rss_kib": 8441200,
+    "wall_seconds": 288.311,
+    "taxonomy": "command ERROR/incomplete despite emitted optimistic stdout; no complete-process PASS",
+    "attribution": "Host oom_kill counter observed; exact killed PID/cause not established by this read alone"
+  },
+  "coordination": "Prepare C12 unfinished architecture bootstrap; start additional full gate after current DFK large static graph command ends, using actual host capacity. No artificial quota/timeout/termination imposed.",
+  "native_source_and_runtime_claims": "Unchanged; independent affected native receipts qualify exact immutable own-base sources only."
+}

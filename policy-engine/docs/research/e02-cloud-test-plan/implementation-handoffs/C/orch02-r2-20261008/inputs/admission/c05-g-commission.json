@@ -1,0 +1,14 @@
+{
+  "schema": "orch02.r2.lane_commission.v1",
+  "canonical_author": "/root/c05_writer",
+  "branch": "codex/e02-C-orch02-c05-r2-gproposal",
+  "lane": "/workspace/orch02-c05-r2-gproposal",
+  "base": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "readback": {
+    "branch": "codex/e02-C-orch02-c05-r2-gproposal",
+    "HEAD": "dee58973f7673299070b7c7374f419b0adb8175c",
+    "status": "",
+    "tree": "4caee698bd9a6c61277a1608bb38376b669f0372"
+  },
+  "at": "2026-10-08T18:29:44.548554+00:00"
+}

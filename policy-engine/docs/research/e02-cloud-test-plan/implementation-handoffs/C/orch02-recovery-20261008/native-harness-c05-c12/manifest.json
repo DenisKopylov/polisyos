@@ -1,0 +1,91 @@
+{
+  "schema": "policyos.e02.native_harness_custody.v1",
+  "author": "/root/native_c05_c12",
+  "publisher": "/root coordinator",
+  "purpose": "Retain exact independent fixture/native/removal harnesses once for C05/C12 source-qualified receipts",
+  "files": [
+    {
+      "file": "run_gate.py",
+      "bytes": 4580,
+      "sha256": "1acd0bcf556e3a2f46a3f6ee54a36416660090cdc3c112991d3432b9e22ce8e7",
+      "git_blob": "b45dcc618e6862c2fe017dbe1d4c576e13192766",
+      "author": "/root/native_c05_c12"
+    },
+    {
+      "file": "orch02_capture.py",
+      "bytes": 2644,
+      "sha256": "ed201e8fca7a985b282b9f659dea8da9b6607b6dbe12eb98501c736a1823e51c",
+      "git_blob": "088cc0b7f323f06ada02100b9cbd48cc478f8317",
+      "author": "/root/native_c05_c12"
+    },
+    {
+      "file": "semantic_collect.py",
+      "bytes": 10251,
+      "sha256": "4628cd39a969cc3b7d9dab47187453d709884f9dbe630df2279a8d5376286f79",
+      "git_blob": "bbc6ff02a55a49a080c058e2ba3e66f8dd112770",
+      "author": "/root/native_c05_c12"
+    },
+    {
+      "file": "encoder_residual.py",
+      "bytes": 3229,
+      "sha256": "2610c94ca646ca2c961f4e585b7fb85ed173f518ff17dacbdff7d310e7468b71",
+      "git_blob": "471a4da63e25795e2779f49d5dde3fad06267498",
+      "author": "/root/native_c05_c12"
+    },
+    {
+      "file": "verification-contract.json",
+      "bytes": 4159,
+      "sha256": "7fcca83a8ed2d9d429f66c1fc43171b43795232381ef5d2af3761101fa288c7f",
+      "git_blob": "ec55dbfbf83a31fe8521bd5ad5e7865bacf0497e",
+      "author": "/root/native_c05_c12"
+    },
+    {
+      "file": "semantic_collect-c12-executed.py",
+      "bytes": 9890,
+      "sha256": "794af6f103834d7673b89c34a052f75a0ceef480c94309e00603ee213dee762e",
+      "git_blob": "0188211ab28ee583cddf8b8f669654435ee85c09",
+      "author": "/root/native_c05_c12",
+      "scope": "Exact historical script bytes used by C12 native semantic execution; general collector then extended before C05 wave."
+    },
+    {
+      "file": "run_gate-c05-executed.py",
+      "bytes": 5074,
+      "sha256": "a796365861b52967dd1b47fba6bbc8c2a43fdd2ac3c775bed89f87e31854cd2d",
+      "git_blob": "2f081098459fbc03ca5d7ba8cabd17ee9e456500",
+      "author": "/root/native_c05_c12",
+      "scope": "Exact executed C05 independent harness; immutable source66151; recorded historical classification errors retained."
+    },
+    {
+      "file": "orch02_capture-c05-executed.py",
+      "bytes": 2752,
+      "sha256": "e5aa09b5339bde18248914d6d67e8005b65231181219e0cb890a699eaa01d6d5",
+      "git_blob": "31969dd55be2b87b8bd44b6d2e7a84eedd55c223",
+      "author": "/root/native_c05_c12",
+      "scope": "Exact executed C05 independent harness; immutable source66151; recorded historical classification errors retained."
+    },
+    {
+      "file": "semantic_collect-c05-v2-executed.py",
+      "bytes": 10307,
+      "sha256": "9585ce6f8916bbfb784a348a9c433d927df30ff7ad258b8c3a87bdc7e5c4723b",
+      "git_blob": "c6e94094c6072372cb197e66f4ce88e0ae05455d",
+      "author": "/root/native_c05_c12",
+      "scope": "Exact executed C05 independent harness; immutable source66151; recorded historical classification errors retained."
+    },
+    {
+      "file": "c05_artifact_readback.py",
+      "bytes": 3226,
+      "sha256": "d93326e33bf35beddcebb914e8a991b85510c42d6d05cd238214a9be531d960e",
+      "git_blob": "915035fe823c96d046c4910aec6dcaa7d8182994",
+      "author": "/root/native_c05_c12",
+      "scope": "Exact executed C05 independent harness; immutable source66151; recorded historical classification errors retained."
+    }
+  ],
+  "scope": "Frozen candidate inputs provided as arguments, isolated external outputs. No venv/assets/source snapshots published. Native outputs belong to per-role handoffs; this preservation commit does not assert new runtime verdict.",
+  "c05_v1_semantic_alias": {
+    "executed_name": "semantic_collect-c05-executed.py",
+    "tracked_file": "semantic_collect.py",
+    "git_blob": "bbc6ff02a55a49a080c058e2ba3e66f8dd112770",
+    "sha256": "4628cd39a969cc3b7d9dab47187453d709884f9dbe630df2279a8d5376286f79",
+    "reason": "Exact existing bytes; preserve once rather than duplicate."
+  }
+}

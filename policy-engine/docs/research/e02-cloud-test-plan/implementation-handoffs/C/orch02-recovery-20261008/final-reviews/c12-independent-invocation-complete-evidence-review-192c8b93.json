@@ -1,0 +1,159 @@
+{
+  "reviewer": "/root/recovery_review",
+  "kind": "Independent complete C12 static invocation diagnostic evidence review; no AST graph rerun",
+  "source": "192c8b935b824e2e4d38276f10d3061877207e9f",
+  "whole_execution_head": "77be2bb933d26363fb163ae5f36623a3bddaf061",
+  "base": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+  "outcome": "FAIL for required diagnostic exit3 UNRESOLVED; complete measured static model, not UNRUN",
+  "exit_code": 3,
+  "wall_seconds": 327.74465620499996,
+  "maxrss_kib": 8371260,
+  "raw_receipt": {
+    "path": "/workspace/orch02-c12/policy-engine/_build/e02-C-orch02-c12-recovery/production-invocation-192.json",
+    "bytes": 170816679,
+    "sha256": "406c54d77d7547d60b4443ccbb40f18f040e97a5359243f5e3d0237c07fb3934",
+    "ignored": true,
+    "complete_JSON_parsed": true
+  },
+  "output_streams_verified": [
+    {
+      "path": "/workspace/orch02-recovery/c12-required-production-invocation-192/invocation.stdout.txt",
+      "bytes": 1752,
+      "sha256": "a8ae012fc84ad7b38779847a578a583d3b392e87acb308426661fc5c1d3a1ba3"
+    },
+    {
+      "path": "/workspace/orch02-recovery/c12-required-production-invocation-192/invocation.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/orch02-recovery/c12-required-production-invocation-192/origin.stdout.txt",
+      "bytes": 346,
+      "sha256": "b8593a8cd3626e4cd9d932870f6000c6c7ce8052be41808ff5221d0ded3f9a48"
+    },
+    {
+      "path": "/workspace/orch02-recovery/c12-required-production-invocation-192/origin.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "full_denominator_independently_reconciled": {
+    "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+    "current_files": 5908,
+    "base_files": 5908,
+    "source_files": 2702,
+    "current_sha256": "da838073e817b176522d23e1cd0322f8114d16b325e2351c53dca515b5efcea5",
+    "base_sha256": "b58230a633e0e3deaaf939b20c1d2c8502d267cedd4601a7a40ba635db23afb8"
+  },
+  "full_candidate_status_counts": {
+    "unresolved_by_construction": 9216,
+    "uninvoked": 2156,
+    "static_path": 1734
+  },
+  "candidate_count": 13106,
+  "changed_or_lost_count": 5,
+  "changed_candidate_status_summary": {
+    "polisyos.lex.knowledge.search.LegalKnowledgeGraph.hybrid_search": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/lex/knowledge/search.py",
+      "changed": true,
+      "lost_path": false,
+      "terminus": null,
+      "source_callers": [],
+      "test_callers": [
+        "tests.unit.remediation.test_emb_03.test_openai_label_does_not_authorize_query_vectors_and_hybrid_falls_back"
+      ],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.lex.knowledge.search.LegalKnowledgeGraph.hybrid_search"
+    },
+    "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_entities_by_vector": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/lex/knowledge/store.py",
+      "changed": true,
+      "lost_path": false,
+      "terminus": null,
+      "source_callers": [],
+      "test_callers": [
+        "tests.unit.remediation.test_emb_03.test_legacy_entrypoint_uses_supported_encoder_and_legal_reader",
+        "tests.unit.remediation.test_emb_03.test_legal_entity_fact_and_provision_readers_follow_selected_membership",
+        "tests.unit.remediation.test_emb_03.test_raw_vector_cannot_bypass_query_profile_gate_and_control_is_discriminating"
+      ],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_entities_by_vector"
+    },
+    "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_facts_by_vector": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/lex/knowledge/store.py",
+      "changed": true,
+      "lost_path": false,
+      "terminus": null,
+      "source_callers": [],
+      "test_callers": [
+        "tests.unit.remediation.test_emb_03.test_legal_entity_fact_and_provision_readers_follow_selected_membership"
+      ],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_facts_by_vector"
+    },
+    "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_provisions_by_vector": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/lex/knowledge/store.py",
+      "changed": true,
+      "lost_path": false,
+      "terminus": null,
+      "source_callers": [],
+      "test_callers": [
+        "tests.unit.remediation.test_emb_03.test_legal_entity_fact_and_provision_readers_follow_selected_membership"
+      ],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_provisions_by_vector"
+    },
+    "polisyos.lex.knowledge.store.LegalQueryProfile.from_generation": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/lex/knowledge/store.py",
+      "changed": true,
+      "lost_path": false,
+      "terminus": null,
+      "source_callers": [],
+      "test_callers": [
+        "tests.unit.remediation.test_emb_03._legal_query_profile",
+        "tests.unit.remediation.test_emb_03.test_request_snapshot_does_not_alias_selected_generation_inventory"
+      ],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.lex.knowledge.store.LegalQueryProfile.from_generation"
+    }
+  },
+  "regressions": [],
+  "new_unresolved": [
+    "polisyos.lex.knowledge.search.LegalKnowledgeGraph.hybrid_search",
+    "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_entities_by_vector",
+    "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_facts_by_vector",
+    "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_provisions_by_vector",
+    "polisyos.lex.knowledge.store.LegalQueryProfile.from_generation"
+  ],
+  "all_unresolved_count": 9216,
+  "unresolved_receiver_count": 139838,
+  "static_roots": 401,
+  "all_changed_source_evidence_rows_bounded": 72,
+  "extract_exact_matches_full_raw": true,
+  "limitations": [
+    "Static paths do not prove execution, persisted receipts, or gate substance.",
+    "Reflection, callbacks, receiver types and conditional aliases need manual tracing.",
+    "Concrete public source callables are candidates; helpers are traversed.",
+    "No HTTP route is assumed runnable merely because it has a decorator."
+  ],
+  "unmeasured": [
+    "HTTP router dispatch",
+    "dependency injection/container dispatch",
+    "event-bus dispatch",
+    "registered callback invocation",
+    "deferred lambda/coroutine execution and generator resumption",
+    "reflection and dynamic receiver/factory resolution",
+    "runtime execution, persisted business receipts, and gate substance"
+  ],
+  "runtime_invocation_established": false,
+  "source_native_replay": false,
+  "no_source_blocker_from_this_static_diagnostic": "5 unresolved dynamic source calls are retained FAIL diagnostics, consistent with namedC10/G served-chain requirement; no fix/deferral laundering or native rollback warranted.",
+  "formal_closure_ids": [],
+  "source_acceptance": "not_admitted_by_G",
+  "handoff_verdict": "Pending immutable docs-only new followup commit review; complete evidence itself valid."
+}

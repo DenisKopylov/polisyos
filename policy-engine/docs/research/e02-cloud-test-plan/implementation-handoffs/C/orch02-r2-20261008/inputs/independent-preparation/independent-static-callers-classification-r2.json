@@ -1,0 +1,514 @@
+{
+  "schema": "orch02r2.independent-static-caller-contract-classification.v1",
+  "reviewer": "/root/recovery_review",
+  "observed_utc": "2026-10-08T18:25:45.038620+00:00",
+  "diagnostic_inputs": [
+    {
+      "unit": "C05",
+      "source": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "static_output": {
+        "path": "/workspace/orch02-recovery/c05-author-checks/production-invocation.stdout.txt",
+        "bytes": 1669,
+        "sha256": "6c21568fd15bf4da503483b84446fb798d0602b59e0dd066920e30881bb391f9",
+        "git_blob": "a4932f708b37a2df0dd1a8bac3653072742772c8"
+      },
+      "complete_compact_output": {
+        "status": "UNRESOLVED",
+        "coverage": "partial",
+        "summary": "Partial coverage: Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies. Unmeasured: HTTP router dispatch; dependency injection/container dispatch; event-bus dispatch; registered callback invocation; deferred lambda/coroutine execution and generator resumption; reflection and dynamic receiver/factory resolution; runtime execution, persisted business receipts, and gate substance.",
+        "measured": "Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.",
+        "unmeasured": [
+          "HTTP router dispatch",
+          "dependency injection/container dispatch",
+          "event-bus dispatch",
+          "registered callback invocation",
+          "deferred lambda/coroutine execution and generator resumption",
+          "reflection and dynamic receiver/factory resolution",
+          "runtime execution, persisted business receipts, and gate substance"
+        ],
+        "uninvoked_meaning": "No resolved direct path or recognized indirect witness in the static model; not proof of runtime non-invocation.",
+        "regressions": [],
+        "new_unresolved_by_construction": [
+          "polisyos.data_forge.domains.catalog.batch.config.DatasetBatchConfig.run_signature",
+          "polisyos.data_forge.domains.catalog.batch.material_inputs._MaterialFileSnapshot.generation_member",
+          "polisyos.data_forge.domains.catalog.knowledge.proxy_penalties.load_proxy_metric_alignments"
+        ],
+        "unresolved_by_construction_count": 9215,
+        "unresolved_receiver_call_count": 139831,
+        "receipt": "/workspace/orch02-c05/policy-engine/_build/c05-orch02-recovery-20261008/raw/production-invocation.json",
+        "runtime_invocation_established": false
+      },
+      "site_literal_reference_census": [
+        {
+          "literal_symbol": "run_signature",
+          "complete_literal_reference_hits": [
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py:209:    def run_signature(self) -> str:",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py:342:        input_fingerprint=fingerprint_paths([config.db_path]) + \":\" + config.run_signature,",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py:449:        input_fingerprint=fingerprint_paths([config.db_path]) + \":\" + config.run_signature,",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py:972:            planner_signature=planner_signature or config.run_signature,",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py:1194:    if planner_signature and planner_signature != config.run_signature:",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py:1199:    planner_signature = config.run_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py:636:        \"run_signature\": config.run_signature,",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py:139:        return config.run_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py:150:        return fingerprint_paths([config.db_path]) + \":\" + config.run_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py:161:    return config.run_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py:210:            \"run_signature\": config.run_signature,",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py:229:            \"run_signature\": config.run_signature,",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py:235:            \"run_signature\": config.run_signature,",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py:241:            \"run_signature\": config.run_signature,",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py:255:            \"run_signature\": config.run_signature,",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py:307:            \"run_signature\": config.run_signature,",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:713:def test_core_sources_run_signature_changes_with_producer_limit(tmp_path) -> None:",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:718:    full_signature = config.run_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:722:    assert config.run_signature != full_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:725:def test_core_sources_run_signature_changes_with_registry_content(tmp_path) -> None:",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:732:    original_signature = config.run_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:736:    assert config.run_signature != original_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:1483:    initial_signature = config.run_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:1501:    assert config.run_signature == initial_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:1507:    assert config.run_signature != initial_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:1616:    initial_signature = config.run_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:1626:    assert config.run_signature == initial_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:1779:    initial_signature = config.run_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:1791:    assert config.run_signature == initial_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:1823:    assert config.run_signature != initial_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:1865:    assert checkpoint[\"planner_signature\"] == config.run_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:1952:    signature = config.run_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:1955:    assert config.run_signature == signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:1965:    assert config.run_signature != signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:1966:    changed_signature = config.run_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:1969:    absent_signature = config.run_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:1973:    assert config.run_signature != absent_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:2009:    signature = config.run_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:2012:    assert config.run_signature == signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:2032:    assert config.run_signature != signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:2048:    absent_signature = config.run_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:2066:    present_signature = config.run_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:2070:    assert config.run_signature == present_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:2079:    assert config.run_signature != present_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:2082:    primary_signature = config.run_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:2088:    assert config.run_signature == primary_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:2094:        _ = config.run_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:2105:    assert config.run_signature != absent_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:2129:    false_signature = config.run_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:2134:        assert config.run_signature == false_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:2139:        signature = config.run_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:2148:    assert config.run_signature == false_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:2170:    signature = config.run_signature",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_dfi_03.py:2192:    assert config.run_signature != signature"
+          ],
+          "binding_files": [
+            {
+              "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+              "bytes": 15496,
+              "sha256": "984c132b22716ccd0e22c175b4437e8943f9f68dbae1c08c44efdb480630b51a",
+              "git_blob": "b7369e1f1f79576691a7a7b1d424847b1ef2eb07"
+            },
+            {
+              "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+              "bytes": 112326,
+              "sha256": "7a25cf5f669d066a706d5082cbf0e867250da2cf2cf0c87e8c8da34bb44b9202",
+              "git_blob": "6d9ffc41ddcb95cdab7e249eac634f3a2114de1e"
+            },
+            {
+              "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+              "bytes": 75269,
+              "sha256": "6502672e9c26661e2ae25c5ecc701da9584aa248b06af1b1cd5eb07267627466",
+              "git_blob": "87d3a8250d375861a44de7d1697c9c05d11d9c10"
+            },
+            {
+              "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+              "bytes": 40235,
+              "sha256": "3f0a9448ea1f643da224bc326ab3b4ef9e59510d087a974eeb77b74df53a979d",
+              "git_blob": "eeaa31f6d2d9cdd8bedeac6e5c61996f2f5777c1"
+            },
+            {
+              "path": "policy-engine/tests/unit/remediation/test_dfi_03.py",
+              "bytes": 87926,
+              "sha256": "298a8aa19e46f3d508bec214c5a713ccb272612e0945b263336514fd69475735",
+              "git_blob": "d1d40d167adaaf0984d00b1c4e27dd0cc636f90e"
+            }
+          ],
+          "interpretation": "Complete literal-name census only, not dynamic caller resolution or served invocation proof"
+        },
+        {
+          "literal_symbol": "generation_member",
+          "complete_literal_reference_hits": [
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py:343:    members = [snapshot.generation_member(role) for role, snapshot in snapshots.items()]",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py:19:    def generation_member(self, role: str) -> tuple[str, bytes]:",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_emb_02.py:503:def test_reader_fails_closed_when_selected_generation_member_is_missing(",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/remediation/test_emb_02.py:531:def test_reader_fails_closed_when_selected_generation_member_is_tampered("
+          ],
+          "binding_files": [
+            {
+              "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+              "bytes": 15496,
+              "sha256": "984c132b22716ccd0e22c175b4437e8943f9f68dbae1c08c44efdb480630b51a",
+              "git_blob": "b7369e1f1f79576691a7a7b1d424847b1ef2eb07"
+            },
+            {
+              "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+              "bytes": 1584,
+              "sha256": "27fda210162bfcd1934b17251a54dc1219ed8c4a2407bee3572c64e029521ed5",
+              "git_blob": "6805747595f68ae20491a59459bebc3ce685ead3"
+            },
+            {
+              "path": "policy-engine/tests/unit/remediation/test_emb_02.py",
+              "bytes": 31198,
+              "sha256": "bcf863eceac6f780bebd072972ff4b54a1227df4f13f1f7694837bf03a238943",
+              "git_blob": "e035cf91d54fef55cf7248ca77a77e3f5de96078"
+            }
+          ],
+          "interpretation": "Complete literal-name census only, not dynamic caller resolution or served invocation proof"
+        },
+        {
+          "literal_symbol": "load_proxy_metric_alignments",
+          "complete_literal_reference_hits": [
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py:53:def load_proxy_metric_alignments(",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py:58:    return _load_proxy_metric_alignments_snapshot(snapshot)",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py:62:def _load_proxy_metric_alignments_snapshot(",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py:125:load_proxy_metric_alignments.cache_clear = _load_proxy_metric_alignments_snapshot.cache_clear",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py:132:    mappings = load_proxy_metric_alignments(path)",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_proxy_penalties.py:6:    load_proxy_metric_alignments,",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_proxy_penalties.py:12:def test_load_proxy_metric_alignments_reads_yaml() -> None:",
+            "66151f3b7c806fdd0af0e6b2f71762e4defcc023:policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_proxy_penalties.py:19:    mappings = load_proxy_metric_alignments(path)"
+          ],
+          "binding_files": [
+            {
+              "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+              "bytes": 6489,
+              "sha256": "bb582119da0cae49ca12fd85795a528edb8ec4b7d196c63aa480572ee6bd6088",
+              "git_blob": "f2ec1bfbd185df599ed23e668da9facad1560bbf"
+            },
+            {
+              "path": "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_proxy_penalties.py",
+              "bytes": 1607,
+              "sha256": "aa8e77c0b09b65bf18332d7d3fc7ef3ff5b27af2be7496c38b1ae62fca96c682",
+              "git_blob": "a084c6f35a9d28732e1d99b01821c2272fc63c1a"
+            }
+          ],
+          "interpretation": "Complete literal-name census only, not dynamic caller resolution or served invocation proof"
+        }
+      ],
+      "status": "FAIL/executed static UNRESOLVED; runtime invocation not established"
+    },
+    {
+      "unit": "C12",
+      "source": "192c8b935b824e2e4d38276f10d3061877207e9f",
+      "static_output": {
+        "path": "/workspace/orch02-recovery/c12-required-production-invocation-192/invocation.stdout.txt",
+        "bytes": 1752,
+        "sha256": "a8ae012fc84ad7b38779847a578a583d3b392e87acb308426661fc5c1d3a1ba3",
+        "git_blob": "4971314b528fcb653dd4e239b0f0efbf9b21c5bb"
+      },
+      "complete_compact_output": {
+        "status": "UNRESOLVED",
+        "coverage": "partial",
+        "summary": "Partial coverage: Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies. Unmeasured: HTTP router dispatch; dependency injection/container dispatch; event-bus dispatch; registered callback invocation; deferred lambda/coroutine execution and generator resumption; reflection and dynamic receiver/factory resolution; runtime execution, persisted business receipts, and gate substance.",
+        "measured": "Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.",
+        "unmeasured": [
+          "HTTP router dispatch",
+          "dependency injection/container dispatch",
+          "event-bus dispatch",
+          "registered callback invocation",
+          "deferred lambda/coroutine execution and generator resumption",
+          "reflection and dynamic receiver/factory resolution",
+          "runtime execution, persisted business receipts, and gate substance"
+        ],
+        "uninvoked_meaning": "No resolved direct path or recognized indirect witness in the static model; not proof of runtime non-invocation.",
+        "regressions": [],
+        "new_unresolved_by_construction": [
+          "polisyos.lex.knowledge.search.LegalKnowledgeGraph.hybrid_search",
+          "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_entities_by_vector",
+          "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_facts_by_vector",
+          "polisyos.lex.knowledge.store.LegalKnowledgeStore.search_provisions_by_vector",
+          "polisyos.lex.knowledge.store.LegalQueryProfile.from_generation"
+        ],
+        "unresolved_by_construction_count": 9216,
+        "unresolved_receiver_call_count": 139838,
+        "receipt": "/workspace/orch02-c12/policy-engine/_build/e02-C-orch02-c12-recovery/production-invocation-192.json",
+        "runtime_invocation_established": false
+      },
+      "site_literal_reference_census": [
+        {
+          "literal_symbol": "hybrid_search",
+          "complete_literal_reference_hits": [
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/src/polisyos/lex/knowledge/benchmark.py:181:    results = graph.hybrid_search(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/src/polisyos/lex/knowledge/benchmark.py:222:            graph.hybrid_search(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/src/polisyos/lex/knowledge/benchmark.py:234:            fact_results = graph.hybrid_search(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/src/polisyos/lex/knowledge/search.py:15:    results = kg.hybrid_search(\"бюджетний дефіцит\", top_k=20)",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/src/polisyos/lex/knowledge/search.py:331:    def hybrid_search(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/src/polisyos/scientist/agent/knowledge_tools.py:263:        return self._legal_graph.hybrid_search(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_knowledge_tools.py:142:    def hybrid_search(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_knowledge_tools.py:198:        return self.hybrid_search(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_knowledge_tools.py:210:        return self.hybrid_search(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_knowledge_tools.py:220:        return self.hybrid_search(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/tests/unit/remediation/test_emb_03.py:1204:        results = graph.hybrid_search("
+          ],
+          "binding_files": [
+            {
+              "path": "policy-engine/src/polisyos/lex/knowledge/benchmark.py",
+              "bytes": 39527,
+              "sha256": "186593233ceb43c8c055cb1f5b23660893af9767bbf6c73e67058b61e6da7c8d",
+              "git_blob": "c85f960c5f75e0b859d2d964b59ba3da2e6602de"
+            },
+            {
+              "path": "policy-engine/src/polisyos/lex/knowledge/search.py",
+              "bytes": 21240,
+              "sha256": "384d9377c3fe8f0fef6142d3f9b7161c5a3cf46a927f6136462e60aa5199b9cb",
+              "git_blob": "58925aa6754b4decdbc7dcc236bd76e516827002"
+            },
+            {
+              "path": "policy-engine/src/polisyos/scientist/agent/knowledge_tools.py",
+              "bytes": 24970,
+              "sha256": "ce3c8ca3361c895c0493dc641b6707bd89f5a152dab28df4477f8b50fa2050f4",
+              "git_blob": "8e95a2655ce611e653b77449f909efde1e0c313b"
+            },
+            {
+              "path": "policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_knowledge_tools.py",
+              "bytes": 16517,
+              "sha256": "8f410fea5e9256fde95d99adb952521aa94191942f2a2bc8b06ff7f3040b2bb2",
+              "git_blob": "92ab6df498b55ef7d0d1d202a390f91cac559d2a"
+            },
+            {
+              "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+              "bytes": 49372,
+              "sha256": "b966282f9084b31a852e232aaee8f268864d486ccebd9a8fff55ce2e757ab89c",
+              "git_blob": "b555dd0e9770a095400857675b64e6cffdeeace2"
+            }
+          ],
+          "interpretation": "Complete literal-name census only, not dynamic caller resolution or served invocation proof"
+        },
+        {
+          "literal_symbol": "search_entities_by_vector",
+          "complete_literal_reference_hits": [
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/src/polisyos/lex/knowledge/search.py:118:            return self._store.search_entities_by_vector(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/src/polisyos/lex/knowledge/store.py:1345:    def search_entities_by_vector(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/tests/unit/remediation/test_emb_03.py:575:            stale_reader.search_entities_by_vector(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/tests/unit/remediation/test_emb_03.py:615:            for result in reader.search_entities_by_vector(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/tests/unit/remediation/test_emb_03.py:654:            withdrawn_reader.search_entities_by_vector(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/tests/unit/remediation/test_emb_03.py:827:        results = reader.search_entities_by_vector(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/tests/unit/remediation/test_emb_03.py:997:            reader.search_entities_by_vector(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/tests/unit/remediation/test_emb_03.py:1015:        bypassed = reader.search_entities_by_vector(valid_query, top_k=1, min_similarity=0.0)",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/tests/unit/remediation/test_emb_03.py:1018:        admitted = reader.search_entities_by_vector(valid_query, top_k=1, min_similarity=0.0)"
+          ],
+          "binding_files": [
+            {
+              "path": "policy-engine/src/polisyos/lex/knowledge/search.py",
+              "bytes": 21240,
+              "sha256": "384d9377c3fe8f0fef6142d3f9b7161c5a3cf46a927f6136462e60aa5199b9cb",
+              "git_blob": "58925aa6754b4decdbc7dcc236bd76e516827002"
+            },
+            {
+              "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+              "bytes": 108831,
+              "sha256": "7027efe1b04286f3fc9b07f8ab42f1a410e0cfbbd7938771469487b604b2d481",
+              "git_blob": "5831a8c63410a1b002970e7cd82e43b780f92342"
+            },
+            {
+              "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+              "bytes": 49372,
+              "sha256": "b966282f9084b31a852e232aaee8f268864d486ccebd9a8fff55ce2e757ab89c",
+              "git_blob": "b555dd0e9770a095400857675b64e6cffdeeace2"
+            }
+          ],
+          "interpretation": "Complete literal-name census only, not dynamic caller resolution or served invocation proof"
+        },
+        {
+          "literal_symbol": "search_facts_by_vector",
+          "complete_literal_reference_hits": [
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/src/polisyos/lex/knowledge/search.py:148:            return self._store.search_facts_by_vector(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/src/polisyos/lex/knowledge/search.py:372:            vector_results = self._store.search_facts_by_vector(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/src/polisyos/lex/knowledge/store.py:1387:    def search_facts_by_vector(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/tests/unit/remediation/test_emb_03.py:582:            stale_reader.search_facts_by_vector(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/tests/unit/remediation/test_emb_03.py:624:            for result in reader.search_facts_by_vector(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/tests/unit/remediation/test_emb_03.py:663:            withdrawn_reader.search_facts_by_vector("
+          ],
+          "binding_files": [
+            {
+              "path": "policy-engine/src/polisyos/lex/knowledge/search.py",
+              "bytes": 21240,
+              "sha256": "384d9377c3fe8f0fef6142d3f9b7161c5a3cf46a927f6136462e60aa5199b9cb",
+              "git_blob": "58925aa6754b4decdbc7dcc236bd76e516827002"
+            },
+            {
+              "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+              "bytes": 108831,
+              "sha256": "7027efe1b04286f3fc9b07f8ab42f1a410e0cfbbd7938771469487b604b2d481",
+              "git_blob": "5831a8c63410a1b002970e7cd82e43b780f92342"
+            },
+            {
+              "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+              "bytes": 49372,
+              "sha256": "b966282f9084b31a852e232aaee8f268864d486ccebd9a8fff55ce2e757ab89c",
+              "git_blob": "b555dd0e9770a095400857675b64e6cffdeeace2"
+            }
+          ],
+          "interpretation": "Complete literal-name census only, not dynamic caller resolution or served invocation proof"
+        },
+        {
+          "literal_symbol": "search_provisions_by_vector",
+          "complete_literal_reference_hits": [
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/src/polisyos/lex/knowledge/search.py:180:            return self._store.search_provisions_by_vector(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/src/polisyos/lex/knowledge/store.py:1448:    def search_provisions_by_vector(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/tests/unit/remediation/test_emb_03.py:590:            stale_reader.search_provisions_by_vector(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/tests/unit/remediation/test_emb_03.py:632:            for result in reader.search_provisions_by_vector(",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/tests/unit/remediation/test_emb_03.py:671:            withdrawn_reader.search_provisions_by_vector("
+          ],
+          "binding_files": [
+            {
+              "path": "policy-engine/src/polisyos/lex/knowledge/search.py",
+              "bytes": 21240,
+              "sha256": "384d9377c3fe8f0fef6142d3f9b7161c5a3cf46a927f6136462e60aa5199b9cb",
+              "git_blob": "58925aa6754b4decdbc7dcc236bd76e516827002"
+            },
+            {
+              "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+              "bytes": 108831,
+              "sha256": "7027efe1b04286f3fc9b07f8ab42f1a410e0cfbbd7938771469487b604b2d481",
+              "git_blob": "5831a8c63410a1b002970e7cd82e43b780f92342"
+            },
+            {
+              "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+              "bytes": 49372,
+              "sha256": "b966282f9084b31a852e232aaee8f268864d486ccebd9a8fff55ce2e757ab89c",
+              "git_blob": "b555dd0e9770a095400857675b64e6cffdeeace2"
+            }
+          ],
+          "interpretation": "Complete literal-name census only, not dynamic caller resolution or served invocation proof"
+        },
+        {
+          "literal_symbol": "LegalQueryProfile.from_generation",
+          "complete_literal_reference_hits": [
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/tests/unit/remediation/test_emb_03.py:366:            profiles.append(LegalQueryProfile.from_generation(generation))",
+            "192c8b935b824e2e4d38276f10d3061877207e9f:policy-engine/tests/unit/remediation/test_emb_03.py:1393:    requested = LegalQueryProfile.from_generation(generation)"
+          ],
+          "binding_files": [
+            {
+              "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+              "bytes": 49372,
+              "sha256": "b966282f9084b31a852e232aaee8f268864d486ccebd9a8fff55ce2e757ab89c",
+              "git_blob": "b555dd0e9770a095400857675b64e6cffdeeace2"
+            }
+          ],
+          "interpretation": "Complete literal-name census only, not dynamic caller resolution or served invocation proof"
+        }
+      ],
+      "status": "FAIL/executed static UNRESOLVED; runtime invocation not established"
+    },
+    {
+      "unit": "C06-DFK",
+      "static_output": {
+        "path": "/workspace/orch02-c06-dfk/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-dfk-recovery-20261008/required-gates/invocation-initial/stdout.txt",
+        "bytes": 1352,
+        "sha256": "d7d791beb5b7d29af6db3b2463d8aec102b2488242d654f656fa8e6d724ed7c1",
+        "git_blob": "ee01baec34f6e449981387c31a8cf958d75e8960"
+      },
+      "complete_compact_output": {
+        "status": "passed",
+        "coverage": "partial",
+        "summary": "Partial coverage: Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies. Unmeasured: HTTP router dispatch; dependency injection/container dispatch; event-bus dispatch; registered callback invocation; deferred lambda/coroutine execution and generator resumption; reflection and dynamic receiver/factory resolution; runtime execution, persisted business receipts, and gate substance.",
+        "measured": "Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.",
+        "unmeasured": [
+          "HTTP router dispatch",
+          "dependency injection/container dispatch",
+          "event-bus dispatch",
+          "registered callback invocation",
+          "deferred lambda/coroutine execution and generator resumption",
+          "reflection and dynamic receiver/factory resolution",
+          "runtime execution, persisted business receipts, and gate substance"
+        ],
+        "uninvoked_meaning": "No resolved direct path or recognized indirect witness in the static model; not proof of runtime non-invocation.",
+        "regressions": [],
+        "new_unresolved_by_construction": [],
+        "unresolved_by_construction_count": 9191,
+        "unresolved_receiver_call_count": 139814,
+        "receipt": "/workspace/orch02-recovery/c06-required-dfk-invocation/receipt.json",
+        "runtime_invocation_established": false
+      },
+      "status": "PASS only bounded partial static diagnostic; runtime invocation not established; no retirement authority"
+    },
+    {
+      "unit": "C06-CAN",
+      "static_output": {
+        "path": "/workspace/orch02-c06-can/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c06-can-recovery-20261008/required-gates/invocation-retry/stdout.txt",
+        "bytes": 1358,
+        "sha256": "6d1fb800e7699b17b7c2475211bac1f5cf3fb4be84317bac232b57bbbb6412c5",
+        "git_blob": "34d524aa7226045c07e833c03a6a0d7f0dd57fd5"
+      },
+      "complete_compact_output": {
+        "status": "passed",
+        "coverage": "partial",
+        "summary": "Partial coverage: Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies. Unmeasured: HTTP router dispatch; dependency injection/container dispatch; event-bus dispatch; registered callback invocation; deferred lambda/coroutine execution and generator resumption; reflection and dynamic receiver/factory resolution; runtime execution, persisted business receipts, and gate substance.",
+        "measured": "Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.",
+        "unmeasured": [
+          "HTTP router dispatch",
+          "dependency injection/container dispatch",
+          "event-bus dispatch",
+          "registered callback invocation",
+          "deferred lambda/coroutine execution and generator resumption",
+          "reflection and dynamic receiver/factory resolution",
+          "runtime execution, persisted business receipts, and gate substance"
+        ],
+        "uninvoked_meaning": "No resolved direct path or recognized indirect witness in the static model; not proof of runtime non-invocation.",
+        "regressions": [],
+        "new_unresolved_by_construction": [],
+        "unresolved_by_construction_count": 9214,
+        "unresolved_receiver_call_count": 140021,
+        "receipt": "/workspace/orch02-recovery/c06-required-can-invocation-retry/receipt.json",
+        "runtime_invocation_established": false
+      },
+      "status": "PASS only bounded partial static diagnostic; runtime invocation not established; no retirement authority"
+    }
+  ],
+  "classifications": [
+    {
+      "unit": "C05",
+      "site": "DatasetBatchConfig.run_signature",
+      "bucket": "static @property/direct-model resolution limitation; real ordinary producer config receipt path exists",
+      "actual_consumers": "batch pipeline initialization/resume/run/stage receipt and canonical core_sources API/validator use attribute property; finite old native evidence source661 remains historical",
+      "next_requirement": "New altered property/config binding must keep actual producer receipts and same-ID basis invalidation; source-only annotation fixes do not establish served Catalog chain."
+    },
+    {
+      "unit": "C05",
+      "site": "_MaterialFileSnapshot.generation_member",
+      "bucket": "static receiver/direct-model resolution limitation; concrete basis contribution invoked by _catalog_material_members",
+      "actual_contract": "role:path:presence plus exact bytes; missing versus empty and selected/unselected remain distinct",
+      "next_requirement": "Observe real config→GenerationBasis→receipt/currentness rather than claim runtime from static summary."
+    },
+    {
+      "unit": "C05",
+      "site": "load_proxy_metric_alignments",
+      "bucket": "ordinary module function within content-snapshot cached reader, static root reachability limitation",
+      "actual_contract": "current snapshot feeds cached snapshot loader; proxy readers consume actual tuple penalty changes",
+      "next_requirement": "New scope binding must preserve canonical module producer and mutation/reopen readers; no second local producer."
+    },
+    {
+      "unit": "C12",
+      "site": "LegalKnowledgeGraph.hybrid_search + three Store.search_*_by_vector",
+      "bucket": "dynamic receiver routing not resolved by static model; real graph→store methods and fixture encoder/membership/index execution already exist",
+      "next_requirement": "Focused changed actual persisted reader/numeric consumer wave on a47; separately actual served immutable intent/profile/encoder bridge from C10/G."
+    },
+    {
+      "unit": "C12",
+      "site": "LegalQueryProfile.from_generation",
+      "bucket": "frozen dataclass classmethod/presented request construction; static root reachability limitation plus genuine served caller input gap",
+      "actual_contract": "saved request intent owns desired model and generation, not newly selected reader or compatibility Graph.embedding_model",
+      "next_requirement": "C10/G must supply authentic request desired generation/profile and canonical configured encoder, preserve stale refusal before encode/knn."
+    },
+    {
+      "unit": "C06-DFK/CAN",
+      "site": "partial static PASS",
+      "bucket": "measured direct static reachability only; no HTTP/DI/callback/runtime/persisted authority",
+      "next_requirement": "New DFK actual CLI/autodiscovery/parser removal and new CAN actual Core/IR persisted producer consumer pairing prove only their finite candidate properties. Do not reopen global retired source families or declare installed/external retirement."
+    }
+  ],
+  "P40": "Existing encoding/callback provenance/retirement limitations remain declared same classes; numeric-zero plus scientific-scalar are one distinct NEW owned numeric normalization class resolved structurally at reviewed2e40 tree; future second same-class escape requires invariant/residual capability rule, not local ladder",
+  "P41": "not_established; earlier current-file multiset or old historical passing native is not exact slice-base full input denominator zero-overlap proof",
+  "authority": {
+    "source_acceptance_G": false,
+    "formal_closure": [],
+    "new_runtime_execution": false
+  },
+  "reviewed_preparation_manifest": "/workspace/orch02-r2/reviews/reviewer-preparation-source-contracts-r2.json"
+}

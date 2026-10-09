@@ -1,0 +1,177 @@
+{
+  "schema": "policyos.e02.independent-C05-source-DAG.v1",
+  "reviewer": "/root/recovery_review",
+  "candidate": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+  "boundary_base": "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63",
+  "method": "complete git rev-list --parents candidate --not before-DFI12190; every object tree/actual parents resolved",
+  "ancestors": [
+    {
+      "sha": "66151f3b7c806fdd0af0e6b2f71762e4defcc023",
+      "tree": "47950716278e09cd1c4ddf6fa0acefbcdd013e50",
+      "parents": [
+        "0bde01f5febf3b6e66315c864bc0cc20b0776068"
+      ]
+    },
+    {
+      "sha": "0bde01f5febf3b6e66315c864bc0cc20b0776068",
+      "tree": "987fb93952f7f9144cc8cd0ac813680c56b17971",
+      "parents": [
+        "b297fe0986feaa0d56c61d991f04bbc6a1e3ca36"
+      ]
+    },
+    {
+      "sha": "b297fe0986feaa0d56c61d991f04bbc6a1e3ca36",
+      "tree": "a29e1ed78eb1efaac61c5f9d50023e3b6a25e1b4",
+      "parents": [
+        "8dfa7f3c544461c0ff081861848fcc5d8523da5b"
+      ]
+    },
+    {
+      "sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+      "parents": [
+        "42a8b499860acdb67b73ea9c5c7f53a874d71f08",
+        "ab44166335130463178e65dfc29a252c96afe479"
+      ]
+    },
+    {
+      "sha": "ab44166335130463178e65dfc29a252c96afe479",
+      "tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+      "parents": [
+        "d747ada477f3de1a369a2e29a547b9f66e77822b"
+      ]
+    },
+    {
+      "sha": "d747ada477f3de1a369a2e29a547b9f66e77822b",
+      "tree": "8993d250a4e2ed48cb184254acde0bcf7ad17c8d",
+      "parents": [
+        "6cfd7ffca15f586840d1aaf42b436fe1685be9fa"
+      ]
+    },
+    {
+      "sha": "6cfd7ffca15f586840d1aaf42b436fe1685be9fa",
+      "tree": "9bd7a520dc7532046c822a1c580334650018319b",
+      "parents": [
+        "c32011b4d11989a8bb765b6ed0f6be7af1ed303a"
+      ]
+    },
+    {
+      "sha": "c32011b4d11989a8bb765b6ed0f6be7af1ed303a",
+      "tree": "3bd71691d9e493a3d76ca2e8309dada60fd91465",
+      "parents": [
+        "cfede50e69db4b5b5759bd560a44b308907a350e"
+      ]
+    },
+    {
+      "sha": "cfede50e69db4b5b5759bd560a44b308907a350e",
+      "tree": "f37cc43bf8de212c62322641e3b853a50e98f1a9",
+      "parents": [
+        "ab27db6d940c7a34ba2dd3837803f0b6ec4f464c"
+      ]
+    },
+    {
+      "sha": "42a8b499860acdb67b73ea9c5c7f53a874d71f08",
+      "tree": "158d1f359f11e44368063949aca81f5e1f8babdf",
+      "parents": [
+        "8590de631f0e5c4e6af75357e8d404931786ad62"
+      ]
+    },
+    {
+      "sha": "ab27db6d940c7a34ba2dd3837803f0b6ec4f464c",
+      "tree": "7e58389660ba2579cce043b7f2280ca90e215eb2",
+      "parents": [
+        "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63"
+      ]
+    },
+    {
+      "sha": "8590de631f0e5c4e6af75357e8d404931786ad62",
+      "tree": "28c02d1468d370c413946300050c81a5fd1559e2",
+      "parents": [
+        "180bb931ab96cd5f40c1f91c092d24375456d50f"
+      ]
+    },
+    {
+      "sha": "180bb931ab96cd5f40c1f91c092d24375456d50f",
+      "tree": "dc073387ab5b08b77c007286079ff695a886d403",
+      "parents": [
+        "f595788473ba66b1065e44d8cd64616d9998c239",
+        "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63"
+      ]
+    },
+    {
+      "sha": "f595788473ba66b1065e44d8cd64616d9998c239",
+      "tree": "1391b4ce19c37a309b4eaa5e6de0fedca78e97f2",
+      "parents": [
+        "9551ef73bfe3ff625cbdae310d329805e66bb8c8",
+        "4a9350bf3e43d1785ab7ff51b37da442e84aca8e"
+      ]
+    },
+    {
+      "sha": "9551ef73bfe3ff625cbdae310d329805e66bb8c8",
+      "tree": "2599036fcb4351d50c826469a23ffa9697b949e5",
+      "parents": [
+        "f64fb7a42eceef3cb884564b257a34a4f15768a2"
+      ]
+    },
+    {
+      "sha": "f64fb7a42eceef3cb884564b257a34a4f15768a2",
+      "tree": "b91185f8031c7abef602c58cc60616eb32f2480f",
+      "parents": [
+        "cf1fbd9f74de7d37079dfcdcfa5ac44cd1f2ab8c"
+      ]
+    },
+    {
+      "sha": "cf1fbd9f74de7d37079dfcdcfa5ac44cd1f2ab8c",
+      "tree": "6526bb68732c5d212d211380e220d5487dc8939f",
+      "parents": [
+        "1b88c429d7fc915e4631fb06ad868af6727dd0b0",
+        "f5d66898566cc472a5a3a7309ecb76f0cdb12c45"
+      ]
+    },
+    {
+      "sha": "1b88c429d7fc915e4631fb06ad868af6727dd0b0",
+      "tree": "6ee787be5c5eaf9ccc7fae989a4fabc954412579",
+      "parents": [
+        "d09c7396dfe6b9d5056c2f0cdc253c1846906602"
+      ]
+    },
+    {
+      "sha": "d09c7396dfe6b9d5056c2f0cdc253c1846906602",
+      "tree": "82a8460af9fd58bb4fa2bc7a1e4eac5cf3fe8c1e",
+      "parents": [
+        "d9f4539e941577b99c6d00b088e08efdd2be0cdc"
+      ]
+    },
+    {
+      "sha": "d9f4539e941577b99c6d00b088e08efdd2be0cdc",
+      "tree": "dcae3ad65c2e9696f44a3ac4b2791f9e28d90a07",
+      "parents": [
+        "8e7110904be96a81bb8bdb2a0002726776b0992e"
+      ]
+    },
+    {
+      "sha": "8e7110904be96a81bb8bdb2a0002726776b0992e",
+      "tree": "9552b53c3b6e75857068f5436fe5b6ac8b750ccb",
+      "parents": [
+        "71569639ef159c61b40ec3d4f7c9a31682d96830"
+      ]
+    },
+    {
+      "sha": "71569639ef159c61b40ec3d4f7c9a31682d96830",
+      "tree": "2092c2133ffc59c6459b751652c600827ebee21c",
+      "parents": [
+        "c27bc0f3e5c51916968d781f5788478835c4c026"
+      ]
+    },
+    {
+      "sha": "c27bc0f3e5c51916968d781f5788478835c4c026",
+      "tree": "df03e731828453c971c1222052054524ad0418bd",
+      "parents": [
+        "198076863e143dea9f89f02734b13d50dae3eed5"
+      ]
+    }
+  ],
+  "count": 23,
+  "input_binding": "c05-source-binding-66151f3b.json contains complete10ownedfootprint/34bounded directsource/test/config/companion rows; all actual source runtime origins separatelynativequalified",
+  "scope": "Own-base source lineage only; no Gsource acceptance or whole dynamic/external closure."
+}

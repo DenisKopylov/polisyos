@@ -1,0 +1,62 @@
+{
+  "reviewer": "/root/recovery_review",
+  "kind": "C12 final invocation review-copy metadata delta",
+  "source": "192c8b935b824e2e4d38276f10d3061877207e9f",
+  "reviewed_immutable_evidence_target": "0a613e861a45981cf1f2808d5934d6d355147f13",
+  "final_topic_head": "9c46da826c3d54b6d0a13cc1772bda4b2c646e68",
+  "final_topic_tree": "99e992c598468fdfe6d5bc17d4d77951e52117e0",
+  "metadata_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-invocation-followup-20261008.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-independent-invocation-handoff-review-0a613e86.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-independent-invocation-handoff-review-0a613e86.md"
+  ],
+  "main_changed_keys": [
+    "receipt_footprint",
+    "quality_followups"
+  ],
+  "standalone_changed_keys": [
+    "independent_review"
+  ],
+  "review_copies": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-independent-invocation-handoff-review-0a613e86.md",
+      "git_blob": "a474116008cdb3821774c5e653b27c3d7779b74d",
+      "bytes": 2746,
+      "sha256": "e85761de36c73f57d16e181d5cb6bee7a36439c280f6ea64b80c8cc67289e06c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008/review/c12-independent-invocation-handoff-review-0a613e86.json",
+      "git_blob": "e94902f8a1dea2bc72e06637263c7696b4091877",
+      "bytes": 10175,
+      "sha256": "af31afcbe3a644124c53cd6c263af2f98afa92b15145f3ca442f0c1ec07027b3"
+    }
+  ],
+  "prior_prefix_paths_byte_equal": 79,
+  "architecture_standalone_byte_equal": true,
+  "prior_checks_unchanged": 11,
+  "prior_quality_limits_unchanged": 6,
+  "source_postimages_unchanged": 6,
+  "source_to_handoff_document_paths": 84,
+  "main_identity": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-request-intent-20261008.json",
+    "git_blob": "a1252d4d636b38458ada55834b27b44465819258",
+    "bytes": 55961,
+    "sha256": "75c5c5b108ebe5ff437be2656fbe77de235802b2ed00fdb71ae37fdadb783f5a"
+  },
+  "invocation_followup_identity": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-invocation-followup-20261008.json",
+    "git_blob": "3ee3c269730a7e78063e01e03c548f5991aa0ddf",
+    "bytes": 8629,
+    "sha256": "572c569804d4f2b42a79d6fd46d3d6650831c5a80b268194ed02d04ff75c7d5b"
+  },
+  "diff_check_exit": 0,
+  "clean": true,
+  "verdict": "GO: own-topic custody only. Required architectureFAIL and invocationFAIL/UNRESOLVED; unchanged native evidence; G admission/formal closure held.",
+  "publication_state": "normal topic push+explicit no-FETCH_HEAD-write fetch complete; fresh independent GitHub branch read API matches final9c46",
+  "independent_remote_GitHub_ref": "refs/heads/codex/e02-C-orch02-c12-recovery@9c46da826c3d54b6d0a13cc1772bda4b2c646e68",
+  "publication_readback_manifest": "/workspace/orch02-recovery/c12-invocation-publication-readback.json",
+  "publication_readback_rows_exact_verified": 84,
+  "publication_readback_total_document_bytes": 509127,
+  "actual_six_source_postimages_rechecked": true
+}

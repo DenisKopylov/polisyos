@@ -1,0 +1,2779 @@
+{
+  "actual_command_contexts": [
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "--no-tags",
+        "origin",
+        "refs/heads/codex/e02-C-orch02-c12-recovery:refs/readback/orch02-r2-publication-audit/c12-fcf164eb"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "From https://github.com/DenisKopylov/polisyos\n * [new branch]          codex/e02-C-orch02-c12-recovery -> refs/readback/orch02-r2-publication-audit/c12-fcf164eb\n",
+      "stdout": "",
+      "wall_seconds": 0.7489719390869141
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/readback/orch02-r2-publication-audit/c12-fcf164eb"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "fcf164eb1c5bb54786462e67ba2537313b33b90d\n",
+      "wall_seconds": 0.0061419010162353516
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "fcf164eb1c5bb54786462e67ba2537313b33b90d^"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7\n",
+      "wall_seconds": 0.003132343292236328
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "fcf164eb1c5bb54786462e67ba2537313b33b90d^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "e0ad136df2f004bc87cdb596c3955a88913b3ff1\n",
+      "wall_seconds": 0.007542610168457031
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "--full-tree",
+        "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "stdout": null,
+      "wall_seconds": 0.08007359504699707
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "--full-tree",
+        "fcf164eb1c5bb54786462e67ba2537313b33b90d"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "stdout": null,
+      "wall_seconds": 0.05138731002807617
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "2e40b42e506b5dbae790f809368c308631cdaac4\n",
+      "wall_seconds": 0.003262042999267578
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "9c46da826c3d54b6d0a13cc1772bda4b2c646e68",
+        "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "stdout": null,
+      "wall_seconds": 0.006264209747314453
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "stdout": null,
+      "wall_seconds": 0.005966901779174805
+    },
+    {
+      "Git_blob_identity_verified_objects": 94,
+      "argv": [
+        "git",
+        "cat-file",
+        "--batch"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.11808657646179199
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "--full-tree",
+        "fcf164eb1c5bb54786462e67ba2537313b33b90d"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.1814284324645996
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "--full-tree",
+        "192c8b935b824e2e4d38276f10d3061877207e9f"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.05560803413391113
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "--full-tree",
+        "fd3898acf23212c14b0fea62647e882c81d4f479"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.04663705825805664
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "--full-tree",
+        "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.043566226959228516
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "--full-tree",
+        "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.04242992401123047
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "--full-tree",
+        "dee58973f7673299070b7c7374f419b0adb8175c"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.10847759246826172
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "--full-tree",
+        "2e40b42e506b5dbae790f809368c308631cdaac4"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.04726743698120117
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "--full-tree",
+        "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.0807807445526123
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "--full-tree",
+        "8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.07841825485229492
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63",
+        "ab44166335130463178e65dfc29a252c96afe479"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.01621270179748535
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "--full-tree",
+        "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.02853679656982422
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "--full-tree",
+        "ab44166335130463178e65dfc29a252c96afe479"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.03362131118774414
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "ab44166335130463178e65dfc29a252c96afe479",
+        "8dfa7f3c544461c0ff081861848fcc5d8523da5b"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.007180213928222656
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "--full-tree",
+        "8dfa7f3c544461c0ff081861848fcc5d8523da5b"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.0502622127532959
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "f428b114f4afb5c9cdde93a8e9bf036abe5ac329"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.008241653442382812
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "--full-tree",
+        "f428b114f4afb5c9cdde93a8e9bf036abe5ac329"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.05699968338012695
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "f428b114f4afb5c9cdde93a8e9bf036abe5ac329",
+        "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.005539894104003906
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+        "677e60985d98c8a1aeca1c85a1583ac9396bdf3d"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.0054378509521484375
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "--full-tree",
+        "677e60985d98c8a1aeca1c85a1583ac9396bdf3d"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.034383296966552734
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "677e60985d98c8a1aeca1c85a1583ac9396bdf3d",
+        "192c8b935b824e2e4d38276f10d3061877207e9f"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.006998777389526367
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "192c8b935b824e2e4d38276f10d3061877207e9f",
+        "9c46da826c3d54b6d0a13cc1772bda4b2c646e68"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.004912614822387695
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "--full-tree",
+        "9c46da826c3d54b6d0a13cc1772bda4b2c646e68"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.026556968688964844
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "9c46da826c3d54b6d0a13cc1772bda4b2c646e68",
+        "fd3898acf23212c14b0fea62647e882c81d4f479"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.008954286575317383
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "fd3898acf23212c14b0fea62647e882c81d4f479",
+        "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.005315542221069336
+    },
+    {
+      "argv": [
+        "git",
+        "rev-list",
+        "--parents",
+        "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+        "^12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.006383657455444336
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.002604246139526367
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "fd3898acf23212c14b0fea62647e882c81d4f479^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.003309011459350586
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "9c46da826c3d54b6d0a13cc1772bda4b2c646e68^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.004621982574462891
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "0a613e861a45981cf1f2808d5934d6d355147f13^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.005736351013183594
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "77be2bb933d26363fb163ae5f36623a3bddaf061^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.004647254943847656
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "ab4531fd1b0db59c162dfce0e7507f953a52a694^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.0037565231323242188
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "427068292f7e0e50a12441affe72f167a899c45b^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.004769802093505859
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e51ea2a9757b899c367943197f43003a43d4865^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.004954814910888672
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "310a833fa82a053830711062653e66c78129a2c8^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.004430055618286133
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "192c8b935b824e2e4d38276f10d3061877207e9f^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.004725456237792969
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "677e60985d98c8a1aeca1c85a1583ac9396bdf3d^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.0023767948150634766
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.0031685829162597656
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "f428b114f4afb5c9cdde93a8e9bf036abe5ac329^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.005827665328979492
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "15ae83582516b1d903ba7a5b0ef1903601d1102f^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.0024755001068115234
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "5169abdbb1db103d25cfddab5f361e973aafa850^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.0038290023803710938
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "8dfa7f3c544461c0ff081861848fcc5d8523da5b^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.004224300384521484
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "ab44166335130463178e65dfc29a252c96afe479^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.005025386810302734
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "d747ada477f3de1a369a2e29a547b9f66e77822b^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.0038881301879882812
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6cfd7ffca15f586840d1aaf42b436fe1685be9fa^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.007199525833129883
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "c32011b4d11989a8bb765b6ed0f6be7af1ed303a^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.0034918785095214844
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "cfede50e69db4b5b5759bd560a44b308907a350e^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.003238201141357422
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "42a8b499860acdb67b73ea9c5c7f53a874d71f08^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.005161762237548828
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "ab27db6d940c7a34ba2dd3837803f0b6ec4f464c^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.0027451515197753906
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "8590de631f0e5c4e6af75357e8d404931786ad62^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.003234386444091797
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "180bb931ab96cd5f40c1f91c092d24375456d50f^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.004555225372314453
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "f595788473ba66b1065e44d8cd64616d9998c239^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.004792690277099609
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "9551ef73bfe3ff625cbdae310d329805e66bb8c8^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.0040285587310791016
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "f64fb7a42eceef3cb884564b257a34a4f15768a2^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.005083560943603516
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "cf1fbd9f74de7d37079dfcdcfa5ac44cd1f2ab8c^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.0034303665161132812
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "1b88c429d7fc915e4631fb06ad868af6727dd0b0^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.003218412399291992
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "d09c7396dfe6b9d5056c2f0cdc253c1846906602^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.004355192184448242
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "d9f4539e941577b99c6d00b088e08efdd2be0cdc^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.0034720897674560547
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "8e7110904be96a81bb8bdb2a0002726776b0992e^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.002629995346069336
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "71569639ef159c61b40ec3d4f7c9a31682d96830^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.0037360191345214844
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "c27bc0f3e5c51916968d781f5788478835c4c026^{tree}"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 0.006721973419189453
+    },
+    {
+      "Git_blob_identity_verified_objects": 1532,
+      "argv": [
+        "git",
+        "cat-file",
+        "--batch"
+      ],
+      "cwd": "/workspace/polisyos",
+      "exit": 0,
+      "stderr": "",
+      "wall_seconds": 4.939466238021851
+    }
+  ],
+  "actual_recorded_native_source_origins": [
+    {
+      "named_dependency_file_bytes_verified": 6,
+      "product_file_origins_verified_to_frozen_source": 1433,
+      "published_path": "native/c12-a47-affected-native/runtime-origins.json.gz",
+      "qualification": "Finite actually loaded file-origin contour; property-removal harness changes runtime behavior separately, does not overwrite canonical source.",
+      "source_nonidentical_to_G_observed_paths": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/embedding_projection.py",
+        "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/store.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/registry.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/selection.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/source_modules.py",
+        "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+        "policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py",
+        "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+        "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+        "policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py",
+        "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+        "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+        "policy-engine/src/polisyos/fabric/retrieval/service.py",
+        "policy-engine/src/polisyos/foundry/__init__.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/analysis.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/credit_assignment.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/government_policy.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/jit_training.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/metrics.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/modes.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/state.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/temporal_mechanisms.py",
+        "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+        "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+        "policy-engine/src/polisyos/foundry/methods/api.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/amn.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/discovery_pipeline.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/counterfactual.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+        "policy-engine/src/polisyos/foundry/methods/lifecycle/output_monitor.py",
+        "policy-engine/src/polisyos/ir/__init__.py",
+        "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+        "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+        "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+        "policy-engine/src/polisyos/ir/analytics/twin_network.py",
+        "policy-engine/src/polisyos/ir/api.py",
+        "policy-engine/src/polisyos/lex/knowledge/search.py",
+        "policy-engine/src/polisyos/lex/knowledge/store.py"
+      ],
+      "total_captured_namespace_and_named_native_origin_records": 1439
+    },
+    {
+      "named_dependency_file_bytes_verified": 6,
+      "product_file_origins_verified_to_frozen_source": 90,
+      "published_path": "native/c12-a47-profile-guard-removed/runtime-origins.json",
+      "qualification": "Finite actually loaded file-origin contour; property-removal harness changes runtime behavior separately, does not overwrite canonical source.",
+      "source_nonidentical_to_G_observed_paths": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+        "policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py",
+        "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+        "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+        "policy-engine/src/polisyos/lex/knowledge/search.py",
+        "policy-engine/src/polisyos/lex/knowledge/store.py"
+      ],
+      "total_captured_namespace_and_named_native_origin_records": 96
+    },
+    {
+      "named_dependency_file_bytes_verified": 5,
+      "product_file_origins_verified_to_frozen_source": 90,
+      "published_path": "native/c12-a47-numeric-scalar-removed/runtime-origins.json",
+      "qualification": "Finite actually loaded file-origin contour; property-removal harness changes runtime behavior separately, does not overwrite canonical source.",
+      "source_nonidentical_to_G_observed_paths": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+        "policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py",
+        "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+        "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+        "policy-engine/src/polisyos/lex/knowledge/search.py",
+        "policy-engine/src/polisyos/lex/knowledge/store.py"
+      ],
+      "total_captured_namespace_and_named_native_origin_records": 95
+    },
+    {
+      "named_dependency_file_bytes_verified": 5,
+      "product_file_origins_verified_to_frozen_source": 90,
+      "published_path": "native/c12-a47-full-emb03-collection/runtime-origins.json",
+      "qualification": "Finite actually loaded file-origin contour; property-removal harness changes runtime behavior separately, does not overwrite canonical source.",
+      "source_nonidentical_to_G_observed_paths": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+        "policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py",
+        "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+        "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+        "policy-engine/src/polisyos/lex/knowledge/search.py",
+        "policy-engine/src/polisyos/lex/knowledge/store.py"
+      ],
+      "total_captured_namespace_and_named_native_origin_records": 95
+    },
+    {
+      "named_dependency_file_bytes_verified": 6,
+      "product_file_origins_verified_to_frozen_source": 90,
+      "published_path": "native/c12-a47-omitted-affected-consumers/runtime-origins.json",
+      "qualification": "Finite actually loaded file-origin contour; property-removal harness changes runtime behavior separately, does not overwrite canonical source.",
+      "source_nonidentical_to_G_observed_paths": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+        "policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py",
+        "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+        "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+        "policy-engine/src/polisyos/lex/knowledge/search.py",
+        "policy-engine/src/polisyos/lex/knowledge/store.py"
+      ],
+      "total_captured_namespace_and_named_native_origin_records": 96
+    }
+  ],
+  "all_new_docs_byte_records": [
+    {
+      "bytes": 20565,
+      "git_blob": "d8c723953256bf86ce83934599f7e3988f4bc269",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008.json",
+      "sha256": "307af7013495b021978fce66507e2a789fbff6120f565e98993bcddd8e8a9a2d"
+    },
+    {
+      "bytes": 1626,
+      "git_blob": "c7998560e342c35cfb87fcb82770334af324f981",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/README.md",
+      "sha256": "33dc04b8c20f4116362c178be4645110dfdf7c3cca37123c4791e590cc53f685"
+    },
+    {
+      "bytes": 15596,
+      "git_blob": "dfebea9bc79f4977bfd23649ffb02ab659fe505e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/companions/C10-A-served-handshake-proposal.json",
+      "sha256": "cb5e98af0a186742cd5c78b2a509533457ac3a2057515bdab257aaab18a7a78f"
+    },
+    {
+      "bytes": 1827,
+      "git_blob": "226351a9ea076b68a5ee168beed1f8783e68c8f9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/companions/existing-Legal-typed-call-proposal.py",
+      "sha256": "7d24410a127b5098777de5639ff17abf8aef9b36f8a6beb49df88ea83d00cf69"
+    },
+    {
+      "bytes": 867,
+      "git_blob": "9ee9e784c7fc44bd6310d80cdfcac1a1f2c169dc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/companions/owned-store-public-api-consumer-proposal.patch",
+      "sha256": "4cb8825c8578707c0a35e3550f4c9ef9d7d1027b60b472f0ca5af8dffba87d0a"
+    },
+    {
+      "bytes": 31909,
+      "git_blob": "fdeaef3f33db137675bcd66987c8bdf370fbc212",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/companions/prospective-G-reconciliation.json.gz",
+      "sha256": "2c54a0c7efe04a1870ab5460c069a0e3f07660897289c6e94caff4ff198587e9"
+    },
+    {
+      "bytes": 5466,
+      "git_blob": "6330d972d3342d5f26146db961825d32e9b1c2f9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/companions/shared-public-api-companion-proposal.json",
+      "sha256": "cb196f515924b6ccc30e89670359ee8c99dd0f880c001880092bd1878a152cc7"
+    },
+    {
+      "bytes": 1250,
+      "git_blob": "6ed292348dd94c30beb73ce76ea1404202140989",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/companions/shared-public-api-companion-proposal.patch.gz",
+      "sha256": "a558a9182ff981b278f318000387454b738a5fdade8bac5f84c51d8b22e6998c"
+    },
+    {
+      "bytes": 48065,
+      "git_blob": "432935f8104a08d9b22403d84b1799bc4b693a85",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/evidence-representation-map.json",
+      "sha256": "42b584142bed6eeff4c7c90018f824560325fd0c6758a180f0a3043096d4c252"
+    },
+    {
+      "bytes": 4526,
+      "git_blob": "d2ed17713bde80bb9e4517635b2e36b68a6af51b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-affected-native/command.json",
+      "sha256": "e556e230001cc0e17f3d143e83fbf78e7bdb2abe46b6a0bb585d55e6612b8667"
+    },
+    {
+      "bytes": 7250,
+      "git_blob": "60d5283f0ac0784ff660a56d9fa3925d9f1d9ed0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-affected-native/junit.xml",
+      "sha256": "4b1dd93834bb3ab39efcb9f3e08e67d31403ddb1a7aec7c0f3f9222cc34afc20"
+    },
+    {
+      "bytes": 66208,
+      "git_blob": "fc9f963e3694592ac1d60b03f911ae72f9c1fcfc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-affected-native/numeric-events.json",
+      "sha256": "ae70582cf53080fdac9cabf2783ef17273eca3e8ff66bf5e9f4c8da7ff14b270"
+    },
+    {
+      "bytes": 82833,
+      "git_blob": "b622a8b00c40ec0cfe50ea7b9207dac45cc26d21",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-affected-native/profile-events.json",
+      "sha256": "848a0c535af19fb721812fa10d5b991749149c93cae700cdf771cb97c7ba501b"
+    },
+    {
+      "bytes": 294,
+      "git_blob": "80fc8f461c2f450d38c042b1db488c945b9cb29b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-affected-native/resource.json",
+      "sha256": "b15148565ccb69f28584f6328d8caf2e0b88960e249813b5febfeeb5dc372ec9"
+    },
+    {
+      "bytes": 80465,
+      "git_blob": "ba9e522958400125217e6c70e3a4477778fa3ea7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-affected-native/runtime-origins.json.gz",
+      "sha256": "0c0d3c7ef83ef2ee25462297b844a0e2c300c82a9878c354d20d426c6f0b0220"
+    },
+    {
+      "bytes": 6143,
+      "git_blob": "fd3c22e949dfede926fc93fe199cd4d8aa84f269",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-affected-native/selected-tests.json",
+      "sha256": "081931cc87f3f4279789af923a76563791ef2cf842441c740cd112b34df49bb6"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-affected-native/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 274,
+      "git_blob": "a183d16de68367ba5b0fa470cc6ff0b89c072451",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-affected-native/stdout.txt.gz",
+      "sha256": "701c6b9e19c4b8a4c7c2aa9c41874733b607acca8427d7920014e4e43e87cdb3"
+    },
+    {
+      "bytes": 3250,
+      "git_blob": "8647dacc3b9022d702432f1af554259679a21ad8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-full-emb03-collection/command.json",
+      "sha256": "42103dfc0c19b1dd3d972c2617c71790c9042b9f006e169e39d84a7a0eebfe65"
+    },
+    {
+      "bytes": 238,
+      "git_blob": "6c0020155543ee963b80c26dccfae96beca4b473",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-full-emb03-collection/junit.xml",
+      "sha256": "3ab78e3043a78677fedac41243ed420717a6b81af3c5e2610393b51a458a89f9"
+    },
+    {
+      "bytes": 287,
+      "git_blob": "0cbd5dc87eafaa28c709a6a38b57c52a1d0cdfa3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-full-emb03-collection/resource.json",
+      "sha256": "ee6ced2c5ea71edf449ec3388dbd35a60629c433d248208764297c8d090881c3"
+    },
+    {
+      "bytes": 22229,
+      "git_blob": "cd07fd1d8d8f4b47a83c3e3cdaa11c00ca72e4d6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-full-emb03-collection/runtime-origins.json",
+      "sha256": "b98a86702e3dc393ef66c1e7af4e6b486d8a6b98f218ab41272ee8805808a446"
+    },
+    {
+      "bytes": 8313,
+      "git_blob": "b07dbc371106b05923d4c9f6eba95996f675196d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-full-emb03-collection/selected-tests.json",
+      "sha256": "d68f3632322da9bae7cd537e406b899ec9ac4f2e6e3557d655ca553ab8e01e37"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-full-emb03-collection/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 287,
+      "git_blob": "45cf9cad2d821b845e1592bbd70fcb7521df88b1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-full-emb03-collection/stdout.txt.gz",
+      "sha256": "ac598b64f8efb3046f12fd99a05737aa39ea261d469fd424061e49995dcb69d3"
+    },
+    {
+      "bytes": 3609,
+      "git_blob": "13a96e1a511fd6807d6dea4753451b4408d99438",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-numeric-scalar-removed/command.json",
+      "sha256": "03eac021aa41b438e52c1fb1ba6cf16994385b0a9d82ec7b52a87739d05459a9"
+    },
+    {
+      "bytes": 1952,
+      "git_blob": "1660f0e3fc9440045ce3c074d7b5b9bba0d9f677",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-numeric-scalar-removed/junit.xml.gz",
+      "sha256": "051d9fea02d65a7e043907d363498a72576103982c356946e3e9f48246409451"
+    },
+    {
+      "bytes": 66749,
+      "git_blob": "6a43ab40b81a5e03f99b11432b0fada8295b27bd",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-numeric-scalar-removed/numeric-events.json",
+      "sha256": "ded6c72074c24fe3c00b9a34d728fb0f6c1868080d3a385d3fac1b4bb1fd12f8"
+    },
+    {
+      "bytes": 292,
+      "git_blob": "63f468efc2359d975045a49f3daebae719c92704",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-numeric-scalar-removed/resource.json",
+      "sha256": "1a0387ada6ba6cea7fee546e8e53c1114fe94cf0886de3e9ae91abcb4ae1ef7b"
+    },
+    {
+      "bytes": 22229,
+      "git_blob": "dc1321e2307b90bfa15cc348b0a03cdca10b2f27",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-numeric-scalar-removed/runtime-origins.json",
+      "sha256": "94127f79d1307d11d6dc6da9f2fd77422f6152c955739c631f97bdca53777c88"
+    },
+    {
+      "bytes": 3257,
+      "git_blob": "13c1d24b78226ad7f3a24c87f353e6a230f55456",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-numeric-scalar-removed/selected-tests.json",
+      "sha256": "bd92eba19eb08c59ce1df78693b024a107a3e7d4b0decb818bee3b23ad2f4a0b"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-numeric-scalar-removed/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1836,
+      "git_blob": "9b99f3983e691c827e1b843fd366babdbcdb2925",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-numeric-scalar-removed/stdout.txt.gz",
+      "sha256": "37357f9f249f9c6bba54651ee749b67f720b74468ccec0e6dd3388ee1888ef49"
+    },
+    {
+      "bytes": 4259,
+      "git_blob": "568504e23665d3bdb89cbd83113c926eebc2d51a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-omitted-affected-consumers/command.json",
+      "sha256": "0cc98dfd8dd1932d72d4dbec862ce96ee8d877418d0745e1c665d6aa0a641cfa"
+    },
+    {
+      "bytes": 2313,
+      "git_blob": "b1fa4783465156fb44a837ab21f109051cb1189d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-omitted-affected-consumers/junit.xml",
+      "sha256": "1ff77aeb52cf9a8ee906ff320a2f4c42f061bac4fb5b7efe6369a479667b8cba"
+    },
+    {
+      "bytes": 290,
+      "git_blob": "32e7d75e28932fd6b31a18b488b3c21281a56278",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-omitted-affected-consumers/resource.json",
+      "sha256": "6e4c5672e8a79a3df1eab5a7b84520f82d76b90c7eb13fcf5c75979f84da5100"
+    },
+    {
+      "bytes": 22460,
+      "git_blob": "3f971bd9c9a298640082b5fd3d8cea37214da98e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-omitted-affected-consumers/runtime-origins.json",
+      "sha256": "a675f6fe81b5b57e97ade9c340a9d92b0caea0092fe9cfdab00c8c9a9d31a4b0"
+    },
+    {
+      "bytes": 2060,
+      "git_blob": "3dd6f112762f1f4a546caa266b9df9a227fa498a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-omitted-affected-consumers/selected-tests.json",
+      "sha256": "d9a8c6f995cd4aeb76ba788a2c7982e0c4dcf1033187b7a549fbf22ff59d1613"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-omitted-affected-consumers/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 274,
+      "git_blob": "8cc0f1f2ce12947e2e28b5fcfc350555230bdd8a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-omitted-affected-consumers/stdout.txt.gz",
+      "sha256": "d76edd16f67eb3f8f647063ca969bc7136c93fe738b4b2af7ff67c55e65852ca"
+    },
+    {
+      "bytes": 3621,
+      "git_blob": "d209b5a757d78f24a793f234bd27949c0daffd5e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-profile-guard-removed/command.json",
+      "sha256": "080f07ade388e12925b49ce35ee1b1d3eb5fa1b1d9c1b6cf31df18cc9b2d01eb"
+    },
+    {
+      "bytes": 2173,
+      "git_blob": "6db8ab9f0feab6165b14821d2575a2677ac3d180",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-profile-guard-removed/junit.xml.gz",
+      "sha256": "a0c7f322770773b718ccd0f12cd65eef6a1fad646dd22e2bba93c7bce04f88cd"
+    },
+    {
+      "bytes": 68322,
+      "git_blob": "9229dbe278408327ba3e2c93dc03215a9b2ecb75",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-profile-guard-removed/profile-events.json",
+      "sha256": "47c2edc9d13e0d881d673bc10deccaa1c0329931060bf610f6242d8c88ee4acc"
+    },
+    {
+      "bytes": 292,
+      "git_blob": "8be6ec16a1417e5640e4d534e6cc694152d84a6e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-profile-guard-removed/resource.json",
+      "sha256": "35e88b012458d870b921e01e5cbb5f6d4df4fb465345b5aaac886e4472114039"
+    },
+    {
+      "bytes": 22460,
+      "git_blob": "fd01233825839a16f0456f012985c53e79616844",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-profile-guard-removed/runtime-origins.json",
+      "sha256": "571402bcac1caddfcbdb69df43c0340b0662c875cc587bbbafaf42817f171960"
+    },
+    {
+      "bytes": 1711,
+      "git_blob": "b9c74fd763be8139603521aeb61b945a5d1c0f6c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-profile-guard-removed/selected-tests.json",
+      "sha256": "c9ce1ef15374dfc18b7166564e158a3dfdc8013815284f79f0f7ee61738154a3"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-profile-guard-removed/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2232,
+      "git_blob": "d4520401e9f641376df1b08f9041d5c8ce3a4b84",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/c12-a47-profile-guard-removed/stdout.txt.gz",
+      "sha256": "93427b1ac663f79ba068dff2ecf32fb4f4f08128c84f978014933f26f54315f2"
+    },
+    {
+      "bytes": 24010,
+      "git_blob": "34d790d3ba395dd011b28351e3e857ac9a0535d7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/coverage-definition.json",
+      "sha256": "ecd9b0fa4d4bbee4449e06aed37064fa9bd56ba2e0b34007a8f5cb3fb9649a1f"
+    },
+    {
+      "bytes": 19434,
+      "git_blob": "567636dc49d495412d80fe6c727fbfdbbb38ad9a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/coverage-supplement.json",
+      "sha256": "818c26f41a8cc7e9d19aa5d7171dc3ab304145f9ab67719410b6c5f6b3688d2e"
+    },
+    {
+      "bytes": 75370,
+      "git_blob": "d0594bb2b69eb1c929b896e404d470a7d068b0e7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/independent-receipt.json",
+      "sha256": "ad95f93d8babf3a6c95534d21dc9bd10905cb6b3f9c2af7b11557d92783b3ffe"
+    },
+    {
+      "bytes": 5717,
+      "git_blob": "61e61746a89bf52f77e6c43d37d440b83593eadd",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/native/wave-definition.json",
+      "sha256": "9361b847434ed92d5cdded4092d01068210ad34ba60a4e83051d4f987a970cb3"
+    },
+    {
+      "bytes": 12283,
+      "git_blob": "972ea3666dfda40875615947454e728a78f0be15",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/architecture-a47-taxonomy.json",
+      "sha256": "8f7645b3fc0ec7ec5100850e3701daff83cb4a41e5ab62c7b8d600f3bf2f2e83"
+    },
+    {
+      "bytes": 3002,
+      "git_blob": "2cd303b17aecfc434c189794cec0f4c147813bd9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/architecture-a47.receipt.json",
+      "sha256": "64d204f8c5d2d3b1339073968e6228316ad08321d84ad5fd1f163cd2448fe116"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/architecture-a47.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 117177,
+      "git_blob": "9b13a85bf7be71778df57aaa7a1f0fd2f4543968",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/architecture-a47.stdout.txt",
+      "sha256": "6ad9532d14ba4e77db2c6824cf83c4cab810550738d7935daeff5b7cd0797488"
+    },
+    {
+      "bytes": 416,
+      "git_blob": "201920fa7c514a3fde6deaeaca454b01dd3de89e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/author-coverage-readback.json",
+      "sha256": "82f346e6f9b6f7f0e6bb3145e378ef00ef486c5c2596c9ff127b94a5475742cd"
+    },
+    {
+      "bytes": 6419,
+      "git_blob": "9e1b26770643bea1329f91cf2d2a88ae534a447d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/author-native-readback.json",
+      "sha256": "62b2c42734af0a40da44b1482d94634096d8bb2e7053cea0fb0acd8260bea6db"
+    },
+    {
+      "bytes": 1838,
+      "git_blob": "5796b18db6cdfb829330328309902dd296c91ad7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/author-numeric-fd-red/numeric-zero-fd-red.junit.xml.gz",
+      "sha256": "a80bddc5a013a97d866e21c20df27fa8c96c12982ed73c5a8cd28ef0bf2dcfbb"
+    },
+    {
+      "bytes": 2340,
+      "git_blob": "48e4f2181e1a98ee22f8316fafed8b2931dc8187",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/author-numeric-fd-red/numeric-zero-fd-red.receipt.json",
+      "sha256": "20c5e3c05232d0032470fa16d902a8f4cef4ac6788abc1ebc9f1894d2d4873b6"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/author-numeric-fd-red/numeric-zero-fd-red.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1813,
+      "git_blob": "a6188689346c0f7c49221ce013013f5f7c90d129",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/author-numeric-fd-red/numeric-zero-fd-red.stdout.txt.gz",
+      "sha256": "a0b1b4008b36847a8cdcdc98809afd1561756d47ade16aae4646a577e455666c"
+    },
+    {
+      "bytes": 2228,
+      "git_blob": "aaaa939d9b6414d99e123fb69fea48c289f5b61b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/format-a47.receipt.json",
+      "sha256": "9da627cb3d3dbb55190fe9ae6fc19a5c88e4525a6763395969e467948f2060bb"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/format-a47.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 26,
+      "git_blob": "8e4d504182979b9ad211fb7b88757897fbed0606",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/format-a47.stdout.txt",
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+    },
+    {
+      "bytes": 873,
+      "git_blob": "e20d1233d248bee6423b150d5c45899dd9d3020a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/full-architecture-preflight.json",
+      "sha256": "c0536f6e9f00e25c4c20b9dd3b5a6ce634e208ef2b807d3dd7571249ab9d9b68"
+    },
+    {
+      "bytes": 1934,
+      "git_blob": "5659c116c65ea0fc3810b77de4250a7f166ab148",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/invocation-a47-capture-error.json",
+      "sha256": "044b5e06ed56871e2da97dc90b668b0049918833bf59c4771771a25f0f7616fd"
+    },
+    {
+      "bytes": 521,
+      "git_blob": "3ffa3e0ec6653e2314973b273c520ceb5fbc57d5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/invocation-a47-entrypoint-origins.json",
+      "sha256": "873b20b9c343f8721cb9ffb1ac214ef0b8a24b0441afc407efaec775c0482bc4"
+    },
+    {
+      "bytes": 39032,
+      "git_blob": "0247c0b3dd1ce7af5ba279c2cac958692030a2ae",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/invocation-a47-extract.json",
+      "sha256": "5ef0a06951451eeefbdc47222f1599d8265d29a398b6b88bee4f0cdaae689760"
+    },
+    {
+      "bytes": 1642,
+      "git_blob": "3aae5279044141df33f8ba8742c20b78b58d5ece",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/invocation-a47-input-reconciliation.json",
+      "sha256": "a47102dedb013b0f62cc67d89263aa88ea911f445777de56442b1fe7267a63ca"
+    },
+    {
+      "bytes": 1108,
+      "git_blob": "d5f3207b274c4f11c508c288a27897cbbf8fb7ff",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/invocation-a47-preflight.json",
+      "sha256": "6a24923327771798ea7b31e1272a93e4accfcb06587d412a8f498b7e7a00e2da"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/invocation-a47.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1808,
+      "git_blob": "1f053eeb73ffad6c4961d0d340aeb16a537d8390",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/invocation-a47.stdout.txt",
+      "sha256": "c791d248ca56210519704611aa69396be224161029960d604bbb4faf8a8cab71"
+    },
+    {
+      "bytes": 673,
+      "git_blob": "2e598aa5747d59580f6388c298fb5075075878f0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/mypy-192.command.json",
+      "sha256": "5cf28f93d68707a0ff2e578e16060a63b7d24e3e51be9009f83376d4e11af408"
+    },
+    {
+      "bytes": 870,
+      "git_blob": "ebd8697f592d71f07fb650e5aeccae1534b80e18",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/mypy-192.receipt.json",
+      "sha256": "a5b892b1b8b95749ca3e7424852135b4f4a6eba35fcdb501106bb0325bd5f950"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/mypy-192.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2573,
+      "git_blob": "c56853c1d93b609fe7c9e4fe04252cec54a46f62",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/mypy-192.stdout.txt",
+      "sha256": "4c515308a018abea60c54b51c9741ecc9d3f961d356561425e98db433459f0ac"
+    },
+    {
+      "bytes": 2276,
+      "git_blob": "a8a7058e58540f4011d60011b15682351f7f88b8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/mypy-a47.receipt.json",
+      "sha256": "252bf973547a06d2b349a30f5f72c918f456d6274e075bb8a3d5d40842cc50ba"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/mypy-a47.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 43,
+      "git_blob": "fbb7cd758cf8517329575cda94fc29173eb6db5f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/mypy-a47.stdout.txt",
+      "sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"
+    },
+    {
+      "bytes": 558,
+      "git_blob": "7a7c2d63e7a777f718548463dcc228e44b2084f3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/ruff-192.command.json",
+      "sha256": "1a4d607ae016597d730575597cc773e90d74f9681e28b9705bda8978b4fa1a34"
+    },
+    {
+      "bytes": 753,
+      "git_blob": "8ba203ba92083d23fa5a632a8cb6b2fdc3cf753c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/ruff-192.receipt.json",
+      "sha256": "8aeaa5c39486c3dfa36ac189128c2a4a984c4e97e8565de60c03fb6a461acfc9"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/ruff-192.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 19,
+      "git_blob": "1f5f344d054fae10f39140fb7199c99321d9190a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/ruff-192.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "bytes": 2213,
+      "git_blob": "9e8f41bd6e7a58bb38623c36dcaf6f6ae1d8ea67",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/ruff-a47.receipt.json",
+      "sha256": "25ff38ece7111491230faf385c82e35485cbdfd72f8ba87b01f7e12c8a0d339c"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/ruff-a47.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 19,
+      "git_blob": "1f5f344d054fae10f39140fb7199c99321d9190a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/ruff-a47.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "bytes": 2011,
+      "git_blob": "452d76f02d5f0adec5e2ea2c887f6fca55297a5c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/run_check-a47-typing-executed.py",
+      "sha256": "59ad6814ee2f5ae123cc4c4159b57ab585606bc0565bc7171d2beec94b57b07d"
+    },
+    {
+      "bytes": 2055,
+      "git_blob": "b5135b90f27882d8acdbb565350a7937917ae37e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/run_check.py",
+      "sha256": "9f35218788b7cd3bf00007d5873122baa9a720115ea8521c0eeef2cd391bc613"
+    },
+    {
+      "bytes": 5880,
+      "git_blob": "72e347b53c2ac9a198c6f55afb916ee144bba6e7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/typing-profile.json",
+      "sha256": "0a413a7e9f6a9cd08cfee84216b2900398124afbf32c8a63916209996944d937"
+    },
+    {
+      "bytes": 2425,
+      "git_blob": "899a8b206ff84a3f45590689bdc0eb423f68e922",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/typing-setup.json",
+      "sha256": "fed3628db25b2bad5c3ffdeb3a3dd0d26ca366f432c39d44d5fc05444d5a6e1f"
+    },
+    {
+      "bytes": 359,
+      "git_blob": "33f85fed263128101409b02f27db938d3852835d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/typing-stubs-install.receipt.json",
+      "sha256": "15595be22fe96c77c97cb9c90b615efad16a8269172d3b464d35011166e19cf1"
+    },
+    {
+      "bytes": 255,
+      "git_blob": "d6d9a1a01184e78f5d5b8946d035d315cdefbe23",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/typing-stubs-install.stderr.txt",
+      "sha256": "f78755ab691e0d8787bf643ec97c1fbe8875ccecfb55e707d5e7a2feece319f1"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/typing-stubs-install.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 27,
+      "git_blob": "ec81f8daf6bcef6a68c91a5a2d496d756c9594e7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/typing-stubs.in",
+      "sha256": "ee71e4519e2609b3a18844e90432a2b65ea56af768426984633529157b1c2cf6"
+    },
+    {
+      "bytes": 6875,
+      "git_blob": "8e5b048200c168696549e33b8a796a9abdfa6940",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/quality/typing-stubs.lock",
+      "sha256": "ad33b8a0a462d55bdb52152f91c2088fc7bbaf4ffc0f6591cd8e66e56e103185"
+    },
+    {
+      "bytes": 12928,
+      "git_blob": "e37f466b693feb9e1b904a10c6dc5c95aa1ef0ac",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/reviews/c12-independent-final-native-review-a47ec396.json.gz",
+      "sha256": "33d7eb1671e24eeba3c167e9fff4130b25c752e23d169f364487c4e33cb6917f"
+    },
+    {
+      "bytes": 1284,
+      "git_blob": "7c694b662aa9fc6f3e404cf8a9219cc4ad708115",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/reviews/c12-independent-final-native-review-a47ec396.md",
+      "sha256": "311c038be57bae4ad2537fac628b218ec022a4752711a8c55ef36c549160c70c"
+    },
+    {
+      "bytes": 2934,
+      "git_blob": "ba262681dc984c96044e14683b6beca429c2943b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/reviews/c12-independent-numeric-class-review-2e40b42e.json",
+      "sha256": "865cc797699e2a4fdc6f4e45f63861843914fc356cce6479d79446ed51d940a1"
+    },
+    {
+      "bytes": 1334,
+      "git_blob": "a398a8a17dbcd289150f67245f79bc228fda7d8c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/reviews/c12-independent-numeric-class-review-2e40b42e.md",
+      "sha256": "14438260b107a61701778c3dd851ba2cccb5d8514d5c24cb5309d771b0ad05b6"
+    },
+    {
+      "bytes": 21691,
+      "git_blob": "cfa96b5e5e814d5ec5c62537e3c321d107e23715",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/reviews/c12-independent-source-review-fd3898ac.json",
+      "sha256": "b5e8123f075310aa331dd5c5a398fc8bb92e87645fc251540eef8e42cf51fbdf"
+    },
+    {
+      "bytes": 2239,
+      "git_blob": "a787d24d2935ea755cd16b487b8dee10f5093ead",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/reviews/c12-independent-source-review-fd3898ac.md",
+      "sha256": "3f4f34f354c55f1f0714fae835aa095614bdeaa67647e886dca38b2f4433f699"
+    }
+  ],
+  "artifact_map_verification": [
+    {
+      "decoded_bytes": 180072,
+      "decoded_sha256": "8768b213e5b87d1077d9abc802b85d44f75b4bca826e4b0ba9b3d645a85153bf",
+      "encoding": "gzip",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/prospective-G-reconciliation.json",
+      "published_path": "companions/prospective-G-reconciliation.json.gz",
+      "stored_bytes": 31909,
+      "stored_sha256": "2c54a0c7efe04a1870ab5460c069a0e3f07660897289c6e94caff4ff198587e9"
+    },
+    {
+      "decoded_bytes": 5466,
+      "decoded_sha256": "cb196f515924b6ccc30e89670359ee8c99dd0f880c001880092bd1878a152cc7",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/shared-public-api-companion-proposal.json",
+      "published_path": "companions/shared-public-api-companion-proposal.json",
+      "stored_bytes": 5466,
+      "stored_sha256": "cb196f515924b6ccc30e89670359ee8c99dd0f880c001880092bd1878a152cc7"
+    },
+    {
+      "decoded_bytes": 4619,
+      "decoded_sha256": "9bb01d1a9dbe6d601097355f7b799ad7ae7d2eb84691134c20c02bb4cf4c92b9",
+      "encoding": "gzip",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/shared-public-api-companion-proposal.patch",
+      "published_path": "companions/shared-public-api-companion-proposal.patch.gz",
+      "stored_bytes": 1250,
+      "stored_sha256": "a558a9182ff981b278f318000387454b738a5fdade8bac5f84c51d8b22e6998c"
+    },
+    {
+      "decoded_bytes": 867,
+      "decoded_sha256": "4cb8825c8578707c0a35e3550f4c9ef9d7d1027b60b472f0ca5af8dffba87d0a",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/owned-store-public-api-consumer-proposal.patch",
+      "published_path": "companions/owned-store-public-api-consumer-proposal.patch",
+      "stored_bytes": 867,
+      "stored_sha256": "4cb8825c8578707c0a35e3550f4c9ef9d7d1027b60b472f0ca5af8dffba87d0a"
+    },
+    {
+      "decoded_bytes": 6419,
+      "decoded_sha256": "62b2c42734af0a40da44b1482d94634096d8bb2e7053cea0fb0acd8260bea6db",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/author-native-readback.json",
+      "published_path": "quality/author-native-readback.json",
+      "stored_bytes": 6419,
+      "stored_sha256": "62b2c42734af0a40da44b1482d94634096d8bb2e7053cea0fb0acd8260bea6db"
+    },
+    {
+      "decoded_bytes": 5880,
+      "decoded_sha256": "0a413a7e9f6a9cd08cfee84216b2900398124afbf32c8a63916209996944d937",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/typing-profile.json",
+      "published_path": "quality/typing-profile.json",
+      "stored_bytes": 5880,
+      "stored_sha256": "0a413a7e9f6a9cd08cfee84216b2900398124afbf32c8a63916209996944d937"
+    },
+    {
+      "decoded_bytes": 2425,
+      "decoded_sha256": "fed3628db25b2bad5c3ffdeb3a3dd0d26ca366f432c39d44d5fc05444d5a6e1f",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/typing-setup.json",
+      "published_path": "quality/typing-setup.json",
+      "stored_bytes": 2425,
+      "stored_sha256": "fed3628db25b2bad5c3ffdeb3a3dd0d26ca366f432c39d44d5fc05444d5a6e1f"
+    },
+    {
+      "decoded_bytes": 27,
+      "decoded_sha256": "ee71e4519e2609b3a18844e90432a2b65ea56af768426984633529157b1c2cf6",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/typing-stubs.in",
+      "published_path": "quality/typing-stubs.in",
+      "stored_bytes": 27,
+      "stored_sha256": "ee71e4519e2609b3a18844e90432a2b65ea56af768426984633529157b1c2cf6"
+    },
+    {
+      "decoded_bytes": 6875,
+      "decoded_sha256": "ad33b8a0a462d55bdb52152f91c2088fc7bbaf4ffc0f6591cd8e66e56e103185",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/typing-stubs.lock",
+      "published_path": "quality/typing-stubs.lock",
+      "stored_bytes": 6875,
+      "stored_sha256": "ad33b8a0a462d55bdb52152f91c2088fc7bbaf4ffc0f6591cd8e66e56e103185"
+    },
+    {
+      "decoded_bytes": 2011,
+      "decoded_sha256": "59ad6814ee2f5ae123cc4c4159b57ab585606bc0565bc7171d2beec94b57b07d",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/run_check-a47-typing-executed.py",
+      "published_path": "quality/run_check-a47-typing-executed.py",
+      "stored_bytes": 2011,
+      "stored_sha256": "59ad6814ee2f5ae123cc4c4159b57ab585606bc0565bc7171d2beec94b57b07d"
+    },
+    {
+      "decoded_bytes": 2055,
+      "decoded_sha256": "9f35218788b7cd3bf00007d5873122baa9a720115ea8521c0eeef2cd391bc613",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/run_check.py",
+      "published_path": "quality/run_check.py",
+      "stored_bytes": 2055,
+      "stored_sha256": "9f35218788b7cd3bf00007d5873122baa9a720115ea8521c0eeef2cd391bc613"
+    },
+    {
+      "decoded_bytes": 873,
+      "decoded_sha256": "c0536f6e9f00e25c4c20b9dd3b5a6ce634e208ef2b807d3dd7571249ab9d9b68",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/full-architecture-preflight.json",
+      "published_path": "quality/full-architecture-preflight.json",
+      "stored_bytes": 873,
+      "stored_sha256": "c0536f6e9f00e25c4c20b9dd3b5a6ce634e208ef2b807d3dd7571249ab9d9b68"
+    },
+    {
+      "decoded_bytes": 1108,
+      "decoded_sha256": "6a24923327771798ea7b31e1272a93e4accfcb06587d412a8f498b7e7a00e2da",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/invocation-a47-preflight.json",
+      "published_path": "quality/invocation-a47-preflight.json",
+      "stored_bytes": 1108,
+      "stored_sha256": "6a24923327771798ea7b31e1272a93e4accfcb06587d412a8f498b7e7a00e2da"
+    },
+    {
+      "decoded_bytes": 673,
+      "decoded_sha256": "5cf28f93d68707a0ff2e578e16060a63b7d24e3e51be9009f83376d4e11af408",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/mypy-192.command.json",
+      "published_path": "quality/mypy-192.command.json",
+      "stored_bytes": 673,
+      "stored_sha256": "5cf28f93d68707a0ff2e578e16060a63b7d24e3e51be9009f83376d4e11af408"
+    },
+    {
+      "decoded_bytes": 870,
+      "decoded_sha256": "a5b892b1b8b95749ca3e7424852135b4f4a6eba35fcdb501106bb0325bd5f950",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/mypy-192.receipt.json",
+      "published_path": "quality/mypy-192.receipt.json",
+      "stored_bytes": 870,
+      "stored_sha256": "a5b892b1b8b95749ca3e7424852135b4f4a6eba35fcdb501106bb0325bd5f950"
+    },
+    {
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/mypy-192.stderr.txt",
+      "published_path": "quality/mypy-192.stderr.txt",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "decoded_bytes": 2573,
+      "decoded_sha256": "4c515308a018abea60c54b51c9741ecc9d3f961d356561425e98db433459f0ac",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/mypy-192.stdout.txt",
+      "published_path": "quality/mypy-192.stdout.txt",
+      "stored_bytes": 2573,
+      "stored_sha256": "4c515308a018abea60c54b51c9741ecc9d3f961d356561425e98db433459f0ac"
+    },
+    {
+      "decoded_bytes": 558,
+      "decoded_sha256": "1a4d607ae016597d730575597cc773e90d74f9681e28b9705bda8978b4fa1a34",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/ruff-192.command.json",
+      "published_path": "quality/ruff-192.command.json",
+      "stored_bytes": 558,
+      "stored_sha256": "1a4d607ae016597d730575597cc773e90d74f9681e28b9705bda8978b4fa1a34"
+    },
+    {
+      "decoded_bytes": 753,
+      "decoded_sha256": "8aeaa5c39486c3dfa36ac189128c2a4a984c4e97e8565de60c03fb6a461acfc9",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/ruff-192.receipt.json",
+      "published_path": "quality/ruff-192.receipt.json",
+      "stored_bytes": 753,
+      "stored_sha256": "8aeaa5c39486c3dfa36ac189128c2a4a984c4e97e8565de60c03fb6a461acfc9"
+    },
+    {
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/ruff-192.stderr.txt",
+      "published_path": "quality/ruff-192.stderr.txt",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "decoded_bytes": 19,
+      "decoded_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/ruff-192.stdout.txt",
+      "published_path": "quality/ruff-192.stdout.txt",
+      "stored_bytes": 19,
+      "stored_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "decoded_bytes": 2276,
+      "decoded_sha256": "252bf973547a06d2b349a30f5f72c918f456d6274e075bb8a3d5d40842cc50ba",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/mypy-a47.receipt.json",
+      "published_path": "quality/mypy-a47.receipt.json",
+      "stored_bytes": 2276,
+      "stored_sha256": "252bf973547a06d2b349a30f5f72c918f456d6274e075bb8a3d5d40842cc50ba"
+    },
+    {
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/mypy-a47.stderr.txt",
+      "published_path": "quality/mypy-a47.stderr.txt",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "decoded_bytes": 43,
+      "decoded_sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/mypy-a47.stdout.txt",
+      "published_path": "quality/mypy-a47.stdout.txt",
+      "stored_bytes": 43,
+      "stored_sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"
+    },
+    {
+      "decoded_bytes": 2213,
+      "decoded_sha256": "25ff38ece7111491230faf385c82e35485cbdfd72f8ba87b01f7e12c8a0d339c",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/ruff-a47.receipt.json",
+      "published_path": "quality/ruff-a47.receipt.json",
+      "stored_bytes": 2213,
+      "stored_sha256": "25ff38ece7111491230faf385c82e35485cbdfd72f8ba87b01f7e12c8a0d339c"
+    },
+    {
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/ruff-a47.stderr.txt",
+      "published_path": "quality/ruff-a47.stderr.txt",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "decoded_bytes": 19,
+      "decoded_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/ruff-a47.stdout.txt",
+      "published_path": "quality/ruff-a47.stdout.txt",
+      "stored_bytes": 19,
+      "stored_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "decoded_bytes": 2228,
+      "decoded_sha256": "9da627cb3d3dbb55190fe9ae6fc19a5c88e4525a6763395969e467948f2060bb",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/format-a47.receipt.json",
+      "published_path": "quality/format-a47.receipt.json",
+      "stored_bytes": 2228,
+      "stored_sha256": "9da627cb3d3dbb55190fe9ae6fc19a5c88e4525a6763395969e467948f2060bb"
+    },
+    {
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/format-a47.stderr.txt",
+      "published_path": "quality/format-a47.stderr.txt",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "decoded_bytes": 26,
+      "decoded_sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/format-a47.stdout.txt",
+      "published_path": "quality/format-a47.stdout.txt",
+      "stored_bytes": 26,
+      "stored_sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+    },
+    {
+      "decoded_bytes": 359,
+      "decoded_sha256": "15595be22fe96c77c97cb9c90b615efad16a8269172d3b464d35011166e19cf1",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/typing-stubs-install.receipt.json",
+      "published_path": "quality/typing-stubs-install.receipt.json",
+      "stored_bytes": 359,
+      "stored_sha256": "15595be22fe96c77c97cb9c90b615efad16a8269172d3b464d35011166e19cf1"
+    },
+    {
+      "decoded_bytes": 255,
+      "decoded_sha256": "f78755ab691e0d8787bf643ec97c1fbe8875ccecfb55e707d5e7a2feece319f1",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/typing-stubs-install.stderr.txt",
+      "published_path": "quality/typing-stubs-install.stderr.txt",
+      "stored_bytes": 255,
+      "stored_sha256": "f78755ab691e0d8787bf643ec97c1fbe8875ccecfb55e707d5e7a2feece319f1"
+    },
+    {
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/typing-stubs-install.stdout.txt",
+      "published_path": "quality/typing-stubs-install.stdout.txt",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "decoded_bytes": 27435,
+      "decoded_sha256": "b1099a7abef719a709301138675a2150ba1bce1bba6bde77f1271237cc8a938d",
+      "encoding": "gzip",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/numeric-zero-fd-red.junit.xml",
+      "published_path": "quality/author-numeric-fd-red/numeric-zero-fd-red.junit.xml.gz",
+      "stored_bytes": 1838,
+      "stored_sha256": "a80bddc5a013a97d866e21c20df27fa8c96c12982ed73c5a8cd28ef0bf2dcfbb"
+    },
+    {
+      "decoded_bytes": 2340,
+      "decoded_sha256": "20c5e3c05232d0032470fa16d902a8f4cef4ac6788abc1ebc9f1894d2d4873b6",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/numeric-zero-fd-red.receipt.json",
+      "published_path": "quality/author-numeric-fd-red/numeric-zero-fd-red.receipt.json",
+      "stored_bytes": 2340,
+      "stored_sha256": "20c5e3c05232d0032470fa16d902a8f4cef4ac6788abc1ebc9f1894d2d4873b6"
+    },
+    {
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/numeric-zero-fd-red.stderr.txt",
+      "published_path": "quality/author-numeric-fd-red/numeric-zero-fd-red.stderr.txt",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "decoded_bytes": 26289,
+      "decoded_sha256": "42021ed5f9c6700e5f33d81d033aef7e9b866811df5d0f189953abb482d63bae",
+      "encoding": "gzip",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/numeric-zero-fd-red.stdout.txt",
+      "published_path": "quality/author-numeric-fd-red/numeric-zero-fd-red.stdout.txt.gz",
+      "stored_bytes": 1813,
+      "stored_sha256": "a0b1b4008b36847a8cdcdc98809afd1561756d47ade16aae4646a577e455666c"
+    },
+    {
+      "decoded_bytes": 75370,
+      "decoded_sha256": "ad95f93d8babf3a6c95534d21dc9bd10905cb6b3f9c2af7b11557d92783b3ffe",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/c12-native-receipt-a47ec396.json",
+      "published_path": "native/independent-receipt.json",
+      "stored_bytes": 75370,
+      "stored_sha256": "ad95f93d8babf3a6c95534d21dc9bd10905cb6b3f9c2af7b11557d92783b3ffe"
+    },
+    {
+      "decoded_bytes": 5717,
+      "decoded_sha256": "9361b847434ed92d5cdded4092d01068210ad34ba60a4e83051d4f987a970cb3",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/c12-wave-definition-a47ec396.json",
+      "published_path": "native/wave-definition.json",
+      "stored_bytes": 5717,
+      "stored_sha256": "9361b847434ed92d5cdded4092d01068210ad34ba60a4e83051d4f987a970cb3"
+    },
+    {
+      "decoded_bytes": 4526,
+      "decoded_sha256": "e556e230001cc0e17f3d143e83fbf78e7bdb2abe46b6a0bb585d55e6612b8667",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/command.json",
+      "published_path": "native/c12-a47-affected-native/command.json",
+      "stored_bytes": 4526,
+      "stored_sha256": "e556e230001cc0e17f3d143e83fbf78e7bdb2abe46b6a0bb585d55e6612b8667"
+    },
+    {
+      "decoded_bytes": 7250,
+      "decoded_sha256": "4b1dd93834bb3ab39efcb9f3e08e67d31403ddb1a7aec7c0f3f9222cc34afc20",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/junit.xml",
+      "published_path": "native/c12-a47-affected-native/junit.xml",
+      "stored_bytes": 7250,
+      "stored_sha256": "4b1dd93834bb3ab39efcb9f3e08e67d31403ddb1a7aec7c0f3f9222cc34afc20"
+    },
+    {
+      "decoded_bytes": 66208,
+      "decoded_sha256": "ae70582cf53080fdac9cabf2783ef17273eca3e8ff66bf5e9f4c8da7ff14b270",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/numeric-events.json",
+      "published_path": "native/c12-a47-affected-native/numeric-events.json",
+      "stored_bytes": 66208,
+      "stored_sha256": "ae70582cf53080fdac9cabf2783ef17273eca3e8ff66bf5e9f4c8da7ff14b270"
+    },
+    {
+      "decoded_bytes": 559,
+      "decoded_sha256": "5c9778b1771ced62401a722c308fda660d1b623553799e94c724198f2695ca15",
+      "encoding": "gzip",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/stdout.txt",
+      "published_path": "native/c12-a47-affected-native/stdout.txt.gz",
+      "stored_bytes": 274,
+      "stored_sha256": "701c6b9e19c4b8a4c7c2aa9c41874733b607acca8427d7920014e4e43e87cdb3"
+    },
+    {
+      "decoded_bytes": 82833,
+      "decoded_sha256": "848a0c535af19fb721812fa10d5b991749149c93cae700cdf771cb97c7ba501b",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/profile-events.json",
+      "published_path": "native/c12-a47-affected-native/profile-events.json",
+      "stored_bytes": 82833,
+      "stored_sha256": "848a0c535af19fb721812fa10d5b991749149c93cae700cdf771cb97c7ba501b"
+    },
+    {
+      "decoded_bytes": 352061,
+      "decoded_sha256": "a936a4b82a472515a0d19659695aaf46cb7e60e16aaf94fd0f0a958ca3b69edf",
+      "encoding": "gzip",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/runtime-origins.json",
+      "published_path": "native/c12-a47-affected-native/runtime-origins.json.gz",
+      "stored_bytes": 80465,
+      "stored_sha256": "0c0d3c7ef83ef2ee25462297b844a0e2c300c82a9878c354d20d426c6f0b0220"
+    },
+    {
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/stderr.txt",
+      "published_path": "native/c12-a47-affected-native/stderr.txt",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "decoded_bytes": 6143,
+      "decoded_sha256": "081931cc87f3f4279789af923a76563791ef2cf842441c740cd112b34df49bb6",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/selected-tests.json",
+      "published_path": "native/c12-a47-affected-native/selected-tests.json",
+      "stored_bytes": 6143,
+      "stored_sha256": "081931cc87f3f4279789af923a76563791ef2cf842441c740cd112b34df49bb6"
+    },
+    {
+      "decoded_bytes": 294,
+      "decoded_sha256": "b15148565ccb69f28584f6328d8caf2e0b88960e249813b5febfeeb5dc372ec9",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-affected-native/resource.json",
+      "published_path": "native/c12-a47-affected-native/resource.json",
+      "stored_bytes": 294,
+      "stored_sha256": "b15148565ccb69f28584f6328d8caf2e0b88960e249813b5febfeeb5dc372ec9"
+    },
+    {
+      "decoded_bytes": 3621,
+      "decoded_sha256": "080f07ade388e12925b49ce35ee1b1d3eb5fa1b1d9c1b6cf31df18cc9b2d01eb",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/command.json",
+      "published_path": "native/c12-a47-profile-guard-removed/command.json",
+      "stored_bytes": 3621,
+      "stored_sha256": "080f07ade388e12925b49ce35ee1b1d3eb5fa1b1d9c1b6cf31df18cc9b2d01eb"
+    },
+    {
+      "decoded_bytes": 43809,
+      "decoded_sha256": "b665b5477bbbf6f59931fc93b831fde44cdee00aaa691c24f64e3c419e191d4f",
+      "encoding": "gzip",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/junit.xml",
+      "published_path": "native/c12-a47-profile-guard-removed/junit.xml.gz",
+      "stored_bytes": 2173,
+      "stored_sha256": "a0c7f322770773b718ccd0f12cd65eef6a1fad646dd22e2bba93c7bce04f88cd"
+    },
+    {
+      "decoded_bytes": 43543,
+      "decoded_sha256": "a2c9b5b05afe8b4a6958960a73497e18254fcbe9d1186878c38e398a4e5e59e9",
+      "encoding": "gzip",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/stdout.txt",
+      "published_path": "native/c12-a47-profile-guard-removed/stdout.txt.gz",
+      "stored_bytes": 2232,
+      "stored_sha256": "93427b1ac663f79ba068dff2ecf32fb4f4f08128c84f978014933f26f54315f2"
+    },
+    {
+      "decoded_bytes": 68322,
+      "decoded_sha256": "47c2edc9d13e0d881d673bc10deccaa1c0329931060bf610f6242d8c88ee4acc",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/profile-events.json",
+      "published_path": "native/c12-a47-profile-guard-removed/profile-events.json",
+      "stored_bytes": 68322,
+      "stored_sha256": "47c2edc9d13e0d881d673bc10deccaa1c0329931060bf610f6242d8c88ee4acc"
+    },
+    {
+      "decoded_bytes": 22460,
+      "decoded_sha256": "571402bcac1caddfcbdb69df43c0340b0662c875cc587bbbafaf42817f171960",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/runtime-origins.json",
+      "published_path": "native/c12-a47-profile-guard-removed/runtime-origins.json",
+      "stored_bytes": 22460,
+      "stored_sha256": "571402bcac1caddfcbdb69df43c0340b0662c875cc587bbbafaf42817f171960"
+    },
+    {
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/stderr.txt",
+      "published_path": "native/c12-a47-profile-guard-removed/stderr.txt",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "decoded_bytes": 1711,
+      "decoded_sha256": "c9ce1ef15374dfc18b7166564e158a3dfdc8013815284f79f0f7ee61738154a3",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/selected-tests.json",
+      "published_path": "native/c12-a47-profile-guard-removed/selected-tests.json",
+      "stored_bytes": 1711,
+      "stored_sha256": "c9ce1ef15374dfc18b7166564e158a3dfdc8013815284f79f0f7ee61738154a3"
+    },
+    {
+      "decoded_bytes": 292,
+      "decoded_sha256": "35e88b012458d870b921e01e5cbb5f6d4df4fb465345b5aaac886e4472114039",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-profile-guard-removed/resource.json",
+      "published_path": "native/c12-a47-profile-guard-removed/resource.json",
+      "stored_bytes": 292,
+      "stored_sha256": "35e88b012458d870b921e01e5cbb5f6d4df4fb465345b5aaac886e4472114039"
+    },
+    {
+      "decoded_bytes": 3609,
+      "decoded_sha256": "03eac021aa41b438e52c1fb1ba6cf16994385b0a9d82ec7b52a87739d05459a9",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/command.json",
+      "published_path": "native/c12-a47-numeric-scalar-removed/command.json",
+      "stored_bytes": 3609,
+      "stored_sha256": "03eac021aa41b438e52c1fb1ba6cf16994385b0a9d82ec7b52a87739d05459a9"
+    },
+    {
+      "decoded_bytes": 38482,
+      "decoded_sha256": "915eefc8477d113042f413140dfbe732931d913b3ce714758414df88c7a40535",
+      "encoding": "gzip",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/junit.xml",
+      "published_path": "native/c12-a47-numeric-scalar-removed/junit.xml.gz",
+      "stored_bytes": 1952,
+      "stored_sha256": "051d9fea02d65a7e043907d363498a72576103982c356946e3e9f48246409451"
+    },
+    {
+      "decoded_bytes": 66749,
+      "decoded_sha256": "ded6c72074c24fe3c00b9a34d728fb0f6c1868080d3a385d3fac1b4bb1fd12f8",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/numeric-events.json",
+      "published_path": "native/c12-a47-numeric-scalar-removed/numeric-events.json",
+      "stored_bytes": 66749,
+      "stored_sha256": "ded6c72074c24fe3c00b9a34d728fb0f6c1868080d3a385d3fac1b4bb1fd12f8"
+    },
+    {
+      "decoded_bytes": 34446,
+      "decoded_sha256": "142e0316b97782acdf1a5169c5403bdac7f9bc34fc844cca82095afdd8aaeb5b",
+      "encoding": "gzip",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/stdout.txt",
+      "published_path": "native/c12-a47-numeric-scalar-removed/stdout.txt.gz",
+      "stored_bytes": 1836,
+      "stored_sha256": "37357f9f249f9c6bba54651ee749b67f720b74468ccec0e6dd3388ee1888ef49"
+    },
+    {
+      "decoded_bytes": 22229,
+      "decoded_sha256": "94127f79d1307d11d6dc6da9f2fd77422f6152c955739c631f97bdca53777c88",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/runtime-origins.json",
+      "published_path": "native/c12-a47-numeric-scalar-removed/runtime-origins.json",
+      "stored_bytes": 22229,
+      "stored_sha256": "94127f79d1307d11d6dc6da9f2fd77422f6152c955739c631f97bdca53777c88"
+    },
+    {
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/stderr.txt",
+      "published_path": "native/c12-a47-numeric-scalar-removed/stderr.txt",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "decoded_bytes": 3257,
+      "decoded_sha256": "bd92eba19eb08c59ce1df78693b024a107a3e7d4b0decb818bee3b23ad2f4a0b",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/selected-tests.json",
+      "published_path": "native/c12-a47-numeric-scalar-removed/selected-tests.json",
+      "stored_bytes": 3257,
+      "stored_sha256": "bd92eba19eb08c59ce1df78693b024a107a3e7d4b0decb818bee3b23ad2f4a0b"
+    },
+    {
+      "decoded_bytes": 292,
+      "decoded_sha256": "1a0387ada6ba6cea7fee546e8e53c1114fe94cf0886de3e9ae91abcb4ae1ef7b",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-numeric-scalar-removed/resource.json",
+      "published_path": "native/c12-a47-numeric-scalar-removed/resource.json",
+      "stored_bytes": 292,
+      "stored_sha256": "1a0387ada6ba6cea7fee546e8e53c1114fe94cf0886de3e9ae91abcb4ae1ef7b"
+    },
+    {
+      "decoded_bytes": 2239,
+      "decoded_sha256": "3f4f34f354c55f1f0714fae835aa095614bdeaa67647e886dca38b2f4433f699",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/reviews/c12-independent-source-review-fd3898ac.md",
+      "published_path": "reviews/c12-independent-source-review-fd3898ac.md",
+      "stored_bytes": 2239,
+      "stored_sha256": "3f4f34f354c55f1f0714fae835aa095614bdeaa67647e886dca38b2f4433f699"
+    },
+    {
+      "decoded_bytes": 21691,
+      "decoded_sha256": "b5e8123f075310aa331dd5c5a398fc8bb92e87645fc251540eef8e42cf51fbdf",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/reviews/c12-independent-source-review-fd3898ac.json",
+      "published_path": "reviews/c12-independent-source-review-fd3898ac.json",
+      "stored_bytes": 21691,
+      "stored_sha256": "b5e8123f075310aa331dd5c5a398fc8bb92e87645fc251540eef8e42cf51fbdf"
+    },
+    {
+      "decoded_bytes": 1334,
+      "decoded_sha256": "14438260b107a61701778c3dd851ba2cccb5d8514d5c24cb5309d771b0ad05b6",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/reviews/c12-independent-numeric-class-review-2e40b42e.md",
+      "published_path": "reviews/c12-independent-numeric-class-review-2e40b42e.md",
+      "stored_bytes": 1334,
+      "stored_sha256": "14438260b107a61701778c3dd851ba2cccb5d8514d5c24cb5309d771b0ad05b6"
+    },
+    {
+      "decoded_bytes": 2934,
+      "decoded_sha256": "865cc797699e2a4fdc6f4e45f63861843914fc356cce6479d79446ed51d940a1",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/reviews/c12-independent-numeric-class-review-2e40b42e.json",
+      "published_path": "reviews/c12-independent-numeric-class-review-2e40b42e.json",
+      "stored_bytes": 2934,
+      "stored_sha256": "865cc797699e2a4fdc6f4e45f63861843914fc356cce6479d79446ed51d940a1"
+    },
+    {
+      "decoded_bytes": 15596,
+      "decoded_sha256": "cb5e98af0a186742cd5c78b2a509533457ac3a2057515bdab257aaab18a7a78f",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/C10-A-served-handshake-proposal.json",
+      "published_path": "companions/C10-A-served-handshake-proposal.json",
+      "stored_bytes": 15596,
+      "stored_sha256": "cb5e98af0a186742cd5c78b2a509533457ac3a2057515bdab257aaab18a7a78f"
+    },
+    {
+      "decoded_bytes": 1827,
+      "decoded_sha256": "7d24410a127b5098777de5639ff17abf8aef9b36f8a6beb49df88ea83d00cf69",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/existing-Legal-typed-call-proposal.py",
+      "published_path": "companions/existing-Legal-typed-call-proposal.py",
+      "stored_bytes": 1827,
+      "stored_sha256": "7d24410a127b5098777de5639ff17abf8aef9b36f8a6beb49df88ea83d00cf69"
+    },
+    {
+      "decoded_bytes": 3002,
+      "decoded_sha256": "64d204f8c5d2d3b1339073968e6228316ad08321d84ad5fd1f163cd2448fe116",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/architecture-a47.receipt.json",
+      "published_path": "quality/architecture-a47.receipt.json",
+      "stored_bytes": 3002,
+      "stored_sha256": "64d204f8c5d2d3b1339073968e6228316ad08321d84ad5fd1f163cd2448fe116"
+    },
+    {
+      "decoded_bytes": 117177,
+      "decoded_sha256": "6ad9532d14ba4e77db2c6824cf83c4cab810550738d7935daeff5b7cd0797488",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/architecture-a47.stdout.txt",
+      "published_path": "quality/architecture-a47.stdout.txt",
+      "stored_bytes": 117177,
+      "stored_sha256": "6ad9532d14ba4e77db2c6824cf83c4cab810550738d7935daeff5b7cd0797488"
+    },
+    {
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/architecture-a47.stderr.txt",
+      "published_path": "quality/architecture-a47.stderr.txt",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "decoded_bytes": 12283,
+      "decoded_sha256": "8f7645b3fc0ec7ec5100850e3701daff83cb4a41e5ab62c7b8d600f3bf2f2e83",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/architecture-a47-taxonomy.json",
+      "published_path": "quality/architecture-a47-taxonomy.json",
+      "stored_bytes": 12283,
+      "stored_sha256": "8f7645b3fc0ec7ec5100850e3701daff83cb4a41e5ab62c7b8d600f3bf2f2e83"
+    },
+    {
+      "decoded_bytes": 1808,
+      "decoded_sha256": "c791d248ca56210519704611aa69396be224161029960d604bbb4faf8a8cab71",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/invocation-a47.stdout.txt",
+      "published_path": "quality/invocation-a47.stdout.txt",
+      "stored_bytes": 1808,
+      "stored_sha256": "c791d248ca56210519704611aa69396be224161029960d604bbb4faf8a8cab71"
+    },
+    {
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/invocation-a47.stderr.txt",
+      "published_path": "quality/invocation-a47.stderr.txt",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "decoded_bytes": 39032,
+      "decoded_sha256": "5ef0a06951451eeefbdc47222f1599d8265d29a398b6b88bee4f0cdaae689760",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/invocation-a47-extract.json",
+      "published_path": "quality/invocation-a47-extract.json",
+      "stored_bytes": 39032,
+      "stored_sha256": "5ef0a06951451eeefbdc47222f1599d8265d29a398b6b88bee4f0cdaae689760"
+    },
+    {
+      "decoded_bytes": 521,
+      "decoded_sha256": "873b20b9c343f8721cb9ffb1ac214ef0b8a24b0441afc407efaec775c0482bc4",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/invocation-a47-entrypoint-origins.json",
+      "published_path": "quality/invocation-a47-entrypoint-origins.json",
+      "stored_bytes": 521,
+      "stored_sha256": "873b20b9c343f8721cb9ffb1ac214ef0b8a24b0441afc407efaec775c0482bc4"
+    },
+    {
+      "decoded_bytes": 1642,
+      "decoded_sha256": "a47102dedb013b0f62cc67d89263aa88ea911f445777de56442b1fe7267a63ca",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/invocation-a47-input-reconciliation.json",
+      "published_path": "quality/invocation-a47-input-reconciliation.json",
+      "stored_bytes": 1642,
+      "stored_sha256": "a47102dedb013b0f62cc67d89263aa88ea911f445777de56442b1fe7267a63ca"
+    },
+    {
+      "decoded_bytes": 1934,
+      "decoded_sha256": "044b5e06ed56871e2da97dc90b668b0049918833bf59c4771771a25f0f7616fd",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/invocation-a47-capture-error.json",
+      "published_path": "quality/invocation-a47-capture-error.json",
+      "stored_bytes": 1934,
+      "stored_sha256": "044b5e06ed56871e2da97dc90b668b0049918833bf59c4771771a25f0f7616fd"
+    },
+    {
+      "decoded_bytes": 19434,
+      "decoded_sha256": "818c26f41a8cc7e9d19aa5d7171dc3ab304145f9ab67719410b6c5f6b3688d2e",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/c12-coverage-supplement-a47ec396.json",
+      "published_path": "native/coverage-supplement.json",
+      "stored_bytes": 19434,
+      "stored_sha256": "818c26f41a8cc7e9d19aa5d7171dc3ab304145f9ab67719410b6c5f6b3688d2e"
+    },
+    {
+      "decoded_bytes": 24010,
+      "decoded_sha256": "ecd9b0fa4d4bbee4449e06aed37064fa9bd56ba2e0b34007a8f5cb3fb9649a1f",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/c12-coverage-definition-a47ec396.json",
+      "published_path": "native/coverage-definition.json",
+      "stored_bytes": 24010,
+      "stored_sha256": "ecd9b0fa4d4bbee4449e06aed37064fa9bd56ba2e0b34007a8f5cb3fb9649a1f"
+    },
+    {
+      "decoded_bytes": 3250,
+      "decoded_sha256": "42103dfc0c19b1dd3d972c2617c71790c9042b9f006e169e39d84a7a0eebfe65",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/command.json",
+      "published_path": "native/c12-a47-full-emb03-collection/command.json",
+      "stored_bytes": 3250,
+      "stored_sha256": "42103dfc0c19b1dd3d972c2617c71790c9042b9f006e169e39d84a7a0eebfe65"
+    },
+    {
+      "decoded_bytes": 238,
+      "decoded_sha256": "3ab78e3043a78677fedac41243ed420717a6b81af3c5e2610393b51a458a89f9",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/junit.xml",
+      "published_path": "native/c12-a47-full-emb03-collection/junit.xml",
+      "stored_bytes": 238,
+      "stored_sha256": "3ab78e3043a78677fedac41243ed420717a6b81af3c5e2610393b51a458a89f9"
+    },
+    {
+      "decoded_bytes": 522,
+      "decoded_sha256": "9be31eaea253e2d18dd9f461b3c54ae34f21b606ffb3f9158f8bee07c763eb7d",
+      "encoding": "gzip",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/stdout.txt",
+      "published_path": "native/c12-a47-full-emb03-collection/stdout.txt.gz",
+      "stored_bytes": 287,
+      "stored_sha256": "ac598b64f8efb3046f12fd99a05737aa39ea261d469fd424061e49995dcb69d3"
+    },
+    {
+      "decoded_bytes": 22229,
+      "decoded_sha256": "b98a86702e3dc393ef66c1e7af4e6b486d8a6b98f218ab41272ee8805808a446",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/runtime-origins.json",
+      "published_path": "native/c12-a47-full-emb03-collection/runtime-origins.json",
+      "stored_bytes": 22229,
+      "stored_sha256": "b98a86702e3dc393ef66c1e7af4e6b486d8a6b98f218ab41272ee8805808a446"
+    },
+    {
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/stderr.txt",
+      "published_path": "native/c12-a47-full-emb03-collection/stderr.txt",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "decoded_bytes": 8313,
+      "decoded_sha256": "d68f3632322da9bae7cd537e406b899ec9ac4f2e6e3557d655ca553ab8e01e37",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/selected-tests.json",
+      "published_path": "native/c12-a47-full-emb03-collection/selected-tests.json",
+      "stored_bytes": 8313,
+      "stored_sha256": "d68f3632322da9bae7cd537e406b899ec9ac4f2e6e3557d655ca553ab8e01e37"
+    },
+    {
+      "decoded_bytes": 287,
+      "decoded_sha256": "ee6ced2c5ea71edf449ec3388dbd35a60629c433d248208764297c8d090881c3",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-full-emb03-collection/resource.json",
+      "published_path": "native/c12-a47-full-emb03-collection/resource.json",
+      "stored_bytes": 287,
+      "stored_sha256": "ee6ced2c5ea71edf449ec3388dbd35a60629c433d248208764297c8d090881c3"
+    },
+    {
+      "decoded_bytes": 4259,
+      "decoded_sha256": "0cc98dfd8dd1932d72d4dbec862ce96ee8d877418d0745e1c665d6aa0a641cfa",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/command.json",
+      "published_path": "native/c12-a47-omitted-affected-consumers/command.json",
+      "stored_bytes": 4259,
+      "stored_sha256": "0cc98dfd8dd1932d72d4dbec862ce96ee8d877418d0745e1c665d6aa0a641cfa"
+    },
+    {
+      "decoded_bytes": 2313,
+      "decoded_sha256": "1ff77aeb52cf9a8ee906ff320a2f4c42f061bac4fb5b7efe6369a479667b8cba",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/junit.xml",
+      "published_path": "native/c12-a47-omitted-affected-consumers/junit.xml",
+      "stored_bytes": 2313,
+      "stored_sha256": "1ff77aeb52cf9a8ee906ff320a2f4c42f061bac4fb5b7efe6369a479667b8cba"
+    },
+    {
+      "decoded_bytes": 559,
+      "decoded_sha256": "0a29f1cd691fe5801350e509616e24d68a2b18e51675222c6bea5988e9d2ebbb",
+      "encoding": "gzip",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/stdout.txt",
+      "published_path": "native/c12-a47-omitted-affected-consumers/stdout.txt.gz",
+      "stored_bytes": 274,
+      "stored_sha256": "d76edd16f67eb3f8f647063ca969bc7136c93fe738b4b2af7ff67c55e65852ca"
+    },
+    {
+      "decoded_bytes": 22460,
+      "decoded_sha256": "a675f6fe81b5b57e97ade9c340a9d92b0caea0092fe9cfdab00c8c9a9d31a4b0",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/runtime-origins.json",
+      "published_path": "native/c12-a47-omitted-affected-consumers/runtime-origins.json",
+      "stored_bytes": 22460,
+      "stored_sha256": "a675f6fe81b5b57e97ade9c340a9d92b0caea0092fe9cfdab00c8c9a9d31a4b0"
+    },
+    {
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/stderr.txt",
+      "published_path": "native/c12-a47-omitted-affected-consumers/stderr.txt",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "decoded_bytes": 2060,
+      "decoded_sha256": "d9a8c6f995cd4aeb76ba788a2c7982e0c4dcf1033187b7a549fbf22ff59d1613",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/selected-tests.json",
+      "published_path": "native/c12-a47-omitted-affected-consumers/selected-tests.json",
+      "stored_bytes": 2060,
+      "stored_sha256": "d9a8c6f995cd4aeb76ba788a2c7982e0c4dcf1033187b7a549fbf22ff59d1613"
+    },
+    {
+      "decoded_bytes": 290,
+      "decoded_sha256": "6e4c5672e8a79a3df1eab5a7b84520f82d76b90c7eb13fcf5c75979f84da5100",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/native-c05-c12/raw/c12-a47-omitted-affected-consumers/resource.json",
+      "published_path": "native/c12-a47-omitted-affected-consumers/resource.json",
+      "stored_bytes": 290,
+      "stored_sha256": "6e4c5672e8a79a3df1eab5a7b84520f82d76b90c7eb13fcf5c75979f84da5100"
+    },
+    {
+      "decoded_bytes": 416,
+      "decoded_sha256": "82f346e6f9b6f7f0e6bb3145e378ef00ef486c5c2596c9ff127b94a5475742cd",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/c12/author-coverage-readback.json",
+      "published_path": "quality/author-coverage-readback.json",
+      "stored_bytes": 416,
+      "stored_sha256": "82f346e6f9b6f7f0e6bb3145e378ef00ef486c5c2596c9ff127b94a5475742cd"
+    },
+    {
+      "decoded_bytes": 170830,
+      "decoded_sha256": "47593f7d3302d95a9884a47eef3c838408f0bac6ddca6623eb0acf5cc0e5f803",
+      "encoding": "gzip",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/reviews/c12-independent-final-native-review-a47ec396.json",
+      "published_path": "reviews/c12-independent-final-native-review-a47ec396.json.gz",
+      "stored_bytes": 12928,
+      "stored_sha256": "33d7eb1671e24eeba3c167e9fff4130b25c752e23d169f364487c4e33cb6917f"
+    },
+    {
+      "decoded_bytes": 1284,
+      "decoded_sha256": "311c038be57bae4ad2537fac628b218ec022a4752711a8c55ef36c549160c70c",
+      "encoding": "identity",
+      "matches_original_external_artifact": true,
+      "original_path": "/workspace/orch02-r2/reviews/c12-independent-final-native-review-a47ec396.md",
+      "published_path": "reviews/c12-independent-final-native-review-a47ec396.md",
+      "stored_bytes": 1284,
+      "stored_sha256": "311c038be57bae4ad2537fac628b218ec022a4752711a8c55ef36c549160c70c"
+    }
+  ],
+  "auditor": "/root/publication_audit",
+  "complete_supplier_and_owned_ranges_verified": [
+    {
+      "actual_diff_path_set_and_object_bindings_verified": true,
+      "base": "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63",
+      "complete_changed_path_count": 30,
+      "head": "ab44166335130463178e65dfc29a252c96afe479",
+      "label": "DFI",
+      "old_receipt_payload_bytes_reread": false
+    },
+    {
+      "actual_diff_path_set_and_object_bindings_verified": true,
+      "base": "ab44166335130463178e65dfc29a252c96afe479",
+      "complete_changed_path_count": 36,
+      "head": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "label": "CAT",
+      "old_receipt_payload_bytes_reread": false
+    },
+    {
+      "actual_diff_path_set_and_object_bindings_verified": true,
+      "base": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "complete_changed_path_count": 62,
+      "head": "f428b114f4afb5c9cdde93a8e9bf036abe5ac329",
+      "label": "CAT_to_Legal_supplier",
+      "old_receipt_payload_bytes_reread": false
+    },
+    {
+      "actual_diff_path_set_and_object_bindings_verified": true,
+      "base": "f428b114f4afb5c9cdde93a8e9bf036abe5ac329",
+      "complete_changed_path_count": 10,
+      "head": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "label": "Legal_carried",
+      "old_receipt_payload_bytes_reread": false
+    },
+    {
+      "actual_diff_path_set_and_object_bindings_verified": true,
+      "base": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "complete_changed_path_count": 6,
+      "head": "677e60985d98c8a1aeca1c85a1583ac9396bdf3d",
+      "label": "C12_original_proposal",
+      "old_receipt_payload_bytes_reread": false
+    },
+    {
+      "actual_diff_path_set_and_object_bindings_verified": true,
+      "base": "677e60985d98c8a1aeca1c85a1583ac9396bdf3d",
+      "complete_changed_path_count": 2,
+      "head": "192c8b935b824e2e4d38276f10d3061877207e9f",
+      "label": "C12_style",
+      "old_receipt_payload_bytes_reread": false
+    },
+    {
+      "actual_diff_path_set_and_object_bindings_verified": true,
+      "base": "192c8b935b824e2e4d38276f10d3061877207e9f",
+      "complete_changed_path_count": 84,
+      "head": "9c46da826c3d54b6d0a13cc1772bda4b2c646e68",
+      "label": "C12_docs_history",
+      "old_receipt_payload_bytes_reread": false
+    },
+    {
+      "actual_diff_path_set_and_object_bindings_verified": true,
+      "base": "9c46da826c3d54b6d0a13cc1772bda4b2c646e68",
+      "complete_changed_path_count": 4,
+      "head": "fd3898acf23212c14b0fea62647e882c81d4f479",
+      "label": "C12_r2",
+      "old_receipt_payload_bytes_reread": false
+    },
+    {
+      "actual_diff_path_set_and_object_bindings_verified": true,
+      "base": "fd3898acf23212c14b0fea62647e882c81d4f479",
+      "complete_changed_path_count": 2,
+      "head": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+      "label": "C12_numeric_class",
+      "old_receipt_payload_bytes_reread": false
+    }
+  ],
+  "complete_upstream_relative_DAG": {
+    "all_parent_rows_and_trees_match_actual_Git": true,
+    "commits": 35,
+    "excluded_before_DFI_base": "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63",
+    "qualification": "Full relative supplier/own ancestor slice; not all repository/G ancestors or external dependency closure.",
+    "root_source": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7"
+  },
+  "decisions": {
+    "G_based_product_composition": "not_selected; foreign supplier/public API packets only",
+    "architecture": "published_FAIL_retained",
+    "formal_closure_ids": [],
+    "integrated_PASS_claimed": false,
+    "invocation": "raw_UNRESOLVED_partial_static; ERROR_INCOMPLETE_AUTHOR_PROCESS_CAPTURE; process_exit_wall_RSS_unknown",
+    "old84_receipts_byte_readback_repeated": false,
+    "production_claim": false,
+    "runtime_checks_replayed": false,
+    "source_acceptance": "not_admitted_by_G"
+  },
+  "declared_dependency_matrix": {
+    "all_present_absent_Git_object_bindings_verified": 882,
+    "legacy_receipt_metadata_only_bindings": 190,
+    "payload_bytes_and_sha256_verified_bindings": 309,
+    "qualification": "Declared29 dependency/companion/consumer inputs plus full9 changed-path ranges; actual runtime namespace origins separately complete for observed processes.",
+    "rows": 29
+  },
+  "errors": [],
+  "frozen_source": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+  "frozen_source_tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+  "harness_errors": [
+    "c12-audit-unexpected-error.json"
+  ],
+  "head_tree": "e0ad136df2f004bc87cdb596c3955a88913b3ff1",
+  "local_raw_invocation_custody": {
+    "bytes": 170878513,
+    "exit_code": null,
+    "ignored_local_hash_verified": true,
+    "maxrss_kib": null,
+    "path": "/workspace/orch02-c12/policy-engine/_build/e02-C-orch02-c12-recovery/production-invocation-r2-a47.json",
+    "process_capture_status": "ERROR_INCOMPLETE_AUTHOR_PROCESS_CAPTURE",
+    "qualification": "Required wrapper executed once and emitted UNRESOLVED/partial after complete raw JSON persistence/readback. Unified session later became unknown, no child/runner exists, and author wait4 receipt was not persisted. Exact process exit/wall/RSS unavailable; root independently confirms no completion/resource capture. Preserve ERROR for capture separately from actual raw UNRESOLVED diagnostic. No replay, no inferred exit3, no OOM attribution (oom_kill unchanged1).",
+    "raw_diagnostic_status": "UNRESOLVED",
+    "remotely_byte_custodied": false,
+    "sha256": "f085965bdedca04acf47ae5cdc2f9f7c316b1e0d04dead869fde1ff69b93e50b",
+    "wall_seconds": null
+  },
+  "main_original_C_leaf": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008.json",
+  "new_docs_count": 102,
+  "new_namespace": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-c12-r2-typed-request-consumer-20261008/",
+  "observed_utc": "2026-10-08T19:53:25.142072+00:00",
+  "original_owned_source_handoff_path": {
+    "git_blob": "3a9e4fb39e262bf34feaf58851ae94798db8e95f",
+    "old_receipt_payload_byte_readback_repeated": false,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/parallel-20261008-c12-request-intent.md",
+    "unchanged_at_publication": true
+  },
+  "own_original_base": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+  "prospective_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "published_artifact_map_count": 99,
+  "r2_slice_base": "9c46da826c3d54b6d0a13cc1772bda4b2c646e68",
+  "readback_ref": "refs/readback/orch02-r2-publication-audit/c12-fcf164eb",
+  "remote_head": "fcf164eb1c5bb54786462e67ba2537313b33b90d",
+  "role": "c12",
+  "schema": "policyos.orch02.r2.independent-publication-source-custody-audit.v1",
+  "source_applied_footprint": [
+    {
+      "bytes": 2308,
+      "git_blob": "34d2476c3ab6f5faac8e62a99d3b05bae4b10c55",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-legal-request-generation-intent.toml",
+      "r2_changed": false,
+      "sha256": "163a13a4d19a319b8770a581cc47bc4008f90dc8c7c744f12d64001dc3f20dc1"
+    },
+    {
+      "bytes": 1160,
+      "git_blob": "627306a715f05ad83bbfca4448d183d3663d00f9",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-legal-store-typed-request-consumer-r2.toml",
+      "r2_changed": true,
+      "sha256": "790523a3ef29d15c0b7bde1f03889dc139b72c4b9301dca95ac91edfe9ea7c90"
+    },
+    {
+      "bytes": 7522,
+      "git_blob": "faee6622a7a60672bfcd2ec22c66f4ddab7691c0",
+      "path": "policy-engine/src/polisyos/lex/knowledge/README.md",
+      "r2_changed": true,
+      "sha256": "00bfa1789c43cc6e3ac511b87ff7700a24f687c1ab077cad5fb2a6a0a3138ecb"
+    },
+    {
+      "bytes": 21240,
+      "git_blob": "58925aa6754b4decdbc7dcc236bd76e516827002",
+      "path": "policy-engine/src/polisyos/lex/knowledge/search.py",
+      "r2_changed": false,
+      "sha256": "384d9377c3fe8f0fef6142d3f9b7161c5a3cf46a927f6136462e60aa5199b9cb"
+    },
+    {
+      "bytes": 110582,
+      "git_blob": "2d87ced6ca51b63e28b7da5b3265867d6c78b103",
+      "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+      "r2_changed": true,
+      "sha256": "c46b383658938c98bd78883f21236b90fe630e2063cecaeeb1c24aa6bbff7705"
+    },
+    {
+      "bytes": 56014,
+      "git_blob": "7e65b8d7631aa66a9c4713f16b5a28ebc6ff3ce7",
+      "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+      "r2_changed": true,
+      "sha256": "4bc3da87ea2bbb00085b905abde1c3129bfaf9e5c67e179045f4b23b418a80b3"
+    }
+  ],
+  "source_to_publication_docs_only": true,
+  "topic": "codex/e02-C-orch02-c12-recovery",
+  "verdict": "PASS_PUBLICATION_SOURCE_CUSTODY_ONLY"
+}

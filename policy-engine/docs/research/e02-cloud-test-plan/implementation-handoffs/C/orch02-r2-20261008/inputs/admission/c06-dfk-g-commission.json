@@ -1,0 +1,60 @@
+{
+  "base": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "branch": "codex/e02-C-orch02-r2-c06-dfk-g",
+  "path": "/workspace/orch02-r2-c06-dfk-g",
+  "commands": [
+    {
+      "argv": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "workspace",
+        "doctor",
+        "--worktree-admission",
+        "create",
+        "--branch",
+        "codex/e02-C-orch02-r2-c06-dfk-g",
+        "--path",
+        "/workspace/orch02-r2-c06-dfk-g"
+      ],
+      "cwd": "/workspace/polisyos/policy-engine",
+      "exit_code": 0,
+      "mode": "create"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/polisyos",
+        "worktree",
+        "add",
+        "-b",
+        "codex/e02-C-orch02-r2-c06-dfk-g",
+        "/workspace/orch02-r2-c06-dfk-g",
+        "dee58973f7673299070b7c7374f419b0adb8175c"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "workspace",
+        "doctor",
+        "--worktree-admission",
+        "resume",
+        "--branch",
+        "codex/e02-C-orch02-r2-c06-dfk-g",
+        "--path",
+        "/workspace/orch02-r2-c06-dfk-g"
+      ],
+      "cwd": "/workspace/polisyos/policy-engine",
+      "exit_code": 0,
+      "mode": "resume"
+    }
+  ],
+  "observed_at_utc": "2026-10-08T18:03:36.140992+00:00"
+}

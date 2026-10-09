@@ -1,0 +1,1220 @@
+{
+  "schema": "policyos.e02.local_implementation_boundary.v1",
+  "slice": "blocking-consumers",
+  "slice_base": {
+    "commit": "077a572ff5880b3f50a85d3e3db6a232d277659a",
+    "tree": "2895b6c7597215b714275cb4ba83a504724dc89c"
+  },
+  "candidate_source": {
+    "commit": "24f3b72dd6eaa77cb7493d0880fe181e79181d75",
+    "tree": "421ee2bc4f24083777516c414975a7f899f91648",
+    "parents": [
+      "077a572ff5880b3f50a85d3e3db6a232d277659a"
+    ],
+    "branch": "codex/e02-unified-local-20261009"
+  },
+  "source_boundary": "implementation boundary; later source repairs and final whole-source/input/backend freeze remain pending",
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/apps/runtime-dashboard/e2e/journeys/catalog-profile-source-bound.spec.ts",
+      "sha256": "ac4b45a89801b9fea0f5a316199ef4e1154953471d147e12d776b0386719bfc6",
+      "bytes": 11319
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+      "sha256": "b105cc6e65f514185892f99915a70f1282d45b456f80058c1fd40b7c0521f767",
+      "bytes": 9307
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/hooks/useLexSearchProfile.test.tsx",
+      "sha256": "9f5b158fb18673af3eec36e297c54db9de07c7ed1aa8e55be39a1e0b857fd417",
+      "bytes": 1726
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/hooks/useLexSearchProfile.ts",
+      "sha256": "65a23ec75c65d568ab153cee544f2148face93aaebaea467cd3f173fb5c4e2e5",
+      "bytes": 1256
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/queryKeys.ts",
+      "sha256": "f41e9a86a5f025fddf2ceb58cdc2646f99c3556e85273052c1fb780056c5b405",
+      "bytes": 8126
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/types.ts",
+      "sha256": "542d3fd459d8c22dfadea1347b5d6dc3c30d33644bfab4fa4121a65a0fcd8c8c",
+      "bytes": 810698
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/validators.test.ts",
+      "sha256": "69a36aebba4ad319896dbe540214e3044008bd89f2cd34a9ef69ca4bdc612863",
+      "bytes": 37131
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/validators.ts",
+      "sha256": "3c2fb22b70b63909ca9766296e61271276af29e41f3aba747ce7def90db18b3d",
+      "bytes": 89137
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/lex/routes/LexKnowledgeGraphPage.searchParams.test.tsx",
+      "sha256": "1ba45ccd0a9ab1ff3fd69e810ce31b0d7fe796f898b8cb843c98fb2e6457433b",
+      "bytes": 7083
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/lex/routes/LexKnowledgeGraphPage.test.tsx",
+      "sha256": "0780244a53a874a8ef901f78cb03dd821e0c91005228fd9a970209f5d97ebf9e",
+      "bytes": 11733
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/lex/routes/LexKnowledgeGraphPage.tsx",
+      "sha256": "a8493f4b4f0320fc941f48bb7a75d651513243f8dc4c95b7f052af4af07bc27b",
+      "bytes": 29230
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+      "sha256": "ecd9b0330cb0c93fb5c36db4c6673e935e97f0860151f622ec5db15de953e719",
+      "bytes": 155998
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/ru.json",
+      "sha256": "e638ec203388c3111b9576af0c08f1ac4dfea9cebb541fb31ad157486cd2dea5",
+      "bytes": 139442
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+      "sha256": "be9772e347107ebfa20e9c040be6b1a5581e04e10021c75ae388b45fbce47cbf",
+      "bytes": 203334
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
+      "sha256": "6df0c49631df7e7968f72aaf20a4d9b64394e4d1ad3d045aa85131d6eeff3fd1",
+      "bytes": 73963
+    },
+    {
+      "path": "policy-engine/architecture/exceptions/complexity.toml",
+      "sha256": "1e1b5b2bfe0fc468e50a724ba472fedd0dc20d97ea5452eafa62677e7ac0008c",
+      "bytes": 4750
+    },
+    {
+      "path": "policy-engine/architecture/imports/exceptions.md",
+      "sha256": "6eac5fc2d09449eb4e7aba741e832fdd930f7407530764aed0ed6f066b7df32d",
+      "bytes": 1008
+    },
+    {
+      "path": "policy-engine/architecture/imports/exceptions.toml",
+      "sha256": "d21239455043387a83ffe8eafb1142ce23a90747579746ed2231efffc86c6433",
+      "bytes": 513
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "sha256": "e630af14c07955b6607435749f881858f0c72d061318b89791de5b3153b829aa",
+      "bytes": 299535
+    },
+    {
+      "path": "policy-engine/architecture/shims.toml",
+      "sha256": "18a908ce01dd560478ba31dc96fb91f0918b22d4dc6b6501f4f162d11388ad43",
+      "bytes": 9884
+    },
+    {
+      "path": "policy-engine/docs/reference/api/control.md",
+      "sha256": "15e285e90c9168e5a7b89f4576eb17c80e637eca2be2a3a996d920fc7376ea2b",
+      "bytes": 26985
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "sha256": "dd88b95930b185dee6021dd34f44feb2c09af167e66368fa04fcfa82fae5674a",
+      "bytes": 129870
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py",
+      "sha256": "53f21f78a40611d3546a72520b6797ed471d81c9495169445c163b3d7715ec54",
+      "bytes": 262858
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "sha256": "9549c12ce19b7071d25b4a085d1c616f4b29749cc3d83531bc65ce4680158ab0",
+      "bytes": 31523
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "sha256": "0f2b39416a43910b01ba824aa912d2a5faddff4a7319ae0c9b484aff156b49f2",
+      "bytes": 109703
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/types.ts",
+      "sha256": "7712850db89328de5a2e353af3351db30476de5c44cb926a3c02874bc670b3d0",
+      "bytes": 973199
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-08-27-lex-intervention-ownership.toml",
+      "sha256": "4c2e1f4c08dc96d5175eae07d0486a6e5509103236f209bda8af2e9050102093",
+      "bytes": 2452
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-09-13-acquisition-movement.toml",
+      "sha256": "b832a6747f725ad26ece17b485dd3be3c060d678eb24411f108b96aebe931208",
+      "bytes": 4980
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-causal-input-byte-binding.toml",
+      "sha256": "e9970ca388b7b76f0b3d79517d608a1073e002eae4325bea82e394d4af85d089",
+      "bytes": 1923
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-did-diagnostic-consumer.toml",
+      "sha256": "f6c93621a9a1106f7fd94cdc9c278742c89605cef42fe314051740a7bf8b1bdc",
+      "bytes": 1772
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-tmle-selected-consumer.toml",
+      "sha256": "ab62973151fd25984837a88265cd09d5f17980386ce73307bc2cedeb6781168c",
+      "bytes": 1808
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-e02-b53-producer-publication-reconciliation.toml",
+      "sha256": "edc060c68ac25c43a6a554776f8b0c78e0a09d8dbc672b324efe2c3afc012832",
+      "bytes": 5498
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-orch02-r2-c06-dfk-census.toml",
+      "sha256": "dff924bd4dd28a2051dfc021c6540c00e26fa4a231ee609084c9163b0b701755",
+      "bytes": 1677
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-09-causal-engine-twin-result-persistence.toml",
+      "sha256": "c92d78c918042bcd7a7c7c91b85a0baa8cf1835e2a33c934418906b6726341d0",
+      "bytes": 2376
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-09-e02-authority-envelope-selected-view.toml",
+      "sha256": "a3722dd6cbc4761483b5e75eff0f0c88e9c69848a110e3276e0bf07226a7cc78",
+      "bytes": 1836
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-09-e02-b59-producer-state-finite-admission.toml",
+      "sha256": "309a128492da7d6c4f2dacc9562f5e7119d7b4560803d2d6eef556cbc3296e7b",
+      "bytes": 2842
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-09-e02-c12-catalog-search-status.toml",
+      "sha256": "66cb09ffc7162232005c747b6975ff546be63f82d5e25d7dc0939104c03aa744",
+      "bytes": 3681
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-09-e02-composed-api-artifact-consumers.toml",
+      "sha256": "4521e5bf038727cee7084d3e43cb0526d4af3dddd7a2e7a3032e1e57883c2840",
+      "bytes": 3085
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-09-e02-derived-observation-selected-views.toml",
+      "sha256": "430cf4cdb2c10111fb88a257f40ec0bba25d5c67120ead56e5a3bfa352e21594",
+      "bytes": 2326
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-09-e02-e11-welfare-monte-carlo-truthfulness.toml",
+      "sha256": "f573cc604ad076646952b3bac400747e2e7d7e4afc19849d6af6db94065f9383",
+      "bytes": 2835
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-09-e02-legal-profile-request-surface.toml",
+      "sha256": "183f6f512fb25fb0c2d828c69129ac0c645e82962b1cd2dbe8b7329f6646250f",
+      "bytes": 2627
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-09-e02-routine-public-boundaries.toml",
+      "sha256": "876b17b2c1131e2d2b2f0c424d3e021a30d28f2728641c6c30398bcd6c7b1403",
+      "bytes": 2693
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-09-e02-runtime-constraint-compilation-boundary.toml",
+      "sha256": "7cec276da4715d7ab8c42738f27ee43ecb72521a796808eff7870ed6e2d8216d",
+      "bytes": 1861
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-09-e02-shared-embedding-identity.toml",
+      "sha256": "1e3ea2e1247e396c9537583656897b0c90424d714e7eb9a831d1931210bbf193",
+      "bytes": 1916
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-09-e02-sim02-adapter-semantics.toml",
+      "sha256": "f3458a06ece3555bc4de6f9ed8f288926ae4a8ac38ab9e815caf9b66b97124ba",
+      "bytes": 3045
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-09-legal-generation-intent-consumer.toml",
+      "sha256": "886ca2298be7b2a2b1969289ba9c115b0641c81ee3dc76091f2f290a13b8bf5f",
+      "bytes": 2266
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-09-repository-sota-child-output-receipts.toml",
+      "sha256": "81b3247413944099d6c9ae718bd087b313859870e2c3c4e5fc3bf2e840b90bb8",
+      "bytes": 1811
+    },
+    {
+      "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+      "sha256": "c293a5b39de1d9088b1211c94e2c8e59085a25edd387a2f3914ced0e072ab6f2",
+      "bytes": 2860176
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/migrations/README.md",
+      "sha256": "da1041dbd91de51d1c5a3273bd71df9ce9f6f1b71b910fe7efa65e9e800d7acd",
+      "bytes": 1670
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/migrations/__init__.py",
+      "sha256": "8d503d7dae326bdd0fb7587b977b537fbf6f7237436a41c6b63ccdfc5f8a428c",
+      "bytes": 449
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/README.md",
+      "sha256": "729e774623bb406e7d7fe8a053b498eb1473a53851047d6158ab4248582b265d",
+      "bytes": 12231
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "sha256": "5d747e378034f5e03d14308c1c95f978e417b86969db448f40034fe54821752f",
+      "bytes": 5838
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/README.md",
+      "sha256": "1df86638e2521db73ca6c65d8a25004832d29a26a4449d2dacace1a535e0cde5",
+      "bytes": 6435
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "sha256": "0657d75eb8c5b5568e730b40097a5bb9a59b0e26828eadf1418dbcf2300ccfdd",
+      "bytes": 62254
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/README.md",
+      "sha256": "0adc706a8cb4929f6ceb09b6e931a8833cebafef376cdae60f7517ca4692f8a2",
+      "bytes": 4167
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py",
+      "sha256": "6dc5b011698874a32d0b3ae285f832768794ec3f080c7b9c19b0344fe1878e1b",
+      "bytes": 56865
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/README.md",
+      "sha256": "b8122fc61d89b1f7ffa28c2cab5c052367e0fdf91cd09473ead38795f0db9d40",
+      "bytes": 3606
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py",
+      "sha256": "e3d67e35e6608353e5c51d726a780c324f96f5856b74590a6564bff650614dda",
+      "bytes": 36325
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/types.py",
+      "sha256": "131a45bb1f8809718d2a84b6aed251576b6963854962507dd2ed755bd16e6699",
+      "bytes": 13654
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "sha256": "dd6c087fb093a525ef57a7f6cda55d7b9ce5d7d2dc1a8457d4a5e24ed47a3b07",
+      "bytes": 38157
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_requirement/README.md",
+      "sha256": "bef18f71986b997127fb61071eafc66749c0f82a7728bf502f475a2fef8dfe53",
+      "bytes": 2195
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_requirement/__init__.py",
+      "sha256": "ed1ec161f0155f6389b3a128d1132136fa08cfa72b07e99c5213056ca44bb5e0",
+      "bytes": 2994
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_requirement/compiler.py",
+      "sha256": "68e673a7d190dcfde52af21dbe1ca3ab8ce85190c3690cbf63ec13f56728cd98",
+      "bytes": 56493
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "sha256": "db94b6159844b4adbf844c0e798a0e423c283ae10a5a3f510eff06ef7e3cf543",
+      "bytes": 44298
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/README.md",
+      "sha256": "13365ef83a4861211a7cb9d38ba56576e38e052a17a61fa5e69815ae18ef1629",
+      "bytes": 10283
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "sha256": "6f49c9f8f387f7392d36f89c8710407793200004fbc1b3fe1b80fc74312d9386",
+      "bytes": 34819
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/__init__.py",
+      "sha256": "4d75d20a059b2bfc10d8db0b50cb2c13e4d6045b2560b33b8890be0482fc8127",
+      "bytes": 1742
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/literature_prior.py",
+      "sha256": "f1eaa42318e8ac9ab779cf78925b568ec486e8851c90dd1f109de9631ee69758",
+      "bytes": 11211
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "sha256": "bbe6174c8f1bbaafa07d812ebff84d0bc3bb77db630502bd81be76f06b8d9b1c",
+      "bytes": 12284
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/evidence_bundle.py",
+      "sha256": "233e9f443566d3ae428080283d154f7a4f19e4048abd3c1e9b12f7e576278a83",
+      "bytes": 16186
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "sha256": "c0a4dfc20b899431a11149cbe87d482fadbcaaad71520bbaaf1938e41995757d",
+      "bytes": 15309
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/migrations/base.py",
+      "sha256": "e6e2f57de6731f8f2ff926e46c15d4e76dcb3f7fbac6e6e91ee69ff631713586",
+      "bytes": 12822
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/routes/control.py",
+      "sha256": "61bc506b19d0089d3daaf1be4999652b657fdb27e252474f2c967e3a4fe17100",
+      "bytes": 41021
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py",
+      "sha256": "a4aa849838aecfcc65e3b4812b12bef121ff95d1e0aeef21b12ef33a68a31039",
+      "bytes": 17080
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_search_profile.py",
+      "sha256": "3dcc47c9e6fd5866648b914bbfa52c1e19782b3f23a532f9d0aaa17eeba67f11",
+      "bytes": 3100
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_search_projection.py",
+      "sha256": "6275afd01912d2347d6e854cb9668324a8abb5d0729eb75922b45e41a0c3d8f0",
+      "bytes": 907
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+      "sha256": "27e44b85f3d3f99b2995ca26f544fc00254d067ee494e91605bacffef3effd43",
+      "bytes": 38893
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/chronology_proof.py",
+      "sha256": "c8134054c4dac502571d11e8db44499396f26b2f9b1b7a868a21b5d4f2ce306f",
+      "bytes": 48798
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/data_forge_binding.py",
+      "sha256": "5f765fbfdc0c8ed457dc6bf4753443aaea58ce30e86df840dffcc8b57544e7a9",
+      "bytes": 143826
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/derived_observations.py",
+      "sha256": "2f59134a9cf3ce9def723e32625e6ff3f6f49bfaa2abc3f3a942735752653e71",
+      "bytes": 100729
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_source.py",
+      "sha256": "a47b51f43991f808b89065391b2cf5d31198e5680c2649411215f4c2e2e3165a",
+      "bytes": 171837
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "sha256": "6e4dfa6ea2104bb0140d5d047f503b06525e1dc017b7495a9b4c150c3b8d895b",
+      "bytes": 124046
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/semantic_binding.py",
+      "sha256": "7c3469ba5d5edbc0bf12f20b81ed73a02761cec08a6f7bc673e0e0643b609f82",
+      "bytes": 181344
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+      "sha256": "5289399d5617c23436685cd14c587daf9221b9c140e12f0a58098e1d88c92ade",
+      "bytes": 76166
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/workspace/loop.py",
+      "sha256": "08bcfb782261932d8e462c4c363bfb5a0fb507a9047482627d4a06bec9a6db54",
+      "bytes": 177740
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/feasibility.py",
+      "sha256": "6237c260da66c7448a8f5a1bd091e29fe6797ab68a02f69d48a75af33afb99bc",
+      "bytes": 15215
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/knowledge_tools.py",
+      "sha256": "63a4a53cf4c63043a9b5ad605ca1b360fece54c867d553b7eb72caff981adb25",
+      "bytes": 27617
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/tools/knowledge_tools_adapter.py",
+      "sha256": "48d941c3bfb3b9ecabb8b34d5ce50749217644f3fe64eefa6ca1dc6ee5abfddf",
+      "bytes": 5996
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/cross_graph/compiler.py",
+      "sha256": "2631c9ebdc1fba50e3019b8d837f39ad0c5d3fa883795e8fd5ddbfa85e0e6f22",
+      "bytes": 84511
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/discovery/prior_miner.py",
+      "sha256": "e85f0ffd9c4f7c9c184e68b62c1b0d4e042c441ddfcefdbad6c2d7d14f8ccb50",
+      "bytes": 11106
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/README.md",
+      "sha256": "1cb48a58d1b989e456dd5b1ca2ca12d68a880904687ef6df0655581c8aa56fe6",
+      "bytes": 7681
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py",
+      "sha256": "8103fbe4c30fc122eca7fa69e587c1e435dd106b5de82d12e1819df7deef4a4d",
+      "bytes": 13458
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+      "sha256": "e657689fd4981065b62a0652d13bc1a05249537075fd1b125a711bdf9fac5757",
+      "bytes": 15987
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py",
+      "sha256": "594d6e5d0f873d2e2641532ee1cdfe8d1e79ae63e705230081e87b4c413f850c",
+      "bytes": 69761
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py",
+      "sha256": "465bb796ec021be6c833d15b1953bf3a02fc4e70000706a2db986c4d8e5da457",
+      "bytes": 30954
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py",
+      "sha256": "fd22e48c74ce3cd4d650d9a815b549c2274ca06b17c624c85c9940f4b3aaf030",
+      "bytes": 19467
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+      "sha256": "a780ef53538e6f335950653b171efbd5cf927e4b97034b5df2e95a358e1a5d5d",
+      "bytes": 49849
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "sha256": "5ac80606ae9a25d07c14d13b1bc241d15c43ff46a05a559a073a7428e03fb602",
+      "bytes": 175442
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+      "sha256": "13c86cf56b7a07efac3839769edcc3bd9602355873a0a51cacf2e54266ee363c",
+      "bytes": 22320
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/context.py",
+      "sha256": "7d1adeb66fdaa33cedb7bf4cc4351fadc432a0a145d552e32c12158438b4f17f",
+      "bytes": 3803
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py",
+      "sha256": "335125a09166458c151d749ca1f8a8548df356f349d288db584c63f2a9000e0f",
+      "bytes": 8205
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+      "sha256": "f38a82a6d61c37a0c2d94799ec5a16272d8acf1040334dfe7c80c0328cb45798",
+      "bytes": 62829
+    },
+    {
+      "path": "policy-engine/tests/_helpers/runtime_api/catalog_profile_source_fixture.py",
+      "sha256": "342da2518090399bbbaa573a8f0e0d0f5d1afba23b2e3304e99b86896b8f341b",
+      "bytes": 18867
+    },
+    {
+      "path": "policy-engine/tests/_helpers/runtime_api/legal_search_profile_fixture.py",
+      "sha256": "5022d6b024cab46095b71dcb4cf18ea0d3627ca264f99b883bafc869cc2de9d4",
+      "bytes": 4715
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_exception_registry_markdown.py",
+      "sha256": "049345138d3e46cf519da0cc7ef1a83f80e036b1beadcaaa708f07a399a1cf39",
+      "bytes": 4077
+    },
+    {
+      "path": "policy-engine/tests/unit/common/test_migrations_purity.py",
+      "sha256": "56d52e0293fc694bc6e48556bd023ab57cced53ef54844e9c0282c712b013c00",
+      "bytes": 1908
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_manifest_serialization_schema.py",
+      "sha256": "ecbe6e7c5af7c55655f61163e4c127cac077fd3acdc2673d8b7049cbd40c3f14",
+      "bytes": 7033
+    },
+    {
+      "path": "policy-engine/tests/unit/core/contracts/test_ir_ref_facades.py",
+      "sha256": "bd8573164f5df2a4e339067559108695955089a3e09aa3f6649b6e450063152b",
+      "bytes": 12080
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_knowledge_tools.py",
+      "sha256": "ee429d43baf15a637d1d030174d2c306045c8e5447510708fc115c062ff90d0e",
+      "bytes": 17177
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_benchmark.py",
+      "sha256": "9d0484223046fb3bdda100dc05a56b087d368fc00ef858c4820b8baf7cd0dbe6",
+      "bytes": 32410
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_store.py",
+      "sha256": "32e1581d5df7e90f899d9f0cd3738e5354708ac416e11f99240d03a15cf259ff",
+      "bytes": 37325
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/read_api/test_surfaces.py",
+      "sha256": "ba26e875e26cf9400db91e5d5dffe7ba109b942c0d690e5eca6dbcd34848d817",
+      "bytes": 1532
+    },
+    {
+      "path": "policy-engine/tests/unit/data_requirement/test_compiler.py",
+      "sha256": "f3622de37295cb1106622e4c117ac32ef8249b6f0c859e56e6acd4b06d6b4f28",
+      "bytes": 26735
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/runtime/test_executor_snapshots.py",
+      "sha256": "6cc5ffd8a8f4373fd6627e50107ec7d3553dc5a7e57c489181e457d7ff95be20",
+      "bytes": 34682
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/analytics/test_evidence_bundle.py",
+      "sha256": "1f4f70da632d06dbcd3abcca452ca19a95620122afd29e7b30d02d6935c32670",
+      "bytes": 15372
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_sim_02.py",
+      "sha256": "c3968bd01205165bd7684da10d8e3ab53046bd301b4b52e38e674429f6d8fb01",
+      "bytes": 42265
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/services/test_lex_pipeline.py",
+      "sha256": "7d2bf253313a424ba33e589c25352fc2ac52765bf87b85488b05b4181d74c9f4",
+      "bytes": 16431
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_api.py",
+      "sha256": "1e0de5d59694aa30a9562efd4b14999e295af371af9e3ca4f05c4ab62806e72f",
+      "bytes": 103330
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_derived_observations.py",
+      "sha256": "88a0d458d858cdefa4487a4b738dcb35662dd3118976672e3d983ecd29a8a318",
+      "bytes": 79420
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+      "sha256": "ce7243f85ff404d45a26a873fdcafb89724dc14730c475edaee441dcb25b857c",
+      "bytes": 61577
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_semantic_binding.py",
+      "sha256": "b775160bf1717c119512e80036a54c35c6e8fdaa1c75790218edb21801404805",
+      "bytes": 48142
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+      "sha256": "10062275ebf8bfde35aee6c91e7b6c9e743b3e211780ffd5a6df31678a8e3779",
+      "bytes": 66800
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_workspace_loop.py",
+      "sha256": "69b85fa779f2b9cae1c4a3e131f8fab21fd3a33cd5121b45db2179ad8bf2d63f",
+      "bytes": 35027
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_feasibility_probe.py",
+      "sha256": "8312c70dba788893ad0c8f0e157410a655c7cc06e1f59d95c5764552c4339c49",
+      "bytes": 5814
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/tools/test_knowledge_tools_adapter.py",
+      "sha256": "c38298482af4e68d797ad3800bd53825b23b02f3015edfc8b929f2b2a7a173bc",
+      "bytes": 9928
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/compute/test_runner_posterior_summary.py",
+      "sha256": "1162eca16a4aeaa8612dad1622f99c79c8ccd29a7a574c29e529c8fb4b71ebfc",
+      "bytes": 11673
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+      "sha256": "7350625f34df793b246f9b89ca2eb7993f76e0ef33546385dc99936ca9a1e818",
+      "bytes": 108442
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+      "sha256": "7ed69a33cb1b73057179fb52d1f10df8788c5c957fe27c8b0bbffb28f84416c7",
+      "bytes": 29771
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "sha256": "0919a7fd58885d25f0c2b0dd5b6b55efae68fd8806b2aebada3900a2b8ed8c28",
+      "bytes": 18625
+    },
+    {
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "sha256": "5d30de37ed02c5e346458e62e00b2772e7ba0eed501cf8282f72d3058bf9b4f6",
+      "bytes": 136882
+    },
+    {
+      "path": "policy-engine/tools/quality/lint/README.md",
+      "sha256": "843a646af2c3e76ab4b9409cefc03a8ecfe8643a60461c25915caff947da6719",
+      "bytes": 5697
+    },
+    {
+      "path": "policy-engine/tools/quality/lint/compare_baseline.py",
+      "sha256": "95542c2e6512fa716778b9ce41bfc5ea97734963298fd9871ad75e10a650885f",
+      "bytes": 16390
+    }
+  ],
+  "selected_input_profile_backend": {
+    "input_scope": "controlled local candidate fixtures and selected CAS manifest views; authentic production pairing/currentness unavailable within the separately recorded T1/T2 boundary",
+    "host_profile": "Mac CPython 3.14.3, own locked environment, numerical threads 1",
+    "Linux_profile": "provisioned isolated worker; frozen-source tests pending",
+    "browser_profile": "locked Chromium journey; collection only, actual browser pending",
+    "profile_freeze": "pending"
+  },
+  "command_receipts": [
+    {
+      "label": "01-format",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py",
+        "policy-engine/src/polisyos/common/migrations/__init__.py",
+        "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "policy-engine/src/polisyos/core/contracts/__init__.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/types.py",
+        "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+        "policy-engine/src/polisyos/data_requirement/__init__.py",
+        "policy-engine/src/polisyos/data_requirement/compiler.py",
+        "policy-engine/src/polisyos/fabric/retrieval/service.py",
+        "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "policy-engine/src/polisyos/foundry/execute/__init__.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/literature_prior.py",
+        "policy-engine/src/polisyos/ir/analytics/evidence_bundle.py",
+        "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "policy-engine/src/polisyos/ir/migrations/base.py",
+        "policy-engine/src/polisyos/runtime/http/routes/control.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/lex_search_profile.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/lex_search_projection.py",
+        "policy-engine/src/polisyos/runtime/quality/chronology_proof.py",
+        "policy-engine/src/polisyos/runtime/quality/data_forge_binding.py",
+        "policy-engine/src/polisyos/runtime/quality/derived_observations.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_source.py",
+        "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "policy-engine/src/polisyos/runtime/quality/semantic_binding.py",
+        "policy-engine/src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+        "policy-engine/src/polisyos/runtime/quality/workspace/loop.py",
+        "policy-engine/src/polisyos/scientist/agent/feasibility.py",
+        "policy-engine/src/polisyos/scientist/agent/knowledge_tools.py",
+        "policy-engine/src/polisyos/scientist/agent/tools/knowledge_tools_adapter.py",
+        "policy-engine/src/polisyos/scientist/cross_graph/compiler.py",
+        "policy-engine/src/polisyos/scientist/methods/discovery/prior_miner.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/context.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+        "policy-engine/tests/_helpers/runtime_api/catalog_profile_source_fixture.py",
+        "policy-engine/tests/_helpers/runtime_api/legal_search_profile_fixture.py",
+        "policy-engine/tests/repo_quality/tools/test_exception_registry_markdown.py",
+        "policy-engine/tests/unit/common/test_migrations_purity.py",
+        "policy-engine/tests/unit/core/artifacts/test_manifest_serialization_schema.py",
+        "policy-engine/tests/unit/core/contracts/test_ir_ref_facades.py",
+        "policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_knowledge_tools.py",
+        "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_benchmark.py",
+        "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_store.py",
+        "policy-engine/tests/unit/data_forge/read_api/test_surfaces.py",
+        "policy-engine/tests/unit/data_requirement/test_compiler.py",
+        "policy-engine/tests/unit/foundry/runtime/test_executor_snapshots.py",
+        "policy-engine/tests/unit/ir/analytics/test_evidence_bundle.py",
+        "policy-engine/tests/unit/remediation/test_sim_02.py",
+        "policy-engine/tests/unit/runtime/http/services/test_lex_pipeline.py",
+        "policy-engine/tests/unit/runtime/http/test_control_api.py",
+        "policy-engine/tests/unit/runtime/quality/test_derived_observations.py",
+        "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "policy-engine/tests/unit/runtime/quality/test_semantic_binding.py",
+        "policy-engine/tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+        "policy-engine/tests/unit/runtime/quality/test_workspace_loop.py",
+        "policy-engine/tests/unit/scientist/agent/test_feasibility_probe.py",
+        "policy-engine/tests/unit/scientist/agent/tools/test_knowledge_tools_adapter.py",
+        "policy-engine/tests/unit/scientist/compute/test_runner_posterior_summary.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+        "policy-engine/tools/devx/architecture/guardrails.py",
+        "policy-engine/tools/quality/lint/compare_baseline.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.09934320801403373,
+      "stdout_sha256": "895303fda83a47c9d3e23f1143c9a46fd97285ee484663c12c31c6431efdab0a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/01-format/stdout.txt",
+        "sha256": "895303fda83a47c9d3e23f1143c9a46fd97285ee484663c12c31c6431efdab0a",
+        "availability": "available_local_readback"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/01-format/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "available_local_readback"
+      },
+      "qualification": "precommit command; complete committed footprint reread equal, no runtime closeout claim"
+    },
+    {
+      "label": "02-ruff",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py",
+        "policy-engine/src/polisyos/common/migrations/__init__.py",
+        "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "policy-engine/src/polisyos/core/contracts/__init__.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/types.py",
+        "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+        "policy-engine/src/polisyos/data_requirement/__init__.py",
+        "policy-engine/src/polisyos/data_requirement/compiler.py",
+        "policy-engine/src/polisyos/fabric/retrieval/service.py",
+        "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "policy-engine/src/polisyos/foundry/execute/__init__.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/literature_prior.py",
+        "policy-engine/src/polisyos/ir/analytics/evidence_bundle.py",
+        "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "policy-engine/src/polisyos/ir/migrations/base.py",
+        "policy-engine/src/polisyos/runtime/http/routes/control.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/lex_search_profile.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/lex_search_projection.py",
+        "policy-engine/src/polisyos/runtime/quality/chronology_proof.py",
+        "policy-engine/src/polisyos/runtime/quality/data_forge_binding.py",
+        "policy-engine/src/polisyos/runtime/quality/derived_observations.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_source.py",
+        "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "policy-engine/src/polisyos/runtime/quality/semantic_binding.py",
+        "policy-engine/src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+        "policy-engine/src/polisyos/runtime/quality/workspace/loop.py",
+        "policy-engine/src/polisyos/scientist/agent/feasibility.py",
+        "policy-engine/src/polisyos/scientist/agent/knowledge_tools.py",
+        "policy-engine/src/polisyos/scientist/agent/tools/knowledge_tools_adapter.py",
+        "policy-engine/src/polisyos/scientist/cross_graph/compiler.py",
+        "policy-engine/src/polisyos/scientist/methods/discovery/prior_miner.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/context.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+        "policy-engine/tests/_helpers/runtime_api/catalog_profile_source_fixture.py",
+        "policy-engine/tests/_helpers/runtime_api/legal_search_profile_fixture.py",
+        "policy-engine/tests/repo_quality/tools/test_exception_registry_markdown.py",
+        "policy-engine/tests/unit/common/test_migrations_purity.py",
+        "policy-engine/tests/unit/core/artifacts/test_manifest_serialization_schema.py",
+        "policy-engine/tests/unit/core/contracts/test_ir_ref_facades.py",
+        "policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_knowledge_tools.py",
+        "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_benchmark.py",
+        "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_store.py",
+        "policy-engine/tests/unit/data_forge/read_api/test_surfaces.py",
+        "policy-engine/tests/unit/data_requirement/test_compiler.py",
+        "policy-engine/tests/unit/foundry/runtime/test_executor_snapshots.py",
+        "policy-engine/tests/unit/ir/analytics/test_evidence_bundle.py",
+        "policy-engine/tests/unit/remediation/test_sim_02.py",
+        "policy-engine/tests/unit/runtime/http/services/test_lex_pipeline.py",
+        "policy-engine/tests/unit/runtime/http/test_control_api.py",
+        "policy-engine/tests/unit/runtime/quality/test_derived_observations.py",
+        "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "policy-engine/tests/unit/runtime/quality/test_semantic_binding.py",
+        "policy-engine/tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+        "policy-engine/tests/unit/runtime/quality/test_workspace_loop.py",
+        "policy-engine/tests/unit/scientist/agent/test_feasibility_probe.py",
+        "policy-engine/tests/unit/scientist/agent/tools/test_knowledge_tools_adapter.py",
+        "policy-engine/tests/unit/scientist/compute/test_runner_posterior_summary.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+        "policy-engine/tools/devx/architecture/guardrails.py",
+        "policy-engine/tools/quality/lint/compare_baseline.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.05939066701103002,
+      "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/02-ruff/stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "availability": "available_local_readback"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/02-ruff/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "available_local_readback"
+      },
+      "qualification": "precommit command; complete committed footprint reread equal, no runtime closeout claim"
+    },
+    {
+      "label": "03-abi",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "tools/quality/diagnostics/gen_schema.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 4.357274874928407,
+      "stdout_sha256": "9b9e979c878910c3c8c6de244de356ff80a0e5fe7331c0467811b12c9cb8bf8c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/03-abi/stdout.txt",
+        "sha256": "9b9e979c878910c3c8c6de244de356ff80a0e5fe7331c0467811b12c9cb8bf8c",
+        "availability": "available_local_readback"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/03-abi/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "available_local_readback"
+      },
+      "qualification": "precommit command; complete committed footprint reread equal, no runtime closeout claim"
+    },
+    {
+      "label": "04-openapi",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "tools/ops_runners/runtime/export_runtime_openapi.py",
+        "--output",
+        "schemas/runtime_api_v1.openapi.json"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 31.705928083974868,
+      "stdout_sha256": "b208d855949b3c7cf281601f58d6d57493c28cc2bc07f9e9a12caf49fa51fc59",
+      "stderr_sha256": "3eaddfccfa882710f1b2a6196896255dfe4ad58ac9f730688a29dc360d166111",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/04-openapi/stdout.txt",
+        "sha256": "b208d855949b3c7cf281601f58d6d57493c28cc2bc07f9e9a12caf49fa51fc59",
+        "availability": "available_local_readback"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/04-openapi/stderr.txt",
+        "sha256": "3eaddfccfa882710f1b2a6196896255dfe4ad58ac9f730688a29dc360d166111",
+        "availability": "available_local_readback"
+      },
+      "qualification": "precommit command; complete committed footprint reread equal, no runtime closeout claim"
+    },
+    {
+      "label": "05-client-types",
+      "argv": [
+        "corepack",
+        "pnpm",
+        "--dir",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/packages/runtime-api-client",
+        "exec",
+        "openapi-typescript",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/schemas/runtime_api_v1.openapi.json",
+        "-o",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/packages/runtime-api-client/types.ts"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 1.1049717919668183,
+      "stdout_sha256": "f2e9b34c8232351947133c5c4b71892d61a2d2090d225ee0dc4b26061c742617",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/05-client-types/stdout.txt",
+        "sha256": "f2e9b34c8232351947133c5c4b71892d61a2d2090d225ee0dc4b26061c742617",
+        "availability": "available_local_readback"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/05-client-types/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "available_local_readback"
+      },
+      "qualification": "precommit command; complete committed footprint reread equal, no runtime closeout claim"
+    },
+    {
+      "label": "06-client-recursion",
+      "argv": [
+        "node",
+        "packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs",
+        "--types",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/packages/runtime-api-client/types.ts"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 0.3610744579927996,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/06-client-recursion/stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "available_local_readback"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/06-client-recursion/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "available_local_readback"
+      },
+      "qualification": "precommit command; complete committed footprint reread equal, no runtime closeout claim"
+    },
+    {
+      "label": "07-client-raw",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "tools/ops_runners/runtime/generate_runtime_client.py",
+        "--openapi",
+        "schemas/runtime_api_v1.openapi.json",
+        "--out-ts",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/runtime-client-scratch/runtimeApiClient.ts",
+        "--out-js",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/runtime-client-scratch/runtimeApiClient.js"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 0.07131641695741564,
+      "stdout_sha256": "9a7deeb219b5ddf649e77d9913bb7e7b19ba9641541538a21c3926dea000bcfe",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/07-client-raw/stdout.txt",
+        "sha256": "9a7deeb219b5ddf649e77d9913bb7e7b19ba9641541538a21c3926dea000bcfe",
+        "availability": "available_local_readback"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/07-client-raw/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "available_local_readback"
+      },
+      "qualification": "precommit command; complete committed footprint reread equal, no runtime closeout claim"
+    },
+    {
+      "label": "08-client-canonical",
+      "argv": [
+        "node",
+        "packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs",
+        "--openapi",
+        "schemas/runtime_api_v1.openapi.json",
+        "--client",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/runtime-client-scratch/runtimeApiClient.ts",
+        "--out-ts",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "--runtime-js",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/runtime-client-scratch/runtimeApiClient.js",
+        "--out-js",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 0.34513045905623585,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/08-client-canonical/stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "available_local_readback"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/08-client-canonical/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "available_local_readback"
+      },
+      "qualification": "precommit command; complete committed footprint reread equal, no runtime closeout claim"
+    },
+    {
+      "label": "09-dashboard-api",
+      "argv": [
+        "corepack",
+        "pnpm",
+        "--filter",
+        "@polisyos/runtime-dashboard",
+        "run",
+        "generate:api",
+        "--",
+        "--openapi",
+        "schemas/runtime_api_v1.openapi.json"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 2.580867000040598,
+      "stdout_sha256": "dc7134c9797864d1407aaf71eae4bea9b39055aa09dd1899b75e594300dee4f0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/09-dashboard-api/stdout.txt",
+        "sha256": "dc7134c9797864d1407aaf71eae4bea9b39055aa09dd1899b75e594300dee4f0",
+        "availability": "available_local_readback"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/09-dashboard-api/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "available_local_readback"
+      },
+      "qualification": "precommit command; complete committed footprint reread equal, no runtime closeout claim"
+    },
+    {
+      "label": "10-inventory",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "tools/devx/architecture/guardrails.py",
+        "sync",
+        "--skip-deep-import-baseline"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 7.444887166959234,
+      "stdout_sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/10-inventory/stdout.txt",
+        "sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8",
+        "availability": "available_local_readback"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/10-inventory/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "available_local_readback"
+      },
+      "qualification": "precommit command; complete committed footprint reread equal, no runtime closeout claim"
+    },
+    {
+      "label": "11-diff-check",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.2120076670544222,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/11-diff-check/stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "available_local_readback"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/blocking-batch-generation/attempt3/11-diff-check/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "available_local_readback"
+      },
+      "qualification": "precommit command; complete committed footprint reread equal, no runtime closeout claim"
+    }
+  ],
+  "chains": [
+    {
+      "mechanism": "selected derived-observation views",
+      "chain": "selected CAS producer ref \u2192 profile-bearing recipe/certificate/epoch schemas \u2192 lineage verifier \u2192 fresh CAS consumer",
+      "test": "tests/unit/runtime/quality/test_derived_observations.py"
+    },
+    {
+      "mechanism": "Catalog query status",
+      "chain": "actual generation/encoder search \u2192 atomic query envelope \u2192 registered knowledge tool/workspace/benchmark projections",
+      "test": "tests/unit/data_forge/domains/catalog/knowledge/test_store.py"
+    },
+    {
+      "mechanism": "Legal request intent",
+      "chain": "persisted fact-generation producer \u2192 selected snapshot GET \u2192 dashboard immutable POST intent \u2192 search revalidation and visible mode/refusal",
+      "test": "tests/unit/runtime/http/test_control_api.py"
+    },
+    {
+      "mechanism": "Welfare draws",
+      "chain": "weighted carrier and selected input envelopes \u2192 actual Welfare node \u2192 report/sample/bundle CAS \u2192 fresh read and packet welfare section",
+      "test": "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"
+    },
+    {
+      "mechanism": "SIM02 adapter intake",
+      "chain": "compatible atomic assignments \u2192 real shared-state program/NumPy producer \u2192 typed temporal projection \u2192 CAS-backed replay consumer",
+      "test": "tests/unit/runtime/quality/test_joint_simulation_horizon.py"
+    },
+    {
+      "mechanism": "constraint population capacity",
+      "chain": "actual 108-record producer basis \u2192 complete basis CAS \u2192 typed cap-40 refusal \u2192 fresh blocked decision",
+      "test": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py"
+    }
+  ],
+  "independent_component_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/selected-ref-delta.md",
+      "sha256": "cb49382c6d17ed254a05fa7544119b1a80460ea2bc23ebd9d06d64e0f8f05af8",
+      "scope": "explicit component boundary in report; not global acceptance"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/welfare-delta.md",
+      "sha256": "85f3676dd93a48354dd8c9d7430c82f95f36a073afd652d2243b920ab88dab7a",
+      "scope": "explicit component boundary in report; not global acceptance"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/sim02-delta.md",
+      "sha256": "66791a1ed4891dfb9d87e11675d96594d22766a54c34b6402df85e599fbc1a67",
+      "scope": "explicit component boundary in report; not global acceptance"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/public-surface-delta.md",
+      "sha256": "3637de0340963dfc95b7e2323e31363a53dcad97131f8d399f446411dc49c295",
+      "scope": "explicit component boundary in report; not global acceptance"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/emitter-final-delta.md",
+      "sha256": "2823c085ea95ba38a81f5a16d965e1211a316689dd32fffc80628e8660f60e1a",
+      "scope": "explicit component boundary in report; not global acceptance"
+    }
+  ],
+  "controls_and_limits": [
+    "Same-byte selected views with different authority parents refuse after fresh CAS read; profile-forwarding removal must fail.",
+    "Empty/whitespace sample axes refuse; actual partial draw outcomes retain denominator and conditional-only summary. B194 transient retry/global failure classification requires a subsequent repair.",
+    "Typed conflicting assignments including nested bool/int and int/float refuse before producer; compatible real program-graph receipt passes.",
+    "B59 private Enum singleton mutation remains a proven bounded residual/G choice.",
+    "Public facade exports were independently resolved; new API/client shapes regenerated. Direction-dependent default requiredness in generated request types remains a subsequent repair.",
+    "Actual native SOTA, installed artifacts, Linux witnesses, browser, composed numerical workload, and full-occurrence verification are pending.",
+    "Decision-packet complexity and docs accuracy require subsequent source repairs; no issuer dates or exception waivers were renewed."
+  ],
+  "decision_pointers": [
+    "decisions/b59-native-enum-boundary.json",
+    "decisions/constraint-population-budget.json",
+    "decisions/decision-packet-complexity-repair.md",
+    "can-options/generator-default-fidelity.md"
+  ],
+  "proposal_fields": {
+    "status": "unissued_pending_frozen_whole_property_verification",
+    "candidate_proposals": []
+  },
+  "closure_ids": [],
+  "formal_closure_ids": [],
+  "G_status": {
+    "published_checkpoint": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+    "candidate_code_acceptance": "not_issued",
+    "integration_publication": "G_owned",
+    "formal_finding_adjudication": "G_owned"
+  }
+}

@@ -6,4 +6,9 @@ Build, evidence capture, reconciliation and measurement commands live here. pack
 
 Owning entrypoint: `apps/runtime-dashboard/package.json`.
 
+The dashboard's `generate-api-client.sh` uses the shared
+`packages/runtime-api-client/scripts/generate-openapi-types.mjs` entrypoint so
+dashboard types and the runtime client derive request/response field presence
+from the same OpenAPI graph and locked generator version.
+
 This local document explains the directory role. Its presence does not certify the contents or close a product capability.

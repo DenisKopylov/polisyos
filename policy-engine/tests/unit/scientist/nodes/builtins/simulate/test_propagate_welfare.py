@@ -6,6 +6,7 @@ import math
 import jax.numpy as jnp
 import numpy as np
 import pytest
+from pydantic import TypeAdapter
 
 import polisyos.scientist.nodes.builtins.simulate.propagate_welfare as propagate_welfare_module
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
@@ -32,6 +33,7 @@ from polisyos.core.contracts.foundry import (
     SimulationResult,
     SimulationResultRef,
 )
+from polisyos.core.errors import ErrorCategory, PolicyOSError
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.foundry.calibration.calibrator import Calibrator, CalibratorInputs
@@ -1290,7 +1292,9 @@ def _run_b197_welfare(
     labels: list[str] | None = None,
     input_envelopes: dict[str, dict[str, object]] | None = None,
     dependence_structure_ref: dict[str, object] | None = None,
-) -> tuple[object, object]:
+    welfare_config_overrides: dict[str, object] | None = None,
+    require_success: bool = True,
+) -> tuple[object, object | None]:
     run = RunContext.start(store=store, registry_bundle=registry_ref, run_id=run_id)
     ctx = ExecutionContext(
         store=store,
@@ -1314,6 +1318,7 @@ def _run_b197_welfare(
         config["input_envelopes"] = input_envelopes
     if dependence_structure_ref is not None:
         config["dependence_structure_ref"] = dependence_structure_ref
+    config.update(welfare_config_overrides or {})
     input_refs = {INPUT_CALIBRATION_REPORT_REF: report_ref} if report_ref is not None else {}
     state = ExperimentState(
         run_id=run_id,
@@ -1331,12 +1336,64 @@ def _run_b197_welfare(
         },
     )
     outcome = PropagateWelfareNode().execute(ctx, state)
-    assert outcome.status == "ok", outcome.error
+    if outcome.status != "ok":
+        if require_success:
+            pytest.fail(f"welfare node did not succeed: {outcome.error}")
+        return outcome, None
     bundle = load_welfare_bundle(
         _ensure_ir_artifact_store(store),
         outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF],
     )
     return outcome, bundle
+
+
+def _run_b194_draw_execution_case(
+    tmp_path,
+    monkeypatch,
+    simulation_fn,
+    *,
+    run_id: str,
+    require_success: bool = True,
+):
+    store = FileSystemCAS(tmp_path)
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    envelope_ref = _persist_empirical_welfare_envelope(store, (-1.0, 1.0))
+
+    def build_simulation_fn(
+        _ctx,
+        *,
+        context,
+        available_envelopes,
+        ge_condition_number_threshold,
+    ):
+        del context
+        del ge_condition_number_threshold
+        assert set(available_envelopes.envelopes) == {"C.rate"}
+        return (
+            simulation_fn,
+            {"C.rate": 0.0},
+            dict(available_envelopes.envelopes),
+            {"C.rate": envelope_ref},
+        )
+
+    monkeypatch.setattr(
+        propagate_welfare_module,
+        "_build_simulation_fn",
+        build_simulation_fn,
+    )
+    outcome, bundle = _run_b197_welfare(
+        store,
+        registry_ref,
+        _b197_simulation_result(store),
+        None,
+        run_id=run_id,
+        method="monte_carlo",
+        weights=[1.0],
+        labels=["C"],
+        input_envelopes={"C.rate": envelope_ref.model_dump(mode="json")},
+        require_success=require_success,
+    )
+    return store, outcome, bundle
 
 
 def _manifest_has_input(store: FileSystemCAS, target_ref, source_ref, role: str) -> bool:
@@ -2107,14 +2164,24 @@ def test_partial_welfare_draws_retain_terminal_outcomes_after_fresh_cas_readback
     )
     envelope_ref = persist_uncertainty_envelope(_ensure_ir_artifact_store(store), envelope)
 
-    def build_failing_simulation_fn(_ctx, *, context, available_envelopes):
+    def build_failing_simulation_fn(
+        _ctx,
+        *,
+        context,
+        available_envelopes,
+        ge_condition_number_threshold,
+    ):
         del context
+        del ge_condition_number_threshold
         assert set(available_envelopes.envelopes) == {"C.rate"}
 
         def simulation_fn(**params: float) -> dict[str, float]:
             rate = float(params["C.rate"])
             if rate < -0.75:
-                raise RuntimeError("the evaluator does not support this sampled input")
+                raise propagate_welfare_module.WelfareSampleDomainError(
+                    "the evaluator does not support this sampled input",
+                    predicate_id="test.c_rate.lower_domain_bound",
+                )
             value = 1.0 if rate == 0.0 else 2.0
             return {
                 "welfare": value,
@@ -2186,12 +2253,15 @@ def test_partial_welfare_draws_retain_terminal_outcomes_after_fresh_cas_readback
         range(len(sample_bundle.welfare_draws))
     )
     assert all(row["sampled_input_sha256"] for row in outcomes)
-    assert all(row["outcome_code"] == "simulation_exception" for row in failures)
-    assert all(row["error_type"] == "RuntimeError" for row in failures)
+    assert all(row["outcome_code"] == "sample_domain_inapplicable" for row in failures)
+    assert all(row["error_type"] == "WelfareSampleDomainError" for row in failures)
     assert all(
         row["error_message"] == "the evaluator does not support this sampled input"
         for row in failures
     )
+    assert all(row["domain_declaration_grade"] == "consumer_asserted" for row in failures)
+    assert all(row["domain_predicate_id"] == "test.c_rate.lower_domain_bound" for row in failures)
+    assert all(row["execution_attempt_count"] == 1 for row in failures)
     assert all(row["sample_index"] is None for row in failures)
     assert provenance["summary_semantics"] == "successful_draws_only_conditional_on_execution"
     assert report["valid_draw_count"] == len(sample_bundle.welfare_draws)
@@ -2200,7 +2270,7 @@ def test_partial_welfare_draws_retain_terminal_outcomes_after_fresh_cas_readback
     )
     assert report["conditional_draw_summary"]["welfare_mean"] == 2.0
     assert "draw_summary" not in report
-    assert report["schema_version"] == "1.1"
+    assert report["schema_version"] == "1.2"
     assert sample_bundle.metadata["draw_outcome_provenance"] == provenance
     assert persisted_bundle.status.value == "partial"
     assert persisted_bundle.point_estimate == 1.0
@@ -2239,6 +2309,399 @@ def test_partial_welfare_draws_retain_terminal_outcomes_after_fresh_cas_readback
     assert any(
         item.role == "propagation_report" and str(item.artifact_id) == str(report_id)
         for item in bundle_manifest.inputs
+    )
+
+
+def test_welfare_mc_retries_explicit_transient_on_same_draw_before_fresh_cas_readback(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    calls: list[float] = []
+
+    def simulation_fn(**params: float) -> dict[str, float]:
+        value = float(params["C.rate"])
+        calls.append(value)
+        if len(calls) == 2:
+            shared_context = RuntimeError("shared cause and context diagnostic")
+            error = PolicyOSError(
+                "temporary evaluator transport failure",
+                category=ErrorCategory.TRANSIENT,
+                code="evaluation.transient",
+            )
+            error.__cause__ = shared_context
+            error.__context__ = shared_context
+            raise error
+        return {"welfare": value, "welfare_pe": value, "welfare_ge": 0.0}
+
+    _store, outcome, bundle = _run_b194_draw_execution_case(
+        tmp_path,
+        monkeypatch,
+        simulation_fn,
+        run_id="R_b194_retry_same_draw",
+    )
+
+    assert outcome.status == "ok"
+    assert bundle is not None
+    assert "welfare_mc_incomplete_draws" not in bundle.warnings
+    assert bundle.credible_interval is not None
+    assert calls[1] == calls[2]
+
+    fresh_store = FileSystemCAS(tmp_path)
+    report_id = ArtifactID.model_validate(bundle.diagnostics["propagation_report_ref"])
+    report = from_canonical_bytes(fresh_store.get_bytes(report_id))
+    provenance = report["draw_outcome_provenance"]
+    first_draw = provenance["outcomes"][0]
+    assert first_draw["outcome_code"] == "success"
+    assert provenance["schema_version"] == "1.2"
+    assert first_draw["execution_attempt_count"] == 2
+    assert [attempt["outcome_code"] for attempt in first_draw["execution_attempts"]] == [
+        "transient_retry",
+        "success",
+    ]
+    assert {attempt["sampled_input_sha256"] for attempt in first_draw["execution_attempts"]} == {
+        first_draw["sampled_input_sha256"]
+    }
+    assert {attempt["draw_index"] for attempt in first_draw["execution_attempts"]} == {0}
+    assert [attempt["attempt_number"] for attempt in first_draw["execution_attempts"]] == [1, 2]
+    assert provenance["attempted_draw_count"] == 100
+    assert provenance["simulation_attempt_count"] == 101
+    assert provenance["retry_attempt_count"] == 1
+    assert provenance["max_attempts_per_draw"] == 2
+    assert provenance["successful_draw_count"] == 100
+    assert provenance["failed_draw_count"] == 0
+
+
+def test_welfare_mc_persistent_transient_is_bounded_and_withholds_interval(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    calls: list[float] = []
+
+    def simulation_fn(**params: float) -> dict[str, float]:
+        value = float(params["C.rate"])
+        calls.append(value)
+        if len(calls) in {2, 3}:
+            raise PolicyOSError(
+                "persistent evaluator transport failure",
+                category=ErrorCategory.TRANSIENT,
+                code="evaluation.transient",
+            )
+        return {"welfare": value, "welfare_pe": value, "welfare_ge": 0.0}
+
+    _store, outcome, bundle = _run_b194_draw_execution_case(
+        tmp_path,
+        monkeypatch,
+        simulation_fn,
+        run_id="R_b194_retry_exhausted",
+    )
+
+    assert outcome.status == "ok"
+    assert bundle is not None
+    assert bundle.status.value == "partial"
+    assert bundle.credible_interval is None
+    assert "welfare_mc_incomplete_draws" in bundle.warnings
+    assert calls[1] == calls[2]
+
+    fresh_store = FileSystemCAS(tmp_path)
+    report_id = ArtifactID.model_validate(bundle.diagnostics["propagation_report_ref"])
+    report = from_canonical_bytes(fresh_store.get_bytes(report_id))
+    provenance = report["draw_outcome_provenance"]
+    first_draw = provenance["outcomes"][0]
+    assert first_draw["outcome_code"] == "transient_retry_exhausted"
+    assert first_draw["execution_attempt_count"] == 2
+    assert [attempt["outcome_code"] for attempt in first_draw["execution_attempts"]] == [
+        "transient_retry",
+        "transient_retry_exhausted",
+    ]
+    assert (
+        len({attempt["sampled_input_sha256"] for attempt in first_draw["execution_attempts"]}) == 1
+    )
+    assert {attempt["draw_index"] for attempt in first_draw["execution_attempts"]} == {0}
+    assert [attempt["attempt_number"] for attempt in first_draw["execution_attempts"]] == [1, 2]
+    assert provenance["attempted_draw_count"] == 100
+    assert provenance["simulation_attempt_count"] == 101
+    assert provenance["retry_attempt_count"] == 1
+    assert provenance["successful_draw_count"] == 99
+    assert provenance["failed_draw_count"] == 1
+    assert provenance["summary_semantics"] == "successful_draws_only_conditional_on_execution"
+    assert "draw_summary" not in report
+    assert "conditional_draw_summary" in report
+
+
+def test_welfare_mc_requires_explicit_sample_domain_signal_for_partial_draw(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    calls: list[float] = []
+    domain_error = propagate_welfare_module.WelfareSampleDomainError
+
+    def simulation_fn(**params: float) -> dict[str, float]:
+        value = float(params["C.rate"])
+        calls.append(value)
+        if len(calls) == 2:
+            raise domain_error(
+                "sampled input is outside the evaluator's declared domain",
+                predicate_id="test.c_rate.evaluator_domain",
+            )
+        return {"welfare": value, "welfare_pe": value, "welfare_ge": 0.0}
+
+    _store, outcome, bundle = _run_b194_draw_execution_case(
+        tmp_path,
+        monkeypatch,
+        simulation_fn,
+        run_id="R_b194_declared_sample_domain",
+    )
+
+    assert outcome.status == "ok"
+    assert bundle is not None
+    assert bundle.status.value == "partial"
+    assert bundle.credible_interval is None
+    assert "welfare_mc_incomplete_draws" in bundle.warnings
+
+    fresh_store = FileSystemCAS(tmp_path)
+    report_id = ArtifactID.model_validate(bundle.diagnostics["propagation_report_ref"])
+    report = from_canonical_bytes(fresh_store.get_bytes(report_id))
+    provenance = report["draw_outcome_provenance"]
+    first_draw = provenance["outcomes"][0]
+    assert first_draw["outcome_code"] == "sample_domain_inapplicable"
+    assert first_draw["execution_attempt_count"] == 1
+    assert first_draw["sampled_input_sha256"]
+    assert first_draw["domain_declaration_grade"] == "consumer_asserted"
+    assert provenance["simulation_attempt_count"] == 100
+    assert provenance["retry_attempt_count"] == 0
+    assert provenance["failed_draw_count"] == 1
+    assert provenance["summary_semantics"] == "successful_draws_only_conditional_on_execution"
+    assert "draw_summary" not in report
+    assert "conditional_draw_summary" in report
+
+
+@pytest.mark.parametrize(
+    ("failure_case", "expected_code", "expected_scope"),
+    [
+        ("permission", "ERROR_WELFARE_GLOBAL_EVALUATION_FAILURE", "global"),
+        ("validation", "ERROR_WELFARE_GLOBAL_EVALUATION_FAILURE", "global"),
+        ("typed_fatal", "ERROR_WELFARE_GLOBAL_EVALUATION_FAILURE", "global"),
+        ("typed_validation", "ERROR_WELFARE_GLOBAL_EVALUATION_FAILURE", "global"),
+        ("unknown", "ERROR_WELFARE_EVALUATION_SCOPE_UNKNOWN", "unknown"),
+        ("cyclic_unknown", "ERROR_WELFARE_EVALUATION_SCOPE_UNKNOWN", "unknown"),
+        ("domain_cycle", "ERROR_WELFARE_EVALUATION_SCOPE_UNKNOWN", "unknown"),
+        ("transient_cycle", "ERROR_WELFARE_EVALUATION_SCOPE_UNKNOWN", "unknown"),
+        ("domain_wrapped_permission", "ERROR_WELFARE_GLOBAL_EVALUATION_FAILURE", "global"),
+        ("deep_domain_wrapped_permission", "ERROR_WELFARE_EVALUATION_SCOPE_UNKNOWN", "unknown"),
+        ("transient_wrapped_validation", "ERROR_WELFARE_GLOBAL_EVALUATION_FAILURE", "global"),
+    ],
+)
+def test_welfare_mc_does_not_launder_global_or_unknown_failures_as_draws(
+    tmp_path,
+    monkeypatch,
+    failure_case: str,
+    expected_code: str,
+    expected_scope: str,
+) -> None:
+    calls: list[float] = []
+    domain_error = propagate_welfare_module.WelfareSampleDomainError
+
+    def raise_validation_error() -> None:
+        TypeAdapter(int).validate_python("not an integer")
+
+    def simulation_fn(**params: float) -> dict[str, float]:
+        value = float(params["C.rate"])
+        calls.append(value)
+        if len(calls) == 2:
+            if failure_case == "permission":
+                raise PermissionError("evaluator access denied")
+            if failure_case == "validation":
+                raise_validation_error()
+            if failure_case == "typed_fatal":
+                raise PolicyOSError(
+                    "fatal evaluator failure",
+                    category=ErrorCategory.FATAL,
+                    code="evaluation.fatal",
+                )
+            if failure_case == "typed_validation":
+                raise PolicyOSError(
+                    "evaluator contract violation",
+                    category=ErrorCategory.VALIDATION,
+                    code="evaluation.contract",
+                )
+            if failure_case == "unknown":
+                raise RuntimeError("unclassified evaluator failure")
+            if failure_case == "cyclic_unknown":
+                error = RuntimeError("cyclic unclassified evaluator failure")
+                error.__cause__ = error
+                raise error
+            if failure_case == "domain_cycle":
+                error = domain_error(
+                    "cyclic declared sample-domain failure",
+                    predicate_id="test.c_rate.evaluator_domain",
+                )
+                error.__cause__ = error
+                raise error
+            if failure_case == "transient_cycle":
+                error = PolicyOSError(
+                    "cyclic transient evaluator failure",
+                    category=ErrorCategory.TRANSIENT,
+                    code="evaluation.transient",
+                )
+                error.__cause__ = error
+                raise error
+            if failure_case == "domain_wrapped_permission":
+                try:
+                    raise PermissionError("wrapped access denial")
+                except PermissionError as exc:
+                    raise domain_error(
+                        "declared sample-domain failure",
+                        predicate_id="test.c_rate.evaluator_domain",
+                    ) from exc
+            if failure_case == "deep_domain_wrapped_permission":
+                cause: Exception = PermissionError("deep wrapped access denial")
+                for _ in range(80):
+                    wrapper = RuntimeError("bounded cause-chain wrapper")
+                    wrapper.__cause__ = cause
+                    cause = wrapper
+                raise domain_error(
+                    "declared sample-domain failure",
+                    predicate_id="test.c_rate.evaluator_domain",
+                ) from cause
+            if failure_case == "transient_wrapped_validation":
+                try:
+                    raise_validation_error()
+                except Exception as exc:
+                    raise PolicyOSError(
+                        "transient wrapper around a contract failure",
+                        category=ErrorCategory.TRANSIENT,
+                        code="evaluation.transient",
+                    ) from exc
+            raise AssertionError(f"unknown failure case {failure_case}")
+        return {"welfare": value, "welfare_pe": value, "welfare_ge": 0.0}
+
+    _store, outcome, bundle = _run_b194_draw_execution_case(
+        tmp_path,
+        monkeypatch,
+        simulation_fn,
+        run_id=f"R_b194_failure_{failure_case}",
+        require_success=False,
+    )
+
+    assert outcome.status == "fail"
+    assert bundle is None
+    assert outcome.error.code == expected_code
+    assert outcome.error.details["failure_scope"] == expected_scope
+    assert outcome.error.details["draw_index"] == 0
+    assert outcome.error.details["sampled_input_sha256"]
+    assert outcome.error.details["execution_attempt_count"] == 1
+    assert outcome.error.details["execution_attempts"][0]["draw_index"] == 0
+    if expected_scope == "unknown":
+        assert "domain_predicate_id" not in outcome.error.details
+    if failure_case == "cyclic_unknown":
+        assert outcome.error.details["cause_type_chain"] == ["RuntimeError"]
+    if failure_case in {"domain_cycle", "transient_cycle"}:
+        assert outcome.error.details["retry_attempt_count"] == 0
+        assert outcome.error.details["cause_chain_cycle_detected"] is True
+    if failure_case == "deep_domain_wrapped_permission":
+        assert outcome.error.details["cause_type_chain"][-1] == "ExceptionChainTruncated"
+    assert len(calls) == 2
+
+
+def test_welfare_mc_sampling_failure_fails_without_drawing_a_replacement(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    calls: list[float] = []
+
+    def simulation_fn(**params: float) -> dict[str, float]:
+        value = float(params["C.rate"])
+        calls.append(value)
+        return {"welfare": value, "welfare_pe": value, "welfare_ge": 0.0}
+
+    def fail_sampling(*args, **kwargs):
+        del args, kwargs
+        raise PermissionError("sample source access denied")
+
+    monkeypatch.setattr(propagate_welfare_module, "_sample_param_draw", fail_sampling)
+    _store, outcome, bundle = _run_b194_draw_execution_case(
+        tmp_path,
+        monkeypatch,
+        simulation_fn,
+        run_id="R_b194_sampling_access_failure",
+        require_success=False,
+    )
+
+    assert outcome.status == "fail"
+    assert bundle is None
+    assert outcome.error.code == "ERROR_WELFARE_GLOBAL_EVALUATION_FAILURE"
+    assert outcome.error.details["failure_scope"] == "global"
+    assert outcome.error.details["failure_stage"] == "sample_generation"
+    assert outcome.error.details["draw_index"] == 0
+    assert outcome.error.details["sampled_input_sha256"] is None
+    assert outcome.error.details["execution_attempt_count"] == 0
+    assert outcome.error.details["attempted_draw_count"] == 1
+    assert outcome.error.details["simulation_attempt_count"] == 0
+    assert outcome.error.details["retry_attempt_count"] == 0
+    assert len(calls) == 1
+
+
+def test_welfare_mc_default_ge_evaluator_declares_sampled_condition_domain_through_cas(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    envelope_ref = _persist_empirical_welfare_envelope(store, (-1.0, 1.0))
+    outcome, bundle = _run_b197_welfare(
+        store,
+        registry_ref,
+        _b197_simulation_result(store),
+        None,
+        run_id="R_b194_default_ge_sample_domain",
+        method="monte_carlo",
+        weights=[1.0],
+        labels=["C"],
+        input_envelopes={"C.rate": envelope_ref.model_dump(mode="json")},
+        welfare_config_overrides={
+            "ge_technical_coefficients": [[0.0]],
+            "ge_entry_map": {"C.rate": [0, 0]},
+        },
+    )
+
+    assert outcome.status == "ok"
+    assert bundle is not None
+    assert bundle.status.value == "partial"
+    assert bundle.point_estimate == pytest.approx(1.0)
+    assert bundle.credible_interval is None
+    assert "welfare_mc_incomplete_draws" in bundle.warnings
+
+    fresh_store = FileSystemCAS(tmp_path)
+    fresh_ir_store = _ensure_ir_artifact_store(fresh_store)
+    fresh_bundle = load_welfare_bundle(
+        fresh_ir_store,
+        outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF],
+    )
+    report_id = ArtifactID.model_validate(fresh_bundle.diagnostics["propagation_report_ref"])
+    report = from_canonical_bytes(fresh_store.get_bytes(report_id))
+    provenance = report["draw_outcome_provenance"]
+    domain_rows = [
+        row for row in provenance["outcomes"] if row["outcome_code"] == "sample_domain_inapplicable"
+    ]
+    assert domain_rows
+    assert all(row["execution_attempt_count"] == 1 for row in domain_rows)
+    assert all(row["sampled_input_sha256"] for row in domain_rows)
+    assert all(
+        row["domain_predicate_id"] == "welfare.ge_operator.condition_number_within_threshold"
+        for row in domain_rows
+    )
+    assert all(row["domain_declaration_grade"] == "consumer_asserted" for row in domain_rows)
+    assert len(report["conditional_draw_summary"]) > 0
+    assert "draw_summary" not in report
+    assert provenance["successful_draw_count"] + provenance["failed_draw_count"] == 100
+    assert provenance["failed_draw_count"] == len(domain_rows)
+    sample_bundle = load_welfare_sample_bundle(fresh_ir_store, fresh_bundle.sample_bundle_ref)
+    assert len(sample_bundle.welfare_draws) == provenance["successful_draw_count"]
+    assert sample_bundle.metadata["draw_outcome_provenance"] == provenance
+    report_manifest = fresh_store.get_manifest(report_id)
+    assert any(
+        item.role == "sample_bundle"
+        and str(item.artifact_id) == str(fresh_bundle.sample_bundle_ref.artifact_id)
+        for item in report_manifest.inputs
     )
 
 

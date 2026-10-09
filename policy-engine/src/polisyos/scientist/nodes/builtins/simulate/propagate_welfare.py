@@ -6,10 +6,10 @@ import hashlib
 import itertools
 import json
 import math
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from statistics import NormalDist
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 import numpy as np
 from pydantic import ValidationError
@@ -28,6 +28,7 @@ from polisyos.core.contracts.foundry import (
     SimulationResult,
     SimulationResultRef,
 )
+from polisyos.core.errors import ErrorCategory, PolicyOSError
 from polisyos.foundry.calibration.report import (
     CalibrationCoordinateProjection,
     CalibrationReport,
@@ -108,8 +109,13 @@ _ERROR_INTERVAL_SEMANTICS_INVALID = "ERROR_INTERVAL_SEMANTICS_INVALID"
 _ERROR_MONTE_CARLO_NOT_CONVERGED = "ERROR_MONTE_CARLO_NOT_CONVERGED"
 _ERROR_WELFARE_OUTPUT_NONFINITE = "ERROR_WELFARE_OUTPUT_NONFINITE"
 _ERROR_WELFARE_UNCERTAINTY_SCALE_INVALID = "ERROR_WELFARE_UNCERTAINTY_SCALE_INVALID"
+_ERROR_WELFARE_GLOBAL_EVALUATION_FAILURE = "ERROR_WELFARE_GLOBAL_EVALUATION_FAILURE"
+_ERROR_WELFARE_EVALUATION_SCOPE_UNKNOWN = "ERROR_WELFARE_EVALUATION_SCOPE_UNKNOWN"
 _ERROR_CHANNEL_DECOMPOSITION_CONFIG_INVALID = "ERROR_CHANNEL_DECOMPOSITION_CONFIG_INVALID"
 _ERROR_CHANNEL_DECOMPOSITION_BUILD_FAILED = "ERROR_CHANNEL_DECOMPOSITION_BUILD_FAILED"
+_WELFARE_MC_MAX_EXECUTION_ATTEMPTS = 2
+_WELFARE_EXCEPTION_CHAIN_LIMIT = 64
+_WELFARE_EXCEPTION_EDGE_LIMIT = _WELFARE_EXCEPTION_CHAIN_LIMIT * 4
 
 _EXPLICIT_WELFARE_RESPONSE_KEYS = frozenset(("pe_response", "metric_order", "weights"))
 _EXPLICIT_GE_UNCERTAINTY_KEYS = frozenset(
@@ -315,6 +321,241 @@ class _WelfareNodeFailure(Exception):
         self.error = error
 
 
+class WelfareSampleDomainError(Exception):
+    """Declare that one sampled input is outside an evaluator's defined domain.
+
+    This signal is diagnostic input from the evaluator, not independent proof of the
+    domain predicate. Welfare propagation records it as a consumer assertion and
+    withholds an unconditional Monte Carlo interval when any draw is unavailable.
+    """
+
+    def __init__(self, message: str, *, predicate_id: str) -> None:
+        normalized_predicate_id = predicate_id.strip() if isinstance(predicate_id, str) else ""
+        if (
+            not normalized_predicate_id
+            or len(normalized_predicate_id) > 128
+            or not normalized_predicate_id[0].isascii()
+            or not normalized_predicate_id[0].isalnum()
+            or any(
+                not (character.isascii() and (character.isalnum() or character in "._:-"))
+                for character in normalized_predicate_id
+            )
+        ):
+            raise ValueError("sample-domain failures require a bounded identifier predicate_id")
+        super().__init__(message)
+        self.predicate_id = normalized_predicate_id
+
+
+def _welfare_exception_children(exc: BaseException) -> Iterator[BaseException]:
+    """Yield directed exception links without flattening unbounded groups."""
+    if exc.__cause__ is not None:
+        yield exc.__cause__
+    if exc.__context__ is not None:
+        yield exc.__context__
+    if isinstance(exc, BaseExceptionGroup):
+        yield from exc.exceptions
+
+
+def _welfare_exception_chain(
+    exc: BaseException,
+) -> tuple[list[BaseException], bool, bool]:
+    """Traverse a bounded cause/context graph and distinguish cycles from shared nodes."""
+    chain: list[BaseException] = []
+    visited: set[int] = set()
+    active: set[int] = set()
+    stack: list[tuple[BaseException, Iterator[BaseException] | None]] = [(exc, None)]
+    edge_count = 0
+    chain_complete = True
+    cycle_detected = False
+    while stack:
+        current, children = stack[-1]
+        if children is None:
+            current_id = id(current)
+            if current_id in active:
+                cycle_detected = True
+                stack.pop()
+                continue
+            if current_id in visited:
+                stack.pop()
+                continue
+            if len(chain) >= _WELFARE_EXCEPTION_CHAIN_LIMIT:
+                chain_complete = False
+                break
+            visited.add(current_id)
+            active.add(current_id)
+            chain.append(current)
+            stack[-1] = (current, iter(_welfare_exception_children(current)))
+            continue
+        try:
+            child = next(children)
+        except StopIteration:
+            active.remove(id(current))
+            stack.pop()
+            continue
+        edge_count += 1
+        if edge_count > _WELFARE_EXCEPTION_EDGE_LIMIT:
+            chain_complete = False
+            break
+        child_id = id(child)
+        if child_id in active:
+            cycle_detected = True
+            continue
+        if child_id in visited:
+            continue
+        stack.append((child, None))
+    return chain, chain_complete, cycle_detected
+
+
+def _welfare_draw_failure_scope(
+    exc: Exception,
+) -> Literal["transient", "sample_domain", "global", "unknown"]:
+    """Classify only explicit PolicyOS retry/domain signals and fatal causes."""
+    chain, chain_complete, cycle_detected = _welfare_exception_chain(exc)
+    for cause in chain:
+        if isinstance(cause, (PermissionError, ValidationError, _WelfareNodeFailure)):
+            return "global"
+        if isinstance(cause, PolicyOSError) and cause.category in {
+            ErrorCategory.FATAL,
+            ErrorCategory.VALIDATION,
+        }:
+            return "global"
+    if cycle_detected or not chain_complete:
+        return "unknown"
+    if isinstance(exc, WelfareSampleDomainError):
+        return "sample_domain"
+    if isinstance(exc, PolicyOSError) and exc.category is ErrorCategory.TRANSIENT:
+        return "transient"
+    return "unknown"
+
+
+def _welfare_exception_type_chain(exc: Exception) -> list[str]:
+    chain, chain_complete, _cycle_detected = _welfare_exception_chain(exc)
+    names = [type(cause).__name__ for cause in chain]
+    if not chain_complete:
+        names.append("ExceptionChainTruncated")
+    return names
+
+
+def _raise_welfare_mc_execution_failure(
+    exc: Exception,
+    *,
+    draw_index: int | None,
+    sampled_input_sha256: str | None,
+    execution_attempts: list[dict[str, Any]],
+    attempted_draw_count: int,
+    simulation_attempt_count: int,
+    retry_attempt_count: int,
+    failure_stage: Literal["sample_generation", "sample_evaluation"],
+) -> None:
+    """Fail the node when the evaluator cannot establish a safe draw-local outcome."""
+    scope = _welfare_draw_failure_scope(exc)
+    if failure_stage == "sample_generation" or scope in {"global", "unknown"}:
+        scope = "global" if scope == "global" else "unknown"
+        code = (
+            _ERROR_WELFARE_GLOBAL_EVALUATION_FAILURE
+            if scope == "global"
+            else _ERROR_WELFARE_EVALUATION_SCOPE_UNKNOWN
+        )
+        message = (
+            "Welfare Monte Carlo evaluation failed outside a declared sampled-input domain"
+            if scope == "global"
+            else "Welfare Monte Carlo evaluation failure scope is unknown"
+        )
+        raise _fail_error(
+            code,
+            message,
+            details={
+                "failure_scope": scope,
+                "failure_stage": failure_stage,
+                "draw_index": draw_index,
+                "sampled_input_sha256": sampled_input_sha256,
+                "execution_attempt_count": len(execution_attempts),
+                "execution_attempts": list(execution_attempts),
+                "attempted_draw_count": attempted_draw_count,
+                "simulation_attempt_count": simulation_attempt_count,
+                "retry_attempt_count": retry_attempt_count,
+                "max_attempts_per_draw": _WELFARE_MC_MAX_EXECUTION_ATTEMPTS,
+                "error_type": type(exc).__name__,
+                "error_message": _bounded_welfare_error_message(exc),
+                "cause_type_chain": _welfare_exception_type_chain(exc),
+                "cause_chain_complete": _welfare_exception_chain(exc)[1],
+                "cause_chain_cycle_detected": _welfare_exception_chain(exc)[2],
+                "declared_error_category": (
+                    exc.category.value
+                    if isinstance(exc, PolicyOSError) and isinstance(exc.category, ErrorCategory)
+                    else None
+                ),
+            },
+        ) from exc
+    raise AssertionError("draw-local failures must be recorded, not raised as node failures")
+
+
+def _welfare_execution_attempt(
+    *,
+    draw_index: int,
+    attempt_index: int,
+    sampled_input_sha256: str,
+    outcome_code: str,
+    error: Exception | None = None,
+    details: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Build one bounded execution record for a fixed sampled input."""
+    attempt: dict[str, Any] = {
+        "draw_index": draw_index,
+        "attempt_index": attempt_index,
+        "attempt_number": attempt_index + 1,
+        "sampled_input_sha256": sampled_input_sha256,
+        "outcome_code": outcome_code,
+        "error_type": type(error).__name__ if error is not None else None,
+    }
+    if error is not None:
+        attempt["error_message"] = _bounded_welfare_error_message(error)
+    if details:
+        attempt.update(details)
+    return attempt
+
+
+def _welfare_draw_terminal_outcome(
+    *,
+    draw_index: int,
+    sampled_input_sha256: str,
+    outcome_code: str,
+    execution_attempts: list[dict[str, Any]],
+    attempt_index: int | None = None,
+    sample_index: int | None = None,
+    error: Exception | None = None,
+    details: Mapping[str, Any] | None = None,
+    terminal_attempt: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Build one terminal draw row and retain all attempts against its sampled input."""
+    if terminal_attempt is None:
+        if attempt_index is None:
+            raise ValueError("terminal draw outcomes require an attempt index or terminal record")
+        terminal_attempt = _welfare_execution_attempt(
+            draw_index=draw_index,
+            attempt_index=attempt_index,
+            sampled_input_sha256=sampled_input_sha256,
+            outcome_code=outcome_code,
+            error=error,
+            details=details,
+        )
+        execution_attempts.append(terminal_attempt)
+    terminal: dict[str, Any] = {
+        "draw_index": draw_index,
+        "sampled_input_sha256": sampled_input_sha256,
+        "sample_index": sample_index,
+        "outcome_code": outcome_code,
+        "execution_attempt_count": len(execution_attempts),
+        "execution_attempts": list(execution_attempts),
+        "error_type": terminal_attempt.get("error_type"),
+    }
+    if "error_message" in terminal_attempt:
+        terminal["error_message"] = terminal_attempt["error_message"]
+    if details:
+        terminal.update(details)
+    return terminal
+
+
 @dataclass(frozen=True)
 class PropagateWelfareNode:
     """Propagate welfare under PE/GE uncertainty into a typed top-level bundle."""
@@ -392,6 +633,11 @@ class PropagateWelfareNode:
                     ctx,
                     context=context,
                     available_envelopes=collection,
+                    ge_condition_number_threshold=float(
+                        welfare_params.get(
+                            "ge_condition_number_threshold", _DEFAULT_CONDITION_THRESHOLD
+                        )
+                    ),
                 )
             )
             if (
@@ -1589,6 +1835,7 @@ def _build_simulation_fn(
     *,
     context: _ResolvedWelfareContext,
     available_envelopes: _EnvelopeCollection,
+    ge_condition_number_threshold: float = _DEFAULT_CONDITION_THRESHOLD,
 ) -> tuple[
     Any, dict[str, float], dict[str, UncertaintyEnvelope], dict[str, UncertaintyEnvelopeRef]
 ]:
@@ -1687,8 +1934,10 @@ def _build_simulation_fn(
                     continue
                 current_value = float(params.get(param_name, float(env.point_estimate)))
                 current_coefficients[row_idx, col_idx] = current_value
-            identity = np.eye(current_coefficients.shape[0], dtype=np.float64)
-            multiplier = np.linalg.inv(identity - current_coefficients)
+            multiplier = _invert_sampled_ge_operator(
+                current_coefficients,
+                condition_threshold=ge_condition_number_threshold,
+            )
             total = multiplier @ response
 
         welfare_pe = float(weights @ response)
@@ -1898,6 +2147,8 @@ def _propagate_credible_interval(
         dependence_sampler = empirical_row_sampler.dependence_note
     requested_draw_count = int(config.mc_n_samples)
     attempted_draw_count = 0
+    simulation_attempt_count = 0
+    retry_attempt_count = 0
     terminal_outcomes: list[dict[str, Any]] = []
     for draw_index in range(requested_draw_count):
         attempted_draw_count += 1
@@ -1912,105 +2163,169 @@ def _propagate_credible_interval(
             )
             sampled_input_sha256 = _welfare_sampled_input_sha256(draw_params)
         except Exception as exc:
-            terminal_outcomes.append(
-                {
-                    "draw_index": draw_index,
-                    "sampled_input_sha256": None,
-                    "sample_index": None,
-                    "outcome_code": "sampling_exception",
-                    "error_type": type(exc).__name__,
-                    "error_message": _bounded_welfare_error_message(exc),
-                }
+            _raise_welfare_mc_execution_failure(
+                exc,
+                draw_index=draw_index,
+                sampled_input_sha256=None,
+                execution_attempts=[],
+                attempted_draw_count=attempted_draw_count,
+                simulation_attempt_count=simulation_attempt_count,
+                retry_attempt_count=retry_attempt_count,
+                failure_stage="sample_generation",
             )
-            continue
 
-        try:
-            outputs = simulation_fn(**draw_params)
-        except Exception as exc:
-            terminal_outcomes.append(
-                {
-                    "draw_index": draw_index,
-                    "sampled_input_sha256": sampled_input_sha256,
-                    "sample_index": None,
-                    "outcome_code": "simulation_exception",
-                    "error_type": type(exc).__name__,
-                    "error_message": _bounded_welfare_error_message(exc),
-                }
-            )
-            continue
+        execution_attempts: list[dict[str, Any]] = []
+        terminal_outcome: dict[str, Any] | None = None
+        for attempt_index in range(_WELFARE_MC_MAX_EXECUTION_ATTEMPTS):
+            if attempt_index > 0:
+                retry_attempt_count += 1
+            simulation_attempt_count += 1
+            try:
+                outputs = simulation_fn(**draw_params)
+            except Exception as exc:
+                failure_scope = _welfare_draw_failure_scope(exc)
+                if failure_scope in {"global", "unknown"}:
+                    execution_attempts.append(
+                        _welfare_execution_attempt(
+                            draw_index=draw_index,
+                            attempt_index=attempt_index,
+                            sampled_input_sha256=sampled_input_sha256,
+                            outcome_code=f"{failure_scope}_evaluation_failure",
+                            error=exc,
+                        )
+                    )
+                    _raise_welfare_mc_execution_failure(
+                        exc,
+                        draw_index=draw_index,
+                        sampled_input_sha256=sampled_input_sha256,
+                        execution_attempts=execution_attempts,
+                        attempted_draw_count=attempted_draw_count,
+                        simulation_attempt_count=simulation_attempt_count,
+                        retry_attempt_count=retry_attempt_count,
+                        failure_stage="sample_evaluation",
+                    )
+                if failure_scope == "transient":
+                    outcome_code = (
+                        "transient_retry"
+                        if attempt_index + 1 < _WELFARE_MC_MAX_EXECUTION_ATTEMPTS
+                        else "transient_retry_exhausted"
+                    )
+                    attempt = _welfare_execution_attempt(
+                        draw_index=draw_index,
+                        attempt_index=attempt_index,
+                        sampled_input_sha256=sampled_input_sha256,
+                        outcome_code=outcome_code,
+                        error=exc,
+                    )
+                    execution_attempts.append(attempt)
+                    if outcome_code == "transient_retry":
+                        continue
+                    terminal_outcome = _welfare_draw_terminal_outcome(
+                        draw_index=draw_index,
+                        sampled_input_sha256=sampled_input_sha256,
+                        outcome_code=outcome_code,
+                        execution_attempts=execution_attempts,
+                        terminal_attempt=attempt,
+                    )
+                    break
 
-        if not isinstance(outputs, Mapping):
-            terminal_outcomes.append(
-                {
-                    "draw_index": draw_index,
-                    "sampled_input_sha256": sampled_input_sha256,
-                    "sample_index": None,
-                    "outcome_code": "invalid_response",
-                    "error_type": None,
+                domain_error = cast("WelfareSampleDomainError", exc)
+                domain_details = {
+                    "domain_predicate_id": domain_error.predicate_id,
+                    "domain_declaration_grade": "consumer_asserted",
                 }
-            )
-            continue
+                attempt = _welfare_execution_attempt(
+                    draw_index=draw_index,
+                    attempt_index=attempt_index,
+                    sampled_input_sha256=sampled_input_sha256,
+                    outcome_code="sample_domain_inapplicable",
+                    error=exc,
+                    details=domain_details,
+                )
+                execution_attempts.append(attempt)
+                terminal_outcome = _welfare_draw_terminal_outcome(
+                    draw_index=draw_index,
+                    sampled_input_sha256=sampled_input_sha256,
+                    outcome_code="sample_domain_inapplicable",
+                    execution_attempts=execution_attempts,
+                    details=domain_details,
+                    terminal_attempt=attempt,
+                )
+                break
 
-        required_outputs = ("welfare", "welfare_pe", "welfare_ge")
-        missing_outputs = [name for name in required_outputs if name not in outputs]
-        if missing_outputs:
-            terminal_outcomes.append(
-                {
-                    "draw_index": draw_index,
-                    "sampled_input_sha256": sampled_input_sha256,
-                    "sample_index": None,
-                    "outcome_code": "missing_output",
-                    "missing_output_ids": missing_outputs,
-                    "error_type": None,
-                }
-            )
-            continue
+            if not isinstance(outputs, Mapping):
+                terminal_outcome = _welfare_draw_terminal_outcome(
+                    draw_index=draw_index,
+                    sampled_input_sha256=sampled_input_sha256,
+                    outcome_code="invalid_response",
+                    execution_attempts=execution_attempts,
+                    attempt_index=attempt_index,
+                )
+                break
 
-        try:
-            welfare, welfare_pe, welfare_ge = (float(outputs[name]) for name in required_outputs)
-        except (TypeError, ValueError, OverflowError) as exc:
-            terminal_outcomes.append(
-                {
-                    "draw_index": draw_index,
-                    "sampled_input_sha256": sampled_input_sha256,
-                    "sample_index": None,
-                    "outcome_code": "non_numeric_output",
-                    "error_type": type(exc).__name__,
-                    "error_message": _bounded_welfare_error_message(exc),
-                }
-            )
-            continue
-        if not all(math.isfinite(value) for value in (welfare, welfare_pe, welfare_ge)):
-            terminal_outcomes.append(
-                {
-                    "draw_index": draw_index,
-                    "sampled_input_sha256": sampled_input_sha256,
-                    "sample_index": None,
-                    "outcome_code": "non_finite_output",
-                    "error_type": None,
-                }
-            )
-            continue
+            required_outputs = ("welfare", "welfare_pe", "welfare_ge")
+            missing_outputs = [name for name in required_outputs if name not in outputs]
+            if missing_outputs:
+                terminal_outcome = _welfare_draw_terminal_outcome(
+                    draw_index=draw_index,
+                    sampled_input_sha256=sampled_input_sha256,
+                    outcome_code="missing_output",
+                    execution_attempts=execution_attempts,
+                    attempt_index=attempt_index,
+                    details={"missing_output_ids": missing_outputs},
+                )
+                break
 
-        sample_index = len(draws_welfare)
-        draws_welfare.append(welfare)
-        draws_pe.append(welfare_pe)
-        draws_ge.append(welfare_ge)
-        terminal_outcomes.append(
-            {
-                "draw_index": draw_index,
-                "sampled_input_sha256": sampled_input_sha256,
-                "sample_index": sample_index,
-                "outcome_code": "success",
-                "error_type": None,
-            }
-        )
+            try:
+                welfare, welfare_pe, welfare_ge = (
+                    float(outputs[name]) for name in required_outputs
+                )
+            except (TypeError, ValueError, OverflowError) as exc:
+                terminal_outcome = _welfare_draw_terminal_outcome(
+                    draw_index=draw_index,
+                    sampled_input_sha256=sampled_input_sha256,
+                    outcome_code="non_numeric_output",
+                    execution_attempts=execution_attempts,
+                    attempt_index=attempt_index,
+                    error=exc,
+                )
+                break
+            if not all(math.isfinite(value) for value in (welfare, welfare_pe, welfare_ge)):
+                terminal_outcome = _welfare_draw_terminal_outcome(
+                    draw_index=draw_index,
+                    sampled_input_sha256=sampled_input_sha256,
+                    outcome_code="non_finite_output",
+                    execution_attempts=execution_attempts,
+                    attempt_index=attempt_index,
+                )
+                break
+
+            sample_index = len(draws_welfare)
+            draws_welfare.append(welfare)
+            draws_pe.append(welfare_pe)
+            draws_ge.append(welfare_ge)
+            terminal_outcome = _welfare_draw_terminal_outcome(
+                draw_index=draw_index,
+                sampled_input_sha256=sampled_input_sha256,
+                outcome_code="success",
+                execution_attempts=execution_attempts,
+                attempt_index=attempt_index,
+                sample_index=sample_index,
+            )
+            break
+
+        if terminal_outcome is None:
+            raise AssertionError("Monte Carlo draw did not reach a terminal outcome")
+        terminal_outcomes.append(terminal_outcome)
 
     failed_draw_count = requested_draw_count - len(draws_welfare)
     draw_outcome_provenance = {
-        "schema_version": "1.0",
+        "schema_version": "1.2",
         "requested_draw_count": requested_draw_count,
         "attempted_draw_count": attempted_draw_count,
+        "simulation_attempt_count": simulation_attempt_count,
+        "retry_attempt_count": retry_attempt_count,
+        "max_attempts_per_draw": _WELFARE_MC_MAX_EXECUTION_ATTEMPTS,
         "successful_draw_count": len(draws_welfare),
         "failed_draw_count": failed_draw_count,
         "unattempted_draw_count": requested_draw_count - attempted_draw_count,
@@ -2111,7 +2426,7 @@ def _propagate_credible_interval(
     report_ref = _persist_json_payload(
         ctx,
         payload={
-            "schema_version": "2.1" if calibration_source is not None else "1.1",
+            "schema_version": "2.2" if calibration_source is not None else "1.2",
             "input_envelope_count": len(input_envelopes),
             "methods": ["monte_carlo"],
             "requested_method": requested_method,
@@ -4097,6 +4412,22 @@ def _invert_linear_operator(
             details={"error": str(exc)},
         ) from exc
     return np.asarray(inverse, dtype=np.float64), condition_number
+
+
+def _invert_sampled_ge_operator(
+    coefficients: np.ndarray,
+    *,
+    condition_threshold: float,
+) -> np.ndarray:
+    """Invert a sampled GE coefficient matrix or declare its configured domain limit."""
+    operator = np.eye(coefficients.shape[0], dtype=np.float64) - coefficients
+    condition_number = float(np.linalg.cond(operator))
+    if not math.isfinite(condition_number) or condition_number > condition_threshold:
+        raise WelfareSampleDomainError(
+            "Sampled GE operator exceeds its configured condition-number threshold",
+            predicate_id="welfare.ge_operator.condition_number_within_threshold",
+        )
+    return np.asarray(np.linalg.inv(operator), dtype=np.float64)
 
 
 def _load_ge_model_from_ref(

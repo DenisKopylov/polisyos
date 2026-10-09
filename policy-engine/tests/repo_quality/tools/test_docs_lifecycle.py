@@ -1,8 +1,13 @@
 from __future__ import annotations
 
+import datetime as dt
+import hashlib
 import re
+import sys
 import tomllib
 from pathlib import Path
+
+import pytest
 
 from tools.quality.validation import check_docs_freshness_baseline, check_docs_lifecycle
 from tools.quality.validation.check_docs_gate import build_gate_plan
@@ -20,8 +25,7 @@ def test_phase6_4_docs_lifecycle_gate_passes_current_contract() -> None:
 
 def test_decision_log_has_no_due_unresolved_hds_entries() -> None:
     decision_log = (
-        REPO_ROOT
-        / "docs/system-design-decisions/honest-diagnostics-substrate-decision-log.md"
+        REPO_ROOT / "docs/system-design-decisions/honest-diagnostics-substrate-decision-log.md"
     )
     text = decision_log.read_text(encoding="utf-8")
     closure_targets = set(
@@ -219,7 +223,7 @@ def test_phase1_4_redirect_stub_without_created_date_is_rejected(
                 "target_path: apps",
                 "reason: legacy frontend handoff path retained while references are swept",
                 "sunset_date: 2026-08-05",
-                "removal_gate: uv run rg \"frontend/\" .",
+                'removal_gate: uv run rg "frontend/" .',
                 "---",
                 "",
                 "# Frontend Handoff",
@@ -257,7 +261,7 @@ def test_phase1_4_redirect_stub_over_90_days_without_adr_is_rejected(
                 "reason: legacy frontend handoff path retained while references are swept",
                 "created_date: 2026-05-07",
                 "sunset_date: 2026-08-06",
-                "removal_gate: uv run rg \"frontend/\" .",
+                'removal_gate: uv run rg "frontend/" .',
                 "---",
                 "",
                 "# Frontend Handoff",
@@ -302,7 +306,7 @@ def test_phase1_4_redirect_stub_over_90_days_requires_adr_to_declare_stub(
                 "created_date: 2026-05-07",
                 "sunset_date: 2026-08-06",
                 "compatibility_adr: docs/adr/0001-long-window.md",
-                "removal_gate: uv run rg \"frontend/\" .",
+                'removal_gate: uv run rg "frontend/" .',
                 "---",
                 "",
                 "# Frontend Handoff",
@@ -348,7 +352,7 @@ def test_phase1_4_redirect_stub_over_90_days_with_declaring_adr_is_allowed(
                 "created_date: 2026-05-07",
                 "sunset_date: 2026-08-06",
                 "compatibility_adr: docs/adr/0001-long-window.md",
-                "removal_gate: uv run rg \"frontend/\" .",
+                'removal_gate: uv run rg "frontend/" .',
                 "---",
                 "",
                 "# Frontend Handoff",
@@ -388,6 +392,161 @@ def test_phase1_4_wave6_frontend_redirect_stub_is_retired() -> None:
 
 def test_phase6_4_docs_freshness_baseline_is_docs_only_and_stable() -> None:
     assert check_docs_freshness_baseline.check_baseline(REPO_ROOT) == []
+
+
+def test_docs_freshness_zero_baseline_runs_real_checker_for_expired_clean_fixture(
+    tmp_path: Path,
+) -> None:
+    _write_docs_freshness_fixture(tmp_path, "# Home\n")
+
+    assert check_docs_freshness_baseline.check_baseline(tmp_path) == []
+
+
+def test_docs_freshness_zero_baseline_rejects_real_checker_violations(
+    tmp_path: Path,
+) -> None:
+    _write_docs_freshness_fixture(tmp_path, "# Home\n\n<repo-url>\n")
+
+    findings = check_docs_freshness_baseline.check_baseline(tmp_path)
+
+    assert findings
+    assert any("zero-debt" in finding or "expected 0" in finding for finding in findings)
+
+
+def test_docs_freshness_positive_baseline_admits_exact_real_checker_output(
+    tmp_path: Path,
+) -> None:
+    _write_docs_freshness_fixture(tmp_path, "# Home\n\n<repo-url>\n", expected_count=1)
+    exit_code, output = check_docs_freshness_baseline._run_docs_accuracy(tmp_path)
+    assert exit_code == 1
+    assert check_docs_freshness_baseline._extract_violation_count(output) == 1
+    _rewrite_docs_freshness_baseline(
+        tmp_path,
+        expected_count=1,
+        expires=(dt.date.today() + dt.timedelta(days=30)).isoformat(),
+        digest=hashlib.sha256(output.encode("utf-8")).hexdigest(),
+    )
+
+    assert check_docs_freshness_baseline.check_baseline(tmp_path) == []
+
+
+def test_docs_freshness_positive_baseline_rejects_forged_real_checker_hash(
+    tmp_path: Path,
+) -> None:
+    _write_docs_freshness_fixture(tmp_path, "# Home\n\n<repo-url>\n", expected_count=1)
+    exit_code, _output = check_docs_freshness_baseline._run_docs_accuracy(tmp_path)
+    assert exit_code == 1
+    _rewrite_docs_freshness_baseline(
+        tmp_path,
+        expected_count=1,
+        expires=(dt.date.today() + dt.timedelta(days=30)).isoformat(),
+        digest="0" * 64,
+    )
+
+    findings = check_docs_freshness_baseline.check_baseline(tmp_path)
+
+    assert findings
+    assert any("baseline hash changed" in finding for finding in findings)
+
+
+@pytest.mark.parametrize(
+    "output",
+    [
+        "Docs accuracy report: passed\n",
+        "- violations: invalid\n",
+        "- violations: 0\n- violations: 0\n",
+    ],
+)
+def test_docs_freshness_rejects_missing_or_malformed_checker_count_on_success(
+    tmp_path: Path, monkeypatch, output: str
+) -> None:
+    assert check_docs_freshness_baseline._extract_violation_count(output) is None
+    _write_docs_freshness_fixture(tmp_path, "# Home\n")
+    monkeypatch.setattr(
+        check_docs_freshness_baseline,
+        "_run_docs_accuracy",
+        lambda _repo_root: (0, output),
+    )
+
+    findings = check_docs_freshness_baseline.check_baseline(tmp_path)
+
+    assert findings
+    assert any("malformed violation count" in finding for finding in findings)
+
+
+def test_docs_freshness_rejects_malformed_debt_count_without_coercion(
+    tmp_path: Path,
+) -> None:
+    _write_docs_freshness_fixture(tmp_path, "# Home\n", expected_count="0")
+
+    findings = check_docs_freshness_baseline.check_baseline(tmp_path)
+
+    assert findings
+    assert any("expected_violation_count" in finding for finding in findings)
+
+
+def test_docs_freshness_runner_captures_both_checker_streams(tmp_path: Path, monkeypatch) -> None:
+    def emit_both_streams(_argv: list[str]) -> int:
+        print("- violations: 1")
+        print("checker diagnostic", file=sys.stderr)
+        return 1
+
+    monkeypatch.setattr(
+        check_docs_freshness_baseline.check_docs_accuracy, "main", emit_both_streams
+    )
+
+    exit_code, output = check_docs_freshness_baseline._run_docs_accuracy(tmp_path)
+
+    assert exit_code == 1
+    assert output == "- violations: 1\nchecker diagnostic\n"
+
+
+def _write_docs_freshness_fixture(
+    repo_root: Path, page: str, *, expected_count: object = 0
+) -> None:
+    docs = repo_root / "docs"
+    docs.mkdir(parents=True, exist_ok=True)
+    (docs / "index.md").write_text(page, encoding="utf-8")
+    (repo_root / "mkdocs.yml").write_text(
+        "site_url: https://docs.example.test/\nnav:\n  - Home: index.md\n",
+        encoding="utf-8",
+    )
+    exceptions = repo_root / "architecture" / "exceptions"
+    exceptions.mkdir(parents=True, exist_ok=True)
+    _rewrite_docs_freshness_baseline(
+        repo_root,
+        expected_count=expected_count,
+        expires=(dt.date.today() - dt.timedelta(days=1)).isoformat(),
+        digest=None,
+    )
+
+
+def _rewrite_docs_freshness_baseline(
+    repo_root: Path,
+    *,
+    expected_count: object,
+    expires: str,
+    digest: str | None,
+) -> None:
+    digest_line = f'baseline_sha256 = "{digest}"\n' if digest is not None else ""
+    expected_line = (
+        f'expected_violation_count = "{expected_count}"\n'
+        if isinstance(expected_count, str)
+        else f"expected_violation_count = {str(expected_count).lower()}\n"
+    )
+    (repo_root / check_docs_freshness_baseline.BASELINE_PATH).write_text(
+        "[docs_freshness_exceptions]\n"
+        "version = 1\n"
+        'owner = "team-docs"\n'
+        'mode = "fail_closed_baseline"\n'
+        'command = "python -m tools.quality.validation.check_docs_accuracy"\n'
+        'reason = "Test-only fixture baseline."\n'
+        f'expires = "{expires}"\n'
+        'issue = "docs/plans/accepted/REPOSITORY_SOTA_PLAN.md#docs-freshness"\n'
+        f"{expected_line}"
+        f"{digest_line}",
+        encoding="utf-8",
+    )
 
 
 def test_phase6_4_adr_index_covers_every_adr_by_status_and_topic() -> None:
@@ -483,8 +642,7 @@ def test_w0b_participation_fast_track_adr_is_accepted_and_lifecycle_checked() ->
     }
 
     implementation_plan = (
-        REPO_ROOT
-        / "docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md"
+        REPO_ROOT / "docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md"
     ).read_text(encoding="utf-8")
     assert "[ADR-0167 Participation Legitimacy Matrix]" in implementation_plan
 

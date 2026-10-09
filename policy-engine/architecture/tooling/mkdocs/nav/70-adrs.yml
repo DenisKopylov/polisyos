@@ -109,5 +109,9 @@
       - adr/0108-ir-schema-catalog-and-reflection.md
       - adr/0109-ir-transport-and-interoperability-bridges.md
       - adr/0110-ir-frontier-governance-and-causal-contracts.md
+      - adr/0176-epoch-validity-transition-admission-predicates.md
+      - adr/0177-governed-public-record-bounded-initial-root-profile.md
+      - adr/0178-promotion-posture-admission-resolves-owner-artifacts.md
+      - adr/0179-correspondence-vocabularies-meaning-principles-first-profiles-open.md
       - adr/ADR-004-policy-surface-removal.md
       - adr/ADR-047-atlas-v4-dark-theme-canonicalization.md

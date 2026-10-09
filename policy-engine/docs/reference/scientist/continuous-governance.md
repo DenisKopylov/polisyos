@@ -4,7 +4,10 @@ Related references: [Scientist](index.md), [Claim Ledger](claim-ledger.md), [Res
 
 Owner: `@scientist-owners`  
 Backup owner: `@platform-owners`  
-Source of truth: `src/polisyos/scientist/governance/continuous/**`, `src/polisyos/scientist/methods/research_dag/invalidation.py`, `src/polisyos/scientist/evidence/claims/lifecycle.py`, `src/polisyos/scientist/governance/report.py`, `src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py`, `tests/unit/scientist/governance/continuous/**`, `tools/ci/check_scientist_best_in_class_phase2_6.py`, and `tests/repo_quality/tools/test_scientist_best_in_class_phase2_6.py`.
+Source of truth: `src/polisyos/scientist/governance/continuous/**`, `src/polisyos/scientist/methods/research_dag/invalidation.py`, `src/polisyos/scientist/evidence/claims/lifecycle.py`, `src/polisyos/scientist/governance/report.py`, `src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py`, `src/polisyos/scientist/nodes/builtins/decide/decision_packet/validation.py`, `tests/unit/scientist/governance/continuous/**`, `tools/ci/check_scientist_best_in_class_phase2_6.py`, and `tests/repo_quality/tools/test_scientist_best_in_class_phase2_6.py`.
+
+`decision_packet.builder.BuildDecisionPacketNode.execute` is the canonical
+producer; `build_decision_packet.py` remains a compatibility facade.
 
 Continuous governance is the Phase 2.6 control plane for living decision
 artifacts. A decision packet can remain valid, enter monitoring, become stale,
@@ -94,7 +97,7 @@ monitor refs are removed.
 ## Decision Packet And Governance Links
 
 Decision packets remain backward compatible. When sidecars exist,
-`build_decision_packet` projects:
+`decision_packet.builder.BuildDecisionPacketNode.execute` projects:
 
 - `continuous_governance_report_ref`;
 - `reissue_packet_ref`;

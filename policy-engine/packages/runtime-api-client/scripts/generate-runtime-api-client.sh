@@ -59,10 +59,9 @@ trap cleanup EXIT
 mkdir -p "$(dirname "${TYPES_OUT}")" "$(dirname "${CANONICAL_TS_OUT}")"
 cd "${PROJECT_ROOT}"
 
-corepack pnpm --dir "${PROJECT_ROOT}/packages/runtime-api-client" exec \
-  openapi-typescript "${OPENAPI_FILE}" -o "${TYPES_OUT}"
-node packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs \
-  --types "${TYPES_OUT}"
+node packages/runtime-api-client/scripts/generate-openapi-types.mjs \
+  --openapi "${OPENAPI_FILE}" \
+  --output "${TYPES_OUT}"
 PYTHONPATH=src:. "${PROJECT_ROOT}/.venv/bin/python" \
   tools/ops_runners/runtime/generate_runtime_client.py \
   --openapi "${OPENAPI_FILE}" \

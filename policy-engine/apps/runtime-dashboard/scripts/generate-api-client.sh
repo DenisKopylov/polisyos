@@ -45,16 +45,13 @@ fi
 OUT_FILE="${OUTPUT_ROOT}/apps/runtime-dashboard/src/api/types.ts"
 
 if ! command -v corepack > /dev/null 2>&1; then
-  echo "UNRUN: corepack is required to run the locked openapi-typescript" >&2
+  echo "UNRUN: corepack is required to format the generated dashboard types" >&2
   exit 2
 fi
 PNPM=(corepack pnpm --dir "${PROJECT_ROOT}/apps/runtime-dashboard")
-CLIENT_PACKAGE_ROOT="${PROJECT_ROOT}/packages/runtime-api-client"
 
-mkdir -p "$(dirname "${OUT_FILE}")"
-corepack pnpm --dir "${CLIENT_PACKAGE_ROOT}" exec openapi-typescript \
-  "${OPENAPI_FILE}" --output "${OUT_FILE}"
-node "${PROJECT_ROOT}/packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs" \
-  --types "${OUT_FILE}"
+node "${PROJECT_ROOT}/packages/runtime-api-client/scripts/generate-openapi-types.mjs" \
+  --openapi "${OPENAPI_FILE}" \
+  --output "${OUT_FILE}"
 "${PNPM[@]}" exec prettier --write "${OUT_FILE}"
 echo "Generated ${OUT_FILE}"

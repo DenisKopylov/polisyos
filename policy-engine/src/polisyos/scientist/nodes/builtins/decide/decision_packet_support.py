@@ -4,11 +4,10 @@ from __future__ import annotations
 
 import json
 from enum import Enum
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
 from polisyos.core.canon import content_hash
 from polisyos.core.contracts.decision_validity import DecisionValidityStatus
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ENVIRONMENT_MANIFEST_REF,
     ARTIFACT_EXEC_PLAN_REF,
@@ -23,6 +22,10 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_STATE_SNAPSHOT_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+if TYPE_CHECKING:
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
 __all__ = [
     "ReplayReadiness",
@@ -209,3 +212,123 @@ def _recommended_action(status: DecisionValidityStatus) -> str:
     if status == DecisionValidityStatus.REVOKED:
         return "record_revocation"
     return "human_review"
+
+
+def _populate_optional_report_projections(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    packet_payload: dict[str, object],
+) -> None:
+    """Load optional verification and policy-output reports into the packet."""
+
+    from polisyos.core.contracts.scientist import (
+        SourceVerificationReportRef,
+        VerifiedPolicyReportRef,
+    )
+    from polisyos.scientist.nodes.builtins.decide.decision_packet.validation import (
+        _DECISION_PACKET_LOAD_ERRORS,
+        _decision_packet_degraded,
+        _record_decision_packet_degraded,
+    )
+    from polisyos.scientist.nodes.builtins.state_keys import (
+        ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
+        ARTIFACT_SOURCE_VERIFICATION_REPORT_REF,
+        ARTIFACT_VERIFIED_POLICY_REPORT_REF,
+    )
+    from polisyos.scientist.validation.policy_verified import (
+        load_source_verification_report,
+        load_verified_policy_report,
+    )
+
+    source_verification_ref = state.artifacts_index.get(ARTIFACT_SOURCE_VERIFICATION_REPORT_REF)
+    if source_verification_ref is not None:
+        try:
+            report = load_source_verification_report(
+                ctx.store,
+                SourceVerificationReportRef.model_validate(source_verification_ref.model_dump()),
+            )
+            packet_payload["legal_verification"] = {
+                "verified_claim_count": len(report.verified_claims),
+                "citation_coverage_pct": report.verified_claim_citation_coverage_pct,
+                "needs_expert_review": report.needs_expert_review,
+                "verification_cycles_completed": report.verification_cycles_completed,
+            }
+            packet_payload["source_coverage"] = {
+                "unresolved_critical_gaps": [
+                    gap.model_dump(mode="json") for gap in report.unresolved_critical_gaps
+                ],
+                "verifier_calls_total": report.verifier_calls_total,
+                "adjudicator_calls_total": report.adjudicator_calls_total,
+                "verifier_disagreement_rate": report.verifier_disagreement_rate,
+            }
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
+            _record_decision_packet_degraded(
+                packet_payload,
+                _decision_packet_degraded(
+                    operation="load_source_verification_report",
+                    reason="source_verification_report_load_failed",
+                    exc=exc,
+                    ref=source_verification_ref,
+                    artifact_key=ARTIFACT_SOURCE_VERIFICATION_REPORT_REF,
+                ),
+            )
+
+    verified_policy_ref = state.artifacts_index.get(ARTIFACT_VERIFIED_POLICY_REPORT_REF)
+    if verified_policy_ref is not None:
+        try:
+            verified_report = load_verified_policy_report(
+                ctx.store,
+                VerifiedPolicyReportRef.model_validate(verified_policy_ref.model_dump()),
+            )
+            packet_payload["policy_answer"] = {
+                "executive_summary": verified_report.executive_summary,
+                "missing_evidence": list(verified_report.missing_evidence),
+                "needs_expert_review": verified_report.needs_expert_review,
+            }
+            packet_payload["verified_findings"] = list(verified_report.verified_findings)
+            packet_payload["hypotheses"] = list(verified_report.hypotheses)
+            packet_payload["intervention_legal_basis_map"] = dict(
+                verified_report.intervention_legal_basis_map
+            )
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
+            _record_decision_packet_degraded(
+                packet_payload,
+                _decision_packet_degraded(
+                    operation="load_verified_policy_report",
+                    reason="verified_policy_report_load_failed",
+                    exc=exc,
+                    ref=verified_policy_ref,
+                    artifact_key=ARTIFACT_VERIFIED_POLICY_REPORT_REF,
+                ),
+            )
+
+    policy_bundle_ref = state.artifacts_index.get(ARTIFACT_POLICY_OUTPUT_BUNDLE_REF)
+    if policy_bundle_ref is not None:
+        try:
+            from polisyos.scientist.policy_design.output import load_policy_artifact_bundle
+
+            policy_bundle = load_policy_artifact_bundle(ctx.store, policy_bundle_ref)
+            packet_payload["policy_output_bundle"] = {
+                "bundle_ref": policy_bundle_ref.artifact_id,
+                "policy_brief_ref": policy_bundle.policy_brief_ref.artifact_id,
+                "champion_policy_dossier_ref": (
+                    policy_bundle.champion_policy_dossier_ref.artifact_id
+                ),
+                "decision_readiness_contract_ref": (
+                    policy_bundle.decision_readiness_contract_ref.artifact_id
+                    if policy_bundle.decision_readiness_contract_ref is not None
+                    else None
+                ),
+                "phase3_gate": policy_bundle.phase3_gate.model_dump(mode="json"),
+            }
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
+            _record_decision_packet_degraded(
+                packet_payload,
+                _decision_packet_degraded(
+                    operation="load_policy_output_bundle",
+                    reason="policy_output_bundle_load_failed",
+                    exc=exc,
+                    ref=policy_bundle_ref,
+                    artifact_key=ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
+                ),
+            )

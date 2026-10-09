@@ -1,0 +1,17 @@
+id = "2026-10-09-e02-docs-zero-debt-gate"
+title = "Recompute docs accuracy when no exception debt remains"
+type = "fixed"
+component = "devx"
+owner = "team-docs"
+summary = "Both docs-freshness consumers run the actual checker for a zero-debt baseline; an unused expired date no longer prevents that check, and failed or malformed observations still refuse."
+evidence = ["tools/lib/docs_freshness.py", "tests/repo_quality/tools/test_docs_lifecycle.py", "tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py"]
+compatibility = "The existing baseline, issuer, expiry date, and positive exception scope remain unchanged. Positive debt still requires current expiry and the existing exact normalized-output digest."
+change_class = "tooling"
+surface_classification = "internal: native Repository SOTA and standalone docs-freshness validation"
+migration = "No exception renewal or document rewrite is required. Regenerate nav from its source fragments and run the native checker."
+api = "Shared baseline admission rejects coerced counts and malformed fields; shared observation parsing requires one valid deciding count and refuses checker failures for zero debt."
+limitations = "The docs checker measures its declared publication, link, workflow, and reference-metadata scope. Positive legacy exception digests bind normalized concatenated output; complete raw stdout/stderr are retained separately."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["tools/devx/workspace/README.md"]
+runbook_docs = []

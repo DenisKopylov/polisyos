@@ -48,6 +48,13 @@ preflight, fast local gates, CI parity и remote acceptance closeout.
 
 ## Common Commands
 
+Repository SOTA and the standalone docs-freshness validator share baseline
+admission rules. A zero-violation baseline admits no exception and still runs
+the actual docs checker; nonzero exit or an invalid/nonzero deciding count
+fails. Positive debt remains bound to the named owner, current expiry, exact
+count, and legacy normalized-output digest. Complete raw stdout and stderr are
+retained separately when a subprocess receipt directory is selected.
+
 Команды ниже smoke-tested на `2026-04-17`, если явно не помечены как
 `conceptual`.
 

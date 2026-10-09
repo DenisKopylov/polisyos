@@ -1,0 +1,36 @@
+id = "2026-10-09-e02-openapi-request-type-fidelity"
+title = "Preserve OpenAPI request-field optionality in generated clients"
+type = "fixed"
+component = "runtime-api"
+owner = "team-runtime"
+summary = "Both typed-client generators use one source-derived request projection so defaulted request properties omitted from required remain optional without loosening response types or losing requiredness expressed through schema compositions."
+evidence = [
+  "packages/runtime-api-client/scripts/generate-openapi-types.mjs",
+  "packages/runtime-api-client/scripts/generate-openapi-types.test.mjs",
+  "packages/runtime-api-client/scripts/generate-runtime-api-client.sh",
+  "apps/runtime-dashboard/scripts/generate-api-client.sh",
+]
+compatibility = "OpenAPI request and response wire schemas are unchanged. Generated TypeScript now reflects request property presence from the source required list; response schemas retain their existing generated projection."
+change_class = "js-package-api"
+surface_classification = "public_stable: generated Runtime API TypeScript schema types in runtime-api-client and runtime-dashboard"
+migration = "Regenerate downstream generated clients from the same OpenAPI snapshot with the shared request-direction generator. Request consumers may omit defaulted properties unless the owning source schema lists them as required."
+api = "The request-type generator traverses operation bodies and parameters through reusable references and schema compositions. Required-only constraint branches are projected to required properties using their source additionalProperties schema; contradictory required names excluded by additionalProperties: false are refused. Request-only schemas are normalized in place; components used by both requests and responses receive a private request view while response references stay on their original schema."
+limitations = "This change preserves the existing response projection; a default annotation alone does not establish that a response producer always emits a field. Schema-position references to non-schema OpenAPI objects and external references inside request or response schema graphs are refused until a source-aware bundling path is provided."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = ["packages/runtime-api-client/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "source-derived-generated-request-presence"
+change_class = "js-package-api"
+impact = "additive"
+surface = "Generated runtime API client and dashboard request types"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Defaulted input properties can be omitted when the source contract permits omission; required fields remain required. Existing response projections are preserved."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = ["packages/runtime-api-client/README.md"]
+runbook_docs = []

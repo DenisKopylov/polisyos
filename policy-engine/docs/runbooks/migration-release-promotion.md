@@ -1,4 +1,4 @@
-Current criterion-scope correction: [B109/B111/B100 errata](../research/e02-cloud-test-plan/integration/reviews/original-criteria-errata-2026-10-06.md). B109 is fast/direct comparator acceptance; the served provider is additional capability. B111 keeps invalid-state/partial-denominator/finite-or-unavailable semantics; schema-v3 migration and finite-positive underflow are separately scoped. Historical outcomes and status counts below are retained.
+Current criterion-scope correction (research source: `docs/research/e02-cloud-test-plan/integration/reviews/original-criteria-errata-2026-10-06.md`). B109 is fast/direct comparator acceptance; the served provider is additional capability. B111 keeps invalid-state/partial-denominator/finite-or-unavailable semantics; schema-v3 migration and finite-positive underflow are separately scoped. Historical outcomes and status counts below are retained.
 
 # Migration Release Promotion
 
@@ -71,7 +71,8 @@ Record:
 ### B111 Scientist frontier artifact v3
 
 For `PolicyFrontierReport` and `RejectedAlternativesSummary`, follow the
-[IR migration guidance](../../ops/migrations/ir/README.md#scientist-frontier-artifact-v3).
+IR migration guidance in `ops/migrations/ir/README.md`, under “Scientist Frontier
+Artifact v3 (B111)”.
 The migration-class name `ir` and release-fragment value
 `persisted-artifact-format` are separate vocabularies for this change. Schema
 v2 was unissued and is rejected; the supported persisted dialects are v1 and

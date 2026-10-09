@@ -33,11 +33,15 @@ a downstream compatibility surface, not a second owner.
 - Public generated JavaScript client:
   [`canonicalRuntimeApiClient.js`](canonicalRuntimeApiClient.js)
 
-- Generator:
-  [`scripts/generate-runtime-api-client.sh`](scripts/generate-runtime-api-client.sh),
-  which composes the schema-type generator, private raw-client handoff, and
-  canonicalizer through one output-root-aware entrypoint. Only `types.ts` and
-  the canonical TS/JS pair are written under the output root.
+- Generators:
+  [`scripts/generate-runtime-api-client.sh`](scripts/generate-runtime-api-client.sh)
+  and the dashboard's
+  [`generate-api-client.sh`](../../apps/runtime-dashboard/scripts/generate-api-client.sh)
+  both call [`scripts/generate-openapi-types.mjs`](scripts/generate-openapi-types.mjs)
+  for the same source-derived request and response projections. The runtime
+  entrypoint also composes the private raw-client handoff and canonicalizer;
+  the dashboard formats its compatibility file with its existing Prettier step.
+  Only `types.ts` and the canonical TS/JS pair are written under the output root.
 
 - Canonicalizer:
   [`scripts/canonicalize-runtime-client.mjs`](scripts/canonicalize-runtime-client.mjs)
@@ -126,12 +130,18 @@ generated types by hand.
   `--output-root /absolute/scratch/root` to keep the three committed outputs
   isolated.
 
-- `corepack pnpm --dir packages/runtime-api-client exec openapi-typescript ../../schemas/runtime_api_v1.openapi.json -o types.ts`
-  Canonical schema-type generation; the exact `7.13.0` tool pin is owned by
-  this shared package and does not depend on a dashboard-local installation.
-  The package command runs the canonical recursive-type normalizer. Raw standalone
-  generator output is not the committed type contract. Byte agreement does not
-  establish runtime client behavior or endpoint execution.
+- `node packages/runtime-api-client/scripts/generate-openapi-types.mjs --openapi schemas/runtime_api_v1.openapi.json --output /absolute/scratch/types.ts`
+  Runs the lock-pinned `openapi-typescript` API and shared request-direction
+  normalizers. It derives request-only, response-only, and shared schema roles
+  from operation and reusable-component references. Defaults do not override a
+  request schema's `required` list; shared schemas get private input views while
+  their response projection stays on the original component. Required names in
+  request-side constraint-only schemas are materialized as required properties
+  using the source `additionalProperties` schema, preserving composition
+  requiredness instead of emitting an impossible `Record<string, never>`.
+  Contradictory required names excluded by `additionalProperties: false`,
+  references to non-schema OpenAPI objects, and unresolved external references
+  in request or response schema graphs fail explicitly.
 
 ## Test And Verification
 

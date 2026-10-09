@@ -15,6 +15,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from tools.lib.docs_freshness import (
+    evaluate_docs_freshness_observation,
+    extract_docs_freshness_violation_count,
+    validate_docs_freshness_baseline,
+)
 from tools.lib.fs import atomic_write_bytes, atomic_write_json
 from tools.lib.imports import repo_root_from
 
@@ -468,42 +473,19 @@ def _path_pattern_exists(path: str) -> bool:
 
 
 def _check_docs_freshness_contract() -> list[Finding]:
-    findings: list[Finding] = []
     baseline = _read_toml("architecture/exceptions/docs_freshness.toml")[
         "docs_freshness_exceptions"
     ]
-    if baseline.get("mode") != "fail_closed_baseline":
-        findings.append(
-            Finding("docs-freshness", "docs freshness mode is not fail_closed_baseline")
-        )
-    for field in ("owner", "reason", "command", "issue"):
-        if not str(baseline.get(field, "")).strip():
-            findings.append(Finding("docs-freshness", f"docs freshness baseline missing `{field}`"))
-
-    expires, error = _parse_date(
-        baseline.get("expires"),
-        gate="docs-freshness",
-        subject="docs_freshness_exceptions",
-        field="expires",
-    )
-    if error is not None:
-        findings.append(error)
-    elif expires is not None and expires < dt.date.today():
-        findings.append(Finding("docs-freshness", "docs freshness exception baseline expired"))
-
-    try:
-        expected_count = int(baseline.get("expected_violation_count", -1))
-    except (TypeError, ValueError):
-        expected_count = -1
-    if expected_count < 0:
-        findings.append(Finding("docs-freshness", "expected_violation_count must be non-negative"))
-
-    digest = str(baseline.get("baseline_sha256", "")).strip()
-    if expected_count > 0 and (not digest or digest == "pending"):
-        findings.append(Finding("docs-freshness", "docs freshness baseline hash is pending"))
-    elif digest and digest != "pending" and not re.fullmatch(r"[0-9a-f]{64}", digest):
-        findings.append(Finding("docs-freshness", "docs freshness baseline hash is not sha256"))
+    findings, _, _ = _docs_freshness_contract_findings(baseline)
     return findings
+
+
+def _docs_freshness_contract_findings(
+    baseline: dict[str, Any],
+) -> tuple[list[Finding], int | None, str]:
+    contract = validate_docs_freshness_baseline(baseline)
+    findings = [Finding("docs-freshness", message) for message in contract.findings]
+    return findings, contract.expected_violation_count, contract.baseline_sha256
 
 
 def _check_time_bounded_import_exceptions() -> list[Finding]:
@@ -1354,11 +1336,7 @@ def _generated_guardrail_command(*, skip_generated_checks: bool) -> list[str]:
         "guardrails",
         "check",
     ]
-    command.append(
-        "--skip-generated-checks"
-        if skip_generated_checks
-        else "--all-generated-checks"
-    )
+    command.append("--skip-generated-checks" if skip_generated_checks else "--all-generated-checks")
     return command
 
 
@@ -1619,8 +1597,8 @@ def _run_subprocess_with_receipt(
 
 def _decode_subprocess_output(output: bytes) -> str:
     """Decode retained child output for existing gate summaries and comparisons."""
-    return output.decode("utf-8", errors="backslashreplace").replace("\r\n", "\n").replace(
-        "\r", "\n"
+    return (
+        output.decode("utf-8", errors="backslashreplace").replace("\r\n", "\n").replace("\r", "\n")
     )
 
 
@@ -1672,21 +1650,14 @@ def _compact_output(completed: subprocess.CompletedProcess[str], *, limit: int =
 
 
 def _run_docs_freshness_gate(*, receipt_dir: Path | None = None) -> list[Finding]:
-    findings: list[Finding] = []
     baseline = _read_toml("architecture/exceptions/docs_freshness.toml")[
         "docs_freshness_exceptions"
     ]
-    expires, error = _parse_date(
-        baseline.get("expires"),
-        gate="docs-freshness",
-        subject="docs_freshness_exceptions",
-        field="expires",
-    )
-    if error is not None:
-        return [error]
-    assert expires is not None
-    if expires < dt.date.today():
-        return [Finding("docs-freshness", "docs freshness exception baseline expired")]
+    findings, expected_count, expected_digest = _docs_freshness_contract_findings(baseline)
+    if expected_count is None:
+        return findings
+    if expected_count > 0 and findings:
+        return findings
 
     command = [
         "uv",
@@ -1703,48 +1674,21 @@ def _run_docs_freshness_gate(*, receipt_dir: Path | None = None) -> list[Finding
         receipt_dir=receipt_dir,
     )
     output = (completed.stdout or "") + (completed.stderr or "")
-    digest = hashlib.sha256(output.encode("utf-8")).hexdigest()
     observed_count = _extract_docs_violation_count(output)
-    expected_count = int(baseline.get("expected_violation_count", -1))
-    expected_digest = str(baseline.get("baseline_sha256", "")).strip()
-
-    if completed.returncode == 0:
-        if expected_count not in {0, observed_count}:
-            findings.append(
-                Finding(
-                    "docs-freshness",
-                    "docs accuracy is clean but baseline still expects violations",
-                    str(expected_count),
-                )
-            )
-        return findings
-
-    if not expected_digest or expected_digest == "pending":
-        findings.append(Finding("docs-freshness", "docs freshness baseline hash is pending"))
-    if observed_count != expected_count:
-        findings.append(
-            Finding(
-                "docs-freshness",
-                "docs freshness violation count changed",
-                f"expected {expected_count}, observed {observed_count}",
-            )
+    findings.extend(
+        Finding("docs-freshness", message, str(observed_count))
+        for message in evaluate_docs_freshness_observation(
+            expected_count=expected_count,
+            expected_digest=expected_digest,
+            returncode=completed.returncode,
+            output=output,
         )
-    if digest != expected_digest:
-        findings.append(
-            Finding(
-                "docs-freshness",
-                "docs freshness baseline hash changed",
-                f"expected {expected_digest}, observed {digest}",
-            )
-        )
+    )
     return findings
 
 
-def _extract_docs_violation_count(output: str) -> int:
-    match = re.search(r"^- violations:\s+(\d+)$", output, flags=re.MULTILINE)
-    if match is None:
-        return -1
-    return int(match.group(1))
+def _extract_docs_violation_count(output: str) -> int | None:
+    return extract_docs_freshness_violation_count(output)
 
 
 if __name__ == "__main__":

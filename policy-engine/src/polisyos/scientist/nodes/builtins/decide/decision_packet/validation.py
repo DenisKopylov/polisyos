@@ -41,6 +41,18 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.validation.epoch_certificate_issuance import (
+    CanonicalDecisionPacketInvocation as __CanonicalDecisionPacketInvocation__,
+)
+from polisyos.scientist.validation.epoch_certificate_issuance import (
+    EpochCertificateIssuanceNonReceipt as __EpochCertificateIssuanceNonReceipt__,
+)
+from polisyos.scientist.validation.epoch_certificate_issuance import (
+    EpochCertificateIssuanceOwner as __EpochCertificateIssuanceOwner__,
+)
+from polisyos.scientist.validation.epoch_certificate_issuance import (
+    PersistedEpochCertificateIssuancePreparation as __PersistedEpochCertificateIssuancePreparation__,
+)
 
 logger = get_logger(__name__)
 
@@ -185,45 +197,20 @@ def _record_decision_packet_section_degraded(
 def _build_analysis_limits(packet_payload: dict[str, object]) -> dict[str, object]:
     diagnostics = packet_payload.get("diagnostics_summary")
     diagnostics_dict = diagnostics if isinstance(diagnostics, dict) else {}
-    labels: list[str] = []
     contract_warnings = diagnostics_dict.get("contract_warnings")
     normalized_contract_warnings = (
         [str(item) for item in contract_warnings if isinstance(item, str)]
         if isinstance(contract_warnings, list)
         else []
     )
-
-    transport_engine = diagnostics_dict.get("transport_engine")
-    if isinstance(transport_engine, str) and transport_engine.startswith("simplified"):
-        labels.append("transportability_simplified_engine")
-    if diagnostics_dict.get("legal_executed") is False:
-        labels.append("legal_not_run")
-    if diagnostics_dict.get("requires_expert_review") is True:
-        labels.append("expert_review_required")
-
-    replay_readiness = diagnostics_dict.get("replay_readiness")
-    if replay_readiness == ReplayReadiness.PARTIAL.value:
-        labels.append("partial_replay_readiness")
-    elif replay_readiness == ReplayReadiness.INCOMPLETE.value:
-        labels.append("incomplete_replay_readiness")
-
-    if diagnostics_dict.get("uncertainty_available") is False:
-        labels.append("missing_uncertainty_artifact")
-    if diagnostics_dict.get("sensitivity_is_robust") is False:
-        labels.append("causal_sensitivity_fragile")
-    if packet_payload.get("causal") is None:
-        labels.append("causal_not_run")
-    if packet_payload.get("distributional") is None:
-        labels.append("distributional_not_run")
-    if packet_payload.get("abm_alignment") is None:
-        labels.append("abm_alignment_not_run")
-    if any(
-        warning.startswith("missing_runtime_mechanism_support:")
-        for warning in normalized_contract_warnings
-    ):
-        labels.append("missing_runtime_mechanism_support")
-    if diagnostics_dict.get("has_degraded_paths") is True:
-        labels.append("decision_packet_degraded")
+    labels = __diagnostic_analysis_limit_labels__(diagnostics_dict)
+    labels.extend(
+        __packet_analysis_limit_labels__(
+            packet_payload,
+            diagnostics_dict,
+            normalized_contract_warnings,
+        )
+    )
 
     return {
         "labels": labels,
@@ -237,6 +224,53 @@ def _build_analysis_limits(packet_payload: dict[str, object]) -> dict[str, objec
         "causal_sensitivity_fragile": "causal_sensitivity_fragile" in labels,
         "decision_packet_degraded": "decision_packet_degraded" in labels,
     }
+
+
+def _diagnostic_analysis_limit_labels(diagnostics: dict[str, object]) -> list[str]:
+    labels: list[str] = []
+
+    transport_engine = diagnostics.get("transport_engine")
+    if isinstance(transport_engine, str) and transport_engine.startswith("simplified"):
+        labels.append("transportability_simplified_engine")
+    if diagnostics.get("legal_executed") is False:
+        labels.append("legal_not_run")
+    if diagnostics.get("requires_expert_review") is True:
+        labels.append("expert_review_required")
+
+    replay_readiness = diagnostics.get("replay_readiness")
+    if replay_readiness == ReplayReadiness.PARTIAL.value:
+        labels.append("partial_replay_readiness")
+    elif replay_readiness == ReplayReadiness.INCOMPLETE.value:
+        labels.append("incomplete_replay_readiness")
+
+    if diagnostics.get("uncertainty_available") is False:
+        labels.append("missing_uncertainty_artifact")
+    if diagnostics.get("sensitivity_is_robust") is False:
+        labels.append("causal_sensitivity_fragile")
+
+    return labels
+
+
+def _packet_analysis_limit_labels(
+    packet_payload: dict[str, object],
+    diagnostics: dict[str, object],
+    contract_warnings: list[str],
+) -> list[str]:
+    labels: list[str] = []
+    if packet_payload.get("causal") is None:
+        labels.append("causal_not_run")
+    if packet_payload.get("distributional") is None:
+        labels.append("distributional_not_run")
+    if packet_payload.get("abm_alignment") is None:
+        labels.append("abm_alignment_not_run")
+    if any(
+        warning.startswith("missing_runtime_mechanism_support:") for warning in contract_warnings
+    ):
+        labels.append("missing_runtime_mechanism_support")
+    if diagnostics.get("has_degraded_paths") is True:
+        labels.append("decision_packet_degraded")
+
+    return labels
 
 
 def _nested_status(payload: dict[str, object], key: str) -> str | None:
@@ -487,6 +521,16 @@ def _collect_contract_warnings(
     state: ExperimentState,
 ) -> list[str]:
     warnings: list[str] = []
+    __append_link_report_warnings__(ctx, state, warnings)
+    __append_compile_report_warnings__(ctx, state, warnings)
+    return warnings
+
+
+def _append_link_report_warnings(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    warnings: list[str],
+) -> None:
     link_report_ref = state.reports_index.get(REPORT_LINK_REPORT_REF)
     if link_report_ref is not None:
         try:
@@ -503,6 +547,12 @@ def _collect_contract_warnings(
                 if isinstance(code, str):
                     _append_unique(warnings, code)
 
+
+def _append_compile_report_warnings(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    warnings: list[str],
+) -> None:
     compile_report_ref = state.reports_index.get(REPORT_COMPILE_REPORT_REF)
     if compile_report_ref is not None:
         try:
@@ -516,8 +566,6 @@ def _collect_contract_warnings(
                 normalized = _normalize_compile_warning(note)
                 if normalized is not None:
                     _append_unique(warnings, normalized)
-
-    return warnings
 
 
 def _normalize_compile_warning(note: str) -> str | None:
@@ -548,6 +596,115 @@ def _load_resolved_fidelity_level(
         return None
     fidelity = payload.get("policy_fidelity_level")
     return fidelity if isinstance(fidelity, str) else None
+
+
+def _prepare_decision_validity(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    packet_payload: dict[str, object],
+    invocation: __CanonicalDecisionPacketInvocation__,
+    invocation_input_refs: tuple[ArtifactRef, ...],
+    *,
+    build_normative_basis: Callable[[dict[str, object]], DecisionBasisSection],
+    build_data_basis: Callable[[ExecutionContext, dict[str, object]], DecisionBasisSection],
+    build_knowledge_basis: Callable[[ExecutionContext, dict[str, object]], DecisionBasisSection],
+    build_transportability_basis: Callable[..., DecisionBasisSection],
+    build_watched_triggers: Callable[..., list[DecisionTriggerSpec]],
+    load_normative_frame_payload: Callable[
+        [ExecutionContext, dict[str, object]], dict[str, Any] | None
+    ],
+    build_feedback_loop: Callable[..., tuple[dict[str, object], str | None]],
+) -> tuple[
+    DecisionValidityEnvelope,
+    DecisionValidityEvaluation,
+    __EpochCertificateIssuanceOwner__ | None,
+    __PersistedEpochCertificateIssuancePreparation__ | __EpochCertificateIssuanceNonReceipt__,
+    str | None,
+]:
+    validity_envelope = _build_decision_validity_envelope(
+        ctx=ctx,
+        state=state,
+        packet_payload=packet_payload,
+        build_normative_basis=build_normative_basis,
+        build_data_basis=build_data_basis,
+        build_knowledge_basis=build_knowledge_basis,
+        build_transportability_basis=build_transportability_basis,
+        build_watched_triggers=build_watched_triggers,
+        load_normative_frame_payload=load_normative_frame_payload,
+    )
+
+    validity_envelope.data_basis.summary["epoch_certificate_invocation_ref"] = (
+        invocation.invocation_ref.model_dump(mode="json")
+    )
+
+    issuance_owner = ctx.epoch_certificate_issuance_owner
+
+    if issuance_owner is not None and (
+        not isinstance(issuance_owner, __EpochCertificateIssuanceOwner__)
+        or issuance_owner.store is not ctx.store
+    ):
+        raise ValueError("epoch_certificate_issuance_owner_mismatch")
+
+    issuance_preparation = (
+        issuance_owner.prepare(
+            run_id=state.run_id,
+            invocation_input_refs=invocation_input_refs,
+            invocation=invocation,
+        )
+        if issuance_owner is not None
+        else __EpochCertificateIssuanceNonReceipt__()
+    )
+
+    if isinstance(issuance_preparation, __PersistedEpochCertificateIssuancePreparation__):
+        assert issuance_owner is not None
+        validity_envelope = issuance_owner.bind_envelope(
+            preparation=issuance_preparation, envelope=validity_envelope
+        )
+    else:
+        validity_envelope.data_basis.summary["epoch_certificate_issuance"] = (
+            issuance_preparation.model_dump(mode="json")
+        )
+
+    validity_baseline = _build_decision_validity_baseline(
+        packet_payload=packet_payload,
+        envelope=validity_envelope,
+    )
+
+    packet_payload["decision_validity_envelope"] = validity_envelope.model_dump(mode="json")
+
+    packet_payload["decision_validity_baseline"] = validity_baseline.model_dump(mode="json")
+
+    feedback_loop, monitoring_contract_ref = build_feedback_loop(
+        ctx=ctx,
+        state=state,
+        packet_payload=packet_payload,
+        decision_lineage_key=validity_envelope.decision_lineage_key,
+    )
+
+    packet_payload["feedback_loop"] = feedback_loop
+    return (
+        validity_envelope,
+        validity_baseline,
+        issuance_owner,
+        issuance_preparation,
+        monitoring_contract_ref,
+    )
+
+
+__prepare_decision_validity__ = _prepare_decision_validity
+del _prepare_decision_validity
+
+
+__diagnostic_analysis_limit_labels__ = _diagnostic_analysis_limit_labels
+__packet_analysis_limit_labels__ = _packet_analysis_limit_labels
+__append_link_report_warnings__ = _append_link_report_warnings
+__append_compile_report_warnings__ = _append_compile_report_warnings
+del (
+    _diagnostic_analysis_limit_labels,
+    _packet_analysis_limit_labels,
+    _append_link_report_warnings,
+    _append_compile_report_warnings,
+)
 
 
 __all__ = [

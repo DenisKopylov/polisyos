@@ -4,7 +4,10 @@ Related references: [Scientist](index.md), [Claims](claims.md), [Governance acco
 
 Owner: `@scientist-owners`
 Backup owner: `@governance-owners`
-Source of truth: `src/polisyos/scientist/governance/human_review/**`, `src/polisyos/scientist/governance/report.py`, `src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py`, and `tests/unit/scientist/governance/human_review/**`
+Source of truth: `src/polisyos/scientist/governance/human_review/**`, `src/polisyos/scientist/governance/report.py`, `src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py`, `src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py`, and `tests/unit/scientist/governance/human_review/**`
+
+`decision_packet.builder.BuildDecisionPacketNode.execute` is the canonical
+producer; `build_decision_packet.py` remains a compatibility facade.
 
 Phase 1.6 makes human oversight an operational control plane. Review packets,
 assignments, decisions and release-status summaries are typed runtime objects

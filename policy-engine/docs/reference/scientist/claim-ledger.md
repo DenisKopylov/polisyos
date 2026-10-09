@@ -4,7 +4,10 @@ Related references: [Claims](claims.md), [Wave 2 runtime contracts](wave2-runtim
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/evidence/claims/lifecycle.py`, `src/polisyos/scientist/evidence/claims/audit.py`, `src/polisyos/scientist/evidence/claims/diff.py`, `src/polisyos/scientist/evidence/claims/export.py`, `src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py`, `src/polisyos/scientist/policy_design/output.py`, `tests/unit/scientist/evidence/claims/test_lifecycle.py`, `tests/unit/scientist/evidence/claims/test_audit.py`, `tests/unit/scientist/evidence/claims/test_diff.py`, `tests/unit/scientist/evidence/claims/test_export.py`, and `tools/ci/check_scientist_best_in_class_phase2_1.py`.
+Source of truth: `src/polisyos/scientist/evidence/claims/lifecycle.py`, `src/polisyos/scientist/evidence/claims/audit.py`, `src/polisyos/scientist/evidence/claims/diff.py`, `src/polisyos/scientist/evidence/claims/export.py`, `src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py`, `src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py`, `src/polisyos/scientist/policy_design/output.py`, `tests/unit/scientist/evidence/claims/test_lifecycle.py`, `tests/unit/scientist/evidence/claims/test_audit.py`, `tests/unit/scientist/evidence/claims/test_diff.py`, `tests/unit/scientist/evidence/claims/test_export.py`, and `tools/ci/check_scientist_best_in_class_phase2_1.py`.
+
+`decision_packet.builder.BuildDecisionPacketNode.execute` is the canonical
+producer; `build_decision_packet.py` remains a compatibility facade.
 
 The Claim Ledger is the Wave 2 object that links research, governance,
 provenance, human review, UI export and audit at claim level. It extends the

@@ -19,6 +19,7 @@
       - Operate the CI/CD Platform: how-to/operate-ci-cd-platform.md
       - Review Migrations and Rollouts: how-to/review-rollouts.md
       - Manage Generated Artifacts: how-to/manage-generated-artifacts.md
+      - Authoring Repository Measurement Instruments: how-to/author-measurement-instruments.md
       - Release Policy: how-to/release-policy.md
       - Apply GitHub Governance: how-to/apply-github-governance.md
       - Onboarding Tracks:

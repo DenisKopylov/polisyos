@@ -2202,7 +2202,7 @@ export interface components {
       idempotency_key: string;
       /** Planner Report Hash */
       planner_report_hash: string;
-      replay_pins: components["schemas"]["AcquisitionRouteReplayPins"];
+      replay_pins: _RuntimeApiRequestView_41_63_71_75_69_73_69_74_69_6f_6e_52_6f_75_74_65_52_65_70_6c_61_79_50_69_6e_73;
       /** Route Projection Hash */
       route_projection_hash: string;
     };
@@ -3047,44 +3047,42 @@ export interface components {
        * Max Period
        * @default 12
        */
-      max_period: number;
+      max_period?: number;
       model_ref?: components["schemas"]["ArtifactRef-Input"] | null;
       /** Notes */
       notes?: string[];
-      parameter_point?: components["schemas"]["AttractorParameterPoint"];
+      parameter_point?: _RuntimeApiRequestView_41_74_74_72_61_63_74_6f_72_50_61_72_61_6d_65_74_65_72_50_6f_69_6e_74;
       /**
        * Persist Artifact
        * @default true
        */
-      persist_artifact: boolean;
+      persist_artifact?: boolean;
       /**
        * Rtol
        * @default 0.00001
        */
-      rtol: number;
+      rtol?: number;
       /**
        * Schema Version
        * @default 1.0
        */
-      schema_version: string;
+      schema_version?: string;
       /** Seeds */
       seeds?: number[];
       simulation_result_ref?:
         | components["schemas"]["SimulationResultRef-Input"]
         | null;
-      state_projection?:
-        | components["schemas"]["AttractorStateProjection"]
-        | null;
+      state_projection?: _RuntimeApiRequestView_41_74_74_72_61_63_74_6f_72_53_74_61_74_65_50_72_6f_6a_65_63_74_69_6f_6e | null;
       /**
        * Stochastic Model
        * @default false
        */
-      stochastic_model: boolean;
+      stochastic_model?: boolean;
       /**
        * Tolerance
        * @default 0.000001
        */
-      tolerance: number;
+      tolerance?: number;
       /** Trajectories */
       trajectories?: number[][][];
       /** Trajectory */
@@ -3095,7 +3093,7 @@ export interface components {
        * Window
        * @default 32
        */
-      window: number;
+      window?: number;
     };
     /**
      * AttractorAnalysisResponse
@@ -4330,15 +4328,15 @@ export interface components {
        * Jurisdiction
        * @default ua
        */
-      jurisdiction: string;
+      jurisdiction?: string;
       /** Template Version */
       template_version?: string | null;
-      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+      temporal_scope?: _RuntimeApiRequestView_54_65_6d_70_6f_72_61_6c_53_63_6f_70_65 | null;
       /**
        * Trust View
        * @default false
        */
-      trust_view: boolean;
+      trust_view?: boolean;
     };
     /**
      * BureaucraticRenderResponse
@@ -4839,14 +4837,14 @@ export interface components {
        * @default custom
        * @enum {string}
        */
-      adjacency_type: "contiguity" | "distance" | "custom";
+      adjacency_type?: "contiguity" | "distance" | "custom";
       /** Dst Area Id */
       dst_area_id: string;
       /**
        * Frontier Flag
        * @default false
        */
-      frontier_flag: boolean;
+      frontier_flag?: boolean;
       /** Frontier Source */
       frontier_source?: string | null;
       /** Frontier Type */
@@ -4857,7 +4855,7 @@ export interface components {
        * Weight
        * @default 1
        */
-      weight: number;
+      weight?: number;
     };
     /**
      * CausalFrontierExposureRecord
@@ -4917,7 +4915,7 @@ export interface components {
        * Add Intercept
        * @default true
        */
-      add_intercept: boolean;
+      add_intercept?: boolean;
       /** Areas */
       areas?: components["schemas"]["CausalFrontierAreaRecord"][];
       /** Bundle Dir */
@@ -4926,22 +4924,22 @@ export interface components {
        * Calibration Reps
        * @default 0
        */
-      calibration_reps: number;
+      calibration_reps?: number;
       /**
        * Calibration Seed
        * @default 0
        */
-      calibration_seed: number;
+      calibration_seed?: number;
       /**
        * Component Ridge
        * @default 0.000001
        */
-      component_ridge: number;
+      component_ridge?: number;
       /**
        * Contrast Eps
        * @default 1e-8
        */
-      contrast_eps: number;
+      contrast_eps?: number;
       /** Covariate Columns */
       covariate_columns?: string[] | null;
       /** Edges */
@@ -4953,17 +4951,17 @@ export interface components {
        * @default mvp
        * @enum {string}
        */
-      governance_profile: "fast" | "mvp" | "strict";
+      governance_profile?: "fast" | "mvp" | "strict";
       /**
        * Green Threshold
        * @default 0.05
        */
-      green_threshold: number;
+      green_threshold?: number;
       /**
        * Lambda Spatial
        * @default 1
        */
-      lambda_spatial: number;
+      lambda_spatial?: number;
       /** Metadata */
       metadata?: {
         [key: string]: unknown;
@@ -4974,12 +4972,12 @@ export interface components {
        * Persist Artifacts
        * @default false
        */
-      persist_artifacts: boolean;
+      persist_artifacts?: boolean;
       /**
        * Red Threshold
        * @default 0.15
        */
-      red_threshold: number;
+      red_threshold?: number;
     };
     /**
      * CausalFrontierSAEResponse
@@ -5795,7 +5793,7 @@ export interface components {
       /** Analysis Id */
       analysis_id?: string | null;
       /** Bifurcations */
-      bifurcations?: components["schemas"]["BifurcationEvent"][];
+      bifurcations?: _RuntimeApiRequestView_42_69_66_75_72_63_61_74_69_6f_6e_45_76_65_6e_74[];
       /** Branch Id */
       branch_id: string;
       /**
@@ -5812,7 +5810,7 @@ export interface components {
        * @default foundry.continuation_branch
        * @constant
        */
-      kind: "foundry.continuation_branch";
+      kind?: "foundry.continuation_branch";
       /** Notes */
       notes?: string[];
       /** Parameters */
@@ -5823,7 +5821,7 @@ export interface components {
        * Schema Version
        * @default 1.0
        */
-      schema_version: string;
+      schema_version?: string;
       /** Toolchain */
       toolchain?: string[];
     };
@@ -5884,7 +5882,7 @@ export interface components {
       period?: number | null;
       /** Point Id */
       point_id: string;
-      stability?: components["schemas"]["AttractorStability"];
+      stability?: _RuntimeApiRequestView_41_74_74_72_61_63_74_6f_72_53_74_61_62_69_6c_69_74_79;
       /** State */
       state?: {
         [key: string]: number;
@@ -6722,29 +6720,29 @@ export interface components {
        * Cost Budget Usd
        * @default 0
        */
-      cost_budget_usd: number;
+      cost_budget_usd?: number;
       /** Data Needs */
       data_needs: components["schemas"]["DataNeed"][];
       /**
        * Max Candidates Total
        * @default 50
        */
-      max_candidates_total: number;
+      max_candidates_total?: number;
       /**
        * Max Discovery Calls Per Source
        * @default 25
        */
-      max_discovery_calls_per_source: number;
+      max_discovery_calls_per_source?: number;
       /**
        * Max Sources Per Query
        * @default 5
        */
-      max_sources_per_query: number;
+      max_sources_per_query?: number;
       /**
        * Time Budget Ms
        * @default 5000
        */
-      time_budget_ms: number;
+      time_budget_ms?: number;
     };
     /**
      * DataDiscoverResponse
@@ -6774,19 +6772,19 @@ export interface components {
        * Granularity
        * @default annual
        */
-      granularity: string;
+      granularity?: string;
       /** Metric */
       metric: string;
       /**
        * Purpose
        * @default policy_drafting
        */
-      purpose: string;
+      purpose?: string;
       /**
        * Quality Min
        * @default 0.6
        */
-      quality_min: number;
+      quality_min?: number;
       /** Time End */
       time_end?: string | null;
       /** Time Start */
@@ -6801,8 +6799,8 @@ export interface components {
        * Allow Fallback
        * @default true
        */
-      allow_fallback: boolean;
-      fetch_plan: components["schemas"]["FetchPlan"];
+      allow_fallback?: boolean;
+      fetch_plan: _RuntimeApiRequestView_46_65_74_63_68_50_6c_61_6e;
     };
     /**
      * DataPreviewResponse
@@ -6821,7 +6819,7 @@ export interface components {
        * Allow Explore Fallback
        * @default true
        */
-      allow_explore_fallback: boolean;
+      allow_explore_fallback?: boolean;
       /** Catalog Run Profile */
       catalog_run_profile?:
         | (
@@ -6840,7 +6838,7 @@ export interface components {
        * @default hybrid
        * @enum {string}
        */
-      mode: "fastlane" | "explorelane" | "hybrid";
+      mode?: "fastlane" | "explorelane" | "hybrid";
     };
     /**
      * DataResolveResponse
@@ -7339,8 +7337,8 @@ export interface components {
       reason?: string | null;
       /** Source Ref */
       source_ref?: string | null;
-      status?: components["schemas"]["DecisionValidityStatus"] | null;
-      trigger_type?: components["schemas"]["DecisionTriggerType"] | null;
+      status?: _RuntimeApiRequestView_44_65_63_69_73_69_6f_6e_56_61_6c_69_64_69_74_79_53_74_61_74_75_73 | null;
+      trigger_type?: _RuntimeApiRequestView_44_65_63_69_73_69_6f_6e_54_72_69_67_67_65_72_54_79_70_65 | null;
     };
     /**
      * DecisionValidityEventResponse
@@ -9060,14 +9058,14 @@ export interface components {
        * Kind
        * @default foundry.exec_plan
        */
-      kind: string;
+      kind?: string;
       /** Manifest Profile Sha256 */
       manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json
        */
-      media_type: string;
+      media_type?: string;
     };
     /**
      * ExecPlanRef
@@ -9210,12 +9208,12 @@ export interface components {
        * Max Depth
        * @default 2
        */
-      max_depth: number;
+      max_depth?: number;
       /** Run Id */
       run_id?: string | null;
       /** Source Contract Ids */
       source_contract_ids?: string[];
-      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+      temporal_scope?: _RuntimeApiRequestView_54_65_6d_70_6f_72_61_6c_53_63_6f_70_65 | null;
     };
     /**
      * FabricImpactAnalysisResponse
@@ -9295,7 +9293,7 @@ export interface components {
       decision_data_ids?: string[];
       /** Run Id */
       run_id: string;
-      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+      temporal_scope?: _RuntimeApiRequestView_54_65_6d_70_6f_72_61_6c_53_63_6f_70_65 | null;
     };
     /**
      * FabricQuantityValue
@@ -9439,14 +9437,14 @@ export interface components {
        * Kind
        * @default foundry.feedback_jacobian_diagnostics
        */
-      kind: string;
+      kind?: string;
       /** Manifest Profile Sha256 */
       manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json
        */
-      media_type: string;
+      media_type?: string;
     };
     /**
      * FeedbackResultRef
@@ -9458,14 +9456,14 @@ export interface components {
        * Kind
        * @default foundry.feedback_result
        */
-      kind: string;
+      kind?: string;
       /** Manifest Profile Sha256 */
       manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json
        */
-      media_type: string;
+      media_type?: string;
     };
     /**
      * FeedbackResultRef
@@ -11126,7 +11124,7 @@ export interface components {
        * Cache Policy
        * @default default
        */
-      cache_policy: string;
+      cache_policy?: string;
       /** Connection Profile */
       connection_profile?: string | null;
       /** Datasets */
@@ -11136,36 +11134,39 @@ export interface components {
        * @default batch_full
        * @enum {string}
        */
-      execution_mode: "batch_full" | "batch_incremental" | "streaming_windowed";
+      execution_mode?:
+        | "batch_full"
+        | "batch_incremental"
+        | "streaming_windowed";
       /** Fetch Plans */
-      fetch_plans?: components["schemas"]["FetchPlan"][];
+      fetch_plans?: _RuntimeApiRequestView_46_65_74_63_68_50_6c_61_6e[];
       /**
        * License Name
        * @default open
        */
-      license_name: string;
+      license_name?: string;
       /**
        * Produce Data Snapshot
        * @default true
        */
-      produce_data_snapshot: boolean;
+      produce_data_snapshot?: boolean;
       /**
        * Produce Input Bindings
        * @default false
        */
-      produce_input_bindings: boolean;
+      produce_input_bindings?: boolean;
       /**
        * Record Mode
        * @default false
        */
-      record_mode: boolean;
+      record_mode?: boolean;
       /** Replay Ref */
       replay_ref?: string | null;
       /**
        * Source
        * @default dashboard
        */
-      source: string;
+      source?: string;
     };
     /**
      * IngestResponse
@@ -11756,27 +11757,27 @@ export interface components {
        * Embed
        * @default true
        */
-      embed: boolean;
+      embed?: boolean;
       /**
        * Graph
        * @default true
        */
-      graph: boolean;
+      graph?: boolean;
       /**
        * Parse
        * @default true
        */
-      parse: boolean;
+      parse?: boolean;
       /**
        * Spo
        * @default true
        */
-      spo: boolean;
+      spo?: boolean;
       /**
        * Structure
        * @default true
        */
-      structure: boolean;
+      structure?: boolean;
     };
     /**
      * LexPipelineStatusResponse
@@ -11851,13 +11852,13 @@ export interface components {
       query: string;
       /** Query Generation Intent */
       query_generation_intent?:
-        | components["schemas"]["LegalQueryGenerationIntentV1"][]
+        | _RuntimeApiRequestView_4c_65_67_61_6c_51_75_65_72_79_47_65_6e_65_72_61_74_69_6f_6e_49_6e_74_65_6e_74_56_31[]
         | null;
       /**
        * Top K
        * @default 20
        */
-      top_k: number;
+      top_k?: number;
     };
     /**
      * LexSearchResponse
@@ -12118,7 +12119,7 @@ export interface components {
        * Llm Model
        * @default qwen/qwen3-235b-a22b-instruct-2507-fp8
        */
-      llm_model: string;
+      llm_model?: string;
       /** Output Dir */
       output_dir: string;
       policy_flags?: components["schemas"]["PolicyFlags"];
@@ -12126,7 +12127,7 @@ export interface components {
        * Resume
        * @default false
        */
-      resume: boolean;
+      resume?: boolean;
       stages?: components["schemas"]["LexPipelineStageConfig"];
       /** Status Filter */
       status_filter?: string[] | null;
@@ -12339,13 +12340,13 @@ export interface components {
      */
     "LineageRef-Input": {
       /** Compact Summary */
-      compact_summary?: components["schemas"]["LineageCompactSummaryItem"][];
+      compact_summary?: _RuntimeApiRequestView_4c_69_6e_65_61_67_65_43_6f_6d_70_61_63_74_53_75_6d_6d_61_72_79_49_74_65_6d[];
       /**
        * Freshness
        * @default unknown
        * @enum {string}
        */
-      freshness: "current" | "stale" | "unknown";
+      freshness?: "current" | "stale" | "unknown";
       /** Hash */
       hash?: string | null;
       /** Id */
@@ -12357,14 +12358,14 @@ export interface components {
        * @default untraced
        * @enum {string}
        */
-      status: "verified" | "pending" | "disputed" | "untraced";
+      status?: "verified" | "pending" | "disputed" | "untraced";
       /** Summary */
       summary?: {
         [key: string]: string;
       };
       /** Tracking Issue */
       tracking_issue?: string | null;
-      trust_metadata?: components["schemas"]["VerificationMetadata"] | null;
+      trust_metadata?: _RuntimeApiRequestView_56_65_72_69_66_69_63_61_74_69_6f_6e_4d_65_74_61_64_61_74_61 | null;
     };
     /**
      * LineageResponse
@@ -12502,7 +12503,7 @@ export interface components {
        * Headline Metric
        * @default upward_rate
        */
-      headline_metric: string;
+      headline_metric?: string;
       /** Metadata */
       metadata?: {
         [key: string]: unknown;
@@ -12513,7 +12514,7 @@ export interface components {
        * Persist Artifact
        * @default true
        */
-      persist_artifact: boolean;
+      persist_artifact?: boolean;
       /** Row Marginals */
       row_marginals: number[];
     };
@@ -12563,7 +12564,7 @@ export interface components {
        * Compute Bounds
        * @default true
        */
-      compute_bounds: boolean;
+      compute_bounds?: boolean;
       /** Destination Classes */
       destination_classes?: (number | null)[];
       /** Destination Marginals */
@@ -12573,7 +12574,7 @@ export interface components {
        * @default aipw
        * @enum {string}
        */
-      estimator: "ipcw" | "aipw";
+      estimator?: "ipcw" | "aipw";
       /** Feature Names */
       feature_names?: string[];
       /** Metadata */
@@ -12585,7 +12586,7 @@ export interface components {
        * @default attrition_adjusted
        * @enum {string}
        */
-      mode:
+      mode?:
         | "complete_case"
         | "attrition_adjusted"
         | "sequential_attrition_adjusted"
@@ -12594,12 +12595,12 @@ export interface components {
        * Monotone
        * @default true
        */
-      monotone: boolean;
+      monotone?: boolean;
       /**
        * N Classes
        * @default 5
        */
-      n_classes: number;
+      n_classes?: number;
       /** Origin Classes */
       origin_classes?: number[];
       /** Panel Length */
@@ -12608,12 +12609,12 @@ export interface components {
        * Persist Artifact
        * @default true
        */
-      persist_artifact: boolean;
+      persist_artifact?: boolean;
       /**
        * Positivity Floor
        * @default 0.05
        */
-      positivity_floor: number;
+      positivity_floor?: number;
       /** Refreshment Destination Classes */
       refreshment_destination_classes?: number[] | null;
       /** Refreshment Weights */
@@ -13002,7 +13003,7 @@ export interface components {
        * @default strict
        * @enum {string}
        */
-      checkpoint_policy: "strict" | "lenient" | "disabled";
+      checkpoint_policy?: "strict" | "lenient" | "disabled";
       /** Context */
       context?: {
         [key: string]: unknown;
@@ -13036,12 +13037,12 @@ export interface components {
        * Max Iterations
        * @default 3
        */
-      max_iterations: number;
+      max_iterations?: number;
       /**
        * Max Parallel Models
        * @default 1
        */
-      max_parallel_models: number;
+      max_parallel_models?: number;
       /** Per Model Budget Usd */
       per_model_budget_usd?: number | null;
       policy_flags?: components["schemas"]["PolicyFlags"];
@@ -13959,7 +13960,7 @@ export interface components {
        * Allow Mock Fallback
        * @default false
        */
-      allow_mock_fallback: boolean;
+      allow_mock_fallback?: boolean;
     };
     /**
      * PositiveCertificateRegister
@@ -14942,9 +14943,9 @@ export interface components {
        * @default decision
        * @enum {string}
        */
-      quantity_class: "decision" | "telemetry" | "layout" | "debug";
+      quantity_class?: "decision" | "telemetry" | "layout" | "debug";
       time?: components["schemas"]["TemporalRef-Input"] | null;
-      uncertainty?: components["schemas"]["QuantityUncertainty"] | null;
+      uncertainty?: _RuntimeApiRequestView_51_75_61_6e_74_69_74_79_55_6e_63_65_72_74_61_69_6e_74_79 | null;
       unit: components["schemas"]["UnitRef-Input"];
     };
     /**
@@ -17030,7 +17031,7 @@ export interface components {
        * @default warning
        * @enum {string}
        */
-      severity: "error" | "warning";
+      severity?: "error" | "warning";
       value?: components["schemas"]["QuantityValue-Input"] | null;
     };
     /**
@@ -17069,7 +17070,7 @@ export interface components {
        * Author
        * @default operator
        */
-      author: string;
+      author?: string;
       /** Constraints */
       constraints?: components["schemas"]["ScenarioConstraint-Input"][];
       /** Id */
@@ -17082,7 +17083,7 @@ export interface components {
        * Model Family
        * @default operator-specified
        */
-      model_family: string;
+      model_family?: string;
       /** Model Version */
       model_version?: string | null;
       /** Policy Question */
@@ -17535,14 +17536,14 @@ export interface components {
        * Kind
        * @default foundry.simulation_result
        */
-      kind: string;
+      kind?: string;
       /** Manifest Profile Sha256 */
       manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json
        */
-      media_type: string;
+      media_type?: string;
     };
     /**
      * SimulationResultRef
@@ -18220,7 +18221,7 @@ export interface components {
        * System
        * @default ucum
        */
-      system: string;
+      system?: string;
     };
     /**
      * UnresolvedEquilibriumStart
@@ -18388,7 +18389,7 @@ export interface components {
        * @default strict
        * @enum {string}
        */
-      checkpoint_policy: "strict" | "lenient" | "disabled";
+      checkpoint_policy?: "strict" | "lenient" | "disabled";
       data_source: components["schemas"]["DataSourceBinding"];
       /** Execution Profile */
       execution_profile?:
@@ -18401,7 +18402,7 @@ export interface components {
        * @default workflow
        * @enum {string}
        */
-      mode: "workflow" | "agent_circuit";
+      mode?: "workflow" | "agent_circuit";
       /** Model Spec Ref */
       model_spec_ref?: string | null;
       /** Norm Pack Ref */
@@ -18682,7 +18683,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["BasinMap"];
+        "application/json": _RuntimeApiRequestView_42_61_73_69_6e_4d_61_70;
       };
     };
     responses: {
@@ -20195,7 +20196,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["CapabilityDiscoveryRequest"];
+        "application/json": _RuntimeApiRequestView_43_61_70_61_62_69_6c_69_74_79_44_69_73_63_6f_76_65_72_79_52_65_71_75_65_73_74;
       };
     };
     responses: {
@@ -23955,7 +23956,7 @@ export interface operations {
       };
       header?: never;
       path: {
-        projection_id: components["schemas"]["ProjectionId"];
+        projection_id: _RuntimeApiRequestView_50_72_6f_6a_65_63_74_69_6f_6e_49_64;
       };
       cookie?: never;
     };
@@ -28917,3 +28918,433 @@ type _RuntimeApiRecursiveSchema_PublicDecisionJsonValue =
       [key: string]: _RuntimeApiRecursiveSchema_PublicDecisionJsonValue;
     }
   | null;
+
+// Private request views retain the source response schemas.
+type _RuntimeApiRequestView_41_63_71_75_69_73_69_74_69_6f_6e_52_6f_75_74_65_52_65_70_6c_61_79_50_69_6e_73 =
+  {
+    /** Compiled Content Hash */
+    compiled_content_hash: string;
+    /** Compiled Ref */
+    compiled_ref: string;
+    /** Cost Basis Hash */
+    cost_basis_hash: string;
+    /** Design Problem Ref */
+    design_problem_ref: string;
+    /** Source Job Id */
+    source_job_id: string;
+    /** Terminal Event Id */
+    terminal_event_id: string;
+  };
+type _RuntimeApiRequestView_41_74_74_72_61_63_74_6f_72_50_61_72_61_6d_65_74_65_72_50_6f_69_6e_74 =
+  {
+    /** Names */
+    names?: string[];
+    /** Values */
+    values?: number[];
+  };
+type _RuntimeApiRequestView_41_74_74_72_61_63_74_6f_72_53_70_65_63_74_72_61_6c_56_61_6c_75_65 =
+  {
+    /**
+     * Imag
+     * @default 0
+     */
+    imag?: number;
+    /** Real */
+    real: number;
+  };
+type _RuntimeApiRequestView_41_74_74_72_61_63_74_6f_72_53_74_61_62_69_6c_69_74_79 =
+  {
+    /** Diagnostics */
+    diagnostics?: {
+      [key: string]: unknown;
+    };
+    /** Floquet Multipliers */
+    floquet_multipliers?:
+      | _RuntimeApiRequestView_41_74_74_72_61_63_74_6f_72_53_70_65_63_74_72_61_6c_56_61_6c_75_65[]
+      | null;
+    /** Jacobian Eigenvalues */
+    jacobian_eigenvalues?: _RuntimeApiRequestView_41_74_74_72_61_63_74_6f_72_53_70_65_63_74_72_61_6c_56_61_6c_75_65[];
+    /** Largest Lyapunov Exponent */
+    largest_lyapunov_exponent?: number | null;
+    /**
+     * Local Class
+     * @default unknown
+     * @enum {string}
+     */
+    local_class?:
+      | "asymptotically_stable"
+      | "orbitally_stable"
+      | "neutral"
+      | "unstable"
+      | "mixed"
+      | "unknown";
+    /** Lyapunov Spectrum */
+    lyapunov_spectrum?: number[] | null;
+    /** Notes */
+    notes?: string[];
+    /** Spectral Radius */
+    spectral_radius?: number | null;
+  };
+type _RuntimeApiRequestView_41_74_74_72_61_63_74_6f_72_53_74_61_74_65_50_72_6f_6a_65_63_74_69_6f_6e =
+  {
+    /** Quotient Notes */
+    quotient_notes?: string[];
+    /** Reduced Dimension */
+    reduced_dimension: number;
+    /** Variables */
+    variables?: string[];
+  };
+type _RuntimeApiRequestView_42_61_73_69_6e_4d_61_70 = {
+  /** Analysis Id */
+  analysis_id?: string | null;
+  /** Basin Id */
+  basin_id: string;
+  /** Basin Measure Estimates */
+  basin_measure_estimates?: {
+    [key: string]: number;
+  };
+  /**
+   * Kind
+   * @default foundry.basin_map
+   * @constant
+   */
+  kind?: "foundry.basin_map";
+  /** Notes */
+  notes?: string[];
+  /** Samples */
+  samples?: _RuntimeApiRequestView_42_61_73_69_6e_4d_61_70_53_61_6d_70_6c_65[];
+  /** Sampling Method */
+  sampling_method: string;
+  /**
+   * Schema Version
+   * @default 1.0
+   */
+  schema_version?: string;
+  state_projection: _RuntimeApiRequestView_41_74_74_72_61_63_74_6f_72_53_74_61_74_65_50_72_6f_6a_65_63_74_69_6f_6e;
+};
+type _RuntimeApiRequestView_42_61_73_69_6e_4d_61_70_53_61_6d_70_6c_65 = {
+  /** Attractor Id */
+  attractor_id?: string | null;
+  /** Confidence */
+  confidence?: number | null;
+  /** Initial State */
+  initial_state: {
+    [key: string]: number;
+  };
+  /** Notes */
+  notes?: string[];
+  /** Sample Id */
+  sample_id: string;
+  /** Seed */
+  seed?: number | null;
+  /** Terminal Residual Norm */
+  terminal_residual_norm?: number | null;
+};
+type _RuntimeApiRequestView_42_69_66_75_72_63_61_74_69_6f_6e_45_76_65_6e_74 = {
+  /** Bifurcation Id */
+  bifurcation_id: string;
+  /** Branch From */
+  branch_from?: string | null;
+  /** Branch To */
+  branch_to?: string | null;
+  /** Confidence */
+  confidence?: number | null;
+  /** Detection Method */
+  detection_method: string;
+  /**
+   * Kind
+   * @enum {string}
+   */
+  kind:
+    | "saddle_node"
+    | "hopf"
+    | "period_doubling"
+    | "neimark_sacker"
+    | "torus"
+    | "branch_point"
+    | "homoclinic"
+    | "regime_change"
+    | "unknown";
+  /** Normal Form */
+  normal_form?: {
+    [key: string]: unknown;
+  };
+  /** Notes */
+  notes?: string[];
+  /** Parameter Values */
+  parameter_values?: {
+    [key: string]: number;
+  };
+};
+type _RuntimeApiRequestView_43_61_70_61_62_69_6c_69_74_79_44_69_73_63_6f_76_65_72_79_52_65_71_75_65_73_74 =
+  {
+    /**
+     * Audience
+     * @enum {string}
+     */
+    audience: "REVIEWER" | "EXPERT" | "MACHINE";
+    /** Resource Kinds */
+    resource_kinds: (
+      | "method"
+      | "dataset"
+      | "source"
+      | "legal_norm"
+      | "case"
+      | "agent"
+    )[];
+    search: _RuntimeApiRequestView_53_65_61_72_63_68_52_65_71_75_65_73_74;
+  };
+type _RuntimeApiRequestView_44_65_63_69_73_69_6f_6e_54_72_69_67_67_65_72_54_79_70_65 =
+
+    | "norm_invalidation"
+    | "data_invalidation"
+    | "source_invalidation"
+    | "metric_invalidation"
+    | "model_invalidation"
+    | "conflict_invalidation"
+    | "law_change"
+    | "dataset_superseded"
+    | "historical_semantic_revision"
+    | "contradicting_evidence"
+    | "context_profile_drift"
+    | "post_deployment_refutation"
+    | "human_gate"
+    | "expert_review"
+    | "legacy_packet"
+    | "superseded"
+    | "revoked";
+type _RuntimeApiRequestView_44_65_63_69_73_69_6f_6e_56_61_6c_69_64_69_74_79_53_74_61_74_75_73 =
+
+    | "active"
+    | "warning"
+    | "stale"
+    | "review_required"
+    | "superseded"
+    | "reissued"
+    | "withdrawn"
+    | "revoked"
+    | "requires_human_review";
+type _RuntimeApiRequestView_46_65_74_63_68_50_6c_61_6e = {
+  /** Connector Id */
+  connector_id: string;
+  /** Dataset Id */
+  dataset_id: string;
+  /** Date End */
+  date_end?: string | null;
+  /** Date Start */
+  date_start?: string | null;
+  /** Fallbacks */
+  fallbacks?: _RuntimeApiRequestView_46_65_74_63_68_50_6c_61_6e_46_61_6c_6c_62_61_63_6b[];
+  /** Filters */
+  filters?: {
+    [key: string]: string[];
+  };
+  /** Granularity */
+  granularity?: string | null;
+  /**
+   * Max Preview Rows
+   * @default 20
+   */
+  max_preview_rows?: number;
+  /** Metadata */
+  metadata?: {
+    [key: string]: unknown;
+  };
+  /** Metric Id */
+  metric_id: string;
+  /**
+   * Persist Payload
+   * @default false
+   */
+  persist_payload?: boolean;
+  /** Plan Id */
+  plan_id: string;
+  /** Profile Id */
+  profile_id?: string | null;
+  /**
+   * Quality Min
+   * @default 0.6
+   */
+  quality_min?: number;
+  /**
+   * Source Lane
+   * @default fastlane
+   * @enum {string}
+   */
+  source_lane?: "fastlane" | "explorelane" | "catalog";
+};
+type _RuntimeApiRequestView_46_65_74_63_68_50_6c_61_6e_46_61_6c_6c_62_61_63_6b =
+  {
+    /** Connector Id */
+    connector_id: string;
+    /** Dataset Id */
+    dataset_id: string;
+    /** Filters */
+    filters?: {
+      [key: string]: string[];
+    };
+    /** Metadata */
+    metadata?: {
+      [key: string]: unknown;
+    };
+    /** Metric Id */
+    metric_id?: string | null;
+    /** Profile Id */
+    profile_id?: string | null;
+  };
+type _RuntimeApiRequestView_4c_65_67_61_6c_51_75_65_72_79_47_65_6e_65_72_61_74_69_6f_6e_49_6e_74_65_6e_74_56_31 =
+  {
+    /**
+     * Basis Kind
+     * @enum {string}
+     */
+    basis_kind:
+      | "legal_lex_entities_embedding"
+      | "legal_lex_facts_embedding"
+      | "legal_lex_provisions_embedding";
+    /** Generation Id */
+    generation_id: string;
+    /** Inventory Json */
+    inventory_json: string;
+  };
+type _RuntimeApiRequestView_4c_69_6e_65_61_67_65_43_6f_6d_70_61_63_74_53_75_6d_6d_61_72_79_49_74_65_6d =
+  {
+    /** Id */
+    id?: string | null;
+    /**
+     * Kind
+     * @default unknown
+     * @enum {string}
+     */
+    kind?:
+      | "source"
+      | "transform"
+      | "model"
+      | "agent"
+      | "result"
+      | "artifact"
+      | "dataset"
+      | "method"
+      | "unknown";
+    /** Label */
+    label: string;
+  };
+type _RuntimeApiRequestView_50_72_6f_6a_65_63_74_69_6f_6e_49_64 =
+  | "depth-n-cycle-board"
+  | "value-gate"
+  | "generation-cycle-disposition"
+  | "engine-census"
+  | "fork-b-relation-census"
+  | "acquisition-routing-contract"
+  | "n13a-acquisition-census"
+  | "n13a-live-probe-journal"
+  | "acquisition-growth"
+  | "capability-reality"
+  | "cluster-ownership"
+  | "layer3-health-metrics"
+  | "legacy-proving-ground"
+  | "surface-readiness";
+type _RuntimeApiRequestView_51_75_61_6e_74_69_74_79_55_6e_63_65_72_74_61_69_6e_74_79 =
+  {
+    /** Ci 80 */
+    ci_80?: [number, number] | null;
+    /** Ci 95 */
+    ci_95?: [number, number] | null;
+    /**
+     * Disputed
+     * @default false
+     */
+    disputed?: boolean;
+    /**
+     * Identifiability
+     * @default unknown
+     * @enum {string}
+     */
+    identifiability?: "identified" | "estimated" | "assumed" | "unknown";
+    /** Method */
+    method?:
+      | ("bootstrap" | "bayesian" | "analytic" | "simulation" | "none")
+      | string
+      | null;
+    /** Quantiles */
+    quantiles?: {
+      [key: string]: number;
+    };
+  };
+type _RuntimeApiRequestView_53_65_61_72_63_68_52_65_71_75_65_73_74 = {
+  /** Allowed Modes */
+  allowed_modes: (
+    | "exact"
+    | "alias"
+    | "lexical"
+    | "semantic"
+    | "relational"
+    | "derived"
+  )[];
+  /** Authority Purpose */
+  authority_purpose: string;
+  /** Budget */
+  budget?: {
+    [key: string]: unknown;
+  };
+  /** Construct Refs */
+  construct_refs: string[];
+  /** Intent */
+  intent: string;
+  /** Query Text */
+  query_text: string;
+  /** Request Id */
+  request_id: string;
+  /** Required Layers */
+  required_layers: string[];
+  /** Rule Version */
+  rule_version: string;
+  /**
+   * Schema Version
+   * @default policyos.core.contracts.search.v1
+   * @constant
+   */
+  schema_version?: "policyos.core.contracts.search.v1";
+};
+type _RuntimeApiRequestView_54_65_6d_70_6f_72_61_6c_53_63_6f_70_65 = {
+  /** Branch */
+  branch?: string | null;
+  /** Scenario Id */
+  scenario_id?: string | null;
+  /** Snapshot Id */
+  snapshot_id?: string | null;
+  /** Tx At */
+  tx_at?: string | null;
+  /** Valid At */
+  valid_at?: string | null;
+};
+type _RuntimeApiRequestView_56_65_72_69_66_69_63_61_74_69_6f_6e_4d_65_74_61_64_61_74_61 =
+  {
+    /**
+     * Dispute Status
+     * @default none
+     * @enum {string}
+     */
+    dispute_status?: "none" | "disputed" | "under_review" | "resolved";
+    /**
+     * Freshness
+     * @default unknown
+     * @enum {string}
+     */
+    freshness?: "current" | "stale" | "unknown";
+    /** Hash */
+    hash?: string | null;
+    temporal_scope?: _RuntimeApiRequestView_54_65_6d_70_6f_72_61_6c_53_63_6f_70_65 | null;
+    /** Verification Method */
+    verification_method?: string | null;
+    /**
+     * Verification Status
+     * @default untraced
+     * @enum {string}
+     */
+    verification_status?: "verified" | "pending" | "disputed" | "untraced";
+    /** Verified At */
+    verified_at?: string | null;
+    /** Verified By */
+    verified_by?: string | null;
+  };

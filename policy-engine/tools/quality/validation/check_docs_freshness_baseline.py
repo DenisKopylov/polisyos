@@ -5,14 +5,16 @@ from __future__ import annotations
 
 import argparse
 import contextlib
-import datetime as dt
-import hashlib
 import io
-import re
 import tomllib
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from tools.lib.docs_freshness import (
+    evaluate_docs_freshness_observation,
+    extract_docs_freshness_violation_count,
+    validate_docs_freshness_baseline,
+)
 from tools.lib.imports import repo_root_from
 from tools.quality.validation import check_docs_accuracy
 
@@ -21,7 +23,6 @@ if TYPE_CHECKING:
 
 REPO_ROOT = repo_root_from(__file__)
 BASELINE_PATH = Path("architecture/exceptions/docs_freshness.toml")
-SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -40,60 +41,38 @@ def _load_baseline(repo_root: Path) -> dict[str, object]:
         return tomllib.load(stream)["docs_freshness_exceptions"]
 
 
-def _extract_violation_count(output: str) -> int:
-    match = re.search(r"^- violations:\s+(\d+)$", output, flags=re.MULTILINE)
-    if match is None:
-        return -1
-    return int(match.group(1))
+def _extract_violation_count(output: str) -> int | None:
+    """Return a single exact checker count, or ``None`` when it is unknown."""
+    return extract_docs_freshness_violation_count(output)
 
 
 def _run_docs_accuracy(repo_root: Path) -> tuple[int, str]:
     stdout = io.StringIO()
-    with contextlib.redirect_stdout(stdout):
+    stderr = io.StringIO()
+    with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
         exit_code = check_docs_accuracy.main(["--repo-root", str(repo_root)])
-    return exit_code, stdout.getvalue()
+    return exit_code, stdout.getvalue() + stderr.getvalue()
 
 
 def check_baseline(repo_root: Path) -> list[str]:
     baseline = _load_baseline(repo_root)
-    findings: list[str] = []
-
-    if baseline.get("mode") != "fail_closed_baseline":
-        findings.append("docs freshness mode is not fail_closed_baseline")
-
-    expires = dt.date.fromisoformat(str(baseline.get("expires", "")))
-    if expires < dt.date.today():
-        findings.append("docs freshness exception baseline expired")
-
-    expected_count = int(baseline.get("expected_violation_count", -1))
-    expected_digest = str(baseline.get("baseline_sha256", "")).strip()
-    if expected_count < 0:
-        findings.append("expected_violation_count must be non-negative")
-    if not SHA256_RE.fullmatch(expected_digest):
-        findings.append("docs freshness baseline hash is not sha256")
-
-    exit_code, output = _run_docs_accuracy(repo_root)
-    observed_count = _extract_violation_count(output)
-    observed_digest = hashlib.sha256(output.encode("utf-8")).hexdigest()
-
-    if exit_code == 0:
-        if expected_count not in {0, observed_count}:
-            findings.append(
-                "docs accuracy is clean but baseline still expects "
-                f"{expected_count} violation(s)"
-            )
+    contract = validate_docs_freshness_baseline(baseline)
+    findings = list(contract.findings)
+    expected_count = contract.expected_violation_count
+    if expected_count is None:
+        return findings
+    if expected_count > 0 and findings:
         return findings
 
-    if observed_count != expected_count:
-        findings.append(
-            f"docs freshness violation count changed: expected {expected_count}, "
-            f"observed {observed_count}"
+    exit_code, output = _run_docs_accuracy(repo_root)
+    findings.extend(
+        evaluate_docs_freshness_observation(
+            expected_count=expected_count,
+            expected_digest=contract.baseline_sha256,
+            returncode=exit_code,
+            output=output,
         )
-    if observed_digest != expected_digest:
-        findings.append(
-            "docs freshness baseline hash changed: "
-            f"expected {expected_digest}, observed {observed_digest}"
-        )
+    )
     return findings
 
 

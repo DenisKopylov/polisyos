@@ -10,6 +10,8 @@ import tomllib
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 WORKSPACE_ROOT = REPO_ROOT.parent
 
@@ -69,23 +71,23 @@ def test_phase5_gate_registry_is_fail_closed_and_evidence_backed() -> None:
 def test_phase5_closeout_generated_gate_uses_explicit_full_or_skip_mode() -> None:
     from tools.devx.workspace import repository_sota_closeout
 
-    full = repository_sota_closeout._generated_guardrail_command(
-        skip_generated_checks=False
-    )
-    light = repository_sota_closeout._generated_guardrail_command(
-        skip_generated_checks=True
-    )
+    full = repository_sota_closeout._generated_guardrail_command(skip_generated_checks=False)
+    light = repository_sota_closeout._generated_guardrail_command(skip_generated_checks=True)
 
     assert full[-1] == "--all-generated-checks"
     assert light[-1] == "--skip-generated-checks"
-    assert full[:-1] == light[:-1] == [
-        "uv",
-        "run",
-        "polisyos-tools",
-        "architecture",
-        "guardrails",
-        "check",
-    ]
+    assert (
+        full[:-1]
+        == light[:-1]
+        == [
+            "uv",
+            "run",
+            "polisyos-tools",
+            "architecture",
+            "guardrails",
+            "check",
+        ]
+    )
 
 
 def test_phase5_child_gate_receipt_retains_complete_failure_output(tmp_path: Path) -> None:
@@ -99,10 +101,7 @@ def test_phase5_child_gate_receipt_retains_complete_failure_output(tmp_path: Pat
     stdout = b"stdout-marker\r\ninvalid:\xff\xfe\r\n" + (b"x" * 5_000) + b"\r\n"
     stderr = b"stderr-marker\r\ninvalid:\x80\r\n" + (b"y" * 5_000) + b"\r\n"
     child_code = (
-        "import os\n"
-        f"os.write(1, {stdout!r})\n"
-        f"os.write(2, {stderr!r})\n"
-        "raise SystemExit(23)\n"
+        f"import os\nos.write(1, {stdout!r})\nos.write(2, {stderr!r})\nraise SystemExit(23)\n"
     )
     command = [sys.executable, "-c", child_code]
     receipt_dir = tmp_path / "receipts"
@@ -164,7 +163,7 @@ def test_phase5_child_gate_receipt_retains_complete_failure_output(tmp_path: Pat
 def test_phase5_remaining_exceptions_are_owner_approved_and_time_bounded() -> None:
     today = dt.date.today()
 
-    imports = _read_toml("architecture/imports/exceptions.toml")["exception"]
+    imports = _read_toml("architecture/imports/exceptions.toml").get("exception", [])
     for exception in imports:
         assert exception["id"]
         assert exception["owner"]
@@ -189,7 +188,12 @@ def test_phase5_remaining_exceptions_are_owner_approved_and_time_bounded() -> No
     assert docs["owner"]
     assert docs["reason"]
     assert docs["issue"]
-    assert _date(docs["expires"]) >= today
+    assert type(docs["expected_violation_count"]) is int
+    assert docs["expected_violation_count"] >= 0
+    if docs["expected_violation_count"] > 0:
+        assert _date(docs["expires"]) >= today
+    else:
+        _date(docs["expires"])
 
     shims = _read_toml("architecture/shims.toml")["shim"]
     for shim in shims:
@@ -204,11 +208,258 @@ def test_phase5_remaining_exceptions_are_owner_approved_and_time_bounded() -> No
             assert _contract_path_exists(shim["source_path"]), shim["id"]
 
 
+@pytest.mark.parametrize(
+    ("returncode", "stdout", "stderr", "has_findings"),
+    [
+        (0, "- violations: 0\n", "", False),
+        (1, "- violations: 1\n", "", True),
+        (1, "- violations: 0\n", "native checker failed\n", True),
+    ],
+)
+def test_zero_debt_docs_baseline_ignores_expiry_but_always_runs_native_check(
+    monkeypatch,
+    returncode: int,
+    stdout: str,
+    stderr: str,
+    has_findings: bool,
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    baseline = _docs_freshness_baseline(
+        expected_violation_count=0,
+        expires=(dt.date.today() - dt.timedelta(days=1)).isoformat(),
+        baseline_sha256=hashlib.sha256((stdout + stderr).encode("utf-8")).hexdigest(),
+    )
+    calls = _stub_docs_freshness_subprocess(
+        monkeypatch,
+        baseline,
+        returncode=returncode,
+        stdout=stdout,
+        stderr=stderr,
+    )
+
+    assert repository_sota_closeout._check_docs_freshness_contract() == []
+    findings = repository_sota_closeout._run_docs_freshness_gate()
+
+    assert len(calls) == 1
+    assert calls[0][0] == "docs-freshness"
+    assert calls[0][1] == [
+        "uv",
+        "run",
+        "polisyos-tools",
+        "validation",
+        "check-docs-accuracy",
+        "--repo-root",
+        ".",
+    ]
+    assert bool(findings) is has_findings
+
+
+def test_current_zero_debt_config_reaches_native_docs_check(monkeypatch) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    baseline = _read_toml("architecture/exceptions/docs_freshness.toml")[
+        "docs_freshness_exceptions"
+    ]
+    assert baseline["expected_violation_count"] == 0
+    assert _date(baseline["expires"]) < dt.date.today()
+
+    calls: list[list[str]] = []
+
+    def run_subprocess(
+        gate: str,
+        command: list[str],
+        *,
+        receipt_dir: Path | None = None,
+    ) -> subprocess.CompletedProcess[str]:
+        del receipt_dir
+        assert gate == "docs-freshness"
+        calls.append(command)
+        return subprocess.CompletedProcess(command, 0, "- violations: 0\n", "")
+
+    monkeypatch.setattr(repository_sota_closeout, "_run_subprocess_with_receipt", run_subprocess)
+
+    assert repository_sota_closeout._check_docs_freshness_contract() == []
+    assert repository_sota_closeout._run_docs_freshness_gate() == []
+    assert len(calls) == 1
+
+
+@pytest.mark.parametrize(
+    "stdout",
+    [
+        "Docs accuracy report: passed\n",
+        "- violations: invalid\n",
+        "- violations: 0\n- violations: 0\n",
+    ],
+)
+def test_zero_debt_docs_gate_rejects_missing_or_ambiguous_count_even_on_exit_zero(
+    monkeypatch, stdout: str
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    baseline = _docs_freshness_baseline(
+        expected_violation_count=0,
+        expires=(dt.date.today() - dt.timedelta(days=1)).isoformat(),
+        baseline_sha256=None,
+    )
+    calls = _stub_docs_freshness_subprocess(monkeypatch, baseline, returncode=0, stdout=stdout)
+
+    findings = repository_sota_closeout._run_docs_freshness_gate()
+
+    assert calls
+    assert any("malformed violation count" in finding.message for finding in findings)
+
+
+def test_expired_positive_docs_baseline_is_not_an_admitted_exception(monkeypatch) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    output = "- violations: 1\n"
+    baseline = _docs_freshness_baseline(
+        expected_violation_count=1,
+        expires=(dt.date.today() - dt.timedelta(days=1)).isoformat(),
+        baseline_sha256=hashlib.sha256(output.encode("utf-8")).hexdigest(),
+    )
+    calls = _stub_docs_freshness_subprocess(monkeypatch, baseline, returncode=1, stdout=output)
+
+    findings = repository_sota_closeout._run_docs_freshness_gate()
+
+    assert any("expired" in finding.message for finding in findings)
+    assert calls == []
+
+
+def test_current_positive_docs_baseline_requires_exact_count_and_output_hash(monkeypatch) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    output = "- violations: 1\n"
+    baseline = _docs_freshness_baseline(
+        expected_violation_count=1,
+        expires=(dt.date.today() + dt.timedelta(days=30)).isoformat(),
+        baseline_sha256=hashlib.sha256(output.encode("utf-8")).hexdigest(),
+    )
+    calls = _stub_docs_freshness_subprocess(monkeypatch, baseline, returncode=1, stdout=output)
+
+    assert repository_sota_closeout._check_docs_freshness_contract() == []
+    assert repository_sota_closeout._run_docs_freshness_gate() == []
+    assert len(calls) == 1
+
+
+@pytest.mark.parametrize(
+    ("expected_count", "expected_digest"),
+    [
+        (2, hashlib.sha256(b"- violations: 1\n").hexdigest()),
+        (1, "0" * 64),
+    ],
+)
+def test_positive_docs_baseline_rejects_forged_count_or_hash(
+    monkeypatch, expected_count: int, expected_digest: str
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    output = "- violations: 1\n"
+    baseline = _docs_freshness_baseline(
+        expected_violation_count=expected_count,
+        expires=(dt.date.today() + dt.timedelta(days=30)).isoformat(),
+        baseline_sha256=expected_digest,
+    )
+    calls = _stub_docs_freshness_subprocess(monkeypatch, baseline, returncode=1, stdout=output)
+
+    findings = repository_sota_closeout._run_docs_freshness_gate()
+
+    assert findings
+    assert len(calls) == 1
+
+
+@pytest.mark.parametrize(
+    "override",
+    [
+        {"expected_violation_count": "0"},
+        {"expected_violation_count": False},
+        {"expires": "not-a-date"},
+        {"mode": "report_only"},
+        {"owner": ""},
+        {"baseline_sha256": "pending"},
+    ],
+)
+def test_malformed_docs_freshness_fields_are_not_treated_as_absent_or_zero(
+    monkeypatch, override: dict[str, object]
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    baseline = _docs_freshness_baseline(
+        expected_violation_count=0,
+        expires=(dt.date.today() + dt.timedelta(days=30)).isoformat(),
+        baseline_sha256="a" * 64,
+    )
+    baseline.update(override)
+    calls = _stub_docs_freshness_subprocess(
+        monkeypatch,
+        baseline,
+        returncode=0,
+        stdout="- violations: 0\n",
+    )
+
+    assert repository_sota_closeout._check_docs_freshness_contract()
+    assert repository_sota_closeout._run_docs_freshness_gate()
+    if type(baseline["expected_violation_count"]) is int:
+        assert len(calls) == 1
+    else:
+        assert calls == []
+
+
+def _docs_freshness_baseline(
+    *, expected_violation_count: object, expires: str, baseline_sha256: str | None
+) -> dict[str, object]:
+    baseline: dict[str, object] = {
+        "version": 1,
+        "owner": "team-docs",
+        "mode": "fail_closed_baseline",
+        "command": "uv run polisyos-tools validation check-docs-accuracy --repo-root .",
+        "reason": "Test-only exact output baseline.",
+        "expires": expires,
+        "issue": "docs/plans/accepted/REPOSITORY_SOTA_PLAN.md#docs-freshness",
+        "expected_violation_count": expected_violation_count,
+    }
+    if baseline_sha256 is not None:
+        baseline["baseline_sha256"] = baseline_sha256
+    return baseline
+
+
+def _stub_docs_freshness_subprocess(
+    monkeypatch,
+    baseline: dict[str, object],
+    *,
+    returncode: int,
+    stdout: str,
+    stderr: str = "",
+) -> list[tuple[str, list[str]]]:
+    from tools.devx.workspace import repository_sota_closeout
+
+    def read_toml(path: str) -> dict[str, object]:
+        assert path == "architecture/exceptions/docs_freshness.toml"
+        return {"docs_freshness_exceptions": baseline}
+
+    calls: list[tuple[str, list[str]]] = []
+
+    def run_subprocess(
+        gate: str,
+        command: list[str],
+        *,
+        receipt_dir: Path | None = None,
+    ) -> subprocess.CompletedProcess[str]:
+        del receipt_dir
+        calls.append((gate, command))
+        return subprocess.CompletedProcess(command, returncode, stdout, stderr)
+
+    monkeypatch.setattr(repository_sota_closeout, "_read_toml", read_toml)
+    monkeypatch.setattr(repository_sota_closeout, "_run_subprocess_with_receipt", run_subprocess)
+    return calls
+
+
 def test_phase6_5_exception_cleanup_registries_are_reviewable() -> None:
     today = dt.date.today()
     import_ids = {
         exception["id"]
-        for exception in _read_toml("architecture/imports/exceptions.toml")["exception"]
+        for exception in _read_toml("architecture/imports/exceptions.toml").get("exception", [])
     }
     import_docs = (REPO_ROOT / "architecture/imports/exceptions.md").read_text(encoding="utf-8")
     documented_ids = set(re.findall(r"`(E-\d{4}-\d{2}-[A-Z0-9-]+)`", import_docs))
@@ -250,7 +501,9 @@ def test_phase6_5_exception_cleanup_registries_are_reviewable() -> None:
         assert _date(exception["sunset"]) >= today
         assert _contract_path_exists(exception["source_path"]), exception["name"]
 
-    for override in _read_toml("architecture/tooling/static_analysis_overrides.toml")["override_scope"]:
+    for override in _read_toml("architecture/tooling/static_analysis_overrides.toml")[
+        "override_scope"
+    ]:
         _assert_fields(override, ("id", "owner", "expectation", "sunset", "issue"))
         assert _date(override["sunset"]) >= today
 

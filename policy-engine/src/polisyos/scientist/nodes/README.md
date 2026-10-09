@@ -53,7 +53,21 @@ surface for the `data`, `planning`, `compile`, `causal`, `simulate`,
   exception diagnostics plus a hash of the sampled inputs rather than the raw
   inputs. The Welfare bundle point estimate remains the nominal-input evaluation;
   partial Monte Carlo bundles warn that the report mean is conditional on
-  successful draws.
+  successful draws. Retries apply only to explicitly transient PolicyOS errors,
+  at most once on the same sampled vector. A typed `WelfareSampleDomainError`
+  marks one sampled point unavailable and records that declaration as
+  consumer-asserted. Access, validation, and unclassified failures fail the node;
+  incomplete draw sets retain the conditional summary and no Monte Carlo interval.
+
+The canonical decision-packet producer remains
+`decision_packet.builder.BuildDecisionPacketNode.execute`. It captures the
+invocation before payload construction, prepares validity and epochs before
+publication gates, and persists to CAS after those gates. The five section
+owners are `causal_sections`, `strategic_sections`, `outcome_sections`,
+`basis_sections`, and `uncertainty_sections`; `validation` owns validation and
+validity preparation. `enrichment` retains compatibility re-exports and
+`_build_policy_summary`. `build_decision_packet.py` remains the compatibility
+facade. The existing 296-name API is retained.
 
 ## Extension Points
 

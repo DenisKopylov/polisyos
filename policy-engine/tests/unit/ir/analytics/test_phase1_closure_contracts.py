@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
 from polisyos.ir.analytics.causal import (
@@ -176,8 +177,8 @@ def test_frontier_sketch_round_trip_via_store(tmp_path) -> None:
         metadata={"benchmark_case": "sigma_fail"},
     )
 
-    sketch_ref = persist_frontier_sketch(store, sketch)
-    loaded = load_frontier_sketch(store, sketch_ref)
+    sketch_ref = persist_frontier_sketch(_ensure_ir_artifact_store(store), sketch)
+    loaded = load_frontier_sketch(_ensure_ir_artifact_store(store), sketch_ref)
 
     assert loaded == sketch
     assert loaded.max_readiness == "PROOF_ONLY"
@@ -194,9 +195,11 @@ def test_recoverability_and_joint_refs_flow_into_proof_and_readiness(tmp_path) -
         recoverability=recoverability,
         computable_functionals=("P(Y|do(X))",),
     )
-    recoverability_ref = persist_recoverability_certificate(store, recoverability)
+    recoverability_ref = persist_recoverability_certificate(
+        _ensure_ir_artifact_store(store), recoverability
+    )
     joint_ref = persist_joint_decision_certificate(
-        store,
+        _ensure_ir_artifact_store(store),
         joint,
     )
     proof = proof_bundle_from_identification_result(
@@ -221,10 +224,10 @@ def test_recoverability_and_joint_refs_flow_into_proof_and_readiness(tmp_path) -
         fallback_data_available=True,
     )
 
-    proof_ref = persist_proof_bundle(store, proof)
-    readiness_ref = persist_data_readiness_report(store, readiness)
-    loaded_proof = load_proof_bundle(store, proof_ref)
-    loaded_readiness = load_data_readiness_report(store, readiness_ref)
+    proof_ref = persist_proof_bundle(_ensure_ir_artifact_store(store), proof)
+    readiness_ref = persist_data_readiness_report(_ensure_ir_artifact_store(store), readiness)
+    loaded_proof = load_proof_bundle(_ensure_ir_artifact_store(store), proof_ref)
+    loaded_readiness = load_data_readiness_report(_ensure_ir_artifact_store(store), readiness_ref)
 
     assert loaded_proof.recoverability_certificate_ref == recoverability_ref
     assert loaded_proof.joint_decision_ref == joint_ref
@@ -239,7 +242,9 @@ def test_recoverability_and_joint_refs_flow_into_proof_and_readiness(tmp_path) -
 def test_proximal_certificate_ref_attaches_to_proof_bundle(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     certificate = _proximal_certificate()
-    certificate_ref = persist_proximal_identification_certificate(store, certificate)
+    certificate_ref = persist_proximal_identification_certificate(
+        _ensure_ir_artifact_store(store), certificate
+    )
     sketch = materialize_phase1_frontier_sketch(
         stage_id="11.1",
         family="proximal_bridge",
@@ -248,7 +253,7 @@ def test_proximal_certificate_ref_attaches_to_proof_bundle(tmp_path) -> None:
         primary_ref=certificate_ref,
         known_limitations=("sound_incomplete",),
     )
-    sketch_ref = persist_frontier_sketch(store, sketch)
+    sketch_ref = persist_frontier_sketch(_ensure_ir_artifact_store(store), sketch)
 
     bundle = proof_bundle_from_proximal_certificate(
         certificate,
@@ -257,18 +262,21 @@ def test_proximal_certificate_ref_attaches_to_proof_bundle(tmp_path) -> None:
         certificate_ref=certificate_ref,
         frontier_sketch_ref=sketch_ref,
     )
-    proof_ref = persist_proof_bundle(store, bundle)
-    loaded_bundle = load_proof_bundle(store, proof_ref)
+    proof_ref = persist_proof_bundle(_ensure_ir_artifact_store(store), bundle)
+    loaded_bundle = load_proof_bundle(_ensure_ir_artifact_store(store), proof_ref)
 
-    assert load_proximal_identification_certificate(store, certificate_ref) == certificate
+    assert (
+        load_proximal_identification_certificate(_ensure_ir_artifact_store(store), certificate_ref)
+        == certificate
+    )
     assert loaded_bundle.proximal_certificate_ref == certificate_ref
     assert loaded_bundle.frontier_sketch_ref == sketch_ref
     assert loaded_bundle.metadata["proximal_certificate_ref"]["artifact_id"] == str(
         certificate_ref.artifact_id
     )
-    assert load_frontier_sketch(store, sketch_ref).stage_id == "11.1"
+    assert load_frontier_sketch(_ensure_ir_artifact_store(store), sketch_ref).stage_id == "11.1"
     joint_ref = persist_joint_decision_certificate(
-        store,
+        _ensure_ir_artifact_store(store),
         JointDecisionCertificate(
             verdict=JointDecisionStatus.IDENTIFIED_AND_RECOVERABLE,
             target_query="P(Y|do(X))",
@@ -276,13 +284,15 @@ def test_proximal_certificate_ref_attaches_to_proof_bundle(tmp_path) -> None:
             recoverability=_recoverability_certificate(),
         ),
     )
-    recoverability_ref = persist_recoverability_certificate(store, _recoverability_certificate())
-    assert load_joint_decision_certificate(store, joint_ref).verdict is (
+    recoverability_ref = persist_recoverability_certificate(
+        _ensure_ir_artifact_store(store), _recoverability_certificate()
+    )
+    assert load_joint_decision_certificate(_ensure_ir_artifact_store(store), joint_ref).verdict is (
         JointDecisionStatus.IDENTIFIED_AND_RECOVERABLE
     )
-    assert load_recoverability_certificate(store, recoverability_ref).status is (
-        RecoverabilityCertificateStatus.RECOVERABLE_UNDER_ASSUMPTIONS
-    )
+    assert load_recoverability_certificate(
+        _ensure_ir_artifact_store(store), recoverability_ref
+    ).status is (RecoverabilityCertificateStatus.RECOVERABLE_UNDER_ASSUMPTIONS)
 
 
 def test_bridge_plausibility_ref_attaches_to_proof_bundle(tmp_path) -> None:
@@ -302,7 +312,7 @@ def test_bridge_plausibility_ref_attaches_to_proof_bundle(tmp_path) -> None:
         fallback_disposition=BridgeFallbackDisposition.REQUIRE_BOUNDS,
         reasons=("proxy_association_or_effective_rank_weak",),
     )
-    report_ref = persist_bridge_plausibility_report(store, report)
+    report_ref = persist_bridge_plausibility_report(_ensure_ir_artifact_store(store), report)
 
     bundle = proof_bundle_from_identification_result(
         SimpleNamespace(
@@ -318,10 +328,10 @@ def test_bridge_plausibility_ref_attaches_to_proof_bundle(tmp_path) -> None:
             },
         )
     )
-    proof_ref = persist_proof_bundle(store, bundle)
-    loaded_bundle = load_proof_bundle(store, proof_ref)
+    proof_ref = persist_proof_bundle(_ensure_ir_artifact_store(store), bundle)
+    loaded_bundle = load_proof_bundle(_ensure_ir_artifact_store(store), proof_ref)
 
-    assert load_bridge_plausibility_report(store, report_ref) == report
+    assert load_bridge_plausibility_report(_ensure_ir_artifact_store(store), report_ref) == report
     assert loaded_bundle.bridge_plausibility_report_ref == report_ref
     assert loaded_bundle.metadata["bridge_plausibility_report_ref"]["artifact_id"] == str(
         report_ref.artifact_id
@@ -364,8 +374,12 @@ def test_spatial_proxy_specs_round_trip_in_proximal_certificate(tmp_path) -> Non
             },
         }
     )
-    certificate_ref = persist_proximal_identification_certificate(store, certificate)
-    loaded = load_proximal_identification_certificate(store, certificate_ref)
+    certificate_ref = persist_proximal_identification_certificate(
+        _ensure_ir_artifact_store(store), certificate
+    )
+    loaded = load_proximal_identification_certificate(
+        _ensure_ir_artifact_store(store), certificate_ref
+    )
     bundle = proof_bundle_from_proximal_certificate(certificate, certificate_ref=certificate_ref)
 
     assert len(loaded.proxies.spatial_proxy_specs) == 2

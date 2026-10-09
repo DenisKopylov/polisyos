@@ -538,8 +538,10 @@ class TestExecuteWithRetrySync:
                 alias="a",
             )
 
-    def test_timeout_revokes_late_state_and_owner_writes(self, ctx, state, monkeypatch):
-        """A timed-out thread cannot publish after its caller stops waiting."""
+    def test_thread_timeout_helper_revokes_late_state_and_owner_writes(
+        self, ctx, state, monkeypatch
+    ):
+        """The explicit thread helper revokes writes after its deadline."""
 
         class _RecordingStore:
             def __init__(self) -> None:
@@ -603,23 +605,19 @@ class TestExecuteWithRetrySync:
 
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         monkeypatch.setattr(
-            "polisyos.scientist.orchestration.engine.retry._can_use_forked_timeout_worker",
-            lambda: False,
-        )
-        monkeypatch.setattr(
             "polisyos.scientist.orchestration.engine.retry.get_shared_executor",
             lambda: executor,
         )
 
         try:
             with pytest.raises(NodeTimeoutError):
-                execute_with_retry_sync(
-                    _LateAuthorityNode(),
-                    ctx,
-                    state,
-                    retry_policy=RetryPolicy(),
-                    timeout_s=0.01,
-                    alias="late-write",
+                asyncio.run(
+                    retry_module._execute_with_timeout_thread_async(
+                        _LateAuthorityNode(),
+                        ctx,
+                        state,
+                        timeout_s=0.01,
+                    )
                 )
             assert started.wait(timeout=0.5)
             release.set()
@@ -647,13 +645,13 @@ class TestExecuteWithRetrySync:
 
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         try:
-            result = execute_with_retry_sync(
-                _SuccessfulAuthorityNode(),
-                ctx,
-                state,
-                retry_policy=RetryPolicy(),
-                timeout_s=0.5,
-                alias="on-time",
+            result = asyncio.run(
+                retry_module._execute_with_timeout_thread_async(
+                    _SuccessfulAuthorityNode(),
+                    ctx,
+                    state,
+                    timeout_s=0.5,
+                )
             )
         finally:
             executor.shutdown(wait=True, cancel_futures=True)
@@ -1046,14 +1044,20 @@ class _SerializationFailureNode:
 
 
 def test_serialization_failure_is_not_reported_as_success(ctx, state) -> None:
-    """A worker serialization error reaches the caller as a transport failure."""
-    with pytest.raises(RuntimeError, match="TypeError: cannot serialize"):
-        retry_module._execute_with_timeout_process(
-            _SerializationFailureNode(),
-            ctx,
-            state,
-            timeout_s=2.0,
-        )
+    """The worker reports a failed outcome serialization as an error payload."""
+    messages: list[tuple[str, object]] = []
+
+    class _RecordingResultQueue:
+        def put(self, message: tuple[str, object]) -> None:
+            messages.append(message)
+
+    _node_execute_worker(_SerializationFailureNode(), ctx, state, _RecordingResultQueue())
+
+    assert len(messages) == 1
+    status, payload = messages[0]
+    assert status == "error"
+    assert isinstance(payload, dict)
+    assert "TypeError: cannot serialize in python mode" in str(payload.get("message"))
 
 
 class _ExitedWorker:
@@ -1061,6 +1065,10 @@ class _ExitedWorker:
 
     def is_alive(self) -> bool:
         return False
+
+    @property
+    def exitcode(self) -> int:
+        return 0
 
 
 class _StoppedProcessHandle:
@@ -1108,7 +1116,7 @@ def test_late_worker_completion_is_not_delivery_success(mode) -> None:
                 )
             )
 
-    with pytest.raises(retry_module._WorkerComputeTimeout):
+    with pytest.raises(retry_module._WorkerProcessExited):
         invoke()
 
 

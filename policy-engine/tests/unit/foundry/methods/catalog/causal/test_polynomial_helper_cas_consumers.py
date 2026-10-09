@@ -12,6 +12,7 @@ import sys
 import numpy as np
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -93,8 +94,14 @@ def _fit_and_persist(store, *, family=MechanismFamily.ADDITIVE_NOISE):
         ],
     )
     assert model.fit_provenance is None
-    ref = persist_structural_causal_model_spec(store, model)
-    return source, ref, load_structural_causal_model_spec(FileSystemCAS(store.root), ref)
+    ref = persist_structural_causal_model_spec(_ensure_ir_artifact_store(store), model)
+    return (
+        source,
+        ref,
+        load_structural_causal_model_spec(
+            _ensure_ir_artifact_store(FileSystemCAS(store.root)), ref
+        ),
+    )
 
 
 def _actual_job(store, method, state, slot):
@@ -148,8 +155,10 @@ def test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader(
     assert result.result_mean == pytest.approx(expected, abs=1e-10)
     assert result.result_distribution == pytest.approx([expected] * 64, abs=1e-10)
     assert result.estimator_interval is None and not result.to_uncertainty_envelope().gate_eligible
-    result_ref = persist_causal_query_result(store, result)
-    loaded = load_causal_query_result(FileSystemCAS(store.root), result_ref)
+    result_ref = persist_causal_query_result(_ensure_ir_artifact_store(store), result)
+    loaded = load_causal_query_result(
+        _ensure_ir_artifact_store(FileSystemCAS(store.root)), result_ref
+    )
     assert loaded.model_dump(mode="json") == result.model_dump(mode="json")
     reader = r"""
 import json,sys
@@ -203,19 +212,20 @@ def test_existing_polynomial_fit_helper_shared_residual_twin_cas_and_fresh_reade
     assert result.po_counter_mean == pytest.approx(4.25, abs=1e-10)
     assert result.ite_distribution == pytest.approx([3.0] * 32, abs=1e-10)
     assert result.estimator_interval is None and not result.to_uncertainty_envelope().gate_eligible
-    ref = persist_twin_network_result(store, result)
-    assert load_twin_network_result(FileSystemCAS(store.root), ref).model_dump(
-        mode="json"
-    ) == result.model_dump(mode="json")
+    ref = persist_twin_network_result(_ensure_ir_artifact_store(store), result)
+    assert load_twin_network_result(
+        _ensure_ir_artifact_store(FileSystemCAS(store.root)), ref
+    ).model_dump(mode="json") == result.model_dump(mode="json")
     reader = r"""
 import json,sys
+from polisyos.core.artifacts import ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.registry.refs import StructuralCausalModelSpecRef,TwinNetworkResultRef
 from polisyos.ir.analytics.structural_causal_model import load_structural_causal_model_spec
 from polisyos.ir.analytics.twin_network import load_twin_network_result
 from polisyos.foundry.methods.catalog.causal.twin_network_query import TwinNetworkQuery
 from polisyos.foundry.methods.catalog.causal.protocols import TwinNetworkQueryData
-store=FileSystemCAS(sys.argv[1]);model=load_structural_causal_model_spec(store,StructuralCausalModelSpecRef.model_validate_json(sys.argv[2]));old=load_twin_network_result(store,TwinNetworkResultRef.model_validate_json(sys.argv[3]));state=TwinNetworkQueryData(scm_spec=model,factual_condition={'X':1.0,'Y':1.25},treatment_variable='X',factual_treatment_value=1.0,counterfactual_treatment_value=2.0,outcome_variable='Y',n_samples=32)
+store=ensure_ir_artifact_store(FileSystemCAS(sys.argv[1]));model=load_structural_causal_model_spec(store,StructuralCausalModelSpecRef.model_validate_json(sys.argv[2]));old=load_twin_network_result(store,TwinNetworkResultRef.model_validate_json(sys.argv[3]));state=TwinNetworkQueryData(scm_spec=model,factual_condition={'X':1.0,'Y':1.25},treatment_variable='X',factual_treatment_value=1.0,counterfactual_treatment_value=2.0,outcome_variable='Y',n_samples=32)
 new=TwinNetworkQuery.pure_step(state,{'__seed__':19})['twin_network_result']
 for result in [old,new]:
  assert abs(result.ite_mean-3.0)<1e-10 and abs(result.po_counter_mean-4.25)<1e-10

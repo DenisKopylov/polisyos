@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.mobility import MobilityReport, load_mobility_report
 from polisyos.ir.analytics.partial_identification import load_bounds_bundle
@@ -57,7 +59,9 @@ class TestTransitionMatrix:
 
         assert isinstance(report, MobilityReport)
         assert ref_payload is not None
-        loaded = load_mobility_report(store, MobilityReportRef.model_validate(ref_payload))
+        loaded = load_mobility_report(
+            _ensure_ir_artifact_store(store), MobilityReportRef.model_validate(ref_payload)
+        )
         assert loaded.analysis_type == "transition_matrix"
         assert loaded.schema_version == "2.0"
         assert loaded.summary_metrics["n_classes"] == 3
@@ -130,7 +134,9 @@ class TestTransitionMatrix:
         upward_rate = float(report.point_estimate.mobility_stats["upward_rate"])
         assert upward_bounds[0] <= upward_rate <= upward_bounds[1]
 
-        bounds_bundle = load_bounds_bundle(store, report.bounds.bundle_ref)
+        bounds_bundle = load_bounds_bundle(
+            _ensure_ir_artifact_store(store), report.bounds.bundle_ref
+        )
         assert bounds_bundle.metadata["headline_metric"] == "upward_rate"
         assert bounds_bundle.metadata["summary_bounds"]["upward_rate"] == list(upward_bounds)
 
@@ -189,7 +195,9 @@ class TestTransitionMatrix:
         assert report.diagnostics.sensitivity_grid["wave_2_retention_rate"] == pytest.approx(0.5)
         assert report.bounds.bundle_ref is not None
 
-        bounds_bundle = load_bounds_bundle(store, report.bounds.bundle_ref)
+        bounds_bundle = load_bounds_bundle(
+            _ensure_ir_artifact_store(store), report.bounds.bundle_ref
+        )
         assert bounds_bundle.metadata["summary_bounds"]["immobility_rate"] == [0.5, 1.0]
 
     def test_refreshment_estimator_anchors_destination_marginals_and_persists_bounds(
@@ -234,7 +242,9 @@ class TestTransitionMatrix:
             "refreshment_additive_nonignorable_logit_structural_fit" in report.diagnostics.warnings
         )
 
-        bounds_bundle = load_bounds_bundle(store, report.bounds.bundle_ref)
+        bounds_bundle = load_bounds_bundle(
+            _ensure_ir_artifact_store(store), report.bounds.bundle_ref
+        )
         assert bounds_bundle.metadata["summary_bounds"]["upward_rate"] == [0.0, 0.25]
 
 

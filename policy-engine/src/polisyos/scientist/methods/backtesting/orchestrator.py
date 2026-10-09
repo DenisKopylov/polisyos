@@ -10,14 +10,40 @@ from dataclasses import dataclass
 from enum import Enum
 from importlib import import_module
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 import numpy as np
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core.artifacts import (
+    ArtifactRef as CoreArtifactRef,
+)
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts import (
+    resolve_manifest_by_profile,
+)
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.ir_adapter import build_ir_artifact_store, ensure_ir_artifact_store
+from polisyos.core.artifacts.ir_adapter import (
+    CoreToIRArtifactStoreAdapter,
+    build_ir_artifact_store,
+    ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts.manifest import artifact_ref_identity_key, input_ref_from_artifact_ref
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.contracts.fabric import DataSnapshot
+from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+from polisyos.core.contracts.foundry import (
+    CompileRequest,
+    CompileResult,
+    ExecuteRequest,
+    ExecuteResult,
+    FoundryExecConfig,
+    FoundryInputBindings,
+    MetricsRef,
+    SimulationResult,
+    SimulationResultRef,
+)
 from polisyos.ir.analytics.backtest import (
     BacktestReport,
     BacktestScenario,
@@ -30,10 +56,17 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
     combine_envelopes,
+    load_simulation_result_uncertainty_admission,
 )
-from polisyos.ir.artifacts import InputRef, normalize_input_refs, put_json_artifact
+from polisyos.ir.artifacts import (
+    InputRef,
+    normalize_artifact_ref,
+    normalize_input_refs,
+    put_json_artifact,
+)
 from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
 from polisyos.scientist import run_experiment
+from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
 from polisyos.scientist.methods.backtesting.evaluator import PredictionEvaluator
 from polisyos.scientist.methods.backtesting.masking import OutcomeMasker
 from polisyos.scientist.methods.backtesting.plan import (
@@ -42,6 +75,7 @@ from polisyos.scientist.methods.backtesting.plan import (
     PredictionSource,
 )
 from polisyos.scientist.methods.backtesting.trust_scorer import TrustScorer
+from polisyos.scientist.orchestration.engine.context import FoundryPort
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore as CoreArtifactStore
@@ -50,6 +84,113 @@ if TYPE_CHECKING:
     type BacktestStore = IRArtifactStore | CoreArtifactStore
 else:
     BacktestStore = Any
+
+
+class _BacktestReplicaRecord(BaseModel):
+    """Persist one requested Scientist execution and its actual Foundry result."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    index: int = Field(ge=1)
+    run_id: str
+    seed: int
+    workflow_started: bool
+    status: Literal["completed", "failed"]
+    physical_request: dict[str, Any] | None = None
+    workflow_report_ref: CoreArtifactRef | None = None
+    workflow_status: str | None = None
+    workflow_failures: list[dict[str, Any]] = Field(default_factory=list)
+    simulation_result_ref: SimulationResultRef | None = None
+    metrics_ref: MetricsRef | None = None
+    seed_source: str | None = None
+    environment_fingerprint: str | None = None
+    failure: str | None = None
+
+
+class _BacktestReplicaCohort(BaseModel):
+    """Durable denominator and CAS lineage for one backtest's Scientist replicas."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["polisyos.scientist.backtesting.replica_cohort.v1"] = (
+        "polisyos.scientist.backtesting.replica_cohort.v1"
+    )
+    plan_id: str
+    masked_data_snapshot_ref: DataSnapshotRef
+    requested_count: int = Field(ge=1)
+    started_count: int = Field(ge=0)
+    foundry_execute_count: int = Field(ge=0)
+    completed_count: int = Field(ge=0)
+    failed_count: int = Field(ge=0)
+    replicas: list[_BacktestReplicaRecord]
+
+    @model_validator(mode="after")
+    def _validate_denominator(self) -> _BacktestReplicaCohort:
+        if len(self.replicas) != self.requested_count:
+            raise ValueError("replicas must retain the complete requested denominator")
+        if self.started_count > self.requested_count:
+            raise ValueError("started_count cannot exceed requested_count")
+        if self.foundry_execute_count > self.started_count:
+            raise ValueError("Foundry execution count cannot exceed started workflows")
+        if self.completed_count + self.failed_count != self.requested_count:
+            raise ValueError("every requested replica must have a terminal status")
+        if self.completed_count != sum(item.status == "completed" for item in self.replicas):
+            raise ValueError("completed_count must match replica statuses")
+        if self.failed_count != sum(item.status == "failed" for item in self.replicas):
+            raise ValueError("failed_count must match replica statuses")
+        return self
+
+
+@dataclass
+class _BacktestReplicaFoundryPort:
+    """Bind one replica's exact masked view and seed at Foundry's request boundary."""
+
+    delegate: FoundryPort
+    expected_snapshot_ref: DataSnapshotRef
+    seed: int
+    request: ExecuteRequest | None = None
+    result: ExecuteResult | None = None
+    failure: str | None = None
+
+    def compile(self, store: Any, request: CompileRequest) -> CompileResult:
+        """Keep compile on the existing Foundry route without changing its contract."""
+        return self.delegate.compile(store, request)
+
+    def execute(self, store: Any, request: ExecuteRequest) -> ExecuteResult:
+        """Execute a copied request bound to the masked view and this replica seed."""
+        try:
+            bindings_payload = from_canonical_bytes(store.get_bytes(request.input_bindings_ref))
+            bindings = FoundryInputBindings.model_validate(bindings_payload)
+            actual_snapshot_ref = DataSnapshotRef.model_validate(
+                bindings.data_snapshot_ref.model_dump(mode="python")
+            )
+            if artifact_ref_identity_key(actual_snapshot_ref) != artifact_ref_identity_key(
+                self.expected_snapshot_ref
+            ):
+                raise ValueError(
+                    "backtest_foundry_input_snapshot_mismatch:"
+                    f"{artifact_ref_identity_key(actual_snapshot_ref)!r}!="
+                    f"{artifact_ref_identity_key(self.expected_snapshot_ref)!r}"
+                )
+
+            exec_config = FoundryExecConfig.model_validate(
+                {
+                    **request.exec_config.model_dump(mode="python"),
+                    "seed": self.seed,
+                }
+            )
+            physical_request = request.model_copy(
+                deep=True,
+                update={"exec_config": exec_config},
+            )
+            self.request = physical_request
+            self.result = self.delegate.execute(store, physical_request)
+            if not self.result.ok:
+                self.failure = "; ".join(self.result.notes) or "foundry_execute_not_ok"
+            return self.result
+        except Exception as exc:
+            self.failure = f"{type(exc).__name__}: {exc}"
+            raise
 
 
 BacktestStoreFactory = Callable[[Path], BacktestStore]
@@ -180,11 +321,25 @@ def _resolve_manifest_inputs(
         return None
     for item in normalized:
         try:
-            manifest = store.get_manifest(item.artifact_id)
+            if item.manifest_profile_sha256 is None:
+                manifest = store.get_manifest(item.artifact_id)
+                selected_ref = item.artifact_id
+            else:
+                manifest = resolve_manifest_by_profile(
+                    store,
+                    item.artifact_id,
+                    item.manifest_profile_sha256,
+                )
+                selected_ref = CoreArtifactRef(
+                    artifact_id=item.artifact_id,
+                    kind=manifest.kind,
+                    media_type=manifest.media_type,
+                    manifest_profile_sha256=item.manifest_profile_sha256,
+                )
             manifest_artifact_id = getattr(manifest, "artifact_id", None)
             if str(manifest_artifact_id) != str(item.artifact_id):
                 raise ValueError("manifest identity does not match the requested artifact")
-            store.get_bytes(item.artifact_id)
+            store.get_bytes(selected_ref)
         except Exception as exc:
             raise ValueError(
                 "manifest input artifact cannot be resolved in the configured CAS: "
@@ -278,7 +433,26 @@ class BacktestOrchestrator:
             degraded_reasons=degraded_reasons,
             trust_screening=resolved_trust_screening,
         )
-        ref = persist_backtest_report(self._store, report, inputs=manifest_inputs)
+        report_inputs = list(manifest_inputs or [])
+        for scenario in scenarios:
+            cohort_payload = scenario.metadata.get("replica_cohort_ref")
+            if not isinstance(cohort_payload, Mapping):
+                continue
+            try:
+                cohort_ref = CoreArtifactRef.model_validate(dict(cohort_payload))
+            except (TypeError, ValueError):
+                continue
+            report_inputs.append(
+                input_ref_from_artifact_ref(
+                    cohort_ref,
+                    role=f"replica_cohort:{scenario.scenario_id}",
+                )
+            )
+        ref = persist_backtest_report(
+            _ensure_ir_artifact_store(self._store),
+            report,
+            inputs=report_inputs or None,
+        )
         report.cas_artifact_id = str(ref.artifact_id)
         return report
 
@@ -315,6 +489,8 @@ class BacktestOrchestrator:
             scenario_metadata["interval_metadata_source"] = prediction_payload[
                 "interval_metadata_source"
             ]
+        if "replica_cohort_ref" in prediction_payload:
+            scenario_metadata["replica_cohort_ref"] = prediction_payload["replica_cohort_ref"]
         confidence_level = prediction_payload.get("confidence_level", plan.confidence_level)
 
         scenario = self._evaluator.evaluate(
@@ -402,30 +578,273 @@ class BacktestOrchestrator:
             naive["degraded_reasons"] = [reason]
             return naive
 
-        state_payload = dict(plan.scientist_state)
-        params = dict(state_payload.get("params", {}))
-        if plan.random_seed is not None:
-            params["random_seed"] = plan.random_seed
-        params["n_simulation_runs"] = plan.n_simulation_runs
-        state_payload["params"] = params
-        inputs = state_payload.get("inputs", {})
-        if not isinstance(inputs, dict):
+        state_template = dict(plan.scientist_state)
+        params_template = state_template.get("params", {})
+        if not isinstance(params_template, dict):
+            raise ValueError("scientist_state.params must be an object when provided")
+        inputs_template = state_template.get("inputs", {})
+        if not isinstance(inputs_template, dict):
             raise ValueError("scientist_state.inputs must be an object when provided")
-        inputs = dict(inputs)
-        inputs["data_snapshot_ref"] = self._persist_masked_view(plan, masked_data)
-        state_payload["inputs"] = inputs
 
-        result = run_experiment(state_payload)
-        artifacts = result.get("artifacts_index", {}) if isinstance(result, dict) else {}
-        if not isinstance(artifacts, dict):
-            reason = "scientist_artifacts_index_missing"
-            warnings.append("scientist result has no artifacts_index; using naive fallback")
+        base_seed = plan.random_seed
+        if base_seed is None:
+            candidate_seed = params_template.get("random_seed", 0)
+            if isinstance(candidate_seed, bool) or not isinstance(candidate_seed, int):
+                raise ValueError("scientist_state.params.random_seed must be an integer")
+            base_seed = candidate_seed
+
+        snapshot_payload = self._persist_masked_view(plan, masked_data)
+        masked_snapshot_ref = DataSnapshotRef.model_validate(snapshot_payload)
+        execution_store = self._scientist_execution_store()
+        cohort_nonce = uuid.uuid4().hex[:12]
+        replica_records: list[_BacktestReplicaRecord] = []
+        successful_artifacts: list[dict[str, Any]] = []
+        foundry_execute_count = 0
+
+        for index in range(plan.n_simulation_runs):
+            replica_index = index + 1
+            run_id = f"BT-{plan.plan_id}-{cohort_nonce}-{replica_index}"
+            seed = base_seed + index
+            replica_state = dict(state_template)
+            replica_state["run_id"] = run_id
+            replica_params = dict(params_template)
+            replica_params["random_seed"] = seed
+            replica_params["n_simulation_runs"] = 1
+            replica_state["params"] = replica_params
+            replica_inputs = dict(inputs_template)
+            replica_inputs["data_snapshot_ref"] = snapshot_payload
+            replica_state["inputs"] = replica_inputs
+
+            replica_foundry = _BacktestReplicaFoundryPort(
+                delegate=DefaultFoundryPort(),
+                expected_snapshot_ref=masked_snapshot_ref,
+                seed=seed,
+            )
+            failure: str | None = None
+            simulation_result_ref: SimulationResultRef | None = None
+            metrics_ref: MetricsRef | None = None
+            seed_source: str | None = None
+            environment_fingerprint: str | None = None
+            workflow_report_ref: CoreArtifactRef | None = None
+            workflow_status: str | None = None
+            workflow_failures: list[dict[str, Any]] = []
+            workflow_result: Any = None
+            try:
+                workflow_result = run_experiment(
+                    replica_state,
+                    store=execution_store,
+                    foundry=replica_foundry,
+                )
+                if not isinstance(workflow_result, Mapping):
+                    raise ValueError("scientist_workflow_result_missing")
+                reports_index = workflow_result.get("reports_index")
+                if not isinstance(reports_index, Mapping):
+                    raise ValueError("scientist_workflow_reports_index_missing")
+                raw_workflow_ref = reports_index.get("workflow_report")
+                if not isinstance(raw_workflow_ref, Mapping):
+                    raise ValueError("scientist_workflow_report_ref_missing")
+                workflow_report_ref = CoreArtifactRef.model_validate(dict(raw_workflow_ref))
+                workflow_report = from_canonical_bytes(self._store.get_bytes(workflow_report_ref))
+                if not isinstance(workflow_report, Mapping):
+                    raise ValueError("scientist_workflow_report_payload_invalid")
+                if workflow_report.get("run_id") != run_id:
+                    raise ValueError("scientist_workflow_report_run_id_mismatch")
+                raw_status = workflow_report.get("status")
+                workflow_status = str(raw_status) if isinstance(raw_status, str) else None
+                if workflow_status is None:
+                    raise ValueError("scientist_workflow_report_status_missing")
+                raw_nodes = workflow_report.get("nodes", [])
+                if isinstance(raw_nodes, list):
+                    for node in raw_nodes:
+                        if not isinstance(node, Mapping) or node.get("status") != "fail":
+                            continue
+                        error = node.get("error")
+                        workflow_failures.append(
+                            {
+                                "alias": node.get("alias"),
+                                "status": node.get("status"),
+                                "error": dict(error) if isinstance(error, Mapping) else None,
+                            }
+                        )
+                if (
+                    replica_foundry.result is not None
+                    and replica_foundry.result.simulation_result_ref is not None
+                ):
+                    simulation_result_ref = replica_foundry.result.simulation_result_ref
+                if workflow_status is not None and workflow_status != "ok":
+                    raise ValueError(f"scientist_workflow_status:{workflow_status}")
+                if replica_foundry.request is None:
+                    raise ValueError("scientist_workflow_did_not_submit_foundry_request")
+                if replica_foundry.result is None or not replica_foundry.result.ok:
+                    raise ValueError(replica_foundry.failure or "foundry_execution_result_not_ok")
+                simulation_result_ref = replica_foundry.result.simulation_result_ref
+                if simulation_result_ref is None:
+                    raise ValueError("foundry_simulation_result_ref_missing")
+
+                simulation_payload = from_canonical_bytes(
+                    self._store.get_bytes(simulation_result_ref)
+                )
+                simulation_result = SimulationResult.model_validate(simulation_payload)
+                if artifact_ref_identity_key(simulation_result.exec_plan_ref) != (
+                    artifact_ref_identity_key(replica_foundry.request.exec_plan_ref)
+                ):
+                    raise ValueError("foundry_simulation_exec_plan_mismatch")
+                seed_source_notes = [
+                    note for note in simulation_result.notes if note.startswith("seed_source:")
+                ]
+                if seed_source_notes != ["seed_source:exec_config.seed"]:
+                    raise ValueError("foundry_runtime_seed_source_not_established")
+                seed_source = "exec_config.seed"
+                environment_fingerprint = simulation_result.environment_fingerprint
+
+                final_artifacts = workflow_result.get("artifacts_index")
+                if not isinstance(final_artifacts, Mapping):
+                    raise ValueError("scientist_artifacts_index_missing")
+                raw_metrics_ref = final_artifacts.get("metrics_ref")
+                if not isinstance(raw_metrics_ref, Mapping):
+                    raise ValueError("scientist_metrics_ref_missing")
+                metrics_ref = MetricsRef.model_validate(dict(raw_metrics_ref))
+                if artifact_ref_identity_key(metrics_ref) != artifact_ref_identity_key(
+                    simulation_result.metrics_ref
+                ):
+                    raise ValueError("scientist_metrics_simulation_result_mismatch")
+                metrics_payload = from_canonical_bytes(self._store.get_bytes(metrics_ref))
+                if not isinstance(metrics_payload, Mapping):
+                    raise ValueError("scientist_metrics_payload_not_object")
+
+                final_sim_ref = final_artifacts.get("simulation_result_ref")
+                if not isinstance(final_sim_ref, Mapping):
+                    raise ValueError("scientist_simulation_result_ref_missing")
+                final_simulation_ref = SimulationResultRef.model_validate(dict(final_sim_ref))
+                if artifact_ref_identity_key(final_simulation_ref) != artifact_ref_identity_key(
+                    simulation_result_ref
+                ):
+                    raise ValueError("scientist_simulation_result_mismatch")
+                successful_artifacts.append(
+                    {
+                        "metrics_ref": metrics_ref.model_dump(mode="json"),
+                        "simulation_result_ref": simulation_result_ref.model_dump(mode="json"),
+                    }
+                )
+            except Exception as exc:
+                failure = f"{type(exc).__name__}: {exc}"
+                replica_foundry.failure = replica_foundry.failure or failure
+            if replica_foundry.request is not None:
+                foundry_execute_count += 1
+
+            physical_request = (
+                replica_foundry.request.model_dump(mode="json")
+                if replica_foundry.request is not None
+                else None
+            )
+            if failure is not None:
+                warnings.append(f"Scientist replica {replica_index} failed: {failure}")
+            replica_records.append(
+                _BacktestReplicaRecord(
+                    index=replica_index,
+                    run_id=run_id,
+                    seed=seed,
+                    workflow_started=True,
+                    status="completed" if failure is None else "failed",
+                    physical_request=physical_request,
+                    workflow_report_ref=workflow_report_ref,
+                    workflow_status=workflow_status,
+                    workflow_failures=workflow_failures,
+                    simulation_result_ref=simulation_result_ref,
+                    metrics_ref=metrics_ref,
+                    seed_source=seed_source,
+                    environment_fingerprint=environment_fingerprint,
+                    failure=failure,
+                )
+            )
+
+        completed_count = sum(record.status == "completed" for record in replica_records)
+        cohort = _BacktestReplicaCohort(
+            plan_id=plan.plan_id,
+            masked_data_snapshot_ref=masked_snapshot_ref,
+            requested_count=plan.n_simulation_runs,
+            started_count=sum(record.workflow_started for record in replica_records),
+            foundry_execute_count=foundry_execute_count,
+            completed_count=completed_count,
+            failed_count=plan.n_simulation_runs - completed_count,
+            replicas=replica_records,
+        )
+        cohort_inputs = [input_ref_from_artifact_ref(masked_snapshot_ref, role="masked_data")]
+        for record in replica_records:
+            if record.physical_request is None:
+                if record.workflow_report_ref is not None:
+                    cohort_inputs.append(
+                        input_ref_from_artifact_ref(
+                            record.workflow_report_ref,
+                            role=f"replica_{record.index}_workflow_report",
+                        )
+                    )
+                continue
+            request = ExecuteRequest.model_validate(record.physical_request)
+            cohort_inputs.extend(
+                [
+                    input_ref_from_artifact_ref(
+                        request.exec_plan_ref,
+                        role=f"replica_{record.index}_exec_plan",
+                    ),
+                    input_ref_from_artifact_ref(
+                        request.input_bindings_ref,
+                        role=f"replica_{record.index}_input_bindings",
+                    ),
+                    *(
+                        [
+                            input_ref_from_artifact_ref(
+                                record.workflow_report_ref,
+                                role=f"replica_{record.index}_workflow_report",
+                            )
+                        ]
+                        if record.workflow_report_ref is not None
+                        else []
+                    ),
+                ]
+            )
+            if record.simulation_result_ref is not None:
+                cohort_inputs.append(
+                    input_ref_from_artifact_ref(
+                        record.simulation_result_ref,
+                        role=f"replica_{record.index}_simulation_result",
+                    )
+                )
+            if record.metrics_ref is not None:
+                cohort_inputs.append(
+                    input_ref_from_artifact_ref(
+                        record.metrics_ref,
+                        role=f"replica_{record.index}_metrics",
+                    )
+                )
+        cohort_ref = put_json_artifact(
+            _ensure_ir_artifact_store(self._store),
+            cohort.model_dump(mode="json"),
+            kind="scientist.backtest.replica_cohort",
+            schema_name="polisyos.scientist.backtesting.ReplicaCohort",
+            schema_version="1.0",
+            inputs=cohort_inputs,
+            canon_spec=IRCanonSpec(forbid_floats=False, forbid_nan_inf=False),
+        )
+
+        def _naive_with_cohort(reason: str) -> dict[str, Any]:
             naive = self._predict_with_naive(plan, masked_data)
             naive["warnings"] = warnings + naive.get("warnings", [])
             naive["prediction_mode_effective"] = PredictionSource.NAIVE.value
             naive["degraded"] = True
             naive["degraded_reasons"] = [reason]
+            naive["replica_cohort_ref"] = normalize_artifact_ref(cohort_ref)
             return naive
+
+        if completed_count != plan.n_simulation_runs:
+            return _naive_with_cohort("scientist_replica_cohort_incomplete")
+        if plan.n_simulation_runs > 1:
+            warnings.append(
+                "Scientist replicas were retained individually; no multi-run projection is configured"
+            )
+            return _naive_with_cohort("scientist_replica_projection_unsupported")
+
+        artifacts = successful_artifacts[0]
 
         metrics_ref_payload = artifacts.get("metrics_ref")
         predictions: dict[str, list[float]] = {}
@@ -488,29 +907,46 @@ class BacktestOrchestrator:
             "prediction_mode_effective": PredictionSource.SCIENTIST.value,
             "degraded": bool(interval_degraded_reasons),
             "degraded_reasons": list(interval_degraded_reasons),
+            "replica_cohort_ref": normalize_artifact_ref(cohort_ref),
         }
         result.update(interval_metadata)
         return result
+
+    def _scientist_execution_store(self) -> Any:
+        """Return the underlying CAS so Foundry and backtest read the same bytes."""
+        if isinstance(self._store, CoreToIRArtifactStoreAdapter):
+            return self._store.store
+        return self._store
 
     def _extract_intervals_from_simulation_result(
         self,
         artifacts: dict[str, Any],
         plan: HistoricalValidationPlan,
     ) -> tuple[dict[str, list[tuple[float, float]]], dict[str, Any], tuple[str, ...]]:
-        sim_ref_payload = artifacts.get("simulation_result_ref")
-        if not isinstance(sim_ref_payload, dict) or not sim_ref_payload.get("artifact_id"):
+        if "simulation_result_ref" not in artifacts:
             return {}, {}, ()
-
+        sim_ref_payload = artifacts["simulation_result_ref"]
+        if not isinstance(sim_ref_payload, Mapping):
+            return {}, {}, ("simulation_result_ref_malformed",)
         try:
-            sim_id = ArtifactID.model_validate(sim_ref_payload["artifact_id"])
-            sim_payload = from_canonical_bytes(self._store.get_bytes(sim_id))
-        except Exception:
-            return {}, {}, ()
+            normalized_sim_ref = normalize_artifact_ref(sim_ref_payload)
+        except (TypeError, ValueError, KeyError):
+            return {}, {}, ("simulation_result_ref_malformed",)
+        if normalized_sim_ref.get("kind") != "foundry.simulation_result":
+            return {}, {}, ("simulation_result_ref_kind_mismatch",)
+        try:
+            simulation_result_ref = SimulationResultRef.model_validate(normalized_sim_ref)
+        except (TypeError, ValueError):
+            return {}, {}, ("simulation_result_ref_malformed",)
+        try:
+            sim_payload = from_canonical_bytes(self._store.get_bytes(simulation_result_ref))
+        except Exception as exc:
+            return {}, {}, (f"simulation_result_unavailable:{type(exc).__name__}",)
         if not isinstance(sim_payload, Mapping):
-            return {}, {}, ()
+            return {}, {}, ("simulation_result_payload_invalid",)
         envelopes = sim_payload.get("uncertainty_envelopes")
         if not isinstance(envelopes, dict):
-            return {}, {}, ()
+            return {}, {}, ("simulation_uncertainty_map_missing",)
 
         intervals: dict[str, list[tuple[float, float]]] = {}
         envelope_metadata: list[tuple[float | None, str | None]] = []
@@ -520,12 +956,26 @@ class BacktestOrchestrator:
         for metric in plan.target_metrics:
             ref_payload = envelopes.get(metric)
             if not isinstance(ref_payload, dict) or not ref_payload.get("artifact_id"):
+                metadata_errors.append(
+                    f"simulation_uncertainty_metric_envelope_ref_missing:{metric}"
+                )
                 continue
             try:
+                admission = load_simulation_result_uncertainty_admission(
+                    _ensure_ir_artifact_store(self._store),
+                    simulation_result_ref,
+                    metric,
+                )
+                if not admission.admitted or admission.envelope is None:
+                    limitations = (
+                        ",".join(admission.limitation_codes) or "admission_not_established"
+                    )
+                    metadata_errors.append(
+                        f"simulation_uncertainty_admission_limited:{metric}:{limitations}"
+                    )
+                    continue
                 env_id = ArtifactID.model_validate(ref_payload["artifact_id"])
-                env_payload = from_canonical_bytes(self._store.get_bytes(env_id))
-                if not isinstance(env_payload, Mapping):
-                    raise TypeError("uncertainty envelope payload must be an object")
+                env_payload = admission.envelope.model_dump(mode="python", round_trip=True)
                 metadata_declared, confidence_level, interval_type, envelope_contract = (
                     self._resolve_persisted_interval_metadata(env_payload)
                 )
@@ -701,7 +1151,7 @@ class BacktestOrchestrator:
         """Persist and bind the immutable masked view consumed by Scientist."""
         canon_spec = IRCanonSpec(forbid_floats=False, forbid_nan_inf=False)
         data_ref = put_json_artifact(
-            self._store,
+            _ensure_ir_artifact_store(self._store),
             masked_data,
             kind="scientist.backtest.masked_historical_view",
             schema_name="polisyos.scientist.backtesting.MaskedHistoricalView",
@@ -735,7 +1185,7 @@ class BacktestOrchestrator:
             ],
         )
         return put_json_artifact(
-            self._store,
+            _ensure_ir_artifact_store(self._store),
             snapshot.model_dump(mode="json"),
             kind="fabric.data_snapshot",
             schema_name="polisyos.core.DataSnapshot",

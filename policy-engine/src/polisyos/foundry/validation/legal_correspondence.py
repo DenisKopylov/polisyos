@@ -119,67 +119,116 @@ class LegalCorrespondenceResult(_StrictModel):
 
 
 def _persist(
-    store: artifacts.ArtifactStore, record: BaseModel, *, kind: str, epoch: str,
-    producer: str, inputs: list[artifacts.InputRef] | None = None,
+    store: artifacts.ArtifactStore,
+    record: BaseModel,
+    *,
+    kind: str,
+    epoch: str,
+    producer: str,
+    inputs: list[artifacts.InputRef] | None = None,
 ) -> artifacts.ArtifactRef:
     return store.put_json(
         record.model_dump(mode="json"),
         artifacts.PutOptions(
-            kind=kind, media_type="application/json",
+            kind=kind,
+            media_type="application/json",
             schema=artifacts.SchemaInfo(name=kind, version=epoch),
-            producer=artifacts.ProducerInfo(component=producer, version=epoch), inputs=inputs,
+            producer=artifacts.ProducerInfo(component=producer, version=epoch),
+            inputs=inputs,
         ),
     )
 
 
 def persist_legal_subject_membership_source(
-    store: artifacts.ArtifactStore, source: LegalSubjectMembershipSource,
-    *, inputs: list[artifacts.InputRef] | None = None,
+    store: artifacts.ArtifactStore,
+    source: LegalSubjectMembershipSource,
+    *,
+    inputs: list[artifacts.InputRef] | None = None,
 ) -> artifacts.ArtifactRef:
     """Persist a source table separately, before any proposal is evaluated."""
     source = LegalSubjectMembershipSource.model_validate(source.model_dump(mode="json"))
-    return _persist(store, source, kind=_SOURCE_KIND, epoch=_SOURCE_EPOCH,
-                    producer=source.producer_ref, inputs=inputs)
+    return _persist(
+        store,
+        source,
+        kind=_SOURCE_KIND,
+        epoch=_SOURCE_EPOCH,
+        producer=source.producer_ref,
+        inputs=inputs,
+    )
 
 
 def persist_legal_subject_annotations(
-    store: artifacts.ArtifactStore, declaration: LegalSubjectAnnotationSource,
+    store: artifacts.ArtifactStore,
+    declaration: LegalSubjectAnnotationSource,
 ) -> artifacts.ArtifactRef:
     """Persist an independent annotation declaration before any proposal run."""
     declaration = LegalSubjectAnnotationSource.model_validate(declaration.model_dump(mode="json"))
-    return _persist(store, declaration, kind=_ANNOTATION_KIND, epoch=_ANNOTATION_EPOCH,
-                    producer=declaration.producer_ref)
+    return _persist(
+        store,
+        declaration,
+        kind=_ANNOTATION_KIND,
+        epoch=_ANNOTATION_EPOCH,
+        producer=declaration.producer_ref,
+    )
 
 
 def bind_legal_subject_annotations(
-    store: artifacts.ArtifactStore, declaration_ref: artifacts.ArtifactRef,
+    store: artifacts.ArtifactStore,
+    declaration_ref: artifacts.ArtifactRef,
     entity_content_hashes: Mapping[str, str],
 ) -> artifacts.ArtifactRef:
     """Bind declared membership to owner-projected content without reading a mapping."""
-    declaration = _load(store, declaration_ref, kind=_ANNOTATION_KIND,
-                        epoch=_ANNOTATION_EPOCH, model=LegalSubjectAnnotationSource)
+    declaration = _load(
+        store,
+        declaration_ref,
+        kind=_ANNOTATION_KIND,
+        epoch=_ANNOTATION_EPOCH,
+        model=LegalSubjectAnnotationSource,
+    )
     if any(row.entity_ref not in entity_content_hashes for row in declaration.annotations):
         raise ValueError("legal_subject_annotation_entity_unresolved")
     source = LegalSubjectMembershipSource(
-        synthetic=declaration.synthetic, source_role=declaration.source_role,
+        synthetic=declaration.synthetic,
+        source_role=declaration.source_role,
         producer_ref=declaration.producer_ref,
-        memberships=tuple(LegalSubjectMembership(
-            entity_ref=row.entity_ref, entity_content_hash=entity_content_hashes[row.entity_ref],
-            subject=row.subject) for row in declaration.annotations),
+        memberships=tuple(
+            LegalSubjectMembership(
+                entity_ref=row.entity_ref,
+                entity_content_hash=entity_content_hashes[row.entity_ref],
+                subject=row.subject,
+            )
+            for row in declaration.annotations
+        ),
     )
-    return persist_legal_subject_membership_source(store, source, inputs=[artifacts.InputRef(
-        artifact_id=declaration_ref.artifact_id, role="subject_annotation_declaration")])
+    return persist_legal_subject_membership_source(
+        store,
+        source,
+        inputs=[
+            artifacts.InputRef(
+                artifact_id=declaration_ref.artifact_id, role="subject_annotation_declaration"
+            )
+        ],
+    )
 
 
 def _load(
-    store: artifacts.ArtifactStore, ref: artifacts.ArtifactRef, *, kind: str,
-    epoch: str, model: type[_StrictModel],
+    store: artifacts.ArtifactStore,
+    ref: artifacts.ArtifactRef,
+    *,
+    kind: str,
+    epoch: str,
+    model: type[_StrictModel],
 ) -> Any:
-    manifest = store.get_manifest(ref.artifact_id)
-    if (ref.kind != kind or ref.media_type != "application/json" or manifest.kind != kind
-            or manifest.artifact_schema is None or manifest.artifact_schema.version != epoch):
+    manifest = store.get_manifest(ref)
+    if (
+        ref.kind != kind
+        or ref.media_type != "application/json"
+        or manifest.kind != kind
+        or manifest.artifact_schema is None
+        or manifest.artifact_schema.version != epoch
+    ):
         raise ValueError("legal_subject_source_shape_invalid")
-    payload = store.get_bytes(ref.artifact_id)
+    payload = store.get_bytes(ref)
     # Do not trust an ArtifactStore implementation to validate a supplied ref.
     if canon.content_hash(payload, prefix=True) != str(ref.artifact_id):
         raise ValueError("legal_subject_source_content_mismatch")
@@ -187,7 +236,8 @@ def _load(
 
 
 def _ancestry(
-    store: artifacts.ArtifactStore, ref: artifacts.ArtifactRef,
+    store: artifacts.ArtifactStore,
+    ref: artifacts.ArtifactRef,
 ) -> tuple[set[str], set[str], bool]:
     seen: set[str] = set()
     producers: set[str] = set()
@@ -232,17 +282,20 @@ def _ancestry(
 
 
 def _sources(
-    store: artifacts.ArtifactStore, lever_ref: artifacts.ArtifactRef,
+    store: artifacts.ArtifactStore,
+    lever_ref: artifacts.ArtifactRef,
     norm_ref: artifacts.ArtifactRef,
 ) -> tuple[LegalSubjectMembershipSource, LegalSubjectMembershipSource, set[str], set[str]]:
-    lever = _load(store, lever_ref, kind=_SOURCE_KIND, epoch=_SOURCE_EPOCH,
-                  model=LegalSubjectMembershipSource)
-    norm = _load(store, norm_ref, kind=_SOURCE_KIND, epoch=_SOURCE_EPOCH,
-                 model=LegalSubjectMembershipSource)
+    lever = _load(
+        store, lever_ref, kind=_SOURCE_KIND, epoch=_SOURCE_EPOCH, model=LegalSubjectMembershipSource
+    )
+    norm = _load(
+        store, norm_ref, kind=_SOURCE_KIND, epoch=_SOURCE_EPOCH, model=LegalSubjectMembershipSource
+    )
     if lever.source_role != "lever" or norm.source_role != "norm":
         raise ValueError("legal_subject_source_role_mismatch")
     for ref, source in ((lever_ref, lever), (norm_ref, norm)):
-        producer = store.get_manifest(ref.artifact_id).producer
+        producer = store.get_manifest(ref).producer
         if producer is None or str(producer.component) != source.producer_ref:
             raise ValueError("legal_subject_source_producer_mismatch")
     lever_ids, lever_producers, lever_synthetic = _ancestry(store, lever_ref)
@@ -255,31 +308,49 @@ def _sources(
 
 
 def produce_legal_subject_spine(
-    store: artifacts.ArtifactStore, *, lever_source_ref: artifacts.ArtifactRef,
+    store: artifacts.ArtifactStore,
+    *,
+    lever_source_ref: artifacts.ArtifactRef,
     norm_source_ref: artifacts.ArtifactRef,
 ) -> artifacts.ArtifactRef:
     """Resolve independent source tables and persist their binding, without a proposal."""
     lever, norm, _, _ = _sources(store, lever_source_ref, norm_source_ref)
-    spine = _LegalSubjectSpine(synthetic=lever.synthetic or norm.synthetic,
-                              lever_source_ref=lever_source_ref, norm_source_ref=norm_source_ref)
-    return _persist(store, spine, kind=_SPINE_KIND, epoch=_SPINE_EPOCH, producer=_PRODUCER,
-                    inputs=[artifacts.InputRef(artifact_id=lever_source_ref.artifact_id,
-                                               role="lever_membership"),
-                            artifacts.InputRef(artifact_id=norm_source_ref.artifact_id,
-                                               role="norm_membership")])
+    spine = _LegalSubjectSpine(
+        synthetic=lever.synthetic or norm.synthetic,
+        lever_source_ref=lever_source_ref,
+        norm_source_ref=norm_source_ref,
+    )
+    return _persist(
+        store,
+        spine,
+        kind=_SPINE_KIND,
+        epoch=_SPINE_EPOCH,
+        producer=_PRODUCER,
+        inputs=[
+            artifacts.InputRef(artifact_id=lever_source_ref.artifact_id, role="lever_membership"),
+            artifacts.InputRef(artifact_id=norm_source_ref.artifact_id, role="norm_membership"),
+        ],
+    )
 
 
 def _membership(
-    source: LegalSubjectMembershipSource, entity_ref: str, digest: str, as_of: date,
+    source: LegalSubjectMembershipSource,
+    entity_ref: str,
+    digest: str,
+    as_of: date,
 ) -> tuple[LegalSubjectIdentity | None, str | None]:
     candidates = [row for row in source.memberships if row.entity_ref == entity_ref]
     if not candidates or any(row.subject is None for row in candidates):
         return None, "legal_subject_missing"
     if any(row.entity_content_hash != digest for row in candidates):
         return None, "legal_subject_entity_content_mismatch"
-    applicable = [row.subject for row in candidates if row.subject is not None
-                  and row.subject.valid_from <= as_of
-                  and (row.subject.valid_until is None or as_of < row.subject.valid_until)]
+    applicable = [
+        row.subject
+        for row in candidates
+        if row.subject is not None
+        and row.subject.valid_from <= as_of
+        and (row.subject.valid_until is None or as_of < row.subject.valid_until)
+    ]
     if not applicable:
         return None, "legal_subject_scope_unresolved"
     if len(applicable) != 1:
@@ -288,8 +359,11 @@ def _membership(
 
 
 def _same_subject(lever: LegalSubjectIdentity, norm: LegalSubjectIdentity) -> bool:
-    return ((lever.namespace, lever.namespace_version, lever.subject_id)
-            == (norm.namespace, norm.namespace_version, norm.subject_id))
+    return (lever.namespace, lever.namespace_version, lever.subject_id) == (
+        norm.namespace,
+        norm.namespace_version,
+        norm.subject_id,
+    )
 
 
 def recognize_legal_correspondence(
@@ -299,14 +373,20 @@ def recognize_legal_correspondence(
 ) -> LegalCorrespondenceResult:
     """Recompute source-relative correspondence without granting legal authority."""
     request = LegalCorrespondenceRequest.model_validate(request.model_dump(mode="json"))
-    submitted = (source_ref.model_dump(mode="json")
-                 if isinstance(source_ref, artifacts.ArtifactRef) else source_ref)
+    submitted = (
+        source_ref.model_dump(mode="json")
+        if isinstance(source_ref, artifacts.ArtifactRef)
+        else source_ref
+    )
     submitted = TypeAdapter(dict[str, JsonValue] | None).validate_python(submitted)
 
     def result(status: str, reason: str, *, ref=None, synthetic=None, recomputed=False):
         return LegalCorrespondenceResult(
-            status=status, reason_code=reason, request=request,
-            submitted_source=submitted, source_ref=ref,
+            status=status,
+            reason_code=reason,
+            request=request,
+            submitted_source=submitted,
+            source_ref=ref,
             synthetic=synthetic,
             comparison_predicate_provenance="recomputed" if recomputed else "not_established",
         )
@@ -319,41 +399,71 @@ def recognize_legal_correspondence(
             raise ValueError("legal_subject_store_missing")
         spine = _load(store, ref, kind=_SPINE_KIND, epoch=_SPINE_EPOCH, model=_LegalSubjectSpine)
         lever, norm, ids, producers = _sources(store, spine.lever_source_ref, spine.norm_source_ref)
-        manifest = store.get_manifest(ref.artifact_id)
+        manifest = store.get_manifest(ref)
         if {(str(item.artifact_id), item.role) for item in manifest.inputs} != {
             (str(spine.lever_source_ref.artifact_id), "lever_membership"),
             (str(spine.norm_source_ref.artifact_id), "norm_membership"),
         } or spine.synthetic != (lever.synthetic or norm.synthetic):
             raise ValueError("legal_subject_spine_binding_mismatch")
         if request.proposal_content_hash in ids or request.proposal_producer_ref in producers:
-            return result("rejected", "legal_subject_source_circular", ref=ref,
-                          synthetic=spine.synthetic, recomputed=True)
+            return result(
+                "rejected",
+                "legal_subject_source_circular",
+                ref=ref,
+                synthetic=spine.synthetic,
+                recomputed=True,
+            )
     except (ValueError, OSError, KeyError) as exc:
-        reason = ("legal_subject_source_circular" if "legal_subject_source_circular" in str(exc)
-                  else "legal_subject_source_invalid")
+        reason = (
+            "legal_subject_source_circular"
+            if "legal_subject_source_circular" in str(exc)
+            else "legal_subject_source_invalid"
+        )
         return result("ambiguous", reason)
-    left, left_error = _membership(lever, request.lever_ref, request.lever_content_hash, request.as_of)
-    right, right_error = _membership(norm, request.norm_ref, request.norm_content_hash, request.as_of)
+    left, left_error = _membership(
+        lever, request.lever_ref, request.lever_content_hash, request.as_of
+    )
+    right, right_error = _membership(
+        norm, request.norm_ref, request.norm_content_hash, request.as_of
+    )
     if left_error or right_error:
-        return result("ambiguous", left_error or right_error, ref=ref,
-                      synthetic=spine.synthetic, recomputed=True)
+        return result(
+            "ambiguous",
+            left_error or right_error,
+            ref=ref,
+            synthetic=spine.synthetic,
+            recomputed=True,
+        )
     assert left is not None
     assert right is not None
     matched = _same_subject(left, right)
-    return result("passed" if matched else "rejected",
-                  "legal_subject_correspondence_recognized" if matched else "legal_subject_mismatch",
-                  ref=ref, synthetic=spine.synthetic, recomputed=True)
+    return result(
+        "passed" if matched else "rejected",
+        "legal_subject_correspondence_recognized" if matched else "legal_subject_mismatch",
+        ref=ref,
+        synthetic=spine.synthetic,
+        recomputed=True,
+    )
 
 
 def persist_legal_correspondence_result(
-    store: artifacts.ArtifactStore, result: LegalCorrespondenceResult,
+    store: artifacts.ArtifactStore,
+    result: LegalCorrespondenceResult,
 ) -> artifacts.ArtifactRef:
     """Persist the comparison and its non-authority ceiling for downstream audit."""
     result = LegalCorrespondenceResult.model_validate(result.model_dump(mode="json"))
     recomputed = recognize_legal_correspondence(store, result.submitted_source, result.request)
     if result != recomputed:
         raise ValueError("legal_subject_result_recomputation_mismatch")
-    inputs = ([] if result.source_ref is None else [artifacts.InputRef(
-        artifact_id=result.source_ref.artifact_id, role="legal_subject_source")])
-    return _persist(store, result, kind=_RESULT_KIND, epoch=_RESULT_EPOCH,
-                    producer=_PRODUCER, inputs=inputs)
+    inputs = (
+        []
+        if result.source_ref is None
+        else [
+            artifacts.InputRef(
+                artifact_id=result.source_ref.artifact_id, role="legal_subject_source"
+            )
+        ]
+    )
+    return _persist(
+        store, result, kind=_RESULT_KIND, epoch=_RESULT_EPOCH, producer=_PRODUCER, inputs=inputs
+    )

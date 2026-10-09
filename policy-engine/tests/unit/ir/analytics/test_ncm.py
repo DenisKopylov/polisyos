@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.pdc import gy_content_hash
@@ -16,9 +17,7 @@ from polisyos.runtime.quality.generation_source import (
 
 def _declaration(*, coefficient: float) -> CandidateSimulationSyntheticModelDeclarationV1:
     fields = {
-        "schema_version": (
-            "policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"
-        ),
+        "schema_version": ("policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"),
         "profile_config_ref": "runtime-config:candidate-simulation:fixture",
         "profile_content_hash": "sha256:" + "a" * 64,
         "profile_selection_ref": "sha256:" + "b" * 64,
@@ -126,7 +125,7 @@ def test_candidate_ncm_is_derived_from_declared_baseline_and_selected_view(
         assert selected_ref.manifest_profile_sha256 is not None
         assert default_view_ref.manifest_profile_sha256 is None
         loaded = load_ncm_spec_selected_view(
-            store,
+            _ensure_ir_artifact_store(store),
             selected_ref,
             expected_tenant_id=tenant_id,
             expected_cell_id=cell_id,
@@ -134,7 +133,7 @@ def test_candidate_ncm_is_derived_from_declared_baseline_and_selected_view(
         )
         assert loaded.model_dump(mode="json") == spec.model_dump(mode="json")
         loaded_default_view = load_ncm_spec_selected_view(
-            store,
+            _ensure_ir_artifact_store(store),
             default_view_ref,
             expected_tenant_id=tenant_id,
             expected_cell_id=cell_id,
@@ -146,19 +145,17 @@ def test_candidate_ncm_is_derived_from_declared_baseline_and_selected_view(
 
         with pytest.raises(ValueError, match="declaration_lineage_mismatch"):
             load_ncm_spec_selected_view(
-                store,
+                _ensure_ir_artifact_store(store),
                 selected_ref,
                 expected_tenant_id=tenant_id,
                 expected_cell_id=cell_id,
                 expected_declaration_ref=alternate_ref,
             )
 
-        stripped_selector = selected_ref.model_copy(
-            update={"manifest_profile_sha256": None}
-        )
+        stripped_selector = selected_ref.model_copy(update={"manifest_profile_sha256": None})
         with pytest.raises(ValueError, match="ncm_selected_view_manifest_mismatch"):
             load_ncm_spec_selected_view(
-                store,
+                _ensure_ir_artifact_store(store),
                 stripped_selector,
                 expected_tenant_id=tenant_id,
                 expected_cell_id=cell_id,

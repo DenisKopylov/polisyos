@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.estimand import (
     DistributionDomain,
@@ -250,10 +251,10 @@ def test_certificate_persists_and_embeds_in_proof_bundle(tmp_path) -> None:
         required_distributions=(dist,),
     )
 
-    query_ref = persist_intervention_query(store, query)
-    ref = persist_intervention_certificate(store, certificate)
-    restored_query = load_intervention_query(store, query_ref)
-    restored = load_intervention_certificate(store, ref)
+    query_ref = persist_intervention_query(_ensure_ir_artifact_store(store), query)
+    ref = persist_intervention_certificate(_ensure_ir_artifact_store(store), certificate)
+    restored_query = load_intervention_query(_ensure_ir_artifact_store(store), query_ref)
+    restored = load_intervention_certificate(_ensure_ir_artifact_store(store), ref)
     proof_bundle = proof_bundle_from_intervention_certificate(restored, query_ref="query:typed")
 
     assert restored_query == query

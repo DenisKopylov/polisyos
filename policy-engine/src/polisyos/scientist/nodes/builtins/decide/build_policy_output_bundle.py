@@ -8,6 +8,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -280,7 +281,9 @@ class BuildPolicyOutputBundleNode:
             artifact_ref=state.artifacts_index.get(ARTIFACT_DISTRIBUTIONAL_REPORT_REF),
             artifact_key=ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
             reason="distributional_report_load_failed",
-            loader=lambda ref: load_distributional_report(ctx.store, ref),
+            loader=lambda ref: load_distributional_report(
+                _ensure_ir_artifact_store(ctx.store), ref
+            ),
         )
         cross_graph_profile = _load_optional_artifact(
             ctx,
@@ -289,7 +292,9 @@ class BuildPolicyOutputBundleNode:
             artifact_ref=state.artifacts_index.get(ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF),
             artifact_key=ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
             reason="cross_graph_profile_load_failed",
-            loader=lambda ref: load_cross_graph_evidence_profile(ctx.store, ref),
+            loader=lambda ref: load_cross_graph_evidence_profile(
+                _ensure_ir_artifact_store(ctx.store), ref
+            ),
         )
         stress_test_report = _load_optional_artifact(
             ctx,
@@ -319,7 +324,7 @@ class BuildPolicyOutputBundleNode:
             artifact_key=ARTIFACT_CAUSAL_ENVELOPE_REF,
             reason="uncertainty_envelope_load_failed",
             loader=lambda ref: to_search_uncertainty_envelope(
-                load_uncertainty_envelope(ctx.store, ref)
+                load_uncertainty_envelope(_ensure_ir_artifact_store(ctx.store), ref)
             ),
         )
         upstream_audit_refs, actionable_side_information_refs = _collect_upstream_refs(state)
@@ -563,9 +568,7 @@ def _resolve_candidate(
     trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
     if trinity_ref is None:
         return None, None
-    bundle = TrinityBundle.model_validate(
-        from_canonical_bytes(ctx.store.get_bytes(trinity_ref))
-    )
+    bundle = TrinityBundle.model_validate(from_canonical_bytes(ctx.store.get_bytes(trinity_ref)))
     return (
         PolicyCandidateSchema.from_trinity_bundle(
             bundle,

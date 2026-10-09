@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.gcm_query import GCMQuery
 from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData
@@ -59,7 +60,8 @@ def test_fixed_fit_draws_stay_distribution_after_cas(n_samples: int, tmp_path: P
     )
     store = FileSystemCAS(tmp_path / "cas")
     result = load_causal_query_result(
-        store, persist_causal_query_result(store, output["query_result"])
+        _ensure_ir_artifact_store(store),
+        persist_causal_query_result(_ensure_ir_artifact_store(store), output["query_result"]),
     )
     envelope = result.to_uncertainty_envelope()
     assert envelope.interval_semantics is not IntervalSemantics.CONFIDENCE_INTERVAL
@@ -83,7 +85,8 @@ def test_exact_abduction_is_model_posterior_after_cas(tmp_path: Path) -> None:
     )
     store = FileSystemCAS(tmp_path / "cas")
     result = load_causal_query_result(
-        store, persist_causal_query_result(store, output["query_result"])
+        _ensure_ir_artifact_store(store),
+        persist_causal_query_result(_ensure_ir_artifact_store(store), output["query_result"]),
     )
     assert result.result_mean == pytest.approx(1.0, abs=0.03)
     assert result.result_std**2 == pytest.approx(0.5, abs=0.04)
@@ -211,7 +214,10 @@ def test_twin_same_row_noise_same_arm_and_slope_after_fresh_cas(counter, expecte
     )
     store = FileSystemCAS(tmp_path / "cas")
     result = load_twin_network_result(
-        FileSystemCAS(store.root), persist_twin_network_result(store, output["twin_network_result"])
+        _ensure_ir_artifact_store(FileSystemCAS(store.root)),
+        persist_twin_network_result(
+            _ensure_ir_artifact_store(store), output["twin_network_result"]
+        ),
     )
     assert result.ite_distribution == pytest.approx(np.full(2500, expected), abs=1e-12)
     assert result.ite_mean == pytest.approx(expected, abs=1e-12)
@@ -344,11 +350,12 @@ def test_historical_schema_replay_remains_nongating_after_republication(tmp_path
         canon_spec=CanonSpec(forbid_floats=False),
     )
     historical = load_causal_query_result(
-        store, CausalQueryResultRef.model_validate(ref.model_dump(mode="json"))
+        _ensure_ir_artifact_store(store),
+        CausalQueryResultRef.model_validate(ref.model_dump(mode="json")),
     )
     assert historical.metadata["source_schema_version"] == "1.1"
-    newref = persist_causal_query_result(store, historical)
-    current = load_causal_query_result(FileSystemCAS(store.root), newref)
+    newref = persist_causal_query_result(_ensure_ir_artifact_store(store), historical)
+    current = load_causal_query_result(_ensure_ir_artifact_store(FileSystemCAS(store.root)), newref)
     assert current.schema_version == "1.2" and current.estimator_interval is None
     assert current.metadata["historical_schema_replay"]["source_schema_version"] == "1.1"
     assert not current.to_uncertainty_envelope().gate_eligible

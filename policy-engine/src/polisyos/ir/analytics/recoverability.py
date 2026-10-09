@@ -257,7 +257,7 @@ def load_recoverability_certificate(
 ) -> RecoverabilityCertificate:
     """Load a persisted recoverability certificate."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return RecoverabilityCertificate.model_validate(payload)
 
 
@@ -289,7 +289,7 @@ def load_joint_decision_certificate(
 ) -> JointDecisionCertificate:
     """Load a persisted joint identification-recoverability decision."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return JointDecisionCertificate.model_validate(payload)
 
 

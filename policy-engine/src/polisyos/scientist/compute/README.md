@@ -20,6 +20,21 @@ C7 advanced-suite path used by causal and simulation-oriented workflow nodes.
 - Runtime execution in [`runner.py`](runner.py): `run_job(...)` and `MethodBackend`
 - Advanced suite in [`advanced_methods.py`](advanced_methods.py): `C7AdvancedInputs`, `C7AdvancedSuiteResult`, `C7PersistedArtifact`, and `run_c7_advanced_suite(...)`
 
+`MethodBackend` submits the actual Foundry dispatcher call through the one
+process-wide `polisyos.common.async_tools` executor. Runtime composition can pin
+its candidate capacity with `process_worker_capacity` and
+`process_worker_profile_revision`; absent settings keep the legacy host-derived
+candidate fallback. This is a process-local execution bound, not a deployment
+profile or a cross-process quota. Method result and evidence writes remain after
+the dispatch slot is released.
+
+When a Bayesian method result includes a content-bound native posterior-draw
+payload, the post-evidence path persists candidate-only v1.1 summaries for both
+supported point roles. `JobResult.posterior_summary_refs` exposes those typed
+refs by role; the exact method-result and method-evidence views remain in CAS
+lineage. This does not select a point role for a consumer or make the summaries
+gate-eligible.
+
 ## Depends On / Depended On By
 
 - Depends on: Foundry executor and method registries, artifact storage, and a small set of IR validation helpers used during execution
@@ -48,4 +63,4 @@ uv run pytest tests/unit/scientist/compute/test_runner_polyglot.py tests/unit/sc
 
 ## Last Updated
 
-- Last updated: 2026-04-17
+- Last updated: 2026-10-09

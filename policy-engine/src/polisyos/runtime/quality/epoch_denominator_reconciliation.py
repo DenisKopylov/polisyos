@@ -99,9 +99,9 @@ def _read_transition_exact(
     ref: ArtifactRef,
 ) -> tuple[EpochValidityTransitionArtifact, bytes]:
     try:
-        manifest = store.get_manifest(ref.artifact_id)
-        raw = store.get_bytes(ref.artifact_id)
-        report = store.verify(ref.artifact_id)
+        manifest = store.get_manifest(ref)
+        raw = store.get_bytes(ref)
+        report = store.verify(ref)
         if (
             ref.kind != _TRANSITION_KIND
             or ref.media_type != _CHRONOLOGY_MEDIA_TYPE
@@ -140,9 +140,9 @@ def _read_snapshot_exact(
 ) -> PersistedDecisionValidityEpochImpactSnapshot:
     try:
         ref = handle.snapshot_ref
-        manifest = store.get_manifest(ref.artifact_id)
-        raw = store.get_bytes(ref.artifact_id)
-        report = store.verify(ref.artifact_id)
+        manifest = store.get_manifest(ref)
+        raw = store.get_bytes(ref)
+        report = store.verify(ref)
         if (
             ref.kind != _SNAPSHOT_KIND
             or ref.media_type != _SNAPSHOT_MEDIA_TYPE
@@ -173,9 +173,9 @@ def _read_snapshot_exact(
 
 def _read_target_exact(*, store: ArtifactStore, ref: ArtifactRef) -> None:
     try:
-        manifest = store.get_manifest(ref.artifact_id)
-        raw = store.get_bytes(ref.artifact_id)
-        report = store.verify(ref.artifact_id)
+        manifest = store.get_manifest(ref)
+        raw = store.get_bytes(ref)
+        report = store.verify(ref)
         if (
             _manifest_ref(manifest) != ref
             or not report.ok
@@ -195,9 +195,9 @@ def _verify_appointed_provenance(
     try:
         if appointed_ref != receipt_ref:
             raise ValueError("provenance appointment mismatch")
-        manifest = store.get_manifest(receipt_ref.artifact_id)
-        raw = store.get_bytes(receipt_ref.artifact_id)
-        report = store.verify(receipt_ref.artifact_id)
+        manifest = store.get_manifest(receipt_ref)
+        raw = store.get_bytes(receipt_ref)
+        report = store.verify(receipt_ref)
         if (
             receipt_ref.kind != _PROVENANCE_KIND
             or _manifest_ref(manifest) != receipt_ref
@@ -300,9 +300,9 @@ class EpochTransitionDenominatorReconciliationReader:
     ) -> PersistedEpochTransitionDenominatorReconciliation:
         try:
             ref = handle.reconciliation_receipt_ref
-            manifest = self._store.get_manifest(ref.artifact_id)
-            raw = self._store.get_bytes(ref.artifact_id)
-            report = self._store.verify(ref.artifact_id)
+            manifest = self._store.get_manifest(ref)
+            raw = self._store.get_bytes(ref)
+            report = self._store.verify(ref)
             if (
                 ref.kind != _RECONCILIATION_KIND
                 or ref.media_type != _CHRONOLOGY_MEDIA_TYPE

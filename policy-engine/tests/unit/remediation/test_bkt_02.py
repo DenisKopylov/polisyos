@@ -12,6 +12,7 @@ import math
 import pytest
 
 import polisyos.scientist.methods.backtesting.orchestrator as orchestrator_module
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.ir.analytics.backtest import (
     BacktestReport,
     BacktestScenario,
@@ -195,9 +196,7 @@ def test_micro_rmse_is_partition_invariant_and_macro_is_explicit(tmp_path) -> No
     whole_report = BacktestOrchestrator(cas_root=str(tmp_path / "whole")).run(
         [plan("whole", [0.0, 10.0, 10.0], [0.0, 0.0, 0.0])]
     )
-    partitioned_report = BacktestOrchestrator(
-        cas_root=str(tmp_path / "partitioned")
-    ).run(
+    partitioned_report = BacktestOrchestrator(cas_root=str(tmp_path / "partitioned")).run(
         [
             plan("first", [0.0], [0.0]),
             plan("second", [10.0, 10.0], [0.0, 0.0]),
@@ -208,10 +207,7 @@ def test_micro_rmse_is_partition_invariant_and_macro_is_explicit(tmp_path) -> No
     assert whole_report.overall_rmse == pytest.approx(expected_micro_rmse)
     assert partitioned_report.overall_rmse == pytest.approx(expected_micro_rmse)
     assert partitioned_report.overall_macro_rmse == pytest.approx(5.0)
-    assert (
-        partitioned_report.aggregation_policy
-        == "micro_rmse_with_explicit_equal_scenario_macro"
-    )
+    assert partitioned_report.aggregation_policy == "micro_rmse_with_explicit_equal_scenario_macro"
 
 
 def test_invalid_prediction_is_counted_and_kept_out_of_valid_denominator() -> None:
@@ -324,7 +320,7 @@ def test_non_default_nominal_confidence_survives_orchestrator_and_persisted_repo
     assert report.scenarios[0].interval_type == "predictive"
     assert report.overall_coverage_probability == pytest.approx(1.0)
     persisted_ref = BacktestReportRef.model_validate({"artifact_id": report.cas_artifact_id})
-    persisted = load_backtest_report(orchestrator._store, persisted_ref)
+    persisted = load_backtest_report(_ensure_ir_artifact_store(orchestrator._store), persisted_ref)
     scenario = persisted.scenarios[0]
 
     assert persisted.overall_coverage_probability == pytest.approx(1.0)

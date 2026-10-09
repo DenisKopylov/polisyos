@@ -163,9 +163,7 @@ class RegimeShiftForecastBundle(ForecastingUncertaintyBundle):
 
         if self._max_declared_horizon() > 12:
             if self.regime_status is not RegimeForecastCalibrationStatus.CALIBRATED:
-                raise ValueError(
-                    "forecasts beyond horizon 12 require calibrated regime status"
-                )
+                raise ValueError("forecasts beyond horizon 12 require calibrated regime status")
 
         return self
 
@@ -203,7 +201,7 @@ def load_regime_shift_forecast_bundle(
 ) -> RegimeShiftForecastBundle:
     """Load a regime-shift forecast bundle from artifact storage."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return RegimeShiftForecastBundle.model_validate(payload)
 
 

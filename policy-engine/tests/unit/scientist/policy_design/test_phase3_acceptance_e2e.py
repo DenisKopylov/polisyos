@@ -6,6 +6,7 @@ from decimal import Decimal
 
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.ic_verification import ICVerificationRequest
@@ -243,7 +244,7 @@ def _persist_complete_welfare(ctx: ExecutionContext, *, behavioral: bool = False
         PutOptions(kind="ir.welfare_multiplier_matrix", media_type="application/json"),
     )
     social_weight_ref = persist_social_weight_manifest(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         SocialWeightManifestArtifact(
             manifest_ref="swr://phase3/acceptance@1.0.0#weights",
             method_fqn="policy.welfare.state_dependent_inverse_social_weights@1.0.0",
@@ -254,7 +255,7 @@ def _persist_complete_welfare(ctx: ExecutionContext, *, behavioral: bool = False
         ),
     )
     ge_ref = persist_ge_uncertainty_bundle(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         GEUncertaintyBundle(
             model_class="linearized_ge_io",
             representation=GEUncertaintyRepresentation.MULTIPLIER_INTERVALS,
@@ -273,7 +274,7 @@ def _persist_complete_welfare(ctx: ExecutionContext, *, behavioral: bool = False
     channel_ref = None
     if behavioral:
         channel_ref = persist_channel_decomposition_artifact(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             ChannelDecompositionArtifact(
                 target_kind=ChannelDecompositionTargetKind.SOCIAL_WELFARE,
                 policy_class=ChannelPolicyClass.LOCAL_AFFINE_TAX_TRANSFER,
@@ -302,7 +303,7 @@ def _persist_complete_welfare(ctx: ExecutionContext, *, behavioral: bool = False
             ),
         )
     return persist_welfare_bundle(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         WelfareBundle(
             welfare_measure="net_social_welfare",
             model_class="linearized_ge_io",
@@ -322,7 +323,7 @@ def _persist_complete_welfare(ctx: ExecutionContext, *, behavioral: bool = False
 
 def _persist_incomplete_welfare_missing_social_weight(ctx: ExecutionContext):
     ge_ref = persist_ge_uncertainty_bundle(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         GEUncertaintyBundle(
             model_class="linearized_ge_io",
             representation=GEUncertaintyRepresentation.MULTIPLIER_INTERVALS,
@@ -330,7 +331,7 @@ def _persist_incomplete_welfare_missing_social_weight(ctx: ExecutionContext):
         ),
     )
     return persist_welfare_bundle(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         WelfareBundle(
             welfare_measure="net_social_welfare",
             model_class="linearized_ge_io",
@@ -345,7 +346,7 @@ def _persist_incomplete_welfare_missing_social_weight(ctx: ExecutionContext):
 
 def _persist_ambiguity(ctx: ExecutionContext, *, mode: str = "not_applicable"):
     return persist_optimization_ambiguity_certificate(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         build_optimization_ambiguity_certificate(
             {"mode": mode, "overall_status": "pass"},
             mode=mode,

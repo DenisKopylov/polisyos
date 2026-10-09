@@ -11,6 +11,7 @@ from pydantic import BaseModel, ValidationError
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ArtifactRef, InputRef
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts import build_skip_blocker_record
@@ -311,7 +312,7 @@ def _resolve_fragment_provenance(
 
     for fragment in sorted(fragments, key=lambda item: item.fragment_id):
         if fragment.fragment_id not in source_fragment_refs:
-            persisted_ref = persist_scm_fragment(ctx.store, fragment)
+            persisted_ref = persist_scm_fragment(_ensure_ir_artifact_store(ctx.store), fragment)
             source_fragment_refs[fragment.fragment_id] = str(persisted_ref.artifact_id)
 
     source_fragment_graph_refs = {
@@ -423,7 +424,9 @@ def _persist_query_preservation_artifacts(
             )
             projection_ref = projection_ref_by_signature.get(signature)
             if projection_ref is None:
-                persisted_projection = persist_causal_graph_model(ctx.store, projection_graph)
+                persisted_projection = persist_causal_graph_model(
+                    _ensure_ir_artifact_store(ctx.store), projection_graph
+                )
                 projection_ref = str(persisted_projection.artifact_id)
                 projection_ref_by_signature[signature] = projection_ref
                 artifacts.append(persisted_projection)
@@ -435,7 +438,9 @@ def _persist_query_preservation_artifacts(
         negative_certificate = negative_certificate_from_query_preservation_trace(query, trace)
         if negative_certificate is None:
             continue
-        persisted_negative = persist_negative_certificate(ctx.store, negative_certificate)
+        persisted_negative = persist_negative_certificate(
+            _ensure_ir_artifact_store(ctx.store), negative_certificate
+        )
         negative_refs[fingerprint] = str(persisted_negative.artifact_id)
         artifacts.append(persisted_negative)
 
@@ -607,7 +612,9 @@ def _apply_query_preservation_hook(
         latent_projection_refs=projection_refs,
         negative_certificate_refs=negative_refs,
     )
-    certificate_ref = persist_composition_certificate(ctx.store, updated_certificate)
+    certificate_ref = persist_composition_certificate(
+        _ensure_ir_artifact_store(ctx.store), updated_certificate
+    )
 
     new_state = branch_state(state, write_paths=_SPEC.state_writes).state
     new_state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF] = certificate_ref
@@ -781,8 +788,12 @@ class ReconcileCausalGraphNode:
             if not reuse_precomputed_alignment:
                 alignment_report = governed_report
                 interface_mapping = governed_mapping
-                alignment_report_ref = persist_alignment_report(ctx.store, alignment_report)
-                interface_mapping_ref = persist_interface_mapping(ctx.store, interface_mapping)
+                alignment_report_ref = persist_alignment_report(
+                    _ensure_ir_artifact_store(ctx.store), alignment_report
+                )
+                interface_mapping_ref = persist_interface_mapping(
+                    _ensure_ir_artifact_store(ctx.store), interface_mapping
+                )
 
             try:
                 source_fragment_refs, source_fragment_graph_refs = _resolve_fragment_provenance(
@@ -823,7 +834,9 @@ class ReconcileCausalGraphNode:
             # unresolvable structural/alignment errors — the graph output is suppressed so
             # downstream nodes cannot accidentally use an invalid composition.
             if composed_graph is not None and certificate.status != "broken":
-                graph_ref = persist_causal_graph_model(ctx.store, composed_graph)
+                graph_ref = persist_causal_graph_model(
+                    _ensure_ir_artifact_store(ctx.store), composed_graph
+                )
                 artifacts.append(graph_ref)
 
             if graph_ref is not None:
@@ -905,7 +918,9 @@ class ReconcileCausalGraphNode:
                 certificate = certificate.model_copy(
                     update={"failure_card_bundle_ref": str(failure_card_bundle_ref.artifact_id)}
                 )
-            certificate_ref = persist_composition_certificate(ctx.store, certificate)
+            certificate_ref = persist_composition_certificate(
+                _ensure_ir_artifact_store(ctx.store), certificate
+            )
             artifacts.extend([alignment_report_ref, interface_mapping_ref, certificate_ref])
             if failure_card_bundle_ref is not None:
                 artifacts.append(failure_card_bundle_ref)
@@ -1082,7 +1097,9 @@ class ReconcileCausalGraphNode:
             graph_ref = (
                 cached_ref
                 if reuse
-                else persist_causal_graph_model(ctx.store, reconciled_graph, inputs=inputs)
+                else persist_causal_graph_model(
+                    _ensure_ir_artifact_store(ctx.store), reconciled_graph, inputs=inputs
+                )
             )
         except _RECONCILE_LOAD_ERRORS as exc:
             return NodeOutcome(

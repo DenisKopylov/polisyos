@@ -917,7 +917,7 @@ def load_negative_certificate(
     ref: NegativeCertificateRef,
 ) -> NegativeCertificate:
     """Load negative certificate."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return NegativeCertificate.model_validate(payload)
 
 

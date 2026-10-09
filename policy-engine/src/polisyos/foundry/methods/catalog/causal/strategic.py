@@ -11,6 +11,7 @@ from typing import Any
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.ir.analytics.abstraction import (
     AbstractionCertificate,
     AbstractionPreservationType,
@@ -1729,9 +1730,11 @@ def persist_strategic_solve_artifacts(
         warnings=tuple(str(item) for item in result.warnings),
         metadata=bundle_metadata,
     )
-    strategic_closure_ref = persist_strategic_closure_summary(store, closure_summary, inputs=inputs)
+    strategic_closure_ref = persist_strategic_closure_summary(
+        _ensure_ir_artifact_store(store), closure_summary, inputs=inputs
+    )
     equilibrium_set_ref = persist_equilibrium_set_summary(
-        store,
+        _ensure_ir_artifact_store(store),
         EquilibriumSetSummary(
             equilibrium_profiles=tuple(dict(profile) for profile in result.equilibrium_profiles),
             equilibrium_count=len(result.equilibrium_profiles),
@@ -1743,7 +1746,7 @@ def persist_strategic_solve_artifacts(
     selected_equilibrium_ref = None
     if result.selected_equilibrium is not None and mfg_equilibrium_certificate is None:
         selected_equilibrium_ref = persist_equilibrium_selection_summary(
-            store,
+            _ensure_ir_artifact_store(store),
             EquilibriumSelectionSummary(
                 selected_equilibrium=dict(result.selected_equilibrium),
                 equilibrium_selection_dependence=result.equilibrium_selection_dependence,
@@ -1762,7 +1765,7 @@ def persist_strategic_solve_artifacts(
             certificate_payload = result.performative_loop_certificate.model_dump(mode="json")
             certificate_metadata = dict(certificate_payload.pop("metadata", {}) or {})
         performative_shift_ref = persist_performative_shift_summary(
-            store,
+            _ensure_ir_artifact_store(store),
             PerformativeShiftSummary(
                 **certificate_payload,
                 performative_shift=(
@@ -1775,7 +1778,7 @@ def persist_strategic_solve_artifacts(
             inputs=inputs,
         )
     post_adaptation_policy_value_ref = persist_post_adaptation_policy_value_summary(
-        store,
+        _ensure_ir_artifact_store(store),
         PostAdaptationPolicyValueSummary(
             fallback_mode=result.fallback_mode,
             baseline_policy_value=baseline_policy_value,
@@ -1861,7 +1864,7 @@ def persist_strategic_solve_artifacts(
     decomposition_certificate_ref = None
     if decomposition_certificate is not None:
         decomposition_certificate_ref = persist_strategic_decomposition_certificate(
-            store,
+            _ensure_ir_artifact_store(store),
             decomposition_certificate,
             inputs=inputs,
         )
@@ -1876,28 +1879,28 @@ def persist_strategic_solve_artifacts(
         )
     if decomposition_failure_card is not None:
         decomposition_failure_card_ref = persist_strategic_decomposition_failure_card(
-            store,
+            _ensure_ir_artifact_store(store),
             decomposition_failure_card,
             inputs=inputs,
         )
     anchor_equilibrium_ref = None
     if anchor_equilibrium is not None:
         anchor_equilibrium_ref = persist_equilibrium_selection_summary(
-            store,
+            _ensure_ir_artifact_store(store),
             anchor_equilibrium,
             inputs=inputs,
         )
     causal_component_bounds_ref = None
     if causal_component_bounds is not None:
         causal_component_bounds_ref = persist_strategic_component_bounds_summary(
-            store,
+            _ensure_ir_artifact_store(store),
             causal_component_bounds,
             inputs=inputs,
         )
     strategic_component_bounds_ref = None
     if strategic_component_bounds is not None:
         strategic_component_bounds_ref = persist_strategic_component_bounds_summary(
-            store,
+            _ensure_ir_artifact_store(store),
             strategic_component_bounds,
             inputs=inputs,
         )
@@ -1917,7 +1920,7 @@ def persist_strategic_solve_artifacts(
         )
         if mfg_solver_residual_report is not None:
             solver_residual_ref = persist_mean_field_solver_residual_report(
-                store,
+                _ensure_ir_artifact_store(store),
                 mfg_solver_residual_report,
                 inputs=inputs,
             )
@@ -1926,7 +1929,7 @@ def persist_strategic_solve_artifacts(
             )
         if mfg_mass_conservation_report is not None:
             mass_conservation_ref = persist_mean_field_mass_conservation_report(
-                store,
+                _ensure_ir_artifact_store(store),
                 mfg_mass_conservation_report,
                 inputs=inputs,
             )
@@ -1938,7 +1941,7 @@ def persist_strategic_solve_artifacts(
         )
         if mfg_macro_simulation_config is not None:
             numerics_config_ref = persist_mean_field_macro_simulation_config(
-                store,
+                _ensure_ir_artifact_store(store),
                 mfg_macro_simulation_config,
                 inputs=inputs,
             )
@@ -1958,7 +1961,7 @@ def persist_strategic_solve_artifacts(
             resolved_mfg_certificate.model_dump(mode="json")
         )
         mfg_equilibrium_ref = persist_mean_field_equilibrium_certificate(
-            store,
+            _ensure_ir_artifact_store(store),
             resolved_mfg_certificate,
             inputs=inputs,
         )
@@ -1979,7 +1982,9 @@ def persist_strategic_solve_artifacts(
         strategic_component_bounds_ref=strategic_component_bounds_ref,
         result=result,
     ).model_copy(update={"metadata": bundle_metadata})
-    bundle_ref = persist_strategic_response_bundle(store, bundle, inputs=inputs)
+    bundle_ref = persist_strategic_response_bundle(
+        _ensure_ir_artifact_store(store), bundle, inputs=inputs
+    )
     return bundle, bundle_ref
 
 

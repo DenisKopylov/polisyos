@@ -12,6 +12,7 @@ from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -681,7 +682,7 @@ def resolve_conflicts(
         )
         envelope_artifact_id: str | None = None
         if envelope is not None:
-            envelope_ref = persist_uncertainty_envelope(cas, envelope)
+            envelope_ref = persist_uncertainty_envelope(_ensure_ir_artifact_store(cas), envelope)
             envelope_artifact_id = str(envelope_ref.artifact_id)
             uncertainty_envelope_artifact_ids.append(envelope_artifact_id)
 

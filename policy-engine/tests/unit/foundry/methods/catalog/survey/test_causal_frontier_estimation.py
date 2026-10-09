@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import numpy as np
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.survey.protocols import SAEResult
 from polisyos.ir.analytics.dependence_structure import load_dependence_structure
@@ -80,7 +82,7 @@ class TestCausalFrontierFayHerriot:
 
         assert result.dependence_ref is not None
         assert result.quality_certificate_ref is not None
-        loaded = load_dependence_structure(store, result.dependence_ref)
+        loaded = load_dependence_structure(_ensure_ir_artifact_store(store), result.dependence_ref)
         assert loaded.regime == "areal"
         assert loaded.source_method == "survey.estimation.causal_frontier_fay_herriot"
 

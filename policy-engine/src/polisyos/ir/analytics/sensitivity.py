@@ -202,7 +202,7 @@ def load_sensitivity_result(
     ref: CausalSensitivityResultRef,
 ) -> SensitivityResult:
     """Load sensitivity result."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return SensitivityResult.model_validate(payload)
 
 
@@ -296,7 +296,7 @@ def load_sensitivity_analysis_bundle(
 ) -> SensitivityAnalysisBundle:
     """Load a canonical Phase-5 sensitivity bundle."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return SensitivityAnalysisBundle.model_validate(payload)
 
 

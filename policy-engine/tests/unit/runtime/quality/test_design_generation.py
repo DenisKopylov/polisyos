@@ -85,15 +85,11 @@ def _education_cycle_context() -> tuple[DesignProblem, object]:
 
     frozen = second_domain_pack._load_frozen_bundle(REPO_ROOT)
     pack = frozen["pack"]
-    problem = DesignProblem.model_validate(
-        frozen["smoke_problem"]["design_problem"]
-    )
+    problem = DesignProblem.model_validate(frozen["smoke_problem"]["design_problem"])
     registry = SubstrateRegistry.model_validate(
         pack["owner_query_results"]["s0_registry"]["registry_payload"]
     )
-    selected_hashes = tuple(
-        pack["components"]["substrate_registry"]["selected_entry_hashes"]
-    )
+    selected_hashes = tuple(pack["components"]["substrate_registry"]["selected_entry_hashes"])
     world = _build_boundary_world_model_record(
         repo_root=REPO_ROOT,
         problem=problem,
@@ -185,8 +181,7 @@ def test_prompt_slice_uses_context_bound_l6_vocabulary_not_model_filter() -> Non
     world = production_composed_world_model_record(REPO_ROOT)
     bundle = load_l6_intervention_substrate(REPO_ROOT)
     selected_hashes = tuple(
-        entry.entry_content_hash
-        for entry in world.substrate_registry_ref.resolved_entries
+        entry.entry_content_hash for entry in world.substrate_registry_ref.resolved_entries
     )
     problem_ref = dg.gy_content_hash(problem.model_dump(mode="json"))
     substrate_input_hash = dg.gy_content_hash(
@@ -224,10 +219,11 @@ def test_prompt_slice_uses_context_bound_l6_vocabulary_not_model_filter() -> Non
     }
     assert {entry.binding_status for entry in result.entries} == {"world_bound"}
     assert all(entry.target_world_slots for entry in result.entries)
-    assert all(entry.context_binding_hash == context.context_binding_hash for entry in result.entries)
     assert all(
-        entry.world_model_record_content_hash == world.content_hash
-        for entry in result.entries
+        entry.context_binding_hash == context.context_binding_hash for entry in result.entries
+    )
+    assert all(
+        entry.world_model_record_content_hash == world.content_hash for entry in result.entries
     )
 
 
@@ -415,9 +411,9 @@ def _alternate_honest_frozen_receipt_payload() -> dict[str, Any]:
         "synthetic_cg3_handoff_probe": {},
     }
     live_for_gate = copy.deepcopy(payload["generation_results"])
-    live_for_gate[0]["effective_runtime_config"][
-        "prompt_size_estimate"
-    ] = _valid_prompt_size_estimate()
+    live_for_gate[0]["effective_runtime_config"]["prompt_size_estimate"] = (
+        _valid_prompt_size_estimate()
+    )
     payload["prompt_size_gate"] = contract._prompt_size_gate(live_for_gate)
     payload["frozen_payoff_receipt"] = contract._build_frozen_payoff_receipt(payload)
     return payload
@@ -427,9 +423,9 @@ def _live_payload_for_frozen(payload: dict[str, Any]) -> dict[str, Any]:
     live = copy.deepcopy(payload)
     live.pop("frozen_payoff_receipt", None)
     for result in live["generation_results"]:
-        result.setdefault("effective_runtime_config", {})[
-            "prompt_size_estimate"
-        ] = _valid_prompt_size_estimate()
+        result.setdefault("effective_runtime_config", {})["prompt_size_estimate"] = (
+            _valid_prompt_size_estimate()
+        )
     live["prompt_size_gate"] = contract._prompt_size_gate(live["generation_results"])
     return live
 
@@ -684,7 +680,9 @@ class TerminalCriticTransientClient:
                     "estimand": "average_treatment_effect",
                 },
             )
-            return self._response(_bundle([intervention]).model_dump(mode="json"), role="formalizer")
+            return self._response(
+                _bundle([intervention]).model_dump(mode="json"), role="formalizer"
+            )
         if "Provide your critique as a JSON object" in user:
             self.critic_attempts += 1
             self.critic_prompt_hashes.append(
@@ -851,9 +849,10 @@ def test_cgf_binding_recovers_legacy_exact_match_rejection() -> None:
     assert disposition.certificate_chain.cg1_content_hash in candidates[0].atom.provenance_refs
     assert candidates[0].atom.status == "candidate_unverified"
     assert candidates[0].atom.operator_kind.trinity_kind == "tax_relief_rate"
-    assert candidates[0].atom.direct_effect_bundle.params == intervention.model_dump(
-        mode="json"
-    )["params"]
+    assert (
+        candidates[0].atom.direct_effect_bundle.params
+        == intervention.model_dump(mode="json")["params"]
+    )
     assert candidates[0].atom.normalized_from is not None
     assert candidates[0].atom.normalized_from.original_kind == "tax_credit_rate"
     assert (
@@ -925,13 +924,12 @@ def test_formalizer_preserves_a_translated_draft_lever_as_candidate_only() -> No
             "observation_space": ["agents.skill_level"],
         },
     )
-    normalized = formalizer_owner._normalize_trinity_bundle_for_linker(
-        _bundle([intervention])
-    )
+    normalized = formalizer_owner._normalize_trinity_bundle_for_linker(_bundle([intervention]))
 
-    assert normalized.policy_spec.interventions[0].params[
-        "candidate_lever_id"
-    ] == "third_shape_owner_lever"
+    assert (
+        normalized.policy_spec.interventions[0].params["candidate_lever_id"]
+        == "third_shape_owner_lever"
+    )
 
 
 def test_candidate_lever_id_is_not_cg_relation_authority() -> None:
@@ -1280,21 +1278,11 @@ async def test_n4_replay_applies_recorded_effective_config_and_restores_host(
         observed.update({key: os.environ.get(key) for key in keys})
         emitted = expected.model_copy(
             update={
-                "drafter_pass_timeout_s": float(
-                    os.environ["POLISYOS_DRAFTER_PASS_TIMEOUT_S"]
-                ),
-                "drafter_pass_retry_count": int(
-                    os.environ["POLISYOS_DRAFTER_PASS_RETRY_COUNT"]
-                ),
-                "formalizer_timeout_s": float(
-                    os.environ["POLISYOS_FORMALIZER_LLM_TIMEOUT_S"]
-                ),
-                "formalizer_retry_count": int(
-                    os.environ["POLISYOS_FORMALIZER_LLM_RETRIES"]
-                ),
-                "critic_timeout_s": float(
-                    os.environ["POLISYOS_CRITIC_LLM_TIMEOUT_S"]
-                ),
+                "drafter_pass_timeout_s": float(os.environ["POLISYOS_DRAFTER_PASS_TIMEOUT_S"]),
+                "drafter_pass_retry_count": int(os.environ["POLISYOS_DRAFTER_PASS_RETRY_COUNT"]),
+                "formalizer_timeout_s": float(os.environ["POLISYOS_FORMALIZER_LLM_TIMEOUT_S"]),
+                "formalizer_retry_count": int(os.environ["POLISYOS_FORMALIZER_LLM_RETRIES"]),
+                "critic_timeout_s": float(os.environ["POLISYOS_CRITIC_LLM_TIMEOUT_S"]),
                 "terminal_salvage_retry_count": int(
                     os.environ["POLISYOS_N4_TERMINAL_SALVAGE_RETRIES"]
                 ),
@@ -1302,13 +1290,9 @@ async def test_n4_replay_applies_recorded_effective_config_and_restores_host(
                     os.environ["POLISYOS_N4_TERMINAL_SALVAGE_BACKOFF_BASE_S"]
                 ),
                 "gateway_timeout_s": float(os.environ["POLISYOS_LLM_GATEWAY_TIMEOUT_S"]),
-                "gateway_max_retries": int(
-                    os.environ["POLISYOS_LLM_GATEWAY_MAX_RETRIES"]
-                ),
+                "gateway_max_retries": int(os.environ["POLISYOS_LLM_GATEWAY_MAX_RETRIES"]),
                 "prompt_cache_ttl_s": float(os.environ["POLISYOS_LLM_CACHE_TTL_S"]),
-                "prompt_cache_maxsize": int(
-                    os.environ["POLISYOS_LLM_CACHE_MAXSIZE"]
-                ),
+                "prompt_cache_maxsize": int(os.environ["POLISYOS_LLM_CACHE_MAXSIZE"]),
                 "cg1_index_prewarm_enabled": (
                     os.environ.get("POLISYOS_N4_PREWARM_CG1_INDEX", "0") == "1"
                 ),
@@ -1340,9 +1324,7 @@ async def test_n4_replay_applies_recorded_effective_config_and_restores_host(
         "POLISYOS_FORMALIZER_SCHEMA_HEALING_MODE": "audit",
         "POLISYOS_N4_PREWARM_CG1_INDEX": "1",
     }
-    assert {
-        key: os.environ.get(key) for key in environment_fields
-    } == environment_fields
+    assert {key: os.environ.get(key) for key in environment_fields} == environment_fields
     assert "POLISYOS_N4_PREWARM_CG1_INDEX" not in os.environ
 
 
@@ -1356,15 +1338,11 @@ async def test_n4_replay_refuses_missing_or_invalid_recorded_effective_config(
     if corruption == "missing":
         recording["capture_summary"].pop("effective_runtime_config")
     else:
-        recording["capture_summary"]["effective_runtime_config"][
-            "formalizer_retry_count"
-        ] = "not-an-integer"
+        recording["capture_summary"]["effective_runtime_config"]["formalizer_retry_count"] = (
+            "not-an-integer"
+        )
     recording["recording_content_hash"] = contract.gy_content_hash(
-        {
-            key: value
-            for key, value in recording.items()
-            if key != "recording_content_hash"
-        }
+        {key: value for key, value in recording.items() if key != "recording_content_hash"}
     )
     called = False
 
@@ -1387,9 +1365,7 @@ async def test_n4_replay_refuses_tampered_recorded_config_before_owner_call(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     recording = copy.deepcopy(_recordings()[0])
-    recording["capture_summary"]["effective_runtime_config"][
-        "formalizer_retry_count"
-    ] -= 1
+    recording["capture_summary"]["effective_runtime_config"]["formalizer_retry_count"] -= 1
     called = False
 
     async def _must_not_run(*args: object, **kwargs: object) -> object:
@@ -1411,15 +1387,9 @@ async def test_n4_replay_refuses_omitted_recorded_runtime_input(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     recording = copy.deepcopy(_recordings()[0])
-    recording["capture_summary"]["effective_runtime_config"].pop(
-        "cg1_index_prewarm_enabled"
-    )
+    recording["capture_summary"]["effective_runtime_config"].pop("cg1_index_prewarm_enabled")
     recording["recording_content_hash"] = contract.gy_content_hash(
-        {
-            key: value
-            for key, value in recording.items()
-            if key != "recording_content_hash"
-        }
+        {key: value for key, value in recording.items() if key != "recording_content_hash"}
     )
     called = False
 
@@ -1532,15 +1502,9 @@ def test_n4_current_wmr_rebind_rejects_forged_owner_projection() -> None:
         owner_projection=owner_projection,
     )
     forged = copy.deepcopy(receipt)
-    forged["owner_projection"]["world_model_record_id"] = (
-        "world_model_record_ffffffffffffffff"
-    )
-    forged["owner_projection"]["world_model_record_content_hash"] = (
-        "sha256:" + "f" * 64
-    )
-    forged["owner_projection_content_hash"] = contract.gy_content_hash(
-        forged["owner_projection"]
-    )
+    forged["owner_projection"]["world_model_record_id"] = "world_model_record_ffffffffffffffff"
+    forged["owner_projection"]["world_model_record_content_hash"] = "sha256:" + "f" * 64
+    forged["owner_projection_content_hash"] = contract.gy_content_hash(forged["owner_projection"])
     forged["content_hash"] = contract.gy_content_hash(
         {key: value for key, value in forged.items() if key != "content_hash"}
     )
@@ -1562,11 +1526,7 @@ def test_n4_current_wmr_rebind_rejects_non_wmr_drift() -> None:
     reissued["world_model_record_ref"] = "world_model_record_11c3b1cb30a20018"
     reissued["model_id"] = "forged-model"
     reissued["recording_content_hash"] = contract.gy_content_hash(
-        {
-            key: value
-            for key, value in reissued.items()
-            if key != "recording_content_hash"
-        }
+        {key: value for key, value in reissued.items() if key != "recording_content_hash"}
     )
 
     with pytest.raises(RuntimeError, match="gy_n4_current_wmr_reissue_non_wmr_drift"):
@@ -1663,9 +1623,7 @@ def test_n4_validate_rejects_stale_payload_when_recording_denominator_is_invalid
 
 def test_n4_capture_module_import_has_no_runtime_environment_side_effects() -> None:
     probe_environment = {
-        key: value
-        for key, value in os.environ.items()
-        if key not in capture.DEFAULT_ENV
+        key: value for key, value in os.environ.items() if key not in capture.DEFAULT_ENV
     }
     probe_environment.update(
         {
@@ -1796,9 +1754,7 @@ def test_n4_frozen_receipt_rejects_incoherent_full_denominator() -> None:
     payload["recording_set_coverage"]["grounding_summary"]["total_candidates"] = 4
     payload["frozen_payoff_receipt"] = contract._build_frozen_payoff_receipt(payload)
 
-    issue_codes = {
-        item["code"] for item in contract._frozen_payoff_receipt_issues(payload)
-    }
+    issue_codes = {item["code"] for item in contract._frozen_payoff_receipt_issues(payload)}
 
     assert "frozen_receipt_payoff_summary_drift" in issue_codes
 
@@ -1814,9 +1770,9 @@ def test_n4_frozen_receipt_static_claims_are_verified() -> None:
 
 def test_n4_frozen_receipt_rejects_same_id_payoff_tamper() -> None:
     payload = _alternate_honest_frozen_receipt_payload()
-    payload["grounding_payoff"]["payoff_shadow_bindings_legacy_rejected"][0][
-        "cg1_content_hash"
-    ] = "sha256:" + "f" * 64
+    payload["grounding_payoff"]["payoff_shadow_bindings_legacy_rejected"][0]["cg1_content_hash"] = (
+        "sha256:" + "f" * 64
+    )
     payload["frozen_payoff_receipt"] = contract._build_frozen_payoff_receipt(payload)
 
     assert "frozen_receipt_shadow_binding_payoff_drift" in {
@@ -1864,9 +1820,7 @@ def test_n4_producer_denominator_mutation_is_causal_on_green_base() -> None:
     }
     if "prompt_size_gate" not in payload:
         payload["diagnostic_projection"] = contract._FROZEN_DIAGNOSTIC_PROJECTION
-        payload["prompt_size_gate"] = contract._prompt_size_gate(
-            payload["generation_results"]
-        )
+        payload["prompt_size_gate"] = contract._prompt_size_gate(payload["generation_results"])
     assert contract.validate_payload(payload)["status"] == "pass"
 
     contract._mutate_producer_candidate_denominator(payload)
@@ -1910,21 +1864,24 @@ def test_n4_write_adds_receipt_and_excludes_wall_time_from_bytes(
         written
     )
     assert "wall_seconds" not in written["generation_results"][0]["llm_calls"][0]
-    assert "cg1_index_prewarm_wall_seconds" not in (
-        written["generation_results"][0]["effective_runtime_config"]
+    assert (
+        "cg1_index_prewarm_wall_seconds"
+        not in (written["generation_results"][0]["effective_runtime_config"])
     )
-    assert "prompt_size_estimate" not in (
-        written["generation_results"][0]["effective_runtime_config"]
+    assert (
+        "prompt_size_estimate" not in (written["generation_results"][0]["effective_runtime_config"])
     )
     assert "wall_time_seconds" not in written
     assert (
-        written["generation_results"][0]["candidates"][0]["provenance"]
-        ["parsed_candidate"]["params"]["wall_seconds"]
+        written["generation_results"][0]["candidates"][0]["provenance"]["parsed_candidate"][
+            "params"
+        ]["wall_seconds"]
         == 17.0
     )
     assert (
-        written["generation_results"][0]["candidates"][0]["provenance"]
-        ["parsed_candidate"]["params"]["prompt_size_estimate"]
+        written["generation_results"][0]["candidates"][0]["provenance"]["parsed_candidate"][
+            "params"
+        ]["prompt_size_estimate"]
         == "semantic-domain-parameter"
     )
 
@@ -1938,9 +1895,9 @@ def test_n4_write_adds_receipt_and_excludes_wall_time_from_bytes(
     assert output_path.read_bytes() == first
 
     first_receipt_hash = written["frozen_payoff_receipt"]["content_hash"]
-    payload["generation_results"][0]["candidates"][0]["provenance"][
-        "parsed_candidate"
-    ]["params"]["wall_seconds"] = 18.0
+    payload["generation_results"][0]["candidates"][0]["provenance"]["parsed_candidate"]["params"][
+        "wall_seconds"
+    ] = 18.0
     contract.write(tmp_path)
     semantic_change = json.loads(output_path.read_bytes())
 
@@ -1971,10 +1928,13 @@ def test_n4_prompt_size_gate_accepts_live_and_frozen_diagnostic_shapes() -> None
 
     assert contract._prompt_size_projection_issues(live, results) == []
     frozen = contract._artifact_stable_payload(live)
-    assert contract._prompt_size_projection_issues(
-        frozen,
-        frozen["generation_results"],
-    ) == []
+    assert (
+        contract._prompt_size_projection_issues(
+            frozen,
+            frozen["generation_results"],
+        )
+        == []
+    )
 
 
 def test_n4_prompt_size_gate_rejects_live_oversize_slice() -> None:
@@ -2071,11 +2031,14 @@ def test_n4_prompt_size_measurement_is_bound_to_actual_frames() -> None:
     )
     real_measurement = dg._prompt_size_estimate(base_frame, sliced_frame)
 
-    assert contract._prompt_size_actual_frame_issue(
-        design_problem=problem,
-        lever_space_prompt_slice=lever_slice,
-        emitted=real_measurement,
-    ) is None, "prompt_size_measurement_not_actual_frames"
+    assert (
+        contract._prompt_size_actual_frame_issue(
+            design_problem=problem,
+            lever_space_prompt_slice=lever_slice,
+            emitted=real_measurement,
+        )
+        is None
+    ), "prompt_size_measurement_not_actual_frames"
     issue = contract._prompt_size_actual_frame_issue(
         design_problem=problem,
         lever_space_prompt_slice=lever_slice,
@@ -2228,9 +2191,7 @@ def test_n4_prompt_size_gate_mutation_is_causal() -> None:
     }
     if "prompt_size_gate" not in payload:
         payload["diagnostic_projection"] = contract._FROZEN_DIAGNOSTIC_PROJECTION
-        payload["prompt_size_gate"] = contract._prompt_size_gate(
-            payload["generation_results"]
-        )
+        payload["prompt_size_gate"] = contract._prompt_size_gate(payload["generation_results"])
     assert contract.validate_payload(payload)["status"] == "pass"
 
     contract._mutate_prompt_size_gate(payload)
@@ -2239,9 +2200,7 @@ def test_n4_prompt_size_gate_mutation_is_causal() -> None:
     assert mutated["status"] == "fail"
     assert "prompt_size_gate_drift" in {
         item["code"] for item in mutated["issues"]
-    } or "prompt_size_gate_frozen_drift" in {
-        item["code"] for item in mutated["issues"]
-    }
+    } or "prompt_size_gate_frozen_drift" in {item["code"] for item in mutated["issues"]}
 
 
 def test_n4_frozen_builder_refuses_forged_pass_over_oversize_live_measurement() -> None:
@@ -2296,9 +2255,9 @@ def test_n4_rederive_rejects_live_semantic_receipt_drift(
     output_path.parent.mkdir(parents=True)
     output_path.write_text(json.dumps(committed), encoding="utf-8")
     live = _live_payload_for_frozen(committed)
-    live["generation_results"][0]["grounding_dispositions"][0][
-        "selected_relation"
-    ] = "certified-specialization"
+    live["generation_results"][0]["grounding_dispositions"][0]["selected_relation"] = (
+        "certified-specialization"
+    )
     live["behavioral_mutations"] = []
     monkeypatch.setattr(contract, "build_live_payload", lambda _repo_root: live)
     monkeypatch.setattr(
@@ -2309,9 +2268,7 @@ def test_n4_rederive_rejects_live_semantic_receipt_drift(
 
     report = contract.validate_rederive_audit(tmp_path)
 
-    assert "frozen_payoff_live_receipt_drift" in {
-        item["code"] for item in report["issues"]
-    }
+    assert "frozen_payoff_live_receipt_drift" in {item["code"] for item in report["issues"]}
 
 
 def test_n4_rederive_rejects_live_artifact_drift_outside_receipt_projection(
@@ -2334,9 +2291,7 @@ def test_n4_rederive_rejects_live_artifact_drift_outside_receipt_projection(
 
     report = contract.validate_rederive_audit(tmp_path)
 
-    assert "frozen_artifact_live_drift" in {
-        item["code"] for item in report["issues"]
-    }
+    assert "frozen_artifact_live_drift" in {item["code"] for item in report["issues"]}
 
 
 def test_n4_rederive_rejects_python_equality_alias_outside_receipt_projection(
@@ -2360,9 +2315,7 @@ def test_n4_rederive_rejects_python_equality_alias_outside_receipt_projection(
 
     report = contract.validate_rederive_audit(tmp_path)
 
-    assert "frozen_artifact_live_drift" in {
-        item["code"] for item in report["issues"]
-    }
+    assert "frozen_artifact_live_drift" in {item["code"] for item in report["issues"]}
 
 
 def test_n4_rederive_accepts_matching_semantic_receipt(
@@ -2384,9 +2337,7 @@ def test_n4_rederive_accepts_matching_semantic_receipt(
 
     report = contract.validate_rederive_audit(tmp_path)
 
-    assert "frozen_payoff_live_receipt_drift" not in {
-        item["code"] for item in report["issues"]
-    }
+    assert "frozen_payoff_live_receipt_drift" not in {item["code"] for item in report["issues"]}
 
 
 def test_n4_rederive_rejects_decorative_committed_receipt_mode(
@@ -2409,9 +2360,7 @@ def test_n4_rederive_rejects_decorative_committed_receipt_mode(
 
     report = contract.validate_rederive_audit(tmp_path)
 
-    assert "frozen_payoff_receipt_mode_drift" in {
-        item["code"] for item in report["issues"]
-    }
+    assert "frozen_payoff_receipt_mode_drift" in {item["code"] for item in report["issues"]}
 
 
 def test_n4_rederive_does_not_trust_repointed_committed_receipt(
@@ -2422,9 +2371,9 @@ def test_n4_rederive_does_not_trust_repointed_committed_receipt(
     live = _live_payload_for_frozen(frozen)
     live["behavioral_mutations"] = []
     committed = copy.deepcopy(frozen)
-    committed["generation_results"][0]["grounding_dispositions"][0][
-        "selected_relation"
-    ] = "certified-specialization"
+    committed["generation_results"][0]["grounding_dispositions"][0]["selected_relation"] = (
+        "certified-specialization"
+    )
     output_path = tmp_path / contract.OUTPUT_PATH
     output_path.parent.mkdir(parents=True)
     output_path.write_text(json.dumps(committed), encoding="utf-8")
@@ -2437,9 +2386,7 @@ def test_n4_rederive_does_not_trust_repointed_committed_receipt(
 
     report = contract.validate_rederive_audit(tmp_path)
 
-    assert "frozen_payoff_receipt_hash_drift" in {
-        item["code"] for item in report["issues"]
-    }
+    assert "frozen_payoff_receipt_hash_drift" in {item["code"] for item in report["issues"]}
 
 
 def test_recorded_effective_config_source_flip_runs_behavior_and_restores_bytes(
@@ -2449,8 +2396,7 @@ def test_recorded_effective_config_source_flip_runs_behavior_and_restores_bytes(
     runner = getattr(contract, "_run_recorded_config_source_flip", None)
     assert callable(runner), "recorded-config source-flip runner is missing"
     source_path = (
-        tmp_path
-        / "tools/quality/validation/check_layer3_gy_design_generation_contract.py"
+        tmp_path / "tools/quality/validation/check_layer3_gy_design_generation_contract.py"
     )
     source_path.parent.mkdir(parents=True)
     original = (
@@ -2473,9 +2419,7 @@ def test_recorded_effective_config_source_flip_runs_behavior_and_restores_bytes(
 
     result = runner(tmp_path)
 
-    assert result["mutation_id"] == (
-        "source_flip_recorded_effective_runtime_config_ignored"
-    )
+    assert result["mutation_id"] == ("source_flip_recorded_effective_runtime_config_ignored")
     assert result["result"] == "RED"
     assert result["proof"]["drift_reason_observed"] is True
     assert source_path.read_bytes() == original
@@ -2683,6 +2627,7 @@ def test_n4_source_flip_denominator_rejects_missing_parser_mutation(
 ) -> None:
     def red(mutation_id: str) -> dict[str, str]:
         return {"mutation_id": mutation_id, "result": "RED"}
+
     monkeypatch.setattr(
         contract,
         "_run_formalizer_source_flip",
@@ -2778,12 +2723,8 @@ async def test_formalizer_records_unknown_extra_field_healing() -> None:
 
     assert bundle.problem_frame.problem_id == "problem_gy_n4_cgf"
     assert formalizer.schema_healing_events
-    assert formalizer.schema_healing_events[0]["path"] == (
-        "problem_frame.unknown_extra_for_probe"
-    )
-    assert formalizer.schema_healing_events[0]["normalized"] == (
-        "stripped_unknown_extra_field"
-    )
+    assert formalizer.schema_healing_events[0]["path"] == ("problem_frame.unknown_extra_for_probe")
+    assert formalizer.schema_healing_events[0]["normalized"] == ("stripped_unknown_extra_field")
 
 
 @pytest.mark.asyncio
@@ -2824,10 +2765,7 @@ async def test_formalizer_strict_mode_refuses_unknown_extra_field_healing() -> N
             "path": "problem_frame.unknown_extra_for_probe",
             "raw": "must-refuse",
             "normalized": "stripped_unknown_extra_field",
-            "note": (
-                "schema_healed:problem_frame.unknown_extra_for_probe:"
-                "unknown_extra_stripped"
-            ),
+            "note": ("schema_healed:problem_frame.unknown_extra_for_probe:unknown_extra_stripped"),
         }
     ]
 
@@ -2861,9 +2799,7 @@ async def test_formalizer_strict_mode_refuses_unrecognized_bound_alias() -> None
         await formalizer.formalize(draft)
 
     assert exc_info.value.failure["phase"] == "schema_healing"
-    assert exc_info.value.field_errors[0]["path"] == (
-        "problem_frame.hard_constraints.0.bound"
-    )
+    assert exc_info.value.field_errors[0]["path"] == ("problem_frame.hard_constraints.0.bound")
 
 
 @pytest.mark.asyncio
@@ -2959,9 +2895,7 @@ async def test_formalizer_live_path_rejects_ambiguous_root_wrapper() -> None:
 
     result = await formalizer.formalize(draft)
 
-    intervention_ids = {
-        item.intervention_id for item in result.policy_spec.interventions
-    }
+    intervention_ids = {item.intervention_id for item in result.policy_spec.interventions}
     assert intervention_ids.isdisjoint({"inner_candidate", "outer_candidate"})
     assert formalizer.schema_healing_events == ()
 
@@ -2997,9 +2931,7 @@ def test_formalizer_path_rejects_root_schema_version_disagreement() -> None:
 
 
 def test_formalizer_path_rejects_unregistered_double_underscore_alias() -> None:
-    expected_payload = _bundle([_intervention("parameter_alias_probe")]).model_dump(
-        mode="json"
-    )
+    expected_payload = _bundle([_intervention("parameter_alias_probe")]).model_dump(mode="json")
     expected_payload["policy_spec"]["parameters"] = [
         {
             "param_id": "rate_parameter",
@@ -3023,9 +2955,7 @@ def test_formalizer_path_rejects_unregistered_double_underscore_alias() -> None:
 
 
 def test_formalizer_path_accepts_registered_parameter_alias() -> None:
-    expected_payload = _bundle([_intervention("registered_alias_probe")]).model_dump(
-        mode="json"
-    )
+    expected_payload = _bundle([_intervention("registered_alias_probe")]).model_dump(mode="json")
     expected_payload["policy_spec"]["parameters"] = [
         {
             "param_id": "rate_parameter",
@@ -3049,9 +2979,7 @@ def test_formalizer_path_accepts_registered_parameter_alias() -> None:
 
 
 def test_formalizer_path_rejects_conflicting_registered_alias() -> None:
-    expected_payload = _bundle([_intervention("parameter_conflict_probe")]).model_dump(
-        mode="json"
-    )
+    expected_payload = _bundle([_intervention("parameter_conflict_probe")]).model_dump(mode="json")
     expected_payload["policy_spec"]["parameters"] = [
         {
             "param_id": "rate_parameter",
@@ -3062,9 +2990,7 @@ def test_formalizer_path_rejects_conflicting_registered_alias() -> None:
     ]
     expected = TrinityBundle.model_validate(expected_payload)
     recorded_payload = copy.deepcopy(expected_payload)
-    recorded_payload["policy_spec"]["parameters"][0]["intervention__id"] = (
-        "different_intervention"
-    )
+    recorded_payload["policy_spec"]["parameters"][0]["intervention__id"] = "different_intervention"
 
     assert (
         trinity_bundle_formalizer_generator_path(
@@ -3227,9 +3153,7 @@ def test_cg1_index_prewarm_builds_real_index_for_unit_reference() -> None:
             "SELECT modality, edge_id FROM cg0_reference_edges"
         ).fetchall()
     }
-    expected_edges = {
-        (edge.modality, edge.edge_id) for edge in reference.essential_edges.values()
-    }
+    expected_edges = {(edge.modality, edge.edge_id) for edge in reference.essential_edges.values()}
     assert len(expected_edges) == 13
     assert indexed_edges == expected_edges
 
@@ -3434,6 +3358,58 @@ async def test_candidate_scenario_skips_unused_cg1_prewarm_but_grounded_lane_ref
 
 
 @pytest.mark.asyncio
+async def test_candidate_scenario_keeps_exact_registered_l2_vintage_unknown() -> None:
+    """The candidate source records the SKG owner's refusal without forwarding it."""
+
+    recording = copy.deepcopy(_recordings()[0])
+    problem = contract._design_problem(recording)
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _cyc01_owner_bound_n5_case,
+    )
+
+    problem, context, _candidate = _cyc01_owner_bound_n5_case(problem_seed=problem)
+    with contract._recorded_runtime_environment(recording):
+        result = await dg.generate_design_candidate_scenario_proposal_under_a(
+            problem,
+            model_id=str(recording["model_id"]),
+            llm_client=contract.RecordedGenerationReplayClient(copy.deepcopy(recording)),
+            repo_root=REPO_ROOT,
+            cycle_substrate_context=context,
+        )
+
+    assert isinstance(result, dg.N4CandidateScenarioProposalRun)
+    assert result.k_ref_limitation_code == "historical_l2_confidence_withheld"
+    assert result.l2_confidence_vintage is not None
+    assert result.l2_confidence_vintage.snapshot_sha256 == (
+        "583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967"
+    )
+    assert result.proposal.authority_purpose == "candidate_proposal"
+    assert result.proposal.substrate_status == "unknown"
+    assert result.proposal.n5_status == "not_run"
+    assert result.proposal.n9_status == "not_run"
+    assert result.proposal.s8_status == "not_run"
+
+
+def test_recognized_confidence_vintage_round_trips_exact_owner_json() -> None:
+    """JSON array decoding must retain the exact tuple-backed owner limitation."""
+
+    from polisyos.data_forge.domains.academic.knowledge.skg_versioning import (
+        ConfidenceLayerVintage,
+    )
+
+    owner_vintage = ConfidenceLayerVintage(
+        snapshot_sha256=("583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967")
+    )
+    error = ValueError(json.dumps({"confidence_layer_vintage": owner_vintage.to_payload()}))
+
+    assert dg._recognized_confidence_layer_vintage(error) == owner_vintage
+
+    tampered_payload = json.loads(str(error))
+    tampered_payload["confidence_layer_vintage"]["measurement_basis"] = "consumer_asserted"
+    assert dg._recognized_confidence_layer_vintage(ValueError(json.dumps(tampered_payload))) is None
+
+
+@pytest.mark.asyncio
 async def test_unsupported_model_profile_rejects_before_generation() -> None:
     recording = _recordings()[0]
     result = await generate_design_candidates_under_a(
@@ -3528,9 +3504,7 @@ async def test_unknown_substrate_candidate_proposal_stops_before_atom_binding(
         repo_root=REPO_ROOT,
     )
 
-    assert proposal.design_problem_ref == contract.gy_content_hash(
-        problem.model_dump(mode="json")
-    )
+    assert proposal.design_problem_ref == contract.gy_content_hash(problem.model_dump(mode="json"))
     assert proposal.execution_band == "candidate"
     assert proposal.substrate_status == "unknown"
     assert proposal.limitation_code == "cycle_substrate_context_unavailable"
@@ -3539,8 +3513,11 @@ async def test_unknown_substrate_candidate_proposal_stops_before_atom_binding(
     assert proposal.draft.narrative
     assert proposal.trinity_bundle.policy_spec.interventions
     assert proposal.critique.verdict
-    assert proposal.drafter_path == proposal.formalizer_path == proposal.critic_path == (
-        "model_generated"
+    assert (
+        proposal.drafter_path
+        == proposal.formalizer_path
+        == proposal.critic_path
+        == ("model_generated")
     )
     assert len(proposal.llm_calls) >= 3
 
@@ -3548,11 +3525,11 @@ async def test_unknown_substrate_candidate_proposal_stops_before_atom_binding(
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("bad_role", "reason"),
-        [
-            ("draft", "drafter_degraded_mock_fallback"),
-            ("formalizer", "formalizer_path_unrecorded"),
-            ("critic", "critic_degraded_mock_fallback"),
-        ],
+    [
+        ("draft", "drafter_degraded_mock_fallback"),
+        ("formalizer", "formalizer_path_unrecorded"),
+        ("critic", "critic_degraded_mock_fallback"),
+    ],
 )
 async def test_degraded_organs_are_labeled_and_excluded(bad_role: str, reason: str) -> None:
     recording = _recordings()[0]
@@ -3613,19 +3590,24 @@ def test_phase5_surrogate_rejects_fake_route_targets_without_certifying_candidat
 
     bundle = owner.load_l6_intervention_substrate(REPO_ROOT)
     atom, _binding = owner._resolve_owner_atom_world_binding(
-        bundle=bundle, operator_kind="budget_allocation_multiplier",
-        raw_knob=bundle.knob_dictionary["budget_allocation_multiplier"], parameter_value=1.25,
+        bundle=bundle,
+        operator_kind="budget_allocation_multiplier",
+        raw_knob=bundle.knob_dictionary["budget_allocation_multiplier"],
+        parameter_value=1.25,
     )
     candidate = SimpleNamespace(candidate_id="phase5_owner_atom", atom=atom)
     manifest = copy.deepcopy(bundle.observation_manifest)
     for row in manifest["routes"]:
         row["target_contract"] = {"contract_id": "phase5.nonexistent.contract"}
     broken = owner.replace_intervention_substrate_bundle(
-        bundle, update={"observation_manifest": manifest},
+        bundle,
+        update={"observation_manifest": manifest},
     )
     monkeypatch.setattr(dg, "load_l6_intervention_substrate", lambda root: broken)
     result = dg.rank_shadow_candidates_with_graph_causal_surrogate(
-        [candidate], design_problem=_test_design_problem(), repo_root=REPO_ROOT,
+        [candidate],
+        design_problem=_test_design_problem(),
+        repo_root=REPO_ROOT,
     )
     assert result[0].trust_level == "proposal_only"
     assert result[0].promotion_allowed is False
@@ -3769,13 +3751,16 @@ def test_candidate_proposal_link_requires_matching_revalidated_l6_context_bundle
         mismatched_profile.context_inputs.intervention_substrate.content_hash
         != context_bundle.content_hash
     )
-    assert dg.build_candidate_scenario_proposal_candidate(
-        proposal,
-        problem=problem,
-        profile=mismatched_profile,
-        context=context,
-        repo_root=tmp_path,
-    ) is None
+    assert (
+        dg.build_candidate_scenario_proposal_candidate(
+            proposal,
+            problem=problem,
+            profile=mismatched_profile,
+            context=context,
+            repo_root=tmp_path,
+        )
+        is None
+    )
     assert link_inputs == []
 
     forged_same_claim = context_bundle.model_copy(
@@ -3788,13 +3773,16 @@ def test_candidate_proposal_link_requires_matching_revalidated_l6_context_bundle
     )
     assert forged_same_claim.content_hash == context_bundle.content_hash
     forged_profile = profile_for(forged_same_claim, bypass_nested_validation=True)
-    assert dg.build_candidate_scenario_proposal_candidate(
-        proposal,
-        problem=problem,
-        profile=forged_profile,
-        context=context,
-        repo_root=tmp_path,
-    ) is None
+    assert (
+        dg.build_candidate_scenario_proposal_candidate(
+            proposal,
+            problem=problem,
+            profile=forged_profile,
+            context=context,
+            repo_root=tmp_path,
+        )
+        is None
+    )
     assert link_inputs == []
 
     matching_profile = profile_for(context_bundle)
@@ -3806,13 +3794,16 @@ def test_candidate_proposal_link_requires_matching_revalidated_l6_context_bundle
         "s8_blocked",
         "n9_not_admitted",
     }.issubset(matching_profile.limitations)
-    assert dg.build_candidate_scenario_proposal_candidate(
-        proposal,
-        problem=problem,
-        profile=matching_profile,
-        context=context,
-        repo_root=tmp_path,
-    ) is None
+    assert (
+        dg.build_candidate_scenario_proposal_candidate(
+            proposal,
+            problem=problem,
+            profile=matching_profile,
+            context=context,
+            repo_root=tmp_path,
+        )
+        is None
+    )
     assert len(link_inputs) == 1
     assert link_inputs[0].content_hash == context_bundle.content_hash
 
@@ -3943,9 +3934,7 @@ def test_formalizer_path_mismatched_record_is_degraded() -> None:
     assert (
         trinity_bundle_formalizer_generator_path(
             returned,
-            recorded_calls=(
-                _formalizer_call(parsed_json=recorded.model_dump(mode="json")),
-            ),
+            recorded_calls=(_formalizer_call(parsed_json=recorded.model_dump(mode="json")),),
         )
         == "degraded_mock_fallback"
     )

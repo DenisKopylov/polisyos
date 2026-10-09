@@ -279,7 +279,7 @@ def load_interaction_complex(
     ref: InteractionComplexRef,
 ) -> InteractionComplex:
     """Load interaction complex."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return InteractionComplex.model_validate(payload)
 
 
@@ -309,7 +309,7 @@ def load_interference_certificate(
     ref: InterferenceCertificateRef,
 ) -> InterferenceCertificate:
     """Load interference certificate."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return InterferenceCertificate.model_validate(payload)
 
 
@@ -339,7 +339,7 @@ def load_maup_invariance_certificate(
     ref: MAUPInvarianceCertificateRef,
 ) -> MAUPInvarianceCertificate:
     """Load a persisted MAUP invariance certificate."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return MAUPInvarianceCertificate.model_validate(payload)
 
 
@@ -369,7 +369,7 @@ def load_spatial_hodge_diagnostics(
     ref: SpatialHodgeDiagnosticsRef,
 ) -> SpatialHodgeDiagnostics:
     """Load persisted multiscale spatial Hodge diagnostics."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return SpatialHodgeDiagnostics.model_validate(payload)
 
 

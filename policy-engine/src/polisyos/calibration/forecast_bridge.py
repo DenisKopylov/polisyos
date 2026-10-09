@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import hashlib
 from collections.abc import Mapping, Sequence
+from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from typing import Literal
 
@@ -28,6 +29,7 @@ from pydantic import (
     model_validator,
 )
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.ir.analytics.backtest import BacktestReport, load_backtest_report
 from polisyos.ir.artifacts import (
     ArtifactID,
@@ -182,6 +184,7 @@ _PERSISTENCE_ALLOWED_LIMITATIONS = frozenset(
         "nominal_confidence_only",
     }
 )
+
 
 class EvidenceArtifactRef(BaseModel):
     """Typed CAS reference with the contract needed to verify provenance."""
@@ -430,19 +433,14 @@ def produce_empirical_calibration_evidence(
         issues.extend(binding_issues)
         issues.extend(provenance_issues)
 
-    pass_rate = (
-        recomputed_numerator / recomputed_denominator
-        if recomputed_denominator
-        else None
-    )
+    pass_rate = recomputed_numerator / recomputed_denominator if recomputed_denominator else None
     if context is not None and pass_rate is not None and pass_rate < context.calibration_threshold:
         issues.append("calibration_floor_not_met")
 
     failure_codes = _dedupe(issues)
     context_bound = context is not None and not binding_issues and not provenance_issues
-    empirical_observations_available = (
-        recomputed_denominator > 0
-        and not any(issue in _OBSERVATION_BLOCKERS for issue in failure_codes)
+    empirical_observations_available = recomputed_denominator > 0 and not any(
+        issue in _OBSERVATION_BLOCKERS for issue in failure_codes
     )
     floor_passed = bool(
         context_bound
@@ -462,12 +460,8 @@ def produce_empirical_calibration_evidence(
         method_ref=context.method_ref if context else None,
         method_version=context.method_version if context else None,
         rule_version_ref=context.rule_version_ref if context else None,
-        authority_scope=(
-            context.authority_scope if context else PREDICTIVE_AUTHORITY_SCOPE
-        ),
-        may_not_use_for=(
-            context.may_not_use_for if context else PREDICTIVE_AUTHORITY_DENIALS
-        ),
+        authority_scope=(context.authority_scope if context else PREDICTIVE_AUTHORITY_SCOPE),
+        may_not_use_for=(context.may_not_use_for if context else PREDICTIVE_AUTHORITY_DENIALS),
         evidence_origin=context.evidence_origin if context else None,
         calibration_threshold=context.calibration_threshold if context else None,
         nominal_confidence_level=nominal_confidence_level,
@@ -488,9 +482,7 @@ def produce_empirical_calibration_evidence(
         calibration_window_start=context.calibration_window_start if context else None,
         calibration_window_end=context.calibration_window_end if context else None,
         evidence_kind=(
-            "observed_interval_comparisons"
-            if recomputed_denominator
-            else "unavailable"
+            "observed_interval_comparisons" if recomputed_denominator else "unavailable"
         ),
         empirical_observations_available=empirical_observations_available,
         context_bound=context_bound,
@@ -514,9 +506,7 @@ def persist_empirical_calibration_evidence(
     """Persist neutral evidence and return its typed CAS reference."""
 
     if evidence.schema_version != EVIDENCE_SCHEMA_VERSION:
-        raise ValueError(
-            "legacy empirical calibration evidence must not be repersisted"
-        )
+        raise ValueError("legacy empirical calibration evidence must not be repersisted")
     expected = _reproduce_evidence(store, evidence)
     if expected.schema_version != EVIDENCE_SCHEMA_VERSION:
         raise ValueError("new empirical calibration evidence must use schema 1.1")
@@ -531,7 +521,7 @@ def persist_empirical_calibration_evidence(
         inputs.append({"artifact_id": str(ref.artifact_id), "role": role})
 
     payload = put_json_artifact(
-        store,
+        _ensure_ir_artifact_store(store),
         expected.model_dump(mode="json"),
         kind=EVIDENCE_KIND,
         schema_name=EVIDENCE_SCHEMA_NAME,
@@ -549,7 +539,7 @@ def load_empirical_calibration_evidence(
     """Validate a typed evidence artifact's manifest and read its payload."""
 
     validated_ref = EmpiricalCalibrationEvidenceRef.model_validate(evidence_ref)
-    manifest_payload = _as_mapping(store.get_manifest(validated_ref.artifact_id))
+    manifest_payload = _as_mapping(_ensure_ir_artifact_store(store).get_manifest(validated_ref))
     schema_payload = _field(manifest_payload, "schema")
     if schema_payload is None:
         schema_payload = _field(manifest_payload, "artifact_schema")
@@ -571,7 +561,7 @@ def load_empirical_calibration_evidence(
         expected_schema_version=evidence_schema_version,
     )
     evidence = EmpiricalCalibrationEvidence.model_validate(
-        get_json_artifact(store, validated_ref.artifact_id)
+        get_json_artifact(_ensure_ir_artifact_store(store), validated_ref)
     )
     if evidence.schema_version != evidence_schema_version:
         raise ValueError("empirical evidence payload schema version mismatch")
@@ -602,29 +592,22 @@ def _validate_evidence_input_edges(
 
     expected = [
         (str(evidence.report_ref.artifact_id), "backtest_report"),
-        *(
-            (str(ref.artifact_id), role)
-            for role, ref in _context_refs(evidence)
-        ),
+        *((str(ref.artifact_id), role) for role, ref in _context_refs(evidence)),
     ]
-    actual = _manifest_input_edges(store, evidence_ref.artifact_id)
+    actual = _manifest_input_edges(store, evidence_ref)
     if sorted(actual) != sorted(expected):
-        raise ValueError(
-            "empirical evidence manifest input edge/role binding mismatch"
-        )
+        raise ValueError("empirical evidence manifest input edge/role binding mismatch")
 
 
 def _manifest_input_edges(
     store: ArtifactStore,
-    artifact_id: ArtifactID,
+    selector: ArtifactRefModel | ArtifactID,
 ) -> tuple[tuple[str, str], ...]:
     """Decode an artifact manifest's input edges without trusting its shape."""
 
-    manifest = _as_mapping(store.get_manifest(artifact_id))
+    manifest = _as_mapping(_ensure_ir_artifact_store(store).get_manifest(selector))
     raw_inputs = _field(manifest, "inputs")
-    if not isinstance(raw_inputs, Sequence) or isinstance(
-        raw_inputs, (str, bytes, bytearray)
-    ):
+    if not isinstance(raw_inputs, Sequence) or isinstance(raw_inputs, (str, bytes, bytearray)):
         raise ValueError("artifact manifest inputs are missing or malformed")
     edges: list[tuple[str, str]] = []
     for raw_input in raw_inputs:
@@ -659,9 +642,7 @@ def _reproduce_evidence(
         expected_payload["schema_version"] = LEGACY_EVIDENCE_SCHEMA_VERSION
         expected_payload["nominal_confidence_level"] = None
     if expected_payload != evidence.model_dump(mode="json"):
-        raise ValueError(
-            "empirical evidence payload is not reproducible from its report"
-        )
+        raise ValueError("empirical evidence payload is not reproducible from its report")
     return expected
 
 
@@ -725,9 +706,7 @@ def _context_from_evidence(
 
     _report_ref, report = _load_verified_report(store, evidence.report_ref)
     if not report.model_spec_ref or not report.policy_spec_ref:
-        raise ValueError(
-            "persisted evidence context lacks a complete report model/policy pair"
-        )
+        raise ValueError("persisted evidence context lacks a complete report model/policy pair")
     return EmpiricalCalibrationContext.model_validate(
         {
             "model_spec_ref": report.model_spec_ref,
@@ -773,7 +752,7 @@ def _load_verified_report(
         expected_schema_name=REPORT_SCHEMA_NAME,
         expected_schema_version=REPORT_SCHEMA_VERSION,
     )
-    report = load_backtest_report(store, validated_ref)
+    report = load_backtest_report(_ensure_ir_artifact_store(store), validated_ref)
     if report.schema_version != REPORT_SCHEMA_VERSION:
         raise ValueError("backtest report payload schema version mismatch")
     return validated_ref, report
@@ -792,7 +771,8 @@ def _validate_json_artifact(
 
     if ref.kind != expected_kind or ref.media_type != expected_media_type:
         raise ValueError("artifact reference kind/media type binding mismatch")
-    manifest = store.get_manifest(ref.artifact_id)
+    manifest_selector = _store_selector_for_ref(ref)
+    manifest = _ensure_ir_artifact_store(store).get_manifest(manifest_selector)
     manifest_payload = _as_mapping(manifest)
     if str(_field(manifest_payload, "artifact_id")) != str(ref.artifact_id):
         raise ValueError("artifact manifest identity does not match reference")
@@ -811,7 +791,11 @@ def _validate_json_artifact(
     ):
         raise ValueError("artifact manifest schema binding mismatch")
 
-    data = store.get_bytes(ref.artifact_id)
+    # The manifest selector carries a selected profile for the normal
+    # ArtifactRefModel path and an explicit profileless projection for the
+    # legacy EvidenceArtifactRef path. Reuse it for the payload read so the
+    # two reads share the same validated selector boundary.
+    data = _ensure_ir_artifact_store(store).get_bytes(manifest_selector)
     actual_sha = hashlib.sha256(data).hexdigest()
     expected_sha = str(ref.artifact_id).split(":", 1)[1]
     integrity = _as_mapping(_field(manifest_payload, "integrity"))
@@ -821,6 +805,23 @@ def _validate_json_artifact(
     if byte_size is not None and int(byte_size) != len(data):
         raise ValueError("artifact manifest byte size mismatch")
     return data
+
+
+def _store_selector_for_ref(
+    ref: ArtifactRefModel | EvidenceArtifactRef,
+) -> ArtifactRefModel:
+    """Project the profileless legacy evidence wrapper at its explicit boundary."""
+
+    if isinstance(ref, EvidenceArtifactRef):
+        # This wrapper has no manifest-profile field. Project only its explicit
+        # store-selector contract here; never teach the generic Core/IR adapter
+        # to discard the wrapper's identity fields.
+        return ArtifactRefModel(
+            artifact_id=ref.artifact_id,
+            kind=ref.kind,
+            media_type=ref.media_type,
+        )
+    return ref
 
 
 def _context_reference_issues(
@@ -849,9 +850,7 @@ def _context_reference_issues(
         (str(ref.artifact_id), role) for role, ref in _context_refs(context)
     )
     actual_context_edges = tuple(
-        (artifact_id, role)
-        for artifact_id, role in input_edges
-        if role in _REFERENCE_INPUT_ROLES
+        (artifact_id, role) for artifact_id, role in input_edges if role in _REFERENCE_INPUT_ROLES
     )
     if sorted(actual_context_edges) != sorted(expected_context_edges):
         issues.append("report_context_input_edges_mismatch")
@@ -866,9 +865,7 @@ def _context_reference_issues(
         try:
             payload = _validate_and_load_reference(store, ref, role=role)
         except (FileNotFoundError, OSError, TypeError, ValueError):
-            issues.extend(
-                ("provenance_ref_unresolved", f"provenance_ref_invalid:{role}")
-            )
+            issues.extend(("provenance_ref_unresolved", f"provenance_ref_invalid:{role}"))
             continue
         payloads.setdefault(role, []).append(payload)
 
@@ -897,9 +894,7 @@ def _context_reference_issues(
             context,
         )
     )
-    return _dedupe(issues), {
-        role: tuple(values) for role, values in payloads.items()
-    }
+    return _dedupe(issues), {role: tuple(values) for role, values in payloads.items()}
 
 
 def _report_input_edges(
@@ -914,13 +909,11 @@ def _report_input_edges(
     """
 
     try:
-        manifest = _as_mapping(store.get_manifest(report_ref.artifact_id))
+        manifest = _as_mapping(_ensure_ir_artifact_store(store).get_manifest(report_ref))
     except (FileNotFoundError, OSError, TypeError, ValueError):
         return ()
     raw_inputs = _field(manifest, "inputs")
-    if not isinstance(raw_inputs, Sequence) or isinstance(
-        raw_inputs, (str, bytes, bytearray)
-    ):
+    if not isinstance(raw_inputs, Sequence) or isinstance(raw_inputs, (str, bytes, bytearray)):
         return ()
     relations: list[tuple[str, str]] = []
     for raw_input in raw_inputs:
@@ -990,9 +983,7 @@ def _validate_and_load_reference(
         raise ValueError("evidence reference role mismatch")
     _validate_reference_identity_contract(ref, role)
     try:
-        expected_kind, expected_schema_name, expected_schema_version = (
-            REFERENCE_PROFILES[role]
-        )
+        expected_kind, expected_schema_name, expected_schema_version = REFERENCE_PROFILES[role]
     except KeyError as exc:
         raise ValueError("unsupported evidence reference role") from exc
     if ref.media_type != "application/json":
@@ -1011,7 +1002,7 @@ def _validate_and_load_reference(
         or ref.schema_version != expected_schema_version
     ):
         raise ValueError("evidence reference profile mismatch")
-    return get_json_artifact(store, ref.artifact_id)
+    return get_json_artifact(_ensure_ir_artifact_store(store), _store_selector_for_ref(ref))
 
 
 def _nominal_confidence_level(
@@ -1131,9 +1122,7 @@ def _recompute_and_reconcile(
             issues.append("persisted_projection_incomplete")
     if report.overall_coverage_probability is not None:
         expected_overall = (
-            recomputed_numerator / recomputed_denominator
-            if recomputed_denominator
-            else None
+            recomputed_numerator / recomputed_denominator if recomputed_denominator else None
         )
         if expected_overall is None or report.overall_coverage_probability != expected_overall:
             issues.append("persisted_overall_coverage_mismatch")
@@ -1260,6 +1249,55 @@ def _binding_issues(
             expected = expected_values[field_name.removesuffix("s")]
             if len(values) != 1 or values[0] != expected:
                 issues.append(f"mixed_{field_name}")
+    issues.extend(_report_temporal_role_issues(report, context))
+    return _dedupe(issues)
+
+
+def _report_temporal_role_issues(
+    report: BacktestReport,
+    context: EmpiricalCalibrationContext,
+) -> tuple[str, ...]:
+    """Bind caller time roles to any temporal roles persisted by the report owner.
+
+    The context validator establishes only that its six timestamps are
+    distinct and ordered.  When a persisted owner report already declares the
+    same roles, the bridge also requires each context timestamp to equal the
+    content-bound report value; an independently well-ordered time tuple must
+    not silently rebind the report to another period.
+    """
+
+    raw_roles = report.metadata.get("temporal_roles")
+    if raw_roles is None:
+        return ("report_temporal_roles_unresolved",)
+    if not isinstance(raw_roles, Mapping):
+        return ("report_temporal_roles_invalid",)
+
+    field_names = (
+        "prediction_time",
+        "observation_time",
+        "policy_effective_time",
+        "data_valid_time",
+        "calibration_window_start",
+        "calibration_window_end",
+    )
+    issues: list[str] = []
+    for field_name in field_names:
+        raw_value = raw_roles.get(field_name)
+        if isinstance(raw_value, datetime):
+            report_value = raw_value
+        elif isinstance(raw_value, str) and raw_value.strip():
+            try:
+                report_value = datetime.fromisoformat(raw_value.strip())
+            except ValueError:
+                issues.append("report_temporal_roles_invalid")
+                continue
+        else:
+            issues.append("report_temporal_roles_unresolved")
+            continue
+        if report_value.tzinfo is None or report_value.utcoffset() is None:
+            issues.append("report_temporal_roles_invalid")
+        elif report_value != getattr(context, field_name):
+            issues.append("temporal_roles_report_mismatch")
     return _dedupe(issues)
 
 
@@ -1305,9 +1343,7 @@ def _collect_scope_values(value: object) -> dict[str, list[str]]:
                 target = str(key)
                 if target in collected or target in plural:
                     canonical = (
-                        collected[target]
-                        if target in collected
-                        else collected[plural[target]]
+                        collected[target] if target in collected else collected[plural[target]]
                     )
                     canonical.extend(_as_text_sequence(child))
                 else:
@@ -1355,9 +1391,7 @@ def _validate_reference_identity_contract(
     if expected_path is None:
         raise ValueError("unsupported evidence reference role")
     if ref.identity_path != expected_path:
-        raise ValueError(
-            f"evidence reference identity path must be {expected_path!r} for {role}"
-        )
+        raise ValueError(f"evidence reference identity path must be {expected_path!r} for {role}")
     normalized = ref.identity_value.strip().casefold()
     if (
         normalized in _TRIVIAL_IDENTITY_VALUES
@@ -1472,8 +1506,7 @@ def _payload_contains_forbidden_marker(payload: object) -> bool:
     markers = ("synthetic", "fixture", "self-attest", "self_attest", "self attest")
     if isinstance(payload, Mapping):
         return any(
-            _payload_contains_forbidden_marker(key)
-            or _payload_contains_forbidden_marker(value)
+            _payload_contains_forbidden_marker(key) or _payload_contains_forbidden_marker(value)
             for key, value in payload.items()
         )
     if isinstance(payload, Sequence) and not isinstance(payload, (str, bytes, bytearray)):

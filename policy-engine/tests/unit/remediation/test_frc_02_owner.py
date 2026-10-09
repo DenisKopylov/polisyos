@@ -18,6 +18,7 @@ from polisyos.calibration.forecast_bridge import (
     produce_empirical_calibration_evidence,
 )
 from polisyos.core.artifacts import FileSystemCAS, PutOptions
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.ir.analytics.backtest import load_backtest_report
@@ -178,15 +179,19 @@ def test_real_ets_owner_persists_content_bound_predictive_evidence(tmp_path: Pat
     assert result.calibration_diagnostics_ref.kind == "ir.calibration_diagnostics_report"
     assert result.backtest_report_ref.kind == "ir.backtest_report"
 
-    bundle = load_forecasting_uncertainty_bundle(store, result.uncertainty_bundle_ref)
+    bundle = load_forecasting_uncertainty_bundle(
+        _ensure_ir_artifact_store(store), result.uncertainty_bundle_ref
+    )
     assert bundle.target_id == result.target_metric
     assert bundle.coverage_diagnostic.pit_summary_ref is not None
     pit_payload = get_json_artifact(
-        store,
+        _ensure_ir_artifact_store(store),
         bundle.coverage_diagnostic.pit_summary_ref.artifact_id,
     )
     assert pit_payload["target_id"] == result.target_metric
-    diagnostics = get_json_artifact(store, result.calibration_diagnostics_ref.artifact_id)
+    diagnostics = get_json_artifact(
+        _ensure_ir_artifact_store(store), result.calibration_diagnostics_ref.artifact_id
+    )
     assert diagnostics["metadata"]["coverage_numerator"] == result.numerator
     assert diagnostics["metadata"]["coverage_denominator"] == result.denominator
     assert diagnostics["metrics"]["n_obs"] == result.denominator
@@ -199,7 +204,7 @@ def test_real_ets_owner_persists_content_bound_predictive_evidence(tmp_path: Pat
     assert interval_bins[0]["mean_observed"] == pytest.approx(result.empirical_coverage)
     assert interval_bins[0]["mean_predicted"] == pytest.approx(result.nominal_coverage)
 
-    report = load_backtest_report(store, result.backtest_report_ref)
+    report = load_backtest_report(_ensure_ir_artifact_store(store), result.backtest_report_ref)
     assert report.overall_coverage_probability == pytest.approx(result.empirical_coverage)
     assert report.metadata["authority_scope"] == "predictive_only"
     assert report.metadata["calibration_diagnostics_ref"]["artifact_id"] == str(
@@ -242,7 +247,7 @@ def test_real_ets_owner_persists_cas_bound_pair_in_report_metadata_and_manifest(
     assert result.authority_scope == "predictive_only"
     assert result.bridge_status == "bridge_pending"
 
-    report = load_backtest_report(store, result.backtest_report_ref)
+    report = load_backtest_report(_ensure_ir_artifact_store(store), result.backtest_report_ref)
     assert report.model_spec_ref == model_id
     assert report.policy_spec_ref == policy_id
     assert report.metadata["model_spec_ref"] == model_id
@@ -338,8 +343,12 @@ def test_same_ets_shape_uses_held_out_observations_for_suitability(tmp_path: Pat
         )
     )
 
-    in_bundle = load_forecasting_uncertainty_bundle(store, in_profile.uncertainty_bundle_ref)
-    out_bundle = load_forecasting_uncertainty_bundle(store, out_of_profile.uncertainty_bundle_ref)
+    in_bundle = load_forecasting_uncertainty_bundle(
+        _ensure_ir_artifact_store(store), in_profile.uncertainty_bundle_ref
+    )
+    out_bundle = load_forecasting_uncertainty_bundle(
+        _ensure_ir_artifact_store(store), out_of_profile.uncertainty_bundle_ref
+    )
     assert in_bundle.horizon_policy.gate_eligible is True
     assert out_bundle.horizon_policy.gate_eligible is True
     assert in_profile.method_fqn == out_of_profile.method_fqn
@@ -372,7 +381,7 @@ def test_real_ets_report_carries_method_rule_binding_without_inventing_bridge_ev
         )
     )
 
-    report = load_backtest_report(store, result.backtest_report_ref)
+    report = load_backtest_report(_ensure_ir_artifact_store(store), result.backtest_report_ref)
     for metadata in (report.metadata, *(scenario.metadata for scenario in report.scenarios)):
         assert metadata["method_ref"] == "forecasting.univariate.exponential_smoothing"
         assert metadata["method_version"] == "1.0.0"

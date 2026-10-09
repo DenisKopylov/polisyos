@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -15,8 +16,6 @@ from polisyos.ir.analytics.metric_validation_report import (
     SignificanceRecord,
     persist_metric_validation_report,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_METRIC_VALIDATION_REPORT_REF,
@@ -25,6 +24,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_REGISTRY_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def test_build_decision_packet_projects_metric_validation_comparisons(tmp_path) -> None:
@@ -69,7 +70,7 @@ def test_build_decision_packet_projects_metric_validation_comparisons(tmp_path) 
         canon_spec=CanonSpec(forbid_floats=False),
     )
     metric_validation_ref = persist_metric_validation_report(
-        store,
+        _ensure_ir_artifact_store(store),
         MetricValidationReport(
             report_id="mvr_packet_small",
             dataset_id="holdout_v1",

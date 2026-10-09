@@ -23,6 +23,8 @@ Package facade `polisyos.ir.analytics` намеренно уже, чем пол�
 - [`transportability.py`](./transportability.py) — перенос между environments и gap diagnostics.
 - [`privacy_transportability.py`](./privacy_transportability.py) — privacy-aware слой над transportability/recoverability для DP-distorted multi-domain releases.
 - [`uncertainty.py`](./uncertainty.py) — uncertainty algebra, interval semantics и propagation contracts.
+- [`posterior_summary.py`](./posterior_summary.py) — versioned posterior mean/median, equal-tail
+  bounds, exact source draw rows, and CAS persistence for candidate summaries.
 - [`strategic.py`](./strategic.py) — strategic-response SCM, equilibria и bundle outputs.
 - [`ecosystem_bridges.py`](./ecosystem_bridges.py) — bridges в DoWhy, EconML, CausalNex, pgmpy и смежные ecosystems.
 - Для upstream/downstream контекста откройте [`../observation/README.md`](../observation/README.md) и [`../artifacts/README.md`](../artifacts/README.md).
@@ -54,6 +56,32 @@ explicitly when replaying that profile. Reading or rewriting them does not
 create selected worker provenance. Old 1.0 readers are not declared compatible
 with a new 1.1 producer.
 
+## Twin result audit persistence
+
+When `CausalEngine.run()` produces an actual `TwinNetworkResult` and has an
+artifact store plus its typed `StructuralCausalModelSpec`, the audit path persists
+the result through the IR artifact boundary and adds an optional
+`EvidenceBundle.twin_network_result_ref`. Its lineage names the source view when
+the SCM retains source-bound training rows, the persisted query/estimand AST, and
+the persisted SCM. Each link retains the selected manifest profile. The persisted
+proof trace carries the same typed result ref, so a fresh reader can follow the
+proof bundle to the trace and then load the result through
+`load_twin_network_result()`.
+
+The persisted `ir.causal_evidence_bundle` schema keeps reference-free payloads
+at version 1.0 and omits the new key entirely, preserving the strict legacy
+shape. A bundle with `twin_network_result_ref` is written as schema 1.1. The
+current loader accepts both versions through the selected manifest view, while
+a 1.0 payload that contains the 1.1 field is rejected. Existing 1.0 artifacts
+need no migration; strict 1.0 readers reject 1.1 at the schema-version
+boundary and must be upgraded before consuming Twin-linked traces.
+
+The field remains optional in the domain model, so historical EvidenceBundle
+payloads still load with `None`, and runs without a typed twin result or typed
+SCM keep the existing audit behavior. This link records the output and its
+persisted inputs; it does not establish source admission, model validity,
+calibration, or causal authority.
+
 ## Causal result interval semantics
 
 `CausalQueryResult` schema 1.2 and `TwinNetworkResult` schema 1.1 distinguish
@@ -76,6 +104,18 @@ The public types `CausalResultKind` and `CausalEstimatorInterval` are available
 from both `polisyos.ir` and `polisyos.ir.analytics`.
 See [structural causal models](../../../../docs/reference/foundry/structural-causal-models.md)
 for selected backend, historical replay and refit-bootstrap limitations.
+
+## Posterior summary profile 1.1
+
+`posterior_summary.py` defines a separate candidate artifact for source-reported Bayesian draws.
+It keeps the selected posterior mean or median distinct from the equal-tail interval, retains the
+exact ordered draw payload, and content-binds the payload to its source reference. The explicit HMC
+adapter persists this summary against selected `scientist.method_evidence`; a fresh reader resolves
+the selected manifest profile and recomputes summary fields from the source draw bytes. It reports
+weights as not supplied, parameter units as not established, and `gate_eligible=False`. This does
+not replace the legacy `summarize_bayesian_calibration_posterior()` path, alter
+`UncertaintyEnvelope`, or authorize calibration, causal, or policy conclusions. Default
+orchestration/dispatch is not wired to the new candidate profile.
 
 ## Depends on / depended on by
 

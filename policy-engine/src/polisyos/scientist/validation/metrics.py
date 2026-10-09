@@ -20,6 +20,7 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.foundry import (
     MetricObservationBundle,
@@ -118,7 +119,7 @@ def persist_metric_observation_bundle(
     """Persist a metric observation bundle and return its typed reference."""
 
     ref = put_json_artifact(
-        store,
+        _ensure_ir_artifact_store(store),
         bundle.model_dump(mode="json"),
         kind="foundry.metric_observation_bundle",
         schema_name=schema_name,
@@ -135,7 +136,7 @@ def load_metric_observation_bundle(
 ) -> MetricObservationBundle:
     """Load a persisted metric observation bundle from CAS."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(_ensure_ir_artifact_store(store), ref)
     return MetricObservationBundle.model_validate(payload)
 
 

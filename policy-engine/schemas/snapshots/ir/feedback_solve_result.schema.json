@@ -17,6 +17,19 @@
           "title": "Kind",
           "type": "string"
         },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
         "media_type": {
           "default": "application/json",
           "title": "Media Type",
@@ -40,6 +53,19 @@
           "default": "foundry.feedback_convergence_certificate",
           "title": "Kind",
           "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
         },
         "media_type": {
           "default": "application/json",
@@ -102,6 +128,19 @@
           "default": "foundry.feedback_jacobian_diagnostics",
           "title": "Kind",
           "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
         },
         "media_type": {
           "default": "application/json",
@@ -206,6 +245,19 @@
           "title": "Kind",
           "type": "string"
         },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
         "media_type": {
           "default": "application/json",
           "title": "Media Type",
@@ -229,6 +281,19 @@
           "default": "foundry.parameter_override_bundle",
           "title": "Kind",
           "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
         },
         "media_type": {
           "default": "application/json",

@@ -21,9 +21,7 @@ from polisyos.scientist.governance.human_review.models import (
 )
 
 HUMAN_REVIEW_QUEUE_KIND = "scientist.human_review_queue"
-HUMAN_REVIEW_QUEUE_SCHEMA_NAME = (
-    "polisyos.scientist.governance.human_review.HumanReviewQueueState"
-)
+HUMAN_REVIEW_QUEUE_SCHEMA_NAME = "polisyos.scientist.governance.human_review.HumanReviewQueueState"
 HUMAN_REVIEW_QUEUE_SCHEMA_VERSION = "1.0"
 
 __all__ = [
@@ -71,9 +69,7 @@ def enqueue_review_packet(
         assignments=list(packet.assignments),
     )
     records = [item for item in state.records if item.packet_id != packet.packet_id]
-    return state.model_copy(
-        update={"records": [*records, record], "updated_at": datetime.now(UTC)}
-    )
+    return state.model_copy(update={"records": [*records, record], "updated_at": datetime.now(UTC)})
 
 
 def assign_review(
@@ -114,7 +110,9 @@ def assign_review(
         )
     if not matched:
         raise KeyError(f"review packet is not queued: {packet_id}")
-    return state.model_copy(update={"records": records, "updated_at": datetime.now(UTC)}), assignment
+    return state.model_copy(
+        update={"records": records, "updated_at": datetime.now(UTC)}
+    ), assignment
 
 
 def persist_review_queue(store: FileSystemCAS, state: HumanReviewQueueState) -> ArtifactRef:
@@ -142,9 +140,7 @@ def persist_review_queue(store: FileSystemCAS, state: HumanReviewQueueState) -> 
 def load_review_queue(store: FileSystemCAS, ref: ArtifactRef) -> HumanReviewQueueState:
     """Load a persisted human-review queue snapshot."""
 
-    return HumanReviewQueueState.model_validate(
-        from_canonical_bytes(store.get_bytes(ref.artifact_id))
-    )
+    return HumanReviewQueueState.model_validate(from_canonical_bytes(store.get_bytes(ref)))
 
 
 def _assignment_id(*, packet_id: str, reviewer_id: str, role: ReviewerRole) -> str:

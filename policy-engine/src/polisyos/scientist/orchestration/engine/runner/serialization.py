@@ -59,6 +59,7 @@ _HASH_LENGTH = 32  # SHA-256 digest length in bytes
 _WIRE_MAX_DEPTH = 128
 _STATE_WIRE_SCHEMA = "polisyos.scientist.state_wire.v2"
 _OUTCOME_WIRE_SCHEMA = "polisyos.scientist.outcome_wire.v2"
+_TIMEOUT_CONTEXT_WIRE_SCHEMA = "polisyos.scientist.timeout_context.v1"
 
 
 _WIRE_TYPE_KEY = "_type"
@@ -835,3 +836,128 @@ def serialize_context_meta(
     if span_id is not None:
         meta["span_id"] = span_id
     return meta
+
+
+def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, Any]:
+    """Encode the closed local context profile admitted by spawn timeout workers.
+
+    The timeout worker must not silently replace a store, run, or optional port.
+    This wire admits only the plain local ``ExecutionContext`` backed by a
+    filesystem CAS and a JSONL ``RunContext``; richer contexts require an
+    explicit typed transport before they can use this process boundary.
+    """
+    import logging
+    from pathlib import Path
+
+    from polisyos.core.artifacts.signing import SigningConfig
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.observability import get_metrics, get_tracer, is_hpc_observability_enabled
+    from polisyos.core.run.context import RunContext
+    from polisyos.core.run.manifest import RunManifest
+    from polisyos.core.security.tenant_context import (
+        get_current_cell_id,
+        get_current_tenant_id_or_none,
+    )
+    from polisyos.core.trace.sink import JsonlTraceSink
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+
+    if type(ctx) is not ExecutionContext:
+        raise ValueError("timeout_worker_unsupported_execution_context")
+    store = ctx.store
+    run = ctx.run
+    if type(store) is not FileSystemCAS:
+        raise ValueError("timeout_worker_filesystem_cas_required")
+    if type(run) is not RunContext:
+        raise ValueError("timeout_worker_run_context_required")
+    if type(run.run_manifest) is not RunManifest:
+        raise ValueError("timeout_worker_run_manifest_required")
+    if type(run.trace) is not JsonlTraceSink or run._audit_sink is not None:
+        raise ValueError("timeout_worker_jsonl_trace_profile_required")
+    if run.access_scope is not None:
+        raise ValueError("timeout_worker_access_scope_not_serializable")
+    if run.store is not store:
+        raise ValueError("timeout_worker_run_store_mismatch")
+    if not isinstance(ctx.logger, logging.Logger):
+        raise ValueError("timeout_worker_logger_profile_unsupported")
+    if type(ctx.depth) is not int or ctx.depth < 0:
+        raise ValueError("timeout_worker_depth_invalid")
+
+    optional_values = (
+        ctx.tracer,
+        ctx.metrics,
+        ctx.audit,
+        ctx.fabric,
+        ctx.foundry,
+        ctx.scholar,
+        ctx.lex,
+        ctx.memory,
+        ctx.eval_safety_execution_context,
+        ctx.eval_safety_verifier,
+        ctx.epoch_certificate_issuance_owner,
+        ctx.prepared_skg_read,
+    )
+    if any(value is not None for value in optional_values):
+        raise ValueError("timeout_worker_optional_context_port_unsupported")
+    hpc_observability_enabled = is_hpc_observability_enabled()
+    if store._hpc_enabled != hpc_observability_enabled:
+        raise ValueError("timeout_worker_observability_setting_mismatch")
+    if hpc_observability_enabled and (
+        store._metrics is not get_metrics() or store._tracer is not get_tracer()
+    ):
+        raise ValueError("timeout_worker_custom_store_observability_unsupported")
+    if not hpc_observability_enabled and (store._metrics is not None or store._tracer is not None):
+        raise ValueError("timeout_worker_custom_store_observability_unsupported")
+    if not isinstance(store._signing_config, SigningConfig):
+        raise ValueError("timeout_worker_signing_config_required")
+
+    root = store.root.resolve(strict=True)
+    trace_path = run.trace_path
+    if not isinstance(trace_path, Path) or not trace_path.is_absolute():
+        raise ValueError("timeout_worker_trace_path_required")
+    trace_path = trace_path.resolve(strict=False)
+    try:
+        trace_path.relative_to(root)
+    except ValueError as exc:
+        raise ValueError("timeout_worker_trace_path_outside_store") from exc
+    if run.run_manifest.run_id != expected_run_id:
+        raise ValueError("timeout_worker_run_id_mismatch")
+    if run.run_manifest.tenant_id != run.tenant_id or run.run_manifest.cell_id != run.cell_id:
+        raise ValueError("timeout_worker_manifest_owner_mismatch")
+    ambient_tenant = get_current_tenant_id_or_none()
+    ambient_cell = get_current_cell_id()
+    for owner_tenant, owner_cell in (
+        (store._tenant_id, store._cell_id),
+        (run.tenant_id, run.cell_id),
+    ):
+        if owner_tenant is not None and (
+            ambient_tenant != owner_tenant
+            or (owner_cell is not None and ambient_cell != owner_cell)
+        ):
+            raise ValueError("timeout_worker_ambient_owner_mismatch")
+    if not isinstance(ambient_tenant, str) or not ambient_tenant.strip():
+        raise ValueError("timeout_worker_ambient_tenant_required")
+
+    return {
+        "schema": _TIMEOUT_CONTEXT_WIRE_SCHEMA,
+        "depth": ctx.depth,
+        "logger_name": ctx.logger.name,
+        "run_id": expected_run_id,
+        "workflow_id": "",
+        "store": {
+            "backend": "filesystem",
+            "root": str(root),
+            "tenant_id": store._tenant_id,
+            "cell_id": store._cell_id,
+            "ownership_enforced": store._ownership_enforced,
+            "ownership_requires_scope": store._ownership_requires_scope,
+            "signing_config": store._signing_config.model_dump(mode="json"),
+            "hpc_observability_enabled": hpc_observability_enabled,
+        },
+        "run": {
+            "manifest": run.run_manifest.model_dump(mode="json"),
+            "trace_path": str(trace_path),
+            "tenant_id": run.tenant_id,
+            "cell_id": run.cell_id,
+        },
+        "tenant_scope": {"tenant_id": ambient_tenant, "cell_id": ambient_cell},
+    }

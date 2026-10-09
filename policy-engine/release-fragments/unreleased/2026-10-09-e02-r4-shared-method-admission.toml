@@ -1,0 +1,17 @@
+id = "2026-10-09-e02-r4-shared-method-admission"
+title = "Route Runtime MethodJobs through the shared process executor"
+type = "changed"
+component = "scientist-compute"
+owner = "runtime"
+summary = "Runtime can pin a candidate process-local worker capacity and revision for the existing shared executor, and Scientist MethodBackend now submits its method dispatch through that owner."
+evidence = ["tests/unit/common/test_async_tools.py", "tests/unit/runtime/http/test_shared_executor_composition.py", "tests/unit/scientist/compute/test_runner_polyglot.py", "tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py", "tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py"]
+compatibility = "Runtime profiles may provide both process_worker_capacity and process_worker_profile_revision; when absent, the shared executor retains its legacy host-derived candidate capacity. Conflicting explicit profiles in one process are refused."
+change_class = "internal"
+surface_classification = "Internal Runtime composition and Scientist MethodBackend dispatch; no external HTTP or generated-client surface."
+migration = "No persisted-data migration. Existing Runtime composition without the optional profile fields continues to resolve the legacy host-derived candidate capacity."
+api = "RuntimeContainerConfig accepts an optional process capacity and profile revision, and MethodBackend routes synchronous method dispatch through the process-wide common.async_tools executor. Nested calls inline only from physical shared-executor workers; callback-thread dispatches use the same bounded pool. The slot covers the dispatcher call, not subsequent CAS writes."
+limitations = "The bound is process-local and candidate-configured; it establishes neither a cross-process quota nor deployed production capacity or workload roster. The post-fix cap-1 native receipt shows complete Runtime outputs, fold coverage, final refs, and owner-bound CAS reads; the corrected outer status predicate has not yet been rerun, and cap-2/removal were not rerun after the output-reference microfix. This does not establish scientific admissibility or safety."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/common/README.md", "src/polisyos/scientist/compute/README.md"]
+runbook_docs = []

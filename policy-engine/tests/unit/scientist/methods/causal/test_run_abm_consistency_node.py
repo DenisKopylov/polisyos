@@ -3,6 +3,8 @@ from __future__ import annotations
 import logging
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -15,14 +17,14 @@ from polisyos.ir.analytics.structural_causal_model import (
     NodeMechanism,
     StructuralCausalModelSpec,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.causal.run_abm_consistency import RunABMConsistencyCheckNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
     ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
     ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def _build_ctx(tmp_path, *, run_id: str) -> ExecutionContext:
@@ -191,7 +193,7 @@ def test_run_abm_consistency_node_consistent_with_adaptive_tolerance(tmp_path) -
 
     assert outcome.status == "ok"
     ref = outcome.state.artifacts_index[ARTIFACT_ABM_ALIGNMENT_REPORT_REF]
-    report = load_abm_alignment_report(ctx.store, ref)
+    report = load_abm_alignment_report(_ensure_ir_artifact_store(ctx.store), ref)
     result = report.alignment_results["income_level"]
 
     assert result.status is AlignmentStatus.CONSISTENT
@@ -213,7 +215,7 @@ def test_run_abm_consistency_node_marks_insufficient_runs(tmp_path) -> None:
 
     assert outcome.status == "ok"
     ref = outcome.state.artifacts_index[ARTIFACT_ABM_ALIGNMENT_REPORT_REF]
-    report = load_abm_alignment_report(ctx.store, ref)
+    report = load_abm_alignment_report(_ensure_ir_artifact_store(ctx.store), ref)
     result = report.alignment_results["income_level"]
 
     assert result.status is AlignmentStatus.INSUFFICIENT_RUNS
@@ -247,7 +249,7 @@ def test_run_abm_consistency_node_detects_non_linear_divergence(tmp_path) -> Non
 
     assert outcome.status == "ok"
     ref = outcome.state.artifacts_index[ARTIFACT_ABM_ALIGNMENT_REPORT_REF]
-    report = load_abm_alignment_report(ctx.store, ref)
+    report = load_abm_alignment_report(_ensure_ir_artifact_store(ctx.store), ref)
     result = report.alignment_results["income_level"]
 
     assert result.status is AlignmentStatus.NON_LINEAR_DIVERGENCE
@@ -275,7 +277,7 @@ def test_run_abm_consistency_node_emits_wide_tolerance_warning(tmp_path) -> None
     assert any(event.level == "warn" for event in outcome.events)
 
     ref = outcome.state.artifacts_index[ARTIFACT_ABM_ALIGNMENT_REPORT_REF]
-    report = load_abm_alignment_report(ctx.store, ref)
+    report = load_abm_alignment_report(_ensure_ir_artifact_store(ctx.store), ref)
     result = report.alignment_results["income_level"]
 
     assert result.status is AlignmentStatus.CONSISTENT
@@ -303,7 +305,7 @@ def test_run_abm_consistency_node_persists_exact_abstraction_certificate(tmp_pat
     assert ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF in outcome.state.artifacts_index
     assert ARTIFACT_ABSTRACTION_CERTIFICATE_REF in outcome.state.artifacts_index
     certificate = load_abstraction_certificate(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         outcome.state.artifacts_index[ARTIFACT_ABSTRACTION_CERTIFICATE_REF],
     )
     assert certificate.preservation_type.value == "exact"
@@ -327,7 +329,8 @@ def test_run_abm_consistency_node_warns_when_only_heuristic_alignment_is_availab
 
     assert outcome.status == "ok"
     report = load_abm_alignment_report(
-        ctx.store, outcome.state.artifacts_index[ARTIFACT_ABM_ALIGNMENT_REPORT_REF]
+        _ensure_ir_artifact_store(ctx.store),
+        outcome.state.artifacts_index[ARTIFACT_ABM_ALIGNMENT_REPORT_REF],
     )
     assert "heuristic_aggregation_without_abstraction_certificate" in report.warnings
 
@@ -371,7 +374,7 @@ def test_run_abm_consistency_node_persists_continuous_abstraction_certificate(tm
     assert ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF in outcome.state.artifacts_index
     assert ARTIFACT_ABSTRACTION_CERTIFICATE_REF in outcome.state.artifacts_index
     certificate = load_abstraction_certificate(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         outcome.state.artifacts_index[ARTIFACT_ABSTRACTION_CERTIFICATE_REF],
     )
     assert certificate.preservation_type.value == "policy_value_only"
@@ -381,7 +384,7 @@ def test_run_abm_consistency_node_persists_continuous_abstraction_certificate(tm
     )
     assert outcome.state.params["abstraction_preservation_type"] == "policy_value_only"
     report = load_abm_alignment_report(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         outcome.state.artifacts_index[ARTIFACT_ABM_ALIGNMENT_REPORT_REF],
     )
     assert "heuristic_aggregation_without_abstraction_certificate" not in report.warnings

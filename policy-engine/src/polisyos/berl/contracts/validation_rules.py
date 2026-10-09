@@ -2,11 +2,18 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping as MappingABC
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from polisyos.berl.contracts.explanation_bundle import ExplanationBundle
+
+
+_SUPPORTED_FEATURE_DEPENDENCE_PROFILES = frozenset(
+    {"marginal", "marginal_interventional", "conditional_observational"}
+)
+_CONDITIONAL_FEATURE_PROFILE = "conditional_observational"
 
 
 @dataclass(frozen=True, slots=True)
@@ -40,6 +47,7 @@ def validate_explanation_bundle(
     active_thresholds = thresholds or ValidationThresholds()
     violations: list[str] = []
     warnings: list[str] = []
+    violations.extend(_feature_dependence_profile_violations(bundle.model_dump(mode="python")))
 
     if not bundle.methods:
         violations.append("no_explanation_methods")
@@ -58,9 +66,7 @@ def validate_explanation_bundle(
             violations.append(f"infidelity_not_heldout:{method.method_id}")
 
     upper_bounds = tuple(
-        method.infidelity.upper_bound
-        for method in bundle.methods
-        if method.infidelity is not None
+        method.infidelity.upper_bound for method in bundle.methods if method.infidelity is not None
     )
     if upper_bounds:
         p95 = _quantile(upper_bounds, 0.95)
@@ -93,6 +99,105 @@ def validate_explanation_bundle(
         display_policy=display_policy,
         violations=tuple(dict.fromkeys(violations)),
         warnings=tuple(dict.fromkeys(warnings)),
+    )
+
+
+def validate_persisted_explanation_bundle_payload(
+    payload: MappingABC[str, object],
+    *,
+    thresholds: ValidationThresholds | None = None,
+) -> tuple[ExplanationBundle | None, ExplanationValidationResult]:
+    """Validate a persisted bundle before accepting its declared law profile.
+
+    The raw profile is checked before Pydantic parsing so a malformed or unknown
+    supplied profile receives the same typed refusal at each persisted consumer.
+    A reference or self-declared profile cannot substitute for a verified law
+    resolver.
+    """
+
+    from pydantic import ValidationError
+
+    from polisyos.berl.contracts.explanation_bundle import ExplanationBundle
+
+    profile_violations = _feature_dependence_profile_violations(payload)
+    try:
+        bundle = ExplanationBundle.model_validate(payload)
+    except (ValidationError, TypeError, ValueError):
+        return None, _refused_explanation_validation(
+            profile_violations or ("explanation_bundle_invalid",)
+        )
+    return bundle, validate_explanation_bundle(bundle, thresholds=thresholds)
+
+
+def _feature_dependence_profile_violations(
+    payload: MappingABC[str, object],
+) -> tuple[str, ...]:
+    violations: list[str] = []
+    assumptions = payload.get("assumptions")
+    if not isinstance(assumptions, MappingABC):
+        return ("feature_dependence_profile_malformed",)
+    feature_policy = assumptions.get("feature_dependence_policy")
+    if not isinstance(feature_policy, MappingABC):
+        return ("feature_dependence_profile_malformed",)
+    profile = feature_policy.get("primary")
+    if not isinstance(profile, str) or not profile.strip():
+        violations.append("feature_dependence_profile_malformed")
+    else:
+        violations.extend(_profile_value_violations(profile))
+
+    alternatives = feature_policy.get("alternatives_tested", ())
+    if not isinstance(alternatives, list):
+        if "alternatives_tested" in feature_policy:
+            violations.append("feature_dependence_profile_malformed")
+    else:
+        for alternative in alternatives:
+            if not isinstance(alternative, str) or not alternative.strip():
+                violations.append("feature_dependence_profile_malformed")
+            else:
+                violations.extend(_profile_value_violations(alternative))
+
+    methods = payload.get("methods", ())
+    if not isinstance(methods, list):
+        return tuple(dict.fromkeys(violations))
+    for method in methods:
+        if not isinstance(method, MappingABC):
+            continue
+        method_assumptions = method.get("assumptions", {})
+        if not isinstance(method_assumptions, MappingABC):
+            if "assumptions" in method:
+                violations.append("method_feature_dependence_profile_malformed")
+            continue
+        for key in ("feature_dependence_policy", "feature_removal"):
+            if key not in method_assumptions:
+                continue
+            method_profile = method_assumptions[key]
+            if not isinstance(method_profile, str) or not method_profile.strip():
+                violations.append("method_feature_dependence_profile_malformed")
+                continue
+            violations.extend(_profile_value_violations(method_profile))
+            if isinstance(profile, str) and method_profile != profile:
+                violations.append("method_feature_dependence_profile_mismatch")
+
+    return tuple(dict.fromkeys(violations))
+
+
+def _profile_value_violations(profile: str) -> tuple[str, ...]:
+    if profile not in _SUPPORTED_FEATURE_DEPENDENCE_PROFILES:
+        return ("feature_dependence_profile_unsupported",)
+    if profile == _CONDITIONAL_FEATURE_PROFILE:
+        return ("conditional_feature_law_unverified",)
+    return ()
+
+
+def _refused_explanation_validation(
+    violations: tuple[str, ...],
+) -> ExplanationValidationResult:
+    return ExplanationValidationResult(
+        passed=False,
+        faithfulness_claim="unbounded",
+        display_policy="diagnostic_only",
+        violations=tuple(dict.fromkeys(violations)),
+        warnings=(),
     )
 
 
@@ -138,9 +243,7 @@ def _sign_conflict_rate(bundle: ExplanationBundle) -> float:
     if bundle.disagreement is None:
         return 0.0
     features = {
-        attribution.feature
-        for method in bundle.methods
-        for attribution in method.attributions
+        attribution.feature for method in bundle.methods for attribution in method.attributions
     }
     if not features:
         return 0.0

@@ -116,11 +116,13 @@ class TestLevel3MediumFidelity:
         expected = -(0.05 - 0.5 * 0.02)  # -(gdp - 0.5 * deficit)
         assert abs(result.objective_value - expected) < 1e-10
 
-    def test_compute_actual_usd_positive(self):
+    def test_duration_based_cost_is_explicitly_estimated(self):
         engine = _make_mock_engine()
         stage = Level3MediumFidelity(workflow_engine=engine)
         result = stage.evaluate(_make_candidate(), {})
-        assert result.compute_actual_usd >= 0.0
+        assert result.compute_cost_usd is not None
+        assert result.compute_cost_usd >= 0.0
+        assert result.compute_cost_origin == "estimated"
 
     def test_uncertainty_envelope_has_model(self):
         engine = _make_mock_engine()

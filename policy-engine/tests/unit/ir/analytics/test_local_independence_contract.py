@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.local_independence import (
     CensoringInterventionSpec,
@@ -113,8 +114,10 @@ def test_local_independence_certificate_round_trip_via_store(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     certificate = _certificate()
 
-    ref = persist_local_independence_weighting_certificate(store, certificate)
-    loaded = load_local_independence_weighting_certificate(store, ref)
+    ref = persist_local_independence_weighting_certificate(
+        _ensure_ir_artifact_store(store), certificate
+    )
+    loaded = load_local_independence_weighting_certificate(_ensure_ir_artifact_store(store), ref)
 
     assert loaded == certificate
     assert loaded.graph.process_family == "counting_process"

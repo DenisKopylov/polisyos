@@ -3,6 +3,8 @@ from __future__ import annotations
 import logging
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.registry import build_default_registry_bundle
@@ -16,8 +18,6 @@ from polisyos.ir.analytics.structural_causal_model import (
     persist_structural_causal_model_spec,
 )
 from polisyos.scientist.compute.job_spec import JobKey, JobResult
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.causal.run_causal_queries import RunCausalQueriesNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
@@ -27,6 +27,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_QUERY_RESULT_REF,
     ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def _build_ctx(tmp_path, *, run_id: str) -> ExecutionContext:
@@ -96,7 +98,9 @@ def test_run_causal_queries_node_success_persists_artifacts_and_dual_writes(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     ctx = _build_ctx(tmp_path, run_id="R_query_ok")
-    scm_ref = persist_structural_causal_model_spec(ctx.store, _minimal_scm())
+    scm_ref = persist_structural_causal_model_spec(
+        _ensure_ir_artifact_store(ctx.store), _minimal_scm()
+    )
 
     method_result_ref = ctx.store.put_json(
         {"slot": "result"},

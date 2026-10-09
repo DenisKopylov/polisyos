@@ -6,9 +6,10 @@ import importlib
 import math
 from dataclasses import dataclass
 from functools import lru_cache
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 def _norm_cdf(x: float) -> float:
@@ -36,6 +37,93 @@ def _norm_ppf(p: float) -> float:
 
 
 _VALID_DISCOVERY_CI_BACKENDS: frozenset[str] = frozenset({"auto", "numpy", "jax"})
+
+
+class BootstrapExecutionWork(BaseModel):
+    """Measured work performed by one bootstrap replicate loop."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    work_unit: Literal["bootstrap_replicate"] = "bootstrap_replicate"
+    requested_draw_count: int = Field(ge=0)
+    attempted_draw_count: int = Field(ge=0)
+    completed_draw_count: int = Field(ge=0)
+    failed_draw_count: int = Field(ge=0)
+    unattempted_draw_count: int = Field(ge=0)
+    draw_execution_status: Literal["complete", "partial", "not_started"]
+
+    @model_validator(mode="after")
+    def _validate_measured_counts(self) -> BootstrapExecutionWork:
+        if self.attempted_draw_count != self.completed_draw_count + self.failed_draw_count:
+            raise ValueError("attempted draws must equal completed plus failed draws")
+        if self.requested_draw_count != self.attempted_draw_count + self.unattempted_draw_count:
+            raise ValueError("requested draws must equal attempted plus unattempted draws")
+        expected_status = (
+            "not_started"
+            if self.requested_draw_count > 0 and self.attempted_draw_count == 0
+            else "complete"
+            if self.attempted_draw_count == self.requested_draw_count
+            and self.failed_draw_count == 0
+            else "partial"
+        )
+        if self.draw_execution_status != expected_status:
+            raise ValueError("draw execution status does not match measured counts")
+        return self
+
+
+class BootstrapExecutionCounter:
+    """Count work at the actual bootstrap replicate loop, without changing its result."""
+
+    def __init__(self, *, requested_draw_count: int) -> None:
+        if (
+            isinstance(requested_draw_count, bool)
+            or not isinstance(requested_draw_count, int)
+            or requested_draw_count < 0
+        ):
+            raise ValueError("requested_draw_count must be a non-negative integer")
+        self._requested = requested_draw_count
+        self._attempted = 0
+        self._completed = 0
+        self._failed = 0
+
+    @property
+    def requested_draw_count(self) -> int:
+        """Return the explicitly requested draw count for this loop."""
+        return self._requested
+
+    def begin_draw(self) -> None:
+        """Record entry into one actual draw attempt."""
+        if self._attempted >= self._requested:
+            raise RuntimeError("bootstrap loop attempted more draws than requested")
+        self._attempted += 1
+
+    def complete_draw(self) -> None:
+        """Record one draw whose replicate mean was stored successfully."""
+        self._completed += 1
+
+    def fail_draw(self) -> None:
+        """Record one draw that raised before its replicate mean was stored."""
+        self._failed += 1
+
+    def snapshot(self) -> BootstrapExecutionWork:
+        """Return an immutable count packet reconciled to the requested total."""
+        unattempted = self._requested - self._attempted
+        status: Literal["complete", "partial", "not_started"]
+        if self._requested > 0 and self._attempted == 0:
+            status = "not_started"
+        elif self._attempted == self._requested and self._failed == 0:
+            status = "complete"
+        else:
+            status = "partial"
+        return BootstrapExecutionWork(
+            requested_draw_count=self._requested,
+            attempted_draw_count=self._attempted,
+            completed_draw_count=self._completed,
+            failed_draw_count=self._failed,
+            unattempted_draw_count=unattempted,
+            draw_execution_status=status,
+        )
 
 
 @dataclass(frozen=True)
@@ -257,8 +345,15 @@ def bootstrap_mean_interval(
     draws: int,
     influence_values: np.ndarray | None = None,
     backend: str = "bootstrap_eif",
+    work_counter: BootstrapExecutionCounter | None = None,
 ) -> tuple[float, float]:
-    """Bootstrap mean interval helper."""
+    """Bootstrap mean interval helper.
+
+    ``work_counter`` is an opt-in diagnostic. It records actual loop iterations
+    while preserving the historical return tuple and interval calculation.
+    """
+    if work_counter is not None and work_counter.requested_draw_count != draws:
+        raise ValueError("work counter requested_draw_count must match draws")
     arr = np.asarray(values, dtype=float).reshape(-1)
     arr = arr[np.isfinite(arr)]
     if arr.size == 0:
@@ -268,8 +363,14 @@ def bootstrap_mean_interval(
 
     backend_normalized = backend.strip().lower()
     if backend_normalized in {"eif", "bootstrap_eif", "bootstrap"} and influence_values is not None:
-        return _bootstrap_eif_interval(arr, influence_values, seed=seed, draws=draws)
-    return _bootstrap_interval(arr, seed=seed, draws=draws)
+        return _bootstrap_eif_interval(
+            arr,
+            influence_values,
+            seed=seed,
+            draws=draws,
+            work_counter=work_counter,
+        )
+    return _bootstrap_interval(arr, seed=seed, draws=draws, work_counter=work_counter)
 
 
 def robust_standard_error(values: np.ndarray) -> float:
@@ -282,7 +383,13 @@ def robust_standard_error(values: np.ndarray) -> float:
     return float(np.std(centered, ddof=1) / np.sqrt(arr.size))
 
 
-def _bootstrap_interval(values: np.ndarray, *, seed: int, draws: int) -> tuple[float, float]:
+def _bootstrap_interval(
+    values: np.ndarray,
+    *,
+    seed: int,
+    draws: int,
+    work_counter: BootstrapExecutionCounter | None = None,
+) -> tuple[float, float]:
     """BCa (bias-corrected and accelerated) bootstrap interval.
 
     Falls back to percentile bootstrap when jackknife acceleration
@@ -296,8 +403,17 @@ def _bootstrap_interval(values: np.ndarray, *, seed: int, draws: int) -> tuple[f
     # Bootstrap replicates
     means = np.empty(draws, dtype=float)
     for idx in range(draws):
-        sample = rng.choice(arr, size=n, replace=True)
-        means[idx] = float(np.mean(sample))
+        if work_counter is not None:
+            work_counter.begin_draw()
+        try:
+            sample = rng.choice(arr, size=n, replace=True)
+            means[idx] = float(np.mean(sample))
+        except Exception:
+            if work_counter is not None:
+                work_counter.fail_draw()
+            raise
+        if work_counter is not None:
+            work_counter.complete_draw()
 
     # --- Bias correction factor (z0) ---
     prop_below = float(np.mean(means < theta_hat))
@@ -338,22 +454,25 @@ def _bootstrap_eif_interval(
     *,
     seed: int,
     draws: int,
+    work_counter: BootstrapExecutionCounter | None = None,
 ) -> tuple[float, float]:
     """BCa bootstrap on EIF pseudo-values for improved coverage."""
     arr = np.asarray(values, dtype=float).reshape(-1)
     infl = np.asarray(influence_values, dtype=float).reshape(-1)
     if infl.size != arr.size:
-        return _bootstrap_interval(arr, seed=seed, draws=draws)
+        return _bootstrap_interval(arr, seed=seed, draws=draws, work_counter=work_counter)
 
     center = float(np.mean(arr))
     eif_scores = center + infl
     if eif_scores.size == 0:
         return float("nan"), float("nan")
     # Delegate to BCa-aware _bootstrap_interval on the pseudo-values
-    return _bootstrap_interval(eif_scores, seed=seed, draws=draws)
+    return _bootstrap_interval(eif_scores, seed=seed, draws=draws, work_counter=work_counter)
 
 
 __all__ = [
+    "BootstrapExecutionCounter",
+    "BootstrapExecutionWork",
     "CIBackendSelection",
     "bootstrap_mean_interval",
     "ci_backend_metadata",

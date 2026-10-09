@@ -281,7 +281,7 @@ def load_mobility_report(
 
     from polisyos.ir.artifacts.io import get_json_artifact
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return MobilityReport.model_validate(payload)
 
 

@@ -12,6 +12,7 @@ from collections.abc import Mapping
 from dataclasses import asdict
 from typing import Any
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.foundry.methods.catalog.causal.id_engine import (
     CtfQuery,
     IdentificationStatus,
@@ -506,7 +507,7 @@ class TransportabilityChecker:
                 if isinstance(privacy_mode_raw, str):
                     privacy_mode = PrivacyObservedMode(privacy_mode_raw)
             result_ref = persist_transportability_result(
-                self.store,
+                _ensure_ir_artifact_store(self.store),
                 result_model,
                 inputs=self.base_inputs,
             )
@@ -557,7 +558,9 @@ class StrategicResponseRunner:
     ) -> dict[str, ArtifactRefModel]:
         refs: dict[str, ArtifactRefModel] = {}
         for agent, table in tables.items():
-            ref = persist_strategic_payoff_table(self.store, table, inputs=self.base_inputs)
+            ref = persist_strategic_payoff_table(
+                _ensure_ir_artifact_store(self.store), table, inputs=self.base_inputs
+            )
             refs[agent] = ArtifactRefModel.model_validate(ref.model_dump(mode="json"))
         return refs
 
@@ -651,7 +654,7 @@ class StrategicResponseRunner:
                     }
                 )
                 strategic_scm_ref = persist_strategic_scm(
-                    self.store,
+                    _ensure_ir_artifact_store(self.store),
                     normalized_contract,
                     inputs=self.base_inputs,
                 )

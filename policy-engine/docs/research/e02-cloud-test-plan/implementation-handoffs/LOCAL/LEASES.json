@@ -14,20 +14,24 @@
         "data_forge/kernel/{io/generation_basis,pipeline/manifests}.py",
         "data_forge/domains/catalog/batch/pipeline.py",
         "data_forge/domains/catalog/batch/core_sources/validators.py",
-        "data_forge/domains/catalog/batch/core_sources/benchmark.py",
+        "data_forge/domains/catalog/batch/benchmark.py",
         "data_forge/domains/catalog/batch/core_sources/api.py",
         "data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
         "data_forge/domains/catalog/batch/core_sources/registry.py",
         "data_forge/domains/catalog/batch/source_registry.py",
         "data_forge/domains/catalog/registry.py",
-        "data_forge/domains/catalog/source_modules.py"
+        "data_forge/domains/catalog/source_modules.py",
+        "data_forge/domains/catalog/batch/embedder.py",
+        "data_forge/domains/catalog/sources/{__init__,core,open_data,sdmx,specialized}.py"
       ],
       "companions": [
         "C05 READMEs/releases",
         "tests/unit/remediation/test_dfi_03.py",
         "tests/unit/remediation/test_dfk_02.py",
         "{core,ir,fabric}/__init__.py",
-        "data_forge/read_api/catalog.py"
+        "data_forge/read_api/catalog.py",
+        "tests/unit/fabric/test_retrieval_service_catalog.py",
+        "tests/unit/data_forge/domains/catalog/batch/test_pipeline.py"
       ]
     },
     "i4_c12": {
@@ -35,11 +39,18 @@
         "data_forge/domains/legal/batch/embedder.py",
         "data_forge/domains/legal/embedding_projection.py",
         "lex/knowledge/store.py",
-        "lex/knowledge/search.py"
+        "lex/knowledge/search.py",
+        "lex/knowledge/{benchmark,knowledge_tools,__init__}.py",
+        "runtime/http/services/control/lex_pipeline.py",
+        "runtime/http/container.py (Legal encoder provider seam only)",
+        "core/contracts/control.py (Legal query immutable intent DTO)",
+        "runtime/http/services/control/lex_search_projection.py"
       ],
       "companions": [
         "tests/unit/remediation/test_emb_03.py",
-        "Legal README/release"
+        "Legal README/release",
+        "tests/unit/data_forge/legal_batch/test_embed_local.py",
+        "Legal serving/benchmark mirrored tests"
       ]
     },
     "q1_b_contracts": {
@@ -50,10 +61,14 @@
         "scientist/methods/runner/_activity_worker.py",
         "data_forge/read_api/academic.py",
         "scientist/orchestration/engine/skg_snapshot.py",
-        "core/artifacts/__init__.py"
+        "core/artifacts/__init__.py",
+        "scientist/orchestration/engine/checkpoint.py",
+        "fabric/connectors/pool.py",
+        "fabric/data_plane/{streaming,modes,schema_rows}.py"
       ],
       "companions": [
-        "prepared B seven tests and READMEs/releases: exact authored footprint recorded at implementation boundary"
+        "prepared B seven tests and READMEs/releases: exact authored footprint recorded at implementation boundary",
+        "all prepared checkpoint/pool/stream mirrored tests and README/release companions"
       ]
     },
     "dx0_native": {
@@ -64,7 +79,9 @@
       ],
       "companions": [
         "generated Ruff family",
-        "focused tool-config behavioral tests"
+        "focused tool-config behavioral tests",
+        "docs/reference/frontend/atlas-live-application-audit.md",
+        "docs/brand/ATLAS_SOURCE_OF_TRUTH.md"
       ]
     },
     "runtime_v1_v2": {
@@ -74,26 +91,166 @@
         "runtime/quality/cycle_substrate.py",
         "runtime/http/services/control/{generation_cycle,run_lifecycle}.py",
         "runtime/http/routes/{runs,control}.py",
-        "core/contracts/{control,runtime}.py"
+        "runtime/http/services/control_plane_store.py (exact source-scoped acquisition heads)",
+        "core/contracts/{control,runtime,__init__}.py",
+        "runtime/http/services/debug.py (monetary persisted GET mapper)",
+        "dashboard agent pipeline actual consumer"
       ],
       "companions": [
         "dashboard api/{types,validators}.ts",
-        "OverviewTab consumer/tests",
+        "OverviewTab consumer/tests and acquisition-history locales",
+        "tests/unit/core/contracts/test_run_candidate_simulation_acquisition_history.py",
+        "tests/unit/runtime/http/test_acquisition_route_authority_sink.py",
+        "tests/unit/runtime/http/test_control_service_di.py",
+        "tests/integration/core_runtime/test_acquisition_authority_served.py",
         "mirrored runtime tests"
       ],
       "scope": "ordinary persisted N4/child/context/CAS -> fresh GET typed projection -> actual parsed browser; generators/root reserved"
+    },
+    "numerical_semantics": {
+      "mechanisms": [
+        "core/llm/{response,traced_client,settlement}.py",
+        "scientist/orchestration/{engine/{budget_ledger,budget_middleware},llm/{budget_enforcer,prompt_cache,factory}}.py",
+        "runtime/http/services/control/{response_shapes,nl_pipeline}.py",
+        "scientist/methods/search/funnel/{types,orchestrator}.py",
+        "scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py (monetary only)",
+        "core/contracts/runtime.py (typed LLM cost and candidate simulation DTO)",
+        "scientist/search/funnel/{types,orchestrator,levels0_6}.py",
+        "runtime/quality/design_generation.py",
+        "runtime/http/container.py (durable monetary ledger binding)"
+      ],
+      "companions": [
+        "mirrored monetary tests, README/releases; q1 owns prepared prompt-cache test"
+      ],
+      "scope": "reported/estimated/reuse/unknown through actual provider, durable ledger and current projections"
+    },
+    "custody_empirical": {
+      "mechanisms": [
+        "runtime/quality/recursive_generation_cycle.py"
+      ],
+      "companions": [
+        "tests/unit/runtime/quality/test_recursive_generation_cycle.py"
+      ],
+      "scope": "independent child error preserves prior persisted results; sends HTTP changes to V1 owner"
+    },
+    "shared_embeddings": {
+      "mechanisms": [
+        "data_forge/kernel/embeddings.py",
+        "data_forge/read_api/legal.py",
+        "ir/registry/refs.py",
+        "ir/artifacts/contracts.py",
+        "scientist/validation/epoch_certificate_issuance.py",
+        "core/artifacts/__init__.py (lazy adapter facade)",
+        "core/artifacts/ir_adapter.py (shared selector bridge)"
+      ],
+      "companions": [
+        "tests/unit/data_forge/kernel/test_encoder_identity.py",
+        "kernel README/release"
+      ],
+      "scope": "Existing selected-ref/Core→IR caller crosscut; immutable completed wrapper changes preserved across peer-owned files. Active new edits limited to B61 adapter/ref collector; peer-owned additional deltas sent to owner/root. Full completed crosscut footprint is supplied in ready manifest."
+    },
+    "cas_contracts": {
+      "mechanisms": [
+        "core/artifacts/store.py",
+        "core/artifacts/_transfer_ops.py"
+      ],
+      "companions": [
+        "tests/unit/core/artifacts/test_transfer_import_fresh_process.py"
+      ],
+      "scope": "single snapshot/admission and emission; preserves first unclaimed claim semantics"
+    },
+    "can_options": {
+      "mechanisms": [
+        "scientist/nodes/builtins/validate/validation_rules.py",
+        "scientist/nodes/builtins/validate/phase5_preflight.py",
+        "scientist/nodes/builtins/evaluate/explanation_reliability.py"
+      ],
+      "companions": [
+        "BERL mirrored tests/README/release/LOCAL packet"
+      ],
+      "scope": "Persisted-law admission; complete work frozen pending review."
+    },
+    "q2_installed": {
+      "mechanisms": [
+        "ops/cloud/gcp/package_repo.sh"
+      ],
+      "companions": [
+        "tests/repo_quality/tools/{test_hatch_packaging,test_gcp_package_assets}.py"
+      ],
+      "scope": "manifest-derived exact source assets, archive-to-wheel consumers"
+    },
+    "q0_crosswalk": {
+      "mechanisms": [],
+      "companions": [
+        "LOCAL/emit_proposals.py",
+        "LOCAL/finding-proposals.json",
+        "LOCAL/crosswalk/*"
+      ],
+      "scope": "full original occurrence ledger; explicit proposals only"
+    },
+    "s1_law_intakes": {
+      "mechanisms": [
+        "ir/analytics/uncertainty.py (completed selected-ref loader)",
+        "ir/analytics/uncertainty_admission.py",
+        "scientist/governance/normative_arbitration.py",
+        "scientist/validation/confidence_pass.py",
+        "scientist/orchestration/workflows/decision_packet_enrichment.py",
+        "scientist/methods/backtesting/orchestrator.py"
+      ],
+      "companions": [
+        "S1/S2 mirrored tests/README/releases/LOCAL packet"
+      ],
+      "scope": "Completed draw-basis admission and selected-ref loader, now read-only. ir/analytics/uncertainty.py subsequent writer transferred to s3_empirical."
+    },
+    "s3_empirical": {
+      "mechanisms": [
+        "scientist/methods/backtesting/bootstrap.py",
+        "ir/analytics/posterior_summary.py",
+        "foundry/uncertainty/sampling_admission.py",
+        "foundry/calibration/uncertainty_adapter.py",
+        "ir/analytics/uncertainty.py",
+        "ir/analytics/__init__.py",
+        "foundry/uncertainty/monte_carlo.py",
+        "foundry/uncertainty/dispatcher.py",
+        "scientist/nodes/builtins/simulate/propagate_uncertainty.py"
+      ],
+      "companions": [
+        "tests/unit/ir/test_posterior_summary.py",
+        "tests/unit/foundry/uncertainty/test_sampling_admission.py",
+        "tests/unit/remediation/test_uqs_01_posterior_law_roundtrip.py",
+        "tests/unit/remediation/test_uqp_02_persisted_joint_law.py",
+        "B175 mirrored tests/README/release",
+        "empirical/bounds existing ready tests/README/release"
+      ],
+      "scope": "B175 and genuine posterior/joint-law producer artifact consumer reuse-first; unratified law/authority decisions remain proposals; preserve previous selected-ref and S1 repairs."
+    },
+    "r4_workload": {
+      "mechanisms": [
+        "common/async_tools.py",
+        "runtime/http/app.py",
+        "runtime/http/container.py (paired capacity/profile revision)",
+        "scientist/compute/runner.py",
+        "scientist/nodes/builtins/simulate/run_causal_evaluation.py"
+      ],
+      "companions": [
+        "Exact source/test/docs/release manifest: LOCAL/r4-workload/ready-paths.json"
+      ],
+      "scope": "Completed process-shared executor runtime composition; receipt sink and corrected status predicates, no heavy fits until source freeze."
     }
   },
   "root_reserved": [
-    "pyproject/uv.lock and non-Ruff schema/generators",
-    "core artifacts/LLM/CAN except prepared-B facade",
-    "Legal shared embeddings prerequisites",
-    "all Git staging/commits/push"
+    "core/artifacts/async_store.py pending checkpoint companion",
+    "shared pyproject/uv.lock and non-Ruff generated schema family",
+    "all Git staging/commits/push",
+    "non-Ruff canonical ABI/OpenAPI/runtime client/dashboard generation and generated validators",
+    "ir/__init__.py new posterior facade hunk integration if required",
+    "tiny commit windows serialize all file writers; no hook bypass"
   ],
   "read_only": [
-    "q0_crosswalk",
-    "numerical_semantics",
-    "custody_empirical"
+    "composition_review",
+    "devx_review",
+    "linux_profile (environment prep; native runs after root freeze)",
+    "t1_t2_intake (minimal named production inputs read-only; existing test helper permitted)"
   ],
   "pattern_pass": {
     "ids": [
@@ -114,5 +271,37 @@
     "target": "real source-bound producer/artifact/bridge/consumer plus semantic/removal control; full finding denominator preserved",
     "missing_labels": "finding-specific, no task-success propagation",
     "acceptance_signal": "independent review and fresh exact candidate evidence per original occurrence; proposals separate from G adjudication"
+  },
+  "head_coordination": "Root ordinary commits are expected advances; preserve peers and retain exact own pre-change slice base. Authors never move HEAD.",
+  "current_coordination_base": "a49909826cf87f164dae36c26b21fb5d188ca835",
+  "incident_recovery": "Authorized import-only recovery applied; all functional prior bytes preserved; no history movement.",
+  "active_path_overrides": {
+    "shared_embeddings": [
+      "Core/IR selected-ref normalization, store/cache/lineage and unowned typed receiver callers; peer-owned additional hunks sent to owner",
+      "ir/analytics/uncertainty.py::_normalized_artifact_reference only"
+    ],
+    "s3_empirical": [
+      "foundry/calibration/uncertainty_adapter.py and original calibration/posterior tests/docs: exact legacy caller-input summary persistence; no uncertainty.py writes"
+    ],
+    "v5_search": [
+      "foundry/methods/catalog/causal/{ci_backends,advanced_designs,nuisance_layer}.py and actual method-work producer companions",
+      "scientist/methods/search/funnel/{types,orchestrator,level2_causal,level3_medium,level4_full,level5_refutation_governance,level6_promotion}.py: measured science-work observation only; preserve R3",
+      "blueprint node V5 hunk: root applies sequentially"
+    ],
+    "cas_contracts": [
+      "foundry/methods/catalog/causal/causal_engine/identification.py static visibility of existing consumed runtime bindings; preserve shared adapter hunks"
+    ],
+    "i1_c05": [
+      "scientist/orchestration/engine/{retry,runner/_activity_worker,runner/serialization}.py; test_retry.py/test_skg_snapshot_replay.py + engine README/release: bounded Mac spawn/owned-write controls"
+    ],
+    "runtime_v1_v2": [
+      "runtime/quality/design_generation.py and existing acquisition/source/history tests: V3 narrow decision/prototype; no R3 service writes"
+    ],
+    "dx0_native": [
+      "tools/devx/workspace/repository_sota_closeout.py + mirrored test/README/release: complete raw child output capture"
+    ],
+    "root": [
+      "all canonical generators/locks/config, commit/push, completed peers only at agreed boundary; core/contracts __all__ ordering preserves set"
+    ]
   }
 }

@@ -49,6 +49,19 @@ def _small_config() -> TrainingConfig:
     )
 
 
+def _set_supported_nonnegative_active_wealth(simulator: PolisySimulator, wealth: float) -> None:
+    """Set active wealth to a supported profile with enough stock for tax debits."""
+
+    state = simulator.get_state()
+    domain = state.get_domain("economics")
+    agents = domain.agents
+    active_wealth = jnp.full_like(agents.wealth, wealth)
+    agents = agents.replace(wealth=jnp.where(agents.active, active_wealth, agents.wealth))
+    domain = domain.replace(agents=agents).update_aggregates()
+    assert domain.validate()
+    simulator._state = state.update_domain("economics", domain)
+
+
 def _tree_delta(before: object, after: object) -> float:
     leaves = jax.tree_util.tree_leaves(
         jax.tree_util.tree_map(
@@ -133,6 +146,46 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
     assert int(final_state.time_step) > 0
 
 
+def test_economics_training_supports_nonnegative_active_wealth_profile(
+    simulator: PolisySimulator,
+    tmp_path: Path,
+) -> None:
+    """A valid nonnegative active-wealth profile completes the real bridge path."""
+
+    simulator.initialize(seed=7)
+    _set_supported_nonnegative_active_wealth(simulator, 1_000_000.0)
+    initial_domain = simulator.get_state().get_domain("economics")
+    assert jnp.all(initial_domain.agents.wealth[initial_domain.agents.active] >= 0.0)
+
+    result = simulator.train(
+        n_episodes=1,
+        training_config=_small_config(),
+        seed=7,
+        output_dir=tmp_path / "nonnegative-training-output",
+    )
+
+    assert isinstance(result, TrainingResult)
+    assert result.status == "trained"
+    assert result.trained_policy is not None
+    assert result.artifact is not None
+    assert result.artifact_refs is not None
+    assert result.loss_history
+    assert all(jnp.isfinite(jnp.asarray(result.loss_history)))
+
+    manifest_payload = from_canonical_bytes(
+        FileSystemCAS(tmp_path / "nonnegative-training-output" / "artifacts").get_bytes(
+            result.artifact_refs[1].artifact_id
+        )
+    )
+    assert isinstance(manifest_payload, dict)
+    assert isinstance(manifest_payload["metrics"]["final_loss"], Decimal)
+
+    final_domain = result.final_state.get_domain("economics")
+    active = final_domain.agents.active
+    assert jnp.all(final_domain.agents.wealth[active] >= 0.0)
+    assert jnp.isfinite(final_domain.distributions.gini_wealth)
+
+
 def test_training_uses_supplied_tenant_store_for_persist_and_readback(
     simulator: PolisySimulator,
     tmp_path: Path,
@@ -161,12 +214,8 @@ def test_training_uses_supplied_tenant_store_for_persist_and_readback(
         "train_actor_critic_with_artifact",
         stub_native_training,
     )
-    monkeypatch.setattr(
-        training_adapter_module, "_parameter_delta", lambda *args: jnp.array(1.0)
-    )
-    monkeypatch.setattr(
-        training_adapter_module, "_action_delta", lambda *args: jnp.array(1.0)
-    )
+    monkeypatch.setattr(training_adapter_module, "_parameter_delta", lambda *args: jnp.array(1.0))
+    monkeypatch.setattr(training_adapter_module, "_action_delta", lambda *args: jnp.array(1.0))
     monkeypatch.setattr(
         EconomicsTrainingAdapter,
         "run",

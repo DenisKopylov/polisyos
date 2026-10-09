@@ -3,8 +3,12 @@
 import numpy as np
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
 from polisyos.foundry.methods.catalog.causal.gcm_fit import HybridSCMFit
+from polisyos.foundry.methods.catalog.causal.id_engine import CtfQuery
 from polisyos.foundry.methods.catalog.causal.protocols import SCMFitData
+from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 
 
@@ -22,6 +26,59 @@ def _fit_data() -> SCMFitData:
 def test_selected_gcm_refuses_missing_source_context() -> None:
     with pytest.raises(RuntimeError, match="source-resolved|bridge unavailable"):
         HybridSCMFit.pure_step(_fit_data(), {"fit_backend": "dowhy_gcm"})
+
+
+def test_selected_gcm_refuses_admg_with_declared_dag_reason() -> None:
+    dag_data = _fit_data()
+    admg_data = dag_data.model_copy(
+        update={
+            "graph": CausalGraphModel(
+                graph_type=GraphType.ADMG,
+                nodes=["X", "Y"],
+                edges=[CausalEdge(src="X", dst="Y")],
+            )
+        }
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="selected GCM profile requires a fully observed declared static DAG",
+    ) as refusal:
+        HybridSCMFit.pure_step(admg_data, {"fit_backend": "dowhy_gcm"})
+
+    assert refusal.value.reason_code == "graph_not_declared_static_dag"
+
+
+def test_causal_engine_run_surfaces_selected_gcm_admg_refusal() -> None:
+    graph = CausalGraphModel(
+        graph_type=GraphType.ADMG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y")],
+    )
+    rng = np.random.default_rng(13)
+    x = rng.normal(size=48)
+    y = 0.25 + 1.5 * x + rng.normal(scale=0.2, size=48)
+    engine = CausalEngine(registry=MethodRegistry.get_instance())
+
+    with pytest.raises(
+        ValueError,
+        match="selected GCM profile requires a fully observed declared static DAG",
+    ) as refusal:
+        engine.run(
+            "X",
+            "Y",
+            graph,
+            data_dict={"graph": graph, "X": x, "Y": y, "n_samples": 32},
+            counterfactual_query=CtfQuery(
+                outcome="Y",
+                intervention=(("X", 1.0),),
+                evidence=(("X", 0.0),),
+                kind="ett",
+            ),
+            run_id="unsupported-admg-gcm",
+        )
+
+    assert refusal.value.reason_code == "graph_not_declared_static_dag"
 
 
 def test_explicit_native_profile_never_claims_dowhy_fit() -> None:
@@ -51,7 +108,6 @@ from polisyos.foundry.methods.catalog.causal.gcm_query import (
     validate_persisted_estimator_interval,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData
-from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.analytics.causal_queries import CausalQuery, load_causal_query_result
 from polisyos.ir.analytics.structural_causal_model import persist_structural_causal_model_spec
 from polisyos.ir.registry.refs import CausalQueryResultRef
@@ -148,7 +204,9 @@ def test_actual_gcm_job_persisted_fresh_reader_and_scientist_consumer(tmp_path, 
     methods.validate_source_bound_gcm_spec(model, store)
     methods.validate_source_bound_causal_worker_response(
         response=model.fit_provenance.worker_response,
-        state=data, store=store, source_ref=source,
+        state=data,
+        store=store,
+        source_ref=source,
     )
     root, conditional = model.mechanisms
     assert root.family_params["observed_samples"] == data.data[:, 0].tolist()
@@ -165,7 +223,7 @@ def test_actual_gcm_job_persisted_fresh_reader_and_scientist_consumer(tmp_path, 
     assert np.asarray(conditional.family_params["residual_samples"]) == pytest.approx(
         data.data[:, 1] - conditional.family_params["intercept"] - coefficient * data.data[:, 0]
     )
-    ref = persist_structural_causal_model_spec(store, model)
+    ref = persist_structural_causal_model_spec(_ensure_ir_artifact_store(store), model)
     reader = """
 import json,sys
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -212,7 +270,7 @@ print(json.dumps({'mean':output['query_result'].result_mean,'profile':model.fit_
     outcome = RunCausalQueriesNode().execute(ctx, state)
     assert outcome.status == "ok", outcome.error
     persisted = load_causal_query_result(
-        FileSystemCAS(store.root),
+        _ensure_ir_artifact_store(FileSystemCAS(store.root)),
         CausalQueryResultRef.model_validate(
             outcome.state.artifacts_index[ARTIFACT_CAUSAL_QUERY_RESULT_REF].model_dump(mode="json")
         ),
@@ -330,14 +388,17 @@ def test_actual_query_consumer_binds_complete_cas_projection_and_original_reques
     import polisyos.scientist.nodes.builtins.causal.run_causal_queries as owner
 
     store, source, data, model, _ = _fit_real(tmp_path / "cas", 100)
-    ref = persist_structural_causal_model_spec(store, model)
+    ref = persist_structural_causal_model_spec(_ensure_ir_artifact_store(store), model)
     registry = build_default_registry_bundle(store).bundle_ref
     run = RunContext.start(store=store, registry_bundle=registry, run_id="query-custody")
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("query-custody"))
     state = ExperimentState(
         run_id="query-custody",
-        params={"random_seed": 23, "structural_causal_model_ref": ref.model_dump(mode="json"),
-                "causal_query": _contrast().model_dump(mode="json")},
+        params={
+            "random_seed": 23,
+            "structural_causal_model_ref": ref.model_dump(mode="json"),
+            "causal_query": _contrast().model_dump(mode="json"),
+        },
     )
     assert owner.RunCausalQueriesNode().execute(ctx, state).status == "ok"
     genuine_job = owner.run_job

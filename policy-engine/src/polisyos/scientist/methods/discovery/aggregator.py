@@ -258,7 +258,7 @@ def load_edge_confidence_matrix(
     ref: EdgeConfidenceMatrixRef,
 ) -> EdgeConfidenceMatrix:
     """Load edge confidence matrix."""
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return EdgeConfidenceMatrix.model_validate(payload)
 
 

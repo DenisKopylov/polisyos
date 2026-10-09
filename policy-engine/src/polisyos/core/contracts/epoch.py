@@ -44,11 +44,11 @@ class _EpochModel(BaseModel):
 class _EpochArtifactStore(Protocol):
     """Minimal CAS surface used to re-establish an epoch statement from bytes."""
 
-    def get_bytes(self, artifact_id: ArtifactID) -> bytes: ...
+    def get_bytes(self, artifact_id: ArtifactID | ArtifactRef) -> bytes: ...
 
-    def get_manifest(self, artifact_id: ArtifactID) -> object: ...
+    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef) -> object: ...
 
-    def verify(self, artifact_id: ArtifactID) -> object: ...
+    def verify(self, artifact_id: ArtifactID | ArtifactRef) -> object: ...
 
 
 def _frame(value: bytes) -> bytes:
@@ -115,9 +115,9 @@ def load_verified_epoch_statement(
 
     if ref.kind != expected_kind or ref.media_type != expected_media_type:
         raise ValueError("epoch statement reference profile differs")
-    report = store.verify(ref.artifact_id)
-    manifest = store.get_manifest(ref.artifact_id)
-    payload = store.get_bytes(ref.artifact_id)
+    report = store.verify(ref)
+    manifest = store.get_manifest(ref)
+    payload = store.get_bytes(ref)
     if (
         not bool(getattr(report, "ok", False))
         or getattr(manifest, "artifact_id", None) != ref.artifact_id
@@ -380,10 +380,7 @@ def _scoped_schema_regime_projection_payload(
     """Normalize the two artifact refs with the projection's frozen v1 serializer."""
 
     if isinstance(value, ScopedSchemaRegimeProjection):
-        payload = {
-            name: getattr(value, name)
-            for name in value.__class__.model_fields
-        }
+        payload = {name: getattr(value, name) for name in value.__class__.model_fields}
     else:
         payload = dict(value)
     if not include_hash:

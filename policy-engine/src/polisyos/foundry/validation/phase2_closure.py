@@ -605,7 +605,7 @@ def load_foundry_phase2_closure_report(
 ) -> FoundryPhase2ClosureReport:
     """Load the canonical Phase 2 closure report from CAS."""
 
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return FoundryPhase2ClosureReport.model_validate(payload)
 
 

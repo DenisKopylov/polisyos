@@ -392,7 +392,7 @@ class PersistentMemoryStore:
         import json
 
         with self._lock:
-            raw = self._store.get_bytes(index_ref.artifact_id)
+            raw = self._store.get_bytes(index_ref)
             self._index = MemoryIndex.model_validate(json.loads(raw))
             self._hydrate_index_metadata()
             self._refresh_content_hashes()
@@ -682,7 +682,7 @@ class PersistentMemoryStore:
         try:
             import json
 
-            raw = self._store.get_bytes(idx_entry.artifact_ref.artifact_id)
+            raw = self._store.get_bytes(idx_entry.artifact_ref)
             return MemoryEntry.model_validate(json.loads(raw))
         except Exception:
             return None

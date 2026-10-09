@@ -146,9 +146,7 @@ def build_real_fetch_owner(
         metadata={"resolution_route": "catalog", "catalog_discovered": True},
     )
     local_cas_root = (
-        tmp_path / "cas"
-        if artifact_store is None and artifact_store_config is None
-        else None
+        tmp_path / "cas" if artifact_store is None and artifact_store_config is None else None
     )
     service = RetrievalService(
         curated_dir=tmp_path,
@@ -246,16 +244,12 @@ def build_recorded_file_fetch_owner(
                     id=f"distribution-{name}",
                     connector_type="files.tabular",
                     source_locator=(
-                        str(catalog_locator)
-                        if name == "primary" and catalog_locator
-                        else name
+                        str(catalog_locator) if name == "primary" and catalog_locator else name
                     ),
                     parser_supported=True,
                     machine_readable=True,
                     connector_params=(
-                        primary_connector_params
-                        if name == "primary"
-                        else {"url": str(csv_path)}
+                        primary_connector_params if name == "primary" else {"url": str(csv_path)}
                     ),
                     # Canonical capture fixtures must resolve the intended
                     # primary target before the read-only route check.  Keep
@@ -453,7 +447,11 @@ def real_fetch_owner(tmp_path):
 
 def _execute(owner, plan=None):
     resolved = owner.service.resolve(
-        DataResolveRequest(data_needs=[DataNeed(metric=owner.plan.metric_id)], mode="fastlane")
+        DataResolveRequest(
+            data_needs=[DataNeed(metric=owner.plan.metric_id)],
+            mode="fastlane",
+            catalog_run_profile="prod_full",
+        )
     )
     return owner.service.execute_fetch_plans(
         [plan or resolved.fetch_plans[0]], persist_payload=True
@@ -853,14 +851,8 @@ def test_worldbank_connector_replays_existing_http_fixture_through_real_owner(tm
         assert health.params == {"format": "json", "per_page": "1"}
         assert "page" not in health.params
         assert [request.params["page"] for request in data] == ["1", "2"]
-        assert all(
-            request.response in owner.http_responses.values()
-            for request in data
-        )
-        assert all(
-            request.headers["ETag"] == '"wdi-etag-1"'
-            for request in replayed_requests
-        )
+        assert all(request.response in owner.http_responses.values() for request in data)
+        assert all(request.headers["ETag"] == '"wdi-etag-1"' for request in replayed_requests)
         assert resolved.used_plan.connector_id == "worldbank.wdi"
         assert resolved.used_plan.dataset_id == "NY.GDP.MKTP.CD"
 
@@ -882,16 +874,11 @@ def test_worldbank_fixture_distinguishes_pool_health_from_paginated_data(tmp_pat
         health = [exchange for exchange in exchanges if exchange.kind == "health"]
         data = [exchange for exchange in exchanges if exchange.kind == "data"]
         assert len(health) == 1
-        assert all(
-            exchange.params == {"format": "json", "per_page": "1"}
-            for exchange in health
-        )
+        assert all(exchange.params == {"format": "json", "per_page": "1"} for exchange in health)
         assert all("page" not in exchange.params for exchange in health)
         assert [exchange.params["page"] for exchange in data] == ["1", "2", "1", "2"]
         assert all("page" in exchange.params for exchange in data)
-        assert all(
-            exchange.response is not None and exchange.headers for exchange in exchanges
-        )
+        assert all(exchange.response is not None and exchange.headers for exchange in exchanges)
 
 
 @pytest.mark.parametrize(
@@ -957,7 +944,6 @@ def test_current_registry_validates_full_result_without_fetch_or_mutation(tmp_pa
             assert any("field 'value' completeness" in error for error in validation.errors)
         if variant == "wrong_schema":
             assert any("schema_id" in error for error in validation.errors)
-
 
 
 def test_fetch_executor_keeps_supplied_tenant_store_for_persist_and_readback(tmp_path):

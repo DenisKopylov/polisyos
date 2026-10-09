@@ -8,6 +8,7 @@ import numpy as np
 import pytest
 
 import polisyos.scientist.methods.backtesting.orchestrator as orchestrator_module
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ir_adapter import build_ir_artifact_store
 from polisyos.ir.analytics.backtest import BacktestReport, BiasDirection
 from polisyos.ir.artifacts import get_json_artifact
@@ -186,7 +187,9 @@ def test_untestable_nonzero_errors_withhold_trust_after_cas_readback(
     report = _run_provided_report(tmp_path, predictions=predictions, truths=truths)
     assert report.cas_artifact_id is not None
     store = build_ir_artifact_store(tmp_path / ".polisyos")
-    stored_report = BacktestReport.model_validate(get_json_artifact(store, report.cas_artifact_id))
+    stored_report = BacktestReport.model_validate(
+        get_json_artifact(_ensure_ir_artifact_store(store), report.cas_artifact_id)
+    )
 
     errors = np.asarray(predictions) - np.asarray(truths)
     assert np.any(errors != 0.0)

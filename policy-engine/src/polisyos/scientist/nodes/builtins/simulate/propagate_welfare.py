@@ -13,9 +13,10 @@ import numpy as np
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import (
@@ -64,6 +65,7 @@ from polisyos.ir.analytics.welfare import (
     persist_welfare_bundle,
     persist_welfare_sample_bundle,
 )
+from polisyos.ir.artifacts import get_json_artifact
 from polisyos.ir.observation.bundles import LeontiefIOBundle
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
@@ -538,7 +540,9 @@ class PropagateWelfareNode:
                 ),
                 sensitivity_diagnostics_ref=sensitivity_diagnostics_ref,
             )
-            bundle_ref = persist_welfare_bundle(ctx.store, bundle, inputs=bundle_inputs)
+            bundle_ref = persist_welfare_bundle(
+                _ensure_ir_artifact_store(ctx.store), bundle, inputs=bundle_inputs
+            )
             updated_simulation_result = sim_result.model_copy(
                 update={"welfare_bundle_ref": bundle_ref}
             )
@@ -549,20 +553,14 @@ class PropagateWelfareNode:
                     media_type="application/json",
                     schema=SchemaInfo(name="polisyos.core.SimulationResult", version="1.2"),
                     inputs=[
-                        InputRef(
-                            artifact_id=str(sim_result_ref.artifact_id),
-                            role="base_simulation_result",
-                        ),
-                        InputRef(
-                            artifact_id=str(bundle_ref.artifact_id),
-                            role="welfare_bundle",
-                        ),
+                        _input_ref(sim_result_ref, role="base_simulation_result"),
+                        _input_ref(bundle_ref, role="welfare_bundle"),
                     ],
                 ),
                 canon_spec=CanonSpec(forbid_floats=False),
             )
-            updated_simulation_result_ref = SimulationResultRef(
-                artifact_id=updated_simulation_result_payload.artifact_id
+            updated_simulation_result_ref = SimulationResultRef.model_validate(
+                updated_simulation_result_payload.model_dump(mode="python")
             )
         except _WelfareNodeFailure as exc:
             return NodeOutcome(
@@ -613,8 +611,22 @@ class PropagateWelfareNode:
 
 
 def _load_model(ctx: ExecutionContext, ref: ArtifactRef, model_cls):
-    payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+    payload = _load_artifact_json(ctx, ref)
     return model_cls.model_validate(payload)
+
+
+def _load_artifact_json(ctx: ExecutionContext, ref: ArtifactRef | ArtifactRefModel) -> Any:
+    """Load JSON from the exact manifest view named by a typed artifact reference."""
+    return get_json_artifact(_ensure_ir_artifact_store(ctx.store), ref)
+
+
+def _input_ref(ref: ArtifactRef | ArtifactRefModel, *, role: str) -> InputRef:
+    """Build one producer lineage edge without discarding its selected manifest view."""
+    return InputRef(
+        artifact_id=ref.artifact_id,
+        role=role,
+        manifest_profile_sha256=ref.manifest_profile_sha256,
+    )
 
 
 def _equilibrium_multiplicity_annotation(
@@ -777,7 +789,9 @@ def _collect_input_envelopes(
     if data_snapshot_ref is not None:
         snapshot = _load_model(ctx, data_snapshot_ref, DataSnapshot)
         if snapshot.uncertainty_envelope_ref is not None:
-            env = load_uncertainty_envelope(ctx.store, snapshot.uncertainty_envelope_ref)
+            env = load_uncertainty_envelope(
+                _ensure_ir_artifact_store(ctx.store), snapshot.uncertainty_envelope_ref
+            )
             name = env.metadata.get("param_name")
             key = str(name) if isinstance(name, str) and name.strip() else "data_snapshot"
             admit_envelope(
@@ -792,9 +806,7 @@ def _collect_input_envelopes(
     if calibration_ref is not None:
         report = _load_model(ctx, calibration_ref, CalibrationReport)
         calibration_projection_present = report.coordinate_projection is not None
-        calibration_projection_status = (
-            report.coordinate_projection_status or "not_established"
-        )
+        calibration_projection_status = report.coordinate_projection_status or "not_established"
         if calibration_projection_status == "incomplete":
             calibration_issues.add("calibration_projection_incomplete")
         elif calibration_projection_status == "unsupported":
@@ -806,7 +818,7 @@ def _collect_input_envelopes(
                 loaded_calibration_names.append(key)
                 admit_envelope(
                     key,
-                    load_uncertainty_envelope(ctx.store, ref),
+                    load_uncertainty_envelope(_ensure_ir_artifact_store(ctx.store), ref),
                     source_role="calibration_report",
                     origin_ref=ref,
                     ref=ref,
@@ -861,7 +873,7 @@ def _collect_input_envelopes(
                 ref = UncertaintyEnvelopeRef.model_validate(value)
                 admit_envelope(
                     name,
-                    load_uncertainty_envelope(ctx.store, ref),
+                    load_uncertainty_envelope(_ensure_ir_artifact_store(ctx.store), ref),
                     source_role="inline_ref",
                     origin_ref=ref,
                     ref=ref,
@@ -879,17 +891,16 @@ def _collect_input_envelopes(
                     calibration_issues.add("calibration_envelope_conflict")
 
     calibration_source = None
-    if calibration_ref is not None and report is not None and (calibration_fields or calibration_issues):
+    if (
+        calibration_ref is not None
+        and report is not None
+        and (calibration_fields or calibration_issues)
+    ):
         coordinate_order = (
-            tuple(report.uncertainties.params)
-            if report.uncertainties is not None
-            else ()
+            tuple(report.uncertainties.params) if report.uncertainties is not None else ()
         )
         coordinate_covariance = (
-            tuple(
-                tuple(float(value) for value in row)
-                for row in report.uncertainties.covariance
-            )
+            tuple(tuple(float(value) for value in row) for row in report.uncertainties.covariance)
             if report.uncertainties is not None
             else ()
         )
@@ -1149,7 +1160,7 @@ def _resolve_dependence_context(
         )
     try:
         ref = DependenceStructureRef.model_validate(raw)
-        structure = load_dependence_structure(ctx.store, ref)
+        structure = load_dependence_structure(_ensure_ir_artifact_store(ctx.store), ref)
     except _WELFARE_VALIDATION_ERRORS as exc:
         raise _fail_error(
             _ERROR_DEPENDENCE_SPEC_INVALID,
@@ -1290,7 +1301,7 @@ def _resolve_ge_context(
     ge_bundle: GEUncertaintyBundle | None = None
     if bundle_ref is not None:
         try:
-            ge_bundle = load_ge_uncertainty_bundle(ctx.store, bundle_ref)
+            ge_bundle = load_ge_uncertainty_bundle(_ensure_ir_artifact_store(ctx.store), bundle_ref)
         except _WELFARE_LOAD_ERRORS as exc:
             raise _fail_error(
                 _ERROR_GE_UNCERTAINTY_REF_KIND,
@@ -1509,7 +1520,7 @@ def _resolve_ge_context(
             schema_name="ir.welfare_multiplier_matrix",
         )
         created_bundle_ref = persist_ge_uncertainty_bundle(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             GEUncertaintyBundle(
                 model_class=str(welfare_params.get("model_class") or "linearized_ge_io"),
                 representation=(
@@ -1591,7 +1602,9 @@ def _build_simulation_fn(
         elif param_name not in available_envelopes.refs and param_name in {
             item for mapping in context.pe_sensitivity.values() for item in mapping
         }:
-            pe_refs[param_name] = persist_uncertainty_envelope(ctx.store, env)
+            pe_refs[param_name] = persist_uncertainty_envelope(
+                _ensure_ir_artifact_store(ctx.store), env
+            )
 
     base_response = np.asarray(context.base_response, dtype=np.float64)
     weights = np.asarray(context.weights, dtype=np.float64)
@@ -1857,7 +1870,7 @@ def _propagate_credible_interval(
         }
     }
     sample_bundle_ref = persist_welfare_sample_bundle(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         WelfareSampleBundle(
             welfare_draws=tuple(float(value) for value in draws_welfare),
             welfare_pe_draws=tuple(float(value) for value in draws_pe),
@@ -1921,8 +1934,7 @@ def _propagate_credible_interval(
                     "covariance_order": list(param_names),
                     "covariance_matrix": calibration_resolution.matrix.tolist(),
                 }
-                if calibration_resolution is not None
-                and calibration_resolution.matrix is not None
+                if calibration_resolution is not None and calibration_resolution.matrix is not None
                 else {}
             ),
             **_calibration_projection_report_metadata(
@@ -1938,9 +1950,7 @@ def _propagate_credible_interval(
         inputs=_calibration_lineage_inputs(
             calibration_source,
             dependence_ref=context.dependence_structure_ref,
-            additional_refs=(
-                InputRef(artifact_id=str(sample_bundle_ref.artifact_id), role="sample_bundle"),
-            ),
+            additional_refs=(_input_ref(sample_bundle_ref, role="sample_bundle"),),
         ),
     )
     return _PropagationOutcome(
@@ -2113,9 +2123,7 @@ def _resolve_calibration_covariance(
             limitation_code=code,
         )
 
-    calibration_fields = [
-        name for name in calibration_source.field_order if name in param_names
-    ]
+    calibration_fields = [name for name in calibration_source.field_order if name in param_names]
     if not calibration_fields:
         code = "calibration_projection_missing"
         return _CovarianceResolution(
@@ -2185,7 +2193,10 @@ def _resolve_calibration_covariance(
             )
         full_projection = np.asarray(
             [
-                [1.0 if field_name == coordinate_name else 0.0 for coordinate_name in coordinate_order]
+                [
+                    1.0 if field_name == coordinate_name else 0.0
+                    for coordinate_name in coordinate_order
+                ]
                 for field_name in calibration_source.field_order
             ],
             dtype=np.float64,
@@ -2280,9 +2291,7 @@ def _resolve_calibration_covariance(
     def mixed_marginal_limitation(covariance: np.ndarray) -> _CovarianceResolution | None:
         """Withhold joint intervals when a non-Normal marginal carries Pearson covariance."""
         matrix = np.asarray(covariance, dtype=np.float64)
-        if matrix.shape != (len(param_names), len(param_names)) or not np.all(
-            np.isfinite(matrix)
-        ):
+        if matrix.shape != (len(param_names), len(param_names)) or not np.all(np.isfinite(matrix)):
             code = "calibration_covariance_invalid"
             return _CovarianceResolution(
                 matrix=None,
@@ -2312,8 +2321,7 @@ def _resolve_calibration_covariance(
                     continue
                 right_name = param_names[right_index]
                 right_is_non_normal = (
-                    input_envelopes[right_name].distribution_family
-                    is not DistributionFamily.NORMAL
+                    input_envelopes[right_name].distribution_family is not DistributionFamily.NORMAL
                 )
                 if not left_is_non_normal and not right_is_non_normal:
                     continue
@@ -2360,9 +2368,7 @@ def _resolve_calibration_covariance(
             "unsupported_marginal_fields": [
                 name for name in param_names if name in unsupported_fields
             ],
-            "correlated_fields": [
-                name for name in param_names if name in correlated_fields
-            ],
+            "correlated_fields": [name for name in param_names if name in correlated_fields],
             "nonzero_covariance_pairs": pairs,
             "covariance_predicate": "exact_nonzero_in_admitted_finite_matrix",
             "decision": "retain_candidate_point_withhold_interval_and_samples",
@@ -2397,9 +2403,7 @@ def _resolve_calibration_covariance(
                     np.ix_(overlap_indices, overlap_indices)
                 ] * np.outer(overlap_stds, overlap_stds)
                 report_indices = [calibration_fields.index(name) for name in overlap_fields]
-                report_overlap = calibration_covariance[
-                    np.ix_(report_indices, report_indices)
-                ]
+                report_overlap = calibration_covariance[np.ix_(report_indices, report_indices)]
             except (KeyError, TypeError, ValueError, FloatingPointError) as exc:
                 code = "calibration_covariance_invalid"
                 return _CovarianceResolution(
@@ -2473,7 +2477,9 @@ def _resolve_calibration_covariance(
             note={
                 "strategy": "calibration_report_plus_disjoint_sources",
                 "calibration_fields": calibration_fields,
-                "uncovered_fields": [name for name in param_names if name not in calibration_fields],
+                "uncovered_fields": [
+                    name for name in param_names if name not in calibration_fields
+                ],
                 "calibration_report_ref": str(calibration_source.report_ref.artifact_id),
                 "reason": "no_complete_calibrated_joint_covariance",
                 "independence_source_validated": False,
@@ -2556,7 +2562,9 @@ def _resolve_calibration_covariance(
             "calibration_fields": calibration_fields,
             "calibration_report_ref": str(calibration_source.report_ref.artifact_id),
             "dependence_structure_ref": (
-                str(dependence_context.ref.artifact_id) if dependence_context.ref is not None else None
+                str(dependence_context.ref.artifact_id)
+                if dependence_context.ref is not None
+                else None
             ),
             "reconciliation_tolerance": {
                 "version": 1,
@@ -2668,9 +2676,7 @@ def _calibration_dependence_sampler(
         except np.linalg.LinAlgError:
             return limited("calibration_cross_source_dependence_unknown")
         cross_block = resolved_covariance[np.ix_(calibration_indices, extra_indices)]
-        represented_cross_block = (
-            projection_matrix @ projection_pseudoinverse @ cross_block
-        )
+        represented_cross_block = projection_matrix @ projection_pseudoinverse @ cross_block
         if not np.allclose(
             represented_cross_block,
             cross_block,
@@ -2881,9 +2887,7 @@ def _sample_param_draw(
             for index, name in enumerate(sampler.extra_fields):
                 envelope = input_envelopes[name]
                 if envelope.distribution_family == DistributionFamily.NORMAL:
-                    draw_params[name] = float(
-                        envelope.point_estimate + extra_delta[index]
-                    )
+                    draw_params[name] = float(envelope.point_estimate + extra_delta[index])
                 else:
                     standard_deviation = sampler.extra_stds[index]
                     standardized = (
@@ -3309,53 +3313,27 @@ def _bundle_inputs(
     sensitivity_diagnostics_ref: ArtifactRefModel | None,
 ) -> list[InputRef]:
     inputs = [
-        InputRef(artifact_id=str(sim_result_ref.artifact_id), role="simulation_result"),
-        InputRef(artifact_id=str(metric_ref.artifact_id), role="metrics"),
+        _input_ref(sim_result_ref, role="simulation_result"),
+        _input_ref(metric_ref, role="metrics"),
     ]
     for name, ref in pe_uncertainty_refs.items():
-        inputs.append(InputRef(artifact_id=str(ref.artifact_id), role=f"pe_uncertainty.{name}"))
+        inputs.append(_input_ref(ref, role=f"pe_uncertainty.{name}"))
     if ge_uncertainty_ref is not None:
-        inputs.append(
-            InputRef(artifact_id=str(ge_uncertainty_ref.artifact_id), role="ge_uncertainty")
-        )
+        inputs.append(_input_ref(ge_uncertainty_ref, role="ge_uncertainty"))
     if dependence_structure_ref is not None:
-        inputs.append(
-            InputRef(
-                artifact_id=str(dependence_structure_ref.artifact_id),
-                role="dependence_structure",
-            )
-        )
+        inputs.append(_input_ref(dependence_structure_ref, role="dependence_structure"))
     if calibration_report_ref is not None:
-        inputs.append(
-            InputRef(
-                artifact_id=str(calibration_report_ref.artifact_id),
-                role="calibration_report",
-            )
-        )
+        inputs.append(_input_ref(calibration_report_ref, role="calibration_report"))
     if channel_decomposition_ref is not None:
-        inputs.append(
-            InputRef(
-                artifact_id=str(channel_decomposition_ref.artifact_id),
-                role="channel_decomposition",
-            )
-        )
+        inputs.append(_input_ref(channel_decomposition_ref, role="channel_decomposition"))
     if method_config_ref is not None:
-        inputs.append(
-            InputRef(artifact_id=str(method_config_ref.artifact_id), role="method_config")
-        )
+        inputs.append(_input_ref(method_config_ref, role="method_config"))
     if report_ref is not None:
-        inputs.append(InputRef(artifact_id=str(report_ref.artifact_id), role="propagation_report"))
+        inputs.append(_input_ref(report_ref, role="propagation_report"))
     if sample_bundle_ref is not None:
-        inputs.append(
-            InputRef(artifact_id=str(sample_bundle_ref.artifact_id), role="sample_bundle")
-        )
+        inputs.append(_input_ref(sample_bundle_ref, role="sample_bundle"))
     if sensitivity_diagnostics_ref is not None:
-        inputs.append(
-            InputRef(
-                artifact_id=str(sensitivity_diagnostics_ref.artifact_id),
-                role="sensitivity_diagnostics",
-            )
-        )
+        inputs.append(_input_ref(sensitivity_diagnostics_ref, role="sensitivity_diagnostics"))
     return inputs
 
 
@@ -3413,7 +3391,7 @@ def _maybe_build_channel_decomposition_ref(
     )
     try:
         return build_channel_decomposition_ref(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             target_kind=str(
                 config.get(
                     "target_kind",
@@ -3763,7 +3741,7 @@ def _load_ge_model_from_ref(
     condition_threshold: float,
     diagnostics: dict[str, Any],
 ) -> tuple[np.ndarray, np.ndarray, Literal["multiplier", "technical_coefficients"]]:
-    payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+    payload = _load_artifact_json(ctx, ref)
     if isinstance(payload, dict):
         if "technical_coefficients" in payload:
             matrix = _validate_square_matrix(
@@ -3823,7 +3801,7 @@ def _load_matrix_artifact(
     expected_size: int,
     field_name: str,
 ) -> np.ndarray:
-    payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+    payload = _load_artifact_json(ctx, ref)
     if isinstance(payload, dict):
         if "matrix" in payload:
             return _validate_square_matrix(
@@ -3920,19 +3898,9 @@ def _calibration_lineage_inputs(
 ) -> list[InputRef] | None:
     inputs = list(additional_refs)
     if calibration_source is not None:
-        inputs.append(
-            InputRef(
-                artifact_id=str(calibration_source.report_ref.artifact_id),
-                role="calibration_report",
-            )
-        )
+        inputs.append(_input_ref(calibration_source.report_ref, role="calibration_report"))
     if dependence_ref is not None:
-        inputs.append(
-            InputRef(
-                artifact_id=str(dependence_ref.artifact_id),
-                role="dependence_structure",
-            )
-        )
+        inputs.append(_input_ref(dependence_ref, role="dependence_structure"))
     return inputs or None
 
 

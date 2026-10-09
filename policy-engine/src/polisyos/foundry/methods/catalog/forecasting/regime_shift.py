@@ -11,6 +11,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -113,7 +114,10 @@ def _segment_sse(series: np.ndarray, start: int, end: int) -> float:
 
 
 def _total_sse(series: np.ndarray, breakpoints: tuple[int, ...]) -> float:
-    return sum(_segment_sse(series, start, end) for start, end in _segments_from_breaks(series.size, breakpoints))
+    return sum(
+        _segment_sse(series, start, end)
+        for start, end in _segments_from_breaks(series.size, breakpoints)
+    )
 
 
 def _bic_score(series: np.ndarray, breakpoints: tuple[int, ...], *, penalty_scale: float) -> float:
@@ -121,7 +125,10 @@ def _bic_score(series: np.ndarray, breakpoints: tuple[int, ...], *, penalty_scal
     sse = max(_total_sse(series, breakpoints), _EPS)
     n_segments = len(breakpoints) + 1
     n_parameters = 2 * n_segments + len(breakpoints)
-    return float(n_obs * math.log(sse / max(n_obs, 1)) + penalty_scale * n_parameters * math.log(max(n_obs, 2)))
+    return float(
+        n_obs * math.log(sse / max(n_obs, 1))
+        + penalty_scale * n_parameters * math.log(max(n_obs, 2))
+    )
 
 
 def _softmax_scores(scores: Mapping[int, float]) -> dict[int, float]:
@@ -186,7 +193,9 @@ def _segment_slope(values: np.ndarray) -> float:
     return float(slope)
 
 
-def _summarize_segments(series: np.ndarray, breakpoints: tuple[int, ...]) -> tuple[_SegmentSummary, ...]:
+def _summarize_segments(
+    series: np.ndarray, breakpoints: tuple[int, ...]
+) -> tuple[_SegmentSummary, ...]:
     raw: list[tuple[int, int, int, float, float, float, int]] = []
     for label, (start, end) in enumerate(_segments_from_breaks(int(series.size), breakpoints)):
         values = series[start:end]
@@ -369,7 +378,8 @@ def _break_recovery_curve(
         "break_window": break_window,
         "curves": rows,
         "recovery_time_by_break": {
-            str(breakpoint): recovery for breakpoint, recovery in zip(breakpoints, recovery_times, strict=True)
+            str(breakpoint): recovery
+            for breakpoint, recovery in zip(breakpoints, recovery_times, strict=True)
         },
         "max_recovery_time": max(finite_recovery) if finite_recovery else None,
     }
@@ -386,7 +396,11 @@ def _transition_summary(labels: list[str]) -> dict[str, Any]:
         probabilities[state] = {
             other: (float(value / total) if total else 0.0) for other, value in row.items()
         }
-    return {"states": states, "transition_counts": counts, "transition_probabilities": probabilities}
+    return {
+        "states": states,
+        "transition_counts": counts,
+        "transition_probabilities": probabilities,
+    }
 
 
 def _json_ready(value: Any) -> Any:
@@ -409,7 +423,7 @@ def _artifact_ref(
     json_payload = _json_ready(payload)
     if artifact_store is not None:
         ref = put_json_artifact(
-            artifact_store,
+            _ensure_ir_artifact_store(artifact_store),
             json_payload,
             kind=kind,
             schema_name=schema_name,
@@ -468,7 +482,10 @@ def _break_posterior_payload(
 
 def _run_length_payload(n_obs: int, breakpoints: tuple[int, ...]) -> dict[str, Any]:
     last_break = max(breakpoints, default=0)
-    rows = [{"t": t, "run_length": t - max([b for b in breakpoints if b <= t], default=0)} for t in range(n_obs)]
+    rows = [
+        {"t": t, "run_length": t - max([b for b in breakpoints if b <= t], default=0)}
+        for t in range(n_obs)
+    ]
     return {
         "posterior_type": "hard_run_length_proxy",
         "current_run_length": int(n_obs - last_break),
@@ -494,20 +511,22 @@ def _parameter_summary_payload(segments: tuple[_SegmentSummary, ...]) -> dict[st
     }
 
 
-def _duration_summary_payload(segments: tuple[_SegmentSummary, ...], *, min_dwell: int) -> dict[str, Any]:
+def _duration_summary_payload(
+    segments: tuple[_SegmentSummary, ...], *, min_dwell: int
+) -> dict[str, Any]:
     durations = [segment.length for segment in segments]
     return {
         "duration_model": "empirical_segment_dwell_time",
         "min_dwell_required": min_dwell,
         "observed_durations": durations,
         "minimum_observed_duration": min(durations) if durations else 0,
-        "duration_by_regime": {
-            segment.canonical_label: segment.length for segment in segments
-        },
+        "duration_by_regime": {segment.canonical_label: segment.length for segment in segments},
     }
 
 
-def _predictive_mixture_payload(forecast: np.ndarray, lower: np.ndarray, upper: np.ndarray) -> dict[str, Any]:
+def _predictive_mixture_payload(
+    forecast: np.ndarray, lower: np.ndarray, upper: np.ndarray
+) -> dict[str, Any]:
     return {
         "mixture_type": "last_regime_with_break_uncertainty_proxy",
         "horizons": [
@@ -517,7 +536,9 @@ def _predictive_mixture_payload(forecast: np.ndarray, lower: np.ndarray, upper: 
                 "lower": float(lo),
                 "upper": float(hi),
             }
-            for horizon, (point, lo, hi) in enumerate(zip(forecast, lower, upper, strict=True), start=1)
+            for horizon, (point, lo, hi) in enumerate(
+                zip(forecast, lower, upper, strict=True), start=1
+            )
         ],
     }
 
@@ -529,7 +550,9 @@ def _conditional_forecasts_payload(
 ) -> dict[str, Any]:
     rows: list[dict[str, Any]] = []
     for segment in segments:
-        point = np.asarray([segment.mean + step * segment.slope for step in range(1, horizon + 1)], dtype=float)
+        point = np.asarray(
+            [segment.mean + step * segment.slope for step in range(1, horizon + 1)], dtype=float
+        )
         scale = np.sqrt(np.arange(1, horizon + 1, dtype=float))
         rows.append(
             {
@@ -559,7 +582,9 @@ def _identifiability_payload(
     for left, right in zip(segments, segments[1:], strict=False):
         adjacent_separations.append(abs(right.mean - left.mean) / pooled_std)
     min_separation = min(adjacent_separations, default=math.inf)
-    dwell_ok = bool(all(segment.length > lag_order and segment.length >= min_dwell for segment in segments))
+    dwell_ok = bool(
+        all(segment.length > lag_order and segment.length >= min_dwell for segment in segments)
+    )
     separability_ok = bool(min_separation >= separation_threshold or len(segments) == 1)
     count_penalty_ok = bool(segmentation.selected_break_count_probability >= 0.50)
     overall_coverage = float(calibration_slices["overall_coverage"])
@@ -589,7 +614,9 @@ def _identifiability_payload(
         "gates": {
             "separability": {
                 "passed": separability_ok,
-                "minimum_adjacent_standardized_separation": None if math.isinf(min_separation) else min_separation,
+                "minimum_adjacent_standardized_separation": None
+                if math.isinf(min_separation)
+                else min_separation,
                 "threshold": separation_threshold,
             },
             "dwell_time": {
@@ -646,11 +673,19 @@ def _forecast_last_regime(
 ) -> np.ndarray:
     last = segments[-1]
     values = series[last.start : last.end]
-    slope = last.slope if values.size >= 4 else float(np.mean(np.diff(values))) if values.size > 1 else 0.0
+    slope = (
+        last.slope
+        if values.size >= 4
+        else float(np.mean(np.diff(values)))
+        if values.size > 1
+        else 0.0
+    )
     anchor = float(values[-1]) if values.size else last.mean
     shrink = min(1.0, values.size / 24.0)
     effective_slope = shrink * slope
-    return np.asarray([anchor + effective_slope * step for step in range(1, horizon + 1)], dtype=float)
+    return np.asarray(
+        [anchor + effective_slope * step for step in range(1, horizon + 1)], dtype=float
+    )
 
 
 def _build_intervals(
@@ -848,11 +883,16 @@ class RegimeShiftForecastEstimator:
         )
 
         generated_at = _utc_now()
-        coverage_by_horizon = {h: float(calibration_slices["overall_coverage"]) for h in range(1, horizon + 1)}
-        coverage_gap_by_horizon = {
-            h: float(calibration_slices["overall_coverage"]) - nominal_coverage for h in range(1, horizon + 1)
+        coverage_by_horizon = {
+            h: float(calibration_slices["overall_coverage"]) for h in range(1, horizon + 1)
         }
-        width_by_horizon = {h: float(2.0 * radius * math.sqrt(float(h))) for h in range(1, horizon + 1)}
+        coverage_gap_by_horizon = {
+            h: float(calibration_slices["overall_coverage"]) - nominal_coverage
+            for h in range(1, horizon + 1)
+        }
+        width_by_horizon = {
+            h: float(2.0 * radius * math.sqrt(float(h))) for h in range(1, horizon + 1)
+        }
         sample_count_by_horizon = dict.fromkeys(range(1, horizon + 1), int(series.size))
         gate_eligible = benchmark_status is not RegimeBenchmarkStatus.RED
         rule = HorizonPolicyRule(
@@ -886,7 +926,9 @@ class RegimeShiftForecastEstimator:
                 artifact_store=artifact_store,
             ),
             "break_posterior_ref": _artifact_ref(
-                _break_posterior_payload(int(series.size), segmentation.breakpoints, break_window=break_window),
+                _break_posterior_payload(
+                    int(series.size), segmentation.breakpoints, break_window=break_window
+                ),
                 kind="ir.break_posterior",
                 schema_name="ir.break_posterior",
                 artifact_store=artifact_store,
@@ -983,7 +1025,9 @@ class RegimeShiftForecastEstimator:
                     "break_local_coverage_tracked",
                     "assignment_uncertainty_attached",
                 ),
-                recommended_fallback=ForecastCalibrationMethod.BOOTSTRAP if not gate_eligible else None,
+                recommended_fallback=ForecastCalibrationMethod.BOOTSTRAP
+                if not gate_eligible
+                else None,
                 calibration_window=int(series.size),
                 last_recalibrated_at=generated_at,
             ),

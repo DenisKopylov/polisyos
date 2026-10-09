@@ -19,9 +19,7 @@ if TYPE_CHECKING:
 PARETO_FRONTIER_SCHEMA_VERSION = "policyos.foundry.welfare.pareto_frontier.v1"
 VALUE_CHOICE_SCHEMA_VERSION = "policyos.foundry.welfare.value_choice.v1"
 WELFARE_AUDIT_TRAIL_SCHEMA_VERSION = "policyos.foundry.welfare.audit_trail.v1"
-WELFARE_FRONTIER_EMISSION_SCHEMA_VERSION = (
-    "policyos.foundry.welfare.frontier_emission.v1"
-)
+WELFARE_FRONTIER_EMISSION_SCHEMA_VERSION = "policyos.foundry.welfare.frontier_emission.v1"
 WELFARE_FRONTIER_SURFACE_SCHEMA_VERSION = "policyos.foundry.welfare.frontier_surface.v1"
 
 ObjectiveDirection = Literal["maximize", "minimize"]
@@ -368,9 +366,7 @@ def emit_welfare_frontier(
             "social_weight_provenance_required",
             "Welfare frontier emission requires social-weight provenance.",
         )
-    provenance = assert_social_weight_provenance_usable_for_value_choice(
-        social_weight_provenance
-    )
+    provenance = assert_social_weight_provenance_usable_for_value_choice(social_weight_provenance)
     claim_ref_tuple = _clean_tuple(tuple(str(ref) for ref in claim_refs))
     if not claim_ref_tuple:
         raise WelfareFrontierError("claim_refs_required", "Welfare emission must be claim-bound.")
@@ -583,7 +579,7 @@ def load_welfare_frontier_emission(
 ) -> WelfareFrontierEmission:
     """Load a persisted W8.D frontier emission bundle."""
 
-    payload = canon.from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = canon.from_canonical_bytes(store.get_bytes(ref))
     return WelfareFrontierEmission.model_validate(payload)
 
 

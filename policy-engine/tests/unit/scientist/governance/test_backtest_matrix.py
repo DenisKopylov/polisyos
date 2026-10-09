@@ -6,6 +6,7 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core.artifacts import InputRef, PutOptions
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.ir.analytics.backtest import load_backtest_report
 from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
 from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixRunner
@@ -52,7 +53,7 @@ def test_backtest_matrix_runner_runs_all_five_backtests(tmp_path, cas_store) -> 
     assert all(item.score is not None and 0.0 <= item.score <= 1.0 for item in result.kind_results)
     assert result.report_id.startswith("BTM_")
 
-    report = load_backtest_report(cas_store, result.backtest_report_ref)
+    report = load_backtest_report(_ensure_ir_artifact_store(cas_store), result.backtest_report_ref)
     assert report.n_scenarios == 5
     assert report.trust_eligible is True
     assert report.degraded is False
@@ -69,7 +70,7 @@ def test_backtest_matrix_runner_marks_missing_bundles_as_explicit_gaps(tmp_path,
     assert gaps[BacktestKind.CELL].gap_flag == "missing_backtest_bundle:cell"
     assert result.backtest_report_ref is not None
 
-    report = load_backtest_report(cas_store, result.backtest_report_ref)
+    report = load_backtest_report(_ensure_ir_artifact_store(cas_store), result.backtest_report_ref)
     assert report.n_scenarios == 1
     assert report.trust_eligible is True
 

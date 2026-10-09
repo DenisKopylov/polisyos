@@ -6,6 +6,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.contracts.ic_verification import (
     ICImplementationConformanceReport,
     ICImplementationConformanceReportRef,
@@ -28,7 +29,7 @@ def _load_semantics(
     store: ArtifactStore,
     artifact_ref: Any,
 ) -> tuple[MechanismSemanticsSpec, str]:
-    payload = get_json_artifact(store, artifact_ref.artifact_id)
+    payload = get_json_artifact(_ensure_ir_artifact_store(store), artifact_ref)
     return MechanismSemanticsSpec.model_validate(payload), str(artifact_ref.artifact_id)
 
 
@@ -400,7 +401,7 @@ def persist_ic_conformance_report(
     report: ICImplementationConformanceReport,
 ) -> ICImplementationConformanceReportRef:
     ref = put_json_artifact(
-        store,
+        _ensure_ir_artifact_store(store),
         report.model_dump(mode="json"),
         kind="scientist.ic_conformance_report",
         schema_name=_CONFORMANCE_SCHEMA_NAME,
@@ -413,7 +414,7 @@ def load_ic_conformance_report(
     store: ArtifactStore,
     ref: ICImplementationConformanceReportRef,
 ) -> ICImplementationConformanceReport:
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(_ensure_ir_artifact_store(store), ref)
     return ICImplementationConformanceReport.model_validate(payload)
 
 

@@ -8,6 +8,7 @@ The port cannot be populated by an HTTP request or an ExperimentState field.
 from __future__ import annotations
 
 import marshal
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import CodeType
@@ -69,19 +70,23 @@ def require_canonical_decision_packet_invocation(invocation: object) -> None:
 def decision_packet_invocation_input_refs(*payloads: object) -> tuple[ArtifactRef, ...]:
     """Collect every embedded ref as an observed selector, never an admission claim."""
 
-    refs: dict[tuple[str, str, str], ArtifactRef] = {}
+    refs: dict[tuple[str, str, str, str | None], ArtifactRef] = {}
 
     def collect(value: object) -> None:
-        if isinstance(value, dict):
-            if set(value) == {"artifact_id", "kind", "media_type"}:
-                try:
-                    ref = ArtifactRef.model_validate(value)
-                except ValueError:
-                    pass  # Ordinary candidate JSON remains fully captured in the state.
-                else:
-                    refs[(str(ref.artifact_id), ref.kind, ref.media_type)] = ref
-                    return
-            for item in value.values():
+        if isinstance(value, Mapping):
+            payload = dict(value)
+        elif isinstance(value, BaseModel):
+            payload = value.model_dump(mode="python")
+        else:
+            payload = None
+
+        if payload is not None:
+            if "artifact_id" in payload or "manifest_profile_sha256" in payload:
+                ref = ArtifactRef.model_validate(payload)
+                identity = artifacts.artifact_ref_identity_key(ref)
+                refs[identity] = ref
+                return
+            for item in payload.values():
                 collect(item)
         elif isinstance(value, (list, tuple)):
             for item in value:
@@ -89,7 +94,13 @@ def decision_packet_invocation_input_refs(*payloads: object) -> tuple[ArtifactRe
 
     for payload in payloads:
         collect(payload)
-    return tuple(refs[key] for key in sorted(refs))
+    return tuple(
+        refs[key]
+        for key in sorted(
+            refs,
+            key=lambda identity: (*identity[:3], identity[3] or ""),
+        )
+    )
 
 
 def _capture_decision_packet_invocation(
@@ -116,7 +127,7 @@ def _capture_decision_packet_invocation(
                 canon=artifacts.CanonInfo.from_spec(spec),
             ),
         )
-        if store.get_bytes(ref.artifact_id) != raw or not store.verify(ref.artifact_id).ok:
+        if store.get_bytes(ref) != raw or not store.verify(ref).ok:
             raise ValueError("epoch_certificate_invocation_capture_failed")
         return ref
 
@@ -131,8 +142,8 @@ def _capture_decision_packet_invocation(
         run_manifest.model_dump(mode="json"),
         node_spec.model_dump(mode="json"),
     )
-    if not {(str(ref.artifact_id), ref.kind, ref.media_type) for ref in input_refs}.issubset(
-        (str(ref.artifact_id), ref.kind, ref.media_type) for ref in refs
+    if not {artifacts.artifact_ref_identity_key(ref) for ref in input_refs}.issubset(
+        artifacts.artifact_ref_identity_key(ref) for ref in refs
     ):
         raise ValueError("epoch_certificate_invocation_capture_failed")
     record = DecisionPacketInvocationRecord(

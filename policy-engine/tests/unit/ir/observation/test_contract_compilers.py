@@ -8,6 +8,7 @@ import numpy as np
 import pytest
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.foundry.data_plane import materialize_method_contract
@@ -602,15 +603,13 @@ def test_historical_validation_bundle_runs_through_scientist_matrix(tmp_path) ->
     assert isinstance(plan_payload, dict)
     assert "prediction_source" not in plan_payload
 
-    result = BacktestMatrixRunner(store).run(
-        {BacktestKind.HOUSEHOLD: compilation.bundle}
-    )
+    result = BacktestMatrixRunner(store).run({BacktestKind.HOUSEHOLD: compilation.bundle})
     household = next(item for item in result.kind_results if item.kind is BacktestKind.HOUSEHOLD)
     assert household.status == "ok"
     assert household.n_plans == 1
     assert result.backtest_report_ref is not None
 
-    report = load_backtest_report(store, result.backtest_report_ref)
+    report = load_backtest_report(_ensure_ir_artifact_store(store), result.backtest_report_ref)
     assert report.n_scenarios == 1
     assert report.scenarios[0].metadata["prediction_source_requested"] == "naive"
     assert report.scenarios[0].metadata["prediction_source_effective"] == "naive"
@@ -673,16 +672,12 @@ def test_compile_all_and_downstream_methods_accept_compiled_contracts(tmp_path) 
     panel_contract = _materialize_artifact(result.artifacts["panel_observational_data"])
     dynamic_contract = _materialize_artifact(result.artifacts["dynamic_treatment_data"])
     survival_contract = _materialize_artifact(result.artifacts["survival_data"])
-    panel_econometric_contract = _materialize_artifact(
-        result.artifacts["panel_econometric_data"]
-    )
+    panel_econometric_contract = _materialize_artifact(result.artifacts["panel_econometric_data"])
     proxy_contract = _materialize_artifact(result.artifacts["proxy_measurement_data"])
 
     microsim_out = StaticMicrosimEstimator.pure_step(survey_contract, {})
     network_out = NetworkDiffusionEstimator.pure_step(network_contract, {})
-    multiplex_out = MultiplexNetworkEstimator.pure_step(
-        multiplex_contract, {}
-    )
+    multiplex_out = MultiplexNetworkEstimator.pure_step(multiplex_contract, {})
     network_causal_out = NetworkAIPWEstimator.pure_step(
         network_causal_contract,
         {"n_bootstrap": 10, "confidence_level": 0.9},
@@ -697,9 +692,7 @@ def test_compile_all_and_downstream_methods_accept_compiled_contracts(tmp_path) 
     )
     survival_out = None
     if importlib.util.find_spec("lifelines") is not None:
-        survival_out = SurvivalAnalysisEstimator.pure_step(
-            survival_contract, {}
-        )
+        survival_out = SurvivalAnalysisEstimator.pure_step(survival_contract, {})
     econometric_out = None
     if importlib.util.find_spec("linearmodels") is not None:
         econometric_out = PanelDataEstimator.pure_step(
@@ -736,16 +729,14 @@ def test_compile_all_and_downstream_methods_accept_compiled_contracts(tmp_path) 
         "historical_data_path": str(historical_path),
         "historical_data_ref": None,
     }
-    backtest_bundle = result.backtest.bundle.model_copy(
-        update={"plans": [backtest_plan_payload]}
-    )
+    backtest_bundle = result.backtest.bundle.model_copy(update={"plans": [backtest_plan_payload]})
     backtest_store = FileSystemCAS(tmp_path / ".cas")
     backtest_matrix = BacktestMatrixRunner(backtest_store).run(
         {BacktestKind.HOUSEHOLD: backtest_bundle}
     )
     assert backtest_matrix.backtest_report_ref is not None
     backtest_report = load_backtest_report(
-        backtest_store,
+        _ensure_ir_artifact_store(backtest_store),
         backtest_matrix.backtest_report_ref,
     )
 

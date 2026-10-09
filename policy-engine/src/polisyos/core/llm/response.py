@@ -1,15 +1,21 @@
-"""Normalizes provider-specific LLM responses into one PolicyOS telemetry shape."""
+"""Normalize provider usage while preserving missing and invalid evidence."""
 
 from __future__ import annotations
 
+import inspect
+import math
 from dataclasses import dataclass
-from decimal import Decimal
-from typing import Any
+from decimal import Decimal, InvalidOperation
+from typing import Any, Literal
+
+from .settlement import LLMSettledResponse, _CacheReuseOwner
+
+LLMUsageStatus = Literal["known", "missing", "invalid"]
 
 
 @dataclass(frozen=True)
 class LLMResponseData:
-    """LLM response data public type."""
+    """Normalized response data with independent usage and cost parse status."""
 
     content: str
     prompt_tokens: int
@@ -24,7 +30,13 @@ class LLMResponseData:
     origin_completion_tokens: int | None = None
     origin_cost_usd: float | None = None
     reuse_event_id: str | None = None
+    origin_event_id: str | None = None
     cache_key: str | None = None
+    reuse_request_digest: str | None = None
+    usage_status: LLMUsageStatus = "missing"
+    cost_status: LLMUsageStatus = "missing"
+    cost_origin: Literal["reported", "estimated", "reuse", "unknown"] | None = None
+    settlement_status: Literal["committed", "unknown", "unmanaged"] | None = None
 
     @property
     def total_tokens(self) -> int:
@@ -33,166 +45,251 @@ class LLMResponseData:
     @property
     def origin_total_tokens(self) -> int:
         """Return provider usage retained as provenance for cache reuse."""
-
         prompt_tokens = self.origin_prompt_tokens
         completion_tokens = self.origin_completion_tokens
-        if prompt_tokens is None:
-            prompt_tokens = self.prompt_tokens
-        if completion_tokens is None:
-            completion_tokens = self.completion_tokens
-        return prompt_tokens + completion_tokens
+        return (self.prompt_tokens if prompt_tokens is None else prompt_tokens) + (
+            self.completion_tokens if completion_tokens is None else completion_tokens
+        )
 
 
-def extract_llm_response_data(response: Any) -> LLMResponseData:
-    """Extract content, usage, model, and cost fields from heterogeneous LLM SDK responses."""
+def extract_llm_response_data(response: Any, *, cache_reuse_owner: Any = None) -> LLMResponseData:
+    """Extract usage without converting absent, malformed, or negative data to zero."""
+    settlement = response.settlement if type(response) is LLMSettledResponse else None
+    if settlement is not None:
+        response = response.response
+
+    (
+        cache_hit,
+        reuse_event_id,
+        cache_key,
+        origin_event_id,
+        reuse_request_digest,
+    ) = _extract_cache_provenance(response, owner=cache_reuse_owner)
     content = response.content if hasattr(response, "content") else str(response)
-    cache_hit, usage_origin, reuse_event_id, cache_key = _extract_cache_provenance(response)
-    origin_prompt_tokens = 0
-    origin_completion_tokens = 0
-    provider: str | None = None
-    model: str | None = None
-    cost_usd: float | None = None
-    request_id: str | None = None
+    usage = _get(response, "usage")
+    payload = response
+    prompt_tokens, completion_tokens, usage_status = _parse_usage(usage, response)
+    cost_usd, cost_status = _parse_cost(usage, payload)
+    provider = _as_str(_get(response, "provider"))
+    model = _as_str(_get(response, "model"))
+    request_id = _as_str(_get(response, "request_id"))
+    if isinstance(response, dict):
+        provider = provider or _as_str(response.get("provider"))
+        model = model or _as_str(response.get("model"))
+        request_id = request_id or _as_str(response.get("request_id"))
 
-    try:
-        usage = getattr(response, "usage", None)
-        if usage is not None:
-            origin_prompt_tokens = int(getattr(usage, "prompt_tokens", 0) or 0)
-            origin_completion_tokens = int(getattr(usage, "completion_tokens", 0) or 0)
-            cost_usd = _extract_cost_usd(
-                usage=usage,
-                payload=response,
-            )
-        elif isinstance(response, dict):
-            usage = response.get("usage", {})
-            origin_prompt_tokens = int(usage.get("prompt_tokens", 0) or 0)
-            origin_completion_tokens = int(usage.get("completion_tokens", 0) or 0)
-            cost_usd = _extract_cost_usd(usage=usage, payload=response)
-        elif hasattr(response, "input_tokens"):
-            origin_prompt_tokens = int(getattr(response, "input_tokens", 0) or 0)
-            origin_completion_tokens = int(getattr(response, "output_tokens", 0) or 0)
-        provider = _as_str(getattr(response, "provider", None))
-        model = _as_str(getattr(response, "model", None))
-        request_id = _as_str(getattr(response, "request_id", None))
-        if isinstance(response, dict):
-            provider = provider or _as_str(response.get("provider"))
-            model = model or _as_str(response.get("model"))
-            request_id = request_id or _as_str(response.get("request_id"))
-            if cost_usd is None:
-                cost_usd = _extract_cost_usd(
-                    usage=response.get("usage"),
-                    payload=response,
-                )
-    except Exception:
-        origin_prompt_tokens = 0
-        origin_completion_tokens = 0
-        provider = None
-        model = None
-        cost_usd = None
-        request_id = None
+    if cache_hit:
+        prompt_tokens_billable = completion_tokens_billable = 0
+        cost_usd_billable: float | None = 0.0
+        cost_status_billable: LLMUsageStatus = "known"
+        usage_status_billable: LLMUsageStatus = "known"
+    else:
+        prompt_tokens_billable, completion_tokens_billable = prompt_tokens, completion_tokens
+        cost_usd_billable, cost_status_billable = cost_usd, cost_status
+        usage_status_billable = usage_status
 
-    reported_cost_usd = cost_usd
-    billable_prompt_tokens = 0 if cache_hit else origin_prompt_tokens
-    billable_completion_tokens = 0 if cache_hit else origin_completion_tokens
-    billable_cost_usd = 0.0 if cache_hit else reported_cost_usd
+    # A settled envelope is the event authority for cost origin. Parsing remains
+    # the evidence status; producer origin is exposed separately by the settlement.
+    if settlement is not None:
+        event = getattr(settlement, "event", None)
+        ack = getattr(settlement, "ack", None)
+        amount = getattr(event, "amount", None)
+        origin = getattr(event, "cost_origin", None)
+        if origin == "reuse":
+            cache_hit = True
+            prompt_tokens_billable = completion_tokens_billable = 0
+            cost_usd_billable = 0.0
+        elif amount is None:
+            cost_usd_billable = None
+        else:
+            cost_usd_billable = float(amount)
+        settlement_status = getattr(ack, "status", None)
+    else:
+        origin = None
+        settlement_status = None
 
     return LLMResponseData(
         content=content,
-        prompt_tokens=max(0, billable_prompt_tokens),
-        completion_tokens=max(0, billable_completion_tokens),
+        prompt_tokens=prompt_tokens_billable,
+        completion_tokens=completion_tokens_billable,
         provider=provider,
         model=model,
-        cost_usd=billable_cost_usd,
+        cost_usd=cost_usd_billable,
         cache_hit=cache_hit,
-        usage_origin=usage_origin,
+        usage_origin="reuse" if cache_hit else "provider",
         request_id=request_id,
-        origin_prompt_tokens=max(0, origin_prompt_tokens),
-        origin_completion_tokens=max(0, origin_completion_tokens),
-        origin_cost_usd=reported_cost_usd,
+        origin_prompt_tokens=prompt_tokens,
+        origin_completion_tokens=completion_tokens,
+        origin_cost_usd=cost_usd,
         reuse_event_id=reuse_event_id,
+        origin_event_id=origin_event_id,
         cache_key=cache_key,
+        reuse_request_digest=reuse_request_digest,
+        usage_status=usage_status_billable,
+        cost_status=cost_status_billable,
+        cost_origin=origin,
+        settlement_status=settlement_status,
     )
 
 
 def _extract_cache_provenance(
-    response: Any,
-) -> tuple[bool, str, str | None, str | None]:
-    """Read cache provenance only from the internal cache-owned envelope.
-
-    Provider ``raw`` payloads are data, not authority over billing.  The
-    cache wrapper attaches these private fields to the response it returns;
-    a provider-supplied ``_polisyos_cache`` mapping is intentionally ignored.
-    """
-
-    response_type = type(response)
-    cache_hit = (
-        response_type.__name__ == "_CacheReuseGatewayResponse"
-        and response_type.__module__.endswith(".prompt_cache")
-        and getattr(response, "_polisyos_cache_hit", False) is True
+    response: Any, *, owner: Any = None
+) -> tuple[bool, str | None, str | None, str | None, str | None]:
+    """Accept reuse only from an owner-verified in-process provenance object."""
+    provenance = getattr(response, "_polisyos_reuse_provenance", None)
+    if type(owner) is not _CacheReuseOwner or provenance is None:
+        return False, None, None, None, None
+    verify = getattr(owner, "verify_provenance", None)
+    if not callable(verify) or not verify(provenance):
+        return False, None, None, None, None
+    return (
+        True,
+        _as_str(getattr(provenance, "reuse_event_id", None)),
+        _as_str(getattr(provenance, "cache_key", None)),
+        _as_str(getattr(provenance, "origin_event_id", None)),
+        _as_str(getattr(provenance, "request_digest", None)),
     )
-    if not cache_hit:
-        return False, "provider", None, None
-    reuse_event_id = _as_str(getattr(response, "_polisyos_reuse_event_id", None))
-    cache_key = _as_str(getattr(response, "_polisyos_cache_key", None))
-    return True, "provider", reuse_event_id, cache_key
 
 
-def _as_float(value: Any) -> float | None:
-    if value is None:
+def _parse_usage(usage: Any, payload: Any) -> tuple[int, int, LLMUsageStatus]:
+    explicit = _explicit_status(usage, payload, "usage_status")
+    prompt = _first_present(usage, payload, "prompt_tokens", "input_tokens")
+    completion = _first_present(usage, payload, "completion_tokens", "output_tokens")
+    if explicit in {"missing", "invalid"}:
+        return 0, 0, explicit
+    if prompt is _MISSING or completion is _MISSING or prompt is None or completion is None:
+        return 0, 0, "missing"
+    parsed_prompt = _as_nonnegative_int(prompt)
+    parsed_completion = _as_nonnegative_int(completion)
+    if parsed_prompt is None or parsed_completion is None:
+        return 0, 0, "invalid"
+    return parsed_prompt, parsed_completion, "known"
+
+
+def _parse_cost(usage: Any, payload: Any) -> tuple[float | None, LLMUsageStatus]:
+    return normalize_llm_cost_evidence(usage, payload)
+
+
+def normalize_llm_cost_evidence(
+    usage: Any,
+    payload: Any,
+) -> tuple[float | None, LLMUsageStatus]:
+    """Normalize cost evidence using one ordered alias and presence contract.
+
+    The first present direct-cost field is authoritative, including explicit
+    null or malformed values. Component costs are considered only when no
+    direct-cost alias is present, and both components must be present and
+    valid before they can be summed.
+    """
+    explicit = _explicit_status(usage, payload, "cost_status")
+    if explicit in {"missing", "invalid"}:
+        return None, explicit
+    candidates = [
+        _get(usage, "total_cost_usd"),
+        _get(usage, "cost_usd"),
+        _get(usage, "cost"),
+        _get(payload, "total_cost_usd"),
+        _get(payload, "cost_usd"),
+        _get(payload, "cost"),
+    ]
+    for candidate in candidates:
+        if candidate is _MISSING:
+            continue
+        return _normalized_cost_amount(candidate)
+
+    base = _get(usage, "base_cost_usd")
+    fee = _get(usage, "platform_fee_usd")
+    if base is not _MISSING or fee is not _MISSING:
+        if base is _MISSING or fee is _MISSING:
+            return None, "invalid"
+        parsed_base = _parse_amount(base)
+        parsed_fee = _parse_amount(fee)
+        if parsed_base is None or parsed_fee is None:
+            return None, "invalid"
+        return _normalized_cost_amount(parsed_base + parsed_fee)
+    if explicit == "known":
+        return None, "invalid"
+    return None, "missing"
+
+
+def _normalized_cost_amount(value: Any) -> tuple[float | None, LLMUsageStatus]:
+    """Convert one finite nonnegative decimal only when float output preserves it."""
+    parsed = value if isinstance(value, Decimal) else _parse_amount(value)
+    if parsed is None or not parsed.is_finite() or parsed < 0:
+        return None, "invalid"
+    try:
+        as_float = float(parsed)
+    except (OverflowError, ValueError):
+        return None, "invalid"
+    if not math.isfinite(as_float) or (parsed != 0 and as_float == 0.0):
+        return None, "invalid"
+    return as_float, "known"
+
+
+_MISSING = object()
+
+
+def _first_present(usage: Any, payload: Any, *names: str) -> Any:
+    for source in (usage, payload):
+        for name in names:
+            value = _get(source, name)
+            if value is not _MISSING:
+                return value
+    return _MISSING
+
+
+def _explicit_status(usage: Any, payload: Any, name: str) -> str | None:
+    for source in (usage, payload):
+        value = _get(source, name)
+        if value is not _MISSING:
+            if isinstance(value, str) and value in {"known", "missing", "invalid"}:
+                return value
+            return "invalid"
+    return None
+
+
+def _get(source: Any, name: str) -> Any:
+    if source is None:
+        return _MISSING
+    if isinstance(source, dict):
+        return source.get(name, _MISSING)
+    try:
+        if name in vars(source):
+            return getattr(source, name)
+    except TypeError:
+        pass
+    try:
+        inspect.getattr_static(source, name)
+    except AttributeError:
+        return _MISSING
+    try:
+        return getattr(source, name)
+    except Exception:
         return None
-    if isinstance(value, bool):
-        return None
-    if not isinstance(value, (int, float, Decimal, str)):
+
+
+def _as_nonnegative_int(value: Any) -> int | None:
+    if isinstance(value, bool) or not isinstance(value, (int, float, Decimal, str)):
         return None
     try:
-        parsed = float(value)
-    except (TypeError, ValueError):
+        parsed = Decimal(str(value))
+    except (InvalidOperation, ValueError):
         return None
-    if parsed < 0:
-        return 0.0
+    if not parsed.is_finite() or parsed < 0 or parsed != parsed.to_integral_value():
+        return None
+    return int(parsed)
+
+
+def _parse_amount(value: Any) -> Decimal | None:
+    if isinstance(value, bool) or not isinstance(value, (int, float, Decimal, str)):
+        return None
+    try:
+        parsed = Decimal(str(value))
+    except (InvalidOperation, ValueError):
+        return None
+    if not parsed.is_finite() or parsed < 0:
+        return None
     return parsed
-
-
-def _extract_cost_usd(*, usage: Any, payload: Any) -> float | None:
-    candidates = [
-        getattr(usage, "total_cost_usd", None) if usage is not None else None,
-        getattr(usage, "cost_usd", None) if usage is not None else None,
-        getattr(usage, "cost", None) if usage is not None else None,
-    ]
-    if isinstance(usage, dict):
-        candidates.extend(
-            [
-                usage.get("total_cost_usd"),
-                usage.get("cost_usd"),
-                usage.get("cost"),
-            ]
-        )
-        base_cost = _as_float(usage.get("base_cost_usd"))
-        platform_fee = _as_float(usage.get("platform_fee_usd"))
-        if base_cost is not None or platform_fee is not None:
-            candidates.append((base_cost or 0.0) + (platform_fee or 0.0))
-    if isinstance(payload, dict):
-        candidates.extend(
-            [
-                payload.get("total_cost_usd"),
-                payload.get("cost_usd"),
-                payload.get("cost"),
-            ]
-        )
-    else:
-        candidates.extend(
-            [
-                getattr(payload, "total_cost_usd", None),
-                getattr(payload, "cost_usd", None),
-                getattr(payload, "cost", None),
-            ]
-        )
-
-    for candidate in candidates:
-        parsed = _as_float(candidate)
-        if parsed is not None:
-            return parsed
-    return None
 
 
 def _as_str(value: Any) -> str | None:
@@ -200,3 +297,11 @@ def _as_str(value: Any) -> str | None:
         stripped = value.strip()
         return stripped or None
     return None
+
+
+__all__ = [
+    "LLMResponseData",
+    "LLMUsageStatus",
+    "extract_llm_response_data",
+    "normalize_llm_cost_evidence",
+]

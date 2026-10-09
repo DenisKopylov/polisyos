@@ -228,7 +228,10 @@ class LLMBudgetEnforcer:
         """Extract actual cost from response and commit the reservation."""
         reservation = reservation or _BudgetReservation(estimated_cost=Decimal(0))
         resolved_run_id = self._run_id if run_id is None else run_id
-        data = extract_llm_response_data(response)
+        data = extract_llm_response_data(
+            response,
+            cache_reuse_owner=getattr(self._client, "_accounting_flight_owner", None),
+        )
         try:
             actual_cost = self._resolve_actual_cost(data)
         except (ArithmeticError, TypeError, ValueError) as exc:
@@ -246,7 +249,9 @@ class LLMBudgetEnforcer:
                 metrics=self._resolve_metrics(),
             )
             # Budget-critical path prefers conservative accounting over silent under-charge.
-            actual_cost = reservation.estimated_cost
+            actual_cost = None
+
+        budget_charge = reservation.estimated_cost if actual_cost is None else actual_cost
 
         with self._lock:
             for key in self._budget_keys:
@@ -254,7 +259,7 @@ class LLMBudgetEnforcer:
                 if reserved > 0:
                     self._budget_state.release(key, reserved)
                     reservation.clear_key(key)
-                self._budget_state.record_spend(key, actual_cost)
+                self._budget_state.record_spend(key, budget_charge)
                 if self._budget_state.is_soft_limit_exceeded(key):
                     logger.warning(
                         "Soft budget limit exceeded for key={}, spent={}",
@@ -270,8 +275,14 @@ class LLMBudgetEnforcer:
                 metadata={
                     "budget_keys": self._budget_keys,
                     "estimated_cost_usd": str(reservation.estimated_cost),
-                    "actual_cost_usd": str(actual_cost),
-                    "delta_cost_usd": str(actual_cost - reservation.estimated_cost),
+                    "actual_cost_usd": str(actual_cost) if actual_cost is not None else None,
+                    "cost_origin": self._cost_origin(data),
+                    "budget_charge_usd": str(budget_charge),
+                    "delta_cost_usd": (
+                        str(actual_cost - reservation.estimated_cost)
+                        if actual_cost is not None
+                        else None
+                    ),
                     "model": self._model_name,
                 },
             )
@@ -281,9 +292,21 @@ class LLMBudgetEnforcer:
 
         return actual_cost
 
-    def _resolve_actual_cost(self, data: Any) -> Decimal:
-        if data.cost_usd is not None:
+    def _resolve_actual_cost(self, data: Any) -> Decimal | None:
+        if data.cost_origin == "unknown":
+            return None
+        if data.cost_origin in {"reported", "estimated"}:
+            if data.cost_usd is None:
+                return None
             return self._coerce_cost_decimal(data.cost_usd)
+        if data.cost_origin == "reuse":
+            return Decimal(0)
+        if data.cache_hit:
+            return Decimal(0)
+        if data.cost_status == "known" and data.cost_usd is not None:
+            return self._coerce_cost_decimal(data.cost_usd)
+        if data.cost_status != "missing" or data.usage_status != "known":
+            return None
         estimated_cost = estimate_llm_cost_usd(
             model=self._model_name,
             prompt_tokens=data.prompt_tokens,
@@ -292,13 +315,25 @@ class LLMBudgetEnforcer:
         return self._coerce_cost_decimal(estimated_cost)
 
     @staticmethod
+    def _cost_origin(data: Any) -> str:
+        if data.cost_origin is not None:
+            return data.cost_origin
+        if data.cache_hit:
+            return "reuse"
+        if data.cost_status == "known" and data.cost_usd is not None:
+            return "reported"
+        if data.cost_status == "missing" and data.usage_status == "known":
+            return "estimated"
+        return "unknown"
+
+    @staticmethod
     def _coerce_cost_decimal(value: Any) -> Decimal:
         parsed = Decimal(str(value))
         if not parsed.is_finite() or parsed < 0:
             raise ValueError(f"invalid llm cost value: {value!r}")
         return parsed
 
-    def _emit_cost_metrics(self, cost: Decimal, data: Any) -> None:
+    def _emit_cost_metrics(self, cost: Decimal | None, data: Any) -> None:
         """Emit LLM cost, token, and budget utilization metrics."""
         m = self._resolve_metrics()
         if m is None:
@@ -306,7 +341,7 @@ class LLMBudgetEnforcer:
 
         attrs = {"model_id": self._model_name}
 
-        if m.llm_cost_usd is not None:
+        if m.llm_cost_usd is not None and cost is not None:
             m.llm_cost_usd.record(float(cost), attrs)
 
         if m.llm_calls_total is not None:
@@ -333,6 +368,8 @@ class LLMBudgetEnforcer:
                     )
 
         # Anomaly detection
+        if cost is None:
+            return
         cost_f = float(cost)
         if cost_f > 0 and self._anomaly_detector.check(cost_f):
             logger.warning(

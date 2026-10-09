@@ -37,3 +37,15 @@ resolve across the Fabric layer.
 - Last updated: 2026-05-23
 - Files: 9 Python files
 - Exports: 21
+
+## Runtime Catalog Selection
+
+Catalog-backed `DataResolveRequest` calls require an explicit
+`catalog_run_profile`, or a profile selected by the runtime container's
+configuration. A request may repeat the configured profile; a conflicting
+request is rejected with HTTP 422. If neither is supplied, an executable
+catalog source is refused with `catalog_run_profile_unresolved`; the runtime
+does not assume `prod_full`. The same selected value is carried through the
+natural-language retrieval and N6 acquisition paths. Selecting a run profile
+controls source eligibility only; it does not establish production
+currentness.

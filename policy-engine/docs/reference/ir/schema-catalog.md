@@ -12,15 +12,15 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1598`.
-- Public/root-or-package facade types: `452`.
-- ABI snapshot-backed types: `95`.
+- Total IR types: `1604`.
+- Public/root-or-package facade types: `456`.
+- ABI snapshot-backed types: `98`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
-| `polisyos.ir` | 291 |
-| `polisyos.ir.analytics` | 280 |
+| `polisyos.ir` | 295 |
+| `polisyos.ir.analytics` | 284 |
 | `polisyos.ir.kernel` | 52 |
 | `polisyos.ir.world` | 54 |
 
@@ -28,8 +28,8 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 987 | 258 | 37 |
-| `artifacts` | 25 | 0 | 0 |
+| `analytics` | 992 | 263 | 40 |
+| `artifacts` | 26 | 0 | 0 |
 | `governance` | 99 | 21 | 8 |
 | `kernel` | 47 | 38 | 0 |
 | `linker` | 7 | 0 | 0 |
@@ -5146,6 +5146,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.dependent_sensitivity_bundle]` | `no` | `'ir.dependent_sensitivity_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.analytics.dependent_sensitivity.DependentSensitivityIndex` { #polisyos-ir-analytics-dependent-sensitivity-dependentsensitivityindex }
@@ -5219,6 +5220,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.dependent_sensitivity_result]` | `no` | `'ir.dependent_sensitivity_result'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.analytics.dependent_sensitivity.DiagnosticSpec` { #polisyos-ir-analytics-dependent-sensitivity-diagnosticspec }
@@ -8893,12 +8895,12 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.evidence_bundle.EvidenceBundle` { #polisyos-ir-analytics-evidence-bundle-evidencebundle }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `snapshot_only`
 - Current version: `—`
 - Exported from: —
-- ABI snapshot: `—` / `—`
+- ABI snapshot: `causal_evidence_bundle` / `schemas/snapshots/ir/causal_evidence_bundle.schema.json`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.evidence_bundle.CompilationStep`, `polisyos.ir.analytics.evidence_bundle.DataProvenance`, `polisyos.ir.analytics.evidence_bundle.EstimationStep`, `polisyos.ir.analytics.evidence_bundle.ProofStep`, `polisyos.ir.registry.refs.BoundsBundleRef`, `polisyos.ir.registry.refs.DataReadinessReportRef`, `polisyos.ir.registry.refs.KernelEstimatorSpecRef`, `polisyos.ir.registry.refs.NegativeCertificateRef`, `polisyos.ir.registry.refs.ProofBundleRef`
+- References: `polisyos.ir.analytics.evidence_bundle.CompilationStep`, `polisyos.ir.analytics.evidence_bundle.DataProvenance`, `polisyos.ir.analytics.evidence_bundle.EstimationStep`, `polisyos.ir.analytics.evidence_bundle.ProofStep`, `polisyos.ir.registry.refs.BoundsBundleRef`, `polisyos.ir.registry.refs.DataReadinessReportRef`, `polisyos.ir.registry.refs.KernelEstimatorSpecRef`, `polisyos.ir.registry.refs.NegativeCertificateRef`, `polisyos.ir.registry.refs.ProofBundleRef`, `polisyos.ir.registry.refs.TwinNetworkResultRef`
 - Summary: Machine-readable audit trail for a causal identification and estimation run.
 
 | Field | Type | Required | Default | IR refs |
@@ -8924,6 +8926,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `quality_report` | `dict[str, Any] \| NoneType` | `no` | `—` | — |
 | `query_str` | `str` | `yes` | `—` | — |
 | `run_id` | `str` | `yes` | `—` | — |
+| `twin_network_result_ref` | `polisyos.ir.registry.refs.TwinNetworkResultRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.TwinNetworkResultRef` |
 
 ### `polisyos.ir.analytics.evidence_bundle.EvidenceFingerprintError` { #polisyos-ir-analytics-evidence-bundle-evidencefingerprinterror }
 
@@ -15506,6 +15509,94 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `temporal_identification_certificate_ref` | `polisyos.ir.registry.refs.ArtifactRefModel \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
 | `warnings` | `tuple[str]` | `no` | `()` | — |
 
+### `polisyos.ir.analytics.posterior_summary.PosteriorParameterSummary` { #polisyos-ir-analytics-posterior-summary-posteriorparametersummary }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:PosteriorParameterSummary`, `polisyos.ir:PosteriorParameterSummary`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Retain one scalar parameter's exact draws and separate functionals.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `draws` | `tuple[float]` | `yes` | `—` | — |
+| `equal_tail_interval` | `tuple[float, float]` | `yes` | `—` | — |
+| `posterior_mean` | `float` | `yes` | `—` | — |
+| `posterior_median` | `float` | `yes` | `—` | — |
+| `selected_point` | `float` | `yes` | `—` | — |
+| `source_coordinate` | `tuple[int]` | `no` | `()` | — |
+| `source_parameter` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.posterior_summary.PosteriorPointRole` { #polisyos-ir-analytics-posterior-summary-posteriorpointrole }
+
+- Kind: `enum`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:PosteriorPointRole`, `polisyos.ir:PosteriorPointRole`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Name the posterior point functional selected by a consumer.
+
+| Enum values |
+| ----------- |
+| `posterior_mean` |
+| `posterior_median` |
+
+### `polisyos.ir.analytics.posterior_summary.PosteriorSummaryRef` { #polisyos-ir-analytics-posterior-summary-posteriorsummaryref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:PosteriorSummaryRef`, `polisyos.ir:PosteriorSummaryRef`
+- ABI snapshot: `posterior_summary_ref` / `schemas/snapshots/ir/posterior_summary_ref.schema.json`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Reference a v1.1 posterior summary artifact.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[ir.posterior_summary]` | `no` | `'ir.posterior_summary'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
+### `polisyos.ir.analytics.posterior_summary.PosteriorSummaryV11` { #polisyos-ir-analytics-posterior-summary-posteriorsummaryv11 }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `1.1`
+- Exported from: `polisyos.ir.analytics:PosteriorSummaryV11`, `polisyos.ir:PosteriorSummaryV11`
+- ABI snapshot: `posterior_summary_v11` / `schemas/snapshots/ir/posterior_summary_v11.schema.json`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.posterior_summary.PosteriorParameterSummary`, `polisyos.ir.analytics.posterior_summary.PosteriorPointRole`, `polisyos.ir.registry.refs.ArtifactRefModel`
+- Summary: Store versioned posterior functionals without envelope coercion.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `chain_count` | `int` | `yes` | `—` | — |
+| `credible_mass` | `float` | `yes` | `—` | — |
+| `draw_order` | `tuple[int]` | `yes` | `—` | — |
+| `draws_per_chain` | `int` | `yes` | `—` | — |
+| `gate_eligible` | `Literal[False]` | `no` | `False` | — |
+| `parameter_order` | `tuple[str]` | `yes` | `—` | — |
+| `parameters` | `dict[str, polisyos.ir.analytics.posterior_summary.PosteriorParameterSummary]` | `yes` | `—` | `polisyos.ir.analytics.posterior_summary.PosteriorParameterSummary` |
+| `point_role` | `polisyos.ir.analytics.posterior_summary.PosteriorPointRole` | `yes` | `—` | `polisyos.ir.analytics.posterior_summary.PosteriorPointRole` |
+| `profile_id` | `Literal[urn:policyos:ir:bayesian-posterior-summary-profile:1]` | `no` | `'urn:policyos:ir:bayesian-posterior-summary-profile:1'` | — |
+| `profile_version` | `Literal[1.1]` | `no` | `'1.1'` | — |
+| `schema_version` | `Literal[1.1]` | `no` | `'1.1'` | — |
+| `source_draws_hash` | `str` | `yes` | `—` | — |
+| `source_draws_payload` | `dict[str, Any]` | `yes` | `—` | — |
+| `source_draws_ref` | `str` | `yes` | `—` | — |
+| `source_method_evidence_ref` | `polisyos.ir.registry.refs.ArtifactRefModel \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
+| `source_weights` | `tuple[float] \| NoneType` | `no` | `—` | — |
+| `unit_binding_status` | `Literal[not_established]` | `no` | `'not_established'` | — |
+| `unit_bindings` | `dict[str, str]` | `no` | `—` | — |
+| `weight_status` | `Literal[not_supplied_by_source]` | `no` | `'not_supplied_by_source'` | — |
+
 ### `polisyos.ir.analytics.privacy_transportability.DPGraphSourceKind` { #polisyos-ir-analytics-privacy-transportability-dpgraphsourcekind }
 
 - Kind: `enum`
@@ -20534,6 +20625,22 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `parameters` | `dict[str, float]` | `yes` | `—` | — |
 | `support` | `tuple[float, float] \| NoneType` | `no` | `—` | — |
 
+### `polisyos.ir.analytics.uncertainty.PersistedUncertaintyAdmission` { #polisyos-ir-analytics-uncertainty-persisteduncertaintyadmission }
+
+- Kind: `dataclass`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Carry a resolved persisted envelope only when its evidence is admitted.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `envelope` | `UncertaintyEnvelope \| None` | `yes` | `—` | — |
+| `limitation_codes` | `tuple[str, ...]` | `no` | `()` | — |
+
 ### `polisyos.ir.analytics.uncertainty.PosteriorSamplesCarrier` { #polisyos-ir-analytics-uncertainty-posteriorsamplescarrier }
 
 - Kind: `pydantic_model`
@@ -21158,6 +21265,17 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - References: —
 - Summary: Minimal CAS protocol required by IR helpers for writing JSON and reading raw bytes.
 
+### `polisyos.ir.artifacts.contracts.ArtifactViewRef` { #polisyos-ir-artifacts-contracts-artifactviewref }
+
+- Kind: `protocol`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Describe an exact artifact view without importing its owning store layer.
+
 ### `polisyos.ir.artifacts.contracts.CanonInfo` { #polisyos-ir-artifacts-contracts-canoninfo }
 
 - Kind: `pydantic_model`
@@ -21195,6 +21313,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `role` | `str` | `yes` | `—` | — |
 
 ### `polisyos.ir.artifacts.contracts.PutOptions` { #polisyos-ir-artifacts-contracts-putoptions }
@@ -21243,18 +21362,22 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: Duck-typed options compatible with core FileSystemCAS.put_json.
+- Summary: Typed metadata projection compatible with Core ``ArtifactWriteOptions``.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
 | `kind` | `str` | `yes` | `—` | — |
 | `media_type` | `str` | `yes` | `—` | — |
-| `schema` | `dict[str, Any] \| None` | `no` | `None` | — |
-| `producer` | `Any` | `no` | `None` | — |
-| `env` | `Any` | `no` | `None` | — |
-| `inputs` | `list[dict[str, Any]] \| None` | `no` | `None` | — |
-| `canon` | `dict[str, Any] \| None` | `no` | `None` | — |
-| `governance` | `dict[str, Any] \| None` | `no` | `None` | — |
+| `schema` | `_MetadataOption \| None` | `no` | `None` | — |
+| `producer` | `_MetadataOption \| None` | `no` | `None` | — |
+| `env` | `_MetadataOption \| None` | `no` | `None` | — |
+| `inputs` | `list[_MetadataOption] \| None` | `no` | `None` | — |
+| `canon` | `_MetadataOption \| None` | `no` | `None` | — |
+| `governance` | `_MetadataOption \| None` | `no` | `None` | — |
+| `tenant_context` | `_MetadataOption \| None` | `no` | `None` | — |
+| `same_input_closure` | `_MetadataOption \| None` | `no` | `None` | — |
+| `authority` | `_MetadataOption \| None` | `no` | `None` | — |
+| `warnings` | `list[_MetadataOption] \| None` | `no` | `None` | — |
 
 ### `polisyos.ir.artifacts.lineage.ArtifactLineageEdge` { #polisyos-ir-artifacts-lineage-artifactlineageedge }
 
@@ -29976,6 +30099,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.abm_alignment_report]` | `no` | `'ir.abm_alignment_report'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.ABMResultRef` { #polisyos-ir-registry-refs-abmresultref }
@@ -29993,6 +30117,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.abm_result]` | `no` | `'ir.abm_result'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.AbstractionCertificateRef` { #polisyos-ir-registry-refs-abstractioncertificateref }
@@ -30010,6 +30135,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.abstraction_certificate]` | `no` | `'ir.abstraction_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.AlignmentReportRef` { #polisyos-ir-registry-refs-alignmentreportref }
@@ -30027,6 +30153,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.alignment_report]` | `no` | `'ir.alignment_report'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.ArtifactRefModel` { #polisyos-ir-registry-refs-artifactrefmodel }
@@ -30044,6 +30171,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `str` | `yes` | `—` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `str` | `yes` | `—` | — |
 
 ### `polisyos.ir.registry.refs.BacktestReportRef` { #polisyos-ir-registry-refs-backtestreportref }
@@ -30061,6 +30189,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.backtest_report]` | `no` | `'ir.backtest_report'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.BoundsBundleRef` { #polisyos-ir-registry-refs-boundsbundleref }
@@ -30078,6 +30207,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.bounds_bundle]` | `no` | `'ir.bounds_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.BoundsTighteningLogRef` { #polisyos-ir-registry-refs-boundstighteninglogref }
@@ -30095,6 +30225,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.bounds_tightening_log]` | `no` | `'ir.bounds_tightening_log'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.BridgePlausibilityReportRef` { #polisyos-ir-registry-refs-bridgeplausibilityreportref }
@@ -30112,6 +30243,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.bridge_plausibility_report]` | `no` | `'ir.bridge_plausibility_report'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.CausalAssumptionCardRef` { #polisyos-ir-registry-refs-causalassumptioncardref }
@@ -30129,6 +30261,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.causal_assumption_card]` | `no` | `'ir.causal_assumption_card'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.CausalBlockBridgeRef` { #polisyos-ir-registry-refs-causalblockbridgeref }
@@ -30146,6 +30279,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.causal_block_bridge]` | `no` | `'ir.causal_block_bridge'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.CausalCapabilityContractRef` { #polisyos-ir-registry-refs-causalcapabilitycontractref }
@@ -30163,6 +30297,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.causal_capability_contract]` | `no` | `'ir.causal_capability_contract'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.CausalDiscoveryReportRef` { #polisyos-ir-registry-refs-causaldiscoveryreportref }
@@ -30180,6 +30315,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.causal_discovery_report]` | `no` | `'ir.causal_discovery_report'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.CausalEffectReportRef` { #polisyos-ir-registry-refs-causaleffectreportref }
@@ -30197,6 +30333,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.causal_effect_report]` | `no` | `'ir.causal_effect_report'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.CausalExecutionBundleRef` { #polisyos-ir-registry-refs-causalexecutionbundleref }
@@ -30214,6 +30351,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.causal_execution_bundle]` | `no` | `'ir.causal_execution_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.CausalGraphModelRef` { #polisyos-ir-registry-refs-causalgraphmodelref }
@@ -30231,6 +30369,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.causal_graph_model]` | `no` | `'ir.causal_graph_model'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.CausalModelEnsembleRef` { #polisyos-ir-registry-refs-causalmodelensembleref }
@@ -30248,6 +30387,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.causal_model_ensemble]` | `no` | `'ir.causal_model_ensemble'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.CausalQueryResultRef` { #polisyos-ir-registry-refs-causalqueryresultref }
@@ -30265,6 +30405,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.causal_query_result]` | `no` | `'ir.causal_query_result'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.CausalReadinessBundleRef` { #polisyos-ir-registry-refs-causalreadinessbundleref }
@@ -30282,6 +30423,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.causal_readiness_bundle]` | `no` | `'ir.causal_readiness_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.CausalSensitivityResultRef` { #polisyos-ir-registry-refs-causalsensitivityresultref }
@@ -30299,6 +30441,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.sensitivity_result]` | `no` | `'ir.sensitivity_result'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.ChannelDecompositionArtifactRef` { #polisyos-ir-registry-refs-channeldecompositionartifactref }
@@ -30316,6 +30459,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.channel_decomposition_artifact]` | `no` | `'ir.channel_decomposition_artifact'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.CompositionCertificateRef` { #polisyos-ir-registry-refs-compositioncertificateref }
@@ -30333,6 +30477,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.composition_certificate]` | `no` | `'ir.composition_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.CompositionFailureCardBundleRef` { #polisyos-ir-registry-refs-compositionfailurecardbundleref }
@@ -30350,6 +30495,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.composition_failure_card_bundle]` | `no` | `'ir.composition_failure_card_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.ContextAdaptiveParameterBundleRef` { #polisyos-ir-registry-refs-contextadaptiveparameterbundleref }
@@ -30367,6 +30513,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.context_adaptive_parameter_bundle]` | `no` | `'ir.context_adaptive_parameter_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.ContinuousTimeQueryRef` { #polisyos-ir-registry-refs-continuoustimequeryref }
@@ -30384,6 +30531,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.continuous_time_query]` | `no` | `'ir.continuous_time_query'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.CounterfactualResultRef` { #polisyos-ir-registry-refs-counterfactualresultref }
@@ -30401,6 +30549,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.counterfactual_result]` | `no` | `'ir.counterfactual_result'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.CrossGraphEvidenceProfileRef` { #polisyos-ir-registry-refs-crossgraphevidenceprofileref }
@@ -30418,6 +30567,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.cross_graph_evidence_profile]` | `no` | `'ir.cross_graph_evidence_profile'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.DPRobustnessCertificateRef` { #polisyos-ir-registry-refs-dprobustnesscertificateref }
@@ -30435,6 +30585,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.dp_robustness_certificate]` | `no` | `'ir.dp_robustness_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.DataReadinessReportRef` { #polisyos-ir-registry-refs-datareadinessreportref }
@@ -30452,6 +30603,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.data_readiness_report]` | `no` | `'ir.data_readiness_report'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.DependenceStructureRef` { #polisyos-ir-registry-refs-dependencestructureref }
@@ -30469,6 +30621,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.dependence_structure]` | `no` | `'ir.dependence_structure'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.DistributionalBoundsBundleRef` { #polisyos-ir-registry-refs-distributionalboundsbundleref }
@@ -30486,6 +30639,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.distributional_bounds_bundle]` | `no` | `'ir.distributional_bounds_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.DistributionalDualCertificateRef` { #polisyos-ir-registry-refs-distributionaldualcertificateref }
@@ -30503,6 +30657,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.distributional_dual_certificate]` | `no` | `'ir.distributional_dual_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.DistributionalEffectBundleRef` { #polisyos-ir-registry-refs-distributionaleffectbundleref }
@@ -30520,6 +30675,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.distributional_effect_bundle]` | `no` | `'ir.distributional_effect_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.DistributionalProofArtifactRef` { #polisyos-ir-registry-refs-distributionalproofartifactref }
@@ -30537,6 +30693,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.distributional_proof_artifact]` | `no` | `'ir.distributional_proof_artifact'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.DistributionalReportRef` { #polisyos-ir-registry-refs-distributionalreportref }
@@ -30554,6 +30711,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.distributional_report]` | `no` | `'ir.distributional_report'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.DriftReadinessRef` { #polisyos-ir-registry-refs-driftreadinessref }
@@ -30571,6 +30729,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[scientist.drift_readiness]` | `no` | `'scientist.drift_readiness'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.DualCertificateRef` { #polisyos-ir-registry-refs-dualcertificateref }
@@ -30588,6 +30747,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.dual_certificate]` | `no` | `'ir.dual_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.DynamicMicrosimValidationReportRef` { #polisyos-ir-registry-refs-dynamicmicrosimvalidationreportref }
@@ -30605,6 +30765,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.dynamic_microsim_validation_report]` | `no` | `'ir.dynamic_microsim_validation_report'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.DynamicTreatmentRegimeRef` { #polisyos-ir-registry-refs-dynamictreatmentregimeref }
@@ -30622,6 +30783,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.dynamic_treatment_regime]` | `no` | `'ir.dynamic_treatment_regime'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.EffectTrajectoryBundleRef` { #polisyos-ir-registry-refs-effecttrajectorybundleref }
@@ -30639,6 +30801,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.effect_trajectory_bundle]` | `no` | `'ir.effect_trajectory_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.EndogenousGroupInequalityDecompositionRef` { #polisyos-ir-registry-refs-endogenousgroupinequalitydecompositionref }
@@ -30656,6 +30819,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.endogenous_group_inequality_decomposition]` | `no` | `'ir.endogenous_group_inequality_decomposition'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.EstimandASTRef` { #polisyos-ir-registry-refs-estimandastref }
@@ -30673,6 +30837,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.estimand_ast]` | `no` | `'ir.estimand_ast'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.EvidenceBundleRef` { #polisyos-ir-registry-refs-evidencebundleref }
@@ -30690,6 +30855,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[fabric.evidence_bundle]` | `no` | `'fabric.evidence_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.ExplanationBundleRef` { #polisyos-ir-registry-refs-explanationbundleref }
@@ -30707,6 +30873,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[scientist.explanation_bundle]` | `no` | `'scientist.explanation_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.FairnessAuditReportRef` { #polisyos-ir-registry-refs-fairnessauditreportref }
@@ -30724,6 +30891,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[scientist.fairness_audit_report]` | `no` | `'scientist.fairness_audit_report'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.FiniteStateAbstractionMapRef` { #polisyos-ir-registry-refs-finitestateabstractionmapref }
@@ -30741,6 +30909,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.finite_state_abstraction_map]` | `no` | `'ir.finite_state_abstraction_map'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.FiscalFeedbackLinkRef` { #polisyos-ir-registry-refs-fiscalfeedbacklinkref }
@@ -30758,6 +30927,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.fiscal_feedback_link]` | `no` | `'ir.fiscal_feedback_link'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.ForecastInterventionCertificateRef` { #polisyos-ir-registry-refs-forecastinterventioncertificateref }
@@ -30775,6 +30945,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.forecast_intervention_certificate]` | `no` | `'ir.forecast_intervention_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.ForecastInterventionQueryRef` { #polisyos-ir-registry-refs-forecastinterventionqueryref }
@@ -30792,6 +30963,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.forecast_intervention_query]` | `no` | `'ir.forecast_intervention_query'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.ForecastingUncertaintyBundleRef` { #polisyos-ir-registry-refs-forecastinguncertaintybundleref }
@@ -30809,6 +30981,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.forecasting_uncertainty_bundle]` | `no` | `'ir.forecasting_uncertainty_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.FrontierSketchRef` { #polisyos-ir-registry-refs-frontiersketchref }
@@ -30826,6 +30999,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.frontier_sketch]` | `no` | `'ir.frontier_sketch'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.GEUncertaintyBundleRef` { #polisyos-ir-registry-refs-geuncertaintybundleref }
@@ -30843,6 +31017,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.ge_uncertainty_bundle]` | `no` | `'ir.ge_uncertainty_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.HTEResultRef` { #polisyos-ir-registry-refs-hteresultref }
@@ -30860,6 +31035,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.hte_result]` | `no` | `'ir.hte_result'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.IncentiveCompatibilityCertificateRef` { #polisyos-ir-registry-refs-incentivecompatibilitycertificateref }
@@ -30877,6 +31053,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.incentive_compatibility_certificate]` | `no` | `'ir.incentive_compatibility_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.InteractionComplexRef` { #polisyos-ir-registry-refs-interactioncomplexref }
@@ -30894,6 +31071,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.interaction_complex]` | `no` | `'ir.interaction_complex'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.InterfaceMappingRef` { #polisyos-ir-registry-refs-interfacemappingref }
@@ -30911,6 +31089,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.interface_mapping]` | `no` | `'ir.interface_mapping'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.InterferenceCertificateRef` { #polisyos-ir-registry-refs-interferencecertificateref }
@@ -30928,6 +31107,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.interference_certificate]` | `no` | `'ir.interference_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.InterventionCertificateRef` { #polisyos-ir-registry-refs-interventioncertificateref }
@@ -30945,6 +31125,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.intervention_certificate]` | `no` | `'ir.intervention_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.InterventionCostManifoldRef` { #polisyos-ir-registry-refs-interventioncostmanifoldref }
@@ -30962,6 +31143,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.intervention_cost_manifold]` | `no` | `'ir.intervention_cost_manifold'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.InterventionQueryRef` { #polisyos-ir-registry-refs-interventionqueryref }
@@ -30979,6 +31161,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.intervention_query]` | `no` | `'ir.intervention_query'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.JointDecisionCertificateRef` { #polisyos-ir-registry-refs-jointdecisioncertificateref }
@@ -30996,6 +31179,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.joint_decision_certificate]` | `no` | `'ir.joint_decision_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.JudgeVerdictRef` { #polisyos-ir-registry-refs-judgeverdictref }
@@ -31013,6 +31197,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[scientist.judge_verdict]` | `no` | `'scientist.judge_verdict'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.KernelEstimatorSpecRef` { #polisyos-ir-registry-refs-kernelestimatorspecref }
@@ -31030,6 +31215,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.kernel_estimator_spec]` | `no` | `'ir.kernel_estimator_spec'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.LatentBridgeHypothesisRef` { #polisyos-ir-registry-refs-latentbridgehypothesisref }
@@ -31047,6 +31233,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.latent_bridge_hypothesis]` | `no` | `'ir.latent_bridge_hypothesis'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.LiteratureCausalPriorRef` { #polisyos-ir-registry-refs-literaturecausalpriorref }
@@ -31064,6 +31251,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.literature_causal_prior]` | `no` | `'ir.literature_causal_prior'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.LocalIndependenceWeightingCertificateRef` { #polisyos-ir-registry-refs-localindependenceweightingcertificateref }
@@ -31081,6 +31269,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.local_independence_weighting_certificate]` | `no` | `'ir.local_independence_weighting_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.MAUPInvarianceCertificateRef` { #polisyos-ir-registry-refs-maupinvariancecertificateref }
@@ -31098,6 +31287,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.maup_invariance_certificate]` | `no` | `'ir.maup_invariance_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.MeanFieldEquilibriumCertificateRef` { #polisyos-ir-registry-refs-meanfieldequilibriumcertificateref }
@@ -31115,6 +31305,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.mean_field_equilibrium_certificate]` | `no` | `'ir.mean_field_equilibrium_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.MeanFieldMacroSimulationConfigRef` { #polisyos-ir-registry-refs-meanfieldmacrosimulationconfigref }
@@ -31132,6 +31323,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.mean_field_macro_simulation_config]` | `no` | `'ir.mean_field_macro_simulation_config'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.MeanFieldPerturbationSpecRef` { #polisyos-ir-registry-refs-meanfieldperturbationspecref }
@@ -31149,6 +31341,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.mean_field_perturbation_spec]` | `no` | `'ir.mean_field_perturbation_spec'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.MechanismFamilySpecRef` { #polisyos-ir-registry-refs-mechanismfamilyspecref }
@@ -31166,6 +31359,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.mechanism_family_spec]` | `no` | `'ir.mechanism_family_spec'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.MechanismWelfareLossBoundRef` { #polisyos-ir-registry-refs-mechanismwelfarelossboundref }
@@ -31183,6 +31377,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.mechanism_welfare_loss_bound]` | `no` | `'ir.mechanism_welfare_loss_bound'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.MetricValidationReportRef` { #polisyos-ir-registry-refs-metricvalidationreportref }
@@ -31200,6 +31395,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[scientist.metric_validation_report]` | `no` | `'scientist.metric_validation_report'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.MicrosimCalibrationReportRef` { #polisyos-ir-registry-refs-microsimcalibrationreportref }
@@ -31217,6 +31413,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.microsim_calibration_report]` | `no` | `'ir.microsim_calibration_report'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.MobilityReportRef` { #polisyos-ir-registry-refs-mobilityreportref }
@@ -31234,6 +31431,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.mobility_report]` | `no` | `'ir.mobility_report'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.NCMSpecRef` { #polisyos-ir-registry-refs-ncmspecref }
@@ -31251,6 +31449,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.ncm_spec]` | `no` | `'ir.ncm_spec'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.NegativeCertificateRef` { #polisyos-ir-registry-refs-negativecertificateref }
@@ -31268,6 +31467,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.negative_certificate]` | `no` | `'ir.negative_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.NormativeArbitrationResultRef` { #polisyos-ir-registry-refs-normativearbitrationresultref }
@@ -31285,6 +31485,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.normative_arbitration_result]` | `no` | `'ir.normative_arbitration_result'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.OperatorEffectBundleRef` { #polisyos-ir-registry-refs-operatoreffectbundleref }
@@ -31302,6 +31503,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.operator_effect_bundle]` | `no` | `'ir.operator_effect_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.OptimalRecourseInterventionBundleRef` { #polisyos-ir-registry-refs-optimalrecourseinterventionbundleref }
@@ -31319,6 +31521,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.optimal_recourse_intervention_bundle]` | `no` | `'ir.optimal_recourse_intervention_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.OptimalRecourseInterventionQueryRef` { #polisyos-ir-registry-refs-optimalrecourseinterventionqueryref }
@@ -31336,6 +31539,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.optimal_recourse_intervention_query]` | `no` | `'ir.optimal_recourse_intervention_query'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.OptimizationAmbiguityCertificateRef` { #polisyos-ir-registry-refs-optimizationambiguitycertificateref }
@@ -31353,6 +31557,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.optimization_ambiguity_certificate]` | `no` | `'ir.optimization_ambiguity_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.OrdinalPovertyReportRef` { #polisyos-ir-registry-refs-ordinalpovertyreportref }
@@ -31370,6 +31575,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.ordinal_poverty_report]` | `no` | `'ir.ordinal_poverty_report'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.PolicyRecommendationRef` { #polisyos-ir-registry-refs-policyrecommendationref }
@@ -31387,6 +31593,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.policy_recommendation]` | `no` | `'ir.policy_recommendation'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.PrivacyAwareTransportCertificateRef` { #polisyos-ir-registry-refs-privacyawaretransportcertificateref }
@@ -31404,6 +31611,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.privacy_aware_transport_certificate]` | `no` | `'ir.privacy_aware_transport_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.ProofBundleRef` { #polisyos-ir-registry-refs-proofbundleref }
@@ -31421,6 +31629,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.proof_bundle]` | `no` | `'ir.proof_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.ProofComposabilityCertificateRef` { #polisyos-ir-registry-refs-proofcomposabilitycertificateref }
@@ -31438,6 +31647,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.proof_composability_certificate]` | `no` | `'ir.proof_composability_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.ProofWitnessIndexRef` { #polisyos-ir-registry-refs-proofwitnessindexref }
@@ -31455,6 +31665,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.proof_witness_index]` | `no` | `'ir.proof_witness_index'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.ProximalIdentificationCertificateRef` { #polisyos-ir-registry-refs-proximalidentificationcertificateref }
@@ -31472,6 +31683,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.proximal_identification_certificate]` | `no` | `'ir.proximal_identification_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.RecourseFeasibilityCertificateRef` { #polisyos-ir-registry-refs-recoursefeasibilitycertificateref }
@@ -31489,6 +31701,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.recourse_feasibility_certificate]` | `no` | `'ir.recourse_feasibility_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.RecourseProofBundleRef` { #polisyos-ir-registry-refs-recourseproofbundleref }
@@ -31506,6 +31719,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.recourse_proof_bundle]` | `no` | `'ir.recourse_proof_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.RecoverabilityCertificateRef` { #polisyos-ir-registry-refs-recoverabilitycertificateref }
@@ -31523,6 +31737,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.recoverability_certificate]` | `no` | `'ir.recoverability_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.RegimeShiftForecastBundleRef` { #polisyos-ir-registry-refs-regimeshiftforecastbundleref }
@@ -31540,6 +31755,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.regime_shift_forecast_bundle]` | `no` | `'ir.regime_shift_forecast_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.RegimeShiftIdentificationCertificateRef` { #polisyos-ir-registry-refs-regimeshiftidentificationcertificateref }
@@ -31557,6 +31773,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.regime_shift_identification_certificate]` | `no` | `'ir.regime_shift_identification_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.RoughPathInterventionCertificateRef` { #polisyos-ir-registry-refs-roughpathinterventioncertificateref }
@@ -31574,6 +31791,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.rough_path_intervention_certificate]` | `no` | `'ir.rough_path_intervention_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.SCMFragmentRef` { #polisyos-ir-registry-refs-scmfragmentref }
@@ -31591,6 +31809,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.scm_fragment]` | `no` | `'ir.scm_fragment'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.SensitivityAnalysisBundleRef` { #polisyos-ir-registry-refs-sensitivityanalysisbundleref }
@@ -31608,6 +31827,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[scientist.sensitivity_analysis_bundle]` | `no` | `'scientist.sensitivity_analysis_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.ShiftDiagnosticReportRef` { #polisyos-ir-registry-refs-shiftdiagnosticreportref }
@@ -31625,6 +31845,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.shift_diagnostic_report]` | `no` | `'ir.shift_diagnostic_report'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.SimulationCalibrationReceiptRef` { #polisyos-ir-registry-refs-simulationcalibrationreceiptref }
@@ -31642,6 +31863,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.simulation_calibration_receipt]` | `no` | `'ir.simulation_calibration_receipt'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.SimulationProofBridgeRef` { #polisyos-ir-registry-refs-simulationproofbridgeref }
@@ -31659,6 +31881,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.simulation_proof_bridge]` | `no` | `'ir.simulation_proof_bridge'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.SocialWeightManifestRef` { #polisyos-ir-registry-refs-socialweightmanifestref }
@@ -31676,6 +31899,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.social_weight_manifest]` | `no` | `'ir.social_weight_manifest'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.SpaceTimeCausalCertificateRef` { #polisyos-ir-registry-refs-spacetimecausalcertificateref }
@@ -31693,6 +31917,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.space_time_causal_certificate]` | `no` | `'ir.space_time_causal_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.SpatialHodgeDiagnosticsRef` { #polisyos-ir-registry-refs-spatialhodgediagnosticsref }
@@ -31710,6 +31935,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.spatial_hodge_diagnostics]` | `no` | `'ir.spatial_hodge_diagnostics'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.StrategicPayoffTableRef` { #polisyos-ir-registry-refs-strategicpayofftableref }
@@ -31727,6 +31953,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.strategic_payoff_table]` | `no` | `'ir.strategic_payoff_table'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.StrategicResponseBundleRef` { #polisyos-ir-registry-refs-strategicresponsebundleref }
@@ -31744,6 +31971,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.strategic_response_bundle]` | `no` | `'ir.strategic_response_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.StrategicSCMRef` { #polisyos-ir-registry-refs-strategicscmref }
@@ -31761,6 +31989,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.strategic_scm]` | `no` | `'ir.strategic_scm'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.StructuralCausalModelSpecRef` { #polisyos-ir-registry-refs-structuralcausalmodelspecref }
@@ -31778,6 +32007,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.structural_causal_model_spec]` | `no` | `'ir.structural_causal_model_spec'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.SurveyQualityCertificateRef` { #polisyos-ir-registry-refs-surveyqualitycertificateref }
@@ -31795,6 +32025,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.survey_quality_certificate]` | `no` | `'ir.survey_quality_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.TemporalGraphCausalCertificateRef` { #polisyos-ir-registry-refs-temporalgraphcausalcertificateref }
@@ -31812,6 +32043,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.temporal_graph_causal_certificate]` | `no` | `'ir.temporal_graph_causal_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.TemporalIdentificationCertificateRef` { #polisyos-ir-registry-refs-temporalidentificationcertificateref }
@@ -31829,6 +32061,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.temporal_identification_certificate]` | `no` | `'ir.temporal_identification_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.TemporalInterventionTrajectoryRef` { #polisyos-ir-registry-refs-temporalinterventiontrajectoryref }
@@ -31846,6 +32079,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.temporal_intervention_trajectory]` | `no` | `'ir.temporal_intervention_trajectory'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.TransportabilityResultRef` { #polisyos-ir-registry-refs-transportabilityresultref }
@@ -31863,6 +32097,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.transportability_result]` | `no` | `'ir.transportability_result'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.TwinNetworkResultRef` { #polisyos-ir-registry-refs-twinnetworkresultref }
@@ -31880,6 +32115,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.twin_network_result]` | `no` | `'ir.twin_network_result'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.UncertaintyEnvelopeRef` { #polisyos-ir-registry-refs-uncertaintyenveloperef }
@@ -31897,6 +32133,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.uncertainty_envelope]` | `no` | `'ir.uncertainty_envelope'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.ValidationReportRef` { #polisyos-ir-registry-refs-validationreportref }
@@ -31914,6 +32151,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[scientist.validation_report]` | `no` | `'scientist.validation_report'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.VariableAlignmentCertificateRef` { #polisyos-ir-registry-refs-variablealignmentcertificateref }
@@ -31931,6 +32169,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.variable_alignment_certificate]` | `no` | `'ir.variable_alignment_certificate'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.WelfareBundleRef` { #polisyos-ir-registry-refs-welfarebundleref }
@@ -31948,6 +32187,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.welfare_bundle]` | `no` | `'ir.welfare_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.WelfareSampleBundleRef` { #polisyos-ir-registry-refs-welfaresamplebundleref }
@@ -31965,6 +32205,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.welfare_sample_bundle]` | `no` | `'ir.welfare_sample_bundle'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.registry_fragments.ActorRegistry` { #polisyos-ir-registry-registry-fragments-actorregistry }

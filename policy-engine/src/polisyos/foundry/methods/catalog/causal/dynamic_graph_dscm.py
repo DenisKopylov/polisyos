@@ -24,6 +24,7 @@ from pydantic import (
     model_validator,
 )
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -456,11 +457,7 @@ def _reconstruct_from_event_log(
     covariates = (
         _as_time_major_covariates(data, n_periods, n_units)
         if data.covariates is not None
-        else (
-            np.zeros((n_periods, n_units, 1), dtype=float)
-            if covariate_events
-            else None
-        )
+        else (np.zeros((n_periods, n_units, 1), dtype=float) if covariate_events else None)
     )
 
     if data.initial_edges is not None:
@@ -772,9 +769,8 @@ def _status_from_tests(
     formation_p = float(formation["p_values"].get("outcome_similarity", 1.0))
     dissolution_beta = float(dissolution["coefficients"].get("outcome_difference", 0.0))
     dissolution_p = float(dissolution["p_values"].get("outcome_difference", 1.0))
-    y_to_a = (
-        (formation_p <= alpha and abs(formation_beta) >= min_effect_size)
-        or (dissolution_p <= alpha and abs(dissolution_beta) >= min_effect_size)
+    y_to_a = (formation_p <= alpha and abs(formation_beta) >= min_effect_size) or (
+        dissolution_p <= alpha and abs(dissolution_beta) >= min_effect_size
     )
 
     if a_to_y and y_to_a:
@@ -944,12 +940,8 @@ def _causal_effect_curves(
     )
 
     full_outcome_effect = full_outcomes.mean(axis=1) - baseline_outcomes.mean(axis=1)
-    blocked_y_to_a_effect = (
-        blocked_y_to_a_outcomes.mean(axis=1) - baseline_outcomes.mean(axis=1)
-    )
-    blocked_a_to_y_effect = (
-        blocked_a_to_y_outcomes.mean(axis=1) - baseline_outcomes.mean(axis=1)
-    )
+    blocked_y_to_a_effect = blocked_y_to_a_outcomes.mean(axis=1) - baseline_outcomes.mean(axis=1)
+    blocked_a_to_y_effect = blocked_a_to_y_outcomes.mean(axis=1) - baseline_outcomes.mean(axis=1)
     full_density_effect = full_edges.mean(axis=(1, 2)) - baseline_edges.mean(axis=(1, 2))
     curves = {
         "observed_mean_outcome": outcomes.mean(axis=1),
@@ -988,7 +980,10 @@ def _build_identification_warnings(
             "hybrid_data_used: exact edge or outcome events are combined with panel-aligned "
             "state histories; unmatched within-interval ordering remains model-based."
         )
-    if data.event_log and any(len([event for event in data.event_log if event.time == t]) > 1 for t in {event.time for event in data.event_log}):
+    if data.event_log and any(
+        len([event for event in data.event_log if event.time == t]) > 1
+        for t in {event.time for event in data.event_log}
+    ):
         if "event_priority_rule" not in data.metadata:
             warnings.append(
                 "simultaneous_events_default_priority: same-time event ordering used the "
@@ -1318,9 +1313,7 @@ def estimate_dynamic_graph_dscm(
     min_effect_size = float(params.get("min_effect_size", 1.0e-8))
     intervention = dict(params.get("intervention", {}))
 
-    edges, outcomes, policy, covariates, time_grid, data_source = _materialize_history(
-        dynamic_data
-    )
+    edges, outcomes, policy, covariates, time_grid, data_source = _materialize_history(dynamic_data)
     outcome_model = _fit_outcome_mechanism(edges, outcomes, policy, covariates, time_grid)
     edge_models = _fit_edge_mechanisms(
         edges,
@@ -1512,9 +1505,7 @@ def estimate_dynamic_graph_dscm(
         },
         "feedback_tests": {
             "A_to_Y_p_value": float(outcome_model["p_values"].get("network_exposure", 1.0)),
-            "Y_to_A_formation_p_value": float(
-                formation["p_values"].get("outcome_similarity", 1.0)
-            ),
+            "Y_to_A_formation_p_value": float(formation["p_values"].get("outcome_similarity", 1.0)),
             "Y_to_A_dissolution_p_value": float(
                 dissolution["p_values"].get("outcome_difference", 1.0)
             ),
@@ -1539,7 +1530,11 @@ def estimate_dynamic_graph_dscm(
         else (
             "hybrid_ordering_fallback"
             if data_source == "hybrid"
-            else ("no_bidirectional_feedback_fallback" if feedback_status != "full_feedback" else "none")
+            else (
+                "no_bidirectional_feedback_fallback"
+                if feedback_status != "full_feedback"
+                else "none"
+            )
         )
     )
     local_independence_certificate = _build_local_independence_certificate(
@@ -1563,7 +1558,7 @@ def estimate_dynamic_graph_dscm(
     artifact_store = resolve_artifact_store({}, params)
     temporal_graph_certificate_ref = (
         persist_temporal_graph_causal_certificate(
-            artifact_store,
+            _ensure_ir_artifact_store(artifact_store),
             temporal_graph_certificate,
         )
         if artifact_store is not None
@@ -1586,14 +1581,10 @@ def estimate_dynamic_graph_dscm(
                     else "panel_transition_linear_probability"
                 ),
                 "formation": {
-                    key: value
-                    for key, value in formation.items()
-                    if key not in {"fitted"}
+                    key: value for key, value in formation.items() if key not in {"fitted"}
                 },
                 "dissolution": {
-                    key: value
-                    for key, value in dissolution.items()
-                    if key not in {"fitted"}
+                    key: value for key, value in dissolution.items() if key not in {"fitted"}
                 },
             },
             "outcome_model": {

@@ -98,9 +98,7 @@ class VerifiedUkraineStageArtifacts(BaseModel):
     schema_version: Literal["policyos.data_forge.ukraine.verified_stage.v2"] = (
         "policyos.data_forge.ukraine.verified_stage.v2"
     )
-    verification_rule_version: Literal["ukraine-stage-artifacts.v2"] = (
-        "ukraine-stage-artifacts.v2"
-    )
+    verification_rule_version: Literal["ukraine-stage-artifacts.v2"] = "ukraine-stage-artifacts.v2"
     stage_id: str = Field(min_length=1)
     run_id: str = Field(min_length=1)
     status: Literal["completed"] = "completed"
@@ -108,9 +106,9 @@ class VerifiedUkraineStageArtifacts(BaseModel):
     manifest_source_path: str = Field(min_length=1)
     manifest_ref: core_artifacts.ArtifactRef
     manifest_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
-    provenance_ref: Literal[
+    provenance_ref: Literal["polisyos.data_forge.domains.ukraine.manifests.BuildRunManifest"] = (
         "polisyos.data_forge.domains.ukraine.manifests.BuildRunManifest"
-    ] = "polisyos.data_forge.domains.ukraine.manifests.BuildRunManifest"
+    )
     authority_purpose: Literal["producer_artifact_receipt"] = "producer_artifact_receipt"
     stage_status_provenance: Literal["institutionally_supplied"] = "institutionally_supplied"
     path_scope_provenance: Literal["recomputed"] = "recomputed"
@@ -168,15 +166,13 @@ class VerifiedUkraineReleaseArtifacts(BaseModel):
     manifest_ref: core_artifacts.ArtifactRef
     manifest_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     manifest_size_bytes: int = Field(ge=0)
-    provenance_ref: Literal[
+    provenance_ref: Literal["polisyos.data_forge.domains.ukraine.manifests.ReleaseManifest"] = (
         "polisyos.data_forge.domains.ukraine.manifests.ReleaseManifest"
-    ] = "polisyos.data_forge.domains.ukraine.manifests.ReleaseManifest"
+    )
     authority_purpose: Literal["non_authoritative_release_artifact_admission"] = (
         "non_authoritative_release_artifact_admission"
     )
-    stage_declaration_provenance: Literal["institutionally_supplied"] = (
-        "institutionally_supplied"
-    )
+    stage_declaration_provenance: Literal["institutionally_supplied"] = "institutionally_supplied"
     release_root_declaration_provenance: Literal["institutionally_supplied"] = (
         "institutionally_supplied"
     )
@@ -378,7 +374,7 @@ def load_verified_stage_output_bytes(
             f"verified receipt lacks required output: {output_name}"
         )
     try:
-        output_bytes = store.get_bytes(output.content_ref.artifact_id)
+        output_bytes = store.get_bytes(output.content_ref)
     except Exception as exc:
         raise UkraineStageArtifactVerificationError(
             f"failed to read admitted stage output {output_name}: {exc}"
@@ -506,9 +502,7 @@ def load_verified_release_artifacts(
                     f"bundle inventory key does not match its path for {bundle_name}"
                 )
         actual_paths = {
-            candidate.resolve()
-            for candidate in bundle_root.rglob("*")
-            if candidate.is_file()
+            candidate.resolve() for candidate in bundle_root.rglob("*") if candidate.is_file()
         }
         declared_paths = {path for path, _payload in declared_files.values()}
         if actual_paths != declared_paths:
@@ -622,7 +616,7 @@ def load_verified_release_artifact_bytes(
     """Read and recheck one admitted D5 file from CAS only."""
 
     try:
-        payload = store.get_bytes(artifact.content_ref.artifact_id)
+        payload = store.get_bytes(artifact.content_ref)
     except Exception as exc:
         raise UkraineStageArtifactVerificationError(
             f"failed to read admitted release artifact: {exc}"

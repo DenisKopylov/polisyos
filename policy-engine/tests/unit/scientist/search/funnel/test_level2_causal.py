@@ -5,6 +5,8 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.partial_identification import load_bounds_bundle
 from polisyos.scientist.methods.search.funnel.level2_causal import Level2CausalPlausibility
@@ -46,6 +48,8 @@ class TestLevel2CausalPlausibility:
         assert isinstance(result, FunnelStageResult)
         assert result.fidelity_level == 2
         assert "data_readiness_decision" in result.feedback
+        assert result.compute_cost_usd is not None
+        assert result.compute_cost_origin == "estimated"
 
     def test_candidate_with_l1_signal_inherits(self):
         """L2 should inherit signals from L1 result in context."""
@@ -217,7 +221,7 @@ class TestLevel2Identifiability:
         )
 
         assert ref is not None
-        bundle = load_bounds_bundle(store, ref)
+        bundle = load_bounds_bundle(_ensure_ir_artifact_store(store), ref)
         assert bundle.dual_certificate_ref is not None
         assert bundle.sharpness_status == "sharp"
 

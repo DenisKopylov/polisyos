@@ -1014,7 +1014,7 @@ def load_scm_fragment(
     ref: SCMFragmentRef,
 ) -> SCMFragment:
     """Load scm fragment."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return SCMFragment.model_validate(payload)
 
 
@@ -1044,7 +1044,7 @@ def load_interface_mapping(
     ref: InterfaceMappingRef,
 ) -> InterfaceMapping:
     """Load interface mapping."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return InterfaceMapping.model_validate(payload)
 
 
@@ -1074,7 +1074,7 @@ def load_composition_certificate(
     ref: CompositionCertificateRef,
 ) -> CompositionCertificate:
     """Load composition certificate."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return CompositionCertificate.model_validate(payload)
 
 
@@ -1104,7 +1104,7 @@ def load_cross_graph_evidence_profile(
     ref: CrossGraphEvidenceProfileRef,
 ) -> CrossGraphEvidenceProfile:
     """Load cross graph evidence profile."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return CrossGraphEvidenceProfile.model_validate(payload)
 
 

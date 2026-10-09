@@ -7,6 +7,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.ir import FailureSeverity, TypedFailureCard
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentReport,
@@ -330,7 +331,7 @@ def persist_composition_failure_card_bundle(
 ) -> CompositionFailureCardBundleRef:
     """Persist composition failure card bundle helper."""
     ref = put_json_artifact(
-        store,
+        _ensure_ir_artifact_store(store),
         bundle.model_dump(mode="json"),
         kind=_COMPOSITION_FAILURE_CARD_BUNDLE_SCHEMA_NAME,
         schema_name=schema_name,
@@ -346,7 +347,7 @@ def load_composition_failure_card_bundle(
     ref: CompositionFailureCardBundleRef,
 ) -> CompositionFailureCardBundle:
     """Load composition failure card bundle."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(_ensure_ir_artifact_store(store), ref)
     return CompositionFailureCardBundle.model_validate(payload)
 
 

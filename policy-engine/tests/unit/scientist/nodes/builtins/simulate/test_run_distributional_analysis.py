@@ -6,6 +6,8 @@ from dataclasses import replace
 
 import jax.numpy as jnp
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.contracts.foundry import (
     ExecPlanRef,
@@ -170,11 +172,11 @@ def test_happy_path_writes_report_and_effect_bundle(
     assert ARTIFACT_DISTRIBUTIONAL_REPORT_REF in outcome.state.artifacts_index
     assert ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF in outcome.state.artifacts_index
     report = load_distributional_report(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_REPORT_REF],
     )
     bundle = load_distributional_effect_bundle(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF],
     )
 
@@ -277,16 +279,18 @@ def test_ordinal_poverty_config_persists_report_and_summary(
 
     assert outcome.status == "ok"
     bundle = load_distributional_effect_bundle(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF],
     )
     report = load_distributional_report(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_REPORT_REF],
     )
 
     assert bundle.ordinal_poverty_ref is not None
-    ordinal_report = load_ordinal_poverty_report(cas_store, bundle.ordinal_poverty_ref)
+    ordinal_report = load_ordinal_poverty_report(
+        _ensure_ir_artifact_store(cas_store), bundle.ordinal_poverty_ref
+    )
     assert ordinal_report.counterfactual is not None
     assert ordinal_report.baseline.n_dimensions == 3
     assert report.ordinal_poverty_summary["status"] == "included"
@@ -327,15 +331,15 @@ def test_geography_subgroups_require_aligned_employer_ids(
 
     assert outcome.status == "ok"
     bundle = load_distributional_effect_bundle(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF],
     )
     report = load_distributional_report(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_REPORT_REF],
     )
     subgroup_items = [
-        load_subgroup_distribution_comparison(cas_store, ref)
+        load_subgroup_distribution_comparison(_ensure_ir_artifact_store(cas_store), ref)
         for ref in bundle.subgroup_distribution_refs
     ]
     assert all(
@@ -376,11 +380,11 @@ def test_undersized_geography_groups_emit_warning_without_failing(
 
     assert outcome.status == "ok"
     bundle = load_distributional_effect_bundle(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF],
     )
     report = load_distributional_report(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_REPORT_REF],
     )
     assert len(bundle.subgroup_distribution_refs) == 5
@@ -414,7 +418,7 @@ def test_uses_proof_kernel_for_distribution_law_when_graph_and_treatment_availab
         artifact_ref_factory=artifact_ref_factory,
     )
     graph_ref = persist_causal_graph_model(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         CausalGraphModel(
             graph_type=GraphType.DAG,
             nodes=["policy_shock", "income"],
@@ -439,7 +443,7 @@ def test_uses_proof_kernel_for_distribution_law_when_graph_and_treatment_availab
 
     assert outcome.status == "ok"
     bundle = load_distributional_effect_bundle(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF],
     )
 
@@ -464,15 +468,16 @@ def test_uses_proof_kernel_for_distribution_law_when_graph_and_treatment_availab
     assert bundle.causal_assumption_refs
 
     marginal_proof = load_distributional_proof_artifact(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         bundle.distributional_proof_ref,
     )
     coupling_proof = load_distributional_proof_artifact(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         bundle.coupling_proof_ref,
     )
     assumption_cards = [
-        load_causal_assumption_card(cas_store, ref) for ref in bundle.causal_assumption_refs
+        load_causal_assumption_card(_ensure_ir_artifact_store(cas_store), ref)
+        for ref in bundle.causal_assumption_refs
     ]
 
     assert marginal_proof.target is DistributionalProofTarget.CDF
@@ -527,7 +532,7 @@ def test_lee_distributional_bounds_are_wired_into_production_bundle(
 
     assert outcome.status == "ok"
     bundle = load_distributional_effect_bundle(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF],
     )
     assert bundle.marginal_law_justification is DistributionalJustification.BOUNDED
@@ -541,7 +546,9 @@ def test_lee_distributional_bounds_are_wired_into_production_bundle(
     ]
     assert bundle.metadata["bounds_theorem_families"] == ["lee_trimming_distributional"]
 
-    proof = load_distributional_proof_artifact(cas_store, bundle.distributional_proof_ref)
+    proof = load_distributional_proof_artifact(
+        _ensure_ir_artifact_store(cas_store), bundle.distributional_proof_ref
+    )
     assert proof.target is DistributionalProofTarget.CDF
     assert proof.bounded_curve_ref is not None
     assert proof.bounded_curve_ref.artifact_id == bundle.distributional_bounds_refs[0].artifact_id
@@ -591,7 +598,7 @@ def test_makarov_distributional_bounds_require_licensed_marginals_and_warn_point
 
     assert outcome.status == "ok"
     bundle = load_distributional_effect_bundle(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF],
     )
     assert bundle.marginal_law_justification is DistributionalJustification.BOUNDED
@@ -602,14 +609,16 @@ def test_makarov_distributional_bounds_require_licensed_marginals_and_warn_point
     assert bundle.metadata["distributional_bounds"]["pointwise_warning"] is True
 
     bounds = [
-        load_distributional_bounds_bundle(cas_store, ref)
+        load_distributional_bounds_bundle(_ensure_ir_artifact_store(cas_store), ref)
         for ref in bundle.distributional_bounds_refs
     ]
     assert {item.functional for item in bounds} == {
         DistributionalFunctional.ITE_TAIL_RISK,
         DistributionalFunctional.QUANTILE,
     }
-    proof = load_distributional_proof_artifact(cas_store, bundle.distributional_proof_ref)
+    proof = load_distributional_proof_artifact(
+        _ensure_ir_artifact_store(cas_store), bundle.distributional_proof_ref
+    )
     assert proof.target is DistributionalProofTarget.MARGINAL_PAIR
     assert proof.bound_uniformity is DistributionalBoundUniformity.POINTWISE_ONLY
 
@@ -657,14 +666,18 @@ def test_mtr_headcount_distributional_bounds_persist_dual_certificate(
 
     assert outcome.status == "ok"
     bundle = load_distributional_effect_bundle(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF],
     )
     assert bundle.distributional_bounds_refs
-    bounds = load_distributional_bounds_bundle(cas_store, bundle.distributional_bounds_refs[0])
+    bounds = load_distributional_bounds_bundle(
+        _ensure_ir_artifact_store(cas_store), bundle.distributional_bounds_refs[0]
+    )
     assert bounds.functional is DistributionalFunctional.POVERTY_HEADCOUNT
     assert bounds.dual_certificate_ref is not None
-    certificate = load_distributional_dual_certificate(cas_store, bounds.dual_certificate_ref)
+    certificate = load_distributional_dual_certificate(
+        _ensure_ir_artifact_store(cas_store), bounds.dual_certificate_ref
+    )
     assert certificate.theorem_family == "mtr_headcount"
     assert certificate.assumption_class == "mtr"
 
@@ -712,15 +725,19 @@ def test_sd_headcount_distributional_bounds_persist_dual_certificate(
 
     assert outcome.status == "ok"
     bundle = load_distributional_effect_bundle(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF],
     )
     assert bundle.marginal_law_justification is DistributionalJustification.BOUNDED
     assert bundle.distributional_bounds_refs
-    bounds = load_distributional_bounds_bundle(cas_store, bundle.distributional_bounds_refs[0])
+    bounds = load_distributional_bounds_bundle(
+        _ensure_ir_artifact_store(cas_store), bundle.distributional_bounds_refs[0]
+    )
     assert bounds.functional is DistributionalFunctional.POVERTY_HEADCOUNT
     assert bounds.dual_certificate_ref is not None
-    certificate = load_distributional_dual_certificate(cas_store, bounds.dual_certificate_ref)
+    certificate = load_distributional_dual_certificate(
+        _ensure_ir_artifact_store(cas_store), bounds.dual_certificate_ref
+    )
     assert certificate.theorem_family == "sd_headcount"
     assert certificate.assumption_class == "stochastic_dominance_fosd"
 
@@ -768,16 +785,20 @@ def test_mtr_gini_distributional_bounds_persist_outer_uniform_certificate(
 
     assert outcome.status == "ok"
     bundle = load_distributional_effect_bundle(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF],
     )
     assert bundle.marginal_law_justification is DistributionalJustification.BOUNDED
     assert bundle.distributional_bounds_refs
-    bounds = load_distributional_bounds_bundle(cas_store, bundle.distributional_bounds_refs[0])
+    bounds = load_distributional_bounds_bundle(
+        _ensure_ir_artifact_store(cas_store), bundle.distributional_bounds_refs[0]
+    )
     assert bounds.functional is DistributionalFunctional.GINI
     assert bounds.sharpness_status == "outer_approx"
     assert bounds.dual_certificate_ref is not None
-    certificate = load_distributional_dual_certificate(cas_store, bounds.dual_certificate_ref)
+    certificate = load_distributional_dual_certificate(
+        _ensure_ir_artifact_store(cas_store), bounds.dual_certificate_ref
+    )
     assert certificate.theorem_family == "mtr_gini_lorenz"
     assert certificate.bound_uniformity is DistributionalBoundUniformity.UNIFORM_OUTER
 

@@ -390,7 +390,7 @@ def load_channel_decomposition_artifact(
 ) -> ChannelDecompositionArtifact:
     """Load a persisted channel-decomposition artifact."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return ChannelDecompositionArtifact.model_validate(payload)
 
 
@@ -422,7 +422,7 @@ def load_ge_uncertainty_bundle(
 ) -> GEUncertaintyBundle:
     """Load a persisted GE uncertainty bundle."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return GEUncertaintyBundle.model_validate(payload)
 
 
@@ -454,7 +454,7 @@ def load_welfare_sample_bundle(
 ) -> WelfareSampleBundle:
     """Load a persisted welfare sample bundle."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return WelfareSampleBundle.model_validate(payload)
 
 
@@ -486,7 +486,7 @@ def load_welfare_bundle(
 ) -> WelfareBundle:
     """Load a persisted welfare bundle."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return WelfareBundle.model_validate(payload)
 
 
@@ -772,7 +772,7 @@ def _load_artifact_mapping(
     *,
     field_name: str,
 ) -> dict[str, Any]:
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     if not isinstance(payload, Mapping):
         raise ValueError(f"{field_name} must reference a JSON object payload")
     return dict(payload)

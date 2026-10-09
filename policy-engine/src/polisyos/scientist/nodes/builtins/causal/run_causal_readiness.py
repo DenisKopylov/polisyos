@@ -14,6 +14,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.ir.analytics.causal_graph import load_causal_graph_model
@@ -42,10 +43,6 @@ from polisyos.scientist.methods.causal.readiness import (
     TransportabilityChecker,
     build_interference_readiness_entries,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_READINESS_BUNDLE_REF,
@@ -54,6 +51,15 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
     ARTIFACT_TRANSPORTABILITY_RESULT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_causal_readiness@1.0.0"),
@@ -195,7 +201,7 @@ class RunCausalReadinessNode:
             graph_ref = CausalGraphModelRef.model_validate(
                 graph_ref_payload.model_dump(mode="json")
             )
-            graph = load_causal_graph_model(ctx.store, graph_ref)
+            graph = load_causal_graph_model(_ensure_ir_artifact_store(ctx.store), graph_ref)
             proxy_bundle = _coerce_bundle(ProxyIdentificationBundle, bundle_payloads["proxy"])
             transport_bundle = _coerce_bundle(
                 TransportabilityCheckBundle, bundle_payloads["transport"]
@@ -289,7 +295,7 @@ class RunCausalReadinessNode:
             metadata={"run_id": state.run_id},
         )
         readiness_ref = persist_causal_readiness_bundle(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             readiness_bundle,
             inputs=graph_inputs,
         )

@@ -215,6 +215,16 @@ Return the agent pipeline view for the run, including attempts and step-level tr
 - Response body: `AgentPipelineResponse`
   - `pipeline`: `AgentPipelineView`
   - `meta`
+- Cost event rows preserve `reported`, `estimated`, `reuse`, and `unknown` origins with
+  producer event identity and settlement status. Unknown amounts remain null; the aggregate
+  `cost_usd` is null when any included event has unknown or unsettled cost. Reported and
+  estimated totals remain separately available, and token-price estimates are heuristic.
+- Producer model and logical-route identity are pinned by the configured pre-dispatch intent;
+  response-declared labels do not rebind served event identity or estimate basis.
+- Compiler/preflight and model-variant events appear in distinct steps. Identical event IDs
+  across persisted sources count once; a conflicting payload for the same ID is refused.
+- These rows reflect local producer settlement and do not assert an external invoice or provider
+  billing receipt.
 
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \

@@ -1,0 +1,35 @@
+id = "2026-10-09-e02-backtest-foundry-replica-binding"
+title = "Bind Scientist backtest replicas to their masked inputs and seeds"
+type = "changed"
+component = "scientist-engine"
+owner = "team-polisyos"
+summary = "Scientist backtests execute each requested replica through the existing workflow with its own Foundry seed and persist the full replica denominator and CAS references."
+evidence = [
+  "src/polisyos/scientist/api.py",
+  "src/polisyos/scientist/methods/backtesting/orchestrator.py",
+  "tests/unit/scientist/methods/backtesting/test_backtesting.py",
+  "tests/integration/scientist/methods/backtesting/test_backtest_foundry_replicas.py",
+]
+compatibility = "run_experiment adds an optional foundry port keyword; callers that omit it retain the selected workflow default. Backtests with K greater than one retain individual outcomes and use the degraded fallback until a multi-run projection is defined."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.scientist.run_experiment; internal: scientist.methods.backtesting replica execution and receipts"
+migration = "No caller migration is required for the additive foundry keyword."
+api = "run_experiment accepts an optional typed foundry port and forwards it through the existing selected-workflow seam."
+limitations = "Each replica is executed independently with its own request seed and actual masked DataSnapshot binding. Multi-run prediction projection remains unsupported; the backtest report records all replica statuses and CAS refs and falls back to a degraded naive prediction."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/scientist/methods/backtesting/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "scientist-backtest-replica-binding"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "public_stable: polisyos.scientist.run_experiment; internal: scientist.methods.backtesting replica execution"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "The optional Foundry port seam is additive; backtest replicas use distinct request seeds, retain per-run CAS evidence, and do not project K runs to a scalar."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/methods/backtesting/README.md"]
+runbook_docs = []

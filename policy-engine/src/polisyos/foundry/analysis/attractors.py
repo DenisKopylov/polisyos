@@ -152,10 +152,7 @@ def classify_terminal_regime(
             notes=("finite_period_recurrence_detected",),
         )
 
-    if (
-        largest_lyapunov_exponent is not None
-        and largest_lyapunov_exponent > chaos_threshold
-    ):
+    if largest_lyapunov_exponent is not None and largest_lyapunov_exponent > chaos_threshold:
         return TerminalRegime(
             kind="chaotic",
             existence_status="numerically_confirmed",
@@ -286,7 +283,9 @@ def build_attractor_analysis_result(
         max_period=max_period,
         largest_lyapunov_exponent=largest_lyapunov,
     )
-    result_id = analysis_id or _analysis_id(array, variables, _coerce_parameter_point(parameter_point))
+    result_id = analysis_id or _analysis_id(
+        array, variables, _coerce_parameter_point(parameter_point)
+    )
     return AttractorAnalysisResult(
         analysis_id=result_id,
         model_ref=model_ref,
@@ -311,7 +310,9 @@ def build_attractor_analysis_result(
         uncertainty_summary=AttractorUncertaintySummary(
             stochastic_model=stochastic_model,
             seed_ensemble_size=seeds_used,
-            unresolved_items=[] if regime.kind != "invariant_set" else ["possible_hidden_attractor"],
+            unresolved_items=[]
+            if regime.kind != "invariant_set"
+            else ["possible_hidden_attractor"],
         ),
         provenance=AttractorAnalysisProvenance(
             toolchain=["polisyos.foundry.analysis.attractors"],
@@ -393,11 +394,7 @@ def build_attractor_ensemble_analysis_result(
                 initial_state=_initial_state_for_sample(
                     array,
                     variables,
-                    supplied=(
-                        supplied_initial_states[index]
-                        if supplied_initial_states
-                        else None
-                    ),
+                    supplied=(supplied_initial_states[index] if supplied_initial_states else None),
                 ),
                 attractor_id="",
                 seed=seed_values[index] if seed_values else None,
@@ -588,7 +585,7 @@ def attach_abm_bifurcation_report_ref(
     """Persist an exact Phase-4 ``ABMResult`` with bifurcation report populated."""
 
     simulation_result = SimulationResult.model_validate(
-        from_canonical_bytes(store.get_bytes(simulation_result_ref.artifact_id))
+        from_canonical_bytes(store.get_bytes(simulation_result_ref))
     )
     analysis = load_attractor_analysis_result(store, attractor_analysis_ref)
     abm_result = build_abm_result_from_simulation(
@@ -631,7 +628,7 @@ def load_attractor_analysis_result(
 ) -> AttractorAnalysisResult:
     """Load an attractor-analysis result from CAS."""
 
-    return AttractorAnalysisResult.model_validate(from_canonical_bytes(store.get_bytes(ref.artifact_id)))
+    return AttractorAnalysisResult.model_validate(from_canonical_bytes(store.get_bytes(ref)))
 
 
 def persist_basin_map(
@@ -658,7 +655,7 @@ def persist_basin_map(
 def load_basin_map(store: FileSystemCAS, ref: BasinMapRef) -> BasinMap:
     """Load a basin-map sidecar from CAS."""
 
-    return BasinMap.model_validate(from_canonical_bytes(store.get_bytes(ref.artifact_id)))
+    return BasinMap.model_validate(from_canonical_bytes(store.get_bytes(ref)))
 
 
 def persist_continuation_branch(
@@ -688,7 +685,7 @@ def load_continuation_branch(
 ) -> ContinuationBranch:
     """Load a continuation branch sidecar from CAS."""
 
-    return ContinuationBranch.model_validate(from_canonical_bytes(store.get_bytes(ref.artifact_id)))
+    return ContinuationBranch.model_validate(from_canonical_bytes(store.get_bytes(ref)))
 
 
 def _validate_positive_controls(
@@ -909,8 +906,7 @@ def _initial_state_for_sample(
     if supplied is not None:
         return {str(key): float(value) for key, value in supplied.items()}
     return {
-        variable: float(value)
-        for variable, value in zip(variable_ids, trajectory[0], strict=True)
+        variable: float(value) for variable, value in zip(variable_ids, trajectory[0], strict=True)
     }
 
 
@@ -1002,7 +998,9 @@ def _stability_for_regime(regime: TerminalRegime) -> AttractorStability:
     elif regime.kind == "limit_cycle":
         local_class = "orbitally_stable"
     elif regime.kind == "fixed_point" and regime.largest_lyapunov_exponent is not None:
-        local_class = "asymptotically_stable" if regime.largest_lyapunov_exponent < 0.0 else "neutral"
+        local_class = (
+            "asymptotically_stable" if regime.largest_lyapunov_exponent < 0.0 else "neutral"
+        )
     return AttractorStability(
         local_class=local_class,
         largest_lyapunov_exponent=regime.largest_lyapunov_exponent,
@@ -1059,8 +1057,7 @@ def _fixed_point_attractor_from_state(
         existence_status="numerically_confirmed" if confirmed else "candidate",
         state_representation=AttractorStateRepresentation(
             equilibrium={
-                variable: float(value)
-                for variable, value in zip(variable_ids, values, strict=True)
+                variable: float(value) for variable, value in zip(variable_ids, values, strict=True)
             }
         ),
         stability=AttractorStability(
@@ -1128,9 +1125,7 @@ def _result_input_refs(result: AttractorAnalysisResult) -> list[InputRef]:
         ("feedback_result_ref", result.feedback_result_ref),
     ]
     return [
-        InputRef(artifact_id=ref.artifact_id, role=role)
-        for role, ref in refs
-        if ref is not None
+        InputRef(artifact_id=ref.artifact_id, role=role) for role, ref in refs if ref is not None
     ]
 
 

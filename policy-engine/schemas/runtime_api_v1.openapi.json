@@ -903,6 +903,33 @@
             "title": "Attempt",
             "type": "integer"
           },
+          "cost_origin_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "propertyNames": {
+              "enum": [
+                "reported",
+                "estimated",
+                "reuse",
+                "unknown"
+              ]
+            },
+            "title": "Cost Origin Counts",
+            "type": "object"
+          },
+          "cost_usd": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Usd"
+          },
           "duration_ms": {
             "anyOf": [
               {
@@ -914,6 +941,18 @@
               }
             ],
             "title": "Duration Ms"
+          },
+          "estimated_cost_usd": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Cost Usd"
           },
           "finished_at": {
             "anyOf": [
@@ -933,6 +972,33 @@
             },
             "title": "Notes",
             "type": "array"
+          },
+          "reported_cost_usd": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reported Cost Usd"
+          },
+          "settlement_status_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "propertyNames": {
+              "enum": [
+                "pending",
+                "committed",
+                "unknown",
+                "unmanaged"
+              ]
+            },
+            "title": "Settlement Status Counts",
+            "type": "object"
           },
           "started_at": {
             "anyOf": [
@@ -976,6 +1042,138 @@
         "title": "AgentPipelineAttempt",
         "type": "object"
       },
+      "AgentPipelineCostEvent": {
+        "additionalProperties": false,
+        "description": "One persisted provider settlement or authenticated reuse event.",
+        "properties": {
+          "amount": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
+          },
+          "cost_origin": {
+            "enum": [
+              "reported",
+              "estimated",
+              "reuse",
+              "unknown"
+            ],
+            "title": "Cost Origin",
+            "type": "string"
+          },
+          "cost_usd": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Usd"
+          },
+          "durability": {
+            "anyOf": [
+              {
+                "enum": [
+                  "ledger",
+                  "memory",
+                  "none"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Durability"
+          },
+          "event_id": {
+            "minLength": 1,
+            "title": "Event Id",
+            "type": "string"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "origin_event_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Origin Event Id"
+          },
+          "payload_digest": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payload Digest"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          },
+          "receipts": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Receipts",
+            "type": "array"
+          },
+          "settlement_status": {
+            "enum": [
+              "pending",
+              "committed",
+              "unknown",
+              "unmanaged"
+            ],
+            "title": "Settlement Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_id",
+          "cost_origin",
+          "settlement_status"
+        ],
+        "title": "AgentPipelineCostEvent",
+        "type": "object"
+      },
       "AgentPipelineResponse": {
         "additionalProperties": false,
         "description": "Response envelope returned by the agent-pipeline endpoint.",
@@ -1012,6 +1210,45 @@
             "title": "Attempt",
             "type": "integer"
           },
+          "cost_events": {
+            "items": {
+              "$ref": "#/components/schemas/AgentPipelineCostEvent"
+            },
+            "title": "Cost Events",
+            "type": "array"
+          },
+          "cost_origin": {
+            "anyOf": [
+              {
+                "enum": [
+                  "reported",
+                  "estimated",
+                  "reuse",
+                  "unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Origin"
+          },
+          "cost_origin_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "propertyNames": {
+              "enum": [
+                "reported",
+                "estimated",
+                "reuse",
+                "unknown"
+              ]
+            },
+            "title": "Cost Origin Counts",
+            "type": "object"
+          },
           "cost_usd": {
             "anyOf": [
               {
@@ -1028,6 +1265,18 @@
             "additionalProperties": true,
             "title": "Details",
             "type": "object"
+          },
+          "estimated_cost_usd": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Cost Usd"
           },
           "latency_ms": {
             "anyOf": [
@@ -1085,6 +1334,18 @@
             ],
             "title": "Provider"
           },
+          "reported_cost_usd": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reported Cost Usd"
+          },
           "response": {
             "anyOf": [
               {
@@ -1095,6 +1356,29 @@
               }
             ],
             "title": "Response"
+          },
+          "settlement_event_ids": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Settlement Event Ids",
+            "type": "array"
+          },
+          "settlement_status_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "propertyNames": {
+              "enum": [
+                "pending",
+                "committed",
+                "unknown",
+                "unmanaged"
+              ]
+            },
+            "title": "Settlement Status Counts",
+            "type": "object"
           },
           "status": {
             "default": "info",
@@ -1156,6 +1440,33 @@
             "title": "Attempts",
             "type": "array"
           },
+          "cost_origin_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "propertyNames": {
+              "enum": [
+                "reported",
+                "estimated",
+                "reuse",
+                "unknown"
+              ]
+            },
+            "title": "Cost Origin Counts",
+            "type": "object"
+          },
+          "cost_usd": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Usd"
+          },
           "decision_packet_ref": {
             "anyOf": [
               {
@@ -1165,6 +1476,18 @@
                 "type": "null"
               }
             ]
+          },
+          "estimated_cost_usd": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Cost Usd"
           },
           "evaluator": {
             "anyOf": [
@@ -1256,6 +1579,18 @@
               }
             ]
           },
+          "reported_cost_usd": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reported Cost Usd"
+          },
           "reproducibility": {
             "anyOf": [
               {
@@ -1279,6 +1614,21 @@
           "run_id": {
             "title": "Run Id",
             "type": "string"
+          },
+          "settlement_status_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "propertyNames": {
+              "enum": [
+                "pending",
+                "committed",
+                "unknown",
+                "unmanaged"
+              ]
+            },
+            "title": "Settlement Status Counts",
+            "type": "object"
           },
           "source": {
             "anyOf": [
@@ -11372,6 +11722,25 @@
             "title": "Allow Explore Fallback",
             "type": "boolean"
           },
+          "catalog_run_profile": {
+            "anyOf": [
+              {
+                "enum": [
+                  "prod_full",
+                  "prod_core_blocking",
+                  "rest_backfill",
+                  "catalog_refresh",
+                  "preflight_core",
+                  "observations_backfill"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Catalog Run Profile"
+          },
           "data_needs": {
             "items": {
               "$ref": "#/components/schemas/DataNeed"
@@ -14687,6 +15056,18 @@
             "default": "ir.distributional_report",
             "title": "Kind",
             "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
           },
           "media_type": {
             "const": "application/json",
@@ -22694,6 +23075,36 @@
         "title": "LegacyProvingGroundPayload",
         "type": "object"
       },
+      "LegalQueryGenerationIntentV1": {
+        "additionalProperties": false,
+        "description": "Immutable selected embedding-generation inventory supplied for retrieval.",
+        "properties": {
+          "basis_kind": {
+            "enum": [
+              "legal_lex_entities_embedding",
+              "legal_lex_facts_embedding",
+              "legal_lex_provisions_embedding"
+            ],
+            "title": "Basis Kind",
+            "type": "string"
+          },
+          "generation_id": {
+            "title": "Generation Id",
+            "type": "string"
+          },
+          "inventory_json": {
+            "title": "Inventory Json",
+            "type": "string"
+          }
+        },
+        "required": [
+          "basis_kind",
+          "generation_id",
+          "inventory_json"
+        ],
+        "title": "LegalQueryGenerationIntentV1",
+        "type": "object"
+      },
       "LexGraphStatsResponse": {
         "additionalProperties": false,
         "description": "Return graph-cardinality and top-distribution telemetry for the Lex store.",
@@ -22840,6 +23251,20 @@
             "title": "Query",
             "type": "string"
           },
+          "query_generation_intent": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/LegalQueryGenerationIntentV1"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Query Generation Intent"
+          },
           "top_k": {
             "default": 20,
             "maximum": 100.0,
@@ -22857,7 +23282,7 @@
       },
       "LexSearchResponse": {
         "additionalProperties": false,
-        "description": "Return ranked Lex facts through the lossless HTTP boundary projection.",
+        "description": "Return ranked Lex facts with the actual retrieval mode and refusal reason.",
         "properties": {
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
@@ -22873,10 +23298,30 @@
             "title": "Results",
             "type": "array"
           },
+          "search_mode": {
+            "default": "text",
+            "enum": [
+              "text",
+              "vector"
+            ],
+            "title": "Search Mode",
+            "type": "string"
+          },
           "total": {
             "default": 0,
             "title": "Total",
             "type": "integer"
+          },
+          "vector_refusal_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vector Refusal Code"
           }
         },
         "required": [
@@ -30357,6 +30802,743 @@
         "title": "RunBoundDesignRecordBinding",
         "type": "object"
       },
+      "RunCandidateSimulationAcquisitionHistoryEntry": {
+        "additionalProperties": false,
+        "description": "Persisted acquisition action facts projected as candidate history only.",
+        "properties": {
+          "action_generation": {
+            "minimum": 1.0,
+            "title": "Action Generation",
+            "type": "integer"
+          },
+          "authority_purpose": {
+            "const": "candidate_observation_only",
+            "default": "candidate_observation_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "currentness_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Currentness Status",
+            "type": "string"
+          },
+          "new_candidate_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "New Candidate Id"
+          },
+          "new_candidate_source_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "old_candidate_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Old Candidate Id"
+          },
+          "origin_source_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "reentry_receipt_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "route_id": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Route Id",
+            "type": "string"
+          },
+          "route_receipt_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "terminal_outcome": {
+            "enum": [
+              "reentry_completed",
+              "quarantined_no_growth"
+            ],
+            "title": "Terminal Outcome",
+            "type": "string"
+          }
+        },
+        "required": [
+          "route_receipt_ref",
+          "route_id",
+          "action_generation",
+          "terminal_outcome"
+        ],
+        "title": "RunCandidateSimulationAcquisitionHistoryEntry",
+        "type": "object"
+      },
+      "RunCandidateSimulationChildProfileBinding": {
+        "additionalProperties": false,
+        "description": "Historical child profile/context binding with currentness left unestablished.",
+        "properties": {
+          "cell_id": {
+            "minLength": 1,
+            "title": "Cell Id",
+            "type": "string"
+          },
+          "context_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Context Hash",
+            "type": "string"
+          },
+          "context_job_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "currentness_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Currentness Status",
+            "type": "string"
+          },
+          "design_problem_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Design Problem Ref",
+            "type": "string"
+          },
+          "historical_binding_status": {
+            "enum": [
+              "resolved",
+              "not_established"
+            ],
+            "title": "Historical Binding Status",
+            "type": "string"
+          },
+          "job_id": {
+            "minLength": 1,
+            "title": "Job Id",
+            "type": "string"
+          },
+          "limitation_code": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limitation Code"
+          },
+          "model_declaration_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ncm_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "node_ref": {
+            "minLength": 1,
+            "title": "Node Ref",
+            "type": "string"
+          },
+          "profile_config_ref": {
+            "minLength": 1,
+            "title": "Profile Config Ref",
+            "type": "string"
+          },
+          "profile_id": {
+            "minLength": 1,
+            "title": "Profile Id",
+            "type": "string"
+          },
+          "profile_selection_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Profile Selection Ref",
+            "type": "string"
+          },
+          "root_n4_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "run_id": {
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "tenant_id": {
+            "minLength": 1,
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "node_ref",
+          "design_problem_ref",
+          "root_n4_source_ref",
+          "context_job_ref",
+          "context_hash",
+          "profile_id",
+          "profile_config_ref",
+          "profile_selection_ref",
+          "job_id",
+          "run_id",
+          "tenant_id",
+          "cell_id",
+          "historical_binding_status"
+        ],
+        "title": "RunCandidateSimulationChildProfileBinding",
+        "type": "object"
+      },
+      "RunCandidateSimulationN5Observation": {
+        "additionalProperties": false,
+        "description": "One typed N5 observation projected from a persisted recursive run.",
+        "properties": {
+          "atom_ids": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Atom Ids",
+            "type": "array"
+          },
+          "authority_blockers": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Authority Blockers",
+            "type": "array"
+          },
+          "candidate_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Id"
+          },
+          "context_job_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "currentness_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Currentness Status",
+            "type": "string"
+          },
+          "cycle_index": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cycle Index"
+          },
+          "design_problem_basis_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Design Problem Basis Ref"
+          },
+          "design_problem_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Design Problem Ref",
+            "type": "string"
+          },
+          "k_world_ref_after": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "K World Ref After"
+          },
+          "k_world_ref_before": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "K World Ref Before"
+          },
+          "lineage_limitation_code": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lineage Limitation Code"
+          },
+          "lineage_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "resolved",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lineage Status"
+          },
+          "n4_source_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n5_input_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "node_ref": {
+            "minLength": 1,
+            "title": "Node Ref",
+            "type": "string"
+          },
+          "profile_config_ref": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Config Ref"
+          },
+          "profile_selection_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Selection Ref"
+          },
+          "selected_outcomes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Selected Outcomes",
+            "type": "array"
+          },
+          "simulation_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Simulation Ref"
+          },
+          "simulation_result_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "enum": [
+              "joint_simulated",
+              "simulation_pending_n5",
+              "simulation_blocked"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "world_model_record_content_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "World Model Record Content Hash"
+          }
+        },
+        "required": [
+          "node_ref",
+          "design_problem_ref",
+          "status"
+        ],
+        "title": "RunCandidateSimulationN5Observation",
+        "type": "object"
+      },
+      "RunCandidateSimulationProjection": {
+        "additionalProperties": false,
+        "description": "Source-bound candidate observations exposed for display, never authority.",
+        "properties": {
+          "acquisition_history": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RunCandidateSimulationAcquisitionHistoryEntry"
+            },
+            "title": "Acquisition History",
+            "type": "array"
+          },
+          "acquisition_history_limitation_code": {
+            "anyOf": [
+              {
+                "enum": [
+                  "acquisition_n4_source_not_established",
+                  "acquisition_action_history_not_observed",
+                  "acquisition_action_history_incomplete",
+                  "acquisition_action_history_integrity_not_established",
+                  "acquisition_reentry_source_not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Acquisition History Limitation Code"
+          },
+          "artifact_status": {
+            "enum": [
+              "resolved",
+              "not_established"
+            ],
+            "title": "Artifact Status",
+            "type": "string"
+          },
+          "authority_purpose": {
+            "const": "candidate_observation_only",
+            "default": "candidate_observation_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "limitation_code": {
+            "anyOf": [
+              {
+                "enum": [
+                  "compiled_cycle_artifact_ambiguous",
+                  "compiled_cycle_artifact_ref_invalid",
+                  "compiled_cycle_artifact_integrity_not_established",
+                  "compiled_cycle_artifact_content_invalid",
+                  "n5_observation_not_emitted",
+                  "n5_result_reference_not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limitation Code"
+          },
+          "n4_child_profile_bindings": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RunCandidateSimulationChildProfileBinding"
+            },
+            "title": "N4 Child Profile Bindings",
+            "type": "array"
+          },
+          "n4_child_profile_limitation_code": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N4 Child Profile Limitation Code"
+          },
+          "n4_child_profile_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "not_attempted",
+                  "resolved",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N4 Child Profile Status"
+          },
+          "n4_recursive_source_content_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N4 Recursive Source Content Hash"
+          },
+          "n4_recursive_source_context_job_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n4_recursive_source_currentness_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "N4 Recursive Source Currentness Status",
+            "type": "string"
+          },
+          "n4_recursive_source_limitation_code": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N4 Recursive Source Limitation Code"
+          },
+          "n4_recursive_source_profile_config_ref": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N4 Recursive Source Profile Config Ref"
+          },
+          "n4_recursive_source_profile_selection_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N4 Recursive Source Profile Selection Ref"
+          },
+          "n4_recursive_source_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n4_recursive_source_result_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "generated",
+                  "generation_unavailable",
+                  "preflight_rejected"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N4 Recursive Source Result Status"
+          },
+          "n4_recursive_source_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "resolved",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N4 Recursive Source Status"
+          },
+          "n5_observations": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RunCandidateSimulationN5Observation"
+            },
+            "title": "N5 Observations",
+            "type": "array"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "recursive_cycle_checkpoint": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunRecursiveCycleCheckpoint"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "run_id": {
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "policyos.runtime.run_candidate_simulation_projection.v1",
+            "default": "policyos.runtime.run_candidate_simulation_projection.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_content_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Content Hash"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "run_id",
+          "artifact_status"
+        ],
+        "title": "RunCandidateSimulationProjection",
+        "type": "object"
+      },
       "RunCompareResponse": {
         "additionalProperties": false,
         "description": "Response envelope returned by the run comparison endpoint.",
@@ -30403,6 +31585,16 @@
         "additionalProperties": false,
         "description": "Run details public type.",
         "properties": {
+          "candidate_simulation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSimulationProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "capability_manifest_ref": {
             "anyOf": [
               {
@@ -32614,6 +33806,135 @@
           "source_kind"
         ],
         "title": "RunQuantitiesResponse",
+        "type": "object"
+      },
+      "RunRecursiveCycleBranchFailure": {
+        "additionalProperties": false,
+        "description": "Exact producer failure carried by a bounded partial recursive run.",
+        "properties": {
+          "error_code": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "error_message": {
+            "title": "Error Message",
+            "type": "string"
+          },
+          "exception_type": {
+            "minLength": 1,
+            "title": "Exception Type",
+            "type": "string"
+          },
+          "failed_branch_ref": {
+            "minLength": 1,
+            "title": "Failed Branch Ref",
+            "type": "string"
+          },
+          "origin_node_ref": {
+            "minLength": 1,
+            "title": "Origin Node Ref",
+            "type": "string"
+          },
+          "stage": {
+            "minLength": 1,
+            "title": "Stage",
+            "type": "string"
+          }
+        },
+        "required": [
+          "failed_branch_ref",
+          "origin_node_ref",
+          "stage",
+          "exception_type",
+          "error_message"
+        ],
+        "title": "RunRecursiveCycleBranchFailure",
+        "type": "object"
+      },
+      "RunRecursiveCycleCheckpoint": {
+        "additionalProperties": false,
+        "description": "Read-only checkpoint from an incomplete persisted recursive traversal.",
+        "properties": {
+          "budget_stop_node_ref": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Budget Stop Node Ref"
+          },
+          "completed_design_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Completed Design Refs",
+            "type": "array"
+          },
+          "failed_branches": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RunRecursiveCycleBranchFailure"
+            },
+            "title": "Failed Branches",
+            "type": "array"
+          },
+          "leaf_terminal_kinds": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Leaf Terminal Kinds",
+            "type": "object"
+          },
+          "pending_frontier": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Pending Frontier",
+            "type": "array"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "root_n9_status": {
+            "const": "not_run",
+            "default": "not_run",
+            "title": "Root N9 Status",
+            "type": "string"
+          },
+          "schema_version": {
+            "default": "policyos.runtime.recursive_cycle_checkpoint.v1",
+            "enum": [
+              "policyos.runtime.recursive_cycle_checkpoint.v1",
+              "policyos.runtime.recursive_cycle_checkpoint.v2"
+            ],
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "status": {
+            "const": "partial",
+            "default": "partial",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "title": "RunRecursiveCycleCheckpoint",
         "type": "object"
       },
       "RunSummary": {
@@ -36519,6 +37840,18 @@
             "title": "Kind",
             "type": "string"
           },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
           "media_type": {
             "const": "application/json",
             "default": "application/json",
@@ -36890,6 +38223,18 @@
             "default": "ir.welfare_bundle",
             "title": "Kind",
             "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
           },
           "media_type": {
             "const": "application/json",
@@ -58105,18 +59450,18 @@
                           "semantic_role": "scope_total_spend"
                         }
                       },
-                      "projection_hash": "sha256:4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee",
+                      "projection_hash": "sha256:8b31059c3c3cb4c3af66f985f7b10eba623e8efb4401844488c068c20a34ab5f",
                       "projection_id": "confidence-ledger-risk-spend",
                       "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                       "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
                       "registry_projection_hash": "sha256:000302a7a97aac6747cffca5ebb0536309505f3e45c0011cc7536ec80861eacc",
-                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Afe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
+                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A8b31059c3c3cb4c3af66f985f7b10eba623e8efb4401844488c068c20a34ab5f&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A574945ff5cda8a685aa8379c26ac725e00bf840a82eb2bd6a30dee17ea2c8bfc",
                       "replay_pins": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                        "projection_hash": "sha256:4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee",
+                        "projection_hash": "sha256:8b31059c3c3cb4c3af66f985f7b10eba623e8efb4401844488c068c20a34ab5f",
                         "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                         "source_as_of": "2026-02-11T12:00:00Z",
-                        "source_dependency_hash": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b"
+                        "source_dependency_hash": "sha256:574945ff5cda8a685aa8379c26ac725e00bf840a82eb2bd6a30dee17ea2c8bfc"
                       },
                       "source": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
@@ -58125,8 +59470,8 @@
                         "relative_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
                         "validation": {
                           "bound_artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                          "bound_dependency_aggregate_identity": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
-                          "bound_dependency_count": 1489,
+                          "bound_dependency_aggregate_identity": "sha256:574945ff5cda8a685aa8379c26ac725e00bf840a82eb2bd6a30dee17ea2c8bfc",
+                          "bound_dependency_count": 1596,
                           "frozen_semantic_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
                           "issue_codes": [],
                           "recomputed_total_spend_denominator": 1,
@@ -58141,16 +59486,16 @@
                           "status": "passed",
                           "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
                           "validator_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
-                          "worker_validation_receipt_hash": "sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2"
+                          "worker_validation_receipt_hash": "sha256:13dc0779c7bb161261f01a48035e99ca1a950ded0573a347eb9c754a346d6755"
                         }
                       },
                       "source_blocked_reason": null,
-                      "source_dependency_hash": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
+                      "source_dependency_hash": "sha256:574945ff5cda8a685aa8379c26ac725e00bf840a82eb2bd6a30dee17ea2c8bfc",
                       "source_rule_version": null,
                       "source_schema_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
                       "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
-                      "worker_validation_receipt_hash": "sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2",
-                      "worker_validation_receipt_ref": "owner-validation:sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2"
+                      "worker_validation_receipt_hash": "sha256:13dc0779c7bb161261f01a48035e99ca1a950ded0573a347eb9c754a346d6755",
+                      "worker_validation_receipt_ref": "owner-validation:sha256:13dc0779c7bb161261f01a48035e99ca1a950ded0573a347eb9c754a346d6755"
                     }
                   }
                 },

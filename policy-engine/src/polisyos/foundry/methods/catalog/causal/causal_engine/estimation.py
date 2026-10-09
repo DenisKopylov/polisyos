@@ -2,7 +2,42 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from . import artifacts as _artifacts
+
+if TYPE_CHECKING:
+    from .artifacts import (
+        Any,
+        CausalGraphModel,
+        CyclicExecutionBlock,
+        DataReadinessBlockedError,
+        DataReadinessReport,
+        EstimandAST,
+        ExecutorGraph,
+        ExecutorNode,
+        IdentificationResult,
+        IdentificationStatus,
+        _apply_government_phase1_requirements,
+        _build_postrun_readiness_report,
+        _coerce_mapping_like_data,
+        _ensure_readiness_registry,
+        _has_fallback_arrays,
+        _infer_sample_size,
+        _prepare_executor_state,
+        _resolve_method_class,
+        _resolve_survey_quality_inputs,
+        _run_direct_readiness_diagnostics,
+        _unknown_data_readiness_report,
+        build_data_readiness_report,
+        build_phase1_gate_summary,
+        compile_estimand,
+        dataclasses,
+        is_government_dataset,
+        load_phase1_flagship_dataset_ids,
+        np,
+        resolve_dataset_context,
+    )
 
 globals().update(
     {name: getattr(_artifacts, name) for name in dir(_artifacts) if not name.startswith("__")}
@@ -52,7 +87,6 @@ class CausalEngineEstimationMixin:
             ),
         )
         return executor_graph
-
 
     def _inject_diagnostic_nodes(
         self,
@@ -114,7 +148,6 @@ class CausalEngineEstimationMixin:
         if not new_nodes:
             return executor_graph
         return dataclasses.replace(executor_graph, nodes=(*executor_graph.nodes, *new_nodes))
-
 
     def _execute_cyclic_block(
         self,
@@ -182,11 +215,12 @@ class CausalEngineEstimationMixin:
             block_output["report"] = last_report
         return block_output
 
-
     def estimate(
         self,
         executor_graph: ExecutorGraph,
         data_dict: dict[str, Any],
+        *,
+        report_dependencies: dict[str, Any] | None = None,
     ) -> tuple[Any, dict[str, Any]]:
         """Execute an ExecutorGraph to produce a CausalEffectReport.
 
@@ -267,9 +301,19 @@ class CausalEngineEstimationMixin:
                     last_report = output["report"]
                 elif "twin_network_result" in output:
                     last_report = output["twin_network_result"]
+                    if report_dependencies is not None and isinstance(method_state, dict):
+                        scm_spec = method_state.get("scm_spec")
+                        if scm_spec is not None:
+                            report_dependencies["scm_spec"] = scm_spec
                 elif "envelope" in output and last_report is None:
                     last_report = output["envelope"]
             except Exception as exc:
+                from polisyos.foundry.methods.catalog.causal.gcm_fit import (
+                    _SelectedGCMGraphRefusal,
+                )
+
+                if isinstance(exc, _SelectedGCMGraphRefusal):
+                    raise
                 failed_nodes.add(node_id)
                 if not getattr(node, "is_nuisance", False):
                     # Main estimator failure → build report and stop
@@ -292,7 +336,6 @@ class CausalEngineEstimationMixin:
 
         return last_report, node_outputs
 
-
     def _diagnostic_only_executor_graph(self, executor_graph: ExecutorGraph) -> ExecutorGraph:
         """Reduce an executor graph to diagnostic nodes for readiness preflight."""
         diagnostic_nodes = tuple(
@@ -310,7 +353,6 @@ class CausalEngineEstimationMixin:
             nodes=diagnostic_nodes,
             nuisance_schedule=nuisance_schedule,
         )
-
 
     def _run_readiness_preflight(
         self,
@@ -394,7 +436,6 @@ class CausalEngineEstimationMixin:
             ),
             diagnostic_outputs,
         )
-
 
     def _resolve_direct_estimation_readiness(
         self,
@@ -481,7 +522,6 @@ class CausalEngineEstimationMixin:
                 reason="diagnostic_outputs_unverified",
             )
         return report
-
 
     def _require_estimation_readiness(
         self,

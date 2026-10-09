@@ -6,6 +6,7 @@ import logging
 
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
@@ -98,7 +99,7 @@ def test_partial_node_persists_limitation_and_disables_gate(tmp_path) -> None:
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.uqp01"))
 
     input_envelope_ref = persist_uncertainty_envelope(
-        store,
+        _ensure_ir_artifact_store(store),
         _normal_env(1.0, 0.1),
     )
     state_snapshot_ref = store.put_json(
@@ -165,6 +166,6 @@ def test_partial_node_persists_limitation_and_disables_gate(tmp_path) -> None:
     updated_payload = from_canonical_bytes(store.get_bytes(updated_ref.artifact_id))
     updated_simulation = SimulationResult.model_validate(updated_payload)
     unresolved_ref = updated_simulation.uncertainty_envelopes["unmapped"]
-    unresolved = load_uncertainty_envelope(store, unresolved_ref)
+    unresolved = load_uncertainty_envelope(_ensure_ir_artifact_store(store), unresolved_ref)
     assert unresolved.metadata["sensitivity_mapping"] == "unresolved"
     assert unresolved.gate_eligible is False

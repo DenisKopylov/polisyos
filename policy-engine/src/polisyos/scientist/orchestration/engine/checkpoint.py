@@ -2175,7 +2175,7 @@ def load_checkpoint_head(run_dir: Path) -> CheckpointHead | None:
 
 def load_checkpoint(store: ArtifactStore, checkpoint_ref: ArtifactRef) -> CheckpointArtifact:
     """Load checkpoint."""
-    raw = store.get_bytes(checkpoint_ref.artifact_id)
+    raw = store.get_bytes(checkpoint_ref)
     payload = from_canonical_bytes(raw)
     return CheckpointArtifact.model_validate(payload)
 
@@ -2195,7 +2195,7 @@ def materialize_checkpoint_state(
         raise CheckpointCorruptedError("checkpoint chain contains a cycle")
     seen_refs.add(ref_id)
 
-    verification = store.verify(checkpoint_ref.artifact_id)
+    verification = store.verify(checkpoint_ref)
     if not verification.ok:
         raise CheckpointCorruptedError(
             f"checkpoint artifact failed integrity verification: {verification.error}"

@@ -1,6 +1,8 @@
 """Tests for NegativeCertificate IR model."""
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.negative_certificate import (
     BlockingType,
@@ -392,7 +394,7 @@ class TestTrack6Additions:
             constructive_message="Collect an experiment on X.",
         )
 
-        ref = persist_negative_certificate(store, cert)
-        restored = load_negative_certificate(store, ref)
+        ref = persist_negative_certificate(_ensure_ir_artifact_store(store), cert)
+        restored = load_negative_certificate(_ensure_ir_artifact_store(store), ref)
 
         assert restored == cert

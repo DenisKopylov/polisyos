@@ -435,6 +435,21 @@
         "source": "Source"
       },
       "overview": "Overview",
+      "candidateSimulation": {
+        "acquisitionHistoryTitle": "История получения и повторного запуска",
+        "acquisitionHistoryAuthority": "Только сохранённая история кандидатов. Актуальность и право публикации не установлены.",
+        "acquisitionHistoryRefused": "Эту запись истории не удалось проверить, поэтому она скрыта.",
+        "acquisitionRoute": "Маршрут {route}, поколение действия {generation}",
+        "acquisitionOutcome": "Зафиксированный результат: {outcome}",
+        "acquisitionCurrentness": "Актуальность: {status}",
+        "acquisitionOldCandidate": "Предыдущий кандидат: {candidate}",
+        "acquisitionNewCandidate": "Кандидат повторного запуска: {candidate}",
+        "acquisitionSource": "Источник кандидата: {ref}",
+        "acquisitionOrigin": "Исходный источник: {ref}",
+        "acquisitionOriginUnlinked": "не связан в этой записи",
+        "acquisitionReceipt": "Квитанция маршрута: {ref}",
+        "acquisitionReentryReceipt": "Квитанция повторного запуска: {ref}"
+      },
       "detailTitle": "Run {runId}",
       "tabErrorTitle": "Run tab failed to render",
       "tabErrorBody": "This tab hit an unexpected error. Switch tabs or reload the run route.",
@@ -1341,6 +1356,17 @@
         "hybrid": "hybrid",
         "explorelane": "explorelane"
       },
+      "catalogRunProfile": "Профиль запуска каталога (необязательно)",
+      "catalogRunProfileHelp": "Если профиль не задан, используется профиль runtime. Если он не настроен или явный выбор конфликтует с ним, resolve вернёт типизированный отказ.",
+      "catalogRunProfileOptions": {
+        "unset": "Использовать конфигурацию runtime (или отказать, если профиль не определён)",
+        "prodFull": "Полный production (prod_full)",
+        "prodCoreBlocking": "Production core blocking (prod_core_blocking)",
+        "restBackfill": "REST backfill (rest_backfill)",
+        "catalogRefresh": "Обновление каталога (catalog_refresh)",
+        "preflightCore": "Предварительная проверка core (preflight_core)",
+        "observationsBackfill": "Backfill наблюдений (observations_backfill)"
+      },
       "allowExploreFallback": "allow explore fallback",
       "resolving": "Resolving...",
       "resolve": "Resolve DataNeeds",
@@ -1437,6 +1463,8 @@
       "promptCompletion": "Prompt/Comp",
       "latency": "Latency",
       "cost": "Cost",
+      "costUnknown": "Неизвестно",
+      "costEvents": "События стоимости",
       "attempt": "Attempt {attempt}",
       "action": "Action",
       "summary": "Summary",

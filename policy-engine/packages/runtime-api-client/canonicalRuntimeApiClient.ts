@@ -51,6 +51,9 @@ export type AcquisitionRoutingPayload =
 export type AgentPipelineAttempt =
   RuntimeApiComponents["schemas"]["AgentPipelineAttempt"];
 
+export type AgentPipelineCostEvent =
+  RuntimeApiComponents["schemas"]["AgentPipelineCostEvent"];
+
 export type AgentPipelineResponse =
   RuntimeApiComponents["schemas"]["AgentPipelineResponse"];
 
@@ -988,6 +991,9 @@ export type Layer3HealthMetricsPayload =
 export type LegacyProvingGroundPayload =
   RuntimeApiComponents["schemas"]["LegacyProvingGroundPayload"];
 
+export type LegalQueryGenerationIntentV1 =
+  RuntimeApiComponents["schemas"]["LegalQueryGenerationIntentV1"];
+
 export type LexGraphStatsResponse =
   RuntimeApiComponents["schemas"]["LexGraphStatsResponse"];
 
@@ -1328,6 +1334,18 @@ export type RunAuthorityProjection =
 export type RunBoundDesignRecordBinding =
   RuntimeApiComponents["schemas"]["RunBoundDesignRecordBinding"];
 
+export type RunCandidateSimulationAcquisitionHistoryEntry =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationAcquisitionHistoryEntry"];
+
+export type RunCandidateSimulationChildProfileBinding =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationChildProfileBinding"];
+
+export type RunCandidateSimulationN5Observation =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationN5Observation"];
+
+export type RunCandidateSimulationProjection =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationProjection"];
+
 export type RunCompareResponse =
   RuntimeApiComponents["schemas"]["RunCompareResponse"];
 
@@ -1435,6 +1453,12 @@ export type RunPaperVerifiedCaseSource =
 
 export type RunQuantitiesResponse =
   RuntimeApiComponents["schemas"]["RunQuantitiesResponse"];
+
+export type RunRecursiveCycleBranchFailure =
+  RuntimeApiComponents["schemas"]["RunRecursiveCycleBranchFailure"];
+
+export type RunRecursiveCycleCheckpoint =
+  RuntimeApiComponents["schemas"]["RunRecursiveCycleCheckpoint"];
 
 export type RunSummary = RuntimeApiComponents["schemas"]["RunSummary"];
 

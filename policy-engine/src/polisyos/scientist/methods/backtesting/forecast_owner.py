@@ -19,6 +19,7 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.calibration import evaluate_continuous
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.foundry.methods.artifacts import MethodArtifact, store_method_artifact
@@ -307,7 +308,7 @@ def _resolve_json(
         raise ValueError("artifact manifest identity does not match the requested reference")
     if manifest.kind != normalized.kind or manifest.media_type != normalized.media_type:
         raise ValueError("artifact reference is not content-bound to its CAS manifest")
-    return normalized, get_json_artifact(store, artifact_id)
+    return normalized, get_json_artifact(_ensure_ir_artifact_store(store), artifact_id)
 
 
 def _resolve_input_ref(store: ArtifactStore, item: InputRef) -> None:
@@ -651,7 +652,7 @@ class ForecastOwner:
 
         training_slice_ref = _ref_from_payload(
             put_json_artifact(
-                self._store,
+                _ensure_ir_artifact_store(self._store),
                 {
                     "schema_version": "1.0",
                     "source_ref": observed_source_ref.model_dump(mode="json"),
@@ -683,7 +684,7 @@ class ForecastOwner:
         method_artifact_ref = _ref_from_payload(store_method_artifact(self._store, method_artifact))
 
         bundle_ref = persist_forecasting_uncertainty_bundle(
-            self._store,
+            _ensure_ir_artifact_store(self._store),
             bundle,
             inputs=[
                 _input(observed_source_ref.artifact_id, "observed_source"),
@@ -693,7 +694,9 @@ class ForecastOwner:
                 _input(calibration_rule_ref.artifact_id, "calibration_rule"),
             ],
         )
-        persisted_bundle = load_forecasting_uncertainty_bundle(self._store, bundle_ref)
+        persisted_bundle = load_forecasting_uncertainty_bundle(
+            _ensure_ir_artifact_store(self._store), bundle_ref
+        )
         if persisted_bundle.method_fqn != METHOD_FQN:
             raise ValueError("persisted uncertainty bundle lost its method binding")
         if persisted_bundle.target_id != request.target_metric:
@@ -781,7 +784,7 @@ class ForecastOwner:
         }
         calibration_diagnostics_ref = _ref_from_payload(
             put_json_artifact(
-                self._store,
+                _ensure_ir_artifact_store(self._store),
                 calibration_payload,
                 kind="ir.calibration_diagnostics_report",
                 schema_name=CalibrationDiagnosticsReport.contract_id,
@@ -885,7 +888,9 @@ class ForecastOwner:
         if report.cas_artifact_id is None:
             raise ValueError("backtest orchestrator did not persist a report")
         report_ref = BacktestReportRef.model_validate({"artifact_id": report.cas_artifact_id})
-        persisted_report: BacktestReport = load_backtest_report(self._store, report_ref)
+        persisted_report: BacktestReport = load_backtest_report(
+            _ensure_ir_artifact_store(self._store), report_ref
+        )
         if persisted_report.report_id != request.report_id:
             raise ValueError("persisted backtest report lost its allocated report identity")
         expected_model_id = None if model_spec_ref is None else str(model_spec_ref.artifact_id)
@@ -903,7 +908,7 @@ class ForecastOwner:
                 raise ValueError(
                     f"persisted backtest report metadata lost its {field_name} binding"
                 )
-        report_manifest = self._store.get_manifest(report_ref.artifact_id)
+        report_manifest = _ensure_ir_artifact_store(self._store).get_manifest(report_ref)
         for role, expected_id in (
             ("model_spec", expected_model_id),
             ("policy_spec", expected_policy_id),

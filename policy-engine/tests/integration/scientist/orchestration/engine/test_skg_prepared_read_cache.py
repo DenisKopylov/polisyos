@@ -13,6 +13,7 @@ from typing import Any
 import duckdb
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -211,7 +212,9 @@ def _trace_events(
 def _resolved_value(store: FileSystemCAS, state: ExperimentState) -> float:
     bundle_ref = state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
-        bundle = load_context_adaptive_parameter_bundle(store, bundle_ref)
+        bundle = load_context_adaptive_parameter_bundle(
+            _ensure_ir_artifact_store(store), bundle_ref
+        )
     return float(bundle.parameters["fiscal_multiplier"].value)
 
 
@@ -283,9 +286,7 @@ def test_each_skg_node_owner_prepares_the_selected_source(
         run_id="R_owner_prepare",
         inputs={INPUT_TRINITY_BUNDLE_REF: artifact_ref_factory(kind="ir.trinity_bundle")},
         artifacts_index={
-            ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: artifact_ref_factory(
-                kind="ir.causal_graph_model"
-            )
+            ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: artifact_ref_factory(kind="ir.causal_graph_model")
         },
         params=state_params,
     )
@@ -367,7 +368,7 @@ def test_workflow_executor_binds_source_transaction_and_emits_hit_receipt(tmp_pa
     store = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", "cell-a")
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
         graph_ref = persist_causal_graph_model(
-            store,
+            _ensure_ir_artifact_store(store),
             CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
         )
     initial_state = ExperimentState(
@@ -392,9 +393,7 @@ def test_workflow_executor_binds_source_transaction_and_emits_hit_receipt(tmp_pa
     assert first.report.status == "ok"
     assert first_value == 1.4
     cache_store_event = next(
-        event
-        for event in _trace_events(ctx_first)
-        if event.get("event") == "NODE_CACHE_STORE"
+        event for event in _trace_events(ctx_first) if event.get("event") == "NODE_CACHE_STORE"
     )
     cache_entry_ref = ArtifactRef.model_validate(cache_store_event["refs"]["outputs"][0])
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
@@ -403,21 +402,16 @@ def test_workflow_executor_binds_source_transaction_and_emits_hit_receipt(tmp_pa
         )
     assert cache_entry.outcome_payload is not None
     cached_events = [
-        NodeEvent.model_validate(event)
-        for event in cache_entry.outcome_payload.get("events", [])
+        NodeEvent.model_validate(event) for event in cache_entry.outcome_payload.get("events", [])
     ]
     origin_events = [
-        event
-        for event in cached_events
-        if event.code == "skg.prepared_connection_query"
+        event for event in cached_events if event.code == "skg.prepared_connection_query"
     ]
     assert len(origin_events) == 1
     origin_attrs = origin_events[0].attrs
     assert origin_attrs["read_evidence_scope"] == "bound_connection_query_execution_only"
     assert origin_attrs["output_dependency"] == "not_established"
-    query_fingerprints = json.loads(
-        origin_attrs["connection_query_fingerprints_json"]
-    )
+    query_fingerprints = json.loads(origin_attrs["connection_query_fingerprints_json"])
     assert query_fingerprints
 
     ctx_hit, registry_hit = _build_run_context(store, initial_state.run_id)
@@ -452,8 +446,7 @@ def test_workflow_executor_binds_source_transaction_and_emits_hit_receipt(tmp_pa
     assert receipt.time_semantics == "read_transaction_opened_at"
     assert receipt.current_prepared_at >= receipt.original_prepared_at
     assert any(
-        ref.kind == "ir.context_adaptive_parameter_bundle"
-        for ref in receipt.original_output_refs
+        ref.kind == "ir.context_adaptive_parameter_bundle" for ref in receipt.original_output_refs
     )
 
     foreign_store = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-b", "cell-a")
@@ -501,7 +494,7 @@ def test_workflow_executor_scopes_constant_query_as_execution_only(
     store = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", "cell-a")
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
         graph_ref = persist_causal_graph_model(
-            store,
+            _ensure_ir_artifact_store(store),
             CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
         )
     state = ExperimentState(
@@ -530,9 +523,7 @@ def test_workflow_executor_scopes_constant_query_as_execution_only(
     assert first.report.status == "ok"
     assert observed == [1]
     store_event = next(
-        event
-        for event in _trace_events(first_context)
-        if event.get("event") == "NODE_CACHE_STORE"
+        event for event in _trace_events(first_context) if event.get("event") == "NODE_CACHE_STORE"
     )
     cache_entry_ref = ArtifactRef.model_validate(store_event["refs"]["outputs"][0])
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
@@ -579,7 +570,7 @@ def test_workflow_executor_closes_prepared_reader_when_duckdb_error_escapes(
     store = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", "cell-a")
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
         graph_ref = persist_causal_graph_model(
-            store,
+            _ensure_ir_artifact_store(store),
             CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
         )
     state = ExperimentState(
@@ -636,7 +627,7 @@ def test_timed_prepared_read_bypasses_shared_handle_until_worker_finishes(
     store = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", "cell-a")
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
         graph_ref = persist_causal_graph_model(
-            store,
+            _ensure_ir_artifact_store(store),
             CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
         )
     state = ExperimentState(
@@ -655,13 +646,9 @@ def test_timed_prepared_read_bypasses_shared_handle_until_worker_finishes(
     assert _resolved_value(store, warmup.state) == 1.4
 
     warmup_store_event = next(
-        event
-        for event in _trace_events(context)
-        if event.get("event") == "NODE_CACHE_STORE"
+        event for event in _trace_events(context) if event.get("event") == "NODE_CACHE_STORE"
     )
-    source_bound_entry_ref = ArtifactRef.model_validate(
-        warmup_store_event["refs"]["outputs"][0]
-    )
+    source_bound_entry_ref = ArtifactRef.model_validate(warmup_store_event["refs"]["outputs"][0])
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
         source_bound_entry = NodeCacheEntry.model_validate(
             from_canonical_bytes(store.get_bytes(source_bound_entry_ref.artifact_id))
@@ -775,7 +762,9 @@ def test_timed_prepared_read_bypasses_shared_handle_until_worker_finishes(
         bypasses = [event for event in events if event.get("event") == "NODE_CACHE_BYPASS"]
         assert len(bypasses) == 1
         assert bypasses[0]["metrics"]["reason_code"] == 7
-        assert not any(event.get("event") in {"NODE_CACHE_HIT", "NODE_CACHE_STORE"} for event in events)
+        assert not any(
+            event.get("event") in {"NODE_CACHE_HIT", "NODE_CACHE_STORE"} for event in events
+        )
         assert cache_validation_calls == []
         assert not finished.is_set()
     finally:
@@ -823,7 +812,7 @@ def test_duckdb_cache_preparation_failure_bypasses_cache_and_runs_node(
     store = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", "cell-a")
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
         graph_ref = persist_causal_graph_model(
-            store,
+            _ensure_ir_artifact_store(store),
             CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
         )
     state = ExperimentState(
@@ -875,7 +864,7 @@ def test_workflow_executor_bypasses_cache_if_source_generation_changes_during_mi
     _seed_skg(db_path)
     store = FileSystemCAS(tmp_path / "cas")
     graph_ref = persist_causal_graph_model(
-        store,
+        _ensure_ir_artifact_store(store),
         CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
     )
     initial_state = ExperimentState(
@@ -927,7 +916,7 @@ def test_build_literature_prior_recomputes_existing_output_from_changed_prepared
     _seed_skg(db_path)
     store = FileSystemCAS(tmp_path / "literature-prior-cas")
     old_ref = persist_literature_causal_prior(
-        store,
+        _ensure_ir_artifact_store(store),
         LiteratureCausalPrior(metadata={"legacy_source": "unbound"}),
     )
     state = ExperimentState(
@@ -988,9 +977,7 @@ def test_resolve_parameters_recomputes_existing_bundle_from_changed_prepared_sou
     """A persisted parameter bundle cannot bypass the current owner-prepared read."""
     db_path = tmp_path / "resolved-parameters-source.duckdb"
     _seed_skg(db_path)
-    store = FileSystemCAS(tmp_path / "resolved-parameters-cas").for_tenant(
-        "tenant-a", "cell-a"
-    )
+    store = FileSystemCAS(tmp_path / "resolved-parameters-cas").for_tenant("tenant-a", "cell-a")
     target_context = {
         "context_id": "us-2025",
         "countries": ["US"],
@@ -998,11 +985,11 @@ def test_resolve_parameters_recomputes_existing_bundle_from_changed_prepared_sou
     }
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
         graph_ref = persist_causal_graph_model(
-            store,
+            _ensure_ir_artifact_store(store),
             CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
         )
         old_bundle_ref = persist_context_adaptive_parameter_bundle(
-            store,
+            _ensure_ir_artifact_store(store),
             ContextAdaptiveParameterBundle(
                 target_context=ContextProfile.model_validate(target_context),
                 simulation_domain="fiscal",
@@ -1034,9 +1021,7 @@ def test_resolve_parameters_recomputes_existing_bundle_from_changed_prepared_sou
         finally:
             prepared_read.close()
         assert outcome.status == "ok"
-        current_ref = outcome.state.artifacts_index[
-            ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
-        ]
+        current_ref = outcome.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
         assert current_ref != old_bundle_ref
         assert _resolved_value(store, outcome.state) == expected_value
         state = outcome.state
@@ -1060,7 +1045,7 @@ def test_cross_graph_recomputes_existing_profile_from_changed_prepared_source(
         ),
     )
     old_ref = persist_cross_graph_evidence_profile(
-        store,
+        _ensure_ir_artifact_store(store),
         CrossGraphEvidenceProfile(
             summary=CrossGraphEvidenceSummary(status="ok", total_needs=0),
             notes=["legacy-source-unbound"],
@@ -1108,7 +1093,7 @@ def test_cross_graph_recomputes_existing_profile_from_changed_prepared_source(
         assert outcome.status == "ok"
         current_ref = outcome.state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF]
         assert current_ref != old_ref
-        profile = load_cross_graph_evidence_profile(store, current_ref)
+        profile = load_cross_graph_evidence_profile(_ensure_ir_artifact_store(store), current_ref)
         assert profile.notes == [f"prepared-source-value:{expected_value}"]
         state = outcome.state
         old_ref = current_ref
@@ -1130,7 +1115,7 @@ def test_removed_cache_key_binding_is_stopped_by_origin_read_set_check(
     _seed_skg(db_path)
     store = FileSystemCAS(tmp_path / "cas")
     graph_ref = persist_causal_graph_model(
-        store,
+        _ensure_ir_artifact_store(store),
         CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
     )
     initial_state = ExperimentState(

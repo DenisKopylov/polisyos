@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING, Any, Literal
 
 from polisyos.common.logger import get_logger
@@ -314,14 +315,67 @@ class CachingArtifactStore:
         typed local cache hit is insufficient because model validation can fill
         omitted defaults before a reader checks profile completeness.
         """
-        owner = self._default_manifest_owner()
-        reader = getattr(owner, "get_manifest_bytes", None)
-        if not callable(reader):
-            raise TypeError("Durable artifact owner must expose get_manifest_bytes")
-        manifest_bytes = reader(artifact_id)
-        if not isinstance(manifest_bytes, bytes):
-            raise TypeError("Artifact owner get_manifest_bytes() must return bytes")
-        return manifest_bytes
+        if self._write_through:
+            owners = (self._default_manifest_owner(),)
+        else:
+            owners = (self._local, self._remote)
+        for index, owner in enumerate(owners):
+            reader = getattr(owner, "get_manifest_bytes", None)
+            if not callable(reader):
+                if index + 1 == len(owners):
+                    raise TypeError("Artifact owner must expose get_manifest_bytes")
+                continue
+            try:
+                manifest_bytes = reader(artifact_id)
+            except (FileNotFoundError, KeyError):
+                if index + 1 < len(owners):
+                    continue
+                raise
+            if not isinstance(manifest_bytes, bytes):
+                raise TypeError("Artifact owner get_manifest_bytes() must return bytes")
+            return manifest_bytes
+        raise TypeError("Artifact owner must expose get_manifest_bytes")
+
+    def get_manifest_by_profile(
+        self,
+        artifact_id: ArtifactID | str,
+        manifest_profile_sha256: str,
+    ) -> ArtifactManifest:
+        """Resolve a selected sidecar by its profile digest across cache owners."""
+        aid = ArtifactID.model_validate(artifact_id)
+        if re.fullmatch(r"sha256:[0-9a-f]{64}", manifest_profile_sha256) is None:
+            raise ValueError("manifest_profile_sha256 must be sha256:<64 lowercase hex>")
+        owners = (
+            (self._default_manifest_owner(),)
+            if self._write_through
+            else (
+                self._local,
+                self._remote,
+            )
+        )
+        for index, owner in enumerate(owners):
+            resolver = getattr(owner, "get_manifest_by_profile", None)
+            try:
+                if callable(resolver):
+                    manifest = resolver(aid, manifest_profile_sha256)
+                else:
+                    manifest = owner.get_manifest(aid)
+                    if ManifestLifecycle.profile_sha256(manifest) != manifest_profile_sha256:
+                        raise TypeError(
+                            "Artifact owner cannot resolve a non-default manifest profile"
+                        )
+            except (FileNotFoundError, KeyError):
+                if index + 1 < len(owners):
+                    continue
+                raise
+            if (
+                manifest.artifact_id != aid
+                or ManifestLifecycle.profile_sha256(manifest) != manifest_profile_sha256
+            ):
+                raise ArtifactIntegrityError("Artifact owner returned a different manifest profile")
+            return manifest
+
+        raise FileNotFoundError(f"Selected manifest profile not found for {aid}")
 
     def put_bytes(self, data: bytes, opts: PutOptions) -> ArtifactRef:
         ref = self._local.put_bytes(data, opts)

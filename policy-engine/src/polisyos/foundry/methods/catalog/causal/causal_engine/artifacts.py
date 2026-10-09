@@ -24,6 +24,8 @@ from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+
 logger = logging.getLogger(__name__)
 
 from polisyos.foundry.methods.catalog._phase1_artifacts import (
@@ -141,6 +143,7 @@ from polisyos.ir.analytics.estimand import (
     StochasticInterventionNode,
     StochasticPolicy,
     make_distribution_law_estimand,
+    persist_estimand_ast,
 )
 from polisyos.ir.analytics.evidence_bundle import (
     CompilationStep,
@@ -235,11 +238,11 @@ from polisyos.ir.analytics.recoverability import (
 )
 from polisyos.ir.analytics.survey_quality import load_survey_quality_certificate
 from polisyos.ir.artifacts import ArtifactStore, InputRef, put_json_artifact
-from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.governance.phase1 import (
     build_phase1_gate_summary,
     load_phase1_flagship_dataset_ids,
 )
+from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     DynamicTreatmentRegimeRef,
@@ -254,7 +257,6 @@ if TYPE_CHECKING:
     from polisyos.ir.analytics.mgraph import MGraphMetadata
     from polisyos.ir.analytics.proximal import ProximalMediationCertificate
     from polisyos.ir.analytics.recoverability import JointDecisionCertificate
-
 
 
 def _infer_sample_size(
@@ -1132,7 +1134,7 @@ def _resolve_survey_quality_inputs(
         try:
             ref = SurveyQualityCertificateRef.model_validate(ref_payload)
             certificate = load_survey_quality_certificate(
-                artifact_store,
+                _ensure_ir_artifact_store(artifact_store),
                 ref,
             )
             return certificate.model_dump(mode="json"), ref.model_dump(mode="json")
@@ -1417,7 +1419,7 @@ def _attach_proof_composability_certificate(
         if ref is not None
     ]
     certificate_ref = persist_proof_composability_certificate(
-        store,
+        _ensure_ir_artifact_store(store),
         certificate,
         inputs=inputs or None,
     )
@@ -2505,7 +2507,6 @@ class CausalEngineArtifactsMixin:
             None,
         )
 
-
     def _complete_negative_certificate(
         self,
         negative_cert: NegativeCertificate,
@@ -2596,7 +2597,6 @@ class CausalEngineArtifactsMixin:
         )
         return updated, dual_certificate_payload
 
-
     def audit(
         self,
         identification_result: IdentificationResult | NegativeCertificate | None,
@@ -2614,6 +2614,7 @@ class CausalEngineArtifactsMixin:
         dual_certificate_payload: dict[str, Any] | None = None,
         data_readiness_report: DataReadinessReport | Any | None = None,
         dp_robustness_certificate: Any | None = None,
+        report_dependencies: dict[str, Any] | None = None,
     ) -> EvidenceBundle:
         """Build an EvidenceBundle from identification and estimation results.
 
@@ -2648,6 +2649,83 @@ class CausalEngineArtifactsMixin:
             raise ValueError("audit() requires either an identification result or a proof bundle.")
         if not isinstance(proof_payload, ProofBundle):
             proof_payload = ProofBundle.model_validate(proof_payload)
+
+        twin_network_result_ref = None
+        if self._artifact_store is not None:
+            from polisyos.core.artifacts import artifact_manifest_profile_sha256
+            from polisyos.ir.analytics.structural_causal_model import (
+                StructuralCausalModelSpec,
+                persist_structural_causal_model_spec,
+            )
+            from polisyos.ir.analytics.twin_network import (
+                TwinNetworkResult,
+                persist_twin_network_result,
+            )
+
+            scm_spec = (report_dependencies or {}).get("scm_spec")
+            if isinstance(scm_spec, dict):
+                scm_spec = StructuralCausalModelSpec.model_validate(scm_spec)
+            estimand_ast = getattr(identification_result, "estimand_ast", None)
+            if isinstance(estimation_result, TwinNetworkResult) and isinstance(
+                scm_spec, StructuralCausalModelSpec
+            ):
+                ir_store = _ensure_ir_artifact_store(self._artifact_store)
+
+                def bind_selected_profile(ref: Any) -> Any:
+                    profile = artifact_manifest_profile_sha256(ir_store.get_manifest(ref))
+                    return ref.model_copy(update={"manifest_profile_sha256": profile})
+
+                source_inputs: list[InputRef] = []
+                training_rows = scm_spec.training_rows
+                source_ref = getattr(training_rows, "source_ref", None)
+                if source_ref is not None:
+                    source_profile = source_ref.manifest_profile_sha256
+                    if source_profile is None:
+                        source_profile = artifact_manifest_profile_sha256(
+                            ir_store.get_manifest(source_ref)
+                        )
+                    source_inputs.append(
+                        InputRef(
+                            artifact_id=source_ref.artifact_id,
+                            role="source",
+                            manifest_profile_sha256=source_profile,
+                        )
+                    )
+                scm_ref = bind_selected_profile(
+                    persist_structural_causal_model_spec(
+                        ir_store,
+                        scm_spec,
+                        inputs=source_inputs or None,
+                    )
+                )
+                scm_input = InputRef(
+                    artifact_id=scm_ref.artifact_id,
+                    role="structural_causal_model",
+                    manifest_profile_sha256=scm_ref.manifest_profile_sha256,
+                )
+                result_inputs = [*source_inputs, scm_input]
+                if isinstance(estimand_ast, EstimandAST):
+                    estimand_ref = bind_selected_profile(
+                        persist_estimand_ast(
+                            ir_store,
+                            estimand_ast,
+                            inputs=[scm_input],
+                        )
+                    )
+                    query_input = InputRef(
+                        artifact_id=estimand_ref.artifact_id,
+                        role="query",
+                        manifest_profile_sha256=estimand_ref.manifest_profile_sha256,
+                    )
+                    result_inputs.append(query_input)
+                twin_network_result_ref = bind_selected_profile(
+                    persist_twin_network_result(
+                        ir_store,
+                        estimation_result,
+                        inputs=result_inputs,
+                    )
+                )
+
         if self._artifact_store is not None:
             metadata_update = dict(proof_payload.metadata)
             if "bridge_plausibility_report" not in metadata_update:
@@ -2678,7 +2756,7 @@ class CausalEngineArtifactsMixin:
                     intervention_query_payload
                 )
                 intervention_query_ref = persist_intervention_query(
-                    self._artifact_store,
+                    _ensure_ir_artifact_store(self._artifact_store),
                     intervention_query_model,
                 )
                 metadata_update["intervention_query_ref"] = intervention_query_ref.model_dump(
@@ -2691,7 +2769,7 @@ class CausalEngineArtifactsMixin:
                 )
                 if intervention_query_ref is None:
                     intervention_query_ref = persist_intervention_query(
-                        self._artifact_store,
+                        _ensure_ir_artifact_store(self._artifact_store),
                         intervention_certificate_model.query,
                     )
                     metadata_update["intervention_query_ref"] = intervention_query_ref.model_dump(
@@ -2699,7 +2777,7 @@ class CausalEngineArtifactsMixin:
                     )
                     resolved_query_ref = str(intervention_query_ref.artifact_id)
                 intervention_certificate_ref = persist_intervention_certificate(
-                    self._artifact_store,
+                    _ensure_ir_artifact_store(self._artifact_store),
                     intervention_certificate_model,
                     inputs=[
                         InputRef(
@@ -2714,7 +2792,7 @@ class CausalEngineArtifactsMixin:
             if isinstance(frontier_sketch_payload, dict):
                 frontier_sketch_model = FrontierSketch.model_validate(frontier_sketch_payload)
                 resolved_frontier_sketch_ref = persist_frontier_sketch(
-                    self._artifact_store,
+                    _ensure_ir_artifact_store(self._artifact_store),
                     frontier_sketch_model,
                 )
                 metadata_update["frontier_sketch_ref"] = resolved_frontier_sketch_ref.model_dump(
@@ -2725,7 +2803,7 @@ class CausalEngineArtifactsMixin:
                     bridge_plausibility_payload
                 )
                 resolved_bridge_plausibility_report_ref = persist_bridge_plausibility_report(
-                    self._artifact_store,
+                    _ensure_ir_artifact_store(self._artifact_store),
                     bridge_plausibility_model,
                 )
                 metadata_update["bridge_plausibility_report_ref"] = (
@@ -2736,7 +2814,7 @@ class CausalEngineArtifactsMixin:
                     proximal_certificate_payload
                 )
                 resolved_proximal_certificate_ref = persist_proximal_identification_certificate(
-                    self._artifact_store,
+                    _ensure_ir_artifact_store(self._artifact_store),
                     proximal_certificate_model,
                 )
                 metadata_update["proximal_certificate_ref"] = (
@@ -2747,7 +2825,7 @@ class CausalEngineArtifactsMixin:
                     recoverability_certificate_payload
                 )
                 resolved_recoverability_certificate_ref = persist_recoverability_certificate(
-                    self._artifact_store,
+                    _ensure_ir_artifact_store(self._artifact_store),
                     recoverability_certificate_model,
                 )
                 metadata_update["recoverability_certificate_ref"] = (
@@ -2759,7 +2837,7 @@ class CausalEngineArtifactsMixin:
                 )
                 if resolved_recoverability_certificate_ref is None:
                     resolved_recoverability_certificate_ref = persist_recoverability_certificate(
-                        self._artifact_store,
+                        _ensure_ir_artifact_store(self._artifact_store),
                         joint_decision_model.recoverability,
                     )
                     metadata_update["recoverability_certificate_ref"] = (
@@ -2776,7 +2854,7 @@ class CausalEngineArtifactsMixin:
                     else None
                 )
                 resolved_joint_decision_ref = persist_joint_decision_certificate(
-                    self._artifact_store,
+                    _ensure_ir_artifact_store(self._artifact_store),
                     joint_decision_model,
                     inputs=joint_inputs,
                 )
@@ -3243,7 +3321,22 @@ class CausalEngineArtifactsMixin:
 
         proof_trace_ref = proof_payload.proof_trace_ref
         witness_index_ref = proof_payload.witness_index_ref
-        if self._artifact_store is not None and proof_trace_ref is None and ir_steps:
+        trace_inputs = (
+            [
+                InputRef(
+                    artifact_id=twin_network_result_ref.artifact_id,
+                    role="twin_network_result",
+                    manifest_profile_sha256=twin_network_result_ref.manifest_profile_sha256,
+                )
+            ]
+            if twin_network_result_ref is not None
+            else None
+        )
+        if (
+            self._artifact_store is not None
+            and proof_trace_ref is None
+            and (ir_steps or twin_network_result_ref is not None)
+        ):
             trace_bundle_payload = EvidenceBundle(
                 run_id=run_id,
                 query_str=query_str,
@@ -3273,10 +3366,20 @@ class CausalEngineArtifactsMixin:
                 estimation_steps=tuple(estimation_steps),
                 diagnostic_dashboard=dashboard_dict,
                 quality_report=quality_dict,
+                twin_network_result_ref=twin_network_result_ref,
             )
-            proof_trace_ref = persist_causal_evidence_bundle(
-                self._artifact_store,
+            trace_ref = persist_causal_evidence_bundle(
+                _ensure_ir_artifact_store(self._artifact_store),
                 trace_bundle_payload,
+                inputs=trace_inputs,
+            )
+            from polisyos.core.artifacts import artifact_manifest_profile_sha256
+
+            trace_profile = artifact_manifest_profile_sha256(
+                _ensure_ir_artifact_store(self._artifact_store).get_manifest(trace_ref)
+            )
+            proof_trace_ref = trace_ref.model_copy(
+                update={"manifest_profile_sha256": trace_profile}
             )
         if (
             self._artifact_store is not None
@@ -3294,7 +3397,7 @@ class CausalEngineArtifactsMixin:
                 else None
             )
             witness_index_ref = persist_proof_witness_index(
-                self._artifact_store,
+                _ensure_ir_artifact_store(self._artifact_store),
                 witness_index,
                 inputs=witness_inputs,
             )
@@ -3347,7 +3450,7 @@ class CausalEngineArtifactsMixin:
         if self._artifact_store is not None:
             if resolved_dp_certificate is not None:
                 dp_robustness_ref = persist_dp_robustness_certificate(
-                    self._artifact_store,
+                    _ensure_ir_artifact_store(self._artifact_store),
                     resolved_dp_certificate,
                 )
                 proof_payload = attach_dp_robustness_to_proof_bundle(
@@ -3356,7 +3459,11 @@ class CausalEngineArtifactsMixin:
                     resolved_dp_certificate,
                 )
             proof_bundle_inputs = [
-                InputRef(artifact_id=trace_ref.artifact_id, role="proof_trace")
+                InputRef(
+                    artifact_id=trace_ref.artifact_id,
+                    role="proof_trace",
+                    manifest_profile_sha256=trace_ref.manifest_profile_sha256,
+                )
                 for trace_ref in (proof_payload.proof_trace_ref,)
                 if trace_ref is not None
             ]
@@ -3377,18 +3484,28 @@ class CausalEngineArtifactsMixin:
                 if composability_ref is not None
             )
             proof_bundle_ref = persist_proof_bundle(
-                self._artifact_store,
+                _ensure_ir_artifact_store(self._artifact_store),
                 proof_payload,
                 inputs=proof_bundle_inputs or None,
             )
+            if twin_network_result_ref is not None:
+                from polisyos.core.artifacts import artifact_manifest_profile_sha256
+
+                ir_store = _ensure_ir_artifact_store(self._artifact_store)
+                proof_profile = artifact_manifest_profile_sha256(
+                    ir_store.get_manifest(proof_bundle_ref)
+                )
+                proof_bundle_ref = proof_bundle_ref.model_copy(
+                    update={"manifest_profile_sha256": proof_profile}
+                )
             if bounds_payload is not None:
                 bounds_payload, bounds_inputs = hydrate_bounds_bundle_with_dual_certificate(
-                    self._artifact_store,
+                    _ensure_ir_artifact_store(self._artifact_store),
                     bounds_payload,
                     dual_certificate_payload,
                 )
                 bounds_bundle_ref = persist_bounds_bundle(
-                    self._artifact_store,
+                    _ensure_ir_artifact_store(self._artifact_store),
                     bounds_payload,
                     inputs=bounds_inputs,
                 )
@@ -3421,7 +3538,7 @@ class CausalEngineArtifactsMixin:
                         resolved_dp_certificate,
                     )
                 data_readiness_report_ref = persist_data_readiness_report(
-                    self._artifact_store,
+                    _ensure_ir_artifact_store(self._artifact_store),
                     readiness_payload,
                 )
             if negative_certificate is not None:
@@ -3436,7 +3553,7 @@ class CausalEngineArtifactsMixin:
                     else None
                 )
                 negative_certificate_ref = persist_negative_certificate(
-                    self._artifact_store,
+                    _ensure_ir_artifact_store(self._artifact_store),
                     negative_certificate,
                     inputs=negative_inputs,
                 )
@@ -3458,7 +3575,7 @@ class CausalEngineArtifactsMixin:
                     else None
                 )
                 kernel_estimator_spec_ref = persist_kernel_estimator_spec(
-                    self._artifact_store,
+                    _ensure_ir_artifact_store(self._artifact_store),
                     resolved_kernel_spec,
                     inputs=kernel_inputs,
                 )
@@ -3500,8 +3617,8 @@ class CausalEngineArtifactsMixin:
             negative_certificate_ref=negative_certificate_ref,
             data_readiness_report_ref=data_readiness_report_ref,
             kernel_estimator_spec_ref=kernel_estimator_spec_ref,
+            twin_network_result_ref=twin_network_result_ref,
         )
-
 
     def run(
         self,
@@ -4109,6 +4226,7 @@ class CausalEngineArtifactsMixin:
 
         # 4. Estimate only after readiness preflight has allowed execution.
         effect_report: Any = None
+        report_dependencies: dict[str, Any] = {}
         node_outputs: dict[str, Any] = dict(preflight_outputs)
         if (
             data_dict is not None
@@ -4116,7 +4234,11 @@ class CausalEngineArtifactsMixin:
             and preflight_readiness.can_run_estimation
         ):
             try:
-                effect_report, execution_outputs = self.estimate(executor_graph, data_dict)
+                effect_report, execution_outputs = self.estimate(
+                    executor_graph,
+                    data_dict,
+                    report_dependencies=report_dependencies,
+                )
                 if (
                     effect_report is not None
                     and isinstance(getattr(resolved_id_result, "metadata", None), dict)
@@ -4131,7 +4253,13 @@ class CausalEngineArtifactsMixin:
                         }
                     )
                 node_outputs.update(execution_outputs)
-            except Exception:
+            except Exception as exc:
+                from polisyos.foundry.methods.catalog.causal.gcm_fit import (
+                    _SelectedGCMGraphRefusal,
+                )
+
+                if isinstance(exc, _SelectedGCMGraphRefusal):
+                    raise
                 pass  # estimate is best-effort; audit still proceeds
         postrun_readiness = _build_postrun_readiness_report(
             node_outputs=node_outputs,
@@ -4166,6 +4294,7 @@ class CausalEngineArtifactsMixin:
             bounds_bundle=resolved_bounds_bundle,
             data_readiness_report=data_readiness,
             dp_robustness_certificate=dp_robustness_certificate,
+            report_dependencies=report_dependencies,
         )
 
         # 6. Build CausalRunSnapshot for reproducibility
@@ -4205,7 +4334,6 @@ class CausalEngineArtifactsMixin:
 
         return effect_report, bundle, None
 
-
     def _persist_temporal_payload(
         self,
         payload: dict[str, Any],
@@ -4218,7 +4346,7 @@ class CausalEngineArtifactsMixin:
         if self._artifact_store is None:
             raise RuntimeError("Temporal payload persistence requires an ArtifactStore")
         ref = put_json_artifact(
-            self._artifact_store,
+            _ensure_ir_artifact_store(self._artifact_store),
             payload,
             kind=kind,
             schema_name=schema_name,
@@ -4228,12 +4356,10 @@ class CausalEngineArtifactsMixin:
         )
         return ArtifactRefModel.model_validate(ref)
 
-
     @staticmethod
     def _artifact_input_ref(ref: Any, *, role: str) -> dict[str, str]:
         artifact_id = getattr(ref, "artifact_id", ref)
         return {"artifact_id": str(artifact_id), "role": role}
-
 
     def _temporal_input_refs(self, *refs_and_roles: tuple[Any | None, str]) -> list[dict[str, str]]:
         inputs: list[dict[str, str]] = []
@@ -4242,7 +4368,6 @@ class CausalEngineArtifactsMixin:
                 continue
             inputs.append(self._artifact_input_ref(ref, role=role))
         return inputs
-
 
     @staticmethod
     def _serialize_ref(ref: Any | None) -> dict[str, Any] | None:
@@ -4253,7 +4378,6 @@ class CausalEngineArtifactsMixin:
         if isinstance(ref, dict):
             return dict(ref)
         return None
-
 
     def _resolve_temporal_intervention(
         self,
@@ -4296,11 +4420,12 @@ class CausalEngineArtifactsMixin:
             query.intervention_trajectory_ref.model_dump(mode="python")
         )
         return (
-            load_temporal_intervention_trajectory(self._artifact_store, intervention_ref),
+            load_temporal_intervention_trajectory(
+                _ensure_ir_artifact_store(self._artifact_store), intervention_ref
+            ),
             intervention_ref,
             "artifact_store",
         )
-
 
     def dynamic_causal_effect(
         self,
@@ -4383,7 +4508,6 @@ class CausalEngineArtifactsMixin:
                     "Check that the estimator succeeded."
                 )
         return g_result
-
 
     def temporal_causal_effect(
         self,
@@ -4572,7 +4696,7 @@ class CausalEngineArtifactsMixin:
             and self._artifact_store is not None
         ):
             intervention_ref = persist_temporal_intervention_trajectory(
-                self._artifact_store,
+                _ensure_ir_artifact_store(self._artifact_store),
                 resolved_intervention,
             )
             if effective_query.query_mode is TemporalQueryMode.FIXED_INTERVENTION:
@@ -4588,11 +4712,13 @@ class CausalEngineArtifactsMixin:
                 and scalar_result is not None
             ):
                 policy_ref = persist_dynamic_treatment_regime(
-                    self._artifact_store,
+                    _ensure_ir_artifact_store(self._artifact_store),
                     scalar_result.optimal_regime,
                 )
                 derived_schedule_ref = intervention_ref
-            query_ref = persist_continuous_time_query(self._artifact_store, effective_query)
+            query_ref = persist_continuous_time_query(
+                _ensure_ir_artifact_store(self._artifact_store), effective_query
+            )
             proof_payload = self.identify_continuous_time_query(
                 effective_query,
                 identification_certificate=resolved_identification_certificate,
@@ -4638,7 +4764,7 @@ class CausalEngineArtifactsMixin:
                     identification_scope.get("support_status")
                 )
             proof_bundle_ref = persist_proof_bundle(
-                self._artifact_store,
+                _ensure_ir_artifact_store(self._artifact_store),
                 proof_payload,
                 inputs=self._temporal_input_refs(
                     (query_ref, "query"),
@@ -4750,7 +4876,7 @@ class CausalEngineArtifactsMixin:
                 },
             )
             bundle_ref = persist_effect_trajectory_bundle(
-                self._artifact_store,
+                _ensure_ir_artifact_store(self._artifact_store),
                 bundle,
                 inputs=self._temporal_input_refs(
                     (query_ref, "query"),

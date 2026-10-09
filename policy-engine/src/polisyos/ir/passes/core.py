@@ -297,7 +297,7 @@ class CrossModelTypeCheckPass(IRAnalysis):
                 for path, artifact_ref in _iter_artifact_refs(surface_value, path=(surface_name,)):
                     checked_ref_count += 1
                     try:
-                        manifest = get_manifest(artifact_ref.artifact_id)
+                        manifest = get_manifest(artifact_ref)
                     except FileNotFoundError:
                         missing_ref_count += 1
                         diagnostics.append(

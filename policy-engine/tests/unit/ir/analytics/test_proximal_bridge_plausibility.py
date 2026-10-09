@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.negative_certificate import (
     BlockingType,
@@ -62,8 +63,8 @@ def test_bridge_plausibility_report_round_trip_via_store(tmp_path) -> None:
         reasons=("stable_sieve_projection",),
     )
 
-    ref = persist_bridge_plausibility_report(store, report)
-    loaded = load_bridge_plausibility_report(store, ref)
+    ref = persist_bridge_plausibility_report(_ensure_ir_artifact_store(store), report)
+    loaded = load_bridge_plausibility_report(_ensure_ir_artifact_store(store), ref)
 
     assert loaded == report
 

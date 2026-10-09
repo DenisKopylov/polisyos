@@ -5,6 +5,8 @@ import logging
 from unittest.mock import patch
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
@@ -18,8 +20,6 @@ from polisyos.ir.analytics.causal_graph import (
 from polisyos.ir.analytics.transportability import load_transportability_result
 from polisyos.ir.observation.causal_readiness import load_causal_readiness_bundle
 from polisyos.ir.registry.refs import CausalReadinessBundleRef, TransportabilityResultRef
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.causal.run_causal_readiness import (
     _SPEC,
     RunCausalReadinessNode,
@@ -30,6 +30,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
     ARTIFACT_TRANSPORTABILITY_RESULT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def _build_ctx(tmp_path, *, run_id: str) -> ExecutionContext:
@@ -112,7 +114,7 @@ def test_run_causal_readiness_spec_reads_performative_loop_spec() -> None:
 
 def test_run_causal_readiness_node_persists_bundle_and_leaf_refs(tmp_path) -> None:
     ctx = _build_ctx(tmp_path, run_id="R_c4a")
-    graph_ref = persist_causal_graph_model(ctx.store, _graph())
+    graph_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), _graph())
     state = ExperimentState(
         run_id="R_c4a",
         artifacts_index={
@@ -206,7 +208,7 @@ def test_run_causal_readiness_node_persists_bundle_and_leaf_refs(tmp_path) -> No
 
     bundle_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_READINESS_BUNDLE_REF]
     bundle = load_causal_readiness_bundle(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         CausalReadinessBundleRef.model_validate(bundle_ref.model_dump(mode="json")),
     )
     assert len(bundle.proxy_results) == 1
@@ -222,7 +224,7 @@ def test_run_causal_readiness_node_persists_bundle_and_leaf_refs(tmp_path) -> No
 
 def test_run_causal_readiness_node_persists_privacy_transportability_metadata(tmp_path) -> None:
     ctx = _build_ctx(tmp_path, run_id="R_c4a_privacy")
-    graph_ref = persist_causal_graph_model(ctx.store, _graph())
+    graph_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), _graph())
     state = ExperimentState(
         run_id="R_c4a_privacy",
         artifacts_index={
@@ -309,12 +311,12 @@ def test_run_causal_readiness_node_persists_privacy_transportability_metadata(tm
     assert outcome.status == "ok"
     bundle_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_READINESS_BUNDLE_REF]
     bundle = load_causal_readiness_bundle(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         CausalReadinessBundleRef.model_validate(bundle_ref.model_dump(mode="json")),
     )
     transport_entry = bundle.transport_results[0]
     transport_result = load_transportability_result(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         TransportabilityResultRef.model_validate(
             transport_entry.result_ref.model_dump(mode="json")
         ),
@@ -330,7 +332,7 @@ def test_run_causal_readiness_node_persists_privacy_transportability_metadata(tm
 
 def test_run_causal_readiness_graph_assertion_is_not_swallowed(tmp_path) -> None:
     ctx = _build_ctx(tmp_path, run_id="R_c4a_assert")
-    graph_ref = persist_causal_graph_model(ctx.store, _graph())
+    graph_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), _graph())
     state = ExperimentState(
         run_id="R_c4a_assert",
         artifacts_index={

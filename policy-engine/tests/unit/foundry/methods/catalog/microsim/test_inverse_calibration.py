@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.catalog.microsim.inverse import InverseBehavioralCalibrationEstimator
@@ -371,7 +373,7 @@ def test_inverse_calibration_persists_replayable_gate_report(tmp_path) -> None:
     ref_payload = fitted["microsim_calibration_report_ref"]
     assert ref_payload is not None
     loaded = load_microsim_calibration_report(
-        store,
+        _ensure_ir_artifact_store(store),
         MicrosimCalibrationReportRef.model_validate(ref_payload),
     ).model_dump(mode="json")
     assert loaded["decision"] == fitted["microsim_calibration_report"]["decision"]

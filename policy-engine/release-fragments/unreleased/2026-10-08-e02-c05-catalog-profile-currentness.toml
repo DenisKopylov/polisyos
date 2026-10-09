@@ -3,22 +3,32 @@ title = "Reconcile catalog producer inputs and selected reader currentness"
 type = "fixed"
 component = "data-forge"
 owner = "team-data-forge"
-summary = "One existing producer basis binds finite local catalog policy/assets, covered singleton source profiles and resolved legacy mode. Selected Catalog vector generations are rechecked against the shared current dataset-text projection and the live query encoder's asset/device/model/dimension intent before vector admission; stale or incompatible generations produce named refusal diagnostics and use text retrieval. Content snapshots reconcile warm proxy/WVS readers and retrieval refreshes canonical source selection."
+summary = "One existing producer basis binds finite local catalog policy/assets, covered singleton source profiles and resolved legacy mode. Selected Catalog vector generations are rechecked against the shared current dataset-text projection and the live query encoder's asset/device/model/dimension intent before vector admission; stale or incompatible generations produce named refusal diagnostics and use text retrieval. Content snapshots reconcile warm proxy/WVS readers and retrieval refreshes canonical source selection. Catalog-backed DataResolveRequest and N6 retrieval now carry an explicit CatalogRunProfile from the request or runtime configuration; an absent or conflicting selection refuses instead of assuming prod_full."
 evidence = [
   "tests/unit/remediation/test_dfi_03.py",
   "tests/unit/remediation/test_dfk_02.py",
+  "tests/unit/remediation/test_acq_01.py",
+  "tests/unit/fabric/test_retrieval_fetch_custody.py",
   "tests/unit/data_forge/domains/catalog/batch/test_pipeline.py",
   "tests/unit/data_forge/domains/catalog/knowledge/test_store.py",
+  "tests/unit/runtime/quality/test_promotion_sequence.py",
+  "tests/unit/runtime/http/test_control_service_di.py",
+  "tests/unit/runtime/quality/test_acquisition_planner.py",
+  "tests/unit/runtime/quality/test_recursive_generation_cycle.py",
+  "tests/repo_quality/tools/test_gy_d1_catalog_wiring.py",
 ]
-compatibility = "Existing receipt files remain readable; receipts without the new material-input basis recompute as cache misses. Existing proxy and harvest cache_clear hooks are retained. Vector generations without a complete selected material basis or matching live query-encoder intent use text-only retrieval with a named refusal reason. Selectorless legacy flat vectors remain refused because they lack a selected complete material basis. Optional missing policy/assets retain empty/static fallback; other file-read errors refuse currentness."
+compatibility = "Existing receipt files remain readable; receipts without the new material-input basis recompute as cache misses. Existing proxy and harvest cache_clear hooks are retained. Vector generations without a complete selected material basis or matching live query-encoder intent use text-only retrieval with a named refusal reason. Selectorless legacy flat vectors remain refused because they lack a selected complete material basis. Catalog-backed retrieval requires an explicit request or runtime CatalogRunProfile; missing or conflicting scope is a typed refusal and never defaults to prod_full. Optional missing policy/assets retain empty/static fallback; other file-read errors refuse currentness."
 change_class = "internal"
 surface_classification = "public_experimental: polisyos.data_forge.read_api.catalog query refusal diagnostics and generation-pinned vector search; internal: Catalog producer and material-basis reconciliation"
-migration = "Regenerate affected stage receipts through existing producers. Regenerate selectorless legacy vector indexes through the existing Catalog embed producer to publish a selected complete material-basis generation. No default CatalogRunProfile is introduced."
-api = "Catalog read API adds lazy generation-currentness helper exports. QueryMetrics gains an optional named vector refusal reason; DatasetCatalogStore.search_by_vector gains an optional expected_generation_id keyword. Existing callers and text fallback remain source-compatible."
+migration = "Regenerate affected stage receipts through existing producers. Regenerate selectorless legacy vector indexes through the existing Catalog embed producer to publish a selected complete material-basis generation. Configure CatalogRunProfile explicitly on the runtime or each DataResolveRequest that can select a catalog source; no default CatalogRunProfile is introduced."
+api = "Catalog read API adds lazy generation-currentness helper exports. QueryMetrics gains an optional named vector refusal reason; DatasetCatalogStore.search_by_vector gains an optional expected_generation_id keyword. DataResolveRequest adds optional catalog_run_profile; the runtime accepts the same explicit profile through app/container configuration and carries it to natural-language and N6 acquisition consumers. Existing callers with no catalog route remain source-compatible; catalog-backed calls without a selection receive a named refusal."
 limitations = "ALL header policy (including non-secret content negotiation), credentials, environment auth overlays, separately injected retrieval profile registries, raw observation corpus and remote response/version identity are excluded. No header revision or classifier is established; complete effective-policy currentness remains limited. Replacement of executable encode behavior while retaining identical hashed model assets is not established by the current encoder contract; this is the declared shared-kernel residual. The full singleton profile denominator is conservative. XLSX is selected only for the actual YAML-empty fallback. Native verification is pending."
-generated_client_compatibility = "not_applicable"
+generated_client_compatibility = "requires_regeneration"
 public_surface_inventory_reviewed = true
-migration_docs = ["src/polisyos/data_forge/domains/catalog/batch/README.md"]
+migration_docs = [
+  "src/polisyos/data_forge/domains/catalog/batch/README.md",
+  "src/polisyos/fabric/catalog/README.md",
+]
 runbook_docs = []
 
 [[compatibility_change]]
@@ -29,7 +39,10 @@ surface = "internal: catalog stage receipt currentness and retrieval source sele
 owner = "team-data-forge"
 version_owner = "team-data-forge"
 deprecation_window = "not_applicable"
-release_note = "Covered profile, finite local policy/selected metadata bytes and resolved legacy-mode changes invalidate stale reuse. The selected Catalog vector reader recomputes the current dataset projection basis and checks the live query encoder against the persisted generation model/device/assets/dimension intent; stale, legacy, or incompatible vectors expose a named refusal and fall back to text. Warm proxy/WVS readers reconcile current snapshots; warm retrieval refreshes canonical source selection."
-generated_client_compatibility = "not_applicable"
-migration_docs = ["src/polisyos/data_forge/domains/catalog/batch/README.md"]
+release_note = "Covered profile, finite local policy/selected metadata bytes and resolved legacy-mode changes invalidate stale reuse. The selected Catalog vector reader recomputes the current dataset projection basis and checks the live query encoder against the persisted generation model/device/assets/dimension intent; stale, legacy, or incompatible vectors expose a named refusal and fall back to text. Warm proxy/WVS readers reconcile current snapshots; warm retrieval refreshes canonical source selection. DataResolveRequest and runtime configuration can carry an explicit CatalogRunProfile to retrieval and N6 acquisition; absent or conflicting selections refuse without a prod_full default."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = [
+  "src/polisyos/data_forge/domains/catalog/batch/README.md",
+  "src/polisyos/fabric/catalog/README.md",
+]
 runbook_docs = []

@@ -7,6 +7,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -61,7 +62,9 @@ def _resolve_calibration_gate(
     ref_payload = data.microsim_calibration_report_ref
     if isinstance(ref_payload, dict) and artifact_store is not None:
         ref = MicrosimCalibrationReportRef.model_validate(ref_payload)
-        return load_microsim_calibration_report(artifact_store, ref).model_dump(mode="json")
+        return load_microsim_calibration_report(
+            _ensure_ir_artifact_store(artifact_store), ref
+        ).model_dump(mode="json")
     raise ValueError(
         "static_microsim requires microsim_calibration_report or microsim_calibration_report_ref; "
         "raw uncertified weights are not allowed"

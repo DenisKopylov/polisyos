@@ -233,7 +233,7 @@ def load_rough_path_intervention_certificate(
 ) -> RoughPathInterventionCertificate:
     """Load a previously persisted rough-path intervention certificate."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return RoughPathInterventionCertificate.model_validate(payload)
 
 

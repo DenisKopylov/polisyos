@@ -19,9 +19,7 @@ class _MetricsStub:
 
 class _FakeClientError(Exception):
     def __init__(self, code: str, *, status_code: int | None = None) -> None:
-        http_status = status_code or (
-            404 if code in {"404", "NotFound", "NoSuchKey"} else 403
-        )
+        http_status = status_code or (404 if code in {"404", "NotFound", "NoSuchKey"} else 403)
         self.response = {
             "Error": {"Code": code},
             "ResponseMetadata": {"HTTPStatusCode": http_status},
@@ -145,6 +143,12 @@ def test_s3_store_preserves_each_exact_view_for_identical_bytes(
     assert store.get_manifest(first).kind == "first.view"
     assert store.get_manifest(second).kind == "second.view"
     assert store.get_manifest(first.artifact_id).kind == "first.view"
+    assert second.manifest_profile_sha256 is not None
+    assert (
+        store.get_manifest_by_profile(second.artifact_id, second.manifest_profile_sha256).kind
+        == "second.view"
+    )
+    assert store.get_bytes(second) == b"same remote bytes"
 
     manifest_key = store._manifest_key
     monkeypatch.setattr(

@@ -8,6 +8,8 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.ir.analytics.simulation_proof_bridge import load_simulation_proof_bridge
 from polisyos.ir.analytics.strategic import (
     FiniteStrategicPayoffTable,
@@ -15,8 +17,11 @@ from polisyos.ir.analytics.strategic import (
     load_strategic_response_bundle,
     persist_strategic_payoff_table,
 )
-from polisyos.ir.registry.refs import ArtifactRefModel, SimulationProofBridgeRef, StrategicResponseBundleRef
-from polisyos.scientist.orchestration.kernel.budgets import ComputeBudget
+from polisyos.ir.registry.refs import (
+    ArtifactRefModel,
+    SimulationProofBridgeRef,
+    StrategicResponseBundleRef,
+)
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.simulate.run_simulation import _SPEC, RunSimulationNode
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -30,6 +35,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_STRATEGIC_SCM_REF,
     INPUT_INPUT_BINDINGS_REF,
 )
+from polisyos.scientist.orchestration.kernel.budgets import ComputeBudget
 
 
 def test_fail_when_foundry_port_missing(execution_context, minimal_state, artifact_ref_factory):
@@ -250,7 +256,7 @@ def test_run_simulation_materializes_proof_bridge_for_simulation_result(
     assert ARTIFACT_CAUSAL_EVIDENCE_BUNDLE_REF in outcome.state.artifacts_index
     assert ARTIFACT_PROOF_BUNDLE_REF in outcome.state.artifacts_index
     bridge = load_simulation_proof_bridge(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         SimulationProofBridgeRef.model_validate(
             outcome.state.artifacts_index[ARTIFACT_SIMULATION_PROOF_BRIDGE_REF].model_dump(
                 mode="json"
@@ -316,7 +322,7 @@ def test_run_simulation_persists_strategic_artifacts_when_inputs_are_valid(
 
     payoff_tables = _runtime_payoff_tables()
     payoff_refs = {
-        agent: persist_strategic_payoff_table(ctx.store, table)
+        agent: persist_strategic_payoff_table(_ensure_ir_artifact_store(ctx.store), table)
         for agent, table in payoff_tables.items()
     }
 
@@ -345,7 +351,7 @@ def test_run_simulation_persists_strategic_artifacts_when_inputs_are_valid(
     assert ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF in outcome.state.artifacts_index
     assert outcome.state.params["strategic_response_source"] == "run_simulation"
     bundle = load_strategic_response_bundle(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         StrategicResponseBundleRef.model_validate(
             outcome.state.artifacts_index[ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF].model_dump(
                 mode="json"

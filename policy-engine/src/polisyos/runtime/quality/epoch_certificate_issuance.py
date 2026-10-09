@@ -68,13 +68,24 @@ def _raw_hash(raw: bytes) -> str:
     return "sha256:" + hashlib.sha256(raw).hexdigest()
 
 
-def _identity(ref: ArtifactRef) -> tuple[str, str, str]:
-    return str(ref.artifact_id), ref.kind, ref.media_type
+def _identity(ref: ArtifactRef) -> tuple[str, str, str, str | None]:
+    return artifacts.artifact_ref_identity_key(ref)
+
+
+def _identity_sort_key(ref: ArtifactRef) -> tuple[str, str, str, str]:
+    identity = _identity(ref)
+    return (*identity[:3], identity[3] or "")
+
+
+def _identity_tuple_sort_key(
+    identity: tuple[str, str, str, str | None],
+) -> tuple[str, str, str, str]:
+    return (*identity[:3], identity[3] or "")
 
 
 def _canonical_refs(refs: tuple[ArtifactRef, ...]) -> tuple[ArtifactRef, ...]:
     by_identity = {_identity(ref): ref for ref in refs}
-    return tuple(by_identity[key] for key in sorted(by_identity))
+    return tuple(by_identity[key] for key in sorted(by_identity, key=_identity_tuple_sort_key))
 
 
 class _StrictModel(BaseModel):
@@ -284,15 +295,16 @@ class DecisionPacketEpochIssuanceOwner:
 
     def _read_exact(self, ref: ArtifactRef) -> bytes:
         try:
-            raw = self.store.get_bytes(ref.artifact_id)
-            manifest = self.store.get_manifest(ref.artifact_id)
+            raw = self.store.get_bytes(ref)
+            manifest = self.store.get_manifest(ref)
             if (
-                not self.store.verify(ref.artifact_id).ok
+                not self.store.verify(ref).ok
                 or _raw_hash(raw) != str(ref.artifact_id)
                 or ArtifactRef(
                     artifact_id=manifest.artifact_id,
                     kind=manifest.kind,
                     media_type=manifest.media_type,
+                    manifest_profile_sha256=ref.manifest_profile_sha256,
                 )
                 != ref
             ):
@@ -303,7 +315,7 @@ class DecisionPacketEpochIssuanceOwner:
 
     def _read_model(self, ref: ArtifactRef, model: type[_Model], kind: str) -> _Model:
         raw = self._read_exact(ref)
-        manifest = self.store.get_manifest(ref.artifact_id)
+        manifest = self.store.get_manifest(ref)
         if (
             ref.kind != kind
             or ref.media_type != "application/json"
@@ -328,7 +340,11 @@ class DecisionPacketEpochIssuanceOwner:
                 schema=artifacts.SchemaInfo(name=kind, version="1.0"),
                 canon=artifacts.CanonInfo.from_spec(_CANON),
                 inputs=[
-                    artifacts.InputRef(artifact_id=ref.artifact_id, role=f"source[{index}]")
+                    artifacts.InputRef(
+                        artifact_id=ref.artifact_id,
+                        role=f"source[{index}]",
+                        manifest_profile_sha256=ref.manifest_profile_sha256,
+                    )
                     for index, ref in enumerate(_canonical_refs(input_refs))
                 ],
             ),
@@ -420,7 +436,7 @@ class DecisionPacketEpochIssuanceOwner:
         ):
             raw = self._read_exact(part_ref)
             value = canon.from_canonical_bytes(raw)
-            manifest = self.store.get_manifest(part_ref.artifact_id)
+            manifest = self.store.get_manifest(part_ref)
             profile = canon.CanonSpec(forbid_floats=False)
             if (
                 part_ref.kind != kind
@@ -737,12 +753,15 @@ class DecisionPacketEpochIssuanceOwner:
             or selected[0].key != "semantic_epoch:" + dependency_id
         ):
             raise ValueError("epoch_certificate_issuance_evidence_unresolved")
-        input_ids = {
-            str(row.artifact_id) for row in self.store.get_manifest(packet_ref.artifact_id).inputs
+        input_views = {
+            (str(row.artifact_id), row.manifest_profile_sha256)
+            for row in self.store.get_manifest(packet_ref).inputs
         }
-        if not {str(ref.artifact_id) for ref in basis.complete_input_certificate_refs}.issubset(
-            input_ids
-        ):
+        expected_input_views = {
+            (str(ref.artifact_id), ref.manifest_profile_sha256)
+            for ref in basis.complete_input_certificate_refs
+        }
+        if not expected_input_views.issubset(input_views):
             raise ValueError("epoch_certificate_issuance_evidence_unresolved")
         epoch = self._read_epoch(basis.inputs.epoch_manifest_ref)
         return bind_certificate_to_epoch(
@@ -833,7 +852,8 @@ class DecisionPacketEpochIssuanceOwner:
         with (root / "epoch-certificate-issuances.lock").open("a+b") as lock:
             fcntl.flock(lock.fileno(), fcntl.LOCK_SH)
             return tuple(
-                self._read_issuance(ref) for ref in sorted(self._index_refs(), key=_identity)
+                self._read_issuance(ref)
+                for ref in sorted(self._index_refs(), key=_identity_sort_key)
             )
 
     def resolve_complete_epoch_dependencies(
@@ -850,7 +870,10 @@ class DecisionPacketEpochIssuanceOwner:
         if not rows:
             raise ValueError("dependency_denominator_unresolved")
         bindings = tuple(
-            sorted((row.binding for row in rows), key=lambda row: _identity(row.certificate_ref))
+            sorted(
+                (row.binding for row in rows),
+                key=lambda row: _identity_sort_key(row.certificate_ref),
+            )
         )
         edge_map = {}
         for row in rows:
@@ -861,7 +884,16 @@ class DecisionPacketEpochIssuanceOwner:
                 authority_purpose=authority_purpose,
             )
             edge_map[(_identity(edge.source_ref), _identity(edge.target_ref))] = edge
-        edges = tuple(edge_map[key] for key in sorted(edge_map))
+        edges = tuple(
+            edge_map[key]
+            for key in sorted(
+                edge_map,
+                key=lambda key: (
+                    _identity_tuple_sort_key(key[0]),
+                    _identity_tuple_sort_key(key[1]),
+                ),
+            )
+        )
         graph_raw = canon.to_canonical_bytes(
             {"edges": [edge.model_dump(mode="json") for edge in edges]}, _CANON
         )

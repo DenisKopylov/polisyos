@@ -178,7 +178,9 @@ class OperatingCharacteristicLibrary(BaseModel):
                 return record
         return None
 
-    def by_detector_family(self, family: DetectorFamily) -> tuple[OperatingCharacteristicRecord, ...]:
+    def by_detector_family(
+        self, family: DetectorFamily
+    ) -> tuple[OperatingCharacteristicRecord, ...]:
         """Return all records declared for a detector family."""
 
         return tuple(record for record in self.records if record.key.detector_family == family)
@@ -437,10 +439,10 @@ def readiness_downgrade(report: ShiftDiagnosticReport | Any) -> int:
     if report.support_shift.severity_bucket == "high":
         return 2
 
-    if (
-        report.concept_shift.status == "suspected"
-        and report.harmful_shift_risk.severity_bucket in {"high", "severe"}
-    ):
+    if report.concept_shift.status == "suspected" and report.harmful_shift_risk.severity_bucket in {
+        "high",
+        "severe",
+    }:
         return 2
 
     if report.marginal_shift.severity_bucket in {"high", "severe"}:
@@ -509,7 +511,7 @@ def load_shift_diagnostic_report(
 ) -> ShiftDiagnosticReport:
     """Load and validate a persisted shift diagnostic report."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return ShiftDiagnosticReport.model_validate(payload)
 
 

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.analysis.distributional import (
     build_distributional_report,
@@ -78,8 +80,8 @@ def test_distributional_report_roundtrip_and_negative_flag(tmp_path) -> None:
     assert report.metadata.get("negative_values_present") is True
     assert report.overall_gini_before is None
 
-    ref = persist_distributional_report(store, report)
-    loaded = load_distributional_report(store, ref)
+    ref = persist_distributional_report(_ensure_ir_artifact_store(store), report)
+    loaded = load_distributional_report(_ensure_ir_artifact_store(store), ref)
 
     assert loaded.breakdowns[0].dimension == CohortDimension.INCOME_QUINTILE
     assert loaded.winners_losers.total_winners_share >= 0.0

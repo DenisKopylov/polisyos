@@ -1752,7 +1752,7 @@ def load_frontier_sketch(
 ) -> FrontierSketch:
     """Load a persisted frontier sketch."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return FrontierSketch.model_validate(payload)
 
 

@@ -5,6 +5,8 @@ from types import SimpleNamespace
 
 import pytest
 from _helpers.runtime_http import build_runtime_api_env
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.runtime import (
     CounterfactualMetric,
@@ -94,7 +96,7 @@ def test_runtime_scenario_gate_rejects_long_uncalibrated_temporal_window() -> No
 def test_runtime_scenario_gate_passes_long_calibrated_bundle_ref(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     ref = persist_regime_shift_forecast_bundle(
-        store,
+        _ensure_ir_artifact_store(store),
         _sample_regime_bundle(horizon=13),
     )
     run = SimpleNamespace(

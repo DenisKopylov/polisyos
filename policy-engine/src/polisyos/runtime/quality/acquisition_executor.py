@@ -1053,10 +1053,10 @@ def _execute_authorized_live_acquisition(
     if baseline_after_sha256 is None:  # pragma: no cover - finally assigns or raises
         raise LiveAcquisitionExecutionError("live_baseline_identity_drift")
     snapshot = DataSnapshot.model_validate(
-        from_canonical_bytes(store.get_bytes(ingestion_result.data_snapshot_ref.artifact_id))
+        from_canonical_bytes(store.get_bytes(ingestion_result.data_snapshot_ref))
     )
     evidence_bundle = EvidenceBundle.model_validate(
-        from_canonical_bytes(store.get_bytes(ingestion_result.evidence_bundle_ref.artifact_id))
+        from_canonical_bytes(store.get_bytes(ingestion_result.evidence_bundle_ref))
     )
     if snapshot.evidence_ref != ingestion_result.evidence_bundle_ref:
         raise LiveAcquisitionExecutionError(
@@ -1068,7 +1068,7 @@ def _execute_authorized_live_acquisition(
             "live_evidence_bundle_source_drift",
             attempt_id,
         )
-    normalized_bytes = store.get_bytes(snapshot.data_ref.artifact_id)
+    normalized_bytes = store.get_bytes(snapshot.data_ref)
     normalized_result = ResultSerializer.deserialize(normalized_bytes)
     _require_same_fetch_result(captured_result, normalized_result)
     raw_body_sha256 = "sha256:" + hashlib.sha256(observer.raw_body).hexdigest()
@@ -2112,10 +2112,10 @@ def resolve_activated_semantic_epoch_admission(
     chronology = contracts.chronology
 
     def read(ref: ArtifactRef, model: type[BaseModel]) -> BaseModel:
-        raw = artifact_store.get_bytes(ref.artifact_id)
-        manifest = artifact_store.get_manifest(ref.artifact_id)
+        raw = artifact_store.get_bytes(ref)
+        manifest = artifact_store.get_manifest(ref)
         if (
-            not artifact_store.verify(ref.artifact_id).ok
+            not artifact_store.verify(ref).ok
             or f"sha256:{hashlib.sha256(raw).hexdigest()}" != str(ref.artifact_id)
             or manifest.artifact_id != ref.artifact_id
             or manifest.kind != ref.kind

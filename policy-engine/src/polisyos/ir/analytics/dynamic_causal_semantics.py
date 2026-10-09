@@ -15,7 +15,10 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
-from polisyos.ir.registry.refs import ForecastInterventionCertificateRef, ForecastInterventionQueryRef
+from polisyos.ir.registry.refs import (
+    ForecastInterventionCertificateRef,
+    ForecastInterventionQueryRef,
+)
 
 _FORECAST_INTERVENTION_QUERY_SCHEMA_NAME = "ir.forecast_intervention_query"
 _FORECAST_INTERVENTION_QUERY_SCHEMA_VERSION = "1.0"
@@ -461,7 +464,9 @@ class ForecastInterventionAttachment(ForecastInterventionCertificate):
     def missing_replay_fingerprints(self) -> tuple[str, ...]:
         """Fingerprint obligations needed for reusable proof-trace replay."""
 
-        return tuple(sorted(_FORECAST_REPLAY_FINGERPRINT_KEYS - self.proof_support_fingerprints.keys()))
+        return tuple(
+            sorted(_FORECAST_REPLAY_FINGERPRINT_KEYS - self.proof_support_fingerprints.keys())
+        )
 
     @property
     def replay_composability_status(self) -> Literal["reusable", "revalidate"]:
@@ -735,7 +740,7 @@ def load_forecast_intervention_query(
 ) -> ForecastInterventionQuery:
     """Load a persisted forecast intervention query."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return ForecastInterventionQuery.model_validate(payload)
 
 
@@ -772,7 +777,7 @@ def load_forecast_intervention_certificate(
 ) -> ForecastInterventionCertificate:
     """Load a persisted forecast intervention certificate."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return ForecastInterventionCertificate.model_validate(payload)
 
 

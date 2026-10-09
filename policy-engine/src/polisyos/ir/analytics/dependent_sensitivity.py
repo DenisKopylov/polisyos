@@ -12,8 +12,8 @@ from typing import Any, Literal
 from pydantic import ConfigDict, Field, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
+from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import ArtifactRefModel
 
 CopulaFamily = Literal[
@@ -265,9 +265,9 @@ class DependentEstimatorSpec(DependentSensitivityModel):
 
     id: str = Field(..., pattern=ID_PATTERN)
     family: DependentEstimatorFamily
-    target: Literal["variance", "mean", "quantile", "tail_probability", "welfare_loss", "custom"] = (
-        "variance"
-    )
+    target: Literal[
+        "variance", "mean", "quantile", "tail_probability", "welfare_loss", "custom"
+    ] = "variance"
     contribution_modes: list[ContributionMode] = Field(default_factory=lambda: ["full"])
     coalition_mode: Literal["inputs", "groups", "edges"] = "inputs"
     reference_copula_id: str | None = Field(default=None, pattern=ID_PATTERN)
@@ -316,9 +316,9 @@ class OutputSpec(DependentSensitivityModel):
     """Scalar output target requested by a dependent sensitivity bundle."""
 
     name: str = Field(..., min_length=1, max_length=120)
-    target: Literal["variance", "mean", "quantile", "tail_probability", "welfare_loss", "custom"] = (
-        "variance"
-    )
+    target: Literal[
+        "variance", "mean", "quantile", "tail_probability", "welfare_loss", "custom"
+    ] = "variance"
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -348,9 +348,7 @@ class DependentSensitivityAnalysisBundle(DependentSensitivityModel):
             if estimator.reference_copula_id is not None and (
                 estimator.reference_copula_id not in reference_ids
             ):
-                raise ValueError(
-                    f"unknown reference_copula_id: {estimator.reference_copula_id!r}"
-                )
+                raise ValueError(f"unknown reference_copula_id: {estimator.reference_copula_id!r}")
         return self
 
 
@@ -432,7 +430,7 @@ def load_dependent_sensitivity_bundle(
 ) -> DependentSensitivityAnalysisBundle:
     """Load a persisted dependent sensitivity bundle contract."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return DependentSensitivityAnalysisBundle.model_validate(payload)
 
 
@@ -464,7 +462,7 @@ def load_dependent_sensitivity_result(
 ) -> DependentSensitivityResult:
     """Load a persisted dependent sensitivity result."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return DependentSensitivityResult.model_validate(payload)
 
 

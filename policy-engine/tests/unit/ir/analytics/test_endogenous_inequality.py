@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.distributional import (
     CausalAssumptionCard,
@@ -180,8 +182,12 @@ def test_endogenous_group_decomposition_persists_round_trip(tmp_path) -> None:
         shapley_structural_effect=_effect(0.09, "shapley str"),
     )
 
-    ref = persist_endogenous_group_inequality_decomposition_result(store, result)
-    loaded = load_endogenous_group_inequality_decomposition_result(store, ref)
+    ref = persist_endogenous_group_inequality_decomposition_result(
+        _ensure_ir_artifact_store(store), result
+    )
+    loaded = load_endogenous_group_inequality_decomposition_result(
+        _ensure_ir_artifact_store(store), ref
+    )
 
     assert isinstance(ref, EndogenousGroupInequalityDecompositionRef)
     assert ref.kind == "ir.endogenous_group_inequality_decomposition"

@@ -234,7 +234,7 @@ def load_simulation_calibration_receipt(
 ) -> SimulationCalibrationReceipt:
     """Load a persisted simulation calibration receipt."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return SimulationCalibrationReceipt.model_validate(payload)
 
 
@@ -269,7 +269,7 @@ def load_simulation_proof_bridge(
 ) -> SimulationProofBridge:
     """Load a persisted simulation-proof bridge."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return SimulationProofBridge.model_validate(payload)
 
 
@@ -402,7 +402,9 @@ def build_simulation_proof_bridge_artifacts(
                 ("sbom", software_ref),
             )
         ),
-        diagnostic_scores=_diagnostic_scores(receipt=receipt, calibration_accepted=calibration_accepted),
+        diagnostic_scores=_diagnostic_scores(
+            receipt=receipt, calibration_accepted=calibration_accepted
+        ),
         method_config={
             "bridge": "simulation_proof_bridge",
             "bridge_version": _SCHEMA_VERSION,
@@ -457,12 +459,14 @@ def build_simulation_proof_bridge_artifacts(
         calibration_receipt=receipt,
         calibration_accepted=calibration_accepted,
         composability_status=composability_status.value,
-        constraint_payload=_load_payload(store, constraint_ref) if constraint_ref is not None else None,
-        readiness_payload=_load_payload(store, readiness_ref) if readiness_ref is not None else None,
+        constraint_payload=_load_payload(store, constraint_ref)
+        if constraint_ref is not None
+        else None,
+        readiness_payload=_load_payload(store, readiness_ref)
+        if readiness_ref is not None
+        else None,
         validity_payload=(
-            _load_causal_validity_payload(store, validity_ref)
-            if validity_ref is not None
-            else None
+            _load_causal_validity_payload(store, validity_ref) if validity_ref is not None else None
         ),
     )
     certification_status = _certification_status(
@@ -576,7 +580,7 @@ def _load_payload(store: ArtifactStore, ref: ArtifactRefModel | None) -> dict[st
     if ref is None:
         return None
     try:
-        payload = get_json_artifact(store, ref.artifact_id)
+        payload = get_json_artifact(store, ref)
     except (FileNotFoundError, OSError, TypeError, ValueError):
         return None
     return dict(payload) if isinstance(payload, Mapping) else None
@@ -593,7 +597,7 @@ def _load_truthfulness_owner_payload(
     expected_kind, expected_schema, expected_version = _OWNER_ARTIFACT_CONTRACTS[role]
     reasons: list[str] = []
     try:
-        manifest = store.get_manifest(ref.artifact_id)
+        manifest = store.get_manifest(ref)
     except (FileNotFoundError, OSError, TypeError, ValueError):
         return None, (f"{role}_manifest_unavailable",)
 
@@ -644,9 +648,12 @@ def _owner_payload_is_valid(
             return False
         values = payload.get("values", {})
         notes = payload.get("notes", [])
-        return isinstance(values, Mapping) and all(
-            isinstance(value, (bool, int, float, str)) for value in values.values()
-        ) and isinstance(notes, list) and all(isinstance(note, str) for note in notes)
+        return (
+            isinstance(values, Mapping)
+            and all(isinstance(value, (bool, int, float, str)) for value in values.values())
+            and isinstance(notes, list)
+            and all(isinstance(note, str) for note in notes)
+        )
 
     if not {"schema_version", "exec_plan_ref", "metrics_ref"}.issubset(payload):
         return False
@@ -686,7 +693,7 @@ def _load_causal_validity_payload(
     """Require the Scientist-owned validity artifact, never execution evidence."""
 
     try:
-        manifest = store.get_manifest(ref.artifact_id)
+        manifest = store.get_manifest(ref)
     except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
         raise ValueError(f"causal_validity_bundle_ref manifest is unavailable: {exc}") from exc
     schema = getattr(manifest, "artifact_schema", None)
@@ -709,7 +716,9 @@ def _resolve_truthfulness_receipt(
     *,
     explicit: TruthfulnessReceipt | Mapping[str, Any] | None,
     intake_reasons: Sequence[str],
-) -> tuple[TruthfulnessReceipt, Literal["explicit", "simulation_result", "metrics", "default_unverified"]]:
+) -> tuple[
+    TruthfulnessReceipt, Literal["explicit", "simulation_result", "metrics", "default_unverified"]
+]:
     reasons = list(intake_reasons)
     if explicit is not None:
         validate_truthfulness_receipt(explicit)
@@ -742,7 +751,9 @@ def _diagnostic_scores(
     }
 
 
-def _data_provenance(items: Sequence[tuple[str, ArtifactRefModel | None]]) -> tuple[DataProvenance, ...]:
+def _data_provenance(
+    items: Sequence[tuple[str, ArtifactRefModel | None]],
+) -> tuple[DataProvenance, ...]:
     provenance: list[DataProvenance] = []
     for role, ref in items:
         if ref is None:
@@ -880,7 +891,8 @@ def _certification_status(
 
 def _has_blocking_reason(reasons: Sequence[str]) -> bool:
     return any(
-        reason in {"constraint_report_hard_fail", "causal_readiness_blocked", "causal_validity_failed"}
+        reason
+        in {"constraint_report_hard_fail", "causal_readiness_blocked", "causal_validity_failed"}
         for reason in reasons
     )
 

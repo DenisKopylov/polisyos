@@ -119,9 +119,7 @@ _MATERIAL_FIELDS: dict[type[BaseModel], frozenset[str]] = {
     # The v1 projection predates selected-manifest identity. Keep the newly
     # present field in the v1 schema inventory, but refuse non-null selectors
     # before serialization so the historical projection cannot erase one.
-    artifacts.ArtifactRef: frozenset(
-        {"kind", "media_type", "manifest_profile_sha256"}
-    ),
+    artifacts.ArtifactRef: frozenset({"kind", "media_type", "manifest_profile_sha256"}),
     AppendOnlyClaimLedger: frozenset(
         {
             "schema_version",
@@ -471,9 +469,7 @@ class GovernedPublicRecordOwner:
             artifacts.ArtifactWriteOptions(
                 kind=name,
                 media_type="application/json",
-                schema=artifacts.SchemaInfo(
-                    name=name, version=_stored_schema_version(value, name)
-                ),
+                schema=artifacts.SchemaInfo(name=name, version=_stored_schema_version(value, name)),
             ),
         )
 
@@ -565,10 +561,9 @@ class GovernedPublicRecordOwner:
         raw = self._raw(evidence.artifact_ref)
         manifest = self._raw(evidence.manifest_ref)
         sig_raw = self._raw(evidence.signature_ref)
-        if (
-            manifest != self.store.get_manifest_bytes(evidence.artifact_ref)
-            or sig_raw != self.store.get_signature_bytes(evidence.artifact_ref)
-        ):
+        if manifest != self.store.get_manifest_bytes(
+            evidence.artifact_ref
+        ) or sig_raw != self.store.get_signature_bytes(evidence.artifact_ref):
             raise GovernedPublicRecordError("record_exact_signature_evidence_changed")
         signature = artifacts.DetachedSignature.model_validate_json(sig_raw)
         verifier = self._mandate_verifier if mandate else self._publisher_verifier
@@ -590,7 +585,7 @@ class GovernedPublicRecordOwner:
         ):
             raise GovernedPublicRecordError("record_issuer_purpose_untrusted")
         if not verifier.verify(
-            evidence.artifact_ref.artifact_id, raw, manifest, signature, strict_identity=False
+            evidence.artifact_ref, raw, manifest, signature, strict_identity=False
         ).ok:
             raise GovernedPublicRecordError("record_signature_invalid")
         if row.revoked and not historical:
@@ -683,9 +678,7 @@ class GovernedPublicRecordOwner:
             except FileNotFoundError:
                 continue
             except OSError as exc:
-                raise GovernedPublicRecordError(
-                    "issuance_owner_directory_invalid"
-                ) from exc
+                raise GovernedPublicRecordError("issuance_owner_directory_invalid") from exc
             if not stat.S_ISDIR(mode):
                 raise GovernedPublicRecordError("issuance_owner_directory_invalid")
 
@@ -739,9 +732,7 @@ class GovernedPublicRecordOwner:
             raise GovernedPublicRecordError("issuance_transaction_binding_invalid")
         return transaction, raw, index_raw, index
 
-    def _record_and_replay_public_read_closure(
-        self, index: _IssuanceIndex
-    ) -> dict[str, object]:
+    def _record_and_replay_public_read_closure(self, index: _IssuanceIndex) -> dict[str, object]:
         """Derive a closure from successful exact owner reads, then replay it."""
         capture_read_set = getattr(self.store, "_capture_public_read_set", None)
         record_closure = getattr(self.store, "_record_governed_public_read_closure", None)
@@ -882,15 +873,12 @@ class GovernedPublicRecordOwner:
         # publication unconditionally so FileExistsError must read and compare
         # any locator another writer created during closure replay.
         if locator_state == "absent":
+
             def read_existing_locator(path: Path, code: str) -> bytes:
-                state = self._classify_issued_index_locator(
-                    path, boundary_reads=boundary_reads
-                )
+                state = self._classify_issued_index_locator(path, boundary_reads=boundary_reads)
                 if state != "regular":
                     raise GovernedPublicRecordError(code)
-                return self._read_issued_index_bytes(
-                    path, code=code, boundary_reads=boundary_reads
-                )
+                return self._read_issued_index_bytes(path, code=code, boundary_reads=boundary_reads)
 
             self._publish_immutable(
                 locator_path,
@@ -1030,9 +1018,7 @@ class GovernedPublicRecordOwner:
                     raise GovernedPublicRecordError("issuance_index_invalid")
                 if path.stem in transaction_paths:
                     continue
-                locator_state = self._classify_issued_index_locator(
-                    path, boundary_reads=reads
-                )
+                locator_state = self._classify_issued_index_locator(path, boundary_reads=reads)
                 if locator_state != "regular":
                     raise GovernedPublicRecordError("issuance_index_invalid")
                 index_raw = self._read_issued_index_bytes(
@@ -1237,9 +1223,7 @@ class GovernedPublicRecordOwner:
         if ledger != snapshot.ledger or stored_ledger != ledger:
             raise GovernedPublicRecordError("source_ledger_binding_invalid")
         version = _document_version(draft.public_document)
-        public_document, _ = _project(
-            ledger, mapping=draft.relocation, version=version
-        )
+        public_document, _ = _project(ledger, mapping=draft.relocation, version=version)
         if (
             public_document != draft.public_document
             or _digest(_bytes(public_document)) != draft.public_document_digest
@@ -1374,9 +1358,7 @@ class GovernedPublicRecordOwner:
         )
         index = _IssuanceIndex(record_id=record.record_id, admission=self._capture(admission_ref))
         index_raw = _bytes(index)
-        transaction, transaction_raw, parsed_index = self._persist_issuance_transaction(
-            index_raw
-        )
+        transaction, transaction_raw, parsed_index = self._persist_issuance_transaction(index_raw)
         issuance_reads: list[GovernedPublicRecordBoundaryRead] = []
         self._complete_issuance_transaction(
             transaction,

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.causal import (
@@ -98,7 +100,7 @@ def test_dynamic_graph_dscm_detects_full_feedback_and_panel_fallback(tmp_path) -
     assert result.temporal_graph_causal_certificate.status == "identified"
     assert result.temporal_graph_causal_certificate_ref is not None
     loaded = load_temporal_graph_causal_certificate(
-        store,
+        _ensure_ir_artifact_store(store),
         result.temporal_graph_causal_certificate_ref,
     )
     assert loaded == result.temporal_graph_causal_certificate

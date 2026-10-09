@@ -313,7 +313,6 @@ class Level1CheapHeuristic(FunnelStage):
             uncertainty_envelope=envelope,
             cheap_signal=signal,
             failure_cards=cards,
-            compute_actual_usd=0.0,
             fidelity_level=self.fidelity_level,
             feedback={"routing_decision": routing, "structure_hash": structure_hash},
         )

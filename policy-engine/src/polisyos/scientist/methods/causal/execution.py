@@ -12,6 +12,7 @@ import math
 from collections.abc import Mapping, Sequence
 from typing import Any
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
 from polisyos.ir.analytics.dual_certificate import (
     hydrate_bounds_bundle_with_dual_certificate,
@@ -69,7 +70,7 @@ class BoundsEstimationRunner:
                 bundle = BoundsBundle.model_validate(result["bounds_report"])
                 certificate_payload = result.get("dual_certificate_payload")
                 bundle, bundle_inputs = hydrate_bounds_bundle_with_dual_certificate(
-                    self.store,
+                    _ensure_ir_artifact_store(self.store),
                     bundle,
                     certificate_payload,
                     inputs=list(base_inputs),
@@ -87,7 +88,7 @@ class BoundsEstimationRunner:
                         warnings.append("non_finite_or_invalid_bounds_interval")
                 informative_threshold = _finite_threshold(params.get("informative_threshold", 0.5))
                 bounds_ref = persist_bounds_bundle(
-                    self.store,
+                    _ensure_ir_artifact_store(self.store),
                     bundle,
                     inputs=bundle_inputs,
                 )

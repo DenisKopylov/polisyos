@@ -8,6 +8,9 @@ import importlib.util
 import pytest
 
 from polisyos.core import artifacts
+from polisyos.scientist.validation.epoch_certificate_issuance import (
+    decision_packet_invocation_input_refs,
+)
 
 
 def _issuance_module():
@@ -39,7 +42,7 @@ def test_unappointed_issuance_input_does_not_create_binding_or_inventory(tmp_pat
     "descriptive_ref",
     [
         None,
-        {"artifact_id": "ordinary-display-id", "kind": "description", "media_type": "text/plain"},
+        {"description": "ordinary display text"},
         {"artifact_id": "sha256:" + "f" * 64, "kind": "description", "media_type": "text/plain"},
     ],
 )
@@ -113,6 +116,111 @@ def test_canonical_packet_node_persists_absence_without_epoch_dependency(
         )
         for dependency in envelope[section]["dependencies"]
     )
+
+
+def test_invocation_input_refs_keep_distinct_selected_views_for_one_artifact() -> None:
+    artifact_id = "sha256:" + "1" * 64
+    base = {
+        "artifact_id": artifact_id,
+        "kind": "source.record",
+        "media_type": "application/json",
+    }
+    first_view = {**base, "manifest_profile_sha256": "sha256:" + "2" * 64}
+    second_view = {**base, "manifest_profile_sha256": "sha256:" + "3" * 64}
+
+    refs = decision_packet_invocation_input_refs(
+        {"base": base, "first": first_view, "second": second_view}
+    )
+
+    assert len(refs) == 3
+    assert {ref.manifest_profile_sha256 for ref in refs} == {
+        None,
+        first_view["manifest_profile_sha256"],
+        second_view["manifest_profile_sha256"],
+    }
+
+
+@pytest.mark.parametrize(
+    "selector",
+    [
+        {
+            "artifact_id": "ordinary-display-id",
+            "kind": "source.record",
+            "media_type": "application/json",
+        },
+        {
+            "artifact_id": "sha256:" + "4" * 64,
+            "kind": "source.record",
+            "media_type": "application/json",
+            "manifest_profile_sha256": "sha256:not-a-digest",
+        },
+        {
+            "artifact_id": "sha256:" + "5" * 64,
+            "kind": "source.record",
+            "media_type": "application/json",
+            "selector_hint": "unknown supplied selector field",
+        },
+    ],
+)
+def test_invocation_input_refs_refuse_malformed_or_unknown_selectors(selector) -> None:
+    with pytest.raises(ValueError):
+        decision_packet_invocation_input_refs({"source": selector})
+
+
+def test_epoch_basis_persistence_keeps_distinct_selected_input_views(tmp_path) -> None:
+    from pydantic import BaseModel
+
+    module = _issuance_module()
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    owner = module.DecisionPacketEpochIssuanceOwner(store=store, root=tmp_path / "owner")
+    raw = b"one source blob, two selected manifest views"
+    kind = "test.epoch_selected_view_source"
+    store.put_bytes(
+        raw,
+        artifacts.ArtifactWriteOptions(
+            kind=kind,
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(name=kind, version="0.9"),
+            canon=artifacts.CanonInfo(max_depth=4),
+        ),
+    )
+    first_view = store.put_bytes(
+        raw,
+        artifacts.ArtifactWriteOptions(
+            kind=kind,
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(name=kind, version="1.0"),
+            canon=artifacts.CanonInfo(max_depth=8),
+        ),
+    )
+    second_view = store.put_bytes(
+        raw,
+        artifacts.ArtifactWriteOptions(
+            kind=kind,
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(name=kind, version="2.0"),
+            canon=artifacts.CanonInfo(max_depth=16),
+        ),
+    )
+    assert first_view.artifact_id == second_view.artifact_id
+    assert first_view.manifest_profile_sha256 is not None
+    assert second_view.manifest_profile_sha256 is not None
+    assert first_view.manifest_profile_sha256 != second_view.manifest_profile_sha256
+
+    class BasisPayload(BaseModel):
+        value: str = "profile-bound"
+
+    basis_ref = owner._persist(
+        BasisPayload(),
+        "test.epoch_selected_view_basis",
+        input_refs=(second_view, first_view, first_view),
+    )
+    persisted_inputs = store.get_manifest(basis_ref).inputs
+
+    assert {(str(ref.artifact_id), ref.manifest_profile_sha256) for ref in persisted_inputs} == {
+        (str(first_view.artifact_id), first_view.manifest_profile_sha256),
+        (str(second_view.artifact_id), second_view.manifest_profile_sha256),
+    }
 
 
 def _configured_fixture(tmp_path):
@@ -311,9 +419,10 @@ def test_inventory_rechecks_packet_manifest_basis_with_exact_packet_bytes(
     packet, _ = _run_canonical_node(tmp_path, store, owner, source)
     read_manifest = store.get_manifest
 
-    def omit_packet_inputs(artifact_id):
-        manifest = read_manifest(artifact_id)
-        if artifact_id == packet.artifact_id:
+    def omit_packet_inputs(selector):
+        manifest = read_manifest(selector)
+        selected_artifact_id = getattr(selector, "artifact_id", selector)
+        if str(selected_artifact_id) == str(packet.artifact_id):
             return manifest.model_copy(update={"inputs": []})
         return manifest
 

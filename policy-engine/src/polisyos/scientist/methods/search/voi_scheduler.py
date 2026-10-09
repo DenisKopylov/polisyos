@@ -8,7 +8,7 @@ from decimal import Decimal
 from typing import Any, Literal
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
@@ -29,6 +29,12 @@ from polisyos.scientist.orchestration.engine.budget import BudgetState
 VOI_RUN_REPORT_KIND = "scientist.voi_run_report"
 VOI_RUN_REPORT_SCHEMA_NAME = "polisyos.scientist.search.VOIRunReport"
 VOI_RUN_REPORT_SCHEMA_VERSION = "1.0"
+VOICostOrigin = Literal["reported", "estimated", "unknown"]
+VOICostPredictionBasis = Literal[
+    "stage_cost_configuration",
+    "reported_history",
+    "estimated_history_heuristic",
+]
 
 
 class ParetoSnapshot(BaseModel):
@@ -80,6 +86,7 @@ class ComputeEconomicsDecision(BaseModel):
     promotion_likelihood: float = Field(default=0.0, ge=0.0, le=1.0)
     estimated_wall_seconds: float = Field(default=0.0, ge=0.0)
     estimated_cost_usd: float = Field(default=0.0, ge=0.0)
+    estimated_cost_basis: VOICostPredictionBasis = "stage_cost_configuration"
     predicted_disagreement: float = Field(default=0.0, ge=0.0)
     exploration_bonus: float = 0.0
     reserved_calibration_budget_usd: float = Field(default=0.0, ge=0.0)
@@ -144,10 +151,36 @@ class VOIObservation(BaseModel):
     actual_objective_value: float = 0.0
     actual_promising: bool = True
     duration_seconds: float = Field(default=0.0, ge=0.0)
-    compute_cost_usd: float = Field(default=0.0, ge=0.0)
+    compute_cost_usd: float | None = Field(default=None, ge=0.0, allow_inf_nan=False)
+    compute_cost_origin: VOICostOrigin = "unknown"
     timeout_occurred: bool = False
     disagreement: float = Field(default=0.0, ge=0.0)
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _preserve_untyped_legacy_cost_as_unknown(cls, value: Any) -> Any:
+        """Keep pre-origin snapshot amounts visible but exclude them from cost training."""
+        if not isinstance(value, Mapping):
+            return value
+        payload = dict(value)
+        if "compute_cost_origin" not in payload and payload.get("compute_cost_usd") is not None:
+            metadata = payload.get("metadata")
+            metadata = dict(metadata) if isinstance(metadata, Mapping) else {}
+            metadata.setdefault("legacy_untyped_compute_cost_usd", payload["compute_cost_usd"])
+            payload["metadata"] = metadata
+            payload["compute_cost_usd"] = None
+            payload["compute_cost_origin"] = "unknown"
+        return payload
+
+    @model_validator(mode="after")
+    def _validate_cost_evidence(self) -> VOIObservation:
+        if self.compute_cost_origin == "unknown":
+            if self.compute_cost_usd is not None:
+                raise ValueError("unknown VOI cost cannot carry an amount")
+        elif self.compute_cost_usd is None:
+            raise ValueError("reported or estimated VOI cost requires an amount")
+        return self
 
 
 class PromotionObservation(BaseModel):
@@ -170,7 +203,7 @@ class VOIModelSnapshot(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field(default="1.1", pattern=r"^\d+\.\d+$")
     training_config: VOITrainingConfig = Field(default_factory=VOITrainingConfig)
     stage_costs: dict[int, float] = Field(default_factory=dict)
     observations: list[VOIObservation] = Field(default_factory=list)
@@ -275,8 +308,12 @@ class SimpleVOIScheduler:
     ) -> SchedulingDecision:
         inputs = self._heuristic_inputs(ticket, frontier)
         estimated_cost = self._estimated_cost_decimal(inputs["next_level"])
-        estimated_cost_float = max(float(estimated_cost), 1e-9)
-        expected_improvement_per_usd = inputs["expected_value_proxy"] / estimated_cost_float
+        estimated_cost_float = max(float(estimated_cost), 0.0)
+        expected_improvement_per_usd = (
+            inputs["expected_value_proxy"] / estimated_cost_float
+            if estimated_cost_float > 0.0
+            else 0.0
+        )
         exploration_bonus = exploration_weight * inputs["expected_information_gain"]
         reserved_calibration_budget_usd = self._reserved_calibration_budget_usd(budget_remaining)
         priority = ((1.0 - exploration_weight) * expected_improvement_per_usd) + exploration_bonus
@@ -510,7 +547,8 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
         actual_objective_value: float,
         actual_promising: bool,
         duration_seconds: float,
-        compute_cost_usd: float,
+        compute_cost_usd: float | None,
+        compute_cost_origin: VOICostOrigin,
         timeout_occurred: bool = False,
         disagreement: float | None = None,
         metadata: dict[str, Any] | None = None,
@@ -520,6 +558,12 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
             frontier_position=frontier_position,
             stage_level=stage_level,
         )
+        if compute_cost_usd is not None and (
+            not math.isfinite(float(compute_cost_usd)) or float(compute_cost_usd) < 0.0
+        ):
+            raise ValueError("VOI compute cost must be finite and non-negative")
+        if (compute_cost_origin == "unknown") != (compute_cost_usd is None):
+            raise ValueError("VOI cost amount and origin do not agree")
         observation = VOIObservation(
             candidate_id=candidate_id,
             task_family=str(task_family or "policy"),
@@ -531,7 +575,8 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
             actual_objective_value=float(actual_objective_value),
             actual_promising=bool(actual_promising),
             duration_seconds=max(float(duration_seconds), 0.0),
-            compute_cost_usd=max(float(compute_cost_usd), 0.0),
+            compute_cost_usd=(None if compute_cost_usd is None else float(compute_cost_usd)),
+            compute_cost_origin=compute_cost_origin,
             timeout_occurred=bool(timeout_occurred),
             disagreement=max(
                 0.0,
@@ -709,7 +754,7 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
                 stage_slice,
                 fallback=0.0,
             )
-            estimated_cost_usd = self._predict_cost_usd(
+            estimated_cost_usd, estimated_cost_basis = self._predict_cost_usd(
                 stage_slice,
                 features,
                 heuristic["next_level"] or 0,
@@ -730,7 +775,9 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
                 minimum=self._training_config.min_promotion_observations,
                 fallback=heuristic["governance_value"],
             )
-            expected_improvement_per_usd = predicted_objective / max(estimated_cost_usd, 1e-9)
+            expected_improvement_per_usd = (
+                predicted_objective / estimated_cost_usd if estimated_cost_usd > 0.0 else 0.0
+            )
             calibration_debt = self._calibration_debt()
             governance_bonus = heuristic["governance_value"] * max(promotion_likelihood, 0.1)
             exploration_bonus = exploration_fraction * max(predicted_disagreement, 0.0)
@@ -767,6 +814,7 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
                 promotion_likelihood=max(0.0, min(1.0, promotion_likelihood)),
                 estimated_wall_seconds=max(0.0, estimated_wall_seconds),
                 estimated_cost_usd=max(0.0, estimated_cost_usd),
+                estimated_cost_basis=estimated_cost_basis,
                 predicted_disagreement=max(0.0, predicted_disagreement),
                 exploration_bonus=exploration_bonus,
                 reserved_calibration_budget_usd=reserved_calibration_budget_usd,
@@ -889,19 +937,32 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
         observations: list[tuple[VOIObservation, float]],
         features: dict[str, float],
         stage_level: int,
-    ) -> float:
+    ) -> tuple[float, VOICostPredictionBasis]:
         baseline = float(self._estimated_cost_decimal(stage_level))
-        return max(
-            baseline,
-            _predict_continuous(
-                observations,
+        minimum = self._training_config.min_stage_observations
+        for origin, basis in (
+            ("reported", "reported_history"),
+            ("estimated", "estimated_history_heuristic"),
+        ):
+            cost_rows = [
+                (observation, weight)
+                for observation, weight in observations
+                if observation.compute_cost_origin == origin
+                and observation.compute_cost_usd is not None
+            ]
+            if len(cost_rows) < minimum:
+                continue
+            predicted = _predict_continuous(
+                cost_rows,
                 features,
                 target_getter=lambda obs: obs.compute_cost_usd,
                 alpha=self._training_config.ridge_alpha,
-                minimum=self._training_config.min_stage_observations,
+                minimum=minimum,
                 fallback=baseline,
-            ),
-        )
+            )
+            if math.isfinite(predicted):
+                return max(0.0, predicted), basis
+        return max(0.0, baseline), "stage_cost_configuration"
 
     def _exploration_fraction(self, budget_remaining: BudgetState) -> float:
         utilization = budget_remaining.utilization(self._budget_key)
@@ -1304,7 +1365,7 @@ def persist_voi_run_report(
 def load_voi_run_report(store: Any, ref: ArtifactRef) -> VOIRunReport:
     """Load a persisted VOI run report from CAS."""
 
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return VOIRunReport.model_validate(payload)
 
 

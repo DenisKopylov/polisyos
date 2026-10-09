@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.abm_bridge import (
     ABMAlignmentReport,
@@ -85,8 +87,8 @@ def test_abm_alignment_report_artifact_roundtrip(tmp_path) -> None:
         warnings=["income_level: wide_tolerance_consistent_warning"],
     )
 
-    ref = persist_abm_alignment_report(store, report)
-    loaded = load_abm_alignment_report(store, ref)
+    ref = persist_abm_alignment_report(_ensure_ir_artifact_store(store), report)
+    loaded = load_abm_alignment_report(_ensure_ir_artifact_store(store), ref)
 
     assert isinstance(ref, ABMAlignmentReportRef)
     assert ref.kind == "ir.abm_alignment_report"

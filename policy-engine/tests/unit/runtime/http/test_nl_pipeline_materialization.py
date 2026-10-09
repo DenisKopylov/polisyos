@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import replace
+from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -441,6 +442,50 @@ async def test_design_problem_front_door_uses_gateway_tool_calling_and_preflight
             "properties": {"end_date": {"type": "string", "minLength": 1}},
         },
     ]
+
+
+@pytest.mark.asyncio
+async def test_design_problem_front_door_binds_provider_events_to_nl_run(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    from polisyos.runtime.http.services.control import nl_pipeline
+    from polisyos.scientist.orchestration.engine.budget import BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+    gateway = _FakeDesignProblemGateway(
+        models=["Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"],
+        arguments=_design_problem_tool_args(),
+    )
+    middleware = BudgetMiddleware(
+        BudgetState(),
+        ledger=FileBudgetLedger(tmp_path / "llm-ledger.json"),
+    )
+    span_support = _DeterministicSpanSupportClient()
+    captured: dict[str, object] = {}
+
+    def _build_client(**kwargs: object) -> _FakeDesignProblemGateway:
+        captured.update(kwargs)
+        return gateway
+
+    monkeypatch.setattr(nl_pipeline, "create_traced_gateway_client", _build_client)
+    problem = await nl_pipeline.build_design_problem_from_nl_request(
+        nl_request=(
+            "Design a wartime MSME credit guarantee for Ukraine within the stated "
+            "UAH 10b budget cap."
+        ),
+        context=_intent_context(as_of="2026-05-12"),
+        model_name="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+        run_id="run-design-problem",
+        producer_settlement_store=middleware,
+        span_support_client=span_support,
+    )
+
+    assert problem.design_problem_id == "design_problem_ua_msme_credit"
+    assert captured["run_id"] == "run-design-problem"
+    assert captured["producer_settlement_store"] is middleware
+    assert captured["producer_budget_key"] == "nl-run:run-design-problem"
     assert span_support.calls
 
 
@@ -690,9 +735,7 @@ def test_design_problem_provider_schema_matches_versioned_slot_grammar() -> None
             payload.pop("schema_version", None)
         else:
             payload["schema_version"] = schema_version
-        payload["candidate_lever_space"]["candidate_levers"][0]["target_slot"] = (
-            target_slot
-        )
+        payload["candidate_lever_space"]["candidate_levers"][0]["target_slot"] = target_slot
         assert validator.is_valid(payload) is expected, (
             schema_version,
             target_slot,
@@ -900,6 +943,7 @@ async def test_plain_language_front_door_compiles_hashed_qualified_v3_problem() 
         "Design a wartime MSME credit guarantee for Ukraine within the stated UAH 10b budget cap, "
         "and assess Ukraine's government cash balance."
     )
+
     def government_balance_payload() -> dict[str, Any]:
         payload = _design_problem_tool_args()
         payload["problem_statement"] = (
@@ -1625,9 +1669,19 @@ def test_nl_pipeline_can_run_simulated_llm_without_mock_fallback(
         return real_run_coro_sync(coro, timeout_seconds=timeout)
 
     monkeypatch.setattr(async_tools, "run_coro_sync", _run_coro_sync_with_load_budget)
+    from polisyos.scientist.orchestration.engine.budget import BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+    llm_ledger_path = tmp_path / "llm-cost-ledger.json"
+    llm_store = BudgetMiddleware(
+        BudgetState(),
+        ledger=FileBudgetLedger(llm_ledger_path),
+    )
     service = ControlPlaneService(
         cas_root=tmp_path / "cas",
         core_runs_root=tmp_path / "runs",
+        llm_producer_settlement_store=llm_store,
         policy_resolver=RuntimeExecutionPolicyResolver(
             default_profile="dev",
             worker_backend="external",
@@ -1685,6 +1739,12 @@ def test_nl_pipeline_can_run_simulated_llm_without_mock_fallback(
     assert "fallback_mock" not in variants[0].get("status", "")
     assert "data_snapshot_ref" in payload["inputs"]
     assert "input_bindings_ref" in payload["inputs"]
+    persisted_events = FileBudgetLedger(llm_ledger_path).snapshot().producer_settlements
+    assert len(persisted_events) >= 2
+    assert all(event.key == "nl-run:R_nl_simulated_llm" for event in persisted_events.values())
+    assert all(event.status == "committed" for event in persisted_events.values())
+    assert all(event.cost_origin == "reported" for event in persisted_events.values())
+    assert all(event.amount == Decimal("0") for event in persisted_events.values())
 
 
 def test_serious_nl_pipeline_persists_normative_applicability_report_ref(

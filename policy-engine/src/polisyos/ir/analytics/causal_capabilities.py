@@ -93,7 +93,7 @@ def load_causal_capability_contract(
     ref: CausalCapabilityContractRef,
 ) -> CausalCapabilityContract:
     """Load causal capability contract."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return CausalCapabilityContract.model_validate(payload)
 
 

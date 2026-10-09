@@ -343,93 +343,272 @@ function textList(value: unknown): string[] {
     : [];
 }
 
+function isArtifactRef(value: unknown, kind: string): boolean {
+  const ref = asRecord(value);
+  return (
+    ref !== null &&
+    typeof ref.artifact_id === "string" &&
+    /^sha256:[0-9a-f]{64}$/.test(ref.artifact_id) &&
+    ref.kind === kind &&
+    ref.media_type === "application/json"
+  );
+}
+
 function CandidateSimulationPanel({ run }: { run: unknown }) {
   const { t } = useI18n();
   const record = asRecord(run);
-  const values = Array.isArray(record?.conditional_simulation_values)
-    ? record.conditional_simulation_values
+  const projection = asRecord(record?.candidate_simulation);
+  const values = Array.isArray(projection?.n5_observations)
+    ? projection.n5_observations
     : [];
-  const checkpoint = asRecord(record?.recursive_cycle_checkpoint);
+  const checkpoint = asRecord(projection?.recursive_cycle_checkpoint);
+  const failedBranches = Array.isArray(checkpoint?.failed_branches)
+    ? checkpoint.failed_branches
+    : [];
+  const acquisitionHistory = Array.isArray(projection?.acquisition_history)
+    ? projection.acquisition_history
+    : [];
+  const checkpointVersion = checkpoint?.schema_version;
   const checkpointKnown =
-    checkpoint?.schema_version ===
-      "policyos.runtime.recursive_cycle_checkpoint.v1" &&
+    checkpoint !== null &&
+    (checkpointVersion === "policyos.runtime.recursive_cycle_checkpoint.v1" ||
+      checkpointVersion === "policyos.runtime.recursive_cycle_checkpoint.v2") &&
     checkpoint.status === "partial" &&
     checkpoint.publication_authority === false &&
-    checkpoint.root_n9_status === "not_run";
-  if (values.length === 0 && checkpoint === null) {
+    checkpoint.root_n9_status === "not_run" &&
+    (checkpointVersion === "policyos.runtime.recursive_cycle_checkpoint.v1"
+      ? typeof checkpoint.budget_stop_node_ref === "string" &&
+        failedBranches.length === 0
+      : checkpoint.budget_stop_node_ref == null && failedBranches.length > 0);
+  if (projection === null) {
     return null;
   }
-  // This consumer displays owner observations. It never issues publication,
-  // causal, or current execution authority from the presence of these fields.
+  const projectionKnown =
+    projection.schema_version ===
+      "policyos.runtime.run_candidate_simulation_projection.v1" &&
+    projection.run_id === record?.run_id &&
+    projection.authority_purpose === "candidate_observation_only" &&
+    projection.publication_authority === false;
   return (
     <Card className="space-y-4" data-testid="overview-candidate-simulation">
       <h4>{t("pages.runs.candidateSimulation.title")}</h4>
       <p className="text-muted text-sm">
         {t("pages.runs.candidateSimulation.authority")}
       </p>
+      {!projectionKnown || projection.artifact_status !== "resolved" ? (
+        <p data-testid="overview-simulation-refused">
+          {typeof projection.limitation_code === "string"
+            ? projection.limitation_code
+            : t("pages.runs.candidateSimulation.refused")}
+        </p>
+      ) : null}
+      {projectionKnown && typeof projection.limitation_code === "string" ? (
+        <p data-testid="overview-simulation-limitation">
+          {projection.limitation_code}
+        </p>
+      ) : null}
+      {acquisitionHistory.length > 0 ||
+      typeof projection.acquisition_history_limitation_code === "string" ? (
+        <div
+          className="space-y-2 border-t pt-3"
+          data-testid="overview-acquisition-history"
+        >
+          <h5>{t("pages.runs.candidateSimulation.acquisitionHistoryTitle")}</h5>
+          <p className="text-muted text-sm">
+            {t("pages.runs.candidateSimulation.acquisitionHistoryAuthority")}
+          </p>
+          {typeof projection.acquisition_history_limitation_code ===
+          "string" ? (
+            <p data-testid="overview-acquisition-history-limitation">
+              {projection.acquisition_history_limitation_code}
+            </p>
+          ) : null}
+          {acquisitionHistory.map((value, index) => {
+            const row = asRecord(value);
+            const reentry = row && asRecord(row.reentry_receipt_ref);
+            const newSource = row && asRecord(row.new_candidate_source_ref);
+            const originSource = row && asRecord(row.origin_source_ref);
+            const commonKnown =
+              projectionKnown &&
+              projection.artifact_status === "resolved" &&
+              row !== null &&
+              isArtifactRef(
+                row.route_receipt_ref,
+                "runtime_quality.acquisition_route_loop_receipt",
+              ) &&
+              typeof row.route_id === "string" &&
+              Number.isInteger(row.action_generation) &&
+              row.currentness_status === "not_established" &&
+              row.authority_purpose === "candidate_observation_only" &&
+              row.publication_authority === false;
+            const reentryKnown =
+              row?.terminal_outcome === "reentry_completed" &&
+              isArtifactRef(
+                row.reentry_receipt_ref,
+                "runtime_quality.acquisition_overlay_reentry_receipt",
+              ) &&
+              typeof row.old_candidate_id === "string" &&
+              typeof row.new_candidate_id === "string" &&
+              isArtifactRef(
+                row.new_candidate_source_ref,
+                "runtime.quality.n4_candidate_scenario_source",
+              ) &&
+              (row.origin_source_ref == null ||
+                isArtifactRef(
+                  row.origin_source_ref,
+                  "runtime.quality.n4_candidate_scenario_source",
+                ));
+            const quarantineKnown =
+              row?.terminal_outcome === "quarantined_no_growth" &&
+              row.reentry_receipt_ref == null &&
+              row.old_candidate_id == null &&
+              row.new_candidate_id == null &&
+              row.new_candidate_source_ref == null &&
+              row.origin_source_ref == null;
+            if (!commonKnown || (!reentryKnown && !quarantineKnown)) {
+              return (
+                <p
+                  key={index}
+                  data-testid="overview-acquisition-history-refused"
+                >
+                  {t(
+                    "pages.runs.candidateSimulation.acquisitionHistoryRefused",
+                  )}
+                </p>
+              );
+            }
+            return (
+              <div key={index} className="space-y-1 border-t pt-2">
+                <p>
+                  {t("pages.runs.candidateSimulation.acquisitionRoute", {
+                    route: String(row.route_id),
+                    generation: String(row.action_generation),
+                  })}
+                </p>
+                <p>
+                  {t("pages.runs.candidateSimulation.acquisitionOutcome", {
+                    outcome: String(row.terminal_outcome),
+                  })}
+                </p>
+                <p>
+                  {t("pages.runs.candidateSimulation.acquisitionCurrentness", {
+                    status: String(row.currentness_status),
+                  })}
+                </p>
+                {reentryKnown ? (
+                  <>
+                    <p>
+                      {t(
+                        "pages.runs.candidateSimulation.acquisitionOldCandidate",
+                        {
+                          candidate: String(row.old_candidate_id),
+                        },
+                      )}
+                    </p>
+                    <p>
+                      {t(
+                        "pages.runs.candidateSimulation.acquisitionNewCandidate",
+                        {
+                          candidate: String(row.new_candidate_id),
+                        },
+                      )}
+                    </p>
+                    <p className="text-xs break-all">
+                      {t("pages.runs.candidateSimulation.acquisitionSource", {
+                        ref: String(newSource?.artifact_id),
+                      })}
+                    </p>
+                    <p className="text-xs break-all">
+                      {t("pages.runs.candidateSimulation.acquisitionOrigin", {
+                        ref:
+                          typeof originSource?.artifact_id === "string"
+                            ? originSource.artifact_id
+                            : t(
+                                "pages.runs.candidateSimulation.acquisitionOriginUnlinked",
+                              ),
+                      })}
+                    </p>
+                  </>
+                ) : null}
+                <p className="text-xs break-all">
+                  {t("pages.runs.candidateSimulation.acquisitionReceipt", {
+                    ref: String(asRecord(row.route_receipt_ref)?.artifact_id),
+                  })}
+                </p>
+                {reentry ? (
+                  <p className="text-xs break-all">
+                    {t(
+                      "pages.runs.candidateSimulation.acquisitionReentryReceipt",
+                      {
+                        ref: String(reentry.artifact_id),
+                      },
+                    )}
+                  </p>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
       {values.map((value, index) => {
-        const row = asRecord(value);
-        const observation = asRecord(row?.observation);
-        if (!row || !observation || row.run_id !== record?.run_id) {
+        const observation = asRecord(value);
+        if (
+          !projectionKnown ||
+          projection.artifact_status !== "resolved" ||
+          !observation ||
+          typeof observation.node_ref !== "string" ||
+          typeof observation.design_problem_ref !== "string" ||
+          ![
+            "joint_simulated",
+            "simulation_pending_n5",
+            "simulation_blocked",
+          ].includes(String(observation.status))
+        ) {
           return (
             <p key={index} data-testid="overview-simulation-refused">
               {t("pages.runs.candidateSimulation.refused")}
             </p>
           );
         }
-        const evidence = asRecord(observation.conditional_interaction_evidence);
+        const n5Ref = asRecord(observation.simulation_result_ref);
         return (
           <div key={index} className="space-y-2 border-t pt-3">
             <strong>
-              {typeof row.candidate_id === "string"
-                ? row.candidate_id
-                : t("pages.runs.candidateSimulation.candidateUnavailable")}
+              {typeof observation.candidate_id === "string"
+                ? observation.candidate_id
+                : observation.node_ref}
             </strong>
             <p data-testid="overview-simulation-status">
               {typeof observation.status === "string"
                 ? observation.status
                 : t("pages.runs.candidateSimulation.notEstablished")}
             </p>
-            <p>
-              {typeof observation.reason === "string"
-                ? observation.reason
-                : t("pages.runs.candidateSimulation.valueUnavailable")}
-            </p>
+            <p>{observation.design_problem_ref}</p>
             <ul>
               {textList(observation.authority_blockers).map((blocker) => (
                 <li key={blocker}>{blocker}</li>
               ))}
             </ul>
-            {typeof row.world_model_record_content_hash === "string" ? (
+            {typeof observation.world_model_record_content_hash === "string" ? (
               <p className="text-xs break-all">
                 {t("pages.runs.candidateSimulation.worldModel", {
-                  ref: row.world_model_record_content_hash,
+                  ref: observation.world_model_record_content_hash,
                 })}
               </p>
             ) : null}
-            {evidence ? (
-              <p data-testid="overview-simulation-boundaries">
-                {[
-                  t("pages.runs.candidateSimulation.unitStatus", {
-                    status: String(
-                      evidence.unit_binding_status ??
-                        t("pages.runs.candidateSimulation.notEstablished"),
-                    ),
-                  }),
-                  t("pages.runs.candidateSimulation.timeStatus", {
-                    status: String(
-                      evidence.time_binding_status ??
-                        t("pages.runs.candidateSimulation.notEstablished"),
-                    ),
-                  }),
-                  t("pages.runs.candidateSimulation.samplingStatus", {
-                    status: String(
-                      evidence.sampling_uncertainty_status ??
-                        t("pages.runs.candidateSimulation.notEstablished"),
-                    ),
-                  }),
-                ].join("; ")}
+            {n5Ref && typeof n5Ref.artifact_id === "string" ? (
+              <p
+                className="text-xs break-all"
+                data-testid="overview-simulation-ref"
+              >
+                {n5Ref.artifact_id}
               </p>
+            ) : null}
+            {textList(observation.atom_ids).length > 0 ? (
+              <p>{textList(observation.atom_ids).join(", ")}</p>
+            ) : null}
+            {textList(observation.selected_outcomes).length > 0 ? (
+              <p>{textList(observation.selected_outcomes).join(", ")}</p>
             ) : null}
           </div>
         );
@@ -443,6 +622,9 @@ function CandidateSimulationPanel({ run }: { run: unknown }) {
               refs: textList(checkpoint.pending_frontier).join(", "),
             })}
           </p>
+          {typeof checkpoint.budget_stop_node_ref === "string" ? (
+            <p>{checkpoint.budget_stop_node_ref}</p>
+          ) : null}
           <p>
             {t("pages.runs.candidateSimulation.completed", {
               refs: textList(checkpoint.completed_design_refs).join(", "),
@@ -461,6 +643,35 @@ function CandidateSimulationPanel({ run }: { run: unknown }) {
               <p key={child}>{`${child}: ${String(kind)}`}</p>
             ),
           )}
+          {failedBranches.map((branch, index) => {
+            const failure = asRecord(branch);
+            if (
+              !failure ||
+              typeof failure.failed_branch_ref !== "string" ||
+              typeof failure.origin_node_ref !== "string" ||
+              typeof failure.stage !== "string" ||
+              typeof failure.exception_type !== "string" ||
+              typeof failure.error_message !== "string"
+            ) {
+              return (
+                <p key={index} data-testid="overview-checkpoint-refused">
+                  {t("pages.runs.candidateSimulation.checkpointRefused")}
+                </p>
+              );
+            }
+            return (
+              <div key={index} data-testid="overview-recursive-failure">
+                <p>{failure.failed_branch_ref}</p>
+                <p>{failure.origin_node_ref}</p>
+                <p>{failure.stage}</p>
+                <p>{failure.exception_type}</p>
+                {typeof failure.error_code === "string" ? (
+                  <p>{failure.error_code}</p>
+                ) : null}
+                <p>{failure.error_message}</p>
+              </div>
+            );
+          })}
         </div>
       ) : checkpoint ? (
         <p data-testid="overview-checkpoint-refused">

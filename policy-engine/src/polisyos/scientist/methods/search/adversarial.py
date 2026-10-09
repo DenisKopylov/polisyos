@@ -827,7 +827,7 @@ def load_platform_meta_evaluation_report(
     ref: PlatformMetaEvaluationReportRef | ArtifactRef,
 ) -> PlatformMetaEvaluationReport:
     """Load platform meta evaluation report."""
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return PlatformMetaEvaluationReport.model_validate(payload)
 
 

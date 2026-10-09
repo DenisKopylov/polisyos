@@ -1156,7 +1156,7 @@ def load_regime_shift_identification_certificate(
     ref: RegimeShiftIdentificationCertificateRef,
 ) -> RegimeShiftIdentificationCertificate:
     """Load a persisted regime-shift identification certificate."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return RegimeShiftIdentificationCertificate.model_validate(payload)
 
 

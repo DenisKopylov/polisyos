@@ -224,9 +224,9 @@ class _DecisionValidityStateStore:
         path = self._dedupe_path(dedupe_key)
         self._write_bytes_atomic(
             path,
-            json.dumps(
-                {"event_id": event_id}, sort_keys=True, separators=(",", ":")
-            ).encode("utf-8"),
+            json.dumps({"event_id": event_id}, sort_keys=True, separators=(",", ":")).encode(
+                "utf-8"
+            ),
         )
 
     def load_epoch_pending(self, batch_id: str) -> EpochValidityPendingBatch | None:
@@ -310,9 +310,7 @@ class _DecisionValidityStateStore:
     ) -> EpochDenominatorReconciliationAdmissionBinding:
         """Write once and strictly reread the winning admission binding."""
 
-        path = self._epoch_reconciliation_admissions / (
-            f"{self.make_key(binding.batch_id)}.json"
-        )
+        path = self._epoch_reconciliation_admissions / (f"{self.make_key(binding.batch_id)}.json")
         candidate_bytes = to_canonical_bytes(
             binding.model_dump(mode="json"),
             _EPOCH_IMPACT_SNAPSHOT_CANON,
@@ -773,9 +771,7 @@ class DecisionValidityService:
                         reconciliation_reader.verifier_provenance_ref
                         != binding.verifier_provenance_ref
                     ):
-                        raise ValueError(
-                            "epoch_denominator_reconciliation_admission_conflict"
-                        )
+                        raise ValueError("epoch_denominator_reconciliation_admission_conflict")
                     persisted_reconciliation = reconciliation_reader.resolve_exact(
                         handle=binding.handle
                     )
@@ -970,7 +966,7 @@ class DecisionValidityService:
                     ],
                 ),
             )
-            result_raw = self._store.get_bytes(result_ref.artifact_id)
+            result_raw = self._store.get_bytes(result_ref)
             result_hash = "sha256:" + hashlib.sha256(result_raw).hexdigest()
             self._state.save_epoch_receipt(
                 result,
@@ -1031,16 +1027,16 @@ class DecisionValidityService:
         if evidence is None:
             return None
         try:
-            report = self._store.verify(evidence.receipt_artifact_ref.artifact_id)
-            raw = self._store.get_bytes(evidence.receipt_artifact_ref.artifact_id)
+            report = self._store.verify(evidence.receipt_artifact_ref)
+            raw = self._store.get_bytes(evidence.receipt_artifact_ref)
             parsed = EpochValidityBatchReceipt.model_validate(from_canonical_bytes(raw))
-            completion_report = self._store.verify(parsed.completion_receipt_ref.artifact_id)
-            completion_raw = self._store.get_bytes(parsed.completion_receipt_ref.artifact_id)
+            completion_report = self._store.verify(parsed.completion_receipt_ref)
+            completion_raw = self._store.get_bytes(parsed.completion_receipt_ref)
             completion = EpochValidityBatchCompletionStatement.model_validate(
                 from_canonical_bytes(completion_raw)
             )
-            transition_report = self._store.verify(parsed.transition_artifact_ref.artifact_id)
-            transition_raw = self._store.get_bytes(parsed.transition_artifact_ref.artifact_id)
+            transition_report = self._store.verify(parsed.transition_artifact_ref)
+            transition_raw = self._store.get_bytes(parsed.transition_artifact_ref)
         except _DECISION_VALIDITY_ARTIFACT_LOAD_ERRORS as exc:
             raise RuntimeError("decision_validity_epoch_receipt_unresolved") from exc
         observed_hash = "sha256:" + hashlib.sha256(raw).hexdigest()
@@ -1082,7 +1078,7 @@ class DecisionValidityService:
             parsed = self._load_completed_epoch_receipt(state.receipt.batch_id)
             if parsed is None:
                 break
-            raw = self._store.get_bytes(batch_receipt_ref.artifact_id)
+            raw = self._store.get_bytes(batch_receipt_ref)
             return PersistedEpochValidityBatchEvidence(
                 batch_receipt_ref=batch_receipt_ref,
                 batch_receipt_content_hash=state.receipt_content_hash,
@@ -1122,7 +1118,7 @@ class DecisionValidityService:
             parsed = self._load_completed_epoch_receipt(state.receipt.batch_id)
             if parsed is None or parsed != state.receipt:
                 raise ValueError("decision_validity_epoch_receipt_index_unresolved")
-            raw = self._store.get_bytes(state.receipt_artifact_ref.artifact_id)
+            raw = self._store.get_bytes(state.receipt_artifact_ref)
             evidence.append(
                 PersistedEpochValidityBatchEvidence(
                     batch_receipt_ref=state.receipt_artifact_ref,
@@ -1150,9 +1146,9 @@ class DecisionValidityService:
         if expected_provenance is None or receipt.verifier_provenance_ref != expected_provenance:
             raise ValueError("verifier_provenance_untrusted")
         try:
-            self._store.get_bytes(expected_provenance.artifact_id)
-            provenance_report = self._store.verify(expected_provenance.artifact_id)
-            provenance_manifest = self._store.get_manifest(expected_provenance.artifact_id)
+            self._store.get_bytes(expected_provenance)
+            provenance_report = self._store.verify(expected_provenance)
+            provenance_manifest = self._store.get_manifest(expected_provenance)
         except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
             raise ValueError("verifier_provenance_untrusted") from exc
         if (
@@ -1168,8 +1164,8 @@ class DecisionValidityService:
         if receipt.authority_purpose != "decision_validity_epoch_transition":
             raise ValueError("authority_purpose_mismatch")
         try:
-            raw = self._store.get_bytes(transition_artifact_ref.artifact_id)
-            report = self._store.verify(transition_artifact_ref.artifact_id)
+            raw = self._store.get_bytes(transition_artifact_ref)
+            report = self._store.verify(transition_artifact_ref)
         except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
             raise ValueError("ref_unresolved") from exc
         observed_hash = "sha256:" + hashlib.sha256(raw).hexdigest()
@@ -1272,10 +1268,10 @@ class DecisionValidityService:
         target_ids: set[str] = set()
         try:
             for ref in target_refs:
-                raw = self._store.get_bytes(ref.artifact_id)
-                manifest = self._store.get_manifest(ref.artifact_id)
+                raw = self._store.get_bytes(ref)
+                manifest = self._store.get_manifest(ref)
                 if (
-                    not self._store.verify(ref.artifact_id).ok
+                    not self._store.verify(ref).ok
                     or manifest.artifact_id != ref.artifact_id
                     or manifest.kind != ref.kind
                     or manifest.media_type != ref.media_type
@@ -1422,9 +1418,9 @@ class DecisionValidityService:
                 or snapshot_ref.media_type != _EPOCH_IMPACT_SNAPSHOT_MEDIA_TYPE
             ):
                 raise ValueError("snapshot ref profile mismatch")
-            report = self._store.verify(snapshot_ref.artifact_id)
-            manifest = self._store.get_manifest(snapshot_ref.artifact_id)
-            snapshot_bytes = self._store.get_bytes(snapshot_ref.artifact_id)
+            report = self._store.verify(snapshot_ref)
+            manifest = self._store.get_manifest(snapshot_ref)
+            snapshot_bytes = self._store.get_bytes(snapshot_ref)
             if (
                 not report.ok
                 or str(manifest.artifact_id) != str(snapshot_ref.artifact_id)

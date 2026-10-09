@@ -785,7 +785,7 @@ def load_dp_robustness_certificate(
 ) -> DPRobustnessCertificate:
     """Load a persisted DP robustness certificate."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return DPRobustnessCertificate.model_validate(payload)
 
 

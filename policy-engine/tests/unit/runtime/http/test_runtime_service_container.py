@@ -69,6 +69,26 @@ def test_runtime_container_installs_one_acquisition_action_service(tmp_path) -> 
         assert service.human_decision_service is container.human_decision_service
 
 
+def test_runtime_container_wires_durable_llm_producer_settlement_store(tmp_path) -> None:
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+    runs_root = tmp_path / "configured-runs"
+    app = create_runtime_api_app(
+        cas_root=tmp_path / "cas",
+        core_runs_root=runs_root,
+        enable_security_middlewares=False,
+    )
+
+    with TestClient(app) as client:
+        container = cast("Any", client.app).state.runtime_container
+        store = container.llm_producer_settlement_store
+
+        assert type(store) is BudgetMiddleware
+        assert store is container.control_service.llm_producer_settlement_store
+        assert store.settlement_owner_identity
+        assert (runs_root / ".runtime" / "llm-cost-ledger.json").is_file()
+
+
 def test_runtime_container_surfaces_typed_unavailable_custody_without_failing_health(
     tmp_path,
     monkeypatch,

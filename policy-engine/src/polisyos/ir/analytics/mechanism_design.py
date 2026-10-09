@@ -10,8 +10,8 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.governance.game_design import MechanismConstraintType
+from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     IncentiveCompatibilityCertificateRef,
     MechanismFamilySpecRef,
@@ -725,7 +725,7 @@ def load_mechanism_family_spec(
 ) -> MechanismFamilySpec:
     """Load a persisted mechanism-family specification."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return MechanismFamilySpec.model_validate(payload)
 
 
@@ -755,7 +755,7 @@ def load_incentive_compatibility_certificate(
 ) -> IncentiveCompatibilityCertificate:
     """Load a persisted IC certificate."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return IncentiveCompatibilityCertificate.model_validate(payload)
 
 
@@ -785,7 +785,7 @@ def load_mechanism_welfare_loss_bound(
 ) -> MechanismWelfareLossBound:
     """Load a persisted welfare-loss bound."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return MechanismWelfareLossBound.model_validate(payload)
 
 

@@ -16,9 +16,7 @@ from polisyos.scientist.governance.human_review.models import (
 )
 
 HUMAN_REVIEW_DECISION_KIND = "scientist.human_review_decision"
-HUMAN_REVIEW_DECISION_SCHEMA_NAME = (
-    "polisyos.scientist.governance.human_review.HumanReviewDecision"
-)
+HUMAN_REVIEW_DECISION_SCHEMA_NAME = "polisyos.scientist.governance.human_review.HumanReviewDecision"
 HUMAN_REVIEW_DECISION_SCHEMA_VERSION = "1.0"
 
 __all__ = [
@@ -82,9 +80,7 @@ def persist_review_decision(
 def load_review_decision(store: FileSystemCAS, ref: ArtifactRef) -> HumanReviewDecision:
     """Load a persisted human-review decision from CAS."""
 
-    return HumanReviewDecision.model_validate(
-        from_canonical_bytes(store.get_bytes(ref.artifact_id))
-    )
+    return HumanReviewDecision.model_validate(from_canonical_bytes(store.get_bytes(ref)))
 
 
 def human_review_status(
@@ -134,9 +130,7 @@ def review_decision_summary(
     return {
         "status": status.value,
         "decision_count": len(decision_list),
-        "required_reviewer_count": (
-            packet.required_reviewer_count if packet is not None else 1
-        ),
+        "required_reviewer_count": (packet.required_reviewer_count if packet is not None else 1),
         "reviewer_ids": sorted({decision.reviewer_id for decision in decision_list}),
         "actions": [decision.action.value for decision in decision_list],
         "latest_decision_at": (

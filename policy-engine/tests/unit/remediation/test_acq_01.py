@@ -650,6 +650,7 @@ def _real_acq01_route(
             DataResolveRequest(
                 data_needs=[DataNeed(metric=owner.plan.metric_id)],
                 mode="fastlane",
+                catalog_run_profile="prod_full",
             )
         )
         execution = owner.service.execute_fetch_plans(
@@ -893,9 +894,7 @@ def _real_acq01_before_context(
 
     _, world_build, _, _ = _build_record(tmp_path / "before")
     registry = _substrate_registry()
-    selected_entry_hashes = tuple(
-        entry.entry_content_hash for entry in registry.entries
-    )
+    selected_entry_hashes = tuple(entry.entry_content_hash for entry in registry.entries)
     return build_cycle_substrate_context(
         design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
         domain=problem.domain,
@@ -1000,9 +999,7 @@ def _build_acq01_real_route_controller(
     gateway.catalog = route.catalog
     gateway.providers = route.providers
     selected_store = (
-        route.store
-        if artifact_store is _ACQ01_ROUTE_STORE_UNSPECIFIED
-        else artifact_store
+        route.store if artifact_store is _ACQ01_ROUTE_STORE_UNSPECIFIED else artifact_store
     )
     controller = GenerationCycleController(
         generation_port=_RouteGenerationPort(),
@@ -1190,13 +1187,11 @@ async def test_n7_acq01_real_measurement_root_delta_builds_fresh_wmr(
         assert run.synthetic is True
         assert receipt["status"] == "completed"
         assert route.world_build.data_snapshot_ref == route.data_snapshot_ref
-        assert (
-            route.world_build.record.simulation_model_ref.data_snapshot_ref
-            == str(route.data_snapshot_ref.artifact_id)
+        assert route.world_build.record.simulation_model_ref.data_snapshot_ref == str(
+            route.data_snapshot_ref.artifact_id
         )
         assert (
-            simulation.world_refs[0]
-            == case.before_context.world_model_record.world_model_record_id
+            simulation.world_refs[0] == case.before_context.world_model_record.world_model_record_id
         )
         assert simulation.world_refs[-1] in {
             route.world_build.record.world_model_record_id,
@@ -1374,6 +1369,7 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
         case.problem,
         candidate_content_hash=case.candidate.atom.content_hash,
     ) as route:
+
         class _RouteGenerationPort:
             async def __call__(self, current: DesignProblem, *, cycle_index: int) -> Any:
                 del current, cycle_index
@@ -1440,7 +1436,9 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
             after_request.world_model_record,
             route.world_build.record,
         )
-        assert after_request.world_model_record_ref == route.world_build.record.world_model_record_id
+        assert (
+            after_request.world_model_record_ref == route.world_build.record.world_model_record_id
+        )
         assert isinstance(
             controller._value_port,
             generation_cycle_module._DefaultSimulationBoundFoundryValuePort,
@@ -1454,16 +1452,10 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
         cycle = run.cycles[0]
         assert cycle.simulation.status == "joint_simulated"
         assert cycle.simulation.simulation_result_ref is not None
-        assert cycle.simulation.authority_blockers == (
-            "simulation_only_k_sim_not_world_evidence",
-        )
+        assert cycle.simulation.authority_blockers == ("simulation_only_k_sim_not_world_evidence",)
         assert cycle.value_port.status == "value_conditional"
-        assert cycle.value_port.value_ref == str(
-            cycle.simulation.simulation_result_ref.artifact_id
-        )
-        assert cycle.value_port.authority_blockers == (
-            "simulation_only_k_sim_not_world_evidence",
-        )
+        assert cycle.value_port.value_ref == str(cycle.simulation.simulation_result_ref.artifact_id)
+        assert cycle.value_port.authority_blockers == ("simulation_only_k_sim_not_world_evidence",)
         assert (
             cycle.value_port.world_model_record_content_hash
             == route.world_build.record.content_hash
@@ -1878,9 +1870,7 @@ async def test_n7_reentry_rejects_semantically_foreign_owner_binding(
         else "sha256:" + "e" * 64
     )
     binding_hash = (
-        candidate.atom.content_hash
-        if binding_mode == "foreign_target_slots"
-        else foreign_hash
+        candidate.atom.content_hash if binding_mode == "foreign_target_slots" else foreign_hash
     )
     binding_slots = (
         ("fixture_panel", "forged_panel")
@@ -2021,9 +2011,7 @@ async def test_n7_reentry_does_not_run_n5_from_registry_only_world_ref(
 
     run = await controller.run(
         problem,
-        budget_state=BudgetState(
-            limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
-        ),
+        budget_state=BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}),
         min_cycles=1,
         max_cycles=1,
     )

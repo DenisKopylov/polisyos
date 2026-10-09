@@ -179,11 +179,16 @@ describe("agents domain", () => {
       attempts: [
         {
           attempt: 1,
+          costOriginCounts: {},
+          costUsd: null,
           durationMs: null,
+          estimatedCostUsd: null,
           finishedAt: null,
           notes: [],
           startedAt: null,
           status: "unknown",
+          reportedCostUsd: null,
+          settlementStatusCounts: {},
           steps: [
             {
               action: "normalize",
@@ -193,6 +198,8 @@ describe("agents domain", () => {
               attempt: 1,
               completionTokens: null,
               costUsd: null,
+              costUnknown: false,
+              costEvents: [],
               details: {},
               latencyMs: null,
               model: null,
@@ -211,11 +218,16 @@ describe("agents domain", () => {
         },
         {
           attempt: 2,
+          costOriginCounts: {},
+          costUsd: null,
           durationMs: 3500,
+          estimatedCostUsd: null,
           finishedAt: "2026-03-09T10:00:40Z",
           notes: ["attempt-note", "2"],
           startedAt: "2026-03-09T10:00:05Z",
           status: "running",
+          reportedCostUsd: null,
+          settlementStatusCounts: {},
           steps: [
             expect.objectContaining({
               action: "draft",
@@ -266,6 +278,9 @@ describe("agents domain", () => {
         verdict: "REVIEW",
       },
       hasPromptData: true,
+      costOriginCounts: {},
+      costUsd: null,
+      estimatedCostUsd: null,
       iterationLifecycle: {
         iteration: 1,
         lastVerdict: "approve",
@@ -350,6 +365,8 @@ describe("agents domain", () => {
         ],
       },
       runId: "run-1",
+      reportedCostUsd: null,
+      settlementStatusCounts: {},
       source: "natural_language",
       totalAttempts: 3,
     });
@@ -358,6 +375,9 @@ describe("agents domain", () => {
   it("returns safe defaults for empty or malformed payloads", () => {
     expect(normalizeAgentPipeline(null)).toEqual({
       attempts: [],
+      costOriginCounts: {},
+      costUsd: null,
+      estimatedCostUsd: null,
       evaluator: null,
       hasPromptData: false,
       iterationLifecycle: null,
@@ -366,10 +386,78 @@ describe("agents domain", () => {
       performanceSummary: null,
       preflight: null,
       reproducibility: null,
+      reportedCostUsd: null,
       retrieval: null,
       runId: "unknown",
+      settlementStatusCounts: {},
       source: null,
       totalAttempts: 0,
     });
+  });
+
+  it("keeps unknown producer costs null and preserves reuse lineage", () => {
+    const model = normalizeAgentPipeline({
+      attempts: [
+        {
+          attempt: 1,
+          steps: [
+            {
+              action: "draft",
+              agent: "drafter",
+              cost_events: [
+                {
+                  amount: "0",
+                  cost_origin: "reported",
+                  cost_usd: 0,
+                  durability: "ledger",
+                  event_id: "provider:zero",
+                  payload_digest: "sha256:reported",
+                  provider: "gateway",
+                  receipts: ["provider:zero"],
+                  settlement_status: "committed",
+                },
+                {
+                  amount: null,
+                  cost_origin: "unknown",
+                  cost_usd: null,
+                  durability: "none",
+                  event_id: "provider:unknown",
+                  payload_digest: "sha256:unknown",
+                  provider: "gateway",
+                  receipts: [],
+                  settlement_status: "unknown",
+                },
+                {
+                  amount: "0",
+                  cost_origin: "reuse",
+                  cost_usd: 0,
+                  durability: "ledger",
+                  event_id: "cache:reuse",
+                  origin_event_id: "provider:zero",
+                  payload_digest: "sha256:reuse",
+                  provider: "gateway",
+                  receipts: ["cache:reuse"],
+                  settlement_status: "committed",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    const step = model.attempts[0]?.steps[0];
+    expect(model.costUsd).toBeNull();
+    expect(model.reportedCostUsd).toBe(0);
+    expect(model.costOriginCounts).toEqual({
+      reported: 1,
+      unknown: 1,
+      reuse: 1,
+    });
+    expect(step?.costUsd).toBeNull();
+    expect(step?.costUnknown).toBe(true);
+    expect(step?.costEvents[0]?.costUsd).toBe(0);
+    expect(step?.costEvents[1]?.costUsd).toBeNull();
+    expect(step?.costEvents[2]?.originEventId).toBe("provider:zero");
   });
 });

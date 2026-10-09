@@ -5,6 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.causal import (
@@ -274,8 +275,8 @@ def test_staggered_missing_baseline_refusal_survives_persisted_consumer_readback
     report = _run_staggered(data, n_bootstrap=40)
     store = FileSystemCAS(tmp_path)
 
-    report_ref = persist_causal_effect_report(store, report)
-    loaded = load_causal_effect_report(store, report_ref)
+    report_ref = persist_causal_effect_report(_ensure_ir_artifact_store(store), report)
+    loaded = load_causal_effect_report(_ensure_ir_artifact_store(store), report_ref)
     envelope = loaded.to_uncertainty_envelope()
 
     assert loaded.status is EstimationStatus.ASSUMPTION_FAILED

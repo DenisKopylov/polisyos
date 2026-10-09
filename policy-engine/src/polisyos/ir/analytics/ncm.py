@@ -419,8 +419,7 @@ def load_ncm_spec_selected_view(
         raise ValueError("ncm_selected_view_manifest_mismatch")
     lineage = manifest_inputs[0]
     if (
-        str(getattr(lineage, "artifact_id", ""))
-        != str(expected_declaration_ref.artifact_id)
+        str(getattr(lineage, "artifact_id", "")) != str(expected_declaration_ref.artifact_id)
         or getattr(lineage, "role", None) != "candidate_model_declaration"
         or getattr(lineage, "manifest_profile_sha256", None)
         != expected_declaration_ref.manifest_profile_sha256
@@ -464,7 +463,7 @@ def load_ncm_spec(
     ref: NCMSpecRef,
 ) -> NCMSpec:
     """Load an ``NCMSpec`` from the artifact store."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return NCMSpec.model_validate(payload)
 
 

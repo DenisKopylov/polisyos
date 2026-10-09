@@ -331,7 +331,7 @@ def measure_replayable_audit_bundle(
     total_size_bytes = 0
     for ref in refs:
         try:
-            manifest = store.get_manifest(ref.artifact_id)
+            manifest = store.get_manifest(ref)
             total_size_bytes += int(getattr(manifest, "size_bytes", 0) or 0)
         except FileNotFoundError:
             missing.append(
@@ -512,7 +512,7 @@ def _load_artifact_payload_for_diff(
     store: ArtifactStore,
     ref: ArtifactRef,
 ) -> dict[str, Any]:
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     if isinstance(payload, dict):
         return payload
     return {"value": payload}
@@ -859,9 +859,7 @@ def _extract_simulation_result_ref(payload: dict[str, Any]) -> ArtifactID | None
 def _load_metrics_values(store: ArtifactStore, sim_ref: ArtifactID) -> dict[str, float | int | str]:
     sim_payload = from_canonical_bytes(store.get_bytes(sim_ref))
     simulation_result = SimulationResult.model_validate(sim_payload)
-    metrics_payload = from_canonical_bytes(
-        store.get_bytes(simulation_result.metrics_ref.artifact_id)
-    )
+    metrics_payload = from_canonical_bytes(store.get_bytes(simulation_result.metrics_ref))
     metrics = Metrics.model_validate(metrics_payload)
     return dict(metrics.values)
 

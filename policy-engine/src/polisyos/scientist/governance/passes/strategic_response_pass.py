@@ -6,6 +6,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.core.governance.profiles import ProfileLevel
@@ -333,7 +334,7 @@ def _resolve_strategic_summary(ctx: PassContext) -> dict[str, Any] | None:
         return None
     try:
         ref = StrategicResponseBundleRef.model_validate(raw_ref)
-        bundle = load_strategic_response_bundle(store, ref)
+        bundle = load_strategic_response_bundle(_ensure_ir_artifact_store(store), ref)
     except (AttributeError, TypeError, ValidationError, ValueError) as exc:
         emit_degraded_path(
             component="governance.strategic_response_pass",
@@ -365,7 +366,9 @@ def _bundle_summary(store: Any, bundle: StrategicResponseBundle) -> dict[str, An
             summary["closure_summary"] = dict(closure_summary)
     if bundle.performative_shift_ref is not None:
         try:
-            shift_summary = load_performative_shift_summary(store, bundle.performative_shift_ref)
+            shift_summary = load_performative_shift_summary(
+                _ensure_ir_artifact_store(store), bundle.performative_shift_ref
+            )
         except (AttributeError, TypeError, ValidationError, ValueError) as exc:
             emit_degraded_path(
                 component="governance.strategic_response_pass",
@@ -380,7 +383,9 @@ def _bundle_summary(store: Any, bundle: StrategicResponseBundle) -> dict[str, An
             summary["performative_loop"] = _performative_loop_payload(shift_summary)
     if bundle.mfg_equilibrium_ref is not None:
         try:
-            mfg_summary = load_mean_field_equilibrium_certificate(store, bundle.mfg_equilibrium_ref)
+            mfg_summary = load_mean_field_equilibrium_certificate(
+                _ensure_ir_artifact_store(store), bundle.mfg_equilibrium_ref
+            )
         except (AttributeError, TypeError, ValidationError, ValueError) as exc:
             emit_degraded_path(
                 component="governance.strategic_response_pass",

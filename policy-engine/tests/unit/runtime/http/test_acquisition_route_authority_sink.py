@@ -237,6 +237,69 @@ def test_action_generation_preserves_quarantine_and_reuses_exact_job(generation_
     assert store.get_acquisition_action_head(**identity, action_generation=1) == first
 
 
+def test_source_history_heads_are_exactly_scoped_across_route_ids(generation_owner):
+    sink, store, _cas = generation_owner
+
+    def persist_current(identity: dict[str, str], *, job_id: str, action_generation: int = 1):
+        requested = _receipt(
+            receipt_phase="requested",
+            coarse_phase="requested",
+            recovery_state="none",
+            predecessor_receipt_ref=None,
+        ).model_copy(
+            update={
+                **identity,
+                "receipt_id": f"{job_id}.requested",
+                "job_id": job_id,
+                "action_generation": action_generation,
+            }
+        )
+        head = sink.persist_phase(requested)
+        executing = requested.model_copy(
+            update={
+                "receipt_id": f"{job_id}.executing",
+                "receipt_phase": "executing",
+                "coarse_phase": "executing",
+                "predecessor_receipt_ref": head.receipt_ref,
+            }
+        )
+        return sink.persist_phase(executing)
+
+    first_identity = _generation_identity()
+    second_route_identity = {
+        **first_identity,
+        "route_id": "sha256:" + "b" * 64,
+    }
+    foreign_job_identity = {**first_identity, "source_job_id": "job-other"}
+    foreign_run_identity = {**first_identity, "run_id": "run-other"}
+    expected = (
+        persist_current(first_identity, job_id="route-a-job"),
+        persist_current(second_route_identity, job_id="route-b-job", action_generation=2),
+    )
+    persist_current(foreign_job_identity, job_id="foreign-job", action_generation=3)
+    persist_current(foreign_run_identity, job_id="foreign-run", action_generation=4)
+
+    observed = store.list_acquisition_action_heads_for_source(
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        run_id="run-a",
+        source_job_id="job-source",
+    )
+
+    assert observed == expected
+    assert tuple(row.route_id for row in observed) == (
+        "sha256:" + "a" * 64,
+        "sha256:" + "b" * 64,
+    )
+    with pytest.raises(ValueError, match="acquisition_action_source_scope_invalid"):
+        store.list_acquisition_action_heads_for_source(
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+            run_id=" ",
+            source_job_id="job-source",
+        )
+
+
 @pytest.mark.parametrize("terminal_outcome", [None, "reentry_completed"])
 def test_new_action_generation_refuses_pending_or_positive_owner(
     generation_owner, terminal_outcome

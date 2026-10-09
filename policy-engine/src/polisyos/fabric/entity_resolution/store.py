@@ -7,6 +7,7 @@ import uuid
 from pathlib import Path
 from typing import Literal
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
@@ -57,7 +58,7 @@ class EntityMatchStore:
         )
 
     def load_candidates(self, artifact_id) -> EntityMatchBatch:
-        payload = get_json_artifact(self._store, artifact_id)
+        payload = get_json_artifact(_ensure_ir_artifact_store(self._store), artifact_id)
         return EntityMatchBatch.model_validate(payload)
 
     def persist_override(
@@ -134,7 +135,7 @@ class EntityMatchStore:
         return ref
 
     def load_override(self, artifact_id) -> EntityOverrideEnvelope:
-        payload = get_json_artifact(self._store, artifact_id)
+        payload = get_json_artifact(_ensure_ir_artifact_store(self._store), artifact_id)
         return EntityOverrideEnvelope.model_validate(payload)
 
     def list_override_audit(self) -> list[tuple[str, EntityOverrideAuditRecord]]:
@@ -142,10 +143,13 @@ class EntityMatchStore:
         if not index_path.exists():
             return []
         rows: list[tuple[str, EntityOverrideAuditRecord]] = []
-        with file_lock(_override_lock_path(self._store)), index_path.open(
-            "r",
-            encoding="utf-8",
-        ) as handle:
+        with (
+            file_lock(_override_lock_path(self._store)),
+            index_path.open(
+                "r",
+                encoding="utf-8",
+            ) as handle,
+        ):
             for line in handle:
                 raw = line.strip()
                 if not raw:

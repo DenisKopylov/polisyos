@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.registry import build_default_registry_bundle
@@ -287,14 +288,11 @@ def test_attribution_observational_comparator_requires_natural_root_evidence() -
         )
 
     observational_output = _run_contrast({"kind": "observational"})
-    observational_result = CausalQueryResult.model_validate(
-        observational_output["query_result"]
-    )
+    observational_result = CausalQueryResult.model_validate(observational_output["query_result"])
     assert observational_result.metadata["declared_root_hypothesis"] == ["X"]
     assert observational_output["envelope"].gate_eligible is False
     assert any(
-        "declared root hypothesis" in warning
-        for warning in observational_output["warnings"]
+        "declared root hypothesis" in warning for warning in observational_output["warnings"]
     )
 
     explicit_output = _run_contrast(
@@ -448,11 +446,11 @@ def test_explicit_do_zero_is_not_observational_attribution_baseline() -> None:
             "treatment_variable": "X",
             "treatment_value": 2.0,
             "outcome_variable": "Y",
-                "contrast": {
-                    "target": {
-                        "type": "atomic",
-                        "value": 2.0,
-                    },
+            "contrast": {
+                "target": {
+                    "type": "atomic",
+                    "value": 2.0,
+                },
                 "comparator": {
                     "kind": "interventional",
                     "intervention": {"type": "atomic", "value": 0.0},
@@ -500,9 +498,9 @@ def test_explicit_identical_target_and_comparator_have_zero_contrast() -> None:
         "shift": None,
         "legal_constraint_id": None,
     }
-    assert result.metadata["contrast_comparator"]["intervention"] == result.metadata[
-        "contrast_target"
-    ]
+    assert (
+        result.metadata["contrast_comparator"]["intervention"] == result.metadata["contrast_target"]
+    )
 
 
 def test_stochastic_policy_comparison_executes_and_preserves_distinct_arms() -> None:
@@ -538,10 +536,7 @@ def test_stochastic_policy_comparison_executes_and_preserves_distinct_arms() -> 
     assert result.metadata["contrast_target"]["type"] == "stochastic"
     assert result.metadata["contrast_target"]["distribution"] == "uniform(1,2)"
     assert result.metadata["contrast_comparator"]["intervention"]["type"] == "stochastic"
-    assert (
-        result.metadata["contrast_comparator"]["intervention"]["distribution"]
-        == "uniform(3,4)"
-    )
+    assert result.metadata["contrast_comparator"]["intervention"]["distribution"] == "uniform(3,4)"
 
 
 def test_legacy_v1_result_loads_and_writes_matching_v1_1_cas_manifest(tmp_path: Path) -> None:
@@ -573,12 +568,12 @@ def test_legacy_v1_result_loads_and_writes_matching_v1_1_cas_manifest(tmp_path: 
     )
     typed_legacy_ref = CausalQueryResultRef.model_validate(legacy_ref.model_dump(mode="json"))
 
-    loaded = load_causal_query_result(store, typed_legacy_ref)
+    loaded = load_causal_query_result(_ensure_ir_artifact_store(store), typed_legacy_ref)
     assert loaded.schema_version == "1.2"
     assert loaded.metadata["source_schema_version"] == "1.0"
     assert loaded.metadata["legacy_fixture"] is True
 
-    current_ref = persist_causal_query_result(store, loaded)
+    current_ref = persist_causal_query_result(_ensure_ir_artifact_store(store), loaded)
     manifest = store.get_manifest(current_ref.artifact_id)
     assert manifest.artifact_schema is not None
     assert manifest.artifact_schema.version == "1.2"
@@ -618,7 +613,7 @@ def test_legacy_result_rejects_self_attested_provenance_conflict(tmp_path: Path)
     typed_legacy_ref = CausalQueryResultRef.model_validate(legacy_ref.model_dump(mode="json"))
 
     with pytest.raises(ValueError, match=r"provenance|manifest"):
-        load_causal_query_result(store, typed_legacy_ref)
+        load_causal_query_result(_ensure_ir_artifact_store(store), typed_legacy_ref)
 
 
 def test_raw_legacy_result_rejects_self_attested_provenance_without_cas() -> None:
@@ -691,7 +686,7 @@ def test_legacy_provenance_is_manifest_bound_across_result_versions(tmp_path: Pa
     )
     typed_v11_ref = CausalQueryResultRef.model_validate(v11_ref.model_dump(mode="json"))
     with pytest.raises(ValueError, match=r"provenance|manifest"):
-        load_causal_query_result(store, typed_v11_ref)
+        load_causal_query_result(_ensure_ir_artifact_store(store), typed_v11_ref)
 
 
 def test_causal_result_loader_requires_manifest_schema(tmp_path: Path) -> None:
@@ -718,7 +713,7 @@ def test_causal_result_loader_requires_manifest_schema(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError, match=r"manifest|schema"):
         load_causal_query_result(
-            store,
+            _ensure_ir_artifact_store(store),
             CausalQueryResultRef.model_validate(ref.model_dump(mode="json")),
         )
 
@@ -729,7 +724,9 @@ def test_causal_query_producer_reconciles_envelope_with_result(
 ) -> None:
     """Persisted envelope arms/status are derived from the typed result, not output text."""
     ctx = _build_execution_context(tmp_path, run_id="R_scm02_envelope_reconcile")
-    scm_ref = persist_structural_causal_model_spec(ctx.store, _linear_chain())
+    scm_ref = persist_structural_causal_model_spec(
+        _ensure_ir_artifact_store(ctx.store), _linear_chain()
+    )
 
     def _fake_run_job(*args: object, **kwargs: object) -> JobResult:
         del args
@@ -755,10 +752,12 @@ def test_causal_query_producer_reconciles_envelope_with_result(
         }
         method_ref = ctx.store.put_json(
             payload,
-            PutOptions(kind="scientist.method_result.causal.structural",
-                       media_type="application/json",
-                       schema=SchemaInfo(name="polisyos.scientist.MethodResult", version="0.1.0"),
-                       inputs=[InputRef(artifact_id=scm_ref.artifact_id, role="input:scm_spec")]),
+            PutOptions(
+                kind="scientist.method_result.causal.structural",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.scientist.MethodResult", version="0.1.0"),
+                inputs=[InputRef(artifact_id=scm_ref.artifact_id, role="input:scm_spec")],
+            ),
             canon_spec=CanonSpec(forbid_floats=False),
         )
         return JobResult(
@@ -799,7 +798,7 @@ def test_causal_query_producer_reconciles_envelope_with_result(
 
     assert outcome.status == "ok"
     envelope_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_QUERY_ENVELOPE_REF]
-    persisted = load_uncertainty_envelope(ctx.store, envelope_ref)
+    persisted = load_uncertainty_envelope(_ensure_ir_artifact_store(ctx.store), envelope_ref)
     assert persisted.gate_eligible is False
     assert persisted.metadata["contrast_comparator"]["kind"] == "observational"
 
@@ -878,7 +877,9 @@ def test_causal_query_producer_persists_typed_contrast_and_v1_1_manifest(
 ) -> None:
     """The real query node carries both arms through producer persistence."""
     ctx = _build_execution_context(tmp_path, run_id="R_scm02_producer")
-    scm_ref = persist_structural_causal_model_spec(ctx.store, _linear_chain())
+    scm_ref = persist_structural_causal_model_spec(
+        _ensure_ir_artifact_store(ctx.store), _linear_chain()
+    )
 
     def _fake_run_job(*args: object, **kwargs: object) -> JobResult:
         del args
@@ -898,10 +899,12 @@ def test_causal_query_producer_persists_typed_contrast_and_v1_1_manifest(
         }
         method_ref = ctx.store.put_json(
             payload,
-            PutOptions(kind="scientist.method_result.causal.structural",
-                       media_type="application/json",
-                       schema=SchemaInfo(name="polisyos.scientist.MethodResult", version="0.1.0"),
-                       inputs=[InputRef(artifact_id=scm_ref.artifact_id, role="input:scm_spec")]),
+            PutOptions(
+                kind="scientist.method_result.causal.structural",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.scientist.MethodResult", version="0.1.0"),
+                inputs=[InputRef(artifact_id=scm_ref.artifact_id, role="input:scm_spec")],
+            ),
             canon_spec=CanonSpec(forbid_floats=False),
         )
         return JobResult(
@@ -945,7 +948,10 @@ def test_causal_query_producer_persists_typed_contrast_and_v1_1_manifest(
     manifest = ctx.store.get_manifest(result_ref.artifact_id)
     assert manifest.artifact_schema is not None
     assert manifest.artifact_schema.version == "1.2"
-    loaded = load_causal_query_result(ctx.store, CausalQueryResultRef.model_validate(result_ref.model_dump(mode="json")))
+    loaded = load_causal_query_result(
+        _ensure_ir_artifact_store(ctx.store),
+        CausalQueryResultRef.model_validate(result_ref.model_dump(mode="json")),
+    )
     assert loaded.query.contrast is not None
     assert loaded.query.contrast.comparator.kind == "observational"
     assert loaded.metadata["contrast_target"]["value"] == pytest.approx(2.0)
@@ -956,8 +962,12 @@ def test_causal_ensemble_rejects_mixed_canonical_contrast_before_persisting(
 ) -> None:
     """A mixed-member target/comparator set fails before ensemble aggregation."""
     ctx = _build_execution_context(tmp_path, run_id="R_scm02_mixed_ensemble")
-    scm_ref = persist_structural_causal_model_spec(ctx.store, _linear_chain())
-    graph_ref = persist_causal_graph_model(ctx.store, _linear_chain().graph)
+    scm_ref = persist_structural_causal_model_spec(
+        _ensure_ir_artifact_store(ctx.store), _linear_chain()
+    )
+    graph_ref = persist_causal_graph_model(
+        _ensure_ir_artifact_store(ctx.store), _linear_chain().graph
+    )
     target = InterventionSpec(type=InterventionType.ATOMIC, value=2.0)
     observational = CausalQuery(
         query_type=QueryType.ATTRIBUTION,
@@ -982,7 +992,7 @@ def test_causal_ensemble_rejects_mixed_canonical_contrast_before_persisting(
     )
     result_refs = [
         persist_causal_query_result(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             CausalQueryResult(
                 query=query,
                 result_mean=6.0,

@@ -14,6 +14,7 @@ import pytest
 from statsmodels.api import OLS
 from statsmodels.stats.sandwich_covariance import cov_cluster
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.catalog.causal.did import (
@@ -137,8 +138,10 @@ def test_actual_registry_retirement_old_slots_dispatch_and_fresh_cas(tmp_path):
         assert output["uncertainty_envelope"] is output["envelope"]
         assert output["report"].point_estimate == pytest.approx(3.0)
     assert old.output["report"].method_params == new.output["report"].method_params
-    ref = persist_causal_effect_report(FileSystemCAS(tmp_path), new.output["report"])
-    reader = load_causal_effect_report(FileSystemCAS(tmp_path), ref)
+    ref = persist_causal_effect_report(
+        _ensure_ir_artifact_store(FileSystemCAS(tmp_path)), new.output["report"]
+    )
+    reader = load_causal_effect_report(_ensure_ir_artifact_store(FileSystemCAS(tmp_path)), ref)
     assert reader.point_estimate == pytest.approx(3.0)
     assert reader.confidence_level == 0.8
     assert reader.method_params["covariance_procedure"] == "hc1"

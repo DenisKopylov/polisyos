@@ -15,6 +15,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.backtest import BacktestReportRef
@@ -239,7 +240,9 @@ class BacktestMatrixRunner:
             prediction_mode_effective=_collapse_modes(effective_modes),
             degraded_reasons=degraded_reasons,
         )
-        report_ref = persist_backtest_report(self._store, report, inputs=manifest_inputs)
+        report_ref = persist_backtest_report(
+            _ensure_ir_artifact_store(self._store), report, inputs=manifest_inputs
+        )
         report.cas_artifact_id = str(report_ref.artifact_id)
         composite_score = _mean_defined(result.score for result in kind_results)
         scored_results = [result for result in kind_results if result.score is not None]

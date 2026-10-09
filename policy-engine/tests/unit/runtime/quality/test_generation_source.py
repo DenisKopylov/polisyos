@@ -160,13 +160,22 @@ async def test_candidate_proposal_repository_replays_exact_tenant_binding(tmp_pa
     from polisyos.core import canon
     from polisyos.runtime.quality.generation_source import (
         _SOURCE_CANON,
+        N4CandidateProposalRecordV3,
         N4CandidateProposalSimulationDisposition,
-        N4CandidateProposalSimulationRecord,
-        _n4_candidate_proposal_v2_write_options,
+        _n4_candidate_proposal_v3_write_options,
     )
 
-    v1_body = repository.store.get_bytes(proposal_ref)
-    assert v1_body == canon.to_canonical_bytes(loaded, _SOURCE_CANON)
+    v3_body = repository.store.get_bytes(proposal_ref)
+    assert type(loaded) is N4CandidateProposalRecordV3
+    assert v3_body == canon.to_canonical_bytes(loaded, _SOURCE_CANON)
+    proposal_manifest = repository.store.get_manifest(proposal_ref.artifact_id)
+    assert proposal_manifest.tenant_context is not None
+    assert proposal_manifest.tenant_context.tenant_id == "tenant-a"
+    assert proposal_manifest.tenant_context.cell_id == "cell-a"
+    assert proposal_manifest.same_input_closure is not None
+    assert proposal_manifest.same_input_closure.status == "candidate_only"
+    assert proposal_manifest.same_input_closure.run_id == "run-n4-candidate"
+    assert proposal_manifest.same_input_closure.job_id == "job-n4-candidate"
     simulation_ref = repository.persist_candidate_proposal(
         job_id="job-n4-candidate",
         run_id="run-n4-candidate",
@@ -185,11 +194,11 @@ async def test_candidate_proposal_repository_replays_exact_tenant_binding(tmp_pa
         cell_id="cell-a",
         raw_request=problem.nl_provenance.raw_request,
     )
-    assert isinstance(simulation_record, N4CandidateProposalSimulationRecord)
+    assert type(simulation_record) is N4CandidateProposalRecordV3
     assert repository.store.get_bytes(simulation_ref) == canon.to_canonical_bytes(
         simulation_record, _SOURCE_CANON
     )
-    assert simulation_record.schema_version.endswith(".v2")
+    assert simulation_record.schema_version.endswith(".v3")
     assert simulation_record.simulation_disposition.execution_intent_band == (
         "simulate_only_attempt"
     )
@@ -203,11 +212,9 @@ async def test_candidate_proposal_repository_replays_exact_tenant_binding(tmp_pa
     altered["job_id"] = "job-other"
     forged_ref = repository.store.put_bytes(
         canon.to_canonical_bytes(altered, _SOURCE_CANON),
-        _n4_candidate_proposal_v2_write_options(),
+        _n4_candidate_proposal_v3_write_options(simulation_record),
     )
-    with pytest.raises(
-        ValueError, match="n4_candidate_proposal_content_hash_mismatch"
-    ):
+    with pytest.raises(ValueError, match="n4_candidate_proposal_content_hash_mismatch"):
         repository.load_candidate_proposal_for_served_job(
             forged_ref,
             job_id="job-n4-candidate",
@@ -226,7 +233,6 @@ async def test_candidate_proposal_repository_replays_exact_tenant_binding(tmp_pa
             cell_id="cell-a",
             raw_request=problem.nl_provenance.raw_request,
         )
-
 
 
 @pytest.mark.asyncio
@@ -344,7 +350,14 @@ async def test_served_candidate_reader_reconciles_inner_scope_without_changing_v
     foreign_proposal = valid_record.proposal.model_copy(
         update={"design_problem_ref": foreign_problem_ref}
     )
-    historical_payload = valid_record.model_dump(mode="python", exclude={"content_hash"})
+    historical_payload = {
+        name: value
+        for name, value in valid_record.model_dump(mode="python", exclude={"content_hash"}).items()
+        if name in N4CandidateProposalRecord.model_fields
+    }
+    historical_payload["schema_version"] = (
+        "policyos.runtime.quality.n4_candidate_proposal_record.v1"
+    )
     historical_payload["problem"] = foreign_problem
     historical_payload["proposal"] = foreign_proposal
     historical_payload["design_problem_ref"] = foreign_problem_ref
@@ -374,6 +387,7 @@ async def test_served_candidate_reader_reconciles_inner_scope_without_changing_v
             cell_id=owner_context["cell_id"],
             raw_request=problem.nl_provenance.raw_request,
         )
+
 
 def test_synthetic_cg2_contract_mechanism_remains_non_promotable():
     """A v2 synthetic seed may exercise mechanics only in its explicit contract lane."""
@@ -446,8 +460,7 @@ def actual_n4_source():
 
     root = Path(__file__).resolve().parents[4]
     pin = tuple(
-        os.environ.get(key)
-        for key in ("CORR_C_WORLD_CAS", "CORR_C_WORLD_REF", "CORR_C_WORLD_HASH")
+        os.environ.get(key) for key in ("CORR_C_WORLD_CAS", "CORR_C_WORLD_REF", "CORR_C_WORLD_HASH")
     )
     if any(value is not None for value in pin):
         assert all(pin), "A replay pin must declare its store, artifact and logical record hash."
@@ -567,9 +580,7 @@ def actual_n4_source():
             "candidate_results": certificate.relation_set.get("candidate_results", ()),
             "proposal_signature": certificate.proposal_signature,
             "candidate_signatures": certificate.atom_signature_or_bundle,
-            "axis_witnesses": [
-                item.model_dump(mode="json") for item in certificate.axis_witnesses
-            ],
+            "axis_witnesses": [item.model_dump(mode="json") for item in certificate.axis_witnesses],
             "critical_contradictions": certificate.critical_contradictions,
             "unresolved_axes": certificate.unresolved_axes,
         }
@@ -867,6 +878,64 @@ def test_contract_scope_marks_each_persisted_capsule(tmp_path):
     assert repository.load(ref, run_id="synthetic-scope").synthetic is True
 
 
+def test_candidate_n4_source_roundtrips_only_under_its_job_scope(tmp_path):
+    """The persisted N4 source view is bound to the served job and tenant scope."""
+    from polisyos.core import artifacts
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+    problem = _test_design_problem()
+    result = n4.GenerationUnderAResult(
+        status="generation_unavailable",
+        design_problem_ref=n4.gy_content_hash(problem.model_dump(mode="json")),
+        model_id="synthetic-scoped-source",
+        preflight=n4.ModelProfilePreflight(
+            status="gateway_unavailable", model_id="synthetic-scoped-source"
+        ),
+        diversity_report=n4.GenerationDiversityReport(
+            min_required=1, candidate_count=0, unique_diversity_key_count=0
+        ),
+    )
+    repository = GenerationSourceRepository(artifacts.FileSystemCAS(tmp_path / "cas"))
+    ref = repository.persist_ref(
+        run_id="scoped-run",
+        cycle_index=0,
+        problem=problem,
+        organ=result.as_organ_run(),
+        execution_scope="contract_testing",
+        job_id="scoped-job",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+    )
+
+    restored = repository.load(
+        ref,
+        run_id="scoped-run",
+        expected_job_id="scoped-job",
+        expected_tenant_id="tenant-a",
+        expected_cell_id="cell-a",
+    )
+    assert restored.generation_result == result
+    for wrong_scope in (
+        {
+            "expected_job_id": "foreign-job",
+            "expected_tenant_id": "tenant-a",
+            "expected_cell_id": "cell-a",
+        },
+        {
+            "expected_job_id": "scoped-job",
+            "expected_tenant_id": "tenant-b",
+            "expected_cell_id": "cell-a",
+        },
+        {
+            "expected_job_id": "scoped-job",
+            "expected_tenant_id": "tenant-a",
+            "expected_cell_id": "cell-b",
+        },
+    ):
+        with pytest.raises(ValueError, match="generation_source_owner_profile_mismatch"):
+            repository.load(ref, run_id="scoped-run", **wrong_scope)
+
+
 def test_source_replay_requires_actual_persistence_owner_profile(tmp_path):
     """Valid source bytes under another persistence profile cannot claim N4 custody."""
     from dataclasses import replace
@@ -916,9 +985,7 @@ def test_source_replay_requires_actual_persistence_owner_profile(tmp_path):
         "producer": {
             "producer": manifest.producer.model_copy(update={"component": "synthetic.other"})
         },
-        "producer_version": {
-            "producer": manifest.producer.model_copy(update={"version": "0.0"})
-        },
+        "producer_version": {"producer": manifest.producer.model_copy(update={"version": "0.0"})},
         "producer_absent": {"producer": None},
     }
     for label, mutation in variants.items():
@@ -1000,8 +1067,9 @@ def test_typed_source_reference_roundtrips_v1_bytes_without_changing_string_api(
         with pytest.raises(ValueError, match="generation_source_owner_profile_mismatch"):
             repository.load(str(typed_ref.artifact_id), run_id="synthetic-typed-source-ref")
 
-    with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-b"), pytest.raises(
-        ArtifactOwnershipError
+    with (
+        tenant_scope(None, tenant_id="tenant-b", cell_id="cell-b"),
+        pytest.raises(ArtifactOwnershipError),
     ):
         store.get_bytes(typed_ref)
 
@@ -1020,9 +1088,7 @@ def test_typed_source_reference_roundtrips_v1_bytes_without_changing_string_api(
         execution_scope="contract_testing",
     )
     assert isinstance(legacy_ref, str)
-    assert legacy_repository.load(
-        legacy_ref, run_id="synthetic-typed-source-ref"
-    ) == restored
+    assert legacy_repository.load(legacy_ref, run_id="synthetic-typed-source-ref") == restored
 
     default_view_store = FileSystemCAS(tmp_path / "default-view-source-cas")
     default_view_repository = GenerationSourceRepository(default_view_store)
@@ -1037,9 +1103,10 @@ def test_typed_source_reference_roundtrips_v1_bytes_without_changing_string_api(
     assert default_view_store.get_manifest(default_view_ref).kind == (
         "runtime.generation_source_handoff"
     )
-    assert default_view_repository.load(
-        default_view_ref, run_id="synthetic-typed-source-ref"
-    ) == restored
+    assert (
+        default_view_repository.load(default_view_ref, run_id="synthetic-typed-source-ref")
+        == restored
+    )
 
 
 def test_candidate_owner_profile_preserves_warning_view_semantics(tmp_path):
@@ -1118,7 +1185,9 @@ def test_tracked_owner_epochs_remain_exactly_readable():
     documents = {
         "historical_layer3_gy_generation_cycle_contract.v1": historical_generation_cycle_v1(),
         "layer3_gy_promotion_contract.json": json.loads(
-            (root / "architecture/policy_design_case/layer3_gy_promotion_contract.json").read_bytes()
+            (
+                root / "architecture/policy_design_case/layer3_gy_promotion_contract.json"
+            ).read_bytes()
         ),
     }
     recursive = {}
@@ -1221,16 +1290,12 @@ async def test_default_controller_custody_and_missing_protected_admission(
         assert _problem == problem
         assert kwargs["cycle_substrate_context"] == organ.cycle_substrate_context
         supplied_budgets.append(kwargs["grounding_run_budget"])
-        emitted = _produce_source_variant(
-            problem, organ, run_budget=kwargs["grounding_run_budget"]
-        )
+        emitted = _produce_source_variant(problem, organ, run_budget=kwargs["grounding_run_budget"])
         actual_emissions.append(emitted)
         return emitted
 
     monkeypatch.setattr(n4, "generate_design_candidate_bundle_under_a", produce)
-    owner_store = artifacts.FileSystemCAS(
-        tmp_path / "runtime"
-    ).with_ambient_ownership_enforcement()
+    owner_store = artifacts.FileSystemCAS(tmp_path / "runtime").with_ambient_ownership_enforcement()
     store = guard_runtime_cas(owner_store)
     with tenant_scope(None, tenant_id="tenant-source-a", cell_id="cell-source-a"):
         runtime = PromotionRuntime(store=store)
@@ -1242,9 +1307,7 @@ async def test_default_controller_custody_and_missing_protected_admission(
             value_port=PendingN8ValuePort(),
             authority_scope="contract_testing",
         )
-        run = await controller.run(
-            problem, budget_state=_budget(), min_cycles=1, max_cycles=1
-        )
+        run = await controller.run(problem, budget_state=_budget(), min_cycles=1, max_cycles=1)
         assert run.synthetic is True
         assert run.source_preservation_receipt.synthetic is True
         assert run.source_preservation_receipt.status == "strangled", (
@@ -1256,9 +1319,7 @@ async def test_default_controller_custody_and_missing_protected_admission(
             admitted_batch=None,
             problem=problem,
             deployment_identity=_canonical_loaded_deployment_identity(),
-        ).reason == (
-            "epoch_validity_refused:pre_n9_admitted_batch_missing"
-        )
+        ).reason == ("epoch_validity_refused:pre_n9_admitted_batch_missing")
         assert supplied_budgets and supplied_budgets[0] is controller._grounding_run_budget
         for source in actual_emissions[0].candidate_sources:
             admission = source.grounding_decision_certificate.run_admission
@@ -1294,8 +1355,7 @@ async def test_default_controller_custody_and_missing_protected_admission(
             _source_summary(retained_organ), problem
         )
         assert (
-            actual_context["world_model_record"]
-            == organ.cycle_substrate_context.world_model_record
+            actual_context["world_model_record"] == organ.cycle_substrate_context.world_model_record
         )
         assert (
             actual_context["effect_obligation_writer_input"].intervention_atom
@@ -1314,9 +1374,7 @@ async def test_default_controller_custody_and_missing_protected_admission(
 
 
 @pytest.mark.asyncio
-async def test_failed_source_handoff_cannot_supply_authority(
-    tmp_path, monkeypatch
-):
+async def test_failed_source_handoff_cannot_supply_authority(tmp_path, monkeypatch):
     """A candidate survives a CAS write failure, while strict N6 and N9 refuse it."""
     from polisyos.core import artifacts
     from polisyos.runtime.quality.generation_cycle import (
@@ -1338,9 +1396,7 @@ async def test_failed_source_handoff_cannot_supply_authority(
         status="generation_unavailable",
         design_problem_ref=n4.gy_content_hash(problem.model_dump(mode="json")),
         model_id="synthetic-c2",
-        preflight=n4.ModelProfilePreflight(
-            status="gateway_unavailable", model_id="synthetic-c2"
-        ),
+        preflight=n4.ModelProfilePreflight(status="gateway_unavailable", model_id="synthetic-c2"),
         diversity_report=n4.GenerationDiversityReport(
             min_required=1, candidate_count=0, unique_diversity_key_count=0
         ),
@@ -1402,10 +1458,11 @@ async def test_failed_source_handoff_cannot_supply_authority(
     )
     inconsistent = GenerationSourcePreservationReceipt.model_validate(receipt_payload)
     marked_run = run.model_copy(update={"source_preservation_receipt": inconsistent})
-    assert {issue["reason"] for issue in validate_generation_cycle_run(marked_run)
-            if issue["code"] == "generation_cycle_source_preservation_not_established"} == {
-        "receipt_incoherent"
-    }
+    assert {
+        issue["reason"]
+        for issue in validate_generation_cycle_run(marked_run)
+        if issue["code"] == "generation_cycle_source_preservation_not_established"
+    } == {"receipt_incoherent"}
     with pytest.raises(GenerationCycleError, match="receipt_incoherent"):
         eligible_n9_source_for_run(marked_run)
 
@@ -1649,9 +1706,12 @@ def test_current_effect_bridge_binds_actual_historical_emitter_epoch(
         promotion_input=promotion_input,
         **{name: getattr(writer, name) for name in type(writer).model_fields},
     )
-    assert owner.resolve(
-        bridge_ref=live_ref, promotion_input=promotion_input, evidence_kind="effect_obligation"
-    ).limitation_code == "synthetic_evidence_cannot_grant_authority"
+    assert (
+        owner.resolve(
+            bridge_ref=live_ref, promotion_input=promotion_input, evidence_kind="effect_obligation"
+        ).limitation_code
+        == "synthetic_evidence_cannot_grant_authority"
+    )
     live = current.N9PromotionEvidenceBridgeRecord.model_validate_json(
         store.get_bytes(live_ref.artifact_id)
     )
@@ -1865,7 +1925,9 @@ def test_semantically_changed_writer_projection_refuses(actual_n4_source, tmp_pa
 
     problem, organ = actual_n4_source
     repository = GenerationSourceRepository(artifacts.FileSystemCAS(tmp_path / "cas"))
-    ref = repository.persist(run_id="synthetic-projection", cycle_index=0, problem=problem, organ=organ)
+    ref = repository.persist(
+        run_id="synthetic-projection", cycle_index=0, problem=problem, organ=organ
+    )
     serializer = _EffectObligationWriterInput.model_dump
     changed_proposals = []
 
@@ -1909,9 +1971,7 @@ def test_conflicting_complete_source_for_same_triple_refuses(actual_n4_source, t
     other = replace(organ, result=organ.result.model_copy(update={"candidates": (altered,)}))
     repository = GenerationSourceRepository(artifacts.FileSystemCAS(tmp_path / "cas"))
     refs = tuple(
-        repository.persist(
-            run_id="synthetic-conflict", cycle_index=0, problem=problem, organ=value
-        )
+        repository.persist(run_id="synthetic-conflict", cycle_index=0, problem=problem, organ=value)
         for value in (organ, other)
     )
     resolved = repository.resolve(
@@ -1923,7 +1983,9 @@ def test_conflicting_complete_source_for_same_triple_refuses(actual_n4_source, t
     receipt = repository.preservation_receipt(
         run_id="synthetic-conflict",
         refs=refs,
-        expected=((organ.result.design_problem_ref, candidate.candidate_id, candidate.atom.content_hash),),
+        expected=(
+            (organ.result.design_problem_ref, candidate.candidate_id, candidate.atom.content_hash),
+        ),
     )
     assert receipt.status == "drift"
     assert "source_identity_conflict" in receipt.issues
@@ -1997,9 +2059,7 @@ def test_n4_candidate_scenario_source_locator_is_versioned_and_kind_bound():
         )
     )
     assert locator.model_dump(mode="json") == {
-        "schema_version": (
-            "policyos.runtime.quality.n4_candidate_scenario_source_locator.v1"
-        ),
+        "schema_version": ("policyos.runtime.quality.n4_candidate_scenario_source_locator.v1"),
         "artifact_ref": {
             "artifact_id": "sha256:" + "a" * 64,
             "kind": "runtime.quality.n4_candidate_scenario_source",
@@ -2007,7 +2067,9 @@ def test_n4_candidate_scenario_source_locator_is_versioned_and_kind_bound():
         },
     }
 
-    with pytest.raises(ValueError, match="n4_candidate_scenario_source_locator_owner_profile_mismatch"):
+    with pytest.raises(
+        ValueError, match="n4_candidate_scenario_source_locator_owner_profile_mismatch"
+    ):
         N4CandidateScenarioSourceLocator(
             artifact_ref=ArtifactRef(
                 artifact_id="sha256:" + "a" * 64,
@@ -2230,9 +2292,7 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
     )
     n4_ref = ref("2", n4_kind)
     context_ref = ref("3", "runtime.quality.cycle_substrate_context_job")
-    declaration_ref = ref(
-        "4", "runtime.quality.candidate_simulation_model_declaration"
-    )
+    declaration_ref = ref("4", "runtime.quality.candidate_simulation_model_declaration")
     # Both profile-token cases refer to the same NCM bytes/ArtifactID but select
     # different well-formed manifest-profile hashes.
     ncm_ref = ref("5", "ir.ncm_spec")
@@ -2314,9 +2374,7 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
         lambda _ref: input_record,
     )
 
-    execution_ref = getattr(
-        repository, f"persist_candidate_simulation_execution_{schema_version}"
-    )(
+    execution_ref = getattr(repository, f"persist_candidate_simulation_execution_{schema_version}")(
         input_ref=input_ref,
         simulation=simulation,
         handoff=handoff,
@@ -2364,8 +2422,7 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
     )
     manifest = repository.store.get_manifest(execution_ref)
     assert {
-        (item.role, str(item.artifact_id), item.manifest_profile_sha256)
-        for item in manifest.inputs
+        (item.role, str(item.artifact_id), item.manifest_profile_sha256) for item in manifest.inputs
     } == expected_inputs
 
     # A changed selected view with the same content-addressed NCM bytes must
@@ -2485,10 +2542,13 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
             f"_load_candidate_simulation_input_{schema_version}",
             lambda _ref: input_record,
         )
-        assert resolver(
-            ref=execution_ref,
-            expected_run_id=run_id,
-            expected_job_id=job_id,
-            expected_tenant_id=tenant_id,
-            expected_cell_id=cell_id,
-        ) == execution
+        assert (
+            resolver(
+                ref=execution_ref,
+                expected_run_id=run_id,
+                expected_job_id=job_id,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+            )
+            == execution
+        )

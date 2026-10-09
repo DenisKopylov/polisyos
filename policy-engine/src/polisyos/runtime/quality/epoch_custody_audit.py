@@ -40,9 +40,7 @@ class EpochCustodyAuditReceipt(BaseModel):
     )
     provider: Literal[
         "polisyos.runtime.quality.chronology_custody.build_production_epoch_anchor_custody_provider"
-    ] = (
-        "polisyos.runtime.quality.chronology_custody.build_production_epoch_anchor_custody_provider"
-    )
+    ] = "polisyos.runtime.quality.chronology_custody.build_production_epoch_anchor_custody_provider"
     authority_scope: Literal["custody_provider_invocation_only"] = (
         "custody_provider_invocation_only"
     )
@@ -70,7 +68,7 @@ def _persist_exact(
             inputs=inputs,
         ),
     )
-    persisted = store.get_bytes(ref.artifact_id)
+    persisted = store.get_bytes(ref)
     if persisted != payload or str(ref.artifact_id) != security.raw_content_hash(payload):
         raise ValueError("epoch_custody_audit_readback_mismatch")
     return ref, security.parse_canonical_statement(persisted, model)
@@ -141,12 +139,13 @@ def main(argv: list[str] | None = None) -> int:
             arguments.request.read_bytes()
         )
         ref, receipt = audit_epoch_custody(
-            request=request, store=build_artifact_store(
+            request=request,
+            store=build_artifact_store(
                 ArtifactStoreConfig(
                     backend="filesystem",
                     root=str(arguments.cas_root),
                 ),
-            )
+            ),
         )
     except (OSError, TypeError, ValueError) as exc:
         sys.stderr.write(f"epoch_custody_audit_failed: {exc}\n")

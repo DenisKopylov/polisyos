@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import (
     ExecPlanRef,
@@ -41,7 +42,7 @@ def _context(store, state, *, min_ratio: float = 0.5) -> PassContext:
 
 def _envelope(store: FileSystemCAS):
     return persist_uncertainty_envelope(
-        store,
+        _ensure_ir_artifact_store(store),
         UncertaintyEnvelope(
             point_estimate=10.0,
             confidence_interval=(9.9, 10.1),

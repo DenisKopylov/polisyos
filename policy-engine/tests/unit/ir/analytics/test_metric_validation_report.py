@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.metric_validation_report import (
     FamilyAdjustment,
@@ -52,8 +53,8 @@ def test_metric_validation_report_roundtrip(tmp_path) -> None:
         notes=("seed=7",),
     )
 
-    ref = persist_metric_validation_report(store, report)
-    loaded = load_metric_validation_report(store, ref)
+    ref = persist_metric_validation_report(_ensure_ir_artifact_store(store), report)
+    loaded = load_metric_validation_report(_ensure_ir_artifact_store(store), ref)
 
     assert ref.kind == "scientist.metric_validation_report"
     assert loaded == report

@@ -16,6 +16,11 @@ from typing import Any, Protocol
 
 from polisyos.common.logger import get_logger
 from polisyos.common.serialization import stable_json_dumps, to_python_data
+from polisyos.core.llm.settlement import (
+    _CacheFlightOutcome,
+    _CacheFlightRegistration,
+    _CacheReuseOwner,
+)
 
 from .gateway_client import GatewayLLMResponse, GatewayToolCall, GatewayUsage
 
@@ -72,6 +77,65 @@ class _SerializedGatewayResponse:
     response_headers: dict[str, str] | None
     raw_json: bytes | None
     tool_calls: tuple[_SerializedGatewayToolCall, ...] = ()
+    origin_event_id: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class CacheReuseEvidence:
+    """Immutable evidence selected for a snapshot-scoped cache reuse request."""
+
+    ref: str
+    version: str
+    immutable: bool
+    content: bytes
+    content_hash: str
+
+
+@dataclass(frozen=True, slots=True)
+class CacheReuseRequest:
+    """Exact actor, tenant, scope, purpose, model, parameters and evidence request."""
+
+    actor_id: str
+    tenant: str
+    scope: str
+    purpose: str
+    model: str
+    parameters_digest: str
+    evidence: tuple[CacheReuseEvidence, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class CacheReuseDecision:
+    """Current authorization decision bound to one complete reuse request."""
+
+    issuer: str
+    epoch: str
+    actor_id: str
+    tenant: str
+    scope: str
+    purpose: str
+    model: str
+    parameters_digest: str
+    evidence: tuple[CacheReuseEvidence, ...]
+
+
+class CacheReuseAuthorizer(Protocol):
+    """Authorize a cache reuse request after independently binding its evidence."""
+
+    def authorize_reuse(self, request: CacheReuseRequest) -> CacheReuseDecision | None: ...
+
+
+@dataclass(slots=True)
+class _CacheFlight:
+    task: asyncio.Task[Any]
+    request_digest: str
+    scope_key: tuple[str, ...]
+    owner_registration: _CacheFlightRegistration
+    registrations: list[_CacheFlightRegistration]
+    producer_attempt_id: str
+    origin_event_id: str
+    cache_key: str
+    outcome: _CacheFlightOutcome | None = None
 
 
 class _CacheReuseGatewayResponse(GatewayLLMResponse):
@@ -81,6 +145,7 @@ class _CacheReuseGatewayResponse(GatewayLLMResponse):
         "_polisyos_cache_hit",
         "_polisyos_cache_key",
         "_polisyos_reuse_event_id",
+        "_polisyos_reuse_provenance",
     )
 
     def __init__(
@@ -88,6 +153,10 @@ class _CacheReuseGatewayResponse(GatewayLLMResponse):
         response: GatewayLLMResponse,
         *,
         cache_key: str,
+        owner: _CacheReuseOwner,
+        request_digest: str,
+        origin_event_id: str,
+        outcome: _CacheFlightOutcome | None = None,
     ) -> None:
         super().__init__(
             content=response.content,
@@ -98,10 +167,18 @@ class _CacheReuseGatewayResponse(GatewayLLMResponse):
             response_headers=response.response_headers,
             raw=response.raw,
             tool_calls=response.tool_calls,
+            producer_event_id=response.producer_event_id,
         )
         self._polisyos_cache_hit = True
         self._polisyos_cache_key = cache_key
         self._polisyos_reuse_event_id = f"cache-reuse:{uuid.uuid4().hex}"
+        self._polisyos_reuse_provenance = owner.issue(
+            cache_key,
+            request_digest,
+            self._polisyos_reuse_event_id,
+            origin_event_id,
+            outcome,
+        )
 
 
 class PromptCacheProtocol(Protocol):
@@ -262,6 +339,7 @@ class CachingLLMClient:
         model: str,
         ttl_s: float = 300.0,
         inflight_timeout_s: float | None = None,
+        reuse_authorizer: CacheReuseAuthorizer | Any | None = None,
     ) -> None:
         self._client = client
         self._cache = cache
@@ -271,7 +349,12 @@ class CachingLLMClient:
         if configured_timeout is None:
             configured_timeout = getattr(client, "timeout_s", None)
         self._inflight_timeout_s = _coerce_timeout(configured_timeout)
-        self._inflight: dict[str, asyncio.Task[Any]] = {}
+        self._inflight: dict[str, _CacheFlight] = {}
+        self._cache_reuse_authorizer = reuse_authorizer
+        self._cache_reuse_owner = _CacheReuseOwner(self)
+        self._producer_begin_hook: Any | None = None
+        self._producer_settle_hook: Any | None = None
+        self._producer_unknown_hook: Any | None = None
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._client, name)
@@ -279,20 +362,16 @@ class CachingLLMClient:
     def unwrap(self) -> Any:
         return self._client
 
-    async def generate(self, *args: Any, **kwargs: Any) -> Any:
-        args, kwargs = _normalize_prompt_call(args, kwargs)
-        reason = _cache_skip_reason(
-            model=self._model,
-            args=args,
-            kwargs=kwargs,
-        )
-        if reason is not None:
-            _record_cache_skip(self._cache, reason)
-            return await _maybe_await(
-                self._client.generate(*args, **_provider_kwargs(kwargs))
-            )
+    def set_producer_settlement_hooks(self, *, begin: Any, settle: Any, unknown: Any) -> None:
+        """Bind producer-owned durable settlement before shielding provider work."""
+        self._producer_begin_hook = begin
+        self._producer_settle_hook = settle
+        self._producer_unknown_hook = unknown
 
-        cache_key = compute_cache_key(
+    def _request_digest(self, args: tuple[Any, ...], kwargs: dict[str, Any]) -> str:
+        """Bind every provider request, including calls excluded from cache reuse."""
+
+        return compute_cache_key(
             prompt=args[0] if args else kwargs.get("prompt"),
             system=kwargs.get("system"),
             user=kwargs.get("user"),
@@ -326,63 +405,351 @@ class CachingLLMClient:
                 }
             },
         )
-        cached = self._cache.get(cache_key)
+
+    async def _generate_uncached(
+        self,
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
+        *,
+        request_digest: str | None = None,
+    ) -> Any:
+        """Run a non-reusable provider call through the same settlement hooks."""
+
+        begin = self._producer_begin_hook
+        settle = self._producer_settle_hook
+        unknown = self._producer_unknown_hook
+        event_id = f"llm-provider:{uuid.uuid4().hex}"
+        digest = request_digest or self._request_digest(args, kwargs)
+        intent_started = False
+        try:
+            if begin is not None:
+                await _maybe_await(begin(event_id, digest, getattr(self._client, "provider", None)))
+                intent_started = True
+            response = await _maybe_await(self._client.generate(*args, **_provider_kwargs(kwargs)))
+            if isinstance(response, GatewayLLMResponse) and intent_started:
+                response.producer_event_id = event_id
+            if settle is not None and intent_started:
+                settlement = await _maybe_await(settle(event_id, digest, response))
+                if isinstance(response, GatewayLLMResponse):
+                    response.producer_settlement = settlement
+            return response
+        except BaseException as exc:
+            if intent_started and unknown is not None:
+                await _maybe_await(unknown(event_id, digest, exc))
+            raise
+
+    async def generate(self, *args: Any, **kwargs: Any) -> Any:
+        args, kwargs = _normalize_prompt_call(args, kwargs)
+        reason = _cache_skip_reason(
+            model=self._model,
+            args=args,
+            kwargs=kwargs,
+        )
+        if reason is not None:
+            _record_cache_skip(self._cache, reason)
+            return await self._generate_uncached(args, kwargs)
+
+        cache_key = self._request_digest(args, kwargs)
+        reuse_context = _cache_reuse_context(kwargs.get("metadata"))
+        if reuse_context is not None:
+            admission = self._authorize_reuse(
+                reuse_context,
+                cache_key=cache_key,
+                metadata=kwargs.get("metadata"),
+            )
+            if admission is None:
+                _record_cache_skip(self._cache, "reuse_authorization_missing")
+                return await self._generate_uncached(args, kwargs, request_digest=cache_key)
+            scope_key, request_digest = admission
+        else:
+            scope_key = self._ordinary_scope_key()
+            request_digest = cache_key
+
+        internal_cache_key = hashlib.sha256(
+            json.dumps(
+                [cache_key, scope_key, request_digest], separators=(",", ":"), sort_keys=True
+            ).encode()
+        ).hexdigest()
+        attempt_id = f"cache-attempt:{uuid.uuid4().hex}"
+        registration = self._cache_reuse_owner.register_request(
+            scope_key, request_digest, attempt_id
+        )
+        self._cache_reuse_owner.bind_request_key(registration, internal_cache_key)
+        cached = self._cache.get(internal_cache_key)
         if cached is not None:
             logger.debug("Prompt cache hit model={} key={}", self._model, cache_key[:12])
             if isinstance(cached, GatewayLLMResponse):
-                _mark_cache_response(cached, status="hit", cache_key=cache_key)
-                return _CacheReuseGatewayResponse(cached, cache_key=cache_key)
+                return self._reuse_response(
+                    cached, cache_key=internal_cache_key, request_digest=request_digest
+                )
             return cached
 
         provider_kwargs = _provider_kwargs(kwargs)
-        owner_task = self._inflight.get(cache_key)
-        is_owner = owner_task is None
+        flight = self._inflight.get(internal_cache_key)
+        is_owner = flight is None
         if is_owner:
+            self._cache_reuse_owner.dispatch(registration, attempt_id)
+            producer_event_id = f"llm-provider:{uuid.uuid4().hex}"
             owner_task = asyncio.create_task(
                 self._produce(
-                    cache_key,
+                    internal_cache_key,
                     args,
                     provider_kwargs,
+                    request_digest=request_digest,
+                    scope_key=scope_key,
+                    producer_attempt_id=attempt_id,
+                    producer_event_id=producer_event_id,
                 )
             )
-            self._inflight[cache_key] = owner_task
+            flight = _CacheFlight(
+                task=owner_task,
+                request_digest=request_digest,
+                scope_key=scope_key,
+                owner_registration=registration,
+                registrations=[registration],
+                producer_attempt_id=attempt_id,
+                origin_event_id=producer_event_id,
+                cache_key=internal_cache_key,
+            )
+            self._inflight[internal_cache_key] = flight
             owner_task.add_done_callback(_consume_task_exception)
+        else:
+            self._cache_reuse_owner.join(
+                registration,
+                scope_key,
+                request_digest,
+                internal_cache_key,
+                attempt_id,
+            )
+            flight.registrations.append(registration)
 
-        response = await asyncio.shield(owner_task)
+        response = await asyncio.shield(flight.task)
         if is_owner:
             return response
 
         # Followers receive a detached cache snapshot and the same provenance
         # marker as an ordinary cache hit.  They must not share the producer's
         # mutable response object or charge LLM-01 accounting as a miss.
-        cached = self._cache.get(cache_key)
+        cached = self._cache.get(internal_cache_key)
         if cached is not None:
             if isinstance(cached, GatewayLLMResponse):
-                _mark_cache_response(cached, status="hit", cache_key=cache_key)
-                return _CacheReuseGatewayResponse(cached, cache_key=cache_key)
+                return self._reuse_response(
+                    cached,
+                    cache_key=internal_cache_key,
+                    request_digest=request_digest,
+                    origin_event_id=flight.origin_event_id,
+                    outcome=flight.outcome,
+                )
             return cached
         if isinstance(response, GatewayLLMResponse):
-            return _CacheReuseGatewayResponse(response, cache_key=cache_key)
+            return self._reuse_response(
+                response,
+                cache_key=internal_cache_key,
+                request_digest=request_digest,
+                origin_event_id=flight.origin_event_id,
+                outcome=flight.outcome,
+            )
         return response
+
+    def _ordinary_scope_key(self) -> tuple[str, ...]:
+        try:
+            from polisyos.core.security.tenant_context import get_current_access_scope_or_none
+
+            scope = get_current_access_scope_or_none()
+        except Exception:
+            scope = None
+        if scope is None:
+            return ("ordinary", "anonymous")
+        actor = scope.spiffe_id or scope.user_sub
+        return ("ordinary", scope.tenant_id, scope.cell_id or "", actor)
+
+    def _authorize_reuse(
+        self, context: dict[str, Any], *, cache_key: str, metadata: Any
+    ) -> tuple[tuple[str, ...], str] | None:
+        authorizer = self._cache_reuse_authorizer
+        authorize = getattr(authorizer, "authorize_reuse", None)
+        if not callable(authorize):
+            return None
+        raw = metadata.get("cache_reuse") if isinstance(metadata, Mapping) else None
+        snapshot = raw.get("snapshot") if isinstance(raw, Mapping) else None
+        if not isinstance(snapshot, Mapping):
+            return None
+        try:
+            from polisyos.core.security.tenant_context import get_current_access_scope_or_none
+
+            principal = get_current_access_scope_or_none()
+        except Exception:
+            principal = None
+        if principal is None:
+            return None
+        actor_id = principal.spiffe_id or principal.user_sub
+        tenant = str(raw.get("tenant", ""))
+        scope = str(raw.get("scope", ""))
+        if tenant != principal.tenant_id or not actor_id or not scope:
+            return None
+        evidence = (
+            CacheReuseEvidence(
+                ref=str(snapshot.get("ref", "")),
+                version=str(snapshot.get("version", "")),
+                immutable=snapshot.get("immutable") is True,
+                content=bytes(snapshot.get("content", b"")),
+                content_hash=str(snapshot.get("content_hash", "")),
+            ),
+        )
+        if (
+            not evidence[0].ref
+            or not evidence[0].version
+            or not evidence[0].immutable
+            or evidence[0].content_hash
+            != "sha256:" + hashlib.sha256(evidence[0].content).hexdigest()
+        ):
+            return None
+        request = CacheReuseRequest(
+            actor_id=actor_id,
+            tenant=tenant,
+            scope=scope,
+            purpose="llm_snapshot_reuse",
+            model=self._model,
+            parameters_digest=cache_key,
+            evidence=evidence,
+        )
+        try:
+            decision = authorize(request)
+        except Exception:
+            return None
+        if (
+            not isinstance(decision, CacheReuseDecision)
+            or not decision.issuer
+            or not decision.epoch
+        ):
+            return None
+        if (
+            decision.actor_id != request.actor_id
+            or decision.tenant != request.tenant
+            or decision.scope != request.scope
+            or decision.purpose != request.purpose
+            or decision.model != request.model
+            or decision.parameters_digest != request.parameters_digest
+            or decision.evidence != request.evidence
+        ):
+            return None
+        scope_key = (
+            decision.issuer,
+            decision.epoch,
+            decision.actor_id,
+            decision.tenant,
+            decision.scope,
+            decision.purpose,
+            str(raw.get("purpose", "")),
+            decision.model,
+            decision.parameters_digest,
+            *tuple(item.content_hash for item in decision.evidence),
+        )
+        return scope_key, request.parameters_digest
+
+    def _reuse_response(
+        self,
+        response: GatewayLLMResponse,
+        *,
+        cache_key: str,
+        request_digest: str,
+        origin_event_id: str | None = None,
+        outcome: _CacheFlightOutcome | None = None,
+    ) -> GatewayLLMResponse:
+        if not isinstance(response, GatewayLLMResponse):
+            return response
+        origin = origin_event_id or response.producer_event_id or response.request_id
+        origin = origin or f"legacy-origin:{uuid.uuid4().hex}"
+        _mark_cache_response(response, status="hit", cache_key=cache_key)
+        return _CacheReuseGatewayResponse(
+            response,
+            cache_key=cache_key,
+            owner=self._cache_reuse_owner,
+            request_digest=request_digest,
+            origin_event_id=origin,
+            outcome=outcome,
+        )
 
     async def _produce(
         self,
         cache_key: str,
         args: tuple[Any, ...],
         kwargs: dict[str, Any],
+        *,
+        request_digest: str,
+        scope_key: tuple[str, ...],
+        producer_attempt_id: str,
+        producer_event_id: str,
     ) -> Any:
         """Produce and publish one cache miss, always releasing its flight."""
 
         current_task = asyncio.current_task()
+        flight = self._inflight.get(cache_key)
+        intent_started = False
         try:
+            if self._producer_begin_hook is not None:
+                await _maybe_await(
+                    self._producer_begin_hook(
+                        producer_event_id, request_digest, getattr(self._client, "provider", None)
+                    )
+                )
+                intent_started = True
             response = await self._call_provider(args, kwargs)
             if isinstance(response, GatewayLLMResponse):
+                response.producer_event_id = producer_event_id
                 _mark_cache_response(response, status="miss", cache_key=cache_key)
+            if self._producer_settle_hook is not None:
+                settlement = await _maybe_await(
+                    self._producer_settle_hook(producer_event_id, request_digest, response)
+                )
+                if isinstance(response, GatewayLLMResponse):
+                    response.producer_settlement = settlement
             self._cache.put(cache_key, response, ttl_s=self._ttl_s)
             logger.debug("Prompt cache miss model={} key={}", self._model, cache_key[:12])
+            if flight is not None:
+                flight.outcome = self._cache_reuse_owner.settle_flight(
+                    registrations=tuple(flight.registrations),
+                    cache_key=cache_key,
+                    request_digest=request_digest,
+                    producer_attempt_id=producer_attempt_id,
+                    terminal="success",
+                    origin_event_id=producer_event_id,
+                )
             return response
+        except TimeoutError:
+            if intent_started and self._producer_unknown_hook is not None:
+                await _maybe_await(
+                    self._producer_unknown_hook(producer_event_id, request_digest, TimeoutError())
+                )
+            if flight is not None:
+                self._cache_reuse_owner.settle_flight(
+                    registrations=tuple(flight.registrations),
+                    cache_key=cache_key,
+                    request_digest=request_digest,
+                    producer_attempt_id=producer_attempt_id,
+                    terminal="deadline",
+                )
+            raise
+        except BaseException as exc:
+            if intent_started and self._producer_unknown_hook is not None:
+                await _maybe_await(
+                    self._producer_unknown_hook(producer_event_id, request_digest, exc)
+                )
+            if flight is not None:
+                self._cache_reuse_owner.settle_flight(
+                    registrations=tuple(flight.registrations),
+                    cache_key=cache_key,
+                    request_digest=request_digest,
+                    producer_attempt_id=producer_attempt_id,
+                    terminal="cancelled" if asyncio.current_task().cancelling() else "error",
+                )
+            raise
         finally:
-            if self._inflight.get(cache_key) is current_task:
+            if (
+                self._inflight.get(cache_key) is flight
+                and flight is not None
+                and flight.task is current_task
+            ):
                 self._inflight.pop(cache_key, None)
 
     async def _call_provider(
@@ -488,19 +855,22 @@ def _cache_skip_reason(
         ensure_ascii=True,
         sort_keys=True,
     ).lower()
-    if any(
-        marker in text_blob
-        for marker in (
-            "http://",
-            "https://",
-            "fetched_at",
-            "retrieved_at",
-            "query_traces",
-            "claim_supports",
-            "uncertainty_notes",
-            "recency_days",
+    if (
+        any(
+            marker in text_blob
+            for marker in (
+                "http://",
+                "https://",
+                "fetched_at",
+                "retrieved_at",
+                "query_traces",
+                "claim_supports",
+                "uncertainty_notes",
+                "recency_days",
+            )
         )
-    ) and reuse_context is None:
+        and reuse_context is None
+    ):
         return "retrieval_freshness_guard"
     return None
 
@@ -541,12 +911,18 @@ def _consume_task_exception(task: asyncio.Task[Any]) -> None:
 
 
 def _provider_kwargs(kwargs: dict[str, Any]) -> dict[str, Any]:
-    """Prepare provider kwargs without forwarding snapshot content bytes."""
+    """Prepare provider kwargs without forwarding internal cache controls."""
 
     normalized = dict(kwargs)
     metadata = kwargs.get("metadata")
-    if isinstance(metadata, Mapping) and "cache_reuse" in metadata:
-        normalized["metadata"] = _normalize_cache_metadata(metadata)
+    if isinstance(metadata, Mapping):
+        provider_metadata = {key: value for key, value in metadata.items() if key != "cacheable"}
+        if "cache_reuse" in provider_metadata:
+            provider_metadata = _normalize_cache_metadata(provider_metadata)
+        if provider_metadata:
+            normalized["metadata"] = provider_metadata
+        else:
+            normalized.pop("metadata", None)
     return normalized
 
 
@@ -567,7 +943,7 @@ def _cache_reuse_context(metadata: Any) -> dict[str, Any] | None:
         return None
     snapshot = raw_context.get("snapshot")
     permission = raw_context.get("permission")
-    if not isinstance(snapshot, Mapping) or not isinstance(permission, Mapping):
+    if not isinstance(snapshot, Mapping):
         return None
 
     content = snapshot.get("content")
@@ -590,11 +966,18 @@ def _cache_reuse_context(metadata: Any) -> dict[str, Any] | None:
         outer_scope is not None and outer_scope != scope
     ):
         return None
-    if not all(isinstance(value, str) and value for value in (ref, version, tenant, scope)):
+    purpose = raw_context.get("purpose")
+    if not all(
+        isinstance(value, str) and value for value in (ref, version, tenant, scope, purpose)
+    ):
         return None
-    if permission.get("allowed") is not True:
-        return None
-    if permission.get("tenant") != tenant or permission.get("scope") != scope:
+    # Caller-supplied permission metadata is consistency data only; the live
+    # authorizer must independently bind actor, epoch, parameters and evidence.
+    if permission is not None and (
+        not isinstance(permission, Mapping)
+        or permission.get("tenant") != tenant
+        or permission.get("scope") != scope
+    ):
         return None
 
     normalized_snapshot = {
@@ -603,17 +986,19 @@ def _cache_reuse_context(metadata: Any) -> dict[str, Any] | None:
         if key != "content"
     }
     normalized_snapshot["content_hash"] = expected_hash
-    normalized_permission = {
-        str(key): _normalize_cache_identity_value(value)
-        for key, value in permission.items()
-    }
+    normalized_permission = (
+        {str(key): _normalize_cache_identity_value(value) for key, value in permission.items()}
+        if isinstance(permission, Mapping)
+        else None
+    )
     normalized_context = {
         str(key): _normalize_cache_identity_value(value)
         for key, value in raw_context.items()
         if key not in {"snapshot", "permission"}
     }
     normalized_context["snapshot"] = normalized_snapshot
-    normalized_context["permission"] = normalized_permission
+    if normalized_permission is not None:
+        normalized_context["permission"] = normalized_permission
     return normalized_context
 
 
@@ -623,9 +1008,7 @@ def _normalize_cache_identity_value(value: Any) -> Any:
     if isinstance(value, (bytes, bytearray, memoryview)):
         return "sha256:" + hashlib.sha256(bytes(value)).hexdigest()
     if isinstance(value, Mapping):
-        return {
-            str(key): _normalize_cache_identity_value(item) for key, item in value.items()
-        }
+        return {str(key): _normalize_cache_identity_value(item) for key, item in value.items()}
     if isinstance(value, (list, tuple)):
         return [_normalize_cache_identity_value(item) for item in value]
     return value
@@ -639,11 +1022,7 @@ def _normalize_cache_metadata(value: Any) -> Any:
             context = _cache_reuse_context(value)
             if context is not None:
                 return {
-                    str(key): (
-                        context
-                        if key == "cache_reuse"
-                        else _normalize_cache_metadata(item)
-                    )
+                    str(key): (context if key == "cache_reuse" else _normalize_cache_metadata(item))
                     for key, item in value.items()
                 }
             return {
@@ -654,9 +1033,7 @@ def _normalize_cache_metadata(value: Any) -> Any:
                 )
                 for key, item in value.items()
             }
-        return {
-            str(key): _normalize_cache_metadata(item) for key, item in value.items()
-        }
+        return {str(key): _normalize_cache_metadata(item) for key, item in value.items()}
     if isinstance(value, list):
         return [_normalize_cache_metadata(item) for item in value]
     if isinstance(value, tuple):
@@ -705,6 +1082,7 @@ def _freeze_response(response: GatewayLLMResponse) -> _SerializedGatewayResponse
             )
             for tool_call in (response.tool_calls or [])
         ),
+        origin_event_id=response.producer_event_id,
     )
 
 
@@ -722,6 +1100,7 @@ def _thaw_response(response: _SerializedGatewayResponse) -> GatewayLLMResponse:
         request_id=response.request_id,
         response_headers=dict(response.response_headers) if response.response_headers else None,
         raw=_deserialize_payload(response.raw_json),
+        producer_event_id=response.origin_event_id,
         tool_calls=[
             GatewayToolCall(
                 id=tool_call.id,

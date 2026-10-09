@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.welfare import (
     ChannelDecompositionArtifact,
@@ -28,7 +30,7 @@ def _persist_payload(
     store: FileSystemCAS, payload: dict[str, object], *, kind: str
 ) -> ArtifactRefModel:
     ref = put_json_artifact(
-        store,
+        _ensure_ir_artifact_store(store),
         payload,
         kind=kind,
         schema_name=kind,
@@ -72,8 +74,10 @@ def test_welfare_bundle_and_channel_artifact_round_trip_via_store(tmp_path) -> N
         diagnostic_summary={"policy_rank_ok": True},
     )
 
-    channel_ref = persist_channel_decomposition_artifact(store, channel)
-    loaded_channel = load_channel_decomposition_artifact(store, channel_ref)
+    channel_ref = persist_channel_decomposition_artifact(_ensure_ir_artifact_store(store), channel)
+    loaded_channel = load_channel_decomposition_artifact(
+        _ensure_ir_artifact_store(store), channel_ref
+    )
 
     assert isinstance(channel_ref, ChannelDecompositionArtifactRef)
     assert loaded_channel == channel
@@ -87,8 +91,8 @@ def test_welfare_bundle_and_channel_artifact_round_trip_via_store(tmp_path) -> N
         metadata={"track": "7.5"},
     )
 
-    bundle_ref = persist_welfare_bundle(store, bundle)
-    loaded_bundle = load_welfare_bundle(store, bundle_ref)
+    bundle_ref = persist_welfare_bundle(_ensure_ir_artifact_store(store), bundle)
+    loaded_bundle = load_welfare_bundle(_ensure_ir_artifact_store(store), bundle_ref)
 
     assert isinstance(bundle_ref, WelfareBundleRef)
     assert loaded_bundle == bundle
@@ -157,7 +161,7 @@ def test_build_channel_decomposition_ref_identified_with_matrix_replay(tmp_path)
     )
 
     ref = build_channel_decomposition_ref(
-        store,
+        _ensure_ir_artifact_store(store),
         target_kind="net_revenue",
         baseline_microdata_ref=baseline_ref,
         policy_basis_ref=policy_basis_ref,
@@ -166,7 +170,7 @@ def test_build_channel_decomposition_ref_identified_with_matrix_replay(tmp_path)
         fiscal_state_model_ref=fiscal_ref,
         instrument_set_ref=instrument_ref,
     )
-    artifact = load_channel_decomposition_artifact(store, ref)
+    artifact = load_channel_decomposition_artifact(_ensure_ir_artifact_store(store), ref)
 
     assert artifact.identification_status is ChannelIdentificationStatus.IDENTIFIED
     assert artifact.mechanical_vector == pytest.approx((0.6, 1.0, 1.8))
@@ -207,7 +211,7 @@ def test_build_channel_decomposition_ref_downgrades_without_fiscal_channel(tmp_p
     instrument_ref = _persist_payload(store, {"overid_ok": True}, kind="ir.instrument_set")
 
     ref = build_channel_decomposition_ref(
-        store,
+        _ensure_ir_artifact_store(store),
         target_kind=ChannelDecompositionTargetKind.NET_REVENUE,
         baseline_microdata_ref=baseline_ref,
         policy_basis_ref=policy_basis_ref,
@@ -215,7 +219,7 @@ def test_build_channel_decomposition_ref_downgrades_without_fiscal_channel(tmp_p
         behavior_model_ref=behavior_ref,
         instrument_set_ref=instrument_ref,
     )
-    artifact = load_channel_decomposition_artifact(store, ref)
+    artifact = load_channel_decomposition_artifact(_ensure_ir_artifact_store(store), ref)
 
     assert artifact.identification_status is ChannelIdentificationStatus.BOUNDED
     assert artifact.behavioral_vector == pytest.approx((-0.24, -0.36, -0.48))
@@ -251,14 +255,14 @@ def test_build_channel_decomposition_ref_blocks_on_rank_failure(tmp_path) -> Non
     )
 
     ref = build_channel_decomposition_ref(
-        store,
+        _ensure_ir_artifact_store(store),
         target_kind="net_revenue",
         baseline_microdata_ref=baseline_ref,
         policy_basis_ref=policy_basis_ref,
         mechanical_inputs_ref=mechanical_ref,
         behavior_model_ref=behavior_ref,
     )
-    artifact = load_channel_decomposition_artifact(store, ref)
+    artifact = load_channel_decomposition_artifact(_ensure_ir_artifact_store(store), ref)
 
     assert artifact.identification_status is ChannelIdentificationStatus.BLOCKED
     assert artifact.behavioral_vector is None

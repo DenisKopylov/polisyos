@@ -52,8 +52,20 @@ import {
 import { ApiErrorAlert, exportCsv, exportJson } from "@/shared/ui";
 
 type RetrievalMode = "fastlane" | "hybrid" | "explorelane";
+type CatalogRunProfile = NonNullable<
+  components["schemas"]["DataResolveRequest"]["catalog_run_profile"]
+>;
 type FetchPlan = components["schemas"]["FetchPlan"];
 type DataNeed = components["schemas"]["DataNeed"];
+
+const CATALOG_RUN_PROFILE_LABEL_KEYS = {
+  prod_full: "prodFull",
+  prod_core_blocking: "prodCoreBlocking",
+  rest_backfill: "restBackfill",
+  catalog_refresh: "catalogRefresh",
+  preflight_core: "preflightCore",
+  observations_backfill: "observationsBackfill",
+} satisfies Record<CatalogRunProfile, string>;
 
 const NO_DISCOVERY_COST_BUDGET_USD: OperationalRequestControl =
   operationalRequestControl(0);
@@ -157,6 +169,9 @@ export default function DataIntelligencePanel({
   const [qualityMin, setQualityMin] = useState(0.6);
   const [modeSelection, setModeSelection] = useState<RetrievalMode>("hybrid");
   const [allowExploreFallback, setAllowExploreFallback] = useState(true);
+  const [catalogRunProfile, setCatalogRunProfile] = useState<
+    CatalogRunProfile | ""
+  >("");
 
   const [maxSourcesPerQuery, setMaxSourcesPerQuery] = useState(5);
   const [maxDiscoveryCallsPerSource, setMaxDiscoveryCallsPerSource] =
@@ -371,6 +386,7 @@ export default function DataIntelligencePanel({
       data_needs: [currentNeed],
       mode: modeSelection,
       allow_explore_fallback: allowExploreFallback,
+      ...(catalogRunProfile ? { catalog_run_profile: catalogRunProfile } : {}),
     });
   }
 
@@ -753,6 +769,40 @@ export default function DataIntelligencePanel({
                 {t("panels.dataIntelligence.retrievalModeOptions.explorelane")}
               </option>
             </Select>
+          </div>
+          <div>
+            <Label
+              htmlFor="evidence-catalog-run-profile-select"
+              className="text-muted mb-1 block text-xs"
+            >
+              {t("panels.dataIntelligence.catalogRunProfile")}
+            </Label>
+            <Select
+              id="evidence-catalog-run-profile-select"
+              value={catalogRunProfile}
+              onChange={(event) =>
+                setCatalogRunProfile(
+                  event.target.value as CatalogRunProfile | "",
+                )
+              }
+              aria-label={t("panels.dataIntelligence.catalogRunProfile")}
+            >
+              <option value="">
+                {t("panels.dataIntelligence.catalogRunProfileOptions.unset")}
+              </option>
+              {Object.entries(CATALOG_RUN_PROFILE_LABEL_KEYS).map(
+                ([profile, labelKey]) => (
+                  <option key={profile} value={profile}>
+                    {t(
+                      `panels.dataIntelligence.catalogRunProfileOptions.${labelKey}`,
+                    )}
+                  </option>
+                ),
+              )}
+            </Select>
+            <p className="text-muted mt-1 text-xs">
+              {t("panels.dataIntelligence.catalogRunProfileHelp")}
+            </p>
           </div>
           <div className="md:col-span-2">
             <div

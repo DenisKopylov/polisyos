@@ -11,6 +11,7 @@ from pydantic import ValidationError
 
 from polisyos.common import serialization
 from polisyos.core import canon
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -251,7 +252,9 @@ class RunCausalQueriesNode:
             scm_spec_ref = StructuralCausalModelSpecRef.model_validate(
                 scm_ref.model_dump(mode="json")
             )
-            scm_spec = load_structural_causal_model_spec(ctx.store, scm_spec_ref)
+            scm_spec = load_structural_causal_model_spec(
+                _ensure_ir_artifact_store(ctx.store), scm_spec_ref
+            )
             validate_source_bound_gcm_spec(scm_spec, ctx.store)
         except _CAUSAL_QUERY_LOAD_ERRORS as exc:
             return NodeOutcome(
@@ -355,7 +358,7 @@ class RunCausalQueriesNode:
             )
 
         query_result_ref = persist_causal_query_result(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             query_result,
             inputs=input_refs,
             schema_version=query_result.schema_version,
@@ -382,7 +385,7 @@ class RunCausalQueriesNode:
                 }
             )
         envelope_ref = persist_uncertainty_envelope(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             envelope,
             inputs=input_refs,
         )

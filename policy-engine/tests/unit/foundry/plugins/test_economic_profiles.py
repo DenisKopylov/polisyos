@@ -215,6 +215,27 @@ def test_equal_one_period_tax_equations_require_explicit_stock_flow_conversion()
     assert not hasattr(plugin_result, "government_balance")
 
 
+def test_real_progressive_tax_can_reach_signed_wealth_then_existing_gini_refuses() -> None:
+    """The real plugin tax law feeds signed active wealth into the Gini guard."""
+
+    economic = EconomicState.empty(n_agents=2, seed=31)
+    economic = economic.replace(
+        agents=economic.agents.replace(
+            active=jnp.ones(2, dtype=jnp.bool_),
+            income=jnp.asarray([25_000.0, 50_000.0]),
+            wealth=jnp.zeros(2),
+        )
+    )
+
+    taxed = TaxationMechanism().apply(economic)
+
+    # The existing progressive brackets debit 3,250 and 7,700 respectively.
+    np.testing.assert_array_equal(taxed.agents.wealth, jnp.asarray([-3_250.0, -7_700.0]))
+    assert not taxed.validate()
+    with pytest.raises(Exception, match="classical Gini requires finite nonnegative active values"):
+        jax.block_until_ready(taxed.update_aggregates())
+
+
 def test_equal_subsidy_transfer_equations_require_uniform_income_and_policy() -> None:
     native = _state().replace(agents=_state().agents.replace(income=jnp.full(4, 100.0)))
     effective = native.agents.active & _TARGET

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext
@@ -173,7 +174,7 @@ def test_transportability_required_blocks_required_direct_unsupported_artifact(
 ) -> None:
     store = FileSystemCAS(tmp_path)
     transport_ref = persist_transportability_result(
-        store,
+        _ensure_ir_artifact_store(store),
         TransportabilityResult(
             query="P*(msme_survival_rate|do(credit_guarantee))",
             status=TransportabilityStatus.UNSUPPORTED,

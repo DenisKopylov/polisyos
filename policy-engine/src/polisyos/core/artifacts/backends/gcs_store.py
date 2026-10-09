@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib
+import re
 import threading
 from typing import TYPE_CHECKING, Any
 
@@ -211,8 +212,14 @@ class GCSArtifactStore:
     def _load_manifest(
         self,
         artifact_id: ArtifactID | ArtifactRef | str,
+        *,
+        manifest_profile_sha256: str | None = None,
     ) -> tuple[bytes, ArtifactManifest]:
         aid, profile_sha256, ref = artifact_reference_parts(artifact_id)
+        if manifest_profile_sha256 is not None:
+            if profile_sha256 is not None and profile_sha256 != manifest_profile_sha256:
+                raise ValueError("conflicting manifest profile selectors")
+            profile_sha256 = manifest_profile_sha256
         cache_suffix = self._manifest_cache_suffix(profile_sha256)
         cached = self._cache_read(aid, cache_suffix)
         if cached is not None:
@@ -228,9 +235,7 @@ class GCSArtifactStore:
             if profile_sha256 is not None and ManifestLifecycle.profile_sha256(manifest) != (
                 profile_sha256
             ):
-                raise ArtifactIntegrityError(
-                    f"Selected manifest profile mismatch for {aid}"
-                )
+                raise ArtifactIntegrityError(f"Selected manifest profile mismatch for {aid}")
             if ref is not None and (
                 ref.kind != manifest.kind or ref.media_type != manifest.media_type
             ):
@@ -250,6 +255,21 @@ class GCSArtifactStore:
     def get_manifest(self, artifact_id: ArtifactID | ArtifactRef | str) -> ArtifactManifest:
         """Load and validate the default or explicitly selected manifest view."""
         _raw, manifest = self._load_manifest(artifact_id)
+        return manifest
+
+    def get_manifest_by_profile(
+        self,
+        artifact_id: ArtifactID | str,
+        manifest_profile_sha256: str,
+    ) -> ArtifactManifest:
+        """Resolve an exact selected manifest sidecar without assuming its kind."""
+        aid = ArtifactID.model_validate(artifact_id)
+        if re.fullmatch(r"sha256:[0-9a-f]{64}", manifest_profile_sha256) is None:
+            raise ValueError("manifest_profile_sha256 must be sha256:<64 lowercase hex>")
+        _raw, manifest = self._load_manifest(
+            aid,
+            manifest_profile_sha256=manifest_profile_sha256,
+        )
         return manifest
 
     @staticmethod

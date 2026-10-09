@@ -22,6 +22,7 @@ import polisyos.runtime.quality.promotion_sequence as promotion_sequence_module
 from polisyos.core import canon
 from polisyos.core import contracts as core_contracts
 from polisyos.core.artifacts import ArtifactWriteOptions, FileSystemCAS
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
 from polisyos.data_requirement import (
     DataQualityMinimums,
@@ -132,9 +133,7 @@ from tools.quality.validation import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
-_R6_FOREIGN_CONTEXT_IDENTITY_REMOVAL_ENV = (
-    "POLISYOS_R6_FOREIGN_CONTEXT_IDENTITY_REMOVAL"
-)
+_R6_FOREIGN_CONTEXT_IDENTITY_REMOVAL_ENV = "POLISYOS_R6_FOREIGN_CONTEXT_IDENTITY_REMOVAL"
 
 
 def _canonical_loaded_deployment_identity() -> str:
@@ -159,7 +158,9 @@ def _owner_catalog_prerequisite_issue(repo_root: Path) -> str | None:
     if not missing:
         return None
     rendered = ", ".join(
-        path.relative_to(repo_root).as_posix() if path.is_relative_to(repo_root) else path.as_posix()
+        path.relative_to(repo_root).as_posix()
+        if path.is_relative_to(repo_root)
+        else path.as_posix()
         for path in missing
     )
     return (
@@ -571,14 +572,17 @@ def _ready_value_observation(candidate_id: str) -> ValuePortObservation:
         "denominator": [method_fqn],
         "selection_context_hash": "sha256:" + "f" * 64,
     }
-    selection_hash = "sha256:" + hashlib.sha256(
-        json.dumps(
-            selection_payload,
-            sort_keys=True,
-            separators=(",", ":"),
-            ensure_ascii=True,
-        ).encode("utf-8")
-    ).hexdigest()
+    selection_hash = (
+        "sha256:"
+        + hashlib.sha256(
+            json.dumps(
+                selection_payload,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=True,
+            ).encode("utf-8")
+        ).hexdigest()
+    )
     selection_receipt = generation_cycle_module.MethodSelectionReceipt.model_validate(
         {**selection_payload, "content_hash": selection_hash}
     )
@@ -2308,8 +2312,7 @@ def test_joint_port_rejects_candidate_unbound_resolution_from_another_context(
                 for lever in active_context.candidate_levers
                 if lever.lever_id == validated_refusal.lever_id
                 and lever.instrument == validated_refusal.instrument
-                and lever.entry_content_hash
-                == validated_refusal.candidate_entry_content_hash
+                and lever.entry_content_hash == validated_refusal.candidate_entry_content_hash
             )
             assert len(matches) == 1
             return matches[0]
@@ -2658,15 +2661,12 @@ def test_joint_port_owner_missing_ncm_blocks_with_bound_wmr_provenance() -> None
     assert controller_calls == []
 
 
-
 def _record_with_selected_ncm_ref(record: Any, ncm_ref: str) -> Any:
     """Rebind a fixture WMR to one selected NCM artifact without changing other fields."""
 
     from polisyos.runtime.quality.world_model_record import world_model_record_content_hash
 
-    simulation_model_ref = record.simulation_model_ref.model_copy(
-        update={"ncm_refs": (ncm_ref,)}
-    )
+    simulation_model_ref = record.simulation_model_ref.model_copy(update={"ncm_refs": (ncm_ref,)})
     draft = record.model_copy(update={"simulation_model_ref": simulation_model_ref})
     content_hash = world_model_record_content_hash(draft)
     payload = draft.model_dump(mode="python")
@@ -2698,9 +2698,7 @@ def _record_with_selected_ncm_view(record: Any, ncm_ref: Any) -> Any:
     substrate_registry = record.substrate_registry_ref
     substrate_ref = views.substrate_registry_ref
     if substrate_ref is None and substrate_registry.registry_artifact_ref is not None:
-        substrate_registry = substrate_registry.model_copy(
-            update={"registry_artifact_ref": None}
-        )
+        substrate_registry = substrate_registry.model_copy(update={"registry_artifact_ref": None})
     selected_views = WorldModelArtifactViews.model_validate(
         {
             **views.model_dump(mode="python"),
@@ -2876,12 +2874,8 @@ def _owner_program_graph_n5_witness(
                 default_snapshot_ref = original_put_snapshot(
                     supplied_store, state=state, step=step, inputs=inputs
                 )
-                default_snapshot = load_model(
-                    supplied_store, default_snapshot_ref, StateSnapshot
-                )
-                blob_bytes = supplied_store.get_bytes(
-                    default_snapshot.state_ref.artifact_id
-                )
+                default_snapshot = load_model(supplied_store, default_snapshot_ref, StateSnapshot)
+                blob_bytes = supplied_store.get_bytes(default_snapshot.state_ref.artifact_id)
                 context_inputs = list(default_snapshot.lineage_inputs or ())[:-1]
                 selected_blob_ref = supplied_store.put_bytes(
                     blob_bytes,
@@ -2893,9 +2887,7 @@ def _owner_program_graph_n5_witness(
                 )
                 if selected_blob_ref.manifest_profile_sha256 is None:
                     raise AssertionError("test fixture did not create a selected state-blob view")
-                selected_edge = input_ref_from_artifact_ref(
-                    selected_blob_ref, role="state_blob"
-                )
+                selected_edge = input_ref_from_artifact_ref(selected_blob_ref, role="state_blob")
                 lineages = [*context_inputs, selected_edge]
                 selected_snapshot = default_snapshot.model_copy(
                     update={
@@ -2908,9 +2900,7 @@ def _owner_program_graph_n5_witness(
                     PutOptions(
                         kind="foundry.state_snapshot",
                         media_type="application/json",
-                        schema=SchemaInfo(
-                            name="polisyos.core.StateSnapshot", version="2.2.0"
-                        ),
+                        schema=SchemaInfo(name="polisyos.core.StateSnapshot", version="2.2.0"),
                         inputs=lineages,
                     ),
                 )
@@ -2946,9 +2936,7 @@ def _owner_program_graph_n5_witness(
                 )
                 plan_manifest = store.get_manifest(graph_plan.exec_plan_ref)
                 plan = ExecPlan.model_validate(
-                    canon.from_canonical_bytes(
-                        store.get_bytes(graph_plan.exec_plan_ref)
-                    )
+                    canon.from_canonical_bytes(store.get_bytes(graph_plan.exec_plan_ref))
                 ).model_copy(update={"program_ref": selected_graph_ref})
                 selected_plan_ref = store.put_json(
                     plan,
@@ -3022,9 +3010,7 @@ def _owner_program_graph_n5_witness(
             world_model_build = build_world_model_record(
                 store,
                 fabric_world_ref=world_fixture._fabric_ref(case_root),
-                data_forge_snapshot_binding_path=world_fixture._write_data_forge_binding(
-                    case_root
-                ),
+                data_forge_snapshot_binding_path=world_fixture._write_data_forge_binding(case_root),
                 data_snapshot_ref=data_snapshot_ref,
                 model_spec=model_spec,
                 skg_causal_prior_ref=world_fixture._skg_ref(case_root),
@@ -3040,9 +3026,7 @@ def _owner_program_graph_n5_witness(
                 producer_ref="test.cycle_owner_program_graph_n5",
                 program_graph_refs=(str(graph_plan.program_graph_ref.artifact_id),),
                 program_graph_view_refs=(
-                    (graph_plan.program_graph_ref,)
-                    if select_program_graph_view
-                    else None
+                    (graph_plan.program_graph_ref,) if select_program_graph_view else None
                 ),
             )
             context, candidate = _rebind_owner_cycle_record(
@@ -3098,7 +3082,7 @@ def _runtime_ncm_fixture_store(
     try:
         with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
             ref = persist_ncm_spec(
-                store, expected, schema_version=schema_version
+                _ensure_ir_artifact_store(store), expected, schema_version=schema_version
             )
         return store, expected, str(ref.artifact_id)
     except Exception:
@@ -3150,9 +3134,7 @@ def test_joint_port_uses_runtime_store_for_context_selected_ncm_and_keeps_no_con
             with pytest.raises(_ReachedN5Error):
                 served_port(candidate=candidate, problem=problem, cycle_index=0)
 
-        assert resolved_without_context.model_dump(mode="json") == expected.model_dump(
-            mode="json"
-        )
+        assert resolved_without_context.model_dump(mode="json") == expected.model_dump(mode="json")
         assert len(request_seen) == 1
         assert request_seen[0].world_model_record.content_hash == (
             context.world_model_record.content_hash
@@ -3187,9 +3169,7 @@ def test_joint_port_resolves_exact_selected_candidate_ncm_view(
     job_id = "job-selected-ncm"
     run_id = "run-selected-ncm"
     declaration_fields = {
-        "schema_version": (
-            "policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"
-        ),
+        "schema_version": ("policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"),
         "profile_config_ref": "runtime-config:candidate-simulation:selected-ncm",
         "profile_content_hash": "sha256:" + "a" * 64,
         "profile_selection_ref": "sha256:" + "b" * 64,
@@ -3275,9 +3255,7 @@ def test_joint_port_resolves_exact_selected_candidate_ncm_view(
         assert selected_world.artifact_views is not None
         assert selected_world.artifact_views.ncm_refs == (selected_ref,)
 
-        stripped_ref = selected_ref.model_copy(
-            update={"manifest_profile_sha256": None}
-        )
+        stripped_ref = selected_ref.model_copy(update={"manifest_profile_sha256": None})
         with pytest.raises(WorldModelRecordError) as raised:
             port._resolve_joint_simulation_ncm(
                 problem=problem,
@@ -3288,7 +3266,6 @@ def test_joint_port_resolves_exact_selected_candidate_ncm_view(
                 cell_id=cell_id,
             )
         assert raised.value.code == "joint_simulation_ncm_selected_view_not_wmr_bound"
-
 
 
 def test_joint_port_refuses_same_id_sibling_ncm_views_before_n5(
@@ -3454,9 +3431,7 @@ def test_joint_port_refuses_same_id_sibling_ncm_views_before_n5(
 
     assert selected_ncm.model_dump(mode="json") == sibling_ncm.model_dump(mode="json")
     assert selected_ncm_ref.artifact_id == sibling_ncm_ref.artifact_id
-    assert artifact_ref_identity_key(selected_ncm_ref) != artifact_ref_identity_key(
-        sibling_ncm_ref
-    )
+    assert artifact_ref_identity_key(selected_ncm_ref) != artifact_ref_identity_key(sibling_ncm_ref)
     selected_manifest = store.get_manifest(selected_ncm_ref)
     sibling_manifest = store.get_manifest(sibling_ncm_ref)
     assert selected_manifest.inputs == [
@@ -3492,14 +3467,12 @@ def test_joint_port_refuses_same_id_sibling_ncm_views_before_n5(
         }
     )
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
-        substrate_registry_view_ref = (
-            ConfiguredCandidateSimulationContextAdmissionOwner(
-                profiles=(),
-                store=store,
-            )._candidate_world_model_substrate_registry_view(
-                world_model_record=limited_base,
-                substrate_registry=context.substrate_registry,
-            )
+        substrate_registry_view_ref = ConfiguredCandidateSimulationContextAdmissionOwner(
+            profiles=(),
+            store=store,
+        )._candidate_world_model_substrate_registry_view(
+            world_model_record=limited_base,
+            substrate_registry=context.substrate_registry,
         )
     selected_world = derive_candidate_scenario_world_model_record(
         limited_base,
@@ -3600,6 +3573,7 @@ def test_joint_port_refuses_same_id_sibling_ncm_views_before_n5(
     assert blocked.status == "simulation_blocked"
     assert blocked.authority_blockers == ("joint_simulation_ncm_spec_missing",)
     assert controller_calls == []
+
 
 def test_joint_port_falls_back_from_unbound_program_graph_to_owner_ncm(
     tmp_path: Path,
@@ -3706,8 +3680,10 @@ def test_owner_program_graph_n5_consumes_distinct_wmr_states_and_n8_keeps_limits
         assert low.context.design_problem_ref == high.context.design_problem_ref
         assert low.candidate.candidate_id == high.candidate.candidate_id
         assert low.simulation.status == high.simulation.status == "joint_simulated"
-        assert low.result.schema_version == high.result.schema_version == (
-            "policyos.runtime.joint_simulation_horizon.v2"
+        assert (
+            low.result.schema_version
+            == high.result.schema_version
+            == ("policyos.runtime.joint_simulation_horizon.v2")
         )
         assert low.result.horizon == high.result.horizon
         assert low.result.selected_outcomes == high.result.selected_outcomes
@@ -3741,8 +3717,7 @@ def test_owner_program_graph_n5_consumes_distinct_wmr_states_and_n8_keeps_limits
                 witness.world_model_build.record.simulation_model_ref.program_graph_refs
             )
             actual_income = tuple(
-                float(value)
-                for value in witness.world_model_build.bound_global_state.agents.income
+                float(value) for value in witness.world_model_build.bound_global_state.agents.income
             )
             assert actual_income == pytest.approx(expected_income)
             assert persisted_limitation_codes.issubset(
@@ -3813,10 +3788,13 @@ def test_owner_program_graph_n5_consumes_selected_wmr_view_and_rejects_sibling(
             selected_graph_ref.artifact_id
         )
         with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
-            assert load_world_model_record(
-                witness.store,
-                witness.world_model_build.record_ref,
-            ) == record
+            assert (
+                load_world_model_record(
+                    witness.store,
+                    witness.world_model_build.record_ref,
+                )
+                == record
+            )
 
             selected_manifest = witness.store.get_manifest(selected_graph_ref)
             sibling_graph_ref = witness.store.put_bytes(
@@ -3956,9 +3934,7 @@ def test_owner_program_graph_n5_rejects_state_ref_selector_removal_with_markers(
                 candidate=witness.candidate,
                 problem=witness.problem,
             )
-        snapshot_id = str(
-            witness.world_model_build.bound_state_snapshot_ref.artifact_id
-        )
+        snapshot_id = str(witness.world_model_build.bound_state_snapshot_ref.artifact_id)
         original_get_bytes = witness.store.get_bytes
         altered_once = False
 
@@ -4007,9 +3983,7 @@ def test_owner_program_graph_n5_state_handoff_removal_probe_keeps_markers_red(
         assert owner_plan.program_base_state is not None
         if not common_state:
             common_state.append(owner_plan.program_base_state)
-        return owner_plan.model_copy(
-            update={"program_base_state": common_state[0]}
-        ), consumption
+        return owner_plan.model_copy(update={"program_base_state": common_state[0]}), consumption
 
     monkeypatch.setattr(JointSimulationPort, "_bound_program_plan", without_state_handoff)
     low = _owner_program_graph_n5_witness(
@@ -4026,7 +4000,9 @@ def test_owner_program_graph_n5_state_handoff_removal_probe_keeps_markers_red(
         second = high.result.state_consumption
         assert first is not None and second is not None
         assert first.world_model_record_content_hash == low.context.world_model_record.content_hash
-        assert second.world_model_record_content_hash == high.context.world_model_record.content_hash
+        assert (
+            second.world_model_record_content_hash == high.context.world_model_record.content_hash
+        )
         assert first.bound_state_snapshot_ref != second.bound_state_snapshot_ref
         assert first.state_blob_content_hash != second.state_blob_content_hash
         assert first.state_slot_digest != second.state_slot_digest
@@ -4034,10 +4010,14 @@ def test_owner_program_graph_n5_state_handoff_removal_probe_keeps_markers_red(
         assert first.exec_plan_ref == second.exec_plan_ref
 
         def joint_outcome(witness: _OwnerProgramGraphN5Witness) -> float:
-            return witness.result.trajectory_for(
-                "joint",
-                ("income_subsidy", "balance_grant"),
-            ).points[-1].outcomes["firm_survival"]
+            return (
+                witness.result.trajectory_for(
+                    "joint",
+                    ("income_subsidy", "balance_grant"),
+                )
+                .points[-1]
+                .outcomes["firm_survival"]
+            )
 
         # The first owner-resolved state is reused for both calls. The second
         # run retains its WMR markers, but its behavioral input is wrong.
@@ -4071,9 +4051,7 @@ def test_owner_program_graph_n5_state_handoff_removal_probe_keeps_markers_red(
                 cycle_index=0,
             )
         assert control.status == "joint_simulated"
-        assert control.diagnostics["engine_decisions"][-1]["engine_kind"] == (
-            "ncm_parallel_worlds"
-        )
+        assert control.diagnostics["engine_decisions"][-1]["engine_kind"] == ("ncm_parallel_worlds")
     finally:
         ncm_store.close()
 
@@ -4162,16 +4140,17 @@ async def test_generation_cycle_serves_persisted_n5_into_default_n8_value_port(
             assert "simulation_only_k_sim_not_world_evidence" in (
                 cycle.value_port.authority_blockers
             )
-            assert simulation_evaluation_input_ref(
-                cycle.simulation,
-                artifact_store=store,
-            ) is not None
+            assert (
+                simulation_evaluation_input_ref(
+                    cycle.simulation,
+                    artifact_store=store,
+                )
+                is not None
+            )
             persisted = load_joint_simulation_result(
                 cycle.simulation.simulation_result_ref,
                 store=store,
-                expected_world_model_record_content_hash=(
-                    context.world_model_record.content_hash
-                ),
+                expected_world_model_record_content_hash=(context.world_model_record.content_hash),
                 expected_atom_ids=tuple(
                     atom.intervention_id for atom in candidate.intervention_atoms
                 ),
@@ -4444,10 +4423,13 @@ async def test_n8_recovers_persisted_blocker_after_lossy_simulation_projection(
             assert "simulation_only_k_sim_not_world_evidence" in value.authority_blockers
             assert value.value_receipt is None
             assert value.method_selection_receipt is None
-            assert simulation_evaluation_input_ref(
-                simulation,
-                artifact_store=store,
-            ) is None
+            assert (
+                simulation_evaluation_input_ref(
+                    simulation,
+                    artifact_store=store,
+                )
+                is None
+            )
             with pytest.raises(
                 ValueError,
                 match="eval_safety_simulation_input_unresolved",
@@ -4641,8 +4623,6 @@ def test_joint_port_blocks_context_selected_ncm_absent_from_runtime_store(tmp_pa
         store.close()
 
 
-
-
 def test_joint_port_blocks_selected_ncm_with_mismatched_manifest_schema(
     tmp_path: Path,
 ) -> None:
@@ -4669,7 +4649,6 @@ def test_joint_port_blocks_selected_ncm_with_mismatched_manifest_schema(
         store.close()
 
 
-
 def test_joint_port_refuses_selected_ncm_without_runtime_store(tmp_path: Path) -> None:
     """A selected digest cannot trigger N5's old repository-root CAS reconstruction."""
 
@@ -4689,8 +4668,6 @@ def test_joint_port_refuses_selected_ncm_without_runtime_store(tmp_path: Path) -
 
     assert raised.value.code == "joint_simulation_ncm_store_not_established"
     assert not (repo_root / ".tmp" / "gy-s-composed-wmr-cas").exists()
-
-
 
 
 def test_joint_port_reports_runtime_ncm_store_unavailability_as_typed_block(
@@ -4724,7 +4701,6 @@ def test_joint_port_reports_runtime_ncm_store_unavailability_as_typed_block(
         )
 
     assert raised.value.code == "joint_simulation_ncm_store_unavailable"
-
 
 
 def test_joint_port_preserves_typed_missing_ncm_ref_without_context(tmp_path: Path) -> None:
@@ -5661,9 +5637,7 @@ def _recorded_problem_for_candidate(candidate: dict[str, Any]) -> DesignProblem:
     matches = tuple(
         n4_contract._design_problem(recording)
         for recording in n4_contract._load_recordings(REPO_ROOT)
-        if gy_content_hash(
-            n4_contract._design_problem(recording).model_dump(mode="json")
-        )
+        if gy_content_hash(n4_contract._design_problem(recording).model_dump(mode="json"))
         == expected_ref
     )
     assert len(matches) == 1
@@ -5760,8 +5734,7 @@ async def test_controller_runs_counterexample_driven_revision_over_two_real_cycl
     assert run.fronts.portfolio.candidate_ids == ()
     assert run.value_port.status == "value_pending_n8"
     validation_codes = {
-        issue.get("code")
-        for issue in validate_generation_cycle_run(run, repo_root=REPO_ROOT)
+        issue.get("code") for issue in validate_generation_cycle_run(run, repo_root=REPO_ROOT)
     }
     # This hash-only repeat guard remains diagnostic, not producer-byte proof.
     assert "fake_cycle_same_candidate_repeated" in validation_codes
@@ -5800,9 +5773,7 @@ async def test_blocked_voi_action_blocks_run_and_recursive_terminal(tmp_path: Pa
         value_port=PendingN8ValuePort(),
         repo_root=tmp_path,
     )
-    run = await controller.run(
-        _problem(), budget_state=_budget(), min_cycles=2, max_cycles=3
-    )
+    run = await controller.run(_problem(), budget_state=_budget(), min_cycles=2, max_cycles=3)
 
     assert run.terminal_status == "blocked"
     assert run.blocked_reason == "explicit_voi_block"
@@ -5825,9 +5796,7 @@ async def test_blocked_voi_action_blocks_run_and_recursive_terminal(tmp_path: Pa
     issues = generation_cycle_module._validate_generation_cycle_run(
         removed_projection, require_currentness=False
     )
-    assert "voi_blocked_action_run_terminal_mismatch" in {
-        issue.get("code") for issue in issues
-    }
+    assert "voi_blocked_action_run_terminal_mismatch" in {issue.get("code") for issue in issues}
     assert generation_cycle_terminal_state(removed_projection).kind.value == "recursive_blocked"
 
     retained_promotion_marker = run.model_copy(
@@ -5874,12 +5843,15 @@ async def test_same_candidate_new_basis_preserves_history_and_current_front() ->
         "sha256:" + "1" * 64,
         "sha256:" + "2" * 64,
     )
-    assert len(
-        {
-            (summary.candidate_id, summary.content_hash, summary.cycle_index)
-            for summary in run.candidate_summaries
-        }
-    ) == 2
+    assert (
+        len(
+            {
+                (summary.candidate_id, summary.content_hash, summary.cycle_index)
+                for summary in run.candidate_summaries
+            }
+        )
+        == 2
+    )
     assert tuple(
         cycle.revision_request.revised_problem.design_problem_id for cycle in run.cycles
     ) == (problem.design_problem_id, problem.design_problem_id)
@@ -5896,8 +5868,6 @@ async def test_same_candidate_new_basis_preserves_history_and_current_front() ->
     }
     assert "strangle_receipt_currentness_not_established" in strict_issue_codes
     assert "single_pass_fixture_survives_as_production_cycle" not in strict_issue_codes
-
-
 
 
 @pytest.mark.asyncio
@@ -5949,8 +5919,7 @@ async def test_blocked_n6_preempts_deployment_identity_mismatch_and_keeps_candid
     assert run.deployment_identity == mismatched
     assert run.promotion_port.status == "not_promoted"
     assert run.promotion_port.reason == (
-        "generation_cycle_blocked_before_n9:"
-        "voi_safety_cap_reached_without_scheduler_stop"
+        "generation_cycle_blocked_before_n9:voi_safety_cap_reached_without_scheduler_stop"
     )
     assert run.promotion_port.receipts == ()
     assert n9_preparation == []
@@ -6039,8 +6008,7 @@ async def test_nonblocked_candidate_source_preserves_canonical_identity_gate(
         ),
         (
             ("a" * 64, "a" * 64),
-            "generation_cycle_n6_census_not_established:"
-            "n6_census_issuer_not_appointed",
+            "generation_cycle_n6_census_not_established:n6_census_issuer_not_appointed",
         ),
     ],
     ids=("identity-changes-before-n9", "same-identity-census-remains-unrun"),
@@ -6104,9 +6072,7 @@ async def test_pre_n9_rechecks_canonical_identity_without_refusing_candidates(
     assert run.terminal_status == "completed"
     assert run.candidate_summaries
     assert run.deployment_identity_status == "established"
-    assert run.deployment_identity == (
-        f"policy-engine-deployment:sha256:{loaded_identities[0]}"
-    )
+    assert run.deployment_identity == (f"policy-engine-deployment:sha256:{loaded_identities[0]}")
     assert run.promotion_port.status == "not_promoted"
     assert run.promotion_port.reason == expected_reason
     assert n9_preparation == []
@@ -6218,9 +6184,9 @@ async def test_inspect_generation_cycle_run_uses_one_confidence_ledger_observati
 
     assert len(calls) == 1
     assert inspection.currentness == stale
-    assert {
-        (issue["code"], issue.get("reason")) for issue in inspection.issues
-    } >= {("strangle_receipt_stale", "generation_cycle_deployment_identity_mismatch")}
+    assert {(issue["code"], issue.get("reason")) for issue in inspection.issues} >= {
+        ("strangle_receipt_stale", "generation_cycle_deployment_identity_mismatch")
+    }
 
 
 @pytest.mark.asyncio
@@ -6267,8 +6233,7 @@ async def test_blocked_run_preserves_current_occurrence_and_basis_without_n9(
     assert front_ids == ("candidate_same_subject",)
     assert n9_preparation == []
     assert run.promotion_port.reason == (
-        "generation_cycle_blocked_before_n9:"
-        "voi_safety_cap_reached_without_scheduler_stop"
+        "generation_cycle_blocked_before_n9:voi_safety_cap_reached_without_scheduler_stop"
     )
     assert generation_cycle_module.eligible_n9_source_for_run(run) is None
 
@@ -6305,9 +6270,7 @@ async def test_nonblocked_latest_occurrence_reaches_runtime_or_types_currentness
             cycle_index: int,
             generation_result: Any | None = None,
         ) -> CandidateGroundingObservation:
-            grounding = (
-                self._initial_gap if cycle_index == 0 else self._current_grounding
-            )
+            grounding = self._initial_gap if cycle_index == 0 else self._current_grounding
             return grounding(
                 candidate=candidate,
                 problem=problem,
@@ -6337,9 +6300,7 @@ async def test_nonblocked_latest_occurrence_reaches_runtime_or_types_currentness
     assert run.cycles[0].voi_decision.reason == "voi_scheduler_advanced"
     assert run.cycles[-1].terminal_kind == "grounded_admissible"
     assert run.cycles[-1].voi_decision.next_action == "stop"
-    assert run.cycles[-1].voi_decision.reason == (
-        "terminal_stops_loop:grounded_admissible"
-    )
+    assert run.cycles[-1].voi_decision.reason == ("terminal_stops_loop:grounded_admissible")
     assert run.cycles[0].design_problem_ref != run.cycles[-1].design_problem_ref
     assert gy_content_hash(generator.problems[-1].model_dump(mode="json")) == (
         run.cycles[-1].design_problem_basis_ref
@@ -6359,10 +6320,7 @@ async def test_nonblocked_latest_occurrence_reaches_runtime_or_types_currentness
         recorded_identity_status=run.deployment_identity_status,
         recorded_deployment_identity=run.deployment_identity,
     )
-    unrun_reason = (
-        "generation_cycle_n6_census_not_established:"
-        "n6_census_issuer_not_appointed"
-    )
+    unrun_reason = "generation_cycle_n6_census_not_established:n6_census_issuer_not_appointed"
     if run.promotion_port.reason != unrun_reason:
         assert currentness.status == "current"
         assert currentness.census_verdict == "PASS"
@@ -6432,8 +6390,7 @@ def test_changed_population_and_model_rebind_owner_basis_and_occurrence(
     original_occurrence = original.contexts.ordered_bound_members[0].statement
     changed_occurrence = changed.contexts.ordered_bound_members[0].statement
     assert (
-        original_occurrence.candidate_occurrence_ref
-        != changed_occurrence.candidate_occurrence_ref
+        original_occurrence.candidate_occurrence_ref != changed_occurrence.candidate_occurrence_ref
     )
     original_occurrence_record = runtime.context_repository.resolve_occurrence(
         occurrence_ref=original_occurrence.candidate_occurrence_ref
@@ -6441,10 +6398,9 @@ def test_changed_population_and_model_rebind_owner_basis_and_occurrence(
     changed_occurrence_record = runtime.context_repository.resolve_occurrence(
         occurrence_ref=changed_occurrence.candidate_occurrence_ref
     )
-    assert (
-        core_contracts.c4_semantic_digest("candidate_occurrence", original_occurrence_record)
-        != core_contracts.c4_semantic_digest("candidate_occurrence", changed_occurrence_record)
-    )
+    assert core_contracts.c4_semantic_digest(
+        "candidate_occurrence", original_occurrence_record
+    ) != core_contracts.c4_semantic_digest("candidate_occurrence", changed_occurrence_record)
 
 
 def test_no_retry_without_new_grammar_blocks_same_candidate_retry() -> None:
@@ -6565,9 +6521,7 @@ async def test_guard_or_safety_cap_block_skips_n9_for_current_valid_candidate(
         generation_port=_CounterexampleAwareGenerator(),
         grounding_port=_CurrentValidRepairGrounding(),
         value_port=PendingN8ValuePort(),
-        revision_policy=(
-            _NoNewGrammarRevision() if block_path == "retry_guard" else None
-        ),
+        revision_policy=(_NoNewGrammarRevision() if block_path == "retry_guard" else None),
     )
     run = await controller.run(
         _problem(f"blocked_valid_candidate_{block_path}"),
@@ -6583,12 +6537,8 @@ async def test_guard_or_safety_cap_block_skips_n9_for_current_valid_candidate(
     assert run.cycles[0].voi_decision.reason == "voi_scheduler_advanced"
     assert controller.promotion_calls == 0
     assert run.promotion_port.status == "not_promoted"
-    assert run.promotion_port.reason == (
-        f"generation_cycle_blocked_before_n9:{expected_reason}"
-    )
-    issues = generation_cycle_module._validate_generation_cycle_run(
-        run, require_currentness=False
-    )
+    assert run.promotion_port.reason == (f"generation_cycle_blocked_before_n9:{expected_reason}")
+    issues = generation_cycle_module._validate_generation_cycle_run(run, require_currentness=False)
     assert "blocked_generation_cycle_n9_admission_mismatch" not in {
         issue.get("code") for issue in issues
     }
@@ -6762,7 +6712,9 @@ async def test_production_n7_route_less_claim_cannot_reenter_n5(route_marker, mo
             n5_calls += 1
         return original_joint_value_node(self, state)
 
-    monkeypatch.setattr(generation_cycle_module, "run_acquisition_closed_loop", capture_local_receipt)
+    monkeypatch.setattr(
+        generation_cycle_module, "run_acquisition_closed_loop", capture_local_receipt
+    )
     monkeypatch.setattr(GenerationCycleController, "_joint_value_node", count_joint_value_node)
     controller = GenerationCycleController(
         generation_port=_CounterexampleAwareGenerator(first_atom=atom),
@@ -6790,9 +6742,7 @@ async def test_production_n7_route_less_claim_cannot_reenter_n5(route_marker, mo
     assert cycle.terminal_kind == "acquisition_required"
     assert cycle.voi_decision.next_action == "escalate"
     assert cycle.search_iteration.status == "acquisition_required"
-    assert cycle.counterexample.diagnostic.code == (
-        "n6.acquisition.n7_runtime_store_not_supplied"
-    )
+    assert cycle.counterexample.diagnostic.code == ("n6.acquisition.n7_runtime_store_not_supplied")
 
 
 @pytest.mark.asyncio
@@ -6857,11 +6807,9 @@ async def test_default_production_n7_without_runtime_store_keeps_typed_limit(
     assert acquisition_calls == 0
     assert cycle.terminal_kind == "acquisition_required"
     assert cycle.candidate_ids
-    assert cycle.counterexample.diagnostic.code == (
-        "n6.acquisition.n7_runtime_store_not_supplied"
-    )
+    assert cycle.counterexample.diagnostic.code == ("n6.acquisition.n7_runtime_store_not_supplied")
     assert run.candidate_summaries
-    assert run.schema_version == "policyos.runtime.generation_cycle_controller.v4"
+    assert run.schema_version == "policyos.runtime.generation_cycle_controller.v5"
     assert run.source_custody_limitation is not None
     assert run.source_custody_limitation.status == "not_established"
     assert run.source_custody_limitation.reason_code == "source_store_unavailable"
@@ -6907,20 +6855,19 @@ async def test_default_production_n7_without_runtime_store_keeps_typed_limit(
             "deployment_identity_reason": None,
         }
     )
-    assert generation_cycle_module.currentness_for_generation_cycle_run(
-        identity_current_limited
-    ).status == "current"
+    assert (
+        generation_cycle_module.currentness_for_generation_cycle_run(
+            identity_current_limited
+        ).status
+        == "current"
+    )
     strict_issue_codes = {
         issue["code"]
-        for issue in generation_cycle_module.validate_generation_cycle_run(
-            identity_current_limited
-        )
+        for issue in generation_cycle_module.validate_generation_cycle_run(identity_current_limited)
     }
     assert "generation_cycle_source_custody_not_established" in strict_issue_codes
     if run.terminal_status == "blocked":
-        assert generation_cycle_module.eligible_n9_source_for_run(
-            identity_current_limited
-        ) is None
+        assert generation_cycle_module.eligible_n9_source_for_run(identity_current_limited) is None
     else:
         candidate_source = generation_cycle_module.eligible_n9_source_for_run(
             identity_current_limited
@@ -6928,9 +6875,7 @@ async def test_default_production_n7_without_runtime_store_keeps_typed_limit(
         assert candidate_source is not None
         assert candidate_source.run is identity_current_limited
         assert candidate_source.promotion_port.receipts == ()
-    blocked_limited = identity_current_limited.model_copy(
-        update={"terminal_status": "blocked"}
-    )
+    blocked_limited = identity_current_limited.model_copy(update={"terminal_status": "blocked"})
     assert generation_cycle_module.eligible_n9_source_for_run(blocked_limited) is None
     assert controller._source_repository is None
     assert controller._source_issues == ["source_store_unavailable"]
@@ -7161,9 +7106,7 @@ async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry() 
     assert run.cycles[0].voi_decision.next_action == "escalate"
     assert run.terminal_status == "completed"
     assert run.blocked_reason is None
-    assert any(
-        summary.candidate_id == "candidate_cycle_1" for summary in run.candidate_summaries
-    )
+    assert any(summary.candidate_id == "candidate_cycle_1" for summary in run.candidate_summaries)
     assert run.fronts.decision.candidate_ids == ()
     assert "candidate_cycle_1" in (
         run.fronts.research.candidate_ids + run.fronts.quarantine.candidate_ids
@@ -7270,9 +7213,7 @@ async def test_blocked_action_after_n7_reentry_is_terminal_before_n9() -> None:
     assert run.blocked_reason == "post_n7_blocked"
     assert run.cycles[0].refinement_decision.decision == "block_candidate"
     assert run.cycles[0].search_iteration.status == "blocked_no_retry"
-    assert any(
-        summary.candidate_id == "candidate_cycle_1" for summary in run.candidate_summaries
-    )
+    assert any(summary.candidate_id == "candidate_cycle_1" for summary in run.candidate_summaries)
     assert run.promotion_port.reason == "generation_cycle_blocked_before_n9:post_n7_blocked"
     assert run.promotion_port.receipts == ()
     assert generation_cycle_module.eligible_n9_source_for_run(run) is None
@@ -7995,25 +7936,40 @@ def test_phase5_value_port_configuration_preserves_manifest_omission() -> None:
         k_world_ref_after=context.world_model_record.content_hash,
     )
     execution_context = generation_cycle_module.simulation_value_execution_context(
-        candidate=candidate, simulation=simulation, problem=problem,
+        candidate=candidate,
+        simulation=simulation,
+        problem=problem,
     )
     omitted = generation_cycle_module.FoundryValuePort(evaluation_context=execution_context)
     omitted_inputs = omitted._selection_inputs()
     assert "observation_to_contract_manifest" not in omitted_inputs
-    assert generation_cycle_module._select_value_method(
-        candidate={}, problem={}, inputs=omitted_inputs,
-    )["status"] == "selected"
+    assert (
+        generation_cycle_module._select_value_method(
+            candidate={},
+            problem={},
+            inputs=omitted_inputs,
+        )["status"]
+        == "selected"
+    )
     supplied_null = generation_cycle_module.FoundryValuePort(
-        evaluation_context=execution_context, observation_to_contract_manifest=None,
+        evaluation_context=execution_context,
+        observation_to_contract_manifest=None,
     )
     null_inputs = supplied_null._selection_inputs()
     assert "observation_to_contract_manifest" in null_inputs
-    assert generation_cycle_module._select_value_method(
-        candidate={}, problem={}, inputs=null_inputs,
-    )["status"] == "blocked"
+    assert (
+        generation_cycle_module._select_value_method(
+            candidate={},
+            problem={},
+            inputs=null_inputs,
+        )["status"]
+        == "blocked"
+    )
     with pytest.raises(ValueError, match="value_method_manifest_source_invalid"):
         generation_cycle_module._value_method_route_constraint(
-            candidate={}, problem={}, inputs=null_inputs,
+            candidate={},
+            problem={},
+            inputs=null_inputs,
         )
 
 
@@ -8037,9 +7993,7 @@ def test_default_value_port_binds_the_actual_n5_context(
 
     class ProbeOwnerGateway:
         def load_value_data_profile(self, **kwargs: Any) -> Any:
-            owner_calls.append(
-                (kwargs["candidate"], kwargs["problem"], kwargs["world_record"])
-            )
+            owner_calls.append((kwargs["candidate"], kwargs["problem"], kwargs["world_record"]))
             raise generation_cycle_module.ValueOwnerAccessError("fresh_n5_owner_probe")
 
         def produce_forecast_inputs(self, **kwargs: Any) -> Any:
@@ -8995,13 +8949,13 @@ async def test_generation_cycle_contract_mutations_turn_red(
         replay_context.problem_binding
     )
     assert replay_context.session.risk_scope == replay_context.risk_scope
-    run_candidate_ids = {
-        summary.candidate_id for summary in replay_context.run.candidate_summaries
-    }
+    run_candidate_ids = {summary.candidate_id for summary in replay_context.run.candidate_summaries}
     assert replay_context.session_factory.candidate_ids
     assert set(replay_context.session_factory.candidate_ids) <= run_candidate_ids
     initial_binding = contract.N9DesignProblemBinding.from_problem(contract._design_problem())
-    assert replay_context.problem_binding.problem_content_hash != initial_binding.problem_content_hash
+    assert (
+        replay_context.problem_binding.problem_content_hash != initial_binding.problem_content_hash
+    )
     assert len(replay_context.comparison_admissions) == len(
         replay_context.run.promotion_port.receipts
     )
@@ -9037,8 +8991,7 @@ def test_n9_verification_port_rejects_same_subject_stale_content_basis_and_maps_
     p0 = contract._design_problem()
     p1_payload = p0.model_dump(mode="python")
     p1_payload["problem_statement"] = (
-        p0.problem_statement
-        + " Revised basis: prioritize critical supply-chain continuity."
+        p0.problem_statement + " Revised basis: prioritize critical supply-chain continuity."
     )
     p1 = DesignProblem.model_validate(p1_payload)
 
@@ -9256,9 +9209,7 @@ def test_generation_cycle_contract_one_shot_callback_reports_unrun_without_secon
         lambda _payload, **_kwargs: {"status": "pass", "issues": []},
     )
 
-    exit_code = contract.main(
-        ["--repo-root", str(tmp_path), "--check", "--output-format", "json"]
-    )
+    exit_code = contract.main(["--repo-root", str(tmp_path), "--check", "--output-format", "json"])
 
     captured = capsys.readouterr()
     report = json.loads(captured.out)
@@ -9294,9 +9245,7 @@ def test_generation_cycle_contract_cli_uses_exit_two_for_unrun(
 
     monkeypatch.setattr(Path, "read_text", unreadable_input)
 
-    exit_code = contract.main(
-        ["--repo-root", str(tmp_path), "--check", "--output-format", "text"]
-    )
+    exit_code = contract.main(["--repo-root", str(tmp_path), "--check", "--output-format", "text"])
 
     captured = capsys.readouterr()
     assert exit_code == 2
@@ -9312,9 +9261,7 @@ def test_generation_cycle_contract_check_discloses_measured_inputs_and_n9_denomi
     artifact_path.parent.mkdir(parents=True)
     artifact_path.write_bytes((REPO_ROOT / contract.OUTPUT_PATH).read_bytes())
 
-    exit_code = contract.main(
-        ["--repo-root", str(tmp_path), "--check", "--output-format", "json"]
-    )
+    exit_code = contract.main(["--repo-root", str(tmp_path), "--check", "--output-format", "json"])
 
     report = json.loads(capsys.readouterr().out)
     assert exit_code == 2
@@ -9443,9 +9390,11 @@ async def test_n6_strangle_drift_is_distinguished_from_unknown_and_candidate_rem
     unknown_receipt = StrangleReceipt.recompute(tmp_path)
     assert unknown_receipt.status == "not_established"
     unknown_run = run.model_copy(update={"strangle_receipt": unknown_receipt})
-    unknown_issues = generation_cycle_module._validate_generation_cycle_run_with_current_source_receipt(
-        unknown_run,
-        current_strangle_receipt=unknown_receipt,
+    unknown_issues = (
+        generation_cycle_module._validate_generation_cycle_run_with_current_source_receipt(
+            unknown_run,
+            current_strangle_receipt=unknown_receipt,
+        )
     )
     unknown_codes = {issue["code"] for issue in unknown_issues}
     assert "strangle_receipt_not_established" in unknown_codes
@@ -9465,9 +9414,11 @@ async def test_n6_strangle_drift_is_distinguished_from_unknown_and_candidate_rem
     drift_receipt = StrangleReceipt.recompute(tmp_path)
     assert drift_receipt.status == "drift"
     drift_run = run.model_copy(update={"strangle_receipt": drift_receipt})
-    drift_issues = generation_cycle_module._validate_generation_cycle_run_with_current_source_receipt(
-        drift_run,
-        current_strangle_receipt=drift_receipt,
+    drift_issues = (
+        generation_cycle_module._validate_generation_cycle_run_with_current_source_receipt(
+            drift_run,
+            current_strangle_receipt=drift_receipt,
+        )
     )
     drift_codes = {issue["code"] for issue in drift_issues}
     assert "single_pass_fixture_survives_as_production_cycle" in drift_codes
@@ -9482,9 +9433,7 @@ async def test_n6_strangle_drift_is_distinguished_from_unknown_and_candidate_rem
     removed_property_receipt = StrangleReceipt.recompute(tmp_path)
     assert removed_property_receipt.status == "strangled"
     assert "run_fixture" in source.read_text(encoding="utf-8")
-    removed_property_run = run.model_copy(
-        update={"strangle_receipt": removed_property_receipt}
-    )
+    removed_property_run = run.model_copy(update={"strangle_receipt": removed_property_receipt})
     removed_property_issues = (
         generation_cycle_module._validate_generation_cycle_run_with_current_source_receipt(
             removed_property_run,
@@ -9549,9 +9498,7 @@ def test_generation_cycle_contract_check_maps_temporary_workspace_oserror_to_unr
             inputs={"source_scope": "src/polisyos"},
         ),
     )
-    exit_code = contract.main(
-        ["--repo-root", str(tmp_path), "--check", "--output-format", "json"]
-    )
+    exit_code = contract.main(["--repo-root", str(tmp_path), "--check", "--output-format", "json"])
 
     report = json.loads(capsys.readouterr().out)
     assert exit_code == 2
@@ -9663,9 +9610,7 @@ def test_generation_cycle_contract_check_types_cleanup_and_preserves_evidence(
             lambda _payload, **_kwargs: "{}",
         )
 
-    exit_code = contract.main(
-        ["--repo-root", str(tmp_path), "--check", "--output-format", "json"]
-    )
+    exit_code = contract.main(["--repo-root", str(tmp_path), "--check", "--output-format", "json"])
 
     captured = capsys.readouterr()
     report = json.loads(captured.out)
@@ -9697,8 +9642,7 @@ def test_generation_cycle_contract_check_types_cleanup_and_preserves_evidence(
         assert exit_code == 2
         assert report["status"] == "UNRUN"
         assert any(
-            issue.get("code") == "n6_source_census_not_established"
-            for issue in report["issues"]
+            issue.get("code") == "n6_source_census_not_established" for issue in report["issues"]
         )
         assert report["measurement"]["selector_denominator"]["n6_n9_replay"] == (
             partial_measurement
@@ -9732,15 +9676,12 @@ def test_generation_cycle_contract_validator_removal_probe_rejects_missing_run_w
     artifact_path = tmp_path / contract.OUTPUT_PATH
     artifact_path.parent.mkdir(parents=True)
     artifact_path.write_text(json.dumps(markers_only), encoding="utf-8")
-    exit_code = contract.main(
-        ["--repo-root", str(tmp_path), "--check", "--output-format", "json"]
-    )
+    exit_code = contract.main(["--repo-root", str(tmp_path), "--check", "--output-format", "json"])
     cli_report = json.loads(capsys.readouterr().out)
     assert exit_code == 1
     assert cli_report["status"] == "fail"
     assert any(
-        issue.get("code") == "generation_cycle_run_missing"
-        for issue in cli_report["issues"]
+        issue.get("code") == "generation_cycle_run_missing" for issue in cli_report["issues"]
     )
 
 
@@ -9793,9 +9734,7 @@ def test_generation_cycle_contract_validator_removal_probe_rejects_stale_factory
         "run",
         return_run_with_stale_factory_scope,
     )
-    exit_code = contract.main(
-        ["--repo-root", str(REPO_ROOT), "--check", "--output-format", "json"]
-    )
+    exit_code = contract.main(["--repo-root", str(REPO_ROOT), "--check", "--output-format", "json"])
 
     report = json.loads(capsys.readouterr().out)
     n9 = report["measurement"]["selector_denominator"]["n6_n9_replay"]
@@ -9847,18 +9786,16 @@ def test_generation_cycle_contract_malformed_committed_input_returns_typed_fail(
     artifact_path.parent.mkdir(parents=True)
     artifact_path.write_text(contract_text, encoding="utf-8")
 
-    exit_code = contract.main(
-        ["--repo-root", str(tmp_path), "--check", "--output-format", "json"]
-    )
+    exit_code = contract.main(["--repo-root", str(tmp_path), "--check", "--output-format", "json"])
 
     report = json.loads(capsys.readouterr().out)
     assert exit_code == 1
     assert report["status"] == "fail"
     assert report["predicate_result"] == "fail"
     assert any(issue.get("code") == expected_issue for issue in report["issues"])
-    assert report["measurement"]["selector_denominator"]["n6_n9_replay"][
-        "callback_attempt_count"
-    ] == 0
+    assert (
+        report["measurement"]["selector_denominator"]["n6_n9_replay"]["callback_attempt_count"] == 0
+    )
 
 
 def test_generation_cycle_contract_cli_reports_unrun_for_unavailable_n9_replay(
@@ -9893,9 +9830,7 @@ def test_generation_cycle_contract_cli_reports_unrun_for_unavailable_n9_replay(
         "validate_payload",
         lambda _payload, **_kwargs: {"status": "pass", "issues": []},
     )
-    exit_code = contract.main(
-        ["--repo-root", str(tmp_path), "--check", "--output-format", "json"]
-    )
+    exit_code = contract.main(["--repo-root", str(tmp_path), "--check", "--output-format", "json"])
 
     report = json.loads(capsys.readouterr().out)
     assert exit_code == 2
@@ -9962,9 +9897,7 @@ async def test_blocked_voi_action_does_not_enter_n9_promotion_owner(tmp_path: Pa
         value_port=PendingN8ValuePort(),
         repo_root=tmp_path,
     )
-    run = await controller.run(
-        _problem(), budget_state=_budget(), min_cycles=2, max_cycles=3
-    )
+    run = await controller.run(_problem(), budget_state=_budget(), min_cycles=2, max_cycles=3)
     # Put the owner-entry predicate first to identify the N9-boundary removal red.
     assert controller.promotion_calls == 0
     assert run.terminal_status == "blocked"
@@ -9996,9 +9929,7 @@ async def test_nonblocked_scheduler_stop_still_reaches_n9_owner(tmp_path: Path) 
         value_port=PendingN8ValuePort(),
         repo_root=tmp_path,
     )
-    run = await controller.run(
-        _problem(), budget_state=_budget(), min_cycles=2, max_cycles=3
-    )
+    run = await controller.run(_problem(), budget_state=_budget(), min_cycles=2, max_cycles=3)
     assert run.terminal_status == "completed"
     assert run.cycles[0].grounding.current_valid is True
     assert run.promotion_port.status == "not_promoted"
@@ -10068,6 +9999,7 @@ def test_value_owner_projection_preserves_required_modality_and_other_hints(
         observation_to_contract_manifest=None,
     )
     assert criteria.required_data_modalities == required
+
 
 def _controlled_declared_n4_child_inputs():
     """Declared canonical slots for a bounded producer test, not production inputs.
@@ -10174,8 +10106,11 @@ def test_n4_candidate_child_producer_deduplicates_names_and_refuses_foreign_subj
     ]
     assert len(dispositions) == 1
     payload["grounding_dispositions"] = [
-        (dispositions[0].model_copy(update={"candidate_id": alternate.candidate_id})
-         if row.candidate_id == result.candidates[1].candidate_id else row).model_dump(mode="python")
+        (
+            dispositions[0].model_copy(update={"candidate_id": alternate.candidate_id})
+            if row.candidate_id == result.candidates[1].candidate_id
+            else row
+        ).model_dump(mode="python")
         for row in result.grounding_dispositions
     ]
     duplicate = type(result).model_validate(payload)

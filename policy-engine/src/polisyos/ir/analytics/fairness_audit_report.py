@@ -88,7 +88,7 @@ def load_fairness_audit_report(
 ) -> FairnessAuditReport:
     """Load a persisted fairness audit report from CAS."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return FairnessAuditReport.model_validate(payload)
 
 

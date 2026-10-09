@@ -76,6 +76,10 @@ Notable current exports include `ExecutionPlanRef`, `PreflightReportRef`, `RunDe
   responses, OpenAPI, and generated clients.
 - The scope-adjudication candidate contract preserves the absence of its production resolver and
   consumer as typed limitations; no production orchestration or public/audit surface is appointed.
+- `ValueOuterSet.lower`/`upper` remain identification bounds. Optional
+  `statistical_lower`/`statistical_upper` preserve source-reported statistical uncertainty as a
+  separate descriptive channel; those fields do not change identification, comparison, or
+  promotion decisions and do not establish an estimand/unit binding or authority.
 - The epoch-impact snapshot and reconciliation sidecar contracts are public and content-bound.
   Runtime now produces and exact-reads the relation, and Scientist consumes it through an explicit
   write-once admission port. The capability remains `implemented_but_not_orchestrated`: no

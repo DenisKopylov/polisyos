@@ -57,6 +57,7 @@ if TYPE_CHECKING:
         AcquisitionActionService,
     )
     from polisyos.runtime.http.services.human_decisions import HumanDecisionService
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 else:
     try:  # pragma: no cover - optional runtime dependency
         from fastapi import Request
@@ -103,6 +104,7 @@ def build_runtime_api_context(
     artifact_redaction_hooks: dict[str, Any] | None = None,
     metrics: MetricsRegistry | None = None,
     tracer: PolicyOSTracer | None = None,
+    producer_settlement_store: BudgetMiddleware | None = None,
 ) -> RuntimeApiContext:
     """Create the service graph used by read-only runtime routes and artifact inspection."""
     store_config = ArtifactStoreConfig.from_env().model_copy(update={"root": str(cas_root)})
@@ -136,7 +138,11 @@ def build_runtime_api_context(
         core_runs_root=core_runs_root,
         metrics=metrics,
     )
-    debug = DebugService(store=store, timeline_service=timeline)
+    debug = DebugService(
+        store=store,
+        timeline_service=timeline,
+        producer_settlement_store=producer_settlement_store,
+    )
     feedback = FeedbackService(store=store, run_index=run_index)
     fabric = FabricIntegrationService(lineage_service=lineage)
     temporal = TemporalService(

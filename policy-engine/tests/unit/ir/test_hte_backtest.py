@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.backtest import (
     BacktestReport,
@@ -22,7 +25,6 @@ from polisyos.ir.analytics.hte import (
     persist_hte_result,
     persist_policy_recommendation,
 )
-from pydantic import ValidationError
 
 
 def test_hte_result_persist_round_trip(tmp_path) -> None:
@@ -55,8 +57,8 @@ def test_hte_result_persist_round_trip(tmp_path) -> None:
         n_features=1,
         feature_names=["income"],
     )
-    ref = persist_hte_result(store, result)
-    loaded = load_hte_result(store, ref)
+    ref = persist_hte_result(_ensure_ir_artifact_store(store), result)
+    loaded = load_hte_result(_ensure_ir_artifact_store(store), ref)
     assert loaded.method == CausalMethod.CAUSAL_FOREST
     assert loaded.n_samples == 3
     assert loaded.feature_importances[0].feature_name == "income"
@@ -82,8 +84,8 @@ def test_policy_recommendation_persist_round_trip(tmp_path) -> None:
         n_targeted_units=5,
         n_total_units=10,
     )
-    ref = persist_policy_recommendation(store, recommendation)
-    loaded = load_policy_recommendation(store, ref)
+    ref = persist_policy_recommendation(_ensure_ir_artifact_store(store), recommendation)
+    loaded = load_policy_recommendation(_ensure_ir_artifact_store(store), ref)
     assert loaded.n_targeted_units == 5
     assert loaded.targeting_rules[0].rule_id == "r1"
 
@@ -205,8 +207,8 @@ def test_backtest_report_persist_round_trip(tmp_path) -> None:
         trust_score=0.62,
         trust_grade="C",
     )
-    ref = persist_backtest_report(store, report)
-    loaded = load_backtest_report(store, ref)
+    ref = persist_backtest_report(_ensure_ir_artifact_store(store), report)
+    loaded = load_backtest_report(_ensure_ir_artifact_store(store), ref)
     assert loaded.report_id == "BT_test"
     assert loaded.n_scenarios == 1
     assert loaded.trust_grade == "C"

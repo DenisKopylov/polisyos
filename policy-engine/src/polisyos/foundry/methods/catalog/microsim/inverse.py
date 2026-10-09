@@ -9,6 +9,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.calibration.identifiability import (
     IdentifiabilityReport,
@@ -1843,7 +1844,9 @@ class InverseBehavioralCalibrationEstimator:
 
         artifact_store = resolve_artifact_store(payload, params)
         calibration_report_ref = (
-            persist_microsim_calibration_report(artifact_store, calibration_report)
+            persist_microsim_calibration_report(
+                _ensure_ir_artifact_store(artifact_store), calibration_report
+            )
             if artifact_store is not None
             else None
         )

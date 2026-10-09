@@ -5,6 +5,7 @@ import logging
 import pytest
 
 import polisyos.scientist.cross_graph.compiler as cross_graph_compiler_module
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentDegradedOutcomeCode,
@@ -226,7 +227,7 @@ def test_alignment_governance_recomputes_forged_candidate_metadata(
         }
     )
     candidate_ref = persist_latent_bridge_hypothesis(
-        store,
+        _ensure_ir_artifact_store(store),
         LatentBridgeHypothesis(
             bridge_id="latent::bridge::candidate",
             pair_key=pair_key,
@@ -265,9 +266,7 @@ def test_alignment_governance_recomputes_forged_candidate_metadata(
 
     report, mapping = _verify_fragment_bundle_alignment_with_governance(
         [fragment_a, fragment_b],
-        config=AlignmentVerificationConfig(
-            explicit_latent_bridges={pair_key: candidate_ref}
-        ),
+        config=AlignmentVerificationConfig(explicit_latent_bridges={pair_key: candidate_ref}),
         artifact_store=store,
     )
 
@@ -283,7 +282,7 @@ def test_alignment_governance_recomputes_forged_candidate_metadata(
     assert governance["not_for_decision_support"] is True
     assert certificate.latent_bridge_hypothesis_ref is not None
     governed = load_latent_bridge_hypothesis(
-        store,
+        _ensure_ir_artifact_store(store),
         certificate.latent_bridge_hypothesis_ref,
     )
     assert governed.readiness_cap == "proof_only"
@@ -305,14 +304,10 @@ def test_alignment_governance_recomputes_forged_candidate_metadata(
         "_build_latent_governance_input",
         _tamper_receipt,
     )
-    rejected_report, rejected_mapping = (
-        _verify_fragment_bundle_alignment_with_governance(
-            [fragment_a, fragment_b],
-            config=AlignmentVerificationConfig(
-                explicit_latent_bridges={pair_key: candidate_ref}
-            ),
-            artifact_store=store,
-        )
+    rejected_report, rejected_mapping = _verify_fragment_bundle_alignment_with_governance(
+        [fragment_a, fragment_b],
+        config=AlignmentVerificationConfig(explicit_latent_bridges={pair_key: candidate_ref}),
+        artifact_store=store,
     )
     rejected = next(
         item
@@ -320,7 +315,5 @@ def test_alignment_governance_recomputes_forged_candidate_metadata(
         if item.metadata.get("pair_key") == pair_key
     )
     assert rejected.alignment_type is AlignmentType.INCOMPATIBLE
-    assert "latent_governance_snapshot_invalid" in rejected.metadata[
-        "hard_conflict_reasons"
-    ]
+    assert "latent_governance_snapshot_invalid" in rejected.metadata["hard_conflict_reasons"]
     assert rejected_mapping.entries == []

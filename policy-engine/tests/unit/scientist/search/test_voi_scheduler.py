@@ -279,6 +279,7 @@ def test_predictive_voi_uses_observations_and_snapshot_round_trip() -> None:
             actual_promising=True,
             duration_seconds=1.0 + value,
             compute_cost_usd=1.0,
+            compute_cost_origin="reported",
             disagreement=0.05,
         )
     scheduler.observe_promotion_outcome(
@@ -393,6 +394,7 @@ def test_predictive_voi_requests_retry_cheaper_when_model_support_is_too_low() -
         actual_promising=True,
         duration_seconds=1.0,
         compute_cost_usd=1.0,
+        compute_cost_origin="reported",
     )
 
     decision = scheduler.prioritize(
@@ -487,6 +489,7 @@ def test_predictive_voi_does_not_mix_cross_domain_observations_by_default() -> N
         actual_promising=True,
         duration_seconds=1.0,
         compute_cost_usd=1.0,
+        compute_cost_origin="reported",
     )
     scheduler.observe_stage_result(
         candidate_id="labor-1",
@@ -499,6 +502,7 @@ def test_predictive_voi_does_not_mix_cross_domain_observations_by_default() -> N
         actual_promising=False,
         duration_seconds=1.0,
         compute_cost_usd=1.0,
+        compute_cost_origin="reported",
     )
 
     sliced = scheduler._slice_stage_observations(
@@ -506,3 +510,91 @@ def test_predictive_voi_does_not_mix_cross_domain_observations_by_default() -> N
     )
 
     assert [item.candidate_id for item, _weight in sliced] == ["fiscal-1"]
+
+
+def test_unknown_stage_cost_is_retained_without_training_it_as_zero() -> None:
+    scheduler = PredictiveVOIScheduler(
+        stage_costs={3: Decimal("0.4")},
+        training_config=VOITrainingConfig(min_stage_observations=2),
+    )
+    for index in range(2):
+        scheduler.observe_stage_result(
+            candidate_id=f"unknown-cost-{index}",
+            stage_level=3,
+            domain="fiscal",
+            tenant_hash="tenant",
+            actual_objective_value=0.7,
+            actual_promising=True,
+            duration_seconds=1.0,
+            compute_cost_usd=None,
+            compute_cost_origin="unknown",
+        )
+
+    decision = scheduler.prioritize(
+        [
+            _ticket(
+                candidate_hash="future",
+                next_level=3,
+                expected_value_proxy=0.8,
+                expected_information_gain=0.2,
+                context={
+                    "transfer_context": type(
+                        "Transfer",
+                        (),
+                        {"task_family": "policy", "domain": "fiscal", "tenant_hash": "tenant"},
+                    )()
+                },
+            )
+        ],
+        _budget(),
+        ParetoSnapshot(),
+    )[0]
+
+    assert all(observation.compute_cost_usd is None for observation in scheduler._observations)
+    assert all(
+        observation.compute_cost_origin == "unknown" for observation in scheduler._observations
+    )
+    assert decision.economics.estimated_cost_usd == 0.4
+    assert decision.economics.estimated_cost_basis == "stage_cost_configuration"
+
+
+def test_estimated_stage_costs_can_train_only_the_heuristic_cost_model() -> None:
+    scheduler = PredictiveVOIScheduler(
+        stage_costs={3: Decimal("0.05")},
+        training_config=VOITrainingConfig(min_stage_observations=2),
+    )
+    for index, amount in enumerate((0.5, 0.6)):
+        scheduler.observe_stage_result(
+            candidate_id=f"estimated-cost-{index}",
+            stage_level=3,
+            domain="fiscal",
+            tenant_hash="tenant",
+            actual_objective_value=0.7,
+            actual_promising=True,
+            duration_seconds=1.0,
+            compute_cost_usd=amount,
+            compute_cost_origin="estimated",
+        )
+
+    decision = scheduler.prioritize(
+        [
+            _ticket(
+                candidate_hash="future",
+                next_level=3,
+                expected_value_proxy=0.8,
+                expected_information_gain=0.2,
+                context={
+                    "transfer_context": type(
+                        "Transfer",
+                        (),
+                        {"task_family": "policy", "domain": "fiscal", "tenant_hash": "tenant"},
+                    )()
+                },
+            )
+        ],
+        _budget(),
+        ParetoSnapshot(),
+    )[0]
+
+    assert decision.economics.estimated_cost_basis == "estimated_history_heuristic"
+    assert decision.economics.estimated_cost_usd > 0.05

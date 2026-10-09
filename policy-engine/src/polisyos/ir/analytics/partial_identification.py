@@ -381,9 +381,7 @@ class BoundsBundle(BaseModel):
                 "estimand_type": self.estimand_type,
                 "sharpness_status": self.sharpness_status,
                 "projection": "consensus_bounds",
-                "value_estimand_binding_content_hash": (
-                    projection_binding.content_hash
-                ),
+                "value_estimand_binding_content_hash": (projection_binding.content_hash),
                 "value_estimand_binding_native_contract_id": (
                     projection_binding.native_contract_id
                 ),
@@ -729,7 +727,7 @@ def load_bounds_tightening_log(
 ) -> BoundsTighteningLog:
     """Load certified bounds-tightening proof-of-stopping log."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return BoundsTighteningLog.model_validate(payload)
 
 
@@ -769,7 +767,7 @@ def load_bounds_bundle(
     ref: BoundsBundleRef,
 ) -> BoundsBundle:
     """Load bounds bundle."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return BoundsBundle.model_validate(payload)
 
 

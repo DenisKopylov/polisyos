@@ -6,6 +6,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.core.governance.profiles import ProfileLevel
@@ -228,7 +229,7 @@ def _load_report_from_ref(ctx: PassContext, raw_ref: Any) -> CausalEffectReport 
         return None
 
     try:
-        return load_causal_effect_report(store, ref)
+        return load_causal_effect_report(_ensure_ir_artifact_store(store), ref)
     except (AttributeError, OSError, RuntimeError, TypeError, ValidationError, ValueError) as exc:
         emit_degraded_path(
             component="governance.transportability_required_pass",
@@ -252,7 +253,7 @@ def _resolve_cross_graph_profile(ctx: PassContext) -> CrossGraphEvidenceProfile 
         return None
     try:
         ref = CrossGraphEvidenceProfileRef.model_validate(raw_ref)
-        return load_cross_graph_evidence_profile(store, ref)
+        return load_cross_graph_evidence_profile(_ensure_ir_artifact_store(store), ref)
     except (AttributeError, OSError, RuntimeError, TypeError, ValidationError, ValueError) as exc:
         emit_degraded_path(
             component="governance.transportability_required_pass",
@@ -334,7 +335,7 @@ def _resolve_direct_transport_result(ctx: PassContext) -> TransportabilityResult
             return None
     try:
         ref = TransportabilityResultRef.model_validate(ref_payload)
-        return load_transportability_result(store, ref)
+        return load_transportability_result(_ensure_ir_artifact_store(store), ref)
     except (AttributeError, OSError, RuntimeError, TypeError, ValidationError, ValueError) as exc:
         emit_degraded_path(
             component="governance.transportability_required_pass",

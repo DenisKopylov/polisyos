@@ -7,6 +7,8 @@ from typing import Any
 import pytest
 from pydantic import BaseModel, ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+
 REPO_ROOT = Path(__file__).resolve().parents[4]
 G3_SCHEMA_VERSION = "policyos.policy_design_case.layer3_g3_analytics_search.v1"
 G3_RULE_VERSION = "policyos.layer3.g3.analytics_search.v1"
@@ -703,7 +705,7 @@ def test_layer3_g3_task2_negative_certificate_resolves_and_blocks_positive_closu
     g3 = _g3()
     store = FileSystemCAS(tmp_path / "cas")
     ref = persist_negative_certificate(
-        store,
+        _ensure_ir_artifact_store(store),
         NegativeCertificate(
             blocking_type=BlockingType.HEDGE_STRUCTURE,
             blocking_description="Synthetic hedge blocks point identification.",
@@ -747,7 +749,7 @@ def test_layer3_g3_task2_rederive_composability_blocks_reusable_proof(
     g3 = _g3()
     store = FileSystemCAS(tmp_path / "cas")
     ref = persist_proof_composability_certificate(
-        store,
+        _ensure_ir_artifact_store(store),
         build_proof_composability_certificate(
             source_fragment_id="fragment:g3",
             checked_query="P(y|do(x))",
@@ -834,7 +836,7 @@ def test_layer3_g3_task2_bounds_overclaim_without_dual_certificate_blocks(
     g3 = _g3()
     store = FileSystemCAS(tmp_path / "cas")
     ref = persist_bounds_bundle(
-        store,
+        _ensure_ir_artifact_store(store),
         BoundsBundle(
             lower_bound=0.1,
             upper_bound=0.7,

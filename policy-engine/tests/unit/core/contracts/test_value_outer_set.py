@@ -193,6 +193,97 @@ def test_value_outer_set_point_mode_requires_tight_interval_generically() -> Non
         )
 
 
+def test_value_outer_set_preserves_native_statistical_bounds_separately() -> None:
+    identified = ValueOuterSet.interval_box(
+        coordinates=("source_reported_value",),
+        lower=(4.0,),
+        upper=(4.0,),
+        statistical_lower=(1.0,),
+        statistical_upper=(10.0,),
+        identification_mode="point_identified",
+        assumptions=("source_reported_estimator",),
+        assumption_status="externally_supported",
+        calibration_scope={"measurement": "source_reported"},
+        data_trust=_trust(),
+        world_model_record_ref="world_model_record_test",
+        epoch="source_reported_epoch",
+        representation_status="certified",
+    )
+    same_identification_without_statistics = ValueOuterSet.interval_box(
+        coordinates=("source_reported_value",),
+        lower=(4.0,),
+        upper=(4.0,),
+        identification_mode="point_identified",
+        assumptions=("source_reported_estimator",),
+        assumption_status="externally_supported",
+        calibration_scope={"measurement": "source_reported"},
+        data_trust=_trust(),
+        world_model_record_ref="world_model_record_test",
+        epoch="source_reported_epoch",
+        representation_status="certified",
+    )
+
+    assert identified.lower == (4.0,)
+    assert identified.upper == (4.0,)
+    assert identified.statistical_lower == (1.0,)
+    assert identified.statistical_upper == (10.0,)
+    assert (
+        identified.promotion_decision()
+        == same_identification_without_statistics.promotion_decision()
+    )
+    assert identified.canonical_payload()["statistical_lower"] == ["1"]
+    assert identified.canonical_payload()["statistical_upper"] == ["10"]
+    assert ValueOuterSet.from_persisted_payload(identified.model_dump_json()) == identified
+
+
+def test_value_outer_set_rejects_incomplete_or_misaligned_statistical_bounds() -> None:
+    common = {
+        "coordinates": ("first", "second"),
+        "lower": (4.0, 5.0),
+        "upper": (4.0, 5.0),
+        "identification_mode": "point_identified",
+        "assumptions": ("source_reported_estimator",),
+        "assumption_status": "externally_supported",
+        "calibration_scope": {"measurement": "source_reported"},
+        "data_trust": _trust(),
+        "world_model_record_ref": "world_model_record_test",
+        "epoch": "source_reported_epoch",
+        "representation_status": "certified",
+    }
+
+    with pytest.raises(ValueError, match="statistical_bounds_must_be_supplied_together"):
+        ValueOuterSet.interval_box(
+            **common,
+            statistical_lower=(1.0, 2.0),
+        )
+
+    with pytest.raises(ValueError, match="statistical_bounds_must_align_with_coordinates"):
+        ValueOuterSet.interval_box(
+            **common,
+            statistical_lower=(1.0,),
+            statistical_upper=(10.0,),
+        )
+
+
+def test_value_outer_set_rejects_reversed_statistical_bounds() -> None:
+    with pytest.raises(ValueError, match="statistical_interval_lower_must_be_lte_upper"):
+        ValueOuterSet.interval_box(
+            coordinates=("source_reported_value",),
+            lower=(4.0,),
+            upper=(4.0,),
+            statistical_lower=(10.0,),
+            statistical_upper=(1.0,),
+            identification_mode="point_identified",
+            assumptions=("source_reported_estimator",),
+            assumption_status="externally_supported",
+            calibration_scope={"measurement": "source_reported"},
+            data_trust=_trust(),
+            world_model_record_ref="world_model_record_test",
+            epoch="source_reported_epoch",
+            representation_status="certified",
+        )
+
+
 def test_value_outer_set_proxy_mode_requires_nonzero_interval() -> None:
     """Proxy identification cannot masquerade as a point estimate."""
 
@@ -291,8 +382,7 @@ def test_value_outer_set_data_trust_gates_promotion_value_generically() -> None:
             max_coverage=1.0,
             promotion_floor=0.5,
             authority_ref=(
-                "repo://l5/measurement_registry.json#/trust_tiers/"
-                "synthetic_below_min_coverage"
+                "repo://l5/measurement_registry.json#/trust_tiers/synthetic_below_min_coverage"
             ),
         )
     ).promotion_decision()

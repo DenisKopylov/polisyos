@@ -5,7 +5,10 @@ import type { components } from "./types";
 import {
   humanDecisionGateResponseSchema,
   humanDecisionReviewEffectivenessSchema,
+  lexSearchRequestSchema,
+  lexSearchResponseSchema,
   quantityValueSchema,
+  runAgentsSchema,
   runDetailsSchema,
   runsListSchema,
 } from "./validators";
@@ -173,6 +176,340 @@ function runsListPayload(runTerminality: string | undefined) {
 }
 
 describe("runtime API validators", () => {
+  it("preserves verified acquisition history in a freshly parsed run response", () => {
+    const payload = runDetailsPayload("projection only");
+    const run = mutableRecord(payload.run);
+    run.candidate_simulation = {
+      schema_version: "policyos.runtime.run_candidate_simulation_projection.v1",
+      run_id: "run-projection-mask",
+      artifact_status: "resolved",
+      authority_purpose: "candidate_observation_only",
+      publication_authority: false,
+      source_ref: {
+        artifact_id: `sha256:${"a".repeat(64)}`,
+        kind: "runtime.compiled_recursive_generation_cycle",
+        media_type: "application/json",
+      },
+      source_content_hash: `sha256:${"a".repeat(64)}`,
+      n5_observations: [],
+      acquisition_history_limitation_code: null,
+      acquisition_history: [
+        {
+          route_receipt_ref: {
+            artifact_id: `sha256:${"b".repeat(64)}`,
+            kind: "runtime_quality.acquisition_route_loop_receipt",
+            media_type: "application/json",
+          },
+          reentry_receipt_ref: {
+            artifact_id: `sha256:${"c".repeat(64)}`,
+            kind: "runtime_quality.acquisition_overlay_reentry_receipt",
+            media_type: "application/json",
+          },
+          route_id: `sha256:${"d".repeat(64)}`,
+          action_generation: 3,
+          terminal_outcome: "reentry_completed",
+          old_candidate_id: "candidate-before",
+          new_candidate_id: "candidate-after",
+          new_candidate_source_ref: {
+            artifact_id: `sha256:${"e".repeat(64)}`,
+            kind: "runtime.quality.n4_candidate_scenario_source",
+            media_type: "application/json",
+          },
+          origin_source_ref: null,
+          currentness_status: "not_established",
+          authority_purpose: "candidate_observation_only",
+          publication_authority: false,
+        },
+      ],
+    };
+
+    const parsed = runDetailsSchema.parse(payload);
+
+    expect(parsed.run.candidate_simulation?.acquisition_history).toHaveLength(
+      1,
+    );
+    expect(
+      parsed.run.candidate_simulation?.acquisition_history?.[0]
+        ?.origin_source_ref,
+    ).toBeNull();
+    expect(
+      parsed.run.candidate_simulation?.acquisition_history?.[0]
+        ?.currentness_status,
+    ).toBe("not_established");
+  });
+
+  it("preserves Legal search mode and refusal on a freshly parsed response", () => {
+    const factResult = {
+      action_canon: "leave",
+      audit_miss_prone: true,
+      canonical_status: "canonicalized",
+      condition_text_uk: "if approved",
+      confidence: 0.95,
+      confidence_breakdown_json: '{"source":0.95}',
+      consistency_score: 0.9,
+      constraint_type_canon: "employment",
+      doc_family_id: "family-1",
+      doc_id: "doc-1",
+      doc_name: "Labor Law",
+      doc_reestr_code: "R-1",
+      effective_from: "2026-01-01",
+      effective_to: "",
+      empty_spo_retry_eligible: true,
+      exception_text_uk: "except with consent",
+      fact_id: "fact-1",
+      fact_text: "An employee may take leave.",
+      fused_confidence: 0.91,
+      grounding_status: "exact_quote",
+      hallucination_flags_json: "[]",
+      jurisdiction: "UA",
+      legal_unit_subtype: "article",
+      norm_type: "obligation",
+      norm_type_canon: "obligation",
+      object_name: "employee",
+      predicate: "may take",
+      procedure_text_uk: "submit an application",
+      provision_anchor: "article-17",
+      provision_citation: "Article 17",
+      quality_band: "high",
+      reference_bearing: true,
+      reference_resolution_status: "resolved",
+      route_class: "direct",
+      similarity: 0.88,
+      source_quote_uk: "Працівник має право на відпустку.",
+      structure_quality: "complete",
+      subject_name: "employer",
+      temporal_confidence: 0.84,
+      temporal_provenance_json: '{"basis":"published"}',
+      temporal_resolution_status: "resolved",
+      temporal_source_kind: "law",
+      temporal_source_scope: "UA",
+      temporal_state: "current",
+      threshold_bearing: true,
+      thresholds_json: '{"days":14}',
+      top_domain: "labor",
+      trust_tier: "grounded_fact",
+      version_id: "version-3",
+    };
+    const responsePayload = {
+      meta: {
+        request_id: "request-legal-search",
+        generated_at: "2026-10-09T00:00:00Z",
+        source_kinds: [],
+      },
+      query: "employment leave",
+      results: [factResult],
+      total: 1,
+      search_mode: "text",
+      vector_refusal_code: "query_profile_unavailable",
+    };
+    const response = lexSearchResponseSchema.parse(responsePayload);
+
+    expect(response.search_mode).toBe("text");
+    expect(response.vector_refusal_code).toBe("query_profile_unavailable");
+    expect(response.results).toEqual([factResult]);
+
+    const incompleteFactResult = { ...factResult } as Record<string, unknown>;
+    delete incompleteFactResult.temporal_provenance_json;
+    expect(
+      lexSearchResponseSchema.safeParse({
+        ...responsePayload,
+        results: [incompleteFactResult],
+      }).success,
+    ).toBe(false);
+
+    const vectorResponse = lexSearchResponseSchema.parse({
+      meta: {
+        request_id: "request-legal-vector-search",
+        generated_at: "2026-10-09T00:00:00Z",
+        source_kinds: [],
+      },
+      query: "employment leave",
+      results: [],
+      total: 0,
+      search_mode: "vector",
+      vector_refusal_code: null,
+    });
+
+    expect(vectorResponse.search_mode).toBe("vector");
+    expect(vectorResponse.vector_refusal_code).toBeNull();
+  });
+
+  it("keeps optional Legal intent distinct from a supplied typed profile", () => {
+    const textOnlyRequest = {
+      query: "employment leave",
+      top_k: 20,
+      output_dir: "/tmp/legal",
+    };
+    const intent = {
+      basis_kind: "legal_lex_facts_embedding",
+      generation_id: "generation-legal-facts-1",
+      inventory_json: '{"basis":{"basis_kind":"legal_lex_facts_embedding"}}',
+    } as const;
+
+    const missingIntent = lexSearchRequestSchema.parse(textOnlyRequest);
+    expect(missingIntent.query_generation_intent).toBeUndefined();
+
+    const typedIntent = lexSearchRequestSchema.parse({
+      ...textOnlyRequest,
+      query_generation_intent: [intent],
+    });
+    expect(typedIntent.query_generation_intent).toEqual([intent]);
+
+    const emptyIntent = lexSearchRequestSchema.parse({
+      ...textOnlyRequest,
+      query_generation_intent: [],
+    });
+    expect(emptyIntent.query_generation_intent).toEqual([]);
+
+    const malformedIntentResponse = lexSearchResponseSchema.parse({
+      meta: {
+        request_id: "request-legal-malformed-intent",
+        generated_at: "2026-10-09T00:00:00Z",
+        source_kinds: [],
+      },
+      query: "employment leave",
+      results: [],
+      total: 0,
+      search_mode: "text",
+      vector_refusal_code: "query_profile_malformed",
+    });
+    expect(malformedIntentResponse.search_mode).toBe("text");
+    expect(malformedIntentResponse.vector_refusal_code).toBe(
+      "query_profile_malformed",
+    );
+  });
+
+  it("rejects malformed supplied Legal query intent shape", () => {
+    const request = {
+      query: "employment leave",
+      top_k: 20,
+      output_dir: "/tmp/legal",
+    };
+    const completeIntent = {
+      basis_kind: "legal_lex_facts_embedding",
+      generation_id: "generation-legal-facts-1",
+      inventory_json: '{"basis":{"basis_kind":"legal_lex_facts_embedding"}}',
+    };
+
+    expect(
+      lexSearchRequestSchema.safeParse({
+        ...request,
+        query_generation_intent: [
+          { ...completeIntent, basis_kind: "unregistered_basis" },
+        ],
+      }).success,
+    ).toBe(false);
+    expect(
+      lexSearchRequestSchema.safeParse({
+        ...request,
+        query_generation_intent: [
+          {
+            basis_kind: completeIntent.basis_kind,
+            generation_id: "generation",
+          },
+        ],
+      }).success,
+    ).toBe(false);
+  });
+
+  it("requires the Legal response mode and an explicit refusal slot", () => {
+    const response = {
+      meta: {
+        request_id: "request-legal-search",
+        generated_at: "2026-10-09T00:00:00Z",
+        source_kinds: [],
+      },
+      query: "employment leave",
+      results: [],
+      total: 0,
+      search_mode: "text",
+      vector_refusal_code: "query_profile_unavailable",
+    };
+
+    expect(
+      lexSearchResponseSchema.safeParse({
+        ...response,
+        search_mode: undefined,
+      }).success,
+    ).toBe(false);
+    expect(
+      lexSearchResponseSchema.safeParse({
+        ...response,
+        search_mode: "semantic",
+      }).success,
+    ).toBe(false);
+    expect(
+      lexSearchResponseSchema.safeParse({
+        ...response,
+        vector_refusal_code: undefined,
+      }).success,
+    ).toBe(false);
+  });
+
+  it("validates event-level producer costs while preserving unknown values", () => {
+    const response = {
+      meta: {
+        request_id: "request-1",
+        generated_at: "2026-10-09T00:00:00Z",
+      },
+      pipeline: {
+        run_id: "run-1",
+        source_kind: "core_run",
+        total_attempts: 1,
+        cost_usd: null,
+        attempts: [
+          {
+            attempt: 1,
+            status: "completed",
+            steps: [
+              {
+                attempt: 1,
+                agent: "drafter",
+                action: "draft",
+                status: "ok",
+                cost_usd: null,
+                cost_events: [
+                  {
+                    event_id: "provider:unknown",
+                    origin_event_id: null,
+                    cost_origin: "unknown",
+                    amount: null,
+                    cost_usd: null,
+                    settlement_status: "unknown",
+                    durability: "none",
+                    receipts: [],
+                    payload_digest: "sha256:unknown",
+                    model: "model-a",
+                    provider: "gateway-a",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    expect(runAgentsSchema.safeParse(response).success).toBe(true);
+    const invalid: unknown = structuredClone(response);
+    const invalidPipeline = mutableRecord(mutableRecord(invalid).pipeline);
+    const attempts = invalidPipeline.attempts;
+    if (!Array.isArray(attempts)) {
+      throw new TypeError("expected attempts array");
+    }
+    const steps = mutableRecord(attempts[0]).steps;
+    if (!Array.isArray(steps)) {
+      throw new TypeError("expected pipeline steps array");
+    }
+    const events = mutableRecord(steps[0]).cost_events;
+    if (!Array.isArray(events)) {
+      throw new TypeError("expected cost events array");
+    }
+    const invalidEvent = mutableRecord(events[0]);
+    invalidEvent.unexpected = true;
+    expect(runAgentsSchema.safeParse(invalid).success).toBe(false);
+  });
+
   it("rejects qualification copy that upgrades a pending epoch", () => {
     const qualification = {
       appointment_state: "unappointed",

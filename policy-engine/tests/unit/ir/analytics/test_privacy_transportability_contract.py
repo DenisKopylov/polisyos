@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.privacy_transportability import (
     DistortionToleranceMap,
@@ -168,8 +170,8 @@ def test_privacy_transport_certificate_round_trip_and_attachment(tmp_path) -> No
     store = FileSystemCAS(tmp_path / "cas")
     certificate = _certificate(mode=PrivacyObservedMode.INTERVAL)
 
-    ref = persist_privacy_aware_transport_certificate(store, certificate)
-    loaded = load_privacy_aware_transport_certificate(store, ref)
+    ref = persist_privacy_aware_transport_certificate(_ensure_ir_artifact_store(store), certificate)
+    loaded = load_privacy_aware_transport_certificate(_ensure_ir_artifact_store(store), ref)
     attached = attach_privacy_transportability_to_result(
         TransportabilityResult(
             status=TransportabilityStatus.IDENTIFIED,

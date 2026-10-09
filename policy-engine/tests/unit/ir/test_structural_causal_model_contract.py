@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.structural_causal_model import (
@@ -104,8 +105,8 @@ def test_structural_model_artifact_roundtrip(tmp_path) -> None:
         fit_metrics={"dowhy_available": 0.0},
     )
 
-    ref = persist_structural_causal_model_spec(store, model)
-    loaded = load_structural_causal_model_spec(store, ref)
+    ref = persist_structural_causal_model_spec(_ensure_ir_artifact_store(store), model)
+    loaded = load_structural_causal_model_spec(_ensure_ir_artifact_store(store), ref)
 
     assert isinstance(ref, StructuralCausalModelSpecRef)
     assert ref.kind == "ir.structural_causal_model_spec"

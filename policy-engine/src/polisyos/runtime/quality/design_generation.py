@@ -19,7 +19,7 @@ import os
 import re
 import time
 from collections import Counter
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field, is_dataclass, replace
 from dataclasses import fields as dataclass_fields
 from pathlib import Path
@@ -103,6 +103,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.grounding_bind import GroundingRunBudget
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 
 DESIGN_GENERATION_SCHEMA_VERSION = "policyos.runtime.design_generation_under_a.v1"
 DESIGN_GENERATION_CONTRACT_SCHEMA_VERSION = (
@@ -513,10 +514,7 @@ class GroundingDispositionSummary(_StrictModel):
     @model_validator(mode="after")
     def _full_denominator(self) -> GroundingDispositionSummary:
         if (
-            self.shadow_bound
-            + self.novel_cg3
-            + self.veto_false_analog
-            + self.abstain_or_blocked
+            self.shadow_bound + self.novel_cg3 + self.veto_false_analog + self.abstain_or_blocked
             != self.total_candidates
         ):
             raise ValueError("grounding_disposition_counts_not_full_denominator")
@@ -603,9 +601,8 @@ class GenerationUnderAResult(_StrictModel):
         if self.preflight.status != "supported" and self.status == "generated":
             raise ValueError("generated_result_without_supported_preflight")
         if self.status == "generated":
-            if (
-                self.grounding_disposition_summary.total_candidates
-                != len(self.grounding_dispositions)
+            if self.grounding_disposition_summary.total_candidates != len(
+                self.grounding_dispositions
             ):
                 raise ValueError("grounding_disposition_summary_denominator_mismatch")
             if self.diversity_report.candidate_count != len(self.grounding_dispositions):
@@ -823,10 +820,7 @@ class RecordingLLMClient:
         usage = getattr(response, "usage", None)
         prompt_tokens = int(getattr(usage, "prompt_tokens", 0) or 0)
         completion_tokens = int(getattr(usage, "completion_tokens", 0) or 0)
-        total_tokens = int(
-            getattr(usage, "total_tokens", 0)
-            or (prompt_tokens + completion_tokens)
-        )
+        total_tokens = int(getattr(usage, "total_tokens", 0) or (prompt_tokens + completion_tokens))
         cache_info = _response_cache_info(response)
         self._record_call(
             LLMGenerationCall(
@@ -1095,6 +1089,9 @@ async def generate_design_candidate_bundle_under_a(
     world_model_record_ref: str | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
     grounding_run_budget: GroundingRunBudget | None = None,
+    producer_run_id: str | None = None,
+    producer_settlement_store: BudgetMiddleware | None = None,
+    call_observer: Callable[[dict[str, Any]], None] | None = None,
 ) -> DesignGenerationOrganRun:
     """Run the canonical N4 organ path and own any gateway client it creates."""
 
@@ -1108,6 +1105,9 @@ async def generate_design_candidate_bundle_under_a(
         world_model_record_ref=world_model_record_ref,
         cycle_substrate_context=cycle_substrate_context,
         grounding_run_budget=grounding_run_budget,
+        producer_run_id=producer_run_id,
+        producer_settlement_store=producer_settlement_store,
+        call_observer=call_observer,
         candidate_proposal_only=False,
     )
     if not isinstance(result, DesignGenerationOrganRun):
@@ -1123,6 +1123,9 @@ async def generate_design_candidate_proposal_under_a(
     repo_root: Path | None = None,
     data_context: dict[str, Any] | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
+    producer_run_id: str | None = None,
+    producer_settlement_store: BudgetMiddleware | None = None,
+    call_observer: Callable[[dict[str, Any]], None] | None = None,
 ) -> N4CandidateProposalSource | DesignGenerationOrganRun:
     """Run proposal-only N4 while preserving successful or typed terminal organ output."""
 
@@ -1136,6 +1139,9 @@ async def generate_design_candidate_proposal_under_a(
         world_model_record_ref=None,
         cycle_substrate_context=cycle_substrate_context,
         grounding_run_budget=None,
+        producer_run_id=producer_run_id,
+        producer_settlement_store=producer_settlement_store,
+        call_observer=call_observer,
         candidate_proposal_only=True,
     )
 
@@ -1148,6 +1154,9 @@ async def generate_design_candidate_scenario_proposal_under_a(
     repo_root: Path | None = None,
     data_context: dict[str, Any] | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
+    producer_run_id: str | None = None,
+    producer_settlement_store: BudgetMiddleware | None = None,
+    call_observer: Callable[[dict[str, Any]], None] | None = None,
 ) -> N4CandidateScenarioProposalRun | DesignGenerationOrganRun:
     """Run the same N4 organs while keeping the candidate lane's L2 limit typed.
 
@@ -1167,6 +1176,9 @@ async def generate_design_candidate_scenario_proposal_under_a(
         world_model_record_ref=None,
         cycle_substrate_context=cycle_substrate_context,
         grounding_run_budget=None,
+        producer_run_id=producer_run_id,
+        producer_settlement_store=producer_settlement_store,
+        call_observer=call_observer,
         candidate_proposal_only=True,
         candidate_scenario_reference_capture=capture,
     )
@@ -1196,7 +1208,16 @@ def _recognized_confidence_layer_vintage(
 
         vintage = ConfidenceLayerVintage(**declared)
         owner_vintage = _confidence_layer_vintage_for_sha256(vintage.snapshot_sha256)
-        if owner_vintage is None or owner_vintage.to_payload() != declared:
+        if owner_vintage is None:
+            return None
+        # The owner payload contains a tuple of layer DTOs, while the exact
+        # JSON refusal necessarily decodes that array as a list. Compare the
+        # JSON representation on both sides so a legitimate owner refusal is
+        # retained without relaxing any field or value binding.
+        owner_payload_json = json.loads(
+            json.dumps(owner_vintage.to_payload(), sort_keys=True, separators=(",", ":"))
+        )
+        if owner_payload_json != declared:
             return None
         return owner_vintage
     except (ImportError, TypeError, ValueError, json.JSONDecodeError):
@@ -1264,12 +1285,8 @@ def build_candidate_scenario_proposal_candidate(
         # Recompute both complete payload identities before selecting the
         # context's bundle as the linker input. A model instance's claimed
         # content_hash is not evidence by itself.
-        verified_context_bundle = verify_intervention_substrate_bundle_content_hash(
-            context_bundle
-        )
-        verified_profile_bundle = verify_intervention_substrate_bundle_content_hash(
-            profile_bundle
-        )
+        verified_context_bundle = verify_intervention_substrate_bundle_content_hash(context_bundle)
+        verified_profile_bundle = verify_intervention_substrate_bundle_content_hash(profile_bundle)
     except InterventionSubstrateError:
         return None
     if verified_context_bundle.content_hash != verified_profile_bundle.content_hash:
@@ -1404,6 +1421,9 @@ async def _run_design_generation_under_a(
     cycle_substrate_context: CycleSubstrateContext | None,
     grounding_run_budget: GroundingRunBudget | None,
     candidate_proposal_only: bool,
+    producer_run_id: str | None = None,
+    producer_settlement_store: BudgetMiddleware | None = None,
+    call_observer: Callable[[dict[str, Any]], None] | None = None,
     candidate_scenario_reference_capture: _N4CandidateScenarioReferenceCapture | None = None,
 ) -> DesignGenerationOrganRun | N4CandidateProposalSource:
     """Own one gateway client while selecting the canonical N4 output boundary."""
@@ -1412,10 +1432,31 @@ async def _run_design_generation_under_a(
     if llm_client is None:
         from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
 
+        if producer_settlement_store is not None:
+            from polisyos.scientist.orchestration.engine.budget_middleware import (
+                BudgetMiddleware as BudgetMiddlewareType,
+            )
+
+            if type(producer_settlement_store) is not BudgetMiddlewareType:
+                raise TypeError("n4_producer_settlement_store_untyped")
+            if not isinstance(producer_run_id, str) or not producer_run_id.strip():
+                raise ValueError("n4_producer_run_id_required_for_settlement")
+        elif producer_run_id is not None and (
+            not isinstance(producer_run_id, str) or not producer_run_id.strip()
+        ):
+            raise ValueError("n4_producer_run_id_invalid")
+
         owned_llm_client = create_traced_gateway_client(
             model_name=model_id,
-            run_id="gy_n4_generation_under_a",
+            run_id=producer_run_id or "gy_n4_generation_under_a",
             model_variant_id=_model_variant_id(model_id),
+            call_observer=call_observer,
+            producer_settlement_store=producer_settlement_store,
+            producer_budget_key=(
+                f"nl-run:{producer_run_id}"
+                if producer_settlement_store is not None and producer_run_id is not None
+                else "run"
+            ),
         )
         llm_client = owned_llm_client
     try:
@@ -2167,10 +2208,7 @@ def _prompt_size_payload(value: object) -> object:
             if field.name != "created_at"
         }
     if isinstance(value, Mapping):
-        return {
-            str(key): _prompt_size_payload(item)
-            for key, item in value.items()
-        }
+        return {str(key): _prompt_size_payload(item) for key, item in value.items()}
     if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
         return [_prompt_size_payload(item) for item in value]
     if isinstance(value, set | frozenset):
@@ -2538,9 +2576,7 @@ def _s2_forbidden_candidate_callers(source: str) -> list[dict[str, str]]:
         target.id
         for node in tree.body
         if isinstance(node, (ast.Assign, ast.AnnAssign))
-        for target in (
-            (*node.targets,) if isinstance(node, ast.Assign) else (node.target,)
-        )
+        for target in ((*node.targets,) if isinstance(node, ast.Assign) else (node.target,))
         if isinstance(target, ast.Name)
     }
     if "_INSTRUMENT_FAMILIES" in assigned_names or "credit_guarantee" in source:
@@ -2601,9 +2637,7 @@ def _s2_forbidden_candidate_callers(source: str) -> list[dict[str, str]]:
                 }
             )
             run = run_s2_shadow_design_loop(input_row)
-            expected_params = {
-                dimension: values[0] for dimension, values in parameters.items()
-            }
+            expected_params = {dimension: values[0] for dimension, values in parameters.items()}
             if not (
                 run.grammar_expansion.instrument_families == list(families)
                 and run.grammar_expansion.parameter_space
@@ -2641,8 +2675,7 @@ def _policy_verified_fixture_callers(root: Path) -> list[dict[str, str]]:
         source_root / "polisyos/scientist/validation/policy_verified/service.py"
     ).resolve()
     node_path = (
-        source_root
-        / "polisyos/scientist/nodes/builtins/compile/formalize_verified_policy.py"
+        source_root / "polisyos/scientist/nodes/builtins/compile/formalize_verified_policy.py"
     ).resolve()
     issues: list[dict[str, str]] = []
     for path in source_root.rglob("*.py"):
@@ -2791,9 +2824,7 @@ def _nl_pipeline_fixture_callers(root: Path) -> list[dict[str, str]]:
                 if isinstance(node, ast.Constant) and isinstance(node.value, str)
             }
             calls = {
-                _ast_call_name(call)
-                for call in ast.walk(production)
-                if isinstance(call, ast.Call)
+                _ast_call_name(call) for call in ast.walk(production) if isinstance(call, ast.Call)
             }
             if "llm_model_unconfigured" not in constants:
                 issues.append(
@@ -2967,9 +2998,7 @@ def firewall_issues_for_result(result: GenerationUnderAResult) -> tuple[dict[str
         causal_context = candidate.atom.causal_do_expr.context
         assumptions = tuple(
             _string_values(
-                causal_context.get("assumptions")
-                if isinstance(causal_context, Mapping)
-                else ()
+                causal_context.get("assumptions") if isinstance(causal_context, Mapping) else ()
             )
         )
         if parsed.get("grounding_relation_content_hash") != chain.cg1_content_hash:
@@ -3085,9 +3114,8 @@ def _content_bound_candidates(
         ):
             raise DesignGenerationError("cycle_substrate_world_model_ref_mismatch")
         if context.candidate_levers:
-            context_l6_bundle = (
-                context.intervention_substrate
-                or load_l6_intervention_substrate(repo_root.resolve())
+            context_l6_bundle = context.intervention_substrate or load_l6_intervention_substrate(
+                repo_root.resolve()
             )
     else:
         world_record = None
@@ -3177,8 +3205,7 @@ def _content_bound_candidates(
             matching_context_levers = tuple(
                 candidate
                 for candidate in context.candidate_levers
-                if candidate_lever_ref
-                in {candidate.instrument, candidate.lever_id}
+                if candidate_lever_ref in {candidate.instrument, candidate.lever_id}
             )
             if len(matching_context_levers) != 1:
                 dispositions.append(
@@ -3216,9 +3243,7 @@ def _content_bound_candidates(
                 cycle_substrate_context=context,
             )
             if not isinstance(resolved_lever, InterventionLeverRefusal):
-                raise DesignGenerationError(
-                    "candidate_unbound_lever_resolved_as_world_bound"
-                )
+                raise DesignGenerationError("candidate_unbound_lever_resolved_as_world_bound")
             lever_resolution = resolved_lever
         if lever_resolution is not None and cg1.selected_relation in {
             "exact",
@@ -3435,12 +3460,8 @@ def derive_lever_space_prompt_slice(
                     binding_status="candidate_unbound",
                     candidate_entry_content_hash=candidate.entry_content_hash,
                     context_binding_hash=context.context_binding_hash,
-                    substrate_registry_content_hash=(
-                        context.substrate_registry_content_hash
-                    ),
-                    world_model_record_content_hash=(
-                        context.world_model_record_content_hash
-                    ),
+                    substrate_registry_content_hash=(context.substrate_registry_content_hash),
+                    world_model_record_content_hash=(context.world_model_record_content_hash),
                 )
                 for candidate in context.candidate_levers
             )
@@ -3634,12 +3655,8 @@ def _world_bound_lever_space_prompt_slice(
                 ),
                 binding_status="world_bound",
                 context_binding_hash=context.context_binding_hash,
-                substrate_registry_content_hash=(
-                    context.substrate_registry_content_hash
-                ),
-                world_model_record_content_hash=(
-                    context.world_model_record_content_hash
-                ),
+                substrate_registry_content_hash=(context.substrate_registry_content_hash),
+                world_model_record_content_hash=(context.world_model_record_content_hash),
             )
         )
     selected = _cap_lever_space_entries(entries, design_problem=design_problem)
@@ -4030,9 +4047,7 @@ def _candidate_grounding_signature(
 def _candidate_direct_params(intervention: InterventionSpec) -> dict[str, Any]:
     params = dict(_mapping(intervention.params))
     for key in (
-        _CANDIDATE_AXIS_PARAM_KEYS
-        | _CANDIDATE_TARGET_PARAM_KEYS
-        | _CANDIDATE_PROVENANCE_PARAM_KEYS
+        _CANDIDATE_AXIS_PARAM_KEYS | _CANDIDATE_TARGET_PARAM_KEYS | _CANDIDATE_PROVENANCE_PARAM_KEYS
     ):
         params.pop(key, None)
     return params
@@ -4305,13 +4320,10 @@ def _normalization_record_for_grounded_candidate(
     normalized_target_slots: Sequence[str],
     cg1: GroundingRelationCertificate,
 ) -> dict[str, Any] | None:
-    original_slots = tuple(
-        _string_values(_candidate_declared_target_hint(intervention))
-    )
+    original_slots = tuple(_string_values(_candidate_declared_target_hint(intervention)))
     normalized_slots = tuple(str(item) for item in normalized_target_slots if str(item))
-    if (
-        intervention.kind == normalized_intervention.kind
-        and tuple(sorted(original_slots)) == tuple(sorted(normalized_slots))
+    if intervention.kind == normalized_intervention.kind and tuple(sorted(original_slots)) == tuple(
+        sorted(normalized_slots)
     ):
         return None
     return {
@@ -4552,9 +4564,7 @@ def _terminal_result(
         design_problem_ref=design_problem_ref,
         model_id=model_id,
         preflight=preflight,
-        degraded_artifacts=(
-            DegradedGenerationArtifact(reason=reason, organ=organ),
-        ),
+        degraded_artifacts=(DegradedGenerationArtifact(reason=reason, organ=organ),),
         diversity_report=GenerationDiversityReport(
             min_required=min_diverse_candidates,
             candidate_count=0,

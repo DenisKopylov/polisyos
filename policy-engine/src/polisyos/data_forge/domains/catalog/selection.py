@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, Protocol, TypeVar, cast, get_args
+from typing import TYPE_CHECKING, Protocol, TypeVar, cast, get_args
 
+from polisyos.core.contracts.control import CatalogRunProfile
 from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
     CatalogSelectionError,
 )
@@ -25,15 +26,6 @@ class _CatalogSelectableSource(_CatalogSeedSource, Protocol):
     publish_blocking: bool
     allow_manual_backfill: bool
 
-
-CatalogRunProfile = Literal[
-    "prod_full",
-    "prod_core_blocking",
-    "rest_backfill",
-    "catalog_refresh",
-    "preflight_core",
-    "observations_backfill",
-]
 
 _CATALOG_RUN_PROFILES = frozenset(get_args(CatalogRunProfile))
 

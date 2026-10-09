@@ -614,9 +614,7 @@ class ForecastingUncertaintyBundle(BaseModel):
             point_estimate=point[0],
             confidence_interval=(lower[0], upper[0]),
             confidence_level=(
-                None
-                if heuristic
-                else float(interval.coverage_target or self.nominal_coverage)
+                None if heuristic else float(interval.coverage_target or self.nominal_coverage)
             ),
             distribution_family=DistributionFamily.UNKNOWN,
             source=UncertaintySource.CALIBRATION,
@@ -635,9 +633,7 @@ class ForecastingUncertaintyBundle(BaseModel):
                 "horizon": horizon,
                 "native_interval_semantics": self.interval_semantics.value,
                 "calibration_method": self.calibration_method.value,
-                "value_estimand_binding_content_hash": (
-                    projection_binding.content_hash
-                ),
+                "value_estimand_binding_content_hash": (projection_binding.content_hash),
                 "value_estimand_binding_native_contract_id": (
                     projection_binding.native_contract_id
                 ),
@@ -693,9 +689,9 @@ class ForecastingUncertaintyBundleV2(ForecastingUncertaintyBundle):
         red_count = int(diagnostics.get("red_horizon_count", 0))
         if certificate.status is ReconciliationStatus.CERTIFIED:
             if (
-                self.calibration_method
-                is ForecastCalibrationMethod.CONFORMAL_AFTER_RECONCILIATION
-                and certificate.coverage_scope in {
+                self.calibration_method is ForecastCalibrationMethod.CONFORMAL_AFTER_RECONCILIATION
+                and certificate.coverage_scope
+                in {
                     "per_series_marginal",
                     "per_series_marginal_with_beta_mixing_penalty",
                 }
@@ -753,13 +749,10 @@ def load_forecasting_uncertainty_bundle(
 ) -> ForecastingUncertaintyBundle | ForecastingUncertaintyBundleV2:
     """Load a forecasting uncertainty bundle from artifact storage."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
-    if (
-        isinstance(payload, dict)
-        and (
-            payload.get("schema_version") == "2.0"
-            or payload.get("reconciliation_certificate") is not None
-        )
+    payload = get_json_artifact(store, ref)
+    if isinstance(payload, dict) and (
+        payload.get("schema_version") == "2.0"
+        or payload.get("reconciliation_certificate") is not None
     ):
         return ForecastingUncertaintyBundleV2.model_validate(payload)
     return ForecastingUncertaintyBundle.model_validate(payload)

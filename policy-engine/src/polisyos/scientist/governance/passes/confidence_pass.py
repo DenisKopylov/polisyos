@@ -2,17 +2,23 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any
 
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.contracts.foundry import SimulationResult
+from polisyos.core.contracts.foundry import SimulationResult, SimulationResultRef
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
-from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
+from polisyos.ir.analytics.uncertainty import (
+    load_simulation_result_uncertainty_admission,
+    load_uncertainty_envelope,
+)
+from polisyos.ir.artifacts import normalize_artifact_ref
 from polisyos.scientist.governance.accountability import resolve_governance_threshold
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
@@ -66,14 +72,33 @@ class ConfidencePass(ValidatorPass):
 
         envelope_refs: dict[str, Any] = {}
 
-        sim_result_id = _resolve_simulation_result_id(ctx.state)
-        if sim_result_id is None:
+        try:
+            sim_result_ref = _resolve_simulation_result_ref(ctx.state)
+        except (TypeError, ValidationError, ValueError) as exc:
+            emit_degraded_path(
+                component="governance.confidence_pass",
+                operation="resolve_simulation_result_ref",
+                reason="artifact_ref_parse_failed",
+                exc=exc,
+                details={},
+            )
+            issues.append(
+                ComplianceIssue(
+                    pass_id=self.pass_id,
+                    path=["artifacts_index", "simulation_result_ref"],
+                    message=f"SimulationResult selector is invalid: {exc}",
+                    severity=IssueSeverity.BLOCKER,
+                    code="CONFIDENCE_SIM_RESULT_REF_INVALID",
+                )
+            )
+            sim_result_ref = None
+        if sim_result_ref is None:
             if causal_ref is None:
                 return issues
             envelope_refs["causal_effect"] = causal_ref
         else:
             try:
-                payload = from_canonical_bytes(store.get_bytes(sim_result_id))
+                payload = from_canonical_bytes(store.get_bytes(sim_result_ref))
                 sim_result = SimulationResult.model_validate(payload)
             except (
                 AttributeError,
@@ -88,7 +113,7 @@ class ConfidencePass(ValidatorPass):
                     operation="load_simulation_result",
                     reason="artifact_load_failed",
                     exc=exc,
-                    details={"simulation_result_id": str(sim_result_id)},
+                    details={"simulation_result_id": str(_selector_id(sim_result_ref))},
                 )
                 # Loading a sibling artifact cannot withdraw an issue already
                 # established from the consumer's offered inputs.
@@ -129,35 +154,64 @@ class ConfidencePass(ValidatorPass):
         n_total = 0
         n_gate_eligible = 0
         for metric_id, ref in envelope_refs.items():
-            try:
-                env = load_uncertainty_envelope(store, ref)
-            except (
-                AttributeError,
-                OSError,
-                RuntimeError,
-                TypeError,
-                ValidationError,
-                ValueError,
-            ) as exc:
-                emit_degraded_path(
-                    component="governance.confidence_pass",
-                    operation="load_uncertainty_envelope",
-                    reason="artifact_load_failed",
-                    exc=exc,
-                    details={"metric_id": str(metric_id)},
+            if sim_result_ref is not None and metric_id != "causal_effect":
+                admission = load_simulation_result_uncertainty_admission(
+                    _ensure_ir_artifact_store(store),
+                    sim_result_ref,
+                    str(metric_id),
                 )
-                issues.append(
-                    ComplianceIssue(
-                        pass_id=self.pass_id,
-                        path=["uncertainty_envelopes", str(metric_id)],
-                        message=f"Failed to load uncertainty envelope for metric '{metric_id}'",
-                        severity=IssueSeverity.WARNING,
-                        code="CONFIDENCE_ENVELOPE_LOAD_FAILED",
+                n_total += 1
+                if not admission.admitted or admission.envelope is None:
+                    limitations = (
+                        ",".join(admission.limitation_codes) or "admission_not_established"
                     )
-                )
-                continue
+                    issues.append(
+                        ComplianceIssue(
+                            pass_id=self.pass_id,
+                            path=["uncertainty_envelopes", str(metric_id)],
+                            message=(
+                                f"Persisted uncertainty for '{metric_id}' is limited: {limitations}"
+                            ),
+                            severity=IssueSeverity.BLOCKER,
+                            code="CONFIDENCE_ENVELOPE_ADMISSION_LIMITED",
+                            suggestion=(
+                                "Provide a content-bound draw ledger and trusted verifier "
+                                "receipt for the persisted propagation basis."
+                            ),
+                        )
+                    )
+                    continue
+                env = admission.envelope
+            else:
+                try:
+                    env = load_uncertainty_envelope(_ensure_ir_artifact_store(store), ref)
+                except (
+                    AttributeError,
+                    OSError,
+                    RuntimeError,
+                    TypeError,
+                    ValidationError,
+                    ValueError,
+                ) as exc:
+                    emit_degraded_path(
+                        component="governance.confidence_pass",
+                        operation="load_uncertainty_envelope",
+                        reason="artifact_load_failed",
+                        exc=exc,
+                        details={"metric_id": str(metric_id)},
+                    )
+                    issues.append(
+                        ComplianceIssue(
+                            pass_id=self.pass_id,
+                            path=["uncertainty_envelopes", str(metric_id)],
+                            message=f"Failed to load uncertainty envelope for metric '{metric_id}'",
+                            severity=IssueSeverity.WARNING,
+                            code="CONFIDENCE_ENVELOPE_LOAD_FAILED",
+                        )
+                    )
+                    continue
+                n_total += 1
 
-            n_total += 1
             if env.gate_eligible and not (causal_ref is not None and metric_id == "causal_effect"):
                 n_gate_eligible += 1
 
@@ -224,31 +278,31 @@ def _resolve_store(state: dict[str, Any]) -> FileSystemCAS | None:
     )
 
 
-def _resolve_simulation_result_id(state: dict[str, Any]) -> ArtifactID | None:
+def _resolve_simulation_result_ref(
+    state: dict[str, Any],
+) -> SimulationResultRef | ArtifactID | None:
+    """Resolve a SimulationResult selector without reducing a selected view to its ID."""
     artifacts_index = state.get("artifacts_index")
-    if isinstance(artifacts_index, dict):
-        ref = artifacts_index.get("simulation_result_ref")
-        if ref is not None and hasattr(ref, "artifact_id"):
-            return ref.artifact_id
-
-    explicit = state.get("simulation_result_ref")
-    if explicit is None:
+    ref = (
+        artifacts_index.get("simulation_result_ref")
+        if isinstance(artifacts_index, Mapping)
+        else None
+    )
+    if ref is None:
+        ref = state.get("simulation_result_ref")
+    if ref is None:
         return None
-    if isinstance(explicit, str):
-        try:
-            return ArtifactID.model_validate(explicit)
-        except (TypeError, ValidationError, ValueError) as exc:
-            emit_degraded_path(
-                component="governance.confidence_pass",
-                operation="resolve_simulation_result_id",
-                reason="artifact_ref_parse_failed",
-                exc=exc,
-                details={"simulation_result_ref": explicit},
-            )
-            return None
-    if hasattr(explicit, "artifact_id"):
-        return explicit.artifact_id
-    return None
+    if isinstance(ref, (str, ArtifactID)):
+        return ArtifactID.model_validate(str(ref))
+    selector = SimulationResultRef.model_validate(normalize_artifact_ref(ref))
+    if selector.kind != "foundry.simulation_result":
+        raise ValueError("SimulationResult selector has the wrong artifact kind")
+    return selector
+
+
+def _selector_id(selector: SimulationResultRef | ArtifactID) -> ArtifactID:
+    """Return the content ID for diagnostics without discarding the selector in I/O."""
+    return selector.artifact_id if isinstance(selector, SimulationResultRef) else selector
 
 
 def _resolve_causal_envelope_ref(state: dict[str, Any]) -> Any | None:

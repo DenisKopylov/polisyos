@@ -22,6 +22,7 @@ from polisyos.ir.artifacts import (
     get_json_artifact,
     put_json_artifact,
 )
+from polisyos.ir.migrations import negotiate_schema_version
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     BoundsBundleRef,
@@ -30,9 +31,13 @@ from polisyos.ir.registry.refs import (
     KernelEstimatorSpecRef,
     NegativeCertificateRef,
     ProofBundleRef,
+    TwinNetworkResultRef,
 )
 
 MAX_FINGERPRINT_DEPTH = 32
+_CAUSAL_EVIDENCE_BUNDLE_SCHEMA = "ir.causal_evidence_bundle"
+_CAUSAL_EVIDENCE_BUNDLE_LEGACY_VERSION = "1.0"
+_CAUSAL_EVIDENCE_BUNDLE_CURRENT_VERSION = "1.1"
 
 
 class EvidenceFingerprintError(ValueError):
@@ -326,6 +331,9 @@ class EvidenceBundle(BaseModel):
     kernel_estimator_spec_ref: KernelEstimatorSpecRef | None = None
     """CAS-backed reference to the kernel lowering contract, when applicable."""
 
+    twin_network_result_ref: TwinNetworkResultRef | None = None
+    """CAS-backed reference to a typed twin-network result, when one was produced."""
+
     def to_summary(self) -> str:
         """Return a concise human-readable summary of this bundle."""
         n_steps = len(self.proof_steps)
@@ -354,30 +362,73 @@ def persist_causal_evidence_bundle(
     bundle: EvidenceBundle,
     *,
     inputs: list[InputRef] | None = None,
-    schema_name: str = "ir.causal_evidence_bundle",
-    schema_version: str = "1.0",
+    schema_name: str = _CAUSAL_EVIDENCE_BUNDLE_SCHEMA,
+    schema_version: str | None = None,
 ) -> EvidenceBundleRef:
-    """Persist a causal audit EvidenceBundle and return its typed artifact ref."""
+    """Persist a causal audit EvidenceBundle and return its typed artifact ref.
 
+    Reference-free payloads keep the strict 1.0 field set. Payloads with a typed
+    twin-result reference are written as schema 1.1.
+    """
+    has_twin_result = bundle.twin_network_result_ref is not None
+    expected_version = (
+        _CAUSAL_EVIDENCE_BUNDLE_CURRENT_VERSION
+        if has_twin_result
+        else _CAUSAL_EVIDENCE_BUNDLE_LEGACY_VERSION
+    )
+    selected_version = schema_version if schema_version is not None else expected_version
+    if selected_version != expected_version:
+        raise ValueError(
+            f"EvidenceBundle {expected_version} is required for this payload; "
+            f"got schema version {selected_version!r}"
+        )
+    payload = bundle.model_dump(
+        mode="json",
+        exclude=None if has_twin_result else {"twin_network_result_ref"},
+    )
     ref = put_json_artifact(
         store,
-        bundle.model_dump(mode="json"),
+        payload,
         kind="fabric.evidence_bundle",
         schema_name=schema_name,
-        schema_version=schema_version,
+        schema_version=selected_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
     return EvidenceBundleRef.model_validate(ref)
 
 
+def _causal_evidence_bundle_version(store: ArtifactStore, ref: EvidenceBundleRef) -> str:
+    """Read and negotiate the schema version for this exact persisted manifest view."""
+    manifest = store.get_manifest(ref)
+    schema = getattr(manifest, "artifact_schema", None)
+    if schema is None or schema.name != _CAUSAL_EVIDENCE_BUNDLE_SCHEMA:
+        raise ValueError("Missing or unsupported causal EvidenceBundle schema metadata")
+    version = str(schema.version)
+    decision = negotiate_schema_version(
+        _CAUSAL_EVIDENCE_BUNDLE_SCHEMA,
+        version,
+        _CAUSAL_EVIDENCE_BUNDLE_CURRENT_VERSION,
+    )
+    if not decision.can_read or decision.migration_required:
+        raise ValueError(
+            f"Unsupported causal EvidenceBundle schema version {version!r}; "
+            f"current reader is {_CAUSAL_EVIDENCE_BUNDLE_CURRENT_VERSION}"
+        )
+    return version
+
+
 def load_causal_evidence_bundle(
     store: ArtifactStore,
     ref: EvidenceBundleRef,
 ) -> EvidenceBundle:
-    """Load a causal audit EvidenceBundle persisted via `persist_causal_evidence_bundle`."""
-
-    payload = get_json_artifact(store, ref.artifact_id)
+    """Load a versioned causal audit EvidenceBundle from its selected CAS view."""
+    version = _causal_evidence_bundle_version(store, ref)
+    payload = get_json_artifact(store, ref)
+    if version == _CAUSAL_EVIDENCE_BUNDLE_LEGACY_VERSION and "twin_network_result_ref" in payload:
+        raise ValueError(
+            "EvidenceBundle v1.0 payload contains the v1.1 field 'twin_network_result_ref'"
+        )
     return EvidenceBundle.model_validate(payload)
 
 

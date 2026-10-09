@@ -223,6 +223,7 @@ class LLMPIAgent:
             user=user_message,
             response_format={"type": "json_object"},
             plugins=([{"id": "response-healing"}] if self._enable_response_healing else None),
+            metadata={"cacheable": False},
         )
 
         content = response.content if hasattr(response, "content") else str(response)
@@ -270,6 +271,7 @@ class LLMPIAgent:
             user=user_message,
             response_format={"type": "json_object"},
             plugins=([{"id": "response-healing"}] if self._enable_response_healing else None),
+            metadata={"cacheable": False},
         )
 
         content = response.content if hasattr(response, "content") else str(response)

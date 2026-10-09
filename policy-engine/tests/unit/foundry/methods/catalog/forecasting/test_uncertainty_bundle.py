@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.artifacts import get_json_artifact
 
@@ -17,9 +19,7 @@ def test_exponential_smoothing_emits_conformal_bundle(isolated_registry, tmp_pat
     store = FileSystemCAS(tmp_path / "cas")
     result = method.pure_step(
         {
-            "series": np.array(
-                [10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0]
-            ),
+            "series": np.array([10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0]),
             "target_id": "metric",
         },
         {"horizon": 3, "alpha": 0.4, "beta": 0.2, "artifact_store": store},
@@ -32,7 +32,9 @@ def test_exponential_smoothing_emits_conformal_bundle(isolated_registry, tmp_pat
     assert len(bundle.prediction_interval) == 3
     assert bundle.horizon_policy.gate_eligible is True
     assert bundle.coverage_diagnostic.pit_summary_ref is not None
-    pit_payload = get_json_artifact(store, bundle.coverage_diagnostic.pit_summary_ref.artifact_id)
+    pit_payload = get_json_artifact(
+        _ensure_ir_artifact_store(store), bundle.coverage_diagnostic.pit_summary_ref.artifact_id
+    )
     assert pit_payload["target_id"] == "metric"
     receipt = bundle.to_truthfulness_receipt()
     assert receipt.truthfulness_scope == "marginal_coverage"

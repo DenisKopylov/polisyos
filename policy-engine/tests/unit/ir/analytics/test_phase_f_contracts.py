@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.interference import (
     InteractionComplex,
@@ -26,7 +29,6 @@ from polisyos.ir.registry.refs import (
     MAUPInvarianceCertificateRef,
     SpatialHodgeDiagnosticsRef,
 )
-from pydantic import ValidationError
 
 
 def _artifact_id(ch: str) -> str:
@@ -160,13 +162,23 @@ def test_phase_f_contracts_round_trip_via_store(tmp_path) -> None:
         },
     )
 
-    interaction_complex_ref = persist_interaction_complex(store, interaction_complex)
-    certificate_ref = persist_interference_certificate(store, certificate)
+    interaction_complex_ref = persist_interaction_complex(
+        _ensure_ir_artifact_store(store), interaction_complex
+    )
+    certificate_ref = persist_interference_certificate(
+        _ensure_ir_artifact_store(store), certificate
+    )
 
     assert isinstance(interaction_complex_ref, InteractionComplexRef)
     assert isinstance(certificate_ref, InterferenceCertificateRef)
-    assert load_interaction_complex(store, interaction_complex_ref) == interaction_complex
-    assert load_interference_certificate(store, certificate_ref) == certificate
+    assert (
+        load_interaction_complex(_ensure_ir_artifact_store(store), interaction_complex_ref)
+        == interaction_complex
+    )
+    assert (
+        load_interference_certificate(_ensure_ir_artifact_store(store), certificate_ref)
+        == certificate
+    )
 
 
 def test_reduction_error_bound_none_is_honest_default() -> None:
@@ -249,9 +261,14 @@ def test_maup_certificate_round_trip_and_spatial_result_wrap(tmp_path) -> None:
         warnings=("maup_probe_covariates_truncated",),
     )
 
-    certificate_ref = persist_maup_invariance_certificate(store, certificate)
+    certificate_ref = persist_maup_invariance_certificate(
+        _ensure_ir_artifact_store(store), certificate
+    )
     assert isinstance(certificate_ref, MAUPInvarianceCertificateRef)
-    assert load_maup_invariance_certificate(store, certificate_ref) == certificate
+    assert (
+        load_maup_invariance_certificate(_ensure_ir_artifact_store(store), certificate_ref)
+        == certificate
+    )
 
     report = SpatialResult(
         method="spatial_kernel",
@@ -342,9 +359,14 @@ def test_spatial_hodge_diagnostics_round_trip_and_attach_to_spatial_result(tmp_p
         warnings=("topology_probe_unstable",),
     )
 
-    diagnostics_ref = persist_spatial_hodge_diagnostics(store, diagnostics)
+    diagnostics_ref = persist_spatial_hodge_diagnostics(
+        _ensure_ir_artifact_store(store), diagnostics
+    )
     assert isinstance(diagnostics_ref, SpatialHodgeDiagnosticsRef)
-    assert load_spatial_hodge_diagnostics(store, diagnostics_ref) == diagnostics
+    assert (
+        load_spatial_hodge_diagnostics(_ensure_ir_artifact_store(store), diagnostics_ref)
+        == diagnostics
+    )
 
     report = SpatialResult(
         method="spatial_kernel",

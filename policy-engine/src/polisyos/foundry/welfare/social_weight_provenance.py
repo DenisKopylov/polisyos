@@ -8,7 +8,7 @@ normative value choice used to select one nondominated point.
 
 from __future__ import annotations
 
-from datetime import datetime  # noqa: TC003
+from datetime import datetime
 from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -18,9 +18,7 @@ from polisyos.core import artifacts, canon
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-SOCIAL_WEIGHT_PROVENANCE_SCHEMA_VERSION = (
-    "policyos.foundry.welfare.social_weight_provenance.v1"
-)
+SOCIAL_WEIGHT_PROVENANCE_SCHEMA_VERSION = "policyos.foundry.welfare.social_weight_provenance.v1"
 
 SocialWeightSourceClass = Literal[
     "governance_decision",
@@ -343,7 +341,7 @@ def load_social_weight_provenance(
 ) -> SocialWeightProvenance:
     """Load a persisted social-weight provenance record."""
 
-    payload = canon.from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = canon.from_canonical_bytes(store.get_bytes(ref))
     return SocialWeightProvenance.model_validate(payload)
 
 

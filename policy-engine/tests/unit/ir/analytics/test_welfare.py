@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.ir.analytics.uncertainty import (
@@ -23,7 +26,6 @@ from polisyos.ir.analytics.welfare import (
     persist_welfare_bundle,
 )
 from polisyos.ir.registry.refs import ArtifactRefModel
-from pydantic import ValidationError
 
 
 def test_welfare_bundle_roundtrip(tmp_path) -> None:
@@ -34,7 +36,7 @@ def test_welfare_bundle_roundtrip(tmp_path) -> None:
         canon_spec=CanonSpec(forbid_floats=False),
     )
     ge_ref = persist_ge_uncertainty_bundle(
-        store,
+        _ensure_ir_artifact_store(store),
         GEUncertaintyBundle(
             model_class="linearized_ge_io",
             representation=GEUncertaintyRepresentation.MULTIPLIER_INTERVALS,
@@ -45,7 +47,7 @@ def test_welfare_bundle_roundtrip(tmp_path) -> None:
         ),
     )
     pe_ref = persist_uncertainty_envelope(
-        store,
+        _ensure_ir_artifact_store(store),
         UncertaintyEnvelope(
             point_estimate=1.0,
             confidence_interval=(0.8, 1.2),
@@ -57,7 +59,7 @@ def test_welfare_bundle_roundtrip(tmp_path) -> None:
         ),
     )
     bundle_ref = persist_welfare_bundle(
-        store,
+        _ensure_ir_artifact_store(store),
         WelfareBundle(
             welfare_measure="net_social_welfare",
             model_class="linearized_ge_io",
@@ -75,7 +77,7 @@ def test_welfare_bundle_roundtrip(tmp_path) -> None:
         ),
     )
 
-    bundle = load_welfare_bundle(store, bundle_ref)
+    bundle = load_welfare_bundle(_ensure_ir_artifact_store(store), bundle_ref)
     assert bundle.point_estimate == 0.84
     assert bundle.robust_interval == (0.12, 1.43)
     assert bundle.ge_uncertainty_ref == ge_ref

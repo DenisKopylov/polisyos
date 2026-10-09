@@ -15,7 +15,10 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
-from polisyos.ir.registry.refs import BridgePlausibilityReportRef, ProximalIdentificationCertificateRef
+from polisyos.ir.registry.refs import (
+    BridgePlausibilityReportRef,
+    ProximalIdentificationCertificateRef,
+)
 
 
 class SpatialProxySpec(BaseModel):
@@ -487,7 +490,7 @@ def load_proximal_identification_certificate(
 ) -> ProximalIdentificationCertificate:
     """Load a persisted proximal identification certificate."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return ProximalIdentificationCertificate.model_validate(payload)
 
 
@@ -519,7 +522,7 @@ def load_bridge_plausibility_report(
 ) -> BridgePlausibilityReport:
     """Load a persisted proximal bridge plausibility report."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return BridgePlausibilityReport.model_validate(payload)
 
 

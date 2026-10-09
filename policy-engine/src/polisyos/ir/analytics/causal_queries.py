@@ -623,8 +623,8 @@ def load_causal_query_result(
     ref: CausalQueryResultRef,
 ) -> CausalQueryResult:
     """Load a causal query result with CAS/payload version reconciliation."""
-    payload = get_json_artifact(store, ref.artifact_id)
-    manifest = store.get_manifest(ref.artifact_id)
+    payload = get_json_artifact(store, ref)
+    manifest = store.get_manifest(ref)
     schema = getattr(manifest, "artifact_schema", None)
     if schema is None:
         raise ValueError("causal query result CAS manifest is missing artifact schema metadata")

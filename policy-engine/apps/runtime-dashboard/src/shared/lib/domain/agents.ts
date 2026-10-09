@@ -13,6 +13,26 @@ import {
 } from "./statusOwnership";
 
 export type AgentStepStatus = AgentPipelineStep["status"];
+export type AgentCostOrigin = "reported" | "estimated" | "reuse" | "unknown";
+export type AgentSettlementStatus =
+  | "pending"
+  | "committed"
+  | "unknown"
+  | "unmanaged";
+
+export type AgentCostEventView = {
+  eventId: string;
+  originEventId: string | null;
+  costOrigin: AgentCostOrigin;
+  amount: string | null;
+  costUsd: number | null;
+  settlementStatus: AgentSettlementStatus;
+  durability: "ledger" | "memory" | "none" | null;
+  receipts: string[];
+  payloadDigest: string | null;
+  model: string | null;
+  provider: string | null;
+};
 
 export type AgentStepView = {
   attempt: number;
@@ -28,6 +48,8 @@ export type AgentStepView = {
   modelVariantId: string | null;
   latencyMs: number | null;
   costUsd: number | null;
+  costUnknown: boolean;
+  costEvents: AgentCostEventView[];
   prompt: string | null;
   response: string | null;
   promptTokens: number | null;
@@ -43,6 +65,11 @@ export type AgentAttemptView = {
   startedAt: string | null;
   finishedAt: string | null;
   durationMs: number | null;
+  costUsd: number | null;
+  reportedCostUsd: number | null;
+  estimatedCostUsd: number | null;
+  costOriginCounts: Record<string, number>;
+  settlementStatusCounts: Record<string, number>;
   steps: AgentStepView[];
   notes: string[];
 };
@@ -142,6 +169,11 @@ export type AgentPipelineModel = {
   latestVerdict: string | null;
   source: string | null;
   hasPromptData: boolean;
+  costUsd: number | null;
+  reportedCostUsd: number | null;
+  estimatedCostUsd: number | null;
+  costOriginCounts: Record<string, number>;
+  settlementStatusCounts: Record<string, number>;
   attempts: AgentAttemptView[];
   retrieval: RetrievalTelemetryModel | null;
   preflight: PreflightModel | null;
@@ -187,6 +219,117 @@ function normalizeStatus(value: unknown): AgentStepStatus {
     return normalized;
   }
   return "info";
+}
+
+function normalizeCostOrigin(value: unknown): AgentCostOrigin {
+  const normalized = (asString(value) ?? "unknown").toLowerCase();
+  if (
+    normalized === "reported" ||
+    normalized === "estimated" ||
+    normalized === "reuse"
+  ) {
+    return normalized;
+  }
+  return "unknown";
+}
+
+function normalizeSettlementStatus(value: unknown): AgentSettlementStatus {
+  const normalized = (asString(value) ?? "unknown").toLowerCase();
+  if (
+    normalized === "pending" ||
+    normalized === "committed" ||
+    normalized === "unmanaged"
+  ) {
+    return normalized;
+  }
+  return "unknown";
+}
+
+function normalizeCostEvent(raw: unknown): AgentCostEventView | null {
+  const event = asRecord(raw);
+  if (!event) {
+    return null;
+  }
+  const costOrigin = normalizeCostOrigin(event.cost_origin);
+  const amount = asString(event.amount);
+  const costUsd =
+    costOrigin === "unknown"
+      ? null
+      : (asNumber(event.cost_usd) ?? asNumber(amount));
+  const durabilityValue = asString(event.durability);
+  const durability =
+    durabilityValue === "ledger" ||
+    durabilityValue === "memory" ||
+    durabilityValue === "none"
+      ? durabilityValue
+      : null;
+  return {
+    eventId: asString(event.event_id) ?? "unidentified",
+    originEventId: asString(event.origin_event_id),
+    costOrigin,
+    amount,
+    costUsd,
+    settlementStatus: normalizeSettlementStatus(event.settlement_status),
+    durability,
+    receipts: asArray(event.receipts)
+      .map((item) => asString(item))
+      .filter((item): item is string => item !== null),
+    payloadDigest: asString(event.payload_digest),
+    model: asString(event.model),
+    provider: asString(event.provider),
+  };
+}
+
+function normalizeCostEvents(raw: unknown): AgentCostEventView[] {
+  return asArray(raw)
+    .map(normalizeCostEvent)
+    .filter((event): event is AgentCostEventView => event !== null);
+}
+
+function summarizeCostEvents(events: AgentCostEventView[]): {
+  costUsd: number | null;
+  reportedCostUsd: number | null;
+  estimatedCostUsd: number | null;
+  costOriginCounts: Record<string, number>;
+  settlementStatusCounts: Record<string, number>;
+  costUnknown: boolean;
+} {
+  // Billing-event sums start at the additive identity; unknown events stay null.
+  let total = 0; // policyos-quantity: telemetry
+  let reported = 0; // policyos-quantity: telemetry
+  let estimated = 0; // policyos-quantity: telemetry
+  let unknown = false;
+  const costOriginCounts: Record<string, number> = {};
+  const settlementStatusCounts: Record<string, number> = {};
+  for (const event of events) {
+    costOriginCounts[event.costOrigin] =
+      (costOriginCounts[event.costOrigin] ?? 0) + 1;
+    settlementStatusCounts[event.settlementStatus] =
+      (settlementStatusCounts[event.settlementStatus] ?? 0) + 1;
+    if (
+      event.costOrigin === "unknown" ||
+      event.settlementStatus === "unknown" ||
+      event.settlementStatus === "pending" ||
+      event.costUsd === null
+    ) {
+      unknown = true;
+      continue;
+    }
+    total += event.costUsd;
+    if (event.costOrigin === "reported") {
+      reported += event.costUsd;
+    } else if (event.costOrigin === "estimated") {
+      estimated += event.costUsd;
+    }
+  }
+  return {
+    costUsd: unknown ? null : total,
+    reportedCostUsd: reported,
+    estimatedCostUsd: estimated,
+    costOriginCounts,
+    settlementStatusCounts,
+    costUnknown: unknown,
+  };
 }
 
 function normalizeAgent(value: unknown): string {
@@ -415,6 +558,8 @@ function normalizeStep(raw: unknown): AgentStepView | null {
   const agent = normalizeAgent(step.agent);
   const action = asString(step.action) ?? "unknown";
   const tokenUsage = asRecord(step.token_usage);
+  const costEvents = normalizeCostEvents(step.cost_events);
+  const costSummary = summarizeCostEvents(costEvents);
 
   return {
     attempt: Math.max(1, asNumber(step.attempt) ?? 1),
@@ -429,7 +574,10 @@ function normalizeStep(raw: unknown): AgentStepView | null {
     provider: asString(step.provider),
     modelVariantId: asString(step.model_variant_id),
     latencyMs: asNumber(step.latency_ms),
-    costUsd: asNumber(step.cost_usd),
+    costUsd:
+      costEvents.length > 0 ? costSummary.costUsd : asNumber(step.cost_usd),
+    costUnknown: costEvents.length > 0 && costSummary.costUnknown,
+    costEvents,
     prompt: asString(step.prompt),
     response: asString(step.response),
     promptTokens: asNumber(tokenUsage?.prompt_tokens),
@@ -471,6 +619,8 @@ function normalizeAttempt(raw: unknown): AgentAttemptView | null {
     .map((item) => normalizeStep(item))
     .filter((item): item is AgentStepView => item !== null)
     .sort(sortSteps);
+  const costEvents = steps.flatMap((step) => step.costEvents);
+  const costSummary = summarizeCostEvents(costEvents);
 
   return {
     attempt: Math.max(1, asNumber(attempt.attempt) ?? 1),
@@ -479,6 +629,28 @@ function normalizeAttempt(raw: unknown): AgentAttemptView | null {
     startedAt: asString(attempt.started_at),
     finishedAt: asString(attempt.finished_at),
     durationMs: asNumber(attempt.duration_ms),
+    costUsd:
+      costEvents.length > 0 ? costSummary.costUsd : asNumber(attempt.cost_usd),
+    reportedCostUsd:
+      costEvents.length > 0
+        ? costSummary.reportedCostUsd
+        : asNumber(attempt.reported_cost_usd),
+    estimatedCostUsd:
+      costEvents.length > 0
+        ? costSummary.estimatedCostUsd
+        : asNumber(attempt.estimated_cost_usd),
+    costOriginCounts:
+      costEvents.length > 0
+        ? costSummary.costOriginCounts
+        : ((asRecord(attempt.cost_origin_counts) as Record<string, number>) ??
+          {}),
+    settlementStatusCounts:
+      costEvents.length > 0
+        ? costSummary.settlementStatusCounts
+        : ((asRecord(attempt.settlement_status_counts) as Record<
+            string,
+            number
+          >) ?? {}),
     steps,
     notes: asArray(attempt.notes)
       .map((item) => asString(item))
@@ -496,6 +668,10 @@ export function normalizeAgentPipeline(payload: unknown): AgentPipelineModel {
   const hasPromptData = attempts.some((attempt) =>
     attempt.steps.some((step) => Boolean(step.prompt || step.response)),
   );
+  const costEvents = attempts.flatMap((attempt) =>
+    attempt.steps.flatMap((step) => step.costEvents),
+  );
+  const costSummary = summarizeCostEvents(costEvents);
 
   return {
     runId: asString(pipeline.run_id) ?? "unknown",
@@ -503,6 +679,28 @@ export function normalizeAgentPipeline(payload: unknown): AgentPipelineModel {
     latestVerdict: asString(pipeline.latest_verdict),
     source: asString(pipeline.source),
     hasPromptData,
+    costUsd:
+      costEvents.length > 0 ? costSummary.costUsd : asNumber(pipeline.cost_usd),
+    reportedCostUsd:
+      costEvents.length > 0
+        ? costSummary.reportedCostUsd
+        : asNumber(pipeline.reported_cost_usd),
+    estimatedCostUsd:
+      costEvents.length > 0
+        ? costSummary.estimatedCostUsd
+        : asNumber(pipeline.estimated_cost_usd),
+    costOriginCounts:
+      costEvents.length > 0
+        ? costSummary.costOriginCounts
+        : ((asRecord(pipeline.cost_origin_counts) as Record<string, number>) ??
+          {}),
+    settlementStatusCounts:
+      costEvents.length > 0
+        ? costSummary.settlementStatusCounts
+        : ((asRecord(pipeline.settlement_status_counts) as Record<
+            string,
+            number
+          >) ?? {}),
     attempts,
     retrieval: normalizeRetrievalTelemetry(pipeline.retrieval),
     preflight: normalizePreflight(pipeline.preflight),

@@ -1,11 +1,13 @@
 import ast
-from _typeshed import Incomplete
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Any, ClassVar, Protocol, TypeVar
+
+from _typeshed import Incomplete
+
 from polisyos.core.observability import DeterminismTier
 from polisyos.ir.analytics.uncertainty import OutputContractCapability
-from typing import Any, ClassVar, Protocol, TypeVar
 
 def is_valid_semver(version: str) -> bool: ...
 def parse_fqn(fqn: str) -> tuple[str, str, str]: ...

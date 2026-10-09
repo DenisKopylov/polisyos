@@ -371,7 +371,7 @@ def load_adversarial_scenario_bundle(
     ref: ArtifactRef,
 ) -> AdversarialScenarioBundle:
     """Load adversarial scenario bundle."""
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return AdversarialScenarioBundle.model_validate(payload)
 
 

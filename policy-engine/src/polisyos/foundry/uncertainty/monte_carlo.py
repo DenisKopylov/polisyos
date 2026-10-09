@@ -10,15 +10,21 @@ import warnings
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Any
+from numbers import Real
+from typing import Any, Literal
 
 import jax
 import jax.numpy as jnp
 import jax.random as jrandom
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.common.logger import get_logger
+from polisyos.ir.analytics.posterior_summary import (
+    PosteriorPointRole,
+    PosteriorSummaryV11,
+    summarize_posterior_draw_artifact,
+)
 from polisyos.ir.analytics.uncertainty import (
     CertificateKind,
     ComposedFlavour,
@@ -32,6 +38,7 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintySource,
     build_composition_provenance,
 )
+from polisyos.ir.registry.refs import ArtifactRefModel
 
 from .config import PropagationConfig
 from .covariance import extract_std, has_unknown_dependency
@@ -94,6 +101,281 @@ class _DrawOutcomeRecord(BaseModel):
     draw_index: int = Field(ge=0)
     sampled_input_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     output_outcomes: tuple[_DrawOutputOutcome, ...] = Field(min_length=1)
+
+
+class PosteriorPushforwardOutcomeCode(StrEnum):
+    """Typed reasons one posterior draw did not produce a finite metric."""
+
+    SIMULATION_EXCEPTION = "simulation_exception"
+    INVALID_RESPONSE = "invalid_response"
+    MISSING_OUTPUT = "missing_output"
+    NON_NUMERIC_OUTPUT = "non_numeric_output"
+    NON_FINITE_OUTPUT = "non_finite_output"
+
+
+def _posterior_joint_matrix_digest(
+    *,
+    source_draws_ref: str,
+    source_draws_hash: str,
+    point_role: PosteriorPointRole,
+    chain_count: int,
+    draws_per_chain: int,
+    parameter_names: tuple[str, ...],
+    draw_order: tuple[int, ...],
+    rows: tuple[tuple[float, ...], ...],
+) -> str:
+    """Bind selected source rows and their interpretation into one digest."""
+    payload = {
+        "profile_version": "1.1",
+        "source_draws_ref": source_draws_ref,
+        "source_draws_hash": source_draws_hash,
+        "point_role": point_role.value,
+        "chain_count": chain_count,
+        "draws_per_chain": draws_per_chain,
+        "parameter_names": list(parameter_names),
+        "draw_order": list(draw_order),
+        "rows": [list(row) for row in rows],
+    }
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    return f"sha256:{hashlib.sha256(encoded).hexdigest()}"
+
+
+def _posterior_empirical_quantile(values: tuple[float, ...], level: float) -> float:
+    """Return the left-continuous inverse empirical CDF at one probability."""
+    ordered = np.sort(np.asarray(values, dtype=np.float64), kind="stable")
+    cumulative = np.arange(1, len(ordered) + 1, dtype=np.float64) / len(ordered)
+    index = min(int(np.searchsorted(cumulative, level, side="left")), len(ordered) - 1)
+    return float(ordered[index])
+
+
+class PosteriorJointInputMatrix(BaseModel):
+    """Content-bind the exact selected parameter rows consumed by Monte Carlo."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    profile_version: Literal["1.1"] = "1.1"
+    source_draws_ref: str = Field(min_length=1)
+    source_draws_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    point_role: PosteriorPointRole
+    chain_count: int = Field(ge=1)
+    draws_per_chain: int = Field(ge=1)
+    parameter_names: tuple[str, ...] = Field(min_length=1)
+    draw_order: tuple[int, ...] = Field(min_length=1)
+    rows: tuple[tuple[float, ...], ...] = Field(min_length=1)
+    content_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _validate_matrix_binding(self) -> PosteriorJointInputMatrix:
+        if (
+            len(set(self.parameter_names)) != len(self.parameter_names)
+            or self.draw_order != tuple(range(len(self.rows)))
+            or self.chain_count * self.draws_per_chain != len(self.rows)
+            or any(len(row) != len(self.parameter_names) for row in self.rows)
+            or any(not math.isfinite(value) for row in self.rows for value in row)
+        ):
+            raise ValueError("posterior joint input matrix has inconsistent axes")
+        expected = _posterior_joint_matrix_digest(
+            source_draws_ref=self.source_draws_ref,
+            source_draws_hash=self.source_draws_hash,
+            point_role=self.point_role,
+            chain_count=self.chain_count,
+            draws_per_chain=self.draws_per_chain,
+            parameter_names=self.parameter_names,
+            draw_order=self.draw_order,
+            rows=self.rows,
+        )
+        if self.content_sha256 != expected:
+            raise ValueError("posterior joint input matrix digest does not match its rows")
+        return self
+
+
+class PosteriorPushforwardFailure(BaseModel):
+    """Record an unavailable draw/output value without dropping its row."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    draw_index: int = Field(ge=0)
+    outcome_code: PosteriorPushforwardOutcomeCode
+    error_type: str | None = None
+
+
+class PosteriorPushforwardOutputSummary(BaseModel):
+    """Summarize one output over exact posterior source rows."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    output_metric_id: str = Field(min_length=1)
+    selected_point_value: float | None = None
+    selected_point_failure: PosteriorPushforwardOutcomeCode | None = None
+    selected_point_error_type: str | None = None
+    credible_mass: float = Field(gt=0.0, lt=1.0)
+    draw_values: tuple[float | None, ...] = Field(min_length=1)
+    posterior_mean: float | None = None
+    posterior_median: float | None = None
+    equal_tail_interval: tuple[float, float] | None = None
+    successful_draw_count: int = Field(ge=0)
+    failure_records: tuple[PosteriorPushforwardFailure, ...] = ()
+    distribution_sample_semantics: Literal["successful_draws_only_conditional_on_execution"] = (
+        "successful_draws_only_conditional_on_execution"
+    )
+    gate_eligible: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _validate_output_summary(self) -> PosteriorPushforwardOutputSummary:
+        if self.selected_point_value is not None and not math.isfinite(self.selected_point_value):
+            raise ValueError("selected posterior output must be finite")
+        if (self.selected_point_value is None) != (self.selected_point_failure is not None):
+            raise ValueError("selected posterior output must retain its failure outcome")
+        if any(value is not None and not math.isfinite(value) for value in self.draw_values):
+            raise ValueError("posterior output draw values must be finite when present")
+        failed_indices = tuple(record.draw_index for record in self.failure_records)
+        missing_indices = tuple(
+            index for index, value in enumerate(self.draw_values) if value is None
+        )
+        if (
+            failed_indices != tuple(sorted(set(failed_indices)))
+            or failed_indices != missing_indices
+            or self.successful_draw_count != len(self.draw_values) - len(failed_indices)
+        ):
+            raise ValueError("posterior output values and per-draw outcomes do not align")
+        statistics = (self.posterior_mean, self.posterior_median)
+        if any(value is not None and not math.isfinite(value) for value in statistics):
+            raise ValueError("posterior output statistics must be finite")
+        if self.equal_tail_interval is not None and (
+            not all(math.isfinite(value) for value in self.equal_tail_interval)
+            or self.equal_tail_interval[0] > self.equal_tail_interval[1]
+        ):
+            raise ValueError("posterior output equal-tail interval must be finite and ordered")
+        if self.successful_draw_count == 0 and any(
+            value is not None for value in (*statistics, self.equal_tail_interval)
+        ):
+            raise ValueError("empty posterior output cannot carry summary statistics")
+        observed = tuple(value for value in self.draw_values if value is not None)
+        if observed:
+            expected_mean = math.fsum(value / len(observed) for value in observed)
+            alpha = (1.0 - self.credible_mass) / 2.0
+            expected_median = _posterior_empirical_quantile(observed, 0.5)
+            expected_interval = (
+                _posterior_empirical_quantile(observed, alpha),
+                _posterior_empirical_quantile(observed, 1.0 - alpha),
+            )
+            if (
+                self.posterior_mean != expected_mean
+                or self.posterior_median != expected_median
+                or self.equal_tail_interval != expected_interval
+            ):
+                raise ValueError(
+                    "posterior output summaries do not recompute from retained draw values"
+                )
+        return self
+
+
+class PosteriorPushforwardResult(BaseModel):
+    """Non-gating output from the v1.1 source-row posterior consumer."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    profile_version: Literal["1.1"] = "1.1"
+    source_draws_ref: str = Field(min_length=1)
+    source_draws_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    source_method_evidence_ref: ArtifactRefModel | None = None
+    point_role: PosteriorPointRole
+    chain_count: int = Field(ge=1)
+    draws_per_chain: int = Field(ge=1)
+    source_weight_status: Literal["not_supplied_by_source"] = "not_supplied_by_source"
+    row_evaluation_semantics: Literal["one_evaluator_call_per_source_draw"] = (
+        "one_evaluator_call_per_source_draw"
+    )
+    selected_input_point: tuple[float, ...] = Field(min_length=1)
+    joint_input_matrix: PosteriorJointInputMatrix
+    output_metric_ids: tuple[str, ...] = Field(min_length=1)
+    output_summaries: dict[str, PosteriorPushforwardOutputSummary]
+    gate_eligible: Literal[False] = False
+    unit_binding_status: Literal["not_established"] = "not_established"
+
+    @model_validator(mode="after")
+    def _validate_result_binding(self) -> PosteriorPushforwardResult:
+        if (
+            self.source_draws_ref != self.joint_input_matrix.source_draws_ref
+            or self.source_draws_hash != self.joint_input_matrix.source_draws_hash
+            or self.point_role is not self.joint_input_matrix.point_role
+            or self.chain_count != self.joint_input_matrix.chain_count
+            or self.draws_per_chain != self.joint_input_matrix.draws_per_chain
+            or len(self.selected_input_point) != len(self.joint_input_matrix.parameter_names)
+            or any(not math.isfinite(value) for value in self.selected_input_point)
+            or len(set(self.output_metric_ids)) != len(self.output_metric_ids)
+            or tuple(self.output_summaries) != self.output_metric_ids
+            or any(
+                item.output_metric_id != metric_id
+                or len(item.draw_values) != len(self.joint_input_matrix.rows)
+                for metric_id, item in self.output_summaries.items()
+            )
+        ):
+            raise ValueError("posterior pushforward result does not match its selected matrix")
+        return self
+
+
+def _evaluate_posterior_outputs(
+    simulation_fn: Callable[..., Mapping[str, float]],
+    nominal_params: Mapping[str, float],
+    parameter_names: tuple[str, ...],
+    parameter_values: tuple[float, ...],
+    output_metric_ids: tuple[str, ...],
+) -> tuple[
+    dict[str, float | None],
+    dict[str, tuple[PosteriorPushforwardOutcomeCode, str | None] | None],
+]:
+    """Evaluate one posterior row while retaining each requested output failure."""
+    params = dict(nominal_params)
+    params.update(dict(zip(parameter_names, parameter_values, strict=True)))
+    try:
+        response = simulation_fn(**params)
+    except Exception as exc:  # An evaluator failure is one unavailable candidate row.
+        return (
+            dict.fromkeys(output_metric_ids),
+            {
+                metric_id: (
+                    PosteriorPushforwardOutcomeCode.SIMULATION_EXCEPTION,
+                    type(exc).__name__,
+                )
+                for metric_id in output_metric_ids
+            },
+        )
+    if not isinstance(response, Mapping):
+        return (
+            dict.fromkeys(output_metric_ids),
+            dict.fromkeys(
+                output_metric_ids,
+                (PosteriorPushforwardOutcomeCode.INVALID_RESPONSE, None),
+            ),
+        )
+
+    values: dict[str, float | None] = {}
+    failures: dict[str, tuple[PosteriorPushforwardOutcomeCode, str | None] | None] = {}
+    for metric_id in output_metric_ids:
+        if metric_id not in response:
+            values[metric_id] = None
+            failures[metric_id] = (PosteriorPushforwardOutcomeCode.MISSING_OUTPUT, None)
+            continue
+        raw_value = response[metric_id]
+        if isinstance(raw_value, (bool, np.bool_)) or not isinstance(raw_value, Real):
+            values[metric_id] = None
+            failures[metric_id] = (PosteriorPushforwardOutcomeCode.NON_NUMERIC_OUTPUT, None)
+            continue
+        value = float(raw_value)
+        if not math.isfinite(value):
+            values[metric_id] = None
+            failures[metric_id] = (PosteriorPushforwardOutcomeCode.NON_FINITE_OUTPUT, None)
+            continue
+        values[metric_id] = value
+        failures[metric_id] = None
+    return values, failures
 
 
 def _sampled_input_digest(params: Mapping[str, Any]) -> str:
@@ -330,6 +612,21 @@ class MonteCarloPropagator:
         input_envelopes: Mapping[str, UncertaintyEnvelope],
         output_metric_ids: list[str],
     ) -> list[PropagationResult]:
+        if isinstance(input_envelopes, PosteriorSummaryV11):
+            raise ValueError(
+                "legacy propagate cannot consume a v1.1 posterior summary; "
+                "use propagate_posterior_summary"
+            )
+        if any(
+            envelope.metadata.get("profile_id")
+            == "urn:policyos:ir:bayesian-posterior-summary-profile:1"
+            and envelope.metadata.get("profile_version") == "1.1"
+            for envelope in input_envelopes.values()
+        ):
+            raise ValueError(
+                "legacy propagate cannot consume a v1.1 posterior summary profile; "
+                "use propagate_posterior_summary"
+            )
         if not output_metric_ids:
             return []
 
@@ -428,8 +725,172 @@ class MonteCarloPropagator:
             requested_n_samples=n_samples,
             qmc_summary=qmc_summary,
             sample_axis=(empirical_spec.sample_axis if empirical_spec is not None else "draw"),
-            joint_sample_id=(empirical_spec.joint_sample_id if empirical_spec is not None else None),
+            joint_sample_id=(
+                empirical_spec.joint_sample_id if empirical_spec is not None else None
+            ),
             parametric_fit_names=_parametric_fit_names(input_envelopes),
+        )
+
+    def propagate_posterior_summary(
+        self,
+        summary: PosteriorSummaryV11,
+        *,
+        simulation_fn: Callable[..., Mapping[str, float]],
+        nominal_params: Mapping[str, float],
+        parameter_names: tuple[str, ...],
+        output_metric_ids: tuple[str, ...],
+        point_role: PosteriorPointRole,
+    ) -> PosteriorPushforwardResult:
+        """Push one named posterior functional and its exact rows through an evaluator.
+
+        This versioned path preserves each aligned source row and reports the selected
+        point, posterior output functionals, and equal-tail bounds as distinct values.
+        It never coerces those values into an ``UncertaintyEnvelope``.
+
+        Args:
+            summary: Recomputed v1.1 candidate summary from a persisted posterior artifact.
+            simulation_fn: The actual evaluator applied to the selected point and each source row.
+            nominal_params: Additional fixed evaluator inputs.
+            parameter_names: Ordered scalar parameter coordinates selected from the source rows.
+            output_metric_ids: Ordered outputs to retain from each evaluator result.
+            point_role: Explicit point functional selected by this consumer.
+
+        Returns:
+            A non-gating result that retains the content-bound joint input matrix and every
+            output row in source order.
+
+        Raises:
+            ValueError: If the source summary, selected point role, or requested axes cannot be
+                recomputed and matched before running the evaluator.
+        """
+        if point_role is not summary.point_role:
+            raise ValueError("point_role must match the named functional in the selected summary")
+        if not parameter_names or len(set(parameter_names)) != len(parameter_names):
+            raise ValueError("parameter_names must be non-empty and distinct")
+        if not output_metric_ids or len(set(output_metric_ids)) != len(output_metric_ids):
+            raise ValueError("output_metric_ids must be non-empty and distinct")
+        if any(not name for name in (*parameter_names, *output_metric_ids)):
+            raise ValueError("parameter and output names must be non-empty")
+        for name, raw_value in nominal_params.items():
+            if isinstance(raw_value, (bool, np.bool_)) or not isinstance(raw_value, Real):
+                raise ValueError(f"nominal parameter {name!r} must be a finite real number")
+            if not math.isfinite(float(raw_value)):
+                raise ValueError(f"nominal parameter {name!r} must be a finite real number")
+
+        recomputed = summarize_posterior_draw_artifact(
+            artifact_ref=summary.source_draws_ref,
+            artifact_payload=summary.source_draws_payload,
+            artifact_hash=summary.source_draws_hash,
+            credible_mass=summary.credible_mass,
+            point_role=summary.point_role,
+            source_method_evidence_ref=summary.source_method_evidence_ref,
+        )
+        if recomputed != summary:
+            raise ValueError("selected posterior summary does not match its source draw payload")
+
+        rows = summary.joint_row_values(parameter_names)
+        selected_input_point = tuple(
+            summary.parameters[name].selected_point for name in parameter_names
+        )
+        draw_order = summary.draw_order
+        matrix_digest = _posterior_joint_matrix_digest(
+            source_draws_ref=summary.source_draws_ref,
+            source_draws_hash=summary.source_draws_hash,
+            point_role=point_role,
+            chain_count=summary.chain_count,
+            draws_per_chain=summary.draws_per_chain,
+            parameter_names=parameter_names,
+            draw_order=draw_order,
+            rows=rows,
+        )
+        joint_input_matrix = PosteriorJointInputMatrix(
+            source_draws_ref=summary.source_draws_ref,
+            source_draws_hash=summary.source_draws_hash,
+            point_role=point_role,
+            chain_count=summary.chain_count,
+            draws_per_chain=summary.draws_per_chain,
+            parameter_names=parameter_names,
+            draw_order=draw_order,
+            rows=rows,
+            content_sha256=matrix_digest,
+        )
+
+        selected_values, selected_failures = _evaluate_posterior_outputs(
+            simulation_fn,
+            nominal_params,
+            parameter_names,
+            selected_input_point,
+            output_metric_ids,
+        )
+        values_by_metric = {metric_id: [] for metric_id in output_metric_ids}
+        failures_by_metric: dict[str, list[PosteriorPushforwardFailure]] = {
+            metric_id: [] for metric_id in output_metric_ids
+        }
+        for draw_index, row in enumerate(rows):
+            row_values, row_failures = _evaluate_posterior_outputs(
+                simulation_fn,
+                nominal_params,
+                parameter_names,
+                row,
+                output_metric_ids,
+            )
+            for metric_id in output_metric_ids:
+                values_by_metric[metric_id].append(row_values[metric_id])
+                failure = row_failures[metric_id]
+                if failure is not None:
+                    failures_by_metric[metric_id].append(
+                        PosteriorPushforwardFailure(
+                            draw_index=draw_index,
+                            outcome_code=failure[0],
+                            error_type=failure[1],
+                        )
+                    )
+
+        alpha = (1.0 - summary.credible_mass) / 2.0
+        output_summaries: dict[str, PosteriorPushforwardOutputSummary] = {}
+        for metric_id in output_metric_ids:
+            draw_values = tuple(values_by_metric[metric_id])
+            observed = tuple(value for value in draw_values if value is not None)
+            if observed:
+                mean = math.fsum(value / len(observed) for value in observed)
+                median = _posterior_empirical_quantile(observed, 0.5)
+                interval = (
+                    _posterior_empirical_quantile(observed, alpha),
+                    _posterior_empirical_quantile(observed, 1.0 - alpha),
+                )
+            else:
+                mean = median = None
+                interval = None
+            selected_failure = selected_failures[metric_id]
+            output_summaries[metric_id] = PosteriorPushforwardOutputSummary(
+                output_metric_id=metric_id,
+                selected_point_value=selected_values[metric_id],
+                selected_point_failure=(selected_failure[0] if selected_failure else None),
+                selected_point_error_type=(selected_failure[1] if selected_failure else None),
+                credible_mass=summary.credible_mass,
+                draw_values=draw_values,
+                posterior_mean=mean,
+                posterior_median=median,
+                equal_tail_interval=interval,
+                successful_draw_count=len(observed),
+                failure_records=tuple(failures_by_metric[metric_id]),
+            )
+
+        return PosteriorPushforwardResult(
+            source_draws_ref=summary.source_draws_ref,
+            source_draws_hash=summary.source_draws_hash,
+            source_method_evidence_ref=summary.source_method_evidence_ref,
+            point_role=point_role,
+            chain_count=summary.chain_count,
+            draws_per_chain=summary.draws_per_chain,
+            source_weight_status=summary.weight_status,
+            row_evaluation_semantics="one_evaluator_call_per_source_draw",
+            selected_input_point=selected_input_point,
+            joint_input_matrix=joint_input_matrix,
+            output_metric_ids=output_metric_ids,
+            output_summaries=output_summaries,
+            gate_eligible=False,
+            unit_binding_status="not_established",
         )
 
     # ------------------------------------------------------------------
@@ -569,7 +1030,7 @@ class MonteCarloPropagator:
                 remaining=n_samples - generated,
                 adaptive=adaptive,
             )
-            batch_samples: dict[str, jnp.ndarray] = {}
+            batch_samples: dict[str, np.ndarray | jnp.ndarray] = {}
             shared_indices: jnp.ndarray | None = None
             if empirical_spec is not None:
                 rng, shared_key = jrandom.split(rng)
@@ -583,10 +1044,8 @@ class MonteCarloPropagator:
                 env = input_envelopes[name]
                 if empirical_spec is not None and name in empirical_spec.names:
                     assert shared_indices is not None
-                    batch_samples[name] = jnp.asarray(
-                        empirical_spec.samples[name],
-                        dtype=jnp.float32,
-                    )[shared_indices]
+                    selected_indices = np.asarray(shared_indices, dtype=np.intp)
+                    batch_samples[name] = empirical_spec.samples[name][selected_indices]
                     continue
                 rng, subkey = jrandom.split(rng)
                 batch_samples[name] = self._sample_from_envelope(subkey, env, this_batch)
@@ -834,8 +1293,7 @@ class MonteCarloPropagator:
         )
         qmc_has_full_certificate = qmc_method is not None and qmc_scrambled and qmc_replicates >= 2
         input_envelope_digests = {
-            name: _envelope_content_digest(envelope)
-            for name, envelope in input_envelopes.items()
+            name: _envelope_content_digest(envelope) for name, envelope in input_envelopes.items()
         }
         input_identity_complete = all(
             value is not None for value in input_envelope_digests.values()
@@ -878,9 +1336,7 @@ class MonteCarloPropagator:
             interval_semantics = IntervalSemantics.CONFIDENCE_INTERVAL
             confidence_level: float | None = level
             # Sampling cannot promote a non-gate-eligible input into a gate.
-            gate_eligible = all(
-                envelope.gate_eligible for envelope in input_envelopes.values()
-            )
+            gate_eligible = all(envelope.gate_eligible for envelope in input_envelopes.values())
             exactness = ExactnessKind.APPROXIMATION
             scope = ("expectation", "interval", "quantile", "cdf")
             sample_size_value: int | None = n_valid
@@ -1177,7 +1633,7 @@ class MonteCarloPropagator:
                         "draw_outcome_provenance": draw_outcome_provenance,
                         "executor_failed_batches": failed,
                         "stopped_early": stopped_early,
-                    "output_coverage_complete": not has_incomplete_draws,
+                        "output_coverage_complete": not has_incomplete_draws,
                         "qmc_method": qmc_method,
                         "qmc_scrambled": qmc_scrambled if qmc_method is not None else None,
                         "qmc_replicates": qmc_replicates if qmc_method is not None else None,

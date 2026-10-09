@@ -157,7 +157,7 @@ def _persist_distributional_leaf(
 def _load_distributional_leaf(
     store: ArtifactStore, ref: ArtifactRefModel, model: type[BaseModel]
 ) -> Any:
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return model.model_validate(payload)
 
 
@@ -832,9 +832,7 @@ class DistributionalBoundsBundle(BaseModel):
                 "functional": self.functional.value,
                 "sharpness_status": self.sharpness_status,
                 "projection": "consensus_outer_hull",
-                "value_estimand_binding_content_hash": (
-                    projection_binding.content_hash
-                ),
+                "value_estimand_binding_content_hash": (projection_binding.content_hash),
                 "value_estimand_binding_native_contract_id": (
                     projection_binding.native_contract_id
                 ),
@@ -1474,7 +1472,7 @@ def load_distributional_bounds_bundle(
 ) -> DistributionalBoundsBundle:
     """Load distributional bounds bundle."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return DistributionalBoundsBundle.model_validate(payload)
 
 
@@ -1504,7 +1502,7 @@ def load_distributional_dual_certificate(
 ) -> DistributionalDualCertificate:
     """Load distributional dual certificate."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return DistributionalDualCertificate.model_validate(payload)
 
 
@@ -1684,7 +1682,7 @@ def load_ordinal_poverty_report(
     ref: OrdinalPovertyReportRef,
 ) -> OrdinalPovertyReport:
     """Load ordinal multidimensional poverty report."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return OrdinalPovertyReport.model_validate(payload)
 
 
@@ -1712,7 +1710,7 @@ def load_distributional_effect_bundle(
     ref: DistributionalEffectBundleRef,
 ) -> DistributionalEffectBundle:
     """Load distributional effect bundle."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return DistributionalEffectBundle.model_validate(payload)
 
 
@@ -1742,7 +1740,7 @@ def load_distributional_report(
     ref: DistributionalReportRef,
 ) -> DistributionalReport:
     """Load distributional report."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return DistributionalReport.model_validate(payload)
 
 

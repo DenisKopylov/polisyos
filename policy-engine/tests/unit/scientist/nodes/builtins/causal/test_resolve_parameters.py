@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.parameters import (
@@ -93,7 +94,7 @@ def test_existing_bundle_requires_valid_cas_artifact(
 ):
     """A valid persisted bundle reuses; a non-CAS ref cannot claim success."""
     valid_ref = persist_context_adaptive_parameter_bundle(
-        execution_context.store,
+        _ensure_ir_artifact_store(execution_context.store),
         ContextAdaptiveParameterBundle(
             target_context=ContextProfile(context_id="control"),
             simulation_domain="unknown",
@@ -245,7 +246,7 @@ def test_cache_hit_replays_b60_bundle_request_and_graph_binding(
     target_context = ContextProfile(context_id="control")
     original_graph_ref = artifact_ref_factory(kind="ir.causal_graph_model")
     bundle_ref = persist_context_adaptive_parameter_bundle(
-        execution_context.store,
+        _ensure_ir_artifact_store(execution_context.store),
         ContextAdaptiveParameterBundle(
             target_context=target_context,
             simulation_domain="fiscal",

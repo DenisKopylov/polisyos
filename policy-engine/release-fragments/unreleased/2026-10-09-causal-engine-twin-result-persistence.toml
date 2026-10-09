@@ -1,0 +1,17 @@
+id = "2026-10-09-causal-engine-twin-result-persistence"
+title = "Persist causal engine twin results in the audit trace"
+type = "changed"
+component = "causal"
+owner = "team-policyos-foundry"
+summary = "CausalEngine now persists an actual TwinNetworkResult through the IR CAS boundary and links it from EvidenceBundle and the proof trace, with selected source, query, and SCM manifest views retained in lineage. Selected GCM refusals preserve the ValueError boundary and expose a typed reason code for an unsupported ADMG."
+evidence = ["tests/unit/foundry/methods/catalog/causal/test_id_star_algorithm.py", "tests/unit/ir/analytics/test_evidence_bundle.py"]
+compatibility = "Reference-free EvidenceBundle writes retain the exact ir.causal_evidence_bundle 1.0 field set; a typed twin_network_result_ref is emitted only under schema 1.1. Current readers accept 1.0 and 1.1, and reject an expanded 1.0 payload. Strict 1.0 readers reject 1.1 as an unsupported schema version."
+change_class = "internal"
+surface_classification = "Additive IR EvidenceBundle field and internal causal engine persistence bridge."
+migration = "No migration or rewrite is required for stored 1.0 EvidenceBundle artifacts. New strict 1.0 clients can continue to consume reference-free output; consumers of Twin-linked traces must use a 1.1-capable reader and can follow proof_bundle_ref to proof_trace_ref to load the typed result."
+api = "The domain EvidenceBundle exposes an optional TwinNetworkResultRef. The CAS writer preserves schema 1.0 when the ref is absent and emits schema 1.1 when present. The result manifest links selected source, query/estimand, and SCM refs; the proof trace links the selected result view."
+limitations = "Persistence records the typed output and available inputs. It does not establish source admission, model validity, calibration, or causal authority. A source lineage edge is included only when the SCM carries source-bound training rows. The GCM reason code reports graph-profile refusal only and does not promote a model or result."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/ir/analytics/README.md", "src/polisyos/foundry/methods/catalog/causal/README.md"]
+runbook_docs = []

@@ -1,0 +1,33 @@
+id = "2026-10-09-e02-s3-posterior-summary-v11-consumer"
+title = "Persist role-indexed candidate posterior summaries from native method results"
+type = "added"
+component = "foundry"
+owner = "team-polisyos"
+summary = "After native Bayesian result and method-evidence artifacts persist, MethodBackend emits candidate-only v1.1 summaries for both named point roles and exposes their typed refs on JobResult. The explicit Foundry Monte Carlo API can fresh-read a selected role and consume its exact content-bound source rows."
+evidence = [
+  "tests/unit/scientist/compute/test_runner_posterior_summary.py",
+  "tests/unit/ir/analytics/test_posterior_summary.py",
+  "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+  "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+  "tests/integration/foundry/uncertainty/test_posterior_summary_persistence.py",
+  "docs/reference/public-surface.md",
+  "architecture/public_surface/inventory.json",
+  "src/polisyos/ir/analytics/README.md",
+  "src/polisyos/foundry/calibration/README.md",
+  "src/polisyos/foundry/uncertainty/README.md",
+]
+compatibility = "The UncertaintyEnvelope schema is unchanged. JobResult adds an optional role-indexed posterior_summary_refs map with an empty default for existing jobs. MethodExecutionEvidence keeps its existing result_ref string and adds the producer-issued typed method_result_ref; the method_result input edge carries the exact manifest profile returned by CAS. The legacy calibration summary preserves exact per-parameter draws in PosteriorSamplesCarrier when representable and returns a typed limitation when the point lies outside its interval. All these outputs remain gate-ineligible candidates. This adapter supplies no multi-parameter identity, so its own multi-parameter carriers are refused by legacy propagation; generic caller-provided joint_sample_id metadata remains a declaration rather than a content-bound proof."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry.uncertainty; public_stable: polisyos.scientist.compute.JobResult"
+migration = "Consumers with a persisted ir.posterior_summary 1.1 artifact may call propagate_posterior_summary() and must name the same posterior_mean or posterior_median role selected by that artifact. Existing envelope consumers do not migrate to v1.1."
+api = "After MethodBackend persists method result and method evidence, it detects native MCMC draw evidence and calls the existing v1.1 summary creator for posterior_mean and posterior_median. The creator derives credible_mass from the persisted method result, content-binds the draw payload, and writes each summary against the exact selected method-evidence view. JobResult.posterior_summary_refs exposes both typed candidate refs; it does not select either role. The fresh reader resolves the producer-issued method_result_ref and verifies the matching evidence input edge and profile before recomputing the summary. The explicit Monte Carlo consumer requires a selected summary, matching point role, parameter names, and an actual evaluator; it hashes the exact ordered joint rows and returns separate output mean, median, and equal-tail bounds with typed per-row failures. The legacy calibration summary and caller-input candidate behavior remain as described above."
+limitations = "Method execution persists native draw candidates only when the result and draw evidence match; malformed or declared-but-missing draw evidence returns a method-job issue rather than an empty successful candidate set. Neither named role is selected by default. The v1.1 result is not an UncertaintyEnvelope, is not admitted by default envelope dispatch, and does not authorize calibration or causal-effect claims. Unit and weight binding remain not_established, and all results remain gate_eligible=false. No product workflow currently supplies a source-owned parameter-to-evaluator mapping for a selected JobResult ref, so the explicit Monte Carlo API is not default-dispatched and the capability remains implemented_but_not_orchestrated at the consumer boundary. Equal sample counts and positional rows do not establish a joint law. The legacy generic consumer still accepts caller-provided joint_sample_id metadata as a row-coupling declaration, not verified law provenance. Neither path closes B201/B202 as a whole. The bounded source-path witness uses one 32-draw chain and does not establish convergence, weights, units, or institutional joint-law admission. The reviewed generated surface inventory still reports unresolved_exports because the bounded resolver stops at an ancestor __future__ import; typed exports are independently exercised by runtime facade tests."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/scientist/compute/README.md",
+  "src/polisyos/ir/analytics/README.md",
+  "src/polisyos/foundry/calibration/README.md",
+  "src/polisyos/foundry/uncertainty/README.md",
+]
+runbook_docs = []

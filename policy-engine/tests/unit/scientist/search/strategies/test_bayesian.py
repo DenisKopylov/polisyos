@@ -141,6 +141,52 @@ def test_warm_start_rejections_survive_public_state_artifact_without_entering_co
     assert len(restored.get_state().metadata["warm_start_rejections"]["records"]) == 1
 
 
+def test_canonical_warm_start_rejects_a_profile_for_another_target_context(
+    simple_space: SearchSpace,
+) -> None:
+    strategy = BayesianOptimizer(simple_space, BayesianConfig(seed=23))
+    evaluation = make_evaluation(
+        candidate_id="warm-foreign-context",
+        params={"x": 0.25},
+        score=0.5,
+        space=simple_space,
+    )
+    evaluation.provenance_ref = "origin/warm-foreign-context"
+    evaluation.metadata = {
+        "warm_start_compatibility": {
+            "profile_kind": "configured_native_gp",
+            "optimizer_fqn": (
+                "polisyos.scientist.methods.search.strategies.bayesian.BayesianOptimizer"
+            ),
+            "optimizer_config_fingerprint": "config/profile",
+            "proposal_source": "bayesian_acquisition",
+            "search_space_fingerprint": simple_space.sobol_space_fingerprint(),
+            "input_transform_fingerprint": "Normalize[0,1]",
+            "input_transform_state_fingerprint": "transform/fit-state",
+            "outcome_transform_fingerprint": "Standardize[m=1]",
+            "outcome_transform_state_fingerprint": "outcome/fit-state",
+            "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+            "noise_model_state_fingerprint": "likelihood/fit-state",
+            "objective_fingerprint": "objective/source",
+            "context_fingerprint": "context/source",
+            "training_corpus_fingerprint": "corpus/fitted-source",
+            "training_observation_count": 3,
+            "gp_model_fqn": "botorch.models.gp_regression.SingleTaskGP",
+            "warm_start_eligible": True,
+        }
+    }
+
+    strategy.warm_start(
+        [evaluation],
+        target_context_fingerprint="context/target",
+        target_objective_fingerprint="objective/source",
+    )
+
+    assert strategy.warm_start_accepted_count == 0
+    assert strategy._select_training_subset([]) == []
+    assert strategy.warm_start_rejections[-1]["reason"] == ("incompatible context fingerprint")
+
+
 def _warm_planning_records(simple_space: SearchSpace):
     """The existing admitted warm fixture, including duplicate and independent replica."""
     compatibility = {

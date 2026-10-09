@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
@@ -21,8 +22,6 @@ from polisyos.ir.analytics.causal_graph import (
     GraphType,
     persist_causal_graph_model,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.governance.preflight import build_default_pipeline
 from polisyos.scientist.nodes.builtins.causal.resolve_transport import RunTransportabilityNode
 from polisyos.scientist.nodes.builtins.governance.run_governance import RunGovernanceNode
@@ -32,6 +31,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_REGISTRY_BUNDLE_REF,
     REPORT_GOVERNANCE_REPORT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def _load_verdict(store: FileSystemCAS, state: ExperimentState) -> str:
@@ -130,7 +131,7 @@ def test_run_governance_strict_literature_blocker_rejects_and_requests_review(tm
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test"))
 
     graph_ref = persist_causal_graph_model(
-        store,
+        _ensure_ir_artifact_store(store),
         CausalGraphModel(
             graph_type=GraphType.DAG,
             nodes=["tax_rate", "gdp_growth"],
@@ -201,7 +202,7 @@ def test_run_governance_strict_transportability_required_rejects_external_missin
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test"))
 
     report_ref = persist_causal_effect_report(
-        store,
+        _ensure_ir_artifact_store(store),
         CausalEffectReport(
             method=CausalMethod.SYNTHETIC_CONTROL,
             status=EstimationStatus.SUCCESS,
@@ -245,7 +246,7 @@ def test_run_governance_strict_transportability_passes_after_transport_node(tmp_
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test"))
 
     report_ref = persist_causal_effect_report(
-        store,
+        _ensure_ir_artifact_store(store),
         CausalEffectReport(
             method=CausalMethod.SYNTHETIC_CONTROL,
             status=EstimationStatus.SUCCESS,
@@ -266,7 +267,7 @@ def test_run_governance_strict_transportability_passes_after_transport_node(tmp_
         ),
     )
     graph_ref = persist_causal_graph_model(
-        store,
+        _ensure_ir_artifact_store(store),
         CausalGraphModel(
             graph_type=GraphType.DAG,
             nodes=["tax_rate", "gdp_growth"],

@@ -51,9 +51,7 @@ _ALIGNMENT_REPORT_SCHEMA_VERSION = "1.2"
 _ALIGNMENT_GOVERNANCE_PRODUCER_RULE = (
     "polisyos.scientist.cross_graph.alignment_governance.recomputed.v1"
 )
-_ONTOLOGY_WARNING_PRODUCER_RULE = (
-    "polisyos.scientist.cross_graph.alignment_ontology.recomputed.v1"
-)
+_ONTOLOGY_WARNING_PRODUCER_RULE = "polisyos.scientist.cross_graph.alignment_ontology.recomputed.v1"
 
 
 class AlignmentCertificateType(str, Enum):
@@ -153,9 +151,7 @@ class _LatentGovernanceInput(BaseModel):
     candidate_hypothesis: LatentBridgeHypothesis
     governed_ref: LatentBridgeHypothesisRef
     governed_hypothesis: LatentBridgeHypothesis
-    producer_rule: Literal[
-        "polisyos.scientist.cross_graph.alignment_governance.recomputed.v1"
-    ]
+    producer_rule: Literal["polisyos.scientist.cross_graph.alignment_governance.recomputed.v1"]
     candidate_artifact_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     candidate_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     governed_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
@@ -411,9 +407,7 @@ def _finalize_fragment_bundle_alignment(
         topology_mode="auto",
         latent_governance_inputs=tuple(latent_governance_inputs),
         ontology_warning_results=(
-            tuple(ontology_warning_results)
-            if ontology_warning_results is not None
-            else None
+            tuple(ontology_warning_results) if ontology_warning_results is not None else None
         ),
     )
 
@@ -980,9 +974,7 @@ def _latent_governance_receipt_hash(
     return _canonical_content_hash(
         {
             "producer_rule": _ALIGNMENT_GOVERNANCE_PRODUCER_RULE,
-            "source_ref": (
-                source_ref.model_dump(mode="json") if source_ref is not None else None
-            ),
+            "source_ref": (source_ref.model_dump(mode="json") if source_ref is not None else None),
             "candidate_artifact_content_hash": candidate_artifact_content_hash,
             "candidate_content_hash": candidate_content_hash,
             "governed_ref": governed_ref.model_dump(mode="json"),
@@ -1010,13 +1002,8 @@ def _build_latent_governance_input(
     )
     if candidate_content_hash != governed_candidate_hash:
         raise ValueError("governed latent hypothesis does not bind to candidate content")
-    governed_content_hash = _canonical_content_hash(
-        governed_hypothesis.model_dump(mode="json")
-    )
-    if (
-        source_ref is not None
-        and str(source_ref.artifact_id) != candidate_artifact_content_hash
-    ):
+    governed_content_hash = _canonical_content_hash(governed_hypothesis.model_dump(mode="json"))
+    if source_ref is not None and str(source_ref.artifact_id) != candidate_artifact_content_hash:
         raise ValueError("source ref does not bind to candidate latent hypothesis content")
     if str(governed_ref.artifact_id) != governed_content_hash:
         raise ValueError("governed ref does not bind to governed latent hypothesis content")
@@ -1060,9 +1047,7 @@ def _validated_latent_governance_inputs(
         governed_candidate_hash = _canonical_content_hash(
             _latent_candidate_payload(value.governed_hypothesis)
         )
-        governed_hash = _canonical_content_hash(
-            value.governed_hypothesis.model_dump(mode="json")
-        )
+        governed_hash = _canonical_content_hash(value.governed_hypothesis.model_dump(mode="json"))
         receipt_hash = _latent_governance_receipt_hash(
             source_ref=value.source_ref,
             candidate_artifact_content_hash=value.candidate_artifact_content_hash,
@@ -1088,8 +1073,7 @@ def _validated_latent_governance_inputs(
             and str(value.governed_ref.artifact_id) == governed_hash
             and receipt_hash == value.receipt_content_hash
             and isinstance(governance_payload, dict)
-            and governance_payload.get("readiness_cap")
-            == value.governed_hypothesis.readiness_cap
+            and governance_payload.get("readiness_cap") == value.governed_hypothesis.readiness_cap
             and bool(governance_payload.get("promotion_allowed", False))
             is value.governed_hypothesis.promotion_allowed
             and (
@@ -1277,10 +1261,7 @@ def _classify_pair(
     explicit_latent_bridge_blockers = _dedupe_strings(explicit_latent_bridge_blockers)
     unresolved_latent_governance = bool(
         governed_input is None
-        and (
-            explicit_latent_bridge_payload not in (None, "")
-            or governance_snapshot_supplied
-        )
+        and (explicit_latent_bridge_payload not in (None, "") or governance_snapshot_supplied)
     )
     transform_ref = _known_transform_ref(variable_a.unit, variable_b.unit, config)
     definitions_present = bool(
@@ -1358,12 +1339,7 @@ def _classify_pair(
     )
     plausible = bool(
         not hard_conflict
-        and (
-            governed_input is not None
-            or exact_match
-            or scale_link_supported
-            or proxy_supported
-        )
+        and (governed_input is not None or exact_match or scale_link_supported or proxy_supported)
     )
     reviewer = _reviewer_state_for_pair(
         alignment_type=AlignmentType.EXACT,
@@ -1411,9 +1387,7 @@ def _classify_pair(
         )
         metadata["latent_governance_provenance"] = {
             "producer_rule": governed_input.producer_rule,
-            "candidate_artifact_content_hash": (
-                governed_input.candidate_artifact_content_hash
-            ),
+            "candidate_artifact_content_hash": (governed_input.candidate_artifact_content_hash),
             "candidate_content_hash": governed_input.candidate_content_hash,
             "governed_content_hash": governed_input.governed_content_hash,
             "receipt_content_hash": governed_input.receipt_content_hash,
@@ -1463,8 +1437,7 @@ def _classify_pair(
         )
         if governed_input.source_ref is None:
             assumptions.append(
-                "latent_bridge:auto:"
-                f"{governed_input.governed_hypothesis.synthesis_mode.value}"
+                f"latent_bridge:auto:{governed_input.governed_hypothesis.synthesis_mode.value}"
             )
         else:
             assumptions.append("latent_bridge_evidence_required")
@@ -2100,8 +2073,7 @@ def _component_latent_bridge_metadata(
         )
     return {
         "latent_bridge_readiness_cap": _minimum_readiness_cap(readiness_caps),
-        "latent_bridge_promotion_allowed": bool(promotion_decisions)
-        and all(promotion_decisions),
+        "latent_bridge_promotion_allowed": bool(promotion_decisions) and all(promotion_decisions),
         "latent_artifact_blockers": _dedupe_strings(blockers),
     }
 
@@ -2248,9 +2220,7 @@ def _ontology_warning_receipt_hash(
             "fragment_pair": list(fragment_pair),
             "certificate_content_hash": certificate_content_hash,
             "warnings": list(warnings),
-            "degraded_outcomes": [
-                outcome.model_dump(mode="json") for outcome in degraded_outcomes
-            ],
+            "degraded_outcomes": [outcome.model_dump(mode="json") for outcome in degraded_outcomes],
         }
     )
 
@@ -2548,7 +2518,7 @@ def load_variable_alignment_certificate(
     ref: VariableAlignmentCertificateRef,
 ) -> VariableAlignmentCertificate:
     """Load variable alignment certificate."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return VariableAlignmentCertificate.model_validate(payload)
 
 
@@ -2578,7 +2548,7 @@ def load_alignment_report(
     ref: AlignmentReportRef,
 ) -> AlignmentReport:
     """Load alignment report."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return AlignmentReport.model_validate(payload)
 
 

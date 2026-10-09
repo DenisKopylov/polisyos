@@ -135,6 +135,7 @@ def _canonical_loaded_deployment_identity() -> str:
     assert observation.deployment_identity is not None
     return observation.deployment_identity
 
+
 _CP_SAT_GUIDANCE = (
     "CP-SAT proof dependency is unavailable; install it with "
     "`uv sync --frozen --extra test --extra solvers`"
@@ -172,8 +173,7 @@ def test_solver_prerequisite_is_declared_not_ambient(
         name
         for name in expected_names
         if any(
-            mark.name == "skipif"
-            and "--extra solvers" in str(mark.kwargs.get("reason", ""))
+            mark.name == "skipif" and "--extra solvers" in str(mark.kwargs.get("reason", ""))
             for mark in getattr(globals()[name], "pytestmark", ())
         )
     }
@@ -232,9 +232,7 @@ importlib.import_module = _without_cp_sat
         if value
     )
     environment["PYTEST_PLUGINS"] = ",".join(
-        value
-        for value in (environment.get("PYTEST_PLUGINS", ""), "missing_cp_sat")
-        if value
+        value for value in (environment.get("PYTEST_PLUGINS", ""), "missing_cp_sat") if value
     )
     node_id = (
         "tests/unit/runtime/quality/test_promotion_sequence.py::"
@@ -544,11 +542,7 @@ def test_historical_receipt_corpus_replays_without_current_authority() -> None:
         capture_output=True,
     )
     tracked_json = tuple(
-        sorted(
-            Path(os.fsdecode(item))
-            for item in listing.stdout.split(b"\0")
-            if item
-        )
+        sorted(Path(os.fsdecode(item)) for item in listing.stdout.split(b"\0") if item)
     )
     assert len(tracked_json) == 2_870
     assert len(tracked_json) == len(set(tracked_json))
@@ -626,9 +620,7 @@ def test_historical_receipt_corpus_replays_without_current_authority() -> None:
                     for key, child in value.items()
                 )
             elif isinstance(value, list):
-                pending.extend(
-                    (f"{pointer}/{index}", child) for index, child in enumerate(value)
-                )
+                pending.extend((f"{pointer}/{index}", child) for index, child in enumerate(value))
 
     assert marker_counts == expected_marker_counts, (
         f"tracked N9 schema-marker denominator changed: {marker_counts}"
@@ -636,8 +628,8 @@ def test_historical_receipt_corpus_replays_without_current_authority() -> None:
     assert receipt_counts == {v1_schema: 7, v3_schema: 14, v6_schema: 14}
     assert comparison_counts == {"envelope": 3, "projection_excerpt": 6}
     assert len(complete_receipts) == 35
-    assert not unclassified_markers, (
-        "unclassified N9 schema-marker objects: " + "; ".join(sorted(unclassified_markers))
+    assert not unclassified_markers, "unclassified N9 schema-marker objects: " + "; ".join(
+        sorted(unclassified_markers)
     )
 
     supported_full_receipt_schemas = (
@@ -645,10 +637,14 @@ def test_historical_receipt_corpus_replays_without_current_authority() -> None:
         | {promotion_sequence_module.CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION}
     )
     unexpected_full_epochs = sorted(
-        {schema for _, schema, _ in complete_receipts if schema not in supported_full_receipt_schemas}
+        {
+            schema
+            for _, schema, _ in complete_receipts
+            if schema not in supported_full_receipt_schemas
+        }
     )
-    assert not unexpected_full_epochs, (
-        "unclassified full N9 receipt epochs: " + ", ".join(unexpected_full_epochs)
+    assert not unexpected_full_epochs, "unclassified full N9 receipt epochs: " + ", ".join(
+        unexpected_full_epochs
     )
 
     expected_types = {
@@ -702,9 +698,7 @@ def test_pinned_git_history_receipts_replay_without_current_authority() -> None:
         if name.endswith("_BLOB") and isinstance(value, str)
     }
     assert len(pinned) == 2
-    assert second_domain.N10A_PROOF_HEAD_COMMIT == (
-        "d8a8cf076da6233c66b0a90010647c0d437e81c4"
-    )
+    assert second_domain.N10A_PROOF_HEAD_COMMIT == ("d8a8cf076da6233c66b0a90010647c0d437e81c4")
     pinned_paths = {
         "PROMOTION_CONTRACT_BASE": (
             "504f995cd203f2efebee8566363b8987092e1e34",
@@ -725,8 +719,7 @@ def test_pinned_git_history_receipts_replay_without_current_authority() -> None:
     }
     assert len(pinned_paths) == 4
     carriers: dict[str, bytes] = {
-        name: historical_artifacts.historical_owner_bytes(blob)
-        for name, blob in pinned.items()
+        name: historical_artifacts.historical_owner_bytes(blob) for name, blob in pinned.items()
     }
     for name, (commit, path) in pinned_paths.items():
         carrier = subprocess.run(
@@ -769,13 +762,9 @@ def test_pinned_git_history_receipts_replay_without_current_authority() -> None:
                 ):
                     complete.append((f"{name}#{pointer or '/'}", value))
                     carrier_counts[name] += 1
-                pending.extend(
-                    (f"{pointer}/{key}", child) for key, child in value.items()
-                )
+                pending.extend((f"{pointer}/{key}", child) for key, child in value.items())
             elif isinstance(value, list):
-                pending.extend(
-                    (f"{pointer}/{index}", child) for index, child in enumerate(value)
-                )
+                pending.extend((f"{pointer}/{index}", child) for index, child in enumerate(value))
 
     assert non_json == {"PROMOTION_EMITTER_BASE_BLOB"}
     assert carrier_counts == {
@@ -801,23 +790,17 @@ def test_pinned_git_history_receipts_replay_without_current_authority() -> None:
     for identity, payload in complete:
         schema = payload["schema_version"]
         schema_counts[schema] = schema_counts.get(schema, 0) + 1
-        parsed = promotion_sequence_module.parse_canonical_promotion_history_receipt(
-            payload
-        )
+        parsed = promotion_sequence_module.parse_canonical_promotion_history_receipt(payload)
         assert type(parsed) is expected_types[schema], identity
         replayed = (
             parsed.historical_projection()
             if schema == promotion_sequence_module._LEGACY_PROMOTION_SEQUENCE_V1_SCHEMA_VERSION
             else parsed.model_dump(mode="json")
         )
-        assert _historical_json_bytes(replayed) == (
-            _historical_json_bytes(payload)
-        ), identity
+        assert _historical_json_bytes(replayed) == (_historical_json_bytes(payload)), identity
         refusal_code = promotion_sequence_module._historical_promotion_non_admission_code(schema)
         assert refusal_code is not None, identity
-        assert validate_canonical_promotion_receipt(payload) == (
-            {"code": refusal_code},
-        ), identity
+        assert validate_canonical_promotion_receipt(payload) == ({"code": refusal_code},), identity
     assert schema_counts == {
         promotion_sequence_module._LEGACY_PROMOTION_SEQUENCE_V1_SCHEMA_VERSION: 1,
         promotion_sequence_module.GY_PROMOTION_SEQUENCE_SCHEMA_VERSION: 2,
@@ -855,7 +838,9 @@ def test_v1_flat_history_receipts_round_trip_without_current_authority() -> None
             if value.get("schema_version") == (
                 promotion_sequence_module._LEGACY_PROMOTION_SEQUENCE_V1_SCHEMA_VERSION
             ):
-                discovered[f"{depth_n_path.relative_to(REPO_ROOT).as_posix()}#{pointer or '/'}"] = value
+                discovered[f"{depth_n_path.relative_to(REPO_ROOT).as_posix()}#{pointer or '/'}"] = (
+                    value
+                )
             pending.extend(
                 (
                     f"{pointer}/{str(key).replace('~', '~0').replace('/', '~1')}",
@@ -872,9 +857,7 @@ def test_v1_flat_history_receipts_round_trip_without_current_authority() -> None
     original_shape = deepcopy(captured)
     for field in promotion_sequence_module._V1_CAPTURE_EXTENSION_FIELDS:
         original_shape.pop(field)
-    original = promotion_sequence_module.parse_canonical_promotion_history_receipt(
-        original_shape
-    )
+    original = promotion_sequence_module.parse_canonical_promotion_history_receipt(original_shape)
     assert type(original) is promotion_sequence_module._LegacyCanonicalPromotionReceiptV1
     assert _historical_json_bytes(original.historical_projection()) == (
         _historical_json_bytes(original_shape)
@@ -889,9 +872,7 @@ def test_v1_flat_history_receipts_round_trip_without_current_authority() -> None
     ordinary_dump = parsed_absent_default.model_dump(mode="json")
     assert "value_receipt_ref" not in historical_projection
     assert ordinary_dump["value_receipt_ref"] is None
-    assert _historical_json_bytes(historical_projection) == _historical_json_bytes(
-        absent_default
-    )
+    assert _historical_json_bytes(historical_projection) == _historical_json_bytes(absent_default)
     assert _historical_json_bytes(ordinary_dump) != _historical_json_bytes(absent_default)
 
     # The original Pydantic model accepts coercible JSON, but its historical
@@ -930,16 +911,11 @@ def test_historical_summary_intake_rejects_lossy_normalization() -> None:
 
     fixture = json.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
+            REPO_ROOT / "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
         ).read_bytes()
     )
-    source = deepcopy(
-        fixture["generation_cycle_run"]["promotion_port"]["receipts"][0]
-    )
-    assert source["schema_version"] == (
-        "policyos.policy_design_case.layer3_gy.n9_promotion.v6"
-    )
+    source = deepcopy(fixture["generation_cycle_run"]["promotion_port"]["receipts"][0])
+    assert source["schema_version"] == ("policyos.policy_design_case.layer3_gy.n9_promotion.v6")
     assert source["owner_projection"]["schema_version"] == (
         "policyos.policy_design_case.layer3_gy.n9_owner_projection.v3"
     )
@@ -952,9 +928,7 @@ def test_historical_summary_intake_rejects_lossy_normalization() -> None:
         coercible_receipt["risk_spend"]["budget_delta"]
     )
     with pytest.raises(ValueError, match="promotion_history_payload_not_lossless"):
-        promotion_sequence_module.parse_canonical_promotion_history_receipt(
-            coercible_receipt
-        )
+        promotion_sequence_module.parse_canonical_promotion_history_receipt(coercible_receipt)
 
     malformed_payloads = []
     missing_default = deepcopy(source)
@@ -1025,9 +999,7 @@ def test_synthetic_v7_history_profiles_replay_and_project_but_are_not_authority(
     payload["schema_version"] = v7
     owner = payload["owner_projection"]
     assert isinstance(owner, dict)
-    owner["schema_version"] = (
-        "policyos.policy_design_case.layer3_gy.n9_owner_projection.v3"
-    )
+    owner["schema_version"] = "policyos.policy_design_case.layer3_gy.n9_owner_projection.v3"
     summary = owner["candidate_summary"]
     assert isinstance(summary, dict)
     if summary_profile in {"p0", "p1"}:
@@ -1049,8 +1021,7 @@ def test_synthetic_v7_history_profiles_replay_and_project_but_are_not_authority(
     for boundary in boundaries:
         assert isinstance(boundary, dict)
         boundary["rule_version_refs"] = [
-            v7 if item == source_schema else item
-            for item in boundary["rule_version_refs"]
+            v7 if item == source_schema else item for item in boundary["rule_version_refs"]
         ]
     owner["projection_hash"] = gy_content_hash(
         {key: item for key, item in owner.items() if key != "projection_hash"}
@@ -1077,8 +1048,7 @@ def test_synthetic_v7_history_profiles_replay_and_project_but_are_not_authority(
     for event in semantic.events:
         request_key = event.check.request_key
         if event.event_type == "prepared" or (
-            request_key not in filtration_by_request
-            and event.check.outcome == "preflight_refusal"
+            request_key not in filtration_by_request and event.check.outcome == "preflight_refusal"
         ):
             assert request_key not in filtration_by_request
             filtration_by_request[request_key] = head_hash
@@ -1162,14 +1132,17 @@ def test_synthetic_v7_history_profiles_replay_and_project_but_are_not_authority(
     ):
         promotion_sequence_module.canonical_promotion_receipt_semantic_projection(payload)
 
-    registry = promotion_sequence_module.canonical_promotion_verification_comparison_owner_rule_registry()
+    registry = (
+        promotion_sequence_module.canonical_promotion_verification_comparison_owner_rule_registry()
+    )
     v7_rule = registry[
         promotion_sequence_module.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V7_HISTORY_RULE
     ]
     comparison_projection = v7_rule.projector(payload)
     assert comparison_projection["schema_version"] == v7
-    assert comparison_projection["confidence_ledger_semantic_projection"] == (
-        payload["confidence_ledger_semantic_projection"]
+    assert (
+        comparison_projection["confidence_ledger_semantic_projection"]
+        == (payload["confidence_ledger_semantic_projection"])
     )
     assert comparison_projection["confidence_ledger_projection"]["risk_scope"]["rule_ref"] == v7
     assert comparison_projection["owner_projection"]["candidate_summary"] == summary
@@ -1190,6 +1163,7 @@ def test_synthetic_v7_history_profiles_replay_and_project_but_are_not_authority(
             match="n9_historical_candidate_summary_payload_not_lossless",
         ):
             promotion_sequence_module.parse_canonical_promotion_history_receipt(lossy)
+
 
 def test_current_p2_owner_projection_remains_a_property_preserving_control() -> None:
     payload = _committed_v6_comparison_custody_payload()
@@ -1212,9 +1186,10 @@ def test_current_p2_owner_projection_remains_a_property_preserving_control() -> 
     assert stored_hash == gy_content_hash(
         {key: value for key, value in owner.items() if key != "projection_hash"}
     )
-    assert type(
-        promotion_sequence_module.parse_canonical_promotion_history_receipt(payload)
-    ) is CanonicalPromotionReceipt
+    assert (
+        type(promotion_sequence_module.parse_canonical_promotion_history_receipt(payload))
+        is CanonicalPromotionReceipt
+    )
     restored = CanonicalPromotionReceipt.model_validate(payload)
     assert restored.model_dump(mode="json") == payload
     assert payload["promoted"] is False
@@ -1233,11 +1208,7 @@ def test_current_p2_owner_projection_remains_a_property_preserving_control() -> 
             replacement = "sha256:" + "1" * 64
         changed_owner["candidate_summary"][field] = replacement
         changed_owner["projection_hash"] = gy_content_hash(
-            {
-                key: value
-                for key, value in changed_owner.items()
-                if key != "projection_hash"
-            }
+            {key: value for key, value in changed_owner.items() if key != "projection_hash"}
         )
         assert changed_owner["projection_hash"] != stored_hash
         changed_receipt = CanonicalPromotionReceipt.model_validate(changed)
@@ -2748,9 +2719,22 @@ def _d1_worldbank_problem(owner):
 
 def _fabric_measurement_envelope(owner, *, include_requirement=True):
     from polisyos.core.contracts.control import DataNeed, DataResolveRequest
+    from polisyos.data_forge.domains.catalog.selection import validate_catalog_run_profile
+    from polisyos.data_forge.read_api import catalog as catalog_read_api
 
+    run_profile = validate_catalog_run_profile("prod_full")
+    binding = owner.graph.resolve_metric_bindings(owner.plan.metric_id, top_k=1)[0]
+    source_policy = catalog_read_api.load_catalog_source_registry().source_by_id(binding.source)
+    assert source_policy is not None
+    assert source_policy.enabled
+    assert source_policy.connector_id == binding.connector_id == owner.plan.connector_id
+    assert source_policy.included_in_run_profile(run_profile)
     resolved = owner.service.resolve(
-        DataResolveRequest(data_needs=[DataNeed(metric=owner.plan.metric_id)], mode="fastlane")
+        DataResolveRequest(
+            data_needs=[DataNeed(metric=owner.plan.metric_id)],
+            mode="fastlane",
+            catalog_run_profile=run_profile,
+        ),
     )
     executed = owner.service.execute_fetch_plans(
         list(resolved.fetch_plans), persist_payload=True
@@ -3252,11 +3236,14 @@ def test_measurement_root_evidence_replays_canonical_base_dataset_envelope(
         evidence=evidence,
         baseline_registry_ref=baseline_ref,
     )
-    assert load_substrate_registry(
-        owner.store,
-        admission.registry_ref,
-        expected_inputs=admission.input_refs,
-    ) == admission.registry
+    assert (
+        load_substrate_registry(
+            owner.store,
+            admission.registry_ref,
+            expected_inputs=admission.input_refs,
+        )
+        == admission.registry
+    )
 
 
 def test_measurement_root_data_snapshot_projects_replayed_payload(
@@ -3305,9 +3292,7 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
         name="polisyos.core.DataSnapshot",
         version="0.2.0",
     )
-    assert [
-        (input_ref.role, str(input_ref.artifact_id)) for input_ref in manifest.inputs
-    ] == [
+    assert [(input_ref.role, str(input_ref.artifact_id)) for input_ref in manifest.inputs] == [
         ("fetched_payload", expected_payload_artifact_id),
         ("measurement_root", str(evidence.measurement_root_ref.artifact_id)),
         ("fabric_fetch", str(evidence.fetch_receipt_ref.artifact_id)),
@@ -3560,10 +3545,7 @@ def test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage(
     )
     baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
     baseline_ref = persist_substrate_registry(owner.store, baseline)
-    cas_before = {
-        path: path.read_bytes()
-        for path in owner.store.root.rglob("*.manifest.json")
-    }
+    cas_before = {path: path.read_bytes() for path in owner.store.root.rglob("*.manifest.json")}
     l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
     registration = _future_substrate_registration(l5)
     forged: object
@@ -3646,10 +3628,7 @@ def test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage(
             evidence=forged,
             baseline_registry_ref=baseline_ref,
         )
-    cas_after = {
-        path: path.read_bytes()
-        for path in owner.store.root.rglob("*.manifest.json")
-    }
+    cas_after = {path: path.read_bytes() for path in owner.store.root.rglob("*.manifest.json")}
     assert cas_after == cas_before
     assert load_substrate_registry(owner.store, baseline_ref) == baseline
 
@@ -3777,7 +3756,9 @@ def test_owned_source_selection_reaches_default_controller_and_real_n9_writers(
             promotion_sequence_module.promotion_candidate_summary_content_hash(summary)
         ),
         effective_independence=promotion_sequence_module._EffectiveIndependenceWriterInput(
-            evidence_lines=(_independence_line("source-selection-study", primary_source="journal"),),
+            evidence_lines=(
+                _independence_line("source-selection-study", primary_source="journal"),
+            ),
             portfolio_designs=(_independence_portfolio_design(),),
             graph_id="source-selection-independence",
         ),
@@ -3793,10 +3774,13 @@ def test_owned_source_selection_reaches_default_controller_and_real_n9_writers(
     )
     runtime = PromotionRuntime(store=owner.store, promotion_evidence_source=source)
     admitted = _positive_epoch_admitted_batch(
-        runtime=runtime, problem=owner.problem, summaries=(summary,),
+        runtime=runtime,
+        problem=owner.problem,
+        summaries=(summary,),
     )
     controller = generation_cycle_module.GenerationCycleController(
-        promotion_runtime=runtime, repo_root=REPO_ROOT,
+        promotion_runtime=runtime,
+        repo_root=REPO_ROOT,
     )
     assert controller._source_repository is None
     monkeypatch.setattr(promotion_sequence_module, "_legacy_policy_promotion_callers", lambda _: ())
@@ -3806,26 +3790,43 @@ def test_owned_source_selection_reaches_default_controller_and_real_n9_writers(
         deployment_identity=_canonical_loaded_deployment_identity(),
     )
     receipt = CanonicalPromotionReceipt.model_validate(observation.receipts[0])
-    independence = next(row for row in receipt.obligations
-                        if row.source_obligation_ref.endswith("#effective_independence"))
+    independence = next(
+        row
+        for row in receipt.obligations
+        if row.source_obligation_ref.endswith("#effective_independence")
+    )
     measurement = _obligation(receipt, PromotionObligationClass.MEASUREMENT)
-    expected = (PromotionObligationStatus.SATISFIED if selection_matches
-                else PromotionObligationStatus.SCOPE_INSUFFICIENT)
+    expected = (
+        PromotionObligationStatus.SATISFIED
+        if selection_matches
+        else PromotionObligationStatus.SCOPE_INSUFFICIENT
+    )
     assert independence.status == expected
     assert measurement.status == expected
-    source_refs = tuple(ref for ref in receipt.owner_projection.producer_root_refs
-                        if ref.artifact_type == "N9PromotionEvidenceSourceResolution")
+    source_refs = tuple(
+        ref
+        for ref in receipt.owner_projection.producer_root_refs
+        if ref.artifact_type == "N9PromotionEvidenceSourceResolution"
+    )
     assert len(source_refs) == 1
     persisted = json.loads(owner.store.get_bytes(source_refs[0].artifact_id))
     assert persisted["inputs_read"]
     assert persisted["unresolved_by_construction"]
-    assert persisted["status"] == ("selected" if selection_matches else "unresolved_by_construction")
-    assert validate_canonical_promotion_receipt(
-        receipt, repo_root=REPO_ROOT, candidate_summary=summary, design_problem=owner.problem,
-        open_world_resolver=runtime.resolver,
-        epoch_validity_resolver=runtime.epoch_n9_evidence_resolver,
-        promotion_evidence_resolver=controller._promotion_evidence_resolver,
-    ) == ()
+    assert persisted["status"] == (
+        "selected" if selection_matches else "unresolved_by_construction"
+    )
+    assert (
+        validate_canonical_promotion_receipt(
+            receipt,
+            repo_root=REPO_ROOT,
+            candidate_summary=summary,
+            design_problem=owner.problem,
+            open_world_resolver=runtime.resolver,
+            epoch_validity_resolver=runtime.epoch_n9_evidence_resolver,
+            promotion_evidence_resolver=controller._promotion_evidence_resolver,
+        )
+        == ()
+    )
     assert receipt.consumer_promotable is False
     context = controller._promotion_source_context(summary, owner.problem)
     assert context.get("promotion_safety_source_refs", ()) == (
@@ -3842,7 +3843,7 @@ def test_empty_owned_evidence_source_is_persisted_as_unresolved(tmp_path: Path) 
     controller = generation_cycle_module.GenerationCycleController(promotion_runtime=runtime)
     context = controller._promotion_source_context(_summary(), _problem())
     assert set(context) == {"producer_root_refs"}
-    source_ref, = context["producer_root_refs"]
+    (source_ref,) = context["producer_root_refs"]
     payload = json.loads(runtime.store.get_bytes(source_ref.artifact_id))
     assert payload["status"] == "unresolved_by_construction"
     assert payload["limitation_code"] == "promotion_evidence_source_unconfigured"
@@ -3865,7 +3866,8 @@ def test_owned_source_freezes_nested_inputs_and_refuses_summary_or_selection_amb
             promotion_sequence_module.promotion_candidate_summary_content_hash(summary)
         ),
         effective_independence=promotion_sequence_module._EffectiveIndependenceWriterInput(
-            evidence_lines=(line,), portfolio_designs=(_independence_portfolio_design(),),
+            evidence_lines=(line,),
+            portfolio_designs=(_independence_portfolio_design(),),
             graph_id="configured-independence",
         ),
     )
@@ -3879,14 +3881,19 @@ def test_owned_source_freezes_nested_inputs_and_refuses_summary_or_selection_amb
     assert source.resolve(changed_summary, problem).limitation_code == (
         "promotion_evidence_source_identity_mismatch"
     )
-    ambiguous = promotion_sequence_module.N9PromotionEvidenceSource(selections=(selection, selection))
-    assert ambiguous.resolve(summary, problem).limitation_code == "promotion_evidence_source_ambiguous"
+    ambiguous = promotion_sequence_module.N9PromotionEvidenceSource(
+        selections=(selection, selection)
+    )
+    assert (
+        ambiguous.resolve(summary, problem).limitation_code == "promotion_evidence_source_ambiguous"
+    )
     with pytest.raises(TypeError, match="promotion_evidence_source_selection_must_be_typed"):
         promotion_sequence_module.N9PromotionEvidenceSource(selections=[selection])
 
 
 def test_injected_posture_flags_are_a_bounded_predicate_not_evidence_admission(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Retain the P37 witness without exposing these flags through production selection."""
 
@@ -3894,7 +3901,8 @@ def test_injected_posture_flags_are_a_bounded_predicate_not_evidence_admission(
     rows = (
         promotion_sequence_module.evaluate_s6_blind_spot_promotion_gate(s6),
         promotion_sequence_module.evaluate_s7_mandate_delegation_promotion_gate(
-            s7, blind_spot_posture=s6,
+            s7,
+            blind_spot_posture=s6,
         ),
         promotion_sequence_module.evaluate_s8_value_posture_promotion_gate(s8),
     )
@@ -3904,17 +3912,22 @@ def test_injected_posture_flags_are_a_bounded_predicate_not_evidence_admission(
     _, _, _, receipt = _run_open_world_n9_case(tmp_path=tmp_path, monkeypatch=monkeypatch)
     assert receipt.consumer_promotable is False
     assert receipt.refusal_reasons
-    print(json.dumps({
-        "predicate_inputs": [posture.model_dump(mode="json") for posture in (s6, s7, s8)],
-        "actual_evaluator_outputs": [row.model_dump(mode="json") for row in rows],
-        "canonical_n9_promoted": receipt.promoted,
-        "canonical_n9_refusal_reasons": receipt.refusal_reasons,
-        "unresolved_by_construction": [
-            "s6_protected_purpose_evidence_to_whole_blind_spot_posture_admission",
-            "s7_signed_human_decision_to_governed_pilot_and_s6_mandate_admission",
-            "s8_signed_schedule_to_whole_value_posture_admission",
-        ],
-    }, sort_keys=True))
+    print(
+        json.dumps(
+            {
+                "predicate_inputs": [posture.model_dump(mode="json") for posture in (s6, s7, s8)],
+                "actual_evaluator_outputs": [row.model_dump(mode="json") for row in rows],
+                "canonical_n9_promoted": receipt.promoted,
+                "canonical_n9_refusal_reasons": receipt.refusal_reasons,
+                "unresolved_by_construction": [
+                    "s6_protected_purpose_evidence_to_whole_blind_spot_posture_admission",
+                    "s7_signed_human_decision_to_governed_pilot_and_s6_mandate_admission",
+                    "s8_signed_schedule_to_whole_value_posture_admission",
+                ],
+            },
+            sort_keys=True,
+        )
+    )
 
 
 def test_unconstructed_effect_is_receipt_distinct_from_scope_insufficient() -> None:

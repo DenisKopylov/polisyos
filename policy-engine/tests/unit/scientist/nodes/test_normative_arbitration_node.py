@@ -4,6 +4,8 @@ import logging
 from unittest.mock import patch
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.registry import build_default_registry_bundle
@@ -36,11 +38,8 @@ from polisyos.ir.governance.problem_frame import (
     StakeholderUtilityTerm,
 )
 from polisyos.ir.model_layer.model_spec import FidelityLevel, ModelSpec
-from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.model_layer.types import EntityType, OptimizationDirection
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.nodes.builtins.governance.run_normative_arbitration import (
     RunNormativeArbitrationNode,
 )
@@ -48,6 +47,11 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
     ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF,
     INPUT_TRINITY_BUNDLE_REF,
+)
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import (
+    branch_state as real_branch_state,
 )
 
 
@@ -168,7 +172,7 @@ def test_normative_arbitration_uses_branch_state_for_artifact_output(tmp_path) -
         ),
     )
     distributional_ref = persist_distributional_report(
-        store,
+        _ensure_ir_artifact_store(store),
         _build_distributional_report({"workers": 1.0, "taxpayers": -0.1}),
     )
     existing_ref = store.put_json(
@@ -255,7 +259,7 @@ def _run_node(
         execution_profile=execution_profile,
     )
     result_ref = outcome.state.artifacts_index[ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF]
-    return load_normative_arbitration_result(store, result_ref)
+    return load_normative_arbitration_result(_ensure_ir_artifact_store(store), result_ref)
 
 
 def _execute_node(
@@ -362,7 +366,9 @@ def _execute_node(
         ),
     )
 
-    distributional_ref = persist_distributional_report(store, _build_distributional_report(impacts))
+    distributional_ref = persist_distributional_report(
+        _ensure_ir_artifact_store(store), _build_distributional_report(impacts)
+    )
     state = ExperimentState(
         run_id="R_normative",
         inputs={INPUT_TRINITY_BUNDLE_REF: trinity_ref},

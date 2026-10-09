@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.data_forge.read_api.academic import ParameterSelector, SKGQuery
 from polisyos.foundry.methods.catalog.causal.parameter_transfer import ParameterTransfer
@@ -186,7 +187,7 @@ class ResolveParametersNode:
             )
 
         try:
-            causal_graph = load_causal_graph_model(ctx.store, graph_ref)
+            causal_graph = load_causal_graph_model(_ensure_ir_artifact_store(ctx.store), graph_ref)
         except _RESOLVE_PARAMETERS_LOAD_ERRORS:
             return _skip(
                 state,
@@ -255,7 +256,7 @@ class ResolveParametersNode:
 
         input_refs = [InputRef(artifact_id=str(graph_ref.artifact_id), role="causal_graph")]
         bundle_ref = persist_context_adaptive_parameter_bundle(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             bundle,
             inputs=input_refs,
         )
@@ -339,8 +340,10 @@ def _bundle_matches_request(
     inferred from this helper.
     """
     try:
-        bundle = load_context_adaptive_parameter_bundle(ctx.store, bundle_ref)
-        manifest = ctx.store.get_manifest(bundle_ref.artifact_id)
+        bundle = load_context_adaptive_parameter_bundle(
+            _ensure_ir_artifact_store(ctx.store), bundle_ref
+        )
+        manifest = _ensure_ir_artifact_store(ctx.store).get_manifest(bundle_ref)
     except _RESOLVE_PARAMETERS_LOAD_ERRORS:
         return False
 
@@ -399,7 +402,7 @@ def _resolve_cross_graph_profile(ctx: ExecutionContext, state: ExperimentState):
         else:
             payload = raw
         ref = CrossGraphEvidenceProfileRef.model_validate(payload)
-        return load_cross_graph_evidence_profile(ctx.store, ref)
+        return load_cross_graph_evidence_profile(_ensure_ir_artifact_store(ctx.store), ref)
     except _RESOLVE_PARAMETERS_LOAD_ERRORS:
         return None
 

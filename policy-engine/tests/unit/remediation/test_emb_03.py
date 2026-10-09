@@ -814,6 +814,10 @@ def test_producer_generation_reaches_native_http_with_typed_vector_modes(
             "/api/v1/control/lex/search",
             json=payload,
         )
+        empty_intent_response = client.post(
+            "/api/v1/control/lex/search",
+            json={**payload, "query_generation_intent": []},
+        )
         encoder.revision += 1
         changed_encoder_response = client.post("/api/v1/control/lex/search", json=payload)
 
@@ -824,6 +828,11 @@ def test_producer_generation_reaches_native_http_with_typed_vector_modes(
     assert [item["fact_id"] for item in body["results"]] == ["fact-1"]
     assert encoder.encoded_texts[-1] == "budget"
     assert app.state.runtime_container.legal_query_encoder_provider is provider
+    assert empty_intent_response.status_code == 200, empty_intent_response.text
+    empty_intent_body = empty_intent_response.json()
+    assert empty_intent_body["search_mode"] == "text"
+    assert empty_intent_body["vector_refusal_code"] == "query_profile_malformed"
+    assert [item["fact_id"] for item in empty_intent_body["results"]] == ["fact-1"]
     assert changed_encoder_response.status_code == 200, changed_encoder_response.text
     changed_body = changed_encoder_response.json()
     assert changed_body["search_mode"] == "text"

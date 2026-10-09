@@ -8,13 +8,14 @@ import uuid
 from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from email.utils import parsedate_to_datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 import aiohttp
 
 from polisyos.common.logger import get_logger
+from polisyos.core.llm.response import normalize_llm_cost_evidence
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 logger = get_logger(__name__)
@@ -31,6 +32,26 @@ class GatewayUsage:
     completion_tokens: int = 0
     total_tokens: int = 0
     cost_usd: float | None = None
+    cost_status: Literal["known", "missing", "invalid"] | None = None
+    usage_status: Literal["known", "missing", "invalid"] | None = None
+
+    def __post_init__(self) -> None:
+        """Infer status for synthetic callers while keeping an empty default missing."""
+        if self.cost_status is None:
+            if self.cost_usd is None:
+                self.cost_status = "missing"
+            else:
+                _, self.cost_status = normalize_llm_cost_evidence({}, {"cost_usd": self.cost_usd})
+        if self.usage_status is not None:
+            return
+        parsed_prompt = _parse_nonnegative_integral_int(self.prompt_tokens)
+        parsed_completion = _parse_nonnegative_integral_int(self.completion_tokens)
+        if parsed_prompt is None or parsed_completion is None:
+            self.usage_status = "invalid"
+        elif parsed_prompt == 0 and parsed_completion == 0:
+            self.usage_status = "missing"
+        else:
+            self.usage_status = "known"
 
 
 @dataclass(slots=True)
@@ -55,6 +76,8 @@ class GatewayLLMResponse:
     response_headers: dict[str, str] | None = None
     raw: dict[str, Any] | None = None
     tool_calls: list[GatewayToolCall] | None = None
+    producer_event_id: str | None = None
+    producer_settlement: Any | None = None
 
 
 class _HTTPError(RuntimeError):
@@ -505,7 +528,7 @@ class GatewayLLMClient:
                         raise err
                     if not raw_text:
                         return {}
-                    decoded = json.loads(raw_text)
+                    decoded = json.loads(raw_text, parse_float=_parse_json_float)
                     if isinstance(decoded, dict):
                         response_headers = {
                             str(key): str(value)
@@ -566,26 +589,30 @@ class GatewayLLMClient:
         content = self._normalize_content(raw_content)
 
         usage_payload = payload.get("usage")
-        cost_usd = _as_float(
-            _extract_usage_value(usage_payload, "total_cost_usd")
-            or _extract_usage_value(usage_payload, "cost_usd")
-            or payload.get("cost_usd")
-            or payload.get("total_cost_usd")
-            or payload.get("cost")
+        cost_usd, cost_status = normalize_llm_cost_evidence(usage_payload, payload)
+        prompt_tokens, prompt_status = _parse_gateway_token_value(
+            usage_payload, "prompt_tokens", "input_tokens"
         )
-        if cost_usd is None:
-            base_cost = _as_float(_extract_usage_value(usage_payload, "base_cost_usd"))
-            platform_fee = _as_float(_extract_usage_value(usage_payload, "platform_fee_usd"))
-            if base_cost is not None or platform_fee is not None:
-                cost_usd = (base_cost or 0.0) + (platform_fee or 0.0)
+        completion_tokens, completion_status = _parse_gateway_token_value(
+            usage_payload, "completion_tokens", "output_tokens"
+        )
+        total_tokens, total_status = _parse_gateway_token_value(usage_payload, "total_tokens")
+        if "invalid" in {prompt_status, completion_status, total_status}:
+            usage_status: Literal["known", "missing", "invalid"] = "invalid"
+        elif prompt_status == "missing" or completion_status == "missing":
+            usage_status = "missing"
+        else:
+            usage_status = "known"
+        if total_status == "missing":
+            total_tokens = (prompt_tokens or 0) + (completion_tokens or 0)
         usage = GatewayUsage(
-            prompt_tokens=_as_int(_extract_usage_value(usage_payload, "prompt_tokens")),
-            completion_tokens=_as_int(_extract_usage_value(usage_payload, "completion_tokens")),
-            total_tokens=_as_int(_extract_usage_value(usage_payload, "total_tokens")),
+            prompt_tokens=prompt_tokens or 0,
+            completion_tokens=completion_tokens or 0,
+            total_tokens=total_tokens or 0,
             cost_usd=cost_usd,
+            cost_status=cost_status,
+            usage_status=usage_status,
         )
-        if usage.total_tokens <= 0:
-            usage.total_tokens = usage.prompt_tokens + usage.completion_tokens
 
         # Parse tool calls if present
         tool_calls: list[GatewayToolCall] | None = None
@@ -666,6 +693,15 @@ def _extract_usage_value(payload: Any, key: str) -> Any:
     return getattr(payload, key, None)
 
 
+def _extract_present_usage_value(payload: Any, key: str) -> Any:
+    """Return a present value, preserving explicit null separately from absence."""
+    if isinstance(payload, dict):
+        return payload.get(key, _NO_COST)
+    if payload is not None and hasattr(payload, key):
+        return getattr(payload, key)
+    return _NO_COST
+
+
 def _as_int(value: Any) -> int:
     try:
         parsed = int(value)
@@ -674,20 +710,51 @@ def _as_int(value: Any) -> int:
     return max(parsed, 0)
 
 
-def _as_float(value: Any) -> float | None:
-    if value is None:
-        return None
-    if isinstance(value, bool):
-        return None
-    if not isinstance(value, (int, float, Decimal, str)):
+def _parse_gateway_token_value(
+    payload: Any,
+    key: str,
+    alias: str | None = None,
+) -> tuple[int | None, Literal["known", "missing", "invalid"]]:
+    """Parse one present provider token count without truncating or zero-imputing."""
+    raw = _extract_present_usage_value(payload, key)
+    if raw is _NO_COST and alias is not None:
+        raw = _extract_present_usage_value(payload, alias)
+    if raw is _NO_COST:
+        return None, "missing"
+    parsed = _parse_nonnegative_integral_int(raw)
+    return (parsed, "known") if parsed is not None else (None, "invalid")
+
+
+def _parse_nonnegative_integral_int(value: Any) -> int | None:
+    """Return an exact finite nonnegative integer from an accepted JSON primitive."""
+    if isinstance(value, bool) or not isinstance(value, (int, float, Decimal, str)):
         return None
     try:
-        parsed = float(value)
-    except (TypeError, ValueError):
+        exact = value if isinstance(value, Decimal) else Decimal(str(value))
+    except (InvalidOperation, OverflowError, TypeError, ValueError):
         return None
-    if parsed < 0:
-        return 0.0
+    if not exact.is_finite() or exact < 0 or exact != exact.to_integral_value():
+        return None
+    try:
+        return int(exact)
+    except (OverflowError, ValueError):
+        return None
+
+
+def _parse_json_float(value: str) -> float | Decimal:
+    """Preserve a nonzero JSON number when conversion to float underflows."""
+    parsed = float(value)
+    if parsed == 0.0:
+        try:
+            exact = Decimal(value)
+        except InvalidOperation:
+            return parsed
+        if exact != 0:
+            return exact
     return parsed
+
+
+_NO_COST = object()
 
 
 def _as_str(value: Any) -> str | None:

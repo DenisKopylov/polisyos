@@ -10,6 +10,7 @@ import math
 import numpy as np
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.did import (
     StaggeredDifferenceInDifferences,
@@ -73,8 +74,8 @@ def test_native_report_and_actual_canonical_slots_preserve_complete_diagnostics(
     assert slots["report"] is report and slots["result"] is report
     assert slots["envelope"] is output["envelope"]
     assert slots["uncertainty_envelope"] is output["envelope"]
-    ref = persist_causal_effect_report(FileSystemCAS(tmp_path), report)
-    fresh = load_causal_effect_report(FileSystemCAS(tmp_path), ref)
+    ref = persist_causal_effect_report(_ensure_ir_artifact_store(FileSystemCAS(tmp_path)), report)
+    fresh = load_causal_effect_report(_ensure_ir_artifact_store(FileSystemCAS(tmp_path)), ref)
     assert fresh.diagnostics == report.diagnostics
     assert fresh.method_params == report.method_params
     assert fresh.model_dump(mode="json") == report.model_dump(mode="json")

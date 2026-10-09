@@ -265,9 +265,13 @@ class RetrievalService:
             return selected_ids
 
     def _catalog_source_is_enabled(
-        self, source_name: str, *, run_profile: CatalogRunProfile | None
+        self,
+        source_name: str,
+        *,
+        connector_id: str,
+        run_profile: CatalogRunProfile | None,
     ) -> bool:
-        """Require registered, enabled sources selected by the caller's run profile."""
+        """Join a supplied source identity to its registered connector and run profile."""
         normalized = source_name.strip()
         if not normalized:
             raise _catalog_selection_error("catalog_source_identity_unresolved")
@@ -279,6 +283,13 @@ class RetrievalService:
             )
         if not policy.enabled:
             return False
+        supplied_connector = connector_id.strip()
+        registered_connector = policy.connector_id.strip()
+        if not supplied_connector or supplied_connector != registered_connector:
+            raise _catalog_selection_error(
+                "catalog_source_connector_mismatch",
+                f"source={normalized}/registered={registered_connector}/supplied={supplied_connector}",
+            )
         return normalized in self._selected_catalog_source_ids(run_profile)
 
     def _catalog_date_window(
@@ -302,6 +313,11 @@ class RetrievalService:
         *,
         run_profile: CatalogRunProfile | None = None,
     ) -> ResolveOutcome:
+        if run_profile is not None and request.catalog_run_profile is not None:
+            if run_profile != request.catalog_run_profile:
+                raise _catalog_selection_error("catalog_run_profile_conflict")
+        elif run_profile is None:
+            run_profile = request.catalog_run_profile
         started = time.perf_counter()
         warnings: list[str] = []
         candidates: list[MetricCandidate] = []
@@ -823,7 +839,11 @@ class RetrievalService:
                     if not connector_id or not request_dataset_id:
                         continue
                     source_name = str(getattr(binding, "source", "") or "")
-                    if not self._catalog_source_is_enabled(source_name, run_profile=run_profile):
+                    if not self._catalog_source_is_enabled(
+                        source_name,
+                        connector_id=connector_id,
+                        run_profile=run_profile,
+                    ):
                         continue
                     resolved_rows.append(
                         {
@@ -875,7 +895,11 @@ class RetrievalService:
                     ):
                         continue
                     source_name = str(getattr(result, "source", "") or "")
-                    if not self._catalog_source_is_enabled(source_name, run_profile=run_profile):
+                    if not self._catalog_source_is_enabled(
+                        source_name,
+                        connector_id=target.connector_id,
+                        run_profile=run_profile,
+                    ):
                         continue
                     resolved_rows.append(
                         {

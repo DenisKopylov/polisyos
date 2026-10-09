@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 
 import polisyos.scientist.nodes.builtins.errors as node_errors
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -437,7 +438,7 @@ class BuildDecisionPacketNode:
         metrics_ref = state.artifacts_index.get(ARTIFACT_METRICS_REF)
         if metrics_ref is not None:
             try:
-                payload = from_canonical_bytes(ctx.store.get_bytes(metrics_ref.artifact_id))
+                payload = from_canonical_bytes(ctx.store.get_bytes(metrics_ref))
                 metrics = Metrics.model_validate(payload)
                 packet_payload["simulation_results"] = dict(metrics.values)
             except _DECISION_PACKET_LOAD_ERRORS as exc:
@@ -457,7 +458,7 @@ class BuildDecisionPacketNode:
         if metric_validation_ref is not None:
             try:
                 report = load_metric_validation_report(
-                    ctx.store,
+                    _ensure_ir_artifact_store(ctx.store),
                     MetricValidationReportRef.model_validate(metric_validation_ref.model_dump()),
                 )
                 packet_payload["metric_validation_report_ref"] = str(
@@ -491,7 +492,7 @@ class BuildDecisionPacketNode:
         governance_ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
         if governance_ref is not None:
             try:
-                payload = from_canonical_bytes(ctx.store.get_bytes(governance_ref.artifact_id))
+                payload = from_canonical_bytes(ctx.store.get_bytes(governance_ref))
                 report = GovernanceReport.model_validate(payload)
                 governance_report = report
                 packet_payload["governance"] = {

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.dependence_structure import (
     build_dependence_structure,
@@ -34,7 +35,7 @@ def _persist_flagship_certificate(store: FileSystemCAS, dataset_id: str) -> None
         standard_error=0.1,
         overall_pass=True,
     )
-    persist_survey_quality_certificate(store, certificate)
+    persist_survey_quality_certificate(_ensure_ir_artifact_store(store), certificate)
 
 
 def test_phase1_gate_summary_requires_complete_evidence(tmp_path) -> None:
@@ -43,7 +44,7 @@ def test_phase1_gate_summary_requires_complete_evidence(tmp_path) -> None:
     for dataset_id in dataset_ids[:2]:
         _persist_flagship_certificate(store, dataset_id)
     persist_dependence_structure(
-        store,
+        _ensure_ir_artifact_store(store),
         build_dependence_structure(
             regime="panel",
             class_label="factor",
@@ -53,7 +54,7 @@ def test_phase1_gate_summary_requires_complete_evidence(tmp_path) -> None:
         ),
     )
 
-    summary = build_phase1_gate_summary(store)
+    summary = build_phase1_gate_summary(_ensure_ir_artifact_store(store))
 
     assert summary.overall_passed is False
     assert "phase1_flagship_dataset_coverage_incomplete" in summary.blocking_reasons
@@ -74,7 +75,7 @@ def test_phase1_gate_summary_passes_with_full_evidence(tmp_path) -> None:
         ("network_adjacent", "network_hac"),
     ):
         persist_dependence_structure(
-            store,
+            _ensure_ir_artifact_store(store),
             build_dependence_structure(
                 regime=regime,
                 class_label="shared",
@@ -85,14 +86,14 @@ def test_phase1_gate_summary_passes_with_full_evidence(tmp_path) -> None:
         )
 
     persist_microsim_calibration_report(
-        store,
+        _ensure_ir_artifact_store(store),
         build_microsim_calibration_report(
             compatibility_status="compatible",
             exact_feasible=True,
         ),
     )
     persist_mobility_report(
-        store,
+        _ensure_ir_artifact_store(store),
         MobilityReport(
             analysis_type="transition_matrix",
             status="ok",
@@ -100,7 +101,7 @@ def test_phase1_gate_summary_passes_with_full_evidence(tmp_path) -> None:
         ),
     )
 
-    summary = build_phase1_gate_summary(store)
+    summary = build_phase1_gate_summary(_ensure_ir_artifact_store(store))
 
     assert summary.overall_passed is True
     assert summary.flagship_dataset_coverage_ready is True

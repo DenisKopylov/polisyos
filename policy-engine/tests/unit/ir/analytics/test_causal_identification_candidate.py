@@ -6,6 +6,7 @@ import pickle
 
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir import CausalEffectReport as PublicCausalEffectReport
 from polisyos.ir.analytics.causal import (
@@ -75,15 +76,17 @@ def test_canonical_class_pickle_and_fresh_cas_reader_preserve_candidate_semantic
     assert pickle.loads(pickle.dumps(CausalEffectReport)) is CausalEffectReport  # noqa: S301 - own class bytes
     report = _report(CausalMethod.DOWHY_BACKDOOR, "bayesian_posterior")
     writer = FileSystemCAS(tmp_path)
-    ref = persist_causal_effect_report(writer, report)
+    ref = persist_causal_effect_report(_ensure_ir_artifact_store(writer), report)
     reader = FileSystemCAS(tmp_path)
-    reopened = load_causal_effect_report(reader, ref)
+    reopened = load_causal_effect_report(_ensure_ir_artifact_store(reader), ref)
     assert type(reopened) is CausalEffectReport
     assert reopened.model_dump(mode="json") == report.model_dump(mode="json")
     envelope = reopened.to_uncertainty_envelope()
     assert envelope is not None
-    envelope_ref = persist_uncertainty_envelope(writer, envelope)
-    reopened_envelope = load_uncertainty_envelope(FileSystemCAS(tmp_path), envelope_ref)
+    envelope_ref = persist_uncertainty_envelope(_ensure_ir_artifact_store(writer), envelope)
+    reopened_envelope = load_uncertainty_envelope(
+        _ensure_ir_artifact_store(FileSystemCAS(tmp_path)), envelope_ref
+    )
     assert reopened_envelope.confidence_interval == report.confidence_interval
     assert reopened_envelope.interval_semantics is IntervalSemantics.CREDIBLE_INTERVAL
     assert reopened_envelope.gate_eligible is False

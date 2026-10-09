@@ -18,6 +18,7 @@ from polisyos.scientist.methods.search.funnel.types import (
     UncertaintyEnvelope,
     UncertaintyEstimate,
     UncertaintyType,
+    parse_funnel_work_packet_feedback,
     statistical_uncertainty_from_ci_width,
 )
 from polisyos.scientist.methods.search.stages import ExpensiveStage
@@ -82,6 +83,8 @@ class Level4FullFidelity(FunnelStage):
         envelope = self._build_uncertainty_envelope(result.simulation_results)
         feedback = dict(result.feedback)
         feedback.setdefault("fidelity_level", self.fidelity_level)
+        work_packet_ref, work_packet_status = parse_funnel_work_packet_feedback(feedback)
+        cost_usd = max(self._estimated_cost_usd, duration * self._cost_per_second_usd)
         side_information = ActionableSideInformation(
             candidate_id=str(
                 candidate.get("candidate_id")
@@ -106,13 +109,13 @@ class Level4FullFidelity(FunnelStage):
             discovery_ambiguity_notes=[],
             policy_budget_explanation={},
             compute_budget_explanation={
-                "level4_usd": max(
-                    self._estimated_cost_usd,
-                    duration * self._cost_per_second_usd,
-                ),
+                "level4_usd": cost_usd,
                 "duration_seconds": float(duration),
             },
-            metadata={"approved": result.is_promising},
+            metadata={
+                "approved": result.is_promising,
+                "compute_cost_evidence": {"amount_usd": cost_usd, "origin": "estimated"},
+            },
         )
         store = resolve_actionable_store(context=context)
         side_information_ref = None
@@ -139,7 +142,10 @@ class Level4FullFidelity(FunnelStage):
             actual_score=result.actual_score,
             uncertainty_envelope=envelope,
             failure_cards=cards,
-            compute_actual_usd=max(self._estimated_cost_usd, duration * self._cost_per_second_usd),
+            compute_cost_usd=cost_usd,
+            compute_cost_origin="estimated",
+            executed_work_packet_ref=work_packet_ref,
+            executed_work_packet_status=work_packet_status,
             fidelity_level=self.fidelity_level,
             audit_refs=audit_refs,
             uncertainty_observation_ref=search_uncertainty_observation_ref(

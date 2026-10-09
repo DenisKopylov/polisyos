@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Any, Literal
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from polisyos.core.artifacts import resolve_manifest_by_profile
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     InputRef,
@@ -396,7 +397,7 @@ def load_identifiability_diagnostic_result(
 ) -> IdentifiabilityDiagnosticResult:
     """Load a persisted aggregate-moment identifiability sidecar from CAS."""
 
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     result = IdentifiabilityDiagnosticResult.model_validate(payload)
     return result.model_copy(update={"diagnostic_ref": ref})
 
@@ -1161,7 +1162,7 @@ def _resolve_float_mapping(
     label: str,
 ) -> dict[str, float]:
     if isinstance(bundle, ArtifactRef):
-        payload = from_canonical_bytes(store.get_bytes(bundle.artifact_id))
+        payload = from_canonical_bytes(store.get_bytes(bundle))
         if isinstance(payload, Mapping) and isinstance(payload.get("values"), Mapping):
             payload = payload["values"]
     else:
@@ -1187,7 +1188,7 @@ def _resolve_parameter_center(
     parameter_center: Mapping[str, Any] | ArtifactRef | None,
 ) -> dict[str, float]:
     if parameter_center is None:
-        manifest = store.get_manifest(simulation_result_ref.artifact_id)
+        manifest = store.get_manifest(simulation_result_ref)
         bundle_input = next(
             (
                 item
@@ -1201,7 +1202,7 @@ def _resolve_parameter_center(
         parameter_center = ParameterOverrideBundleRef(artifact_id=bundle_input.artifact_id)
 
     if isinstance(parameter_center, ArtifactRef):
-        payload = from_canonical_bytes(store.get_bytes(parameter_center.artifact_id))
+        payload = from_canonical_bytes(store.get_bytes(parameter_center))
         if isinstance(payload, Mapping) and "overrides" in payload:
             bundle = ParameterOverrideBundle.model_validate(payload)
             return _flatten_parameter_overrides(bundle.overrides)
@@ -1235,7 +1236,7 @@ def _build_execute_summary_evaluator(
     simulation_result_ref: SimulationResultRef,
     simulation_result: SimulationResult,
 ) -> SummaryEvaluator:
-    manifest = store.get_manifest(simulation_result_ref.artifact_id)
+    manifest = store.get_manifest(simulation_result_ref)
     input_bindings_input = _find_input(manifest.inputs, "input.input_bindings_ref")
     if input_bindings_input is None:
         raise ValueError("simulation result manifest has no input.input_bindings_ref")
@@ -1314,7 +1315,7 @@ def _load_model[ModelT: BaseModel](
     ref: ArtifactRef,
     model_cls: type[ModelT],
 ) -> ModelT:
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return model_cls.model_validate(payload)
 
 
@@ -1370,7 +1371,14 @@ def _response_identity(store: FileSystemCAS, ref: ArtifactRef) -> _ResponseIdent
 def _response_input_ref(store: FileSystemCAS, item: InputRef) -> ArtifactRef:
     # InputRef carries the selected view, not the artifact's type. Resolve the
     # canonical type before preserving and verifying that exact selected view.
-    manifest = store.get_manifest(item.artifact_id)
+    if item.manifest_profile_sha256 is None:
+        manifest = store.get_manifest(item.artifact_id)
+    else:
+        manifest = resolve_manifest_by_profile(
+            store,
+            item.artifact_id,
+            item.manifest_profile_sha256,
+        )
     ref = ArtifactRef(
         artifact_id=item.artifact_id,
         kind=manifest.kind,

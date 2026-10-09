@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
@@ -770,7 +771,7 @@ def _run_pag_refinement_check(
     refined, orientation_warnings = apply_pag_orientation_rules(pag)
     violations = validate_pag(refined)
     persisted_ref = persist_causal_graph_model(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         refined,
         inputs=(
             [InputRef(artifact_id=str(graph_ref.artifact_id), role="causal_validity_input_graph")]
@@ -836,7 +837,7 @@ def _load_candidate_graph(
         graph = None
         try:
             graph = load_causal_graph_model(
-                ctx.store,
+                _ensure_ir_artifact_store(ctx.store),
                 CausalGraphModelRef.model_validate(ref.model_dump(mode="json")),
             )
         except Exception:

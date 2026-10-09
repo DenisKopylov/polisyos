@@ -242,7 +242,7 @@ def load_endogenous_group_inequality_decomposition_result(
 ) -> EndogenousGroupInequalityDecompositionResult:
     """Load an endogenous-group inequality decomposition from artifact storage."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return EndogenousGroupInequalityDecompositionResult.model_validate(payload)
 
 

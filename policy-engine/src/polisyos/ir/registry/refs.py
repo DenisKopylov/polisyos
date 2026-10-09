@@ -11,7 +11,7 @@ from __future__ import annotations
 from collections.abc import Iterator, Mapping
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.ir.artifacts import ArtifactID
 
@@ -24,14 +24,21 @@ class ArtifactRefModel(BaseModel, Mapping[str, object]):
     artifact_id: ArtifactID
     kind: str
     media_type: str
+    manifest_profile_sha256: str | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
 
     def __iter__(self) -> Iterator[str]:
         yield "artifact_id"
         yield "kind"
         yield "media_type"
+        if self.manifest_profile_sha256 is not None:
+            yield "manifest_profile_sha256"
 
     def __len__(self) -> int:
-        return 3
+        return 4 if self.manifest_profile_sha256 is not None else 3
 
     def __getitem__(self, key: str) -> object:
         if key == "artifact_id":
@@ -40,6 +47,8 @@ class ArtifactRefModel(BaseModel, Mapping[str, object]):
             return self.kind
         if key == "media_type":
             return self.media_type
+        if key == "manifest_profile_sha256":
+            return self.manifest_profile_sha256
         raise KeyError(key)
 
 
@@ -74,9 +83,7 @@ class ForecastInterventionQueryRef(ArtifactRefModel):
 class ForecastInterventionCertificateRef(ArtifactRefModel):
     """Stable handle for persisted forecast-as-treatment certificates."""
 
-    kind: Literal["ir.forecast_intervention_certificate"] = (
-        "ir.forecast_intervention_certificate"
-    )
+    kind: Literal["ir.forecast_intervention_certificate"] = "ir.forecast_intervention_certificate"
     media_type: Literal["application/json"] = "application/json"
 
 
@@ -97,18 +104,14 @@ class ABMResultRef(ArtifactRefModel):
 class DynamicMicrosimValidationReportRef(ArtifactRefModel):
     """Stable handle for persisted dynamic microsim validation gate reports."""
 
-    kind: Literal["ir.dynamic_microsim_validation_report"] = (
-        "ir.dynamic_microsim_validation_report"
-    )
+    kind: Literal["ir.dynamic_microsim_validation_report"] = "ir.dynamic_microsim_validation_report"
     media_type: Literal["application/json"] = "application/json"
 
 
 class TemporalGraphCausalCertificateRef(ArtifactRefModel):
     """Stable handle for persisted temporal graph DSCM causal certificates."""
 
-    kind: Literal["ir.temporal_graph_causal_certificate"] = (
-        "ir.temporal_graph_causal_certificate"
-    )
+    kind: Literal["ir.temporal_graph_causal_certificate"] = "ir.temporal_graph_causal_certificate"
     media_type: Literal["application/json"] = "application/json"
 
 

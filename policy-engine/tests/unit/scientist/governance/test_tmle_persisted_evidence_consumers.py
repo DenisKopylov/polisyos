@@ -17,6 +17,7 @@ from time import perf_counter
 import numpy as np
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -111,12 +112,12 @@ def persisted_tmle(tmp_path_factory: pytest.TempPathFactory) -> dict:
     bundle_ref = job.method_result_ref
     assert store.get_manifest(bundle_ref).inputs[0].artifact_id == source.artifact_id
     report_ref = persist_causal_effect_report(
-        store,
+        _ensure_ir_artifact_store(store),
         native_report,
         inputs=[InputRef(artifact_id=bundle_ref.artifact_id, role="native_method_result")],
     )
     envelope_ref = persist_uncertainty_envelope(
-        store,
+        _ensure_ir_artifact_store(store),
         job.final_state["envelope"],
         inputs=[InputRef(artifact_id=report_ref.artifact_id, role="causal_report")],
     )
@@ -125,7 +126,7 @@ def persisted_tmle(tmp_path_factory: pytest.TempPathFactory) -> dict:
         update={"source": UncertaintySource.ENSEMBLE, "gate_eligible": True}
     )
     forged_ref = persist_uncertainty_envelope(
-        store,
+        _ensure_ir_artifact_store(store),
         forged,
         inputs=[InputRef(artifact_id=report_ref.artifact_id, role="adversarial_relabel")],
     )
@@ -176,7 +177,7 @@ def _read(spec: dict) -> dict:
     bundle_ref = ArtifactRef.model_validate(spec["bundle_ref"])
     bundle = from_canonical_bytes(store.get_bytes(bundle_ref))
     report_ref = CausalEffectReportRef.model_validate(spec["report_ref"])
-    report = load_causal_effect_report(store, report_ref)
+    report = load_causal_effect_report(_ensure_ir_artifact_store(store), report_ref)
     assert report.model_dump(mode="json") == bundle["report"]
     assert report.method is CausalMethod.TMLE and report.status is EstimationStatus.SUCCESS
     assert report.confidence_interval is not None
@@ -192,9 +193,9 @@ def _read(spec: dict) -> dict:
     env_ref = ArtifactRef.model_validate(
         spec["forged_ref"] if spec["relabelled"] else spec["envelope_ref"]
     )
-    offered_envelope = load_uncertainty_envelope(store, env_ref)
+    offered_envelope = load_uncertainty_envelope(_ensure_ir_artifact_store(store), env_ref)
     stored_native_envelope = load_uncertainty_envelope(
-        store, ArtifactRef.model_validate(spec["envelope_ref"])
+        _ensure_ir_artifact_store(store), ArtifactRef.model_validate(spec["envelope_ref"])
     )
     # The native IR artifact writer's canonical profile normalizes floats;
     # compare offered values to that actual persisted profile, not raw doubles.

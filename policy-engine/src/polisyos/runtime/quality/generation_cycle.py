@@ -58,8 +58,12 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts import (
     ArtifactRef as CASArtifactRef,
 )
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
-from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+from polisyos.core.artifacts.manifest import (
+    ArtifactTenantContextInfo,
+    artifact_ref_identity_key,
+)
 from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.value_outer_set import (
     DataTrust,
@@ -168,6 +172,7 @@ from polisyos.scientist.orchestration.engine.budget import BudgetState  # noqa: 
 from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopEngine
 
 if TYPE_CHECKING:
+    from polisyos.core.contracts.control import CatalogRunProfile
     from polisyos.foundry import MethodRouteConstraint
     from polisyos.pdc import ArtifactEnvelope
     from polisyos.runtime.quality.acquisition_planner import AcquisitionOwnerArtifact
@@ -189,13 +194,20 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.promotion_sequence import (
         N9PromotionEvidenceBridgeRepository,
     )
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 
-GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v3"
-_GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION = (
-    "policyos.runtime.generation_cycle_controller.v4"
-)
+_GENERATION_CYCLE_V3_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v3"
+_GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v4"
+GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v5"
 _GENERATION_CYCLE_CURRENT_SEMANTIC_SCHEMA_VERSIONS = frozenset(
-    {GENERATION_CYCLE_SCHEMA_VERSION, _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION}
+    {
+        _GENERATION_CYCLE_V3_SCHEMA_VERSION,
+        _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION,
+        GENERATION_CYCLE_SCHEMA_VERSION,
+    }
+)
+_GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSIONS = frozenset(
+    {_GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION}
 )
 GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION = (
     "policyos.policy_design_case.layer3_gy.generation_cycle_contract.v2"
@@ -242,9 +254,7 @@ _N8_CANDIDATE_SIMULATION_LIMITATIONS = frozenset(
 )
 # Exhaustive typed projection partition. A new canonical terminal must be
 # assigned deliberately before N6 may turn a selected stop into a cycle result.
-_N6_TERMINAL_STOP_PROJECTIONS: dict[
-    SearchTerminalKind, Literal["stop", "abstain", "not_stop"]
-] = {
+_N6_TERMINAL_STOP_PROJECTIONS: dict[SearchTerminalKind, Literal["stop", "abstain", "not_stop"]] = {
     SearchTerminalKind.A_SPEC_GAP: "not_stop",
     SearchTerminalKind.TOOL_FAILURE: "not_stop",
     SearchTerminalKind.COMPOSITION_INVALID: "not_stop",
@@ -356,8 +366,7 @@ def _historical_typed_model_edges(
             continue
         prefix = f"{container}:{index}"
         edges.extend(
-            ((prefix, *path), owner)
-            for path, owner in _historical_typed_model_edges(argument)
+            ((prefix, *path), owner) for path, owner in _historical_typed_model_edges(argument)
         )
     return tuple(sorted(set(edges)))
 
@@ -384,11 +393,7 @@ def _historical_annotation_vocabularies(
     for index, argument in enumerate(get_args(annotation)):
         if argument is Ellipsis:
             continue
-        rows.extend(
-            _historical_annotation_vocabularies(
-                argument, (*path, f"{container}:{index}")
-            )
-        )
+        rows.extend(_historical_annotation_vocabularies(argument, (*path, f"{container}:{index}")))
     return tuple(sorted(set(rows)))
 
 
@@ -398,8 +403,7 @@ def _historical_annotation_matches_value(annotation: object, value: object) -> b
     origin = get_origin(annotation)
     if origin is Literal:
         return any(
-            type(value) is type(allowed) and value == allowed
-            for allowed in get_args(annotation)
+            type(value) is type(allowed) and value == allowed for allowed in get_args(annotation)
         )
     if isinstance(annotation, type):
         if issubclass(annotation, Enum):
@@ -409,11 +413,14 @@ def _historical_annotation_matches_value(annotation: object, value: object) -> b
         except TypeError:
             return False
     if origin in (UnionType, Union):
-        return any(
-            _historical_annotation_matches_value(argument, value)
-            for argument in get_args(annotation)
-            if argument is not type(None)
-        ) or value is None
+        return (
+            any(
+                _historical_annotation_matches_value(argument, value)
+                for argument in get_args(annotation)
+                if argument is not type(None)
+            )
+            or value is None
+        )
     if origin in (list, tuple, set, frozenset, Sequence):
         return isinstance(value, (list, tuple, set, frozenset))
     if origin in (dict, Mapping):
@@ -441,10 +448,7 @@ def _historical_value_matches_vocabulary(
         return (
             allowed is not None
             and isinstance(value, annotation)
-            and any(
-                type(value.value) is type(item) and value.value == item
-                for item in allowed
-            )
+            and any(type(value.value) is type(item) and value.value == item for item in allowed)
         )
 
     container = (
@@ -481,15 +485,11 @@ def _historical_value_matches_vocabulary(
             return False
         if len(arguments) == 2 and arguments[1] is Ellipsis:
             return all(
-                _historical_value_matches_vocabulary(
-                    arguments[0], item, frozen, (*path, "tuple:0")
-                )
+                _historical_value_matches_vocabulary(arguments[0], item, frozen, (*path, "tuple:0"))
                 for item in value
             )
         return len(value) == len(arguments) and all(
-            _historical_value_matches_vocabulary(
-                argument, item, frozen, (*path, f"tuple:{index}")
-            )
+            _historical_value_matches_vocabulary(argument, item, frozen, (*path, f"tuple:{index}"))
             for index, (argument, item) in enumerate(zip(arguments, value, strict=True))
         )
     if origin in (dict, Mapping):
@@ -551,14 +551,9 @@ def _historical_generation_cycle_field_tree(
         qualified_name = f"{type(value).__module__}.{type(value).__qualname__}"
         historical_shape_owner = qualified_name
         if isinstance(value, _QualifiedOutcomeOfInterestV3):
-            if (
-                design_problem_schema_version
-                != FROZEN_DESIGN_PROBLEM_V3_SCHEMA_VERSION
-            ):
+            if design_problem_schema_version != FROZEN_DESIGN_PROBLEM_V3_SCHEMA_VERSION:
                 raise ValueError("generation_cycle_history_typed_edge_drift")
-            historical_shape_owner = (
-                "polisyos.runtime.quality.design_problem.OutcomeOfInterest"
-            )
+            historical_shape_owner = "polisyos.runtime.quality.design_problem.OutcomeOfInterest"
         shape = version_models.get(historical_shape_owner)
         if not isinstance(shape, dict):
             raise ValueError("generation_cycle_history_typed_owner_unmapped")
@@ -601,8 +596,7 @@ def _historical_generation_cycle_field_tree(
                 outcome = getattr(value, field_name)
                 outcome_edges = _historical_typed_model_edges(type(outcome))
                 allowed_outcome_edges = FROZEN_DESIGN_PROBLEM_OUTCOME_OWNER_VARIANTS.get(
-                    nested_design_problem_schema_version
-                    or FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION,
+                    nested_design_problem_schema_version or FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION,
                     FROZEN_DESIGN_PROBLEM_OUTCOME_OWNER_VARIANTS[
                         FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION
                     ],
@@ -622,17 +616,18 @@ def _historical_generation_cycle_field_tree(
             pattern_schema_version = nested_design_problem_schema_version
             if pattern_schema_version not in FROZEN_DESIGN_PROBLEM_SLOT_PATTERNS:
                 pattern_schema_version = FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION
-            frozen_pattern = FROZEN_DESIGN_PROBLEM_SLOT_PATTERNS.get(
-                pattern_schema_version, {}
-            ).get(qualified_name, {}).get(field_name)
+            frozen_pattern = (
+                FROZEN_DESIGN_PROBLEM_SLOT_PATTERNS.get(pattern_schema_version, {})
+                .get(qualified_name, {})
+                .get(field_name)
+            )
             if frozen_pattern is not None and field_name in value.model_fields_set:
                 historical_value = getattr(value, field_name)
-                if not isinstance(historical_value, str) or re.fullmatch(
-                    frozen_pattern, historical_value
-                ) is None:
-                    raise ValueError(
-                        "generation_cycle_history_field_pattern_out_of_epoch"
-                    )
+                if (
+                    not isinstance(historical_value, str)
+                    or re.fullmatch(frozen_pattern, historical_value) is None
+                ):
+                    raise ValueError("generation_cycle_history_field_pattern_out_of_epoch")
             current_vocabulary = _historical_annotation_vocabularies(field.annotation)
             frozen_vocabulary = frozen_field_vocabulary.get(field_name, ())
             frozen_by_identity = {
@@ -644,8 +639,7 @@ def _historical_generation_cycle_field_tree(
                 for item in frozen_vocabulary
             }
             current_by_identity = {
-                (path, kind, owner): set(values)
-                for path, kind, owner, values in current_vocabulary
+                (path, kind, owner): set(values) for path, kind, owner, values in current_vocabulary
             }
             if set(frozen_by_identity) != set(current_by_identity):
                 raise ValueError("generation_cycle_history_vocabulary_shape_drift")
@@ -766,6 +760,14 @@ class SimulationPortObservation(_StrictModel):
     status: Literal["joint_simulated", "simulation_pending_n5", "simulation_blocked"]
     simulation_ref: str | None = None
     simulation_result_ref: CASArtifactRef | None = None
+    candidate_simulation_n4_source_ref: CASArtifactRef | None = None
+    candidate_simulation_context_job_ref: CASArtifactRef | None = None
+    candidate_simulation_n5_input_ref: CASArtifactRef | None = None
+    candidate_simulation_profile_config_ref: str | None = None
+    candidate_simulation_profile_selection_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
     uncertainty_kind: str | None = None
     authority_blockers: tuple[str, ...] = ()
     diagnostics: dict[str, Any] = Field(default_factory=dict)
@@ -784,6 +786,34 @@ class SimulationPortObservation(_StrictModel):
             and self.k_world_ref_before != self.k_world_ref_after
         ):
             raise ValueError("k_sim_must_not_shrink_k_world")
+        bound_refs = (
+            self.candidate_simulation_n4_source_ref,
+            self.candidate_simulation_context_job_ref,
+            self.candidate_simulation_n5_input_ref,
+            self.candidate_simulation_profile_config_ref,
+            self.candidate_simulation_profile_selection_ref,
+        )
+        if any(item is not None for item in bound_refs):
+            source, context, n5_input, profile_config, profile_selection = bound_refs
+            if (
+                source is None
+                or source.kind
+                not in {
+                    "runtime.generation_source_handoff",
+                    "runtime.quality.n4_candidate_scenario_source",
+                }
+                or source.media_type != "application/json"
+                or context is None
+                or context.kind != "runtime.quality.cycle_substrate_context_job"
+                or context.media_type != "application/json"
+                or n5_input is None
+                or n5_input.kind != "runtime.quality.candidate_simulation_n5_input"
+                or n5_input.media_type != "application/json"
+                or not isinstance(profile_config, str)
+                or not profile_config.strip()
+                or profile_selection is None
+            ):
+                raise ValueError("candidate_simulation_cycle_binding_incomplete")
         return self
 
 
@@ -814,6 +844,7 @@ def persist_joint_simulation_result(
     result: JointSimulationResult,
     *,
     store: ArtifactStore,
+    tenant_context: ArtifactTenantContextInfo | None = None,
 ) -> CASArtifactRef:
     """Persist one complete N5 result through the runtime-supplied store."""
 
@@ -840,7 +871,7 @@ def persist_joint_simulation_result(
             **result.content_bound_payload(),
             "receipt": result.receipt.model_dump(mode="json"),
         }
-        return store.put_json(
+        artifact_ref = store.put_json(
             payload,
             PutOptions(
                 kind=JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
@@ -849,9 +880,24 @@ def persist_joint_simulation_result(
                     name=JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA,
                     version=artifact_schema_version,
                 ),
+                tenant_context=tenant_context,
             ),
             canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True),
         )
+        if tenant_context is not None:
+            record_owner = getattr(store, "record_artifact_owner", None)
+            if not callable(record_owner):
+                raise GenerationCycleError(
+                    "joint_simulation_result_persist_failed",
+                    "Tenant-scoped N5 persistence requires an artifact owner recorder",
+                )
+            record_owner(
+                artifact_ref.artifact_id,
+                tenant_id=tenant_context.tenant_id,
+                cell_id=tenant_context.cell_id,
+                writer="runtime.quality.generation_cycle",
+            )
+        return artifact_ref
     except GenerationCycleError:
         raise
     except Exception as exc:
@@ -882,8 +928,7 @@ def _validate_loaded_joint_simulation_result(
     if result.state_consumption is not None:
         consumption = result.state_consumption
         if (
-            consumption.world_model_record_content_hash
-            != result.world_model_record_content_hash
+            consumption.world_model_record_content_hash != result.world_model_record_content_hash
             or result.receipt.engine_kind != "program_graph"
             or not set(consumption.authority_limitations).issubset(
                 result.promotion_ready_value_packet.get("authority_blockers", ())
@@ -946,9 +991,7 @@ def load_joint_simulation_result(
 
     try:
         resolved_ref = (
-            ref
-            if isinstance(ref, CASArtifactRef)
-            else CASArtifactRef.model_validate(ref)
+            ref if isinstance(ref, CASArtifactRef) else CASArtifactRef.model_validate(ref)
         )
     except (TypeError, ValueError) as exc:
         raise GenerationCycleError("joint_simulation_result_unavailable", str(exc)) from exc
@@ -1027,9 +1070,10 @@ def load_joint_simulation_result(
         _joint_simulation_result_integrity_error("artifact_payload_not_canonical", exc)
     if not isinstance(payload, Mapping):
         _joint_simulation_result_integrity_error("artifact_payload_not_mapping")
-    if payload.get("schema_version") != _JOINT_SIMULATION_RESULT_VERSIONS[
-        manifest.artifact_schema.version
-    ]:
+    if (
+        payload.get("schema_version")
+        != _JOINT_SIMULATION_RESULT_VERSIONS[manifest.artifact_schema.version]
+    ):
         _joint_simulation_result_integrity_error("artifact_payload_schema_mismatch")
     payload_without_receipt = dict(payload)
     payload_without_receipt.pop("receipt", None)
@@ -1693,16 +1737,14 @@ class GenerationSourcePreservationReceipt(_StrictModel):
 class GenerationSourceCustodyLimitation(_StrictModel):
     """Typed candidate limitation when the runtime source store is unavailable."""
 
-    schema_version: Literal[
+    schema_version: Literal["policyos.runtime.generation_source_custody_limitation.v1"] = (
         "policyos.runtime.generation_source_custody_limitation.v1"
-    ] = "policyos.runtime.generation_source_custody_limitation.v1"
+    )
     status: Literal["not_established"] = "not_established"
     reason_code: Literal["source_store_unavailable"] = "source_store_unavailable"
 
     @model_serializer(mode="wrap")
-    def _serialize_own_epoch(
-        self, handler: SerializerFunctionWrapHandler
-    ) -> dict[str, Any]:
+    def _serialize_own_epoch(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
         payload = handler(self)
         return {
             "schema_version": payload["schema_version"],
@@ -1858,14 +1900,10 @@ class StrangleReceipt(_StrictModel):
                 "alias_and_dynamic_calls_not_established",
             ),
             allowed_fixture_callers=tuple(
-                caller
-                for caller in census.callers
-                if _is_allowed_fixture_caller(caller)
+                caller for caller in census.callers if _is_allowed_fixture_caller(caller)
             ),
             production_single_pass_callers=tuple(
-                caller
-                for caller in census.callers
-                if not _is_allowed_fixture_caller(caller)
+                caller for caller in census.callers if not _is_allowed_fixture_caller(caller)
             ),
         )
 
@@ -1933,9 +1971,7 @@ class N6SourceCensusGateResult(_StrictModel):
     )
     source_verdict: Literal["UNRUN"] = "UNRUN"
     production_path_verdict: Literal["UNRUN"] = "UNRUN"
-    production_root_and_binding_denominator: Literal["not_established"] = (
-        "not_established"
-    )
+    production_root_and_binding_denominator: Literal["not_established"] = "not_established"
     source_scope: Literal["src/polisyos"] = "src/polisyos"
     source_path_pattern: Literal["src/polisyos/**/*.py"] = "src/polisyos/**/*.py"
     source_path_count: int = Field(ge=0)
@@ -1979,6 +2015,7 @@ class GenerationCycleRun(_StrictModel):
         "policyos.runtime.generation_cycle_controller.v2",
         "policyos.runtime.generation_cycle_controller.v3",
         "policyos.runtime.generation_cycle_controller.v4",
+        "policyos.runtime.generation_cycle_controller.v5",
     ] = GENERATION_CYCLE_SCHEMA_VERSION
     run_id: str = Field(..., min_length=1)
     design_problem_ref: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
@@ -2043,13 +2080,19 @@ class GenerationCycleRun(_StrictModel):
             elif self.deployment_identity is not None or self.deployment_identity_reason is None:
                 raise ValueError("generation_cycle_deployment_identity_binding_mismatch")
         limitation = self.source_custody_limitation
-        if self.schema_version == _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION:
+        if self.schema_version in _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSIONS:
             if limitation is None:
-                raise ValueError("generation_cycle_limited_v4_requires_source_limitation")
+                raise ValueError("generation_cycle_limited_requires_source_limitation")
             if self.source_preservation_receipt is not None:
                 raise ValueError("generation_cycle_source_limitation_has_preservation_receipt")
-        elif limitation is not None:
+        elif limitation is not None and self.schema_version != GENERATION_CYCLE_SCHEMA_VERSION:
             raise ValueError("generation_cycle_source_limitation_requires_v4")
+        if (
+            self.schema_version == GENERATION_CYCLE_SCHEMA_VERSION
+            and limitation is not None
+            and self.source_preservation_receipt is not None
+        ):
+            raise ValueError("generation_cycle_source_limitation_has_preservation_receipt")
         receipt = self.source_preservation_receipt
         if receipt is not None and (
             receipt.run_id != self.run_id
@@ -2086,24 +2129,23 @@ class GenerationCycleRun(_StrictModel):
     def _serialize_own_epoch(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
         if (
             self.source_custody_limitation is not None
-            and self.schema_version != _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION
+            and self.schema_version not in _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSIONS
+            and self.schema_version != GENERATION_CYCLE_SCHEMA_VERSION
         ):
             raise ValueError("generation_cycle_source_limitation_requires_v4")
         if (
-            self.schema_version == _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION
+            self.schema_version in _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSIONS
             and self.source_custody_limitation is None
         ):
-            raise ValueError("generation_cycle_limited_v4_requires_source_limitation")
+            raise ValueError("generation_cycle_limited_requires_source_limitation")
         payload = handler(self)
         if self.schema_version.endswith((".v1", ".v2")):
             version = self.schema_version.rsplit(".", 1)[-1]
-            supplied = _historical_generation_cycle_field_tree(
-                self, payload, version=version
-            )
+            supplied = _historical_generation_cycle_field_tree(self, payload, version=version)
             if not isinstance(supplied, dict):
                 raise TypeError("historical_generation_payload_invalid")
             payload = supplied
-        elif self.schema_version == GENERATION_CYCLE_SCHEMA_VERSION:
+        elif self.schema_version == _GENERATION_CYCLE_V3_SCHEMA_VERSION:
             # Keep every pre-existing v3 field/value while excluding the v4-only field.
             payload.pop("source_custody_limitation", None)
         elif self.schema_version == _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION:
@@ -2111,11 +2153,9 @@ class GenerationCycleRun(_StrictModel):
             if not isinstance(limitation, dict):
                 raise TypeError("generation_cycle_limited_v4_projection_invalid")
             v3_payload = dict(payload)
-            v3_payload["schema_version"] = GENERATION_CYCLE_SCHEMA_VERSION
+            v3_payload["schema_version"] = _GENERATION_CYCLE_V3_SCHEMA_VERSION
             v3_run = GenerationCycleRun.model_validate(v3_payload)
-            supplied = _historical_generation_cycle_field_tree(
-                v3_run, v3_payload, version="v3"
-            )
+            supplied = _historical_generation_cycle_field_tree(v3_run, v3_payload, version="v3")
             if not isinstance(supplied, dict):
                 raise TypeError("historical_generation_payload_invalid")
             supplied["schema_version"] = self.schema_version
@@ -2151,9 +2191,7 @@ def _source_custody_authority_refusal(
         or receipt.expected_identity_digest != receipt.retained_identity_digest
     ):
         return "generation_cycle_source_preservation_not_established", "receipt_incoherent"
-    if receipt.status == "drift" or (
-        require_established and receipt.status != "strangled"
-    ):
+    if receipt.status == "drift" or (require_established and receipt.status != "strangled"):
         return "generation_cycle_source_preservation_not_established", receipt.status
     return None
 
@@ -2240,9 +2278,7 @@ def eligible_n9_source_for_run(run: GenerationCycleRun) -> N9EligibleRunSource |
             "generation_cycle_historical_run_not_current_n9_source",
             run.schema_version,
         )
-    if n9_terminal_disposition(run.terminal_status) is (
-        N9TerminalDisposition.TERMINAL_BLOCKED
-    ):
+    if n9_terminal_disposition(run.terminal_status) is (N9TerminalDisposition.TERMINAL_BLOCKED):
         return None
     source_refusal = _source_custody_authority_refusal(
         run.source_custody_limitation,
@@ -2263,9 +2299,7 @@ def _historical_generation_cycle_run_projection(
     if not run.schema_version.endswith(".v3"):
         # The run model serializer already freezes v4 as its v3 core plus limitation.
         return payload
-    projection = _historical_generation_cycle_field_tree(
-        run, payload, version="v3"
-    )
+    projection = _historical_generation_cycle_field_tree(run, payload, version="v3")
     if not isinstance(projection, dict):
         raise TypeError("historical_generation_payload_invalid")
     return projection
@@ -2398,12 +2432,20 @@ class N4GenerationPort:
         repo_root: Path | None = None,
         cycle_substrate_context: CycleSubstrateContext | None = None,
         candidate_simulation_handoff: object | None = None,
+        producer_run_id: str | None = None,
+        producer_settlement_store: BudgetMiddleware | None = None,
+        call_observer: Callable[[dict[str, Any]], None] | None = None,
+        prefetched_organ_run: object | None = None,
     ) -> None:
         self._model_id = model_id
         self._llm_client = llm_client
         self._repo_root = repo_root
         self._cycle_substrate_context = cycle_substrate_context
         self._candidate_simulation_handoff = candidate_simulation_handoff
+        self._producer_run_id = producer_run_id
+        self._producer_settlement_store = producer_settlement_store
+        self._call_observer = call_observer
+        self._prefetched_organ_run = prefetched_organ_run
         self._grounding_run_budget = None
 
     def bind_grounding_run_budget(self, budget: object) -> None:
@@ -2422,9 +2464,24 @@ class N4GenerationPort:
     ) -> object:
         """Call N4 generation for this cycle."""
 
-        del cycle_index
         if self._cycle_substrate_context is None:
             return _N4OwnerContextUnavailableResult()
+        if self._prefetched_organ_run is not None:
+            from polisyos.runtime.quality.design_generation import DesignGenerationOrganRun
+
+            organ_run = self._prefetched_organ_run
+            self._prefetched_organ_run = None
+            if (
+                type(organ_run) is not DesignGenerationOrganRun
+                or organ_run.result.design_problem_ref
+                != gy_content_hash(problem.model_dump(mode="json"))
+                or cycle_index != 0
+            ):
+                raise GenerationCycleError("n4_prefetched_source_binding_mismatch")
+            return organ_run
+        producer_run_id = self._producer_run_id
+        if producer_run_id is None and self._candidate_simulation_handoff is not None:
+            producer_run_id = getattr(self._candidate_simulation_handoff, "run_id", None)
         if self._candidate_simulation_handoff is not None:
             from polisyos.runtime.quality.design_generation import (
                 generate_design_candidate_scenario_proposal_under_a,
@@ -2436,6 +2493,9 @@ class N4GenerationPort:
                 llm_client=self._llm_client,
                 repo_root=self._repo_root,
                 cycle_substrate_context=self._cycle_substrate_context,
+                producer_run_id=producer_run_id,
+                producer_settlement_store=self._producer_settlement_store,
+                call_observer=self._call_observer,
             )
         from polisyos.runtime.quality.design_generation import (
             generate_design_candidate_bundle_under_a,
@@ -2448,6 +2508,9 @@ class N4GenerationPort:
             repo_root=self._repo_root,
             cycle_substrate_context=self._cycle_substrate_context,
             grounding_run_budget=self._grounding_run_budget,
+            producer_run_id=producer_run_id,
+            producer_settlement_store=self._producer_settlement_store,
+            call_observer=self._call_observer,
         )
         return organ_run
 
@@ -2661,13 +2724,8 @@ class JointSimulationPort:
                     CandidateSimulationN5InputV4,
                     CandidateSimulationN5InputV5,
                 }:
-                    if (
-                        self._artifact_store is None
-                        or candidate_simulation_input_ref is None
-                    ):
-                        raise ValueError(
-                            "candidate_simulation_v3_persisted_input_ref_missing"
-                        )
+                    if self._artifact_store is None or candidate_simulation_input_ref is None:
+                        raise ValueError("candidate_simulation_v3_persisted_input_ref_missing")
                     from polisyos.runtime.quality.generation_source import (
                         GenerationSourceRepository,
                     )
@@ -2706,9 +2764,7 @@ class JointSimulationPort:
                         candidate_simulation_currentness_resolver is None
                         or candidate_simulation_currentness_resolver() is not True
                     ):
-                        raise ValueError(
-                            "candidate_simulation_worker_lease_not_current"
-                        )
+                        raise ValueError("candidate_simulation_worker_lease_not_current")
                     candidate_simulation_input = persisted_input
                 request = self._build_candidate_simulation_request(
                     candidate=candidate,
@@ -2969,6 +3025,14 @@ class JointSimulationPort:
             simulation_result_ref = persist_joint_simulation_result(
                 result,
                 store=self._artifact_store,
+                tenant_context=(
+                    ArtifactTenantContextInfo(
+                        tenant_id=self._candidate_simulation_handoff.tenant_id,
+                        cell_id=self._candidate_simulation_handoff.cell_id,
+                    )
+                    if self._candidate_simulation_handoff is not None
+                    else None
+                ),
             )
         except GenerationCycleError as exc:
             return SimulationPortObservation(
@@ -3045,9 +3109,7 @@ class JointSimulationPort:
                 TypeError,
                 ValueError,
             ) as exc:
-                failures[index] = str(
-                    getattr(exc, "code", None) or "n5_program_state_unavailable"
-                )
+                failures[index] = str(getattr(exc, "code", None) or "n5_program_state_unavailable")
                 # Ignore every caller-supplied runtime binding on a rejected
                 # plan; the controller may then select a later valid engine.
                 plans[index] = plan.model_copy(
@@ -3166,8 +3228,7 @@ class JointSimulationPort:
             bindings_manifest.kind != "foundry.input_bindings"
             or bindings_manifest.media_type != "application/json"
             or bindings_manifest.artifact_schema is None
-            or bindings_manifest.artifact_schema.name
-            != "polisyos.core.FoundryInputBindings"
+            or bindings_manifest.artifact_schema.name != "polisyos.core.FoundryInputBindings"
             or bindings_manifest.artifact_schema.version != "1.0"
         ):
             raise WorldModelRecordError("n5_input_bindings_artifact_profile_invalid")
@@ -3196,8 +3257,7 @@ class JointSimulationPort:
         )
         for declared_ref, expected_ref, expected_kind in declared_views:
             if (
-                artifact_ref_identity_key(declared_ref)
-                != artifact_ref_identity_key(expected_ref)
+                artifact_ref_identity_key(declared_ref) != artifact_ref_identity_key(expected_ref)
                 or declared_ref.kind != expected_kind
                 or declared_ref.media_type != "application/json"
             ):
@@ -3560,26 +3620,21 @@ class JointSimulationPort:
             or (
                 artifact_ref_identity_key(input_record.context_job_ref)
                 != artifact_ref_identity_key(handoff.context_job_ref)
-                if type(input_record) in {
+                if type(input_record)
+                in {
                     CandidateSimulationN5InputV3,
                     CandidateSimulationN5InputV4,
                     CandidateSimulationN5InputV5,
                 }
-                else input_record.context_job_ref
-                != str(handoff.context_job_ref.artifact_id)
+                else input_record.context_job_ref != str(handoff.context_job_ref.artifact_id)
             )
             or input_record.profile_config_ref != handoff.profile_config_ref
             or input_record.profile.content_hash != handoff.profile.content_hash
         ):
             raise WorldModelRecordError("candidate_simulation_n5_job_binding_mismatch")
         problem_ref = cycle_job_design_problem_ref(problem)
-        if (
-            cycle_job_profile_selection_ref(problem)
-            != input_record.profile.profile_selection_ref
-        ):
-            raise WorldModelRecordError(
-                "candidate_simulation_n5_profile_selection_ref_mismatch"
-            )
+        if cycle_job_profile_selection_ref(problem) != input_record.profile.profile_selection_ref:
+            raise WorldModelRecordError("candidate_simulation_n5_profile_selection_ref_mismatch")
         context = revalidate_cycle_substrate_context(self._cycle_substrate_context)
         materialization = input_record.materialization
         if (
@@ -3590,13 +3645,13 @@ class JointSimulationPort:
             or (
                 artifact_ref_identity_key(materialization.context_job_ref)
                 != artifact_ref_identity_key(handoff.context_job_ref)
-                if type(input_record) in {
+                if type(input_record)
+                in {
                     CandidateSimulationN5InputV3,
                     CandidateSimulationN5InputV4,
                     CandidateSimulationN5InputV5,
                 }
-                else materialization.context_job_ref
-                != str(handoff.context_job_ref.artifact_id)
+                else materialization.context_job_ref != str(handoff.context_job_ref.artifact_id)
             )
             or materialization.problem_ref != problem_ref
         ):
@@ -3632,9 +3687,7 @@ class JointSimulationPort:
                 or source.candidate != candidate
                 or source.context_hash != context.content_hash
             ):
-                raise WorldModelRecordError(
-                    "candidate_simulation_n5_n4_source_membership_mismatch"
-                )
+                raise WorldModelRecordError("candidate_simulation_n5_n4_source_membership_mismatch")
         else:
             source = source_repository.load(input_record.n4_source_ref, run_id=input_record.run_id)
             if (
@@ -3647,9 +3700,7 @@ class JointSimulationPort:
                     for item in source.generation_result.candidates
                 )
             ):
-                raise WorldModelRecordError(
-                    "candidate_simulation_n5_n4_source_membership_mismatch"
-                )
+                raise WorldModelRecordError("candidate_simulation_n5_n4_source_membership_mismatch")
         if (
             context.intervention_substrate is None
             or input_record.profile.context_inputs.intervention_substrate is None
@@ -3701,9 +3752,7 @@ class JointSimulationPort:
                 or str(input_record.ncm_ref.artifact_id)
                 not in world_record.simulation_model_ref.ncm_refs
             ):
-                raise WorldModelRecordError(
-                    "candidate_simulation_n5_selected_ncm_binding_mismatch"
-                )
+                raise WorldModelRecordError("candidate_simulation_n5_selected_ncm_binding_mismatch")
             ncm_spec = self._resolve_joint_simulation_ncm(
                 problem=problem,
                 world_record=world_record,
@@ -3817,9 +3866,7 @@ class JointSimulationPort:
                 or not str(selected_ncm_ref.artifact_id).startswith("sha256:")
                 or str(selected_ncm_ref.artifact_id) not in refs
             ):
-                raise WorldModelRecordError(
-                    "joint_simulation_ncm_selected_ref_not_in_world_model"
-                )
+                raise WorldModelRecordError("joint_simulation_ncm_selected_ref_not_in_world_model")
             store = self._artifact_store
             if store is None:
                 raise WorldModelRecordError("joint_simulation_ncm_store_not_established")
@@ -3834,22 +3881,17 @@ class JointSimulationPort:
                 matching_views = tuple(
                     ref
                     for ref in views.ncm_refs
-                    if artifact_ref_identity_key(ref)
-                    == artifact_ref_identity_key(selected_ncm_ref)
+                    if artifact_ref_identity_key(ref) == artifact_ref_identity_key(selected_ncm_ref)
                 )
                 if len(matching_views) != 1:
-                    raise WorldModelRecordError(
-                        "joint_simulation_ncm_selected_view_not_wmr_bound"
-                    )
+                    raise WorldModelRecordError("joint_simulation_ncm_selected_view_not_wmr_bound")
             elif selected_ncm_ref.manifest_profile_sha256 is not None:
-                raise WorldModelRecordError(
-                    "joint_simulation_ncm_selected_ref_not_in_world_model"
-                )
+                raise WorldModelRecordError("joint_simulation_ncm_selected_ref_not_in_world_model")
             try:
                 from polisyos.ir.analytics.ncm import load_ncm_spec_selected_view
 
                 return load_ncm_spec_selected_view(
-                    store,
+                    _ensure_ir_artifact_store(store),
                     selected_ncm_ref,
                     expected_tenant_id=tenant_id,
                     expected_cell_id=cell_id,
@@ -3900,7 +3942,7 @@ class JointSimulationPort:
         if store is None:
             raise WorldModelRecordError("joint_simulation_ncm_store_not_established")
         try:
-            manifest = store.get_manifest(ref.artifact_id)
+            manifest = _ensure_ir_artifact_store(store).get_manifest(ref)
             manifest_schema = getattr(manifest, "artifact_schema", None)
             if (
                 str(getattr(manifest, "artifact_id", "")) != str(ref.artifact_id)
@@ -3910,7 +3952,7 @@ class JointSimulationPort:
                 or getattr(manifest_schema, "version", None) != "1.0"
             ):
                 raise ValueError("joint_simulation_ncm_selected_manifest_mismatch")
-            return load_ncm_spec(store, ref)
+            return load_ncm_spec(_ensure_ir_artifact_store(store), ref)
         except RuntimeDependencyError as exc:
             raise WorldModelRecordError("joint_simulation_ncm_store_unavailable", str(exc)) from exc
         except (OSError, TypeError, ValueError) as exc:
@@ -4410,14 +4452,13 @@ def simulation_evaluation_input_ref(
         if (
             result.schema_version != JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
             or result.receipt.payload_hash != simulation.simulation_ref
-            or not set(result.promotion_ready_value_packet.get("authority_blockers", ()))
-            .issubset(blockers)
+            or not set(result.promotion_ready_value_packet.get("authority_blockers", ())).issubset(
+                blockers
+            )
         ):
             return None
     content_hash = (
-        str(result_ref.artifact_id)
-        if result_ref is not None
-        else str(simulation.simulation_ref)
+        str(result_ref.artifact_id) if result_ref is not None else str(simulation.simulation_ref)
     )
     schema_ref = (
         f"{JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA}.v1"
@@ -4993,9 +5034,7 @@ def _validated_n8_candidate_simulation_blockers(
     if not isinstance(value_packet, Mapping):
         return None, "n8_persisted_value_packet_invalid"
     raw_blockers = value_packet.get("authority_blockers", ())
-    if not isinstance(raw_blockers, Sequence) or isinstance(
-        raw_blockers, str | bytes | bytearray
-    ):
+    if not isinstance(raw_blockers, Sequence) or isinstance(raw_blockers, str | bytes | bytearray):
         return None, "n8_persisted_blocker_set_invalid"
     blockers: set[str] = set()
     for blocker in raw_blockers:
@@ -5335,6 +5374,7 @@ class GenerationCycleController:
         capability_resolver: core_contracts.CapabilityResolverPort | None = None,
         repo_root: Path | None = None,
         model_id: str | None = None,
+        catalog_run_profile: CatalogRunProfile | None = None,
         cycle_substrate_context: CycleSubstrateContext | None = None,
         promotion_runtime: PromotionRuntime | None = None,
         artifact_store: ArtifactStore | None = None,
@@ -5394,7 +5434,8 @@ class GenerationCycleController:
 
             source = (
                 promotion_runtime.promotion_evidence_source
-                if promotion_runtime is not None else None
+                if promotion_runtime is not None
+                else None
             )
             promotion_port = CanonicalN9PromotionPort(
                 repo_root=repo_root,
@@ -5410,6 +5451,7 @@ class GenerationCycleController:
         self._promotion_port = promotion_port
         self._promotion_runtime = promotion_runtime
         self._authority_scope = authority_scope
+        self._catalog_run_profile = catalog_run_profile
         self._epoch_subject_authority = epoch_subject_authority or getattr(
             promotion_runtime, "epoch_subject_authority", None
         )
@@ -5439,9 +5481,7 @@ class GenerationCycleController:
         self._repo_root = repo_root
         self._cycle_substrate_context = cycle_substrate_context
         self._candidate_simulation_handoff = candidate_simulation_handoff
-        self._candidate_simulation_currentness_resolver = (
-            candidate_simulation_currentness_resolver
-        )
+        self._candidate_simulation_currentness_resolver = candidate_simulation_currentness_resolver
         if candidate_simulation_handoff is not None:
             if (
                 cycle_substrate_context is None
@@ -5575,9 +5615,17 @@ class GenerationCycleController:
         problem: DesignProblem,
     ) -> Mapping[str, Any]:
         runtime = self._promotion_runtime
-        context = dict(runtime.promotion_evidence_source.context_for(
-            candidate_summary=summary, problem=problem, store=runtime.store,
-        )) if runtime is not None else {}
+        context = (
+            dict(
+                runtime.promotion_evidence_source.context_for(
+                    candidate_summary=summary,
+                    problem=problem,
+                    store=runtime.store,
+                )
+            )
+            if runtime is not None
+            else {}
+        )
         if self._source_repository is None or self._source_run_id is None:
             return context
         source_summary = summary
@@ -5601,7 +5649,8 @@ class GenerationCycleController:
         context.update(resolution.context)
         if source_refs:
             context["producer_root_refs"] = (
-                *source_refs, *tuple(resolution.context.get("producer_root_refs", ())),
+                *source_refs,
+                *tuple(resolution.context.get("producer_root_refs", ())),
             )
         return context
 
@@ -5714,9 +5763,7 @@ class GenerationCycleController:
             cycles.append(cycle)
             summaries.extend(cycle_summaries)
             last_cycle_problem = current_problem
-            if n9_terminal_disposition(terminal_status) is (
-                N9TerminalDisposition.TERMINAL_BLOCKED
-            ):
+            if n9_terminal_disposition(terminal_status) is (N9TerminalDisposition.TERMINAL_BLOCKED):
                 break
             if cycle.voi_decision.next_action != "advance":
                 break
@@ -5750,9 +5797,7 @@ class GenerationCycleController:
         )
         promotion_summaries = _current_candidate_summaries(tuple(summaries))
         promotion_basis_ref = _cycle_basis_ref(cycles[-1]) if cycles else None
-        if n9_terminal_disposition(terminal_status) is (
-            N9TerminalDisposition.TERMINAL_BLOCKED
-        ):
+        if n9_terminal_disposition(terminal_status) is (N9TerminalDisposition.TERMINAL_BLOCKED):
             promotion = PromotionPortObservation(
                 status="not_promoted",
                 reason=(
@@ -5827,11 +5872,9 @@ class GenerationCycleController:
         )
         fronts = _derive_fronts(tuple(summaries))
         run = GenerationCycleRun(
-            schema_version=(
-                _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION
-                if self._source_custody_limitation is not None
-                else GENERATION_CYCLE_SCHEMA_VERSION
-            ),
+            # New emissions use the current typed projection even when some
+            # lineage bindings are nullable. v1-v4 remain frozen readers.
+            schema_version=GENERATION_CYCLE_SCHEMA_VERSION,
             run_id=run_id,
             design_problem_ref=design_problem_ref,
             terminal_denominator=_terminal_denominator(),
@@ -5989,8 +6032,7 @@ class GenerationCycleController:
             raise GenerationCycleError("acquisition_reentry_requirement_overlay_mismatch")
         if (
             observation_projection.receipt_ref != overlay_receipt.receipt_ref
-            or observation_projection.receipt_content_sha256
-            != overlay_receipt.receipt_content_hash
+            or observation_projection.receipt_content_sha256 != overlay_receipt.receipt_content_hash
             or observation_projection.epoch_id != overlay_receipt.epoch_id
             or observation_projection.passport_id != overlay_receipt.passport_id
             or observation_projection.admission_content_sha256
@@ -6060,9 +6102,7 @@ class GenerationCycleController:
         )
         if selected_source_payload is not None:
             if not isinstance(selected_source_payload, Mapping):
-                raise GenerationCycleError(
-                    "acquisition_reentry_n4_source_selected_ref_invalid"
-                )
+                raise GenerationCycleError("acquisition_reentry_n4_source_selected_ref_invalid")
             try:
                 origin_source_ref = CASArtifactRef.model_validate(selected_source_payload)
             except (TypeError, ValueError) as exc:
@@ -6070,9 +6110,7 @@ class GenerationCycleController:
                     "acquisition_reentry_n4_source_selected_ref_invalid"
                 ) from exc
         elif source_diagnostics.get("candidate_simulation_n4_source_ref") is not None:
-            raise GenerationCycleError(
-                "acquisition_reentry_n4_source_selected_ref_missing"
-            )
+            raise GenerationCycleError("acquisition_reentry_n4_source_selected_ref_missing")
         reentry_value_port = _DefaultSimulationBoundFoundryValuePort(
             repo_root=self._repo_root,
             artifact_store=self._artifact_store,
@@ -6163,9 +6201,7 @@ class GenerationCycleController:
                 reason="epoch_validity_refused:production_promotion_port_not_canonical",
             )
         if canonical_n9_port:
-            identity_refusal = self._promotion_port.deployment_identity_refusal(
-                deployment_identity
-            )
+            identity_refusal = self._promotion_port.deployment_identity_refusal(deployment_identity)
             if identity_refusal is not None:
                 return PromotionPortObservation(
                     status="not_promoted",
@@ -6637,10 +6673,9 @@ class GenerationCycleController:
         return RealAcquisitionOwnerGateway(
             repo_root=self._repo_root or Path.cwd(),
             artifact_store=(
-                self._promotion_runtime.store
-                if self._promotion_runtime is not None
-                else None
+                self._promotion_runtime.store if self._promotion_runtime is not None else None
             ),
+            catalog_run_profile=self._catalog_run_profile,
         )
 
     def _validate_n7_acq01_measurement_root_custody(
@@ -6685,10 +6720,8 @@ class GenerationCycleController:
             ):
                 raise ValueError("measurement root envelope identity mismatch")
 
-            payload_raw = store.get_bytes(measurement_payload_ref.artifact_id)
-            payload = FabricMeasurementRootPayload.model_validate(
-                from_canonical_bytes(payload_raw)
-            )
+            payload_raw = store.get_bytes(measurement_payload_ref)
+            payload = FabricMeasurementRootPayload.model_validate(from_canonical_bytes(payload_raw))
             if payload.design_problem.model_dump(mode="json") != problem.model_dump(mode="json"):
                 raise ValueError("measurement root design problem is not the active problem")
             from polisyos.data_requirement import DataRequirementSpec
@@ -6720,10 +6753,7 @@ class GenerationCycleController:
                 raise ValueError("measurement root envelope projection mismatch")
 
             measurement_producer = artifacts.ProducerInfo(
-                component=(
-                    "polisyos.runtime.quality.data_forge_binding."
-                    "MeasurementRootProducer"
-                ),
+                component=("polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer"),
                 version="2.0.0",
             )
             measurement_schema = artifacts.SchemaInfo(
@@ -6749,7 +6779,7 @@ class GenerationCycleController:
             )
             if validated_payload_raw != payload_raw:
                 raise ValueError("measurement root payload readback changed")
-            measurement_manifest = store.get_manifest(measurement_payload_ref.artifact_id)
+            measurement_manifest = store.get_manifest(measurement_payload_ref)
             authority = measurement_manifest.authority
             closure = measurement_manifest.same_input_closure
             if (
@@ -6767,10 +6797,8 @@ class GenerationCycleController:
                 or closure.evidence_input_refs != (str(payload.fetch_receipt_ref.artifact_id),)
                 or authority is None
                 or authority.payload_sha256 != measurement_payload_ref.artifact_id.hex
-                or authority.manifest_ref
-                != f"cas-manifest://{measurement_payload_ref.artifact_id}"
-                or measurement_manifest.integrity.sha256
-                != measurement_payload_ref.artifact_id.hex
+                or authority.manifest_ref != f"cas-manifest://{measurement_payload_ref.artifact_id}"
+                or measurement_manifest.integrity.sha256 != measurement_payload_ref.artifact_id.hex
                 or measurement_manifest.integrity.optional is not None
                 or measurement_manifest.warnings != []
             ):
@@ -6786,10 +6814,12 @@ class GenerationCycleController:
                 SameInputClosure,
             )
 
+            authority_envelope_ref = artifacts.resolve_authority_envelope_ref(store, authority)
+            if not store.verify(authority_envelope_ref).ok:
+                raise ValueError("measurement_root_authority_envelope_integrity_invalid")
+            store.get_manifest(authority_envelope_ref)
             emitted_authority = EvidenceAuthorityEnvelope.model_validate(
-                from_canonical_bytes(
-                    store.get_bytes(artifacts.ArtifactID(authority.authority_envelope_ref))
-                )
+                from_canonical_bytes(store.get_bytes(authority_envelope_ref))
             )
             opts, identity = _measurement_root_authority_configuration(
                 payload.model_dump(mode="json"),
@@ -6878,14 +6908,13 @@ class GenerationCycleController:
 
             from polisyos.core.contracts import DataSnapshot
 
-            snapshot_raw = store.get_bytes(data_snapshot_ref.artifact_id)
+            snapshot_raw = store.get_bytes(data_snapshot_ref)
             snapshot = DataSnapshot.model_validate(from_canonical_bytes(snapshot_raw))
-            if (
-                snapshot.data_ref != payload.payload_ref
-                or snapshot.stats.get("snapshot_id") != str(payload.payload_ref.artifact_id)
+            if snapshot.data_ref != payload.payload_ref or snapshot.stats.get("snapshot_id") != str(
+                payload.payload_ref.artifact_id
             ):
                 raise ValueError("DataSnapshot bytes are not bound to fetched payload")
-            snapshot_manifest = store.get_manifest(data_snapshot_ref.artifact_id)
+            snapshot_manifest = store.get_manifest(data_snapshot_ref)
             expected_snapshot_inputs = [
                 artifacts.InputRef(
                     artifact_id=payload.payload_ref.artifact_id,
@@ -6905,7 +6934,7 @@ class GenerationCycleController:
                 ),
             ]
             if (
-                not store.verify(data_snapshot_ref.artifact_id).ok
+                not store.verify(data_snapshot_ref).ok
                 or snapshot_manifest.kind != "fabric.data_snapshot"
                 or snapshot_manifest.media_type != "application/json"
                 or snapshot_manifest.artifact_schema
@@ -7068,9 +7097,7 @@ class GenerationCycleController:
             ):
                 raise ValueError("substrate registry version/content binding invalid")
 
-            before_entries = {
-                entry.registry_key: entry for entry in baseline_registry.entries
-            }
+            before_entries = {entry.registry_key: entry for entry in baseline_registry.entries}
             after_entries = {entry.registry_key: entry for entry in registry.entries}
             expected_entry = build_substrate_registry_entry(registration)
             added_keys = set(after_entries) - set(before_entries)
@@ -7084,8 +7111,7 @@ class GenerationCycleController:
                 or changed_keys
                 or set(before_entries) - set(after_entries)
                 or after_entries.get(expected_entry.registry_key) != expected_entry
-                or tuple(acquisition_receipt.grown_world_added_slots)
-                != (registration.family_id,)
+                or tuple(acquisition_receipt.grown_world_added_slots) != (registration.family_id,)
                 or tuple(acquisition_receipt.affected_region.source_slots)
                 != (registration.family_id,)
                 or tuple(acquisition_receipt.affected_region.neighborhood_slots)
@@ -7093,9 +7119,7 @@ class GenerationCycleController:
                 or outcome.family_id != registration.family_id
                 or not any(
                     candidate_id
-                    in acquisition_receipt.affected_region.dependency_index.get(
-                        source_slot, ()
-                    )
+                    in acquisition_receipt.affected_region.dependency_index.get(source_slot, ())
                     for source_slot in acquisition_receipt.affected_region.source_slots
                 )
             ):
@@ -7122,13 +7146,12 @@ class GenerationCycleController:
                 or entry.source_snapshot_id != registration.source_snapshot_id
                 or not any(ref == f"cas://{root_payload_ref}" for ref in entry.provenance_refs)
                 or not all(
-                    ref in registry.source_catalog_refs
-                    for ref in registration.authority_refs
+                    ref in registry.source_catalog_refs for ref in registration.authority_refs
                 )
             ):
                 raise ValueError("registry MeasurementRoot lineage is not bound")
 
-            registry_manifest = store.get_manifest(registry_ref.artifact_id)
+            registry_manifest = store.get_manifest(registry_ref)
             expected_registry_inputs = [
                 artifacts.InputRef(
                     artifact_id=artifacts.ArtifactID(root_payload_ref),
@@ -7141,9 +7164,7 @@ class GenerationCycleController:
             from polisyos.runtime.quality.data_forge_binding import FabricMeasurementRootPayload
 
             root_payload_obj = FabricMeasurementRootPayload.model_validate(
-                from_canonical_bytes(
-                    store.get_bytes(artifacts.ArtifactID(root_payload_ref))
-                )
+                from_canonical_bytes(store.get_bytes(artifacts.ArtifactID(root_payload_ref)))
             )
             expected_registry_inputs.extend(
                 [
@@ -7263,7 +7284,7 @@ class GenerationCycleController:
                 ref = CASArtifactRef.model_validate(raw)
                 if ref.kind != expected_kind or ref.media_type != "application/json":
                     raise ValueError("unexpected artifact kind or media type")
-                manifest = store.get_manifest(ref.artifact_id)
+                manifest = store.get_manifest(ref)
                 if (
                     manifest.artifact_id != ref.artifact_id
                     or manifest.kind != ref.kind
@@ -7394,9 +7415,7 @@ class GenerationCycleController:
         if not Path(binding_path).is_file():
             raise GenerationCycleError("n7_acq01_route_binding_path_unresolved")
         try:
-            fabric_world_ref = FabricWorldRef.model_validate(
-                build_inputs.get("fabric_world_ref")
-            )
+            fabric_world_ref = FabricWorldRef.model_validate(build_inputs.get("fabric_world_ref"))
             model_spec = ModelSpec.model_validate(build_inputs.get("model_spec"))
             skg_causal_prior_ref = SkgCausalPriorRef.model_validate(
                 build_inputs.get("skg_causal_prior_ref")
@@ -7455,9 +7474,8 @@ class GenerationCycleController:
                 str(exc),
             ) from exc
 
-        if (
-            baseline_registry.model_dump(mode="json")
-            != prior_context.substrate_registry.model_dump(mode="json")
+        if baseline_registry.model_dump(mode="json") != prior_context.substrate_registry.model_dump(
+            mode="json"
         ):
             raise GenerationCycleError("n7_acq01_baseline_registry_mismatch")
 
@@ -7571,9 +7589,7 @@ class GenerationCycleController:
             evidence_refs=rederived.evidence_refs,
             current_valid=rederived.status == "current_valid",
             report_ref=rederived.report_ref,
-            grounding_source=(
-                "grounding_unavailable" if grounding_unavailable else "cgf_firewall"
-            ),
+            grounding_source=("grounding_unavailable" if grounding_unavailable else "cgf_firewall"),
             grounding_disposition=None if grounding_unavailable else "shadow_bound",
             cgf_certificate_refs=() if grounding_unavailable else rederived.evidence_refs,
         )
@@ -7608,9 +7624,7 @@ class GenerationCycleController:
         if rebuilt_context is not None:
             self._bind_n7_cycle_substrate_context(rebuilt_context)
             rebound_world_ref = rebuilt_context.world_model_record.world_model_record_id
-        rebound_atom = prior_atom.model_copy(
-            update={"world_model_record_ref": rebound_world_ref}
-        )
+        rebound_atom = prior_atom.model_copy(update={"world_model_record_ref": rebound_world_ref})
         rebound_atom = rebound_atom.model_copy(
             update={
                 "atom_id": (
@@ -7753,19 +7767,15 @@ class GenerationCycleController:
                     candidate = candidate.model_copy(
                         update={
                             "candidate_id": (
-                                "candidate_"
-                                + semantic_identity_hash.removeprefix("sha256:")[:16]
+                                "candidate_" + semantic_identity_hash.removeprefix("sha256:")[:16]
                             )
                         }
                     )
-                    candidate = type(candidate).model_validate(
-                        candidate.model_dump(mode="python")
-                    )
+                    candidate = type(candidate).model_validate(candidate.model_dump(mode="python"))
             except (OSError, RuntimeError, TypeError, ValueError) as exc:
                 candidate = None
                 error_code = str(
-                    getattr(exc, "code", None)
-                    or "candidate_scenario_proposal_atom_not_established"
+                    getattr(exc, "code", None) or "candidate_scenario_proposal_atom_not_established"
                 )
                 self._source_issues.append(error_code)
                 candidate_issue = "candidate_scenario_proposal_atom_not_established"
@@ -7778,9 +7788,7 @@ class GenerationCycleController:
         origin_source_ref_for_v3: CASArtifactRef | None = None
         if candidate is not None and origin_source_ref is not None:
             if repository is None:
-                raise GenerationCycleError(
-                    "n4_candidate_scenario_origin_repository_unavailable"
-                )
+                raise GenerationCycleError("n4_candidate_scenario_origin_repository_unavailable")
             prior_source = repository.load_candidate_scenario_source_for_n5(
                 origin_source_ref,
                 expected_run_id=handoff.run_id,
@@ -7799,12 +7807,9 @@ class GenerationCycleController:
                     prior_source.stable_subject_ref == stable_subject_ref
                     and prior_semantic_hash == semantic_identity_hash
                     and prior_source.candidate.candidate_id == candidate.candidate_id
-                    and prior_source.profile_selection_ref
-                    == handoff.profile.profile_selection_ref
+                    and prior_source.profile_selection_ref == handoff.profile.profile_selection_ref
                 ):
-                    origin_source_ref_for_v3 = (
-                        prior_source.origin_source_ref or origin_source_ref
-                    )
+                    origin_source_ref_for_v3 = prior_source.origin_source_ref or origin_source_ref
         if repository is not None and self._source_run_id is not None:
             try:
                 source_record_v1 = repository.create_candidate_scenario_source_v1(
@@ -7816,22 +7821,16 @@ class GenerationCycleController:
                     tenant_id=handoff.tenant_id,
                     cell_id=handoff.cell_id,
                     design_problem_ref=proposal_run.proposal.design_problem_ref,
-                    cycle_problem_ref=(
-                        cycle_job_design_problem_ref(problem)
-                    ),
+                    cycle_problem_ref=(cycle_job_design_problem_ref(problem)),
                     problem=problem,
                     proposal=proposal_run.proposal,
                     candidate=candidate,
                     profile=handoff.profile,
                     profile_config_ref=handoff.profile_config_ref,
-                    candidate_limitation_code=(
-                        candidate_issue if candidate is None else None
-                    ),
+                    candidate_limitation_code=(candidate_issue if candidate is None else None),
                     context_job_ref=handoff.context_job_ref,
                     context_hash=handoff.context.content_hash,
-                    world_model_record_hash=(
-                        handoff.context.world_model_record.content_hash
-                    ),
+                    world_model_record_hash=(handoff.context.world_model_record.content_hash),
                     k_ref_limitation_code=proposal_run.k_ref_limitation_code,
                     l2_confidence_vintage=proposal_run.l2_confidence_vintage,
                     credal_reference_payload=None,
@@ -7869,10 +7868,8 @@ class GenerationCycleController:
                             source_record=source_record_v2
                         )
                     else:
-                        source_record_v2_ref = (
-                            repository.persist_candidate_scenario_source_v2(
-                                source_record=source_record_v2
-                            )
+                        source_record_v2_ref = repository.persist_candidate_scenario_source_v2(
+                            source_record=source_record_v2
                         )
                         source_record_v3 = repository.create_candidate_scenario_source_v3(
                             source_record=source_record_v2,
@@ -7893,13 +7890,9 @@ class GenerationCycleController:
                         or "candidate_scenario_source_persistence_refused"
                     )
                 )
-                source_persistence_limiter = (
-                    "candidate_scenario_source_persistence_not_established"
-                )
+                source_persistence_limiter = "candidate_scenario_source_persistence_not_established"
         else:
-            source_persistence_limiter = (
-                "candidate_scenario_source_persistence_not_established"
-            )
+            source_persistence_limiter = "candidate_scenario_source_persistence_not_established"
 
         return _N4CandidateScenarioGenerationResult(
             status=(
@@ -7907,16 +7900,11 @@ class GenerationCycleController:
                 if candidate is not None and source_ref is not None
                 else "candidate_proposal_only"
             ),
-            candidates=(
-                (candidate,)
-                if candidate is not None and source_ref is not None
-                else ()
-            ),
+            candidates=((candidate,) if candidate is not None and source_ref is not None else ()),
             proposal_run=proposal_run,
             source_ref=source_ref,
             candidate_limitation_code=(
-                source_persistence_limiter
-                or (candidate_issue if candidate is None else None)
+                source_persistence_limiter or (candidate_issue if candidate is None else None)
             ),
         )
 
@@ -8113,10 +8101,7 @@ class GenerationCycleController:
             and schedule.recommended_action == "reject"
             and schedule.reason == "roi_below_threshold"
         )
-        if (
-            schedule.recommended_action != "advance"
-            and not configured_candidate_roi_reject
-        ):
+        if schedule.recommended_action != "advance" and not configured_candidate_roi_reject:
             reason = schedule.reason
             simulation = SimulationPortObservation(
                 candidate_id=candidate_id,
@@ -8271,9 +8256,7 @@ class GenerationCycleController:
             if source.trinity_bundle is None:
                 raise ValueError("candidate_simulation_trinity_source_missing")
             candidate_sources = tuple(
-                item
-                for item in source.candidate_sources
-                if item.candidate_id == candidate_id
+                item for item in source.candidate_sources if item.candidate_id == candidate_id
             )
             if len(candidate_sources) != 1:
                 raise ValueError("candidate_simulation_n4_candidate_source_ambiguous")
@@ -8288,13 +8271,11 @@ class GenerationCycleController:
             context_bundle = handoff.context.intervention_substrate
             if context_bundle is None:
                 raise ValueError("candidate_simulation_l6_bundle_missing")
-            linked_intervention, _selected_policy_spec_ref = (
-                _link_candidate_scenario_intervention(
-                    source.trinity_bundle,
-                    intervention_id=source_item.intervention_id,
-                    repo_root=self._repo_root,
-                    substrate_bundle=context_bundle,
-                )
+            linked_intervention, _selected_policy_spec_ref = _link_candidate_scenario_intervention(
+                source.trinity_bundle,
+                intervention_id=source_item.intervention_id,
+                repo_root=self._repo_root,
+                substrate_bundle=context_bundle,
             )
             intervention = interventions[0]
             context_job_id = str(handoff.context_job_ref.artifact_id)
@@ -8318,9 +8299,7 @@ class GenerationCycleController:
             materialization_payload = materialization_v1.model_dump(mode="python")
             materialization_payload.update(
                 {
-                    "schema_version": (
-                        "policyos.runtime.candidate_scenario.materialization.v2"
-                    ),
+                    "schema_version": ("policyos.runtime.candidate_scenario.materialization.v2"),
                     "context_job_ref": handoff.context_job_ref,
                     "source_handoff_ref": source_ref,
                 }
@@ -8369,9 +8348,7 @@ class GenerationCycleController:
                     "content_hash": gy_content_hash(hash_payload),
                 }
             )
-            input_ref = repository.persist_candidate_simulation_input_v3(
-                input_record=input_record
-            )
+            input_ref = repository.persist_candidate_simulation_input_v3(input_record=input_record)
             currentness_resolver = self._candidate_simulation_currentness_resolver
             if currentness_resolver is None or currentness_resolver() is not True:
                 raise ValueError("candidate_simulation_worker_lease_not_current")
@@ -8385,9 +8362,23 @@ class GenerationCycleController:
                 candidate_simulation_input_ref=input_ref,
                 candidate_simulation_currentness_resolver=currentness_resolver,
             )
+            candidate_binding_projection = (
+                {
+                    "candidate_simulation_n4_source_ref": source_ref,
+                    "candidate_simulation_context_job_ref": handoff.context_job_ref,
+                    "candidate_simulation_n5_input_ref": input_ref,
+                    "candidate_simulation_profile_config_ref": profile_ref,
+                    "candidate_simulation_profile_selection_ref": (
+                        handoff.profile.profile_selection_ref
+                    ),
+                }
+                if isinstance(source_ref, CASArtifactRef)
+                else {}
+            )
             if simulation.status != "joint_simulated":
                 return simulation.model_copy(
                     update={
+                        **candidate_binding_projection,
                         "diagnostics": {
                             **simulation.diagnostics,
                             "candidate_simulation_n5_input_ref": str(input_ref.artifact_id),
@@ -8400,7 +8391,7 @@ class GenerationCycleController:
                             ),
                             "candidate_simulation_profile_ref": profile_ref,
                             "candidate_simulation_purpose": "candidate_scenario_n5_only",
-                        }
+                        },
                     }
                 )
             execution_ref = repository.persist_candidate_simulation_execution_v3(
@@ -8410,6 +8401,7 @@ class GenerationCycleController:
             )
             return simulation.model_copy(
                 update={
+                    **candidate_binding_projection,
                     "diagnostics": {
                         **simulation.diagnostics,
                         "candidate_simulation_n5_input_ref": str(input_ref.artifact_id),
@@ -8426,7 +8418,7 @@ class GenerationCycleController:
                         ),
                         "candidate_simulation_profile_ref": profile_ref,
                         "candidate_simulation_purpose": "candidate_scenario_n5_only",
-                    }
+                    },
                 }
             )
         except (OSError, RuntimeError, TypeError, ValueError) as exc:
@@ -8526,8 +8518,7 @@ class GenerationCycleController:
                 or (
                     source_v2 is not None
                     and (
-                        source_v2.model_declaration_ref
-                        != handoff.model_declaration_ref
+                        source_v2.model_declaration_ref != handoff.model_declaration_ref
                         or source_v2.ncm_ref != handoff.ncm_ref
                         or source_v2.model_declaration != handoff.model_declaration
                     )
@@ -8548,18 +8539,14 @@ class GenerationCycleController:
             l6_bundle = handoff.context.intervention_substrate
             if l6_bundle is None:
                 raise ValueError("candidate_simulation_l6_bundle_missing")
-            linked_intervention, selected_policy_spec_ref = (
-                _link_candidate_scenario_intervention(
-                    source_v1.proposal.trinity_bundle,
-                    intervention_id=candidate.intervention_id,
-                    repo_root=self._repo_root,
-                    substrate_bundle=l6_bundle,
-                )
+            linked_intervention, selected_policy_spec_ref = _link_candidate_scenario_intervention(
+                source_v1.proposal.trinity_bundle,
+                intervention_id=candidate.intervention_id,
+                repo_root=self._repo_root,
+                substrate_bundle=l6_bundle,
             )
             full_policy_spec_ref = gy_content_hash(
-                source_v1.proposal.trinity_bundle.policy_spec.model_dump(
-                    mode="json"
-                )
+                source_v1.proposal.trinity_bundle.policy_spec.model_dump(mode="json")
             )
             # Historical V1 atoms bind the complete source PolicySpec. The N4
             # candidate writer now binds the selected projection. Recompute
@@ -8674,18 +8661,30 @@ class GenerationCycleController:
                 candidate_simulation_input_ref=input_ref,
                 candidate_simulation_currentness_resolver=currentness_resolver,
             )
+            candidate_binding_projection = (
+                {
+                    "candidate_simulation_n4_source_ref": source_ref,
+                    "candidate_simulation_context_job_ref": handoff.context_job_ref,
+                    "candidate_simulation_n5_input_ref": input_ref,
+                    "candidate_simulation_profile_config_ref": profile_ref,
+                    "candidate_simulation_profile_selection_ref": (
+                        handoff.profile.profile_selection_ref
+                    ),
+                }
+                if isinstance(source_ref, CASArtifactRef)
+                else {}
+            )
             if simulation.status != "joint_simulated":
                 return simulation.model_copy(
                     update={
+                        **candidate_binding_projection,
                         "diagnostics": {
                             **simulation.diagnostics,
                             "candidate_simulation_n5_input_ref": str(input_ref.artifact_id),
                             "candidate_simulation_n5_input_selected_ref": (
                                 input_ref.model_dump(mode="json")
                             ),
-                            "candidate_simulation_n4_source_ref": str(
-                                source_ref.artifact_id
-                            ),
+                            "candidate_simulation_n4_source_ref": str(source_ref.artifact_id),
                             "candidate_simulation_n4_source_selected_ref": (
                                 source_ref.model_dump(mode="json")
                             ),
@@ -8694,7 +8693,7 @@ class GenerationCycleController:
                             ),
                             "candidate_simulation_profile_ref": profile_ref,
                             "candidate_simulation_purpose": "candidate_scenario_n5_only",
-                        }
+                        },
                     }
                 )
             execution_persist = (
@@ -8709,15 +8708,14 @@ class GenerationCycleController:
             )
             return simulation.model_copy(
                 update={
+                    **candidate_binding_projection,
                     "diagnostics": {
                         **simulation.diagnostics,
                         "candidate_simulation_n5_input_ref": str(input_ref.artifact_id),
                         "candidate_simulation_n5_input_selected_ref": (
                             input_ref.model_dump(mode="json")
                         ),
-                        "candidate_simulation_execution_ref": str(
-                            execution_ref.artifact_id
-                        ),
+                        "candidate_simulation_execution_ref": str(execution_ref.artifact_id),
                         "candidate_simulation_execution_selected_ref": (
                             execution_ref.model_dump(mode="json")
                         ),
@@ -8730,14 +8728,11 @@ class GenerationCycleController:
                         ),
                         "candidate_simulation_profile_ref": profile_ref,
                         "candidate_simulation_purpose": "candidate_scenario_n5_only",
-                    }
+                    },
                 }
             )
         except (OSError, RuntimeError, TypeError, ValueError) as exc:
-            code = str(
-                getattr(exc, "code", None)
-                or "candidate_simulation_n5_admission_failed"
-            )
+            code = str(getattr(exc, "code", None) or "candidate_simulation_n5_admission_failed")
             refusal = self._candidate_scenario_refusal(
                 candidate_id=candidate_id,
                 code=code,
@@ -8749,9 +8744,7 @@ class GenerationCycleController:
                         **refusal.diagnostics,
                         **(
                             {
-                                "candidate_simulation_n4_source_ref": str(
-                                    source_ref.artifact_id
-                                ),
+                                "candidate_simulation_n4_source_ref": str(source_ref.artifact_id),
                                 "candidate_simulation_n4_source_selected_ref": (
                                     source_ref.model_dump(mode="json")
                                 ),
@@ -9026,9 +9019,7 @@ def currentness_for_generation_cycle_run(
 
     try:
         parsed = (
-            run
-            if isinstance(run, GenerationCycleRun)
-            else GenerationCycleRun.model_validate(run)
+            run if isinstance(run, GenerationCycleRun) else GenerationCycleRun.model_validate(run)
         )
     except ValueError:
         return observe_n6_deployment_currentness(
@@ -9071,9 +9062,7 @@ def validate_generation_cycle_run_history(
         )
     if replayed_projection_bytes != persisted_projection_bytes:
         return ({"code": "generation_cycle_historical_projection_mismatch"},)
-    return _validate_generation_cycle_run(
-        parsed, require_currentness=False
-    )
+    return _validate_generation_cycle_run(parsed, require_currentness=False)
 
 
 def _validate_generation_cycle_run_with_current_source_receipt(
@@ -9122,15 +9111,11 @@ def _validate_generation_cycle_run(
             )
         if current_strangle_receipt is not None:
             try:
-                run.strangle_receipt._verify_against_current_receipt(
-                    current_strangle_receipt
-                )
+                run.strangle_receipt._verify_against_current_receipt(current_strangle_receipt)
             except GenerationCycleError as exc:
                 if exc.code == "generation_cycle_strangle_receipt_not_strangled":
                     if current_strangle_receipt.status == "drift":
-                        issues.append(
-                            {"code": "single_pass_fixture_survives_as_production_cycle"}
-                        )
+                        issues.append({"code": "single_pass_fixture_survives_as_production_cycle"})
                     else:
                         issues.append(
                             {
@@ -9155,9 +9140,7 @@ def _validate_generation_cycle_run(
                     "code": "strangle_receipt_currentness_not_established",
                     "reason": observation.reason_code,
                     "census_verdict": observation.census_verdict,
-                    "unresolved_by_construction": (
-                        observation.unresolved_by_construction
-                    ),
+                    "unresolved_by_construction": (observation.unresolved_by_construction),
                 }
             )
     if run.engine_owner_ref != ENGINE_SIMPLE_OWNER_REF:
@@ -9191,9 +9174,7 @@ def _validate_generation_cycle_run(
             ):
                 issues.append({"code": "voi_blocked_action_run_terminal_mismatch"})
 
-        if n9_terminal_disposition(run.terminal_status) is (
-            N9TerminalDisposition.TERMINAL_BLOCKED
-        ):
+        if n9_terminal_disposition(run.terminal_status) is (N9TerminalDisposition.TERMINAL_BLOCKED):
             if not run.blocked_reason:
                 issues.append({"code": "generation_cycle_blocked_reason_missing"})
             elif run.cycles:
@@ -9202,13 +9183,9 @@ def _validate_generation_cycle_run(
                     final_cycle.refinement_decision.decision != "block_candidate"
                     or final_cycle.search_iteration.status != "blocked_no_retry"
                 ):
-                    issues.append(
-                        {"code": "generation_cycle_blocked_terminal_projection_mismatch"}
-                    )
+                    issues.append({"code": "generation_cycle_blocked_terminal_projection_mismatch"})
                 if final_cycle.refinement_decision.reason != run.blocked_reason:
-                    issues.append(
-                        {"code": "generation_cycle_blocked_reason_projection_mismatch"}
-                    )
+                    issues.append({"code": "generation_cycle_blocked_reason_projection_mismatch"})
                 voi_reason = (
                     final_cycle.voi_decision.reason
                     if final_cycle.voi_decision.next_action == "blocked"
@@ -9334,8 +9311,7 @@ def _validate_generation_cycle_run(
         if cycle.voi_decision.next_action in {"stop", "escalate"} and index < len(run.cycles) - 1:
             issues.append({"code": "voi_scheduler_ignored_fixed_cycle_count"})
     if (
-        n9_terminal_disposition(run.terminal_status)
-        is N9TerminalDisposition.ELIGIBLE_TO_CONTINUE
+        n9_terminal_disposition(run.terminal_status) is N9TerminalDisposition.ELIGIBLE_TO_CONTINUE
         and run.cycles
         and run.cycles[-1].voi_decision.next_action == "advance"
     ):
@@ -9432,9 +9408,7 @@ def generation_cycle_terminal_state(run: GenerationCycleRun) -> SearchTerminalSt
             reason="The N6 VOI action is blocked but its enclosing run is not.",
             blocking_obligations=["voi_blocked_action_run_terminal_mismatch"],
         )
-    if n9_terminal_disposition(run.terminal_status) is (
-        N9TerminalDisposition.TERMINAL_BLOCKED
-    ):
+    if n9_terminal_disposition(run.terminal_status) is (N9TerminalDisposition.TERMINAL_BLOCKED):
         reason = run.blocked_reason or "generation_cycle_blocked"
         if reason == "voi_safety_cap_reached_without_scheduler_stop":
             return SearchTerminalState(
@@ -9763,9 +9737,7 @@ def _n7_rederived_grounding_for_candidate(
     )
     if not prior_target_world_slots:
         raise GenerationCycleError("n7_reentry_candidate_target_world_slots_missing")
-    rederived_source_slots = tuple(
-        str(item) for item in row.source_slots if _optional_text(item)
-    )
+    rederived_source_slots = tuple(str(item) for item in row.source_slots if _optional_text(item))
     affected_source_slots = tuple(receipt.affected_region.source_slots)
     if rederived_source_slots != affected_source_slots:
         raise GenerationCycleError("n7_reentry_candidate_source_slots_mismatch")
@@ -9795,11 +9767,7 @@ def _n7_rederived_grounding_for_candidate(
                 binding_slot_sets.append(())
                 continue
             binding_slot_sets.append(
-                tuple(
-                    slot.strip()
-                    for slot in raw_slots
-                    if isinstance(slot, str) and slot.strip()
-                )
+                tuple(slot.strip() for slot in raw_slots if isinstance(slot, str) and slot.strip())
             )
     if candidate_content_hash is None:
         raise GenerationCycleError("n7_reentry_candidate_binding_mismatch")
@@ -9840,9 +9808,7 @@ def _n7_reentered_summaries(
             "low_grounding": low_grounding,
             "quarantine_action": grounding.quarantine_action,
             "adversarial_validation_status": (
-                "not_required"
-                if front != "quarantine"
-                else summary.adversarial_validation_status
+                "not_required" if front != "quarantine" else summary.adversarial_validation_status
             ),
         }
         if candidate_content_hash is not None:
@@ -9903,9 +9869,7 @@ def _load_value_data_profile_from_l1_dcat(
     selected_wdi_observation_ids: tuple[str, ...] = ()
     registered_measurement_units_by_id: dict[str, str] = {}
     if activated_observation_projection is not None:
-        projection_type = (
-            data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
-        )
+        projection_type = data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
         try:
             observation_projection = projection_type.model_validate(
                 activated_observation_projection.model_dump(mode="json")
@@ -9914,9 +9878,7 @@ def _load_value_data_profile_from_l1_dcat(
             raise ValueOwnerAccessError(
                 "acquire_data:active_observation_projection_invalid",
                 f"Data Forge active observation projection failed content validation: {exc}",
-                owner_access_ref=(
-                    f"{owner_access_ref}#activated-observation-projection"
-                ),
+                owner_access_ref=(f"{owner_access_ref}#activated-observation-projection"),
             ) from exc
         if artifact_store is None:
             raise ValueOwnerAccessError(
@@ -9933,9 +9895,7 @@ def _load_value_data_profile_from_l1_dcat(
             from polisyos.fabric.data_plane import content_sha256
             from polisyos.runtime.quality import acquisition_executor
 
-            passport = acquisition_executor.AdmissionPassport.model_validate(
-                passport_payload
-            )
+            passport = acquisition_executor.AdmissionPassport.model_validate(passport_payload)
             passport_content_hash = content_sha256(passport_payload)
         except Exception as exc:
             raise ValueOwnerAccessError(
@@ -9960,9 +9920,7 @@ def _load_value_data_profile_from_l1_dcat(
             raise ValueOwnerAccessError(
                 "acquire_data:active_observation_projection_binding_mismatch",
                 "Data Forge active projection does not bind the verified passport and N8 outcome",
-                owner_access_ref=(
-                    f"{owner_access_ref}#activated-observation-projection"
-                ),
+                owner_access_ref=(f"{owner_access_ref}#activated-observation-projection"),
             )
         registered_dataset_id = passport.registration.catalog_dataset_id
         registered_canonical_unit = _optional_text(
@@ -9975,9 +9933,7 @@ def _load_value_data_profile_from_l1_dcat(
             raise ValueOwnerAccessError(
                 "acquire_data:active_observation_projection_registration_mismatch",
                 "Data Forge active rows differ from their passport registration dataset",
-                owner_access_ref=(
-                    f"{owner_access_ref}#activated-observation-projection"
-                ),
+                owner_access_ref=(f"{owner_access_ref}#activated-observation-projection"),
             )
         if normalized_scope_region:
             from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
@@ -9991,9 +9947,7 @@ def _load_value_data_profile_from_l1_dcat(
                 raise ValueOwnerAccessError(
                     "acquire_data:active_observation_country_scheme_not_established",
                     f"The registered WDI source code for this scope is unresolved: {exc}",
-                    owner_access_ref=(
-                        f"{owner_access_ref}#activated-observation-projection"
-                    ),
+                    owner_access_ref=(f"{owner_access_ref}#activated-observation-projection"),
                 ) from exc
             selected_ids: list[str] = []
             for row in observation_projection.observations:
@@ -10003,38 +9957,29 @@ def _load_value_data_profile_from_l1_dcat(
                 if normalize_country_code(observation.country_code) != normalized_scope_region:
                     continue
                 live_source = passport.live_source_execution
-                live_authorization = (
-                    live_source.authorization if live_source is not None else None
-                )
+                live_authorization = live_source.authorization if live_source is not None else None
                 if (
                     passport.registration.connector_id != "worldbank.wdi"
                     or passport.source_lane != "live_fetch"
                     or live_authorization is None
-                    or live_authorization.connector_id
-                    != passport.registration.connector_id
-                    or live_authorization.profile_id
-                    != passport.registration.source_profile_id
+                    or live_authorization.connector_id != passport.registration.connector_id
+                    or live_authorization.profile_id != passport.registration.source_profile_id
                     or live_authorization.request_variables
                     != (passport.registration.request_dataset_id,)
-                    or observation.country_code
-                    not in passport.registration.country_codes
+                    or observation.country_code not in passport.registration.country_codes
                     or observation.country_code != wdi_country_code
                 ):
                     raise ValueOwnerAccessError(
                         "acquire_data:active_observation_country_scheme_not_established",
                         "Only the registered WDI ISO3 source code may bind to this ISO2 scope",
-                        owner_access_ref=(
-                            f"{owner_access_ref}#activated-observation-projection"
-                        ),
+                        owner_access_ref=(f"{owner_access_ref}#activated-observation-projection"),
                     )
                 selected_ids.append(observation.observation_id)
             if len(selected_ids) > owner_row_limit:
                 raise ValueOwnerAccessError(
                     "acquire_data:active_observation_projection_too_large",
                     "The active selected-member projection exceeds the bounded N8 row limit",
-                    owner_access_ref=(
-                        f"{owner_access_ref}#activated-observation-projection"
-                    ),
+                    owner_access_ref=(f"{owner_access_ref}#activated-observation-projection"),
                 )
             selected_wdi_observation_ids = tuple(sorted(set(selected_ids)))
     parameters.extend(
@@ -10140,16 +10085,20 @@ def _load_value_data_profile_from_l1_dcat(
                 observation.condition_json,
             )
             actual_physical = (
-                str(physical_matches[0][4]),
-                str(physical_matches[0][3]),
-                str(physical_matches[0][6]),
-                str(physical_matches[0][7]),
-                physical_matches[0][8],
-                physical_matches[0][9],
-                physical_matches[0][10],
-                physical_matches[0][2],
-                str(physical_matches[0][5]),
-            ) if len(physical_matches) == 1 else None
+                (
+                    str(physical_matches[0][4]),
+                    str(physical_matches[0][3]),
+                    str(physical_matches[0][6]),
+                    str(physical_matches[0][7]),
+                    physical_matches[0][8],
+                    physical_matches[0][9],
+                    physical_matches[0][10],
+                    physical_matches[0][2],
+                    str(physical_matches[0][5]),
+                )
+                if len(physical_matches) == 1
+                else None
+            )
             if actual_physical != expected_physical:
                 raise ValueOwnerAccessError(
                     "acquire_data:active_observation_projection_drift",
@@ -10157,9 +10106,7 @@ def _load_value_data_profile_from_l1_dcat(
                         "N8 query rows differ from the Data Forge verified active member "
                         f"{observation.observation_id}"
                     ),
-                    owner_access_ref=(
-                        f"{owner_access_ref}#activated-observation-projection"
-                    ),
+                    owner_access_ref=(f"{owner_access_ref}#activated-observation-projection"),
                 )
             period_id = (
                 observation.year
@@ -10172,15 +10119,12 @@ def _load_value_data_profile_from_l1_dcat(
                 raise ValueOwnerAccessError(
                     "acquire_data:active_observation_projection_time_missing",
                     "Data Forge active observation has no N8 panel coordinate",
-                    owner_access_ref=(
-                        f"{owner_access_ref}#activated-observation-projection"
-                    ),
+                    owner_access_ref=(f"{owner_access_ref}#activated-observation-projection"),
                 )
             if observation.observation_id in selected_wdi_observation_ids:
                 if (
                     registered_canonical_unit is None
-                    or passport.registration.field_binding.raw_unit
-                    != registered_canonical_unit
+                    or passport.registration.field_binding.raw_unit != registered_canonical_unit
                     or passport.registration.field_binding.unit_transform != "identity"
                 ):
                     raise ValueOwnerAccessError(
@@ -10189,13 +10133,11 @@ def _load_value_data_profile_from_l1_dcat(
                             "The selected WDI value cannot enter N8 unchanged without an "
                             "identity unit binding"
                         ),
-                        owner_access_ref=(
-                            f"{owner_access_ref}#activated-observation-projection"
-                        ),
+                        owner_access_ref=(f"{owner_access_ref}#activated-observation-projection"),
                     )
-                registered_measurement_units_by_id[
-                    observation.observation_id
-                ] = registered_canonical_unit
+                registered_measurement_units_by_id[observation.observation_id] = (
+                    registered_canonical_unit
+                )
             projected_rows_by_id[observation.observation_id] = (
                 projected_unit,
                 int(period_id),
@@ -10204,10 +10146,7 @@ def _load_value_data_profile_from_l1_dcat(
                 observation.observation_id,
                 observation.condition_json,
             )
-    raw_rows = [
-        projected_rows_by_id.get(str(row[4]), tuple(row[:6]))
-        for row in raw_rows
-    ]
+    raw_rows = [projected_rows_by_id.get(str(row[4]), tuple(row[:6])) for row in raw_rows]
     if not raw_rows:
         return None
     grouped: dict[tuple[str, int], list[tuple[float, str, str, str]]] = {}
@@ -10431,8 +10370,7 @@ def _build_boundary_world_model_record(
         )
     selected_entries = tuple(entries_by_hash[entry_hash] for entry_hash in sorted(selected_hashes))
     resolved_entries = tuple(
-        _resolved_substrate_entry_ref_from_registry_entry(entry)
-        for entry in selected_entries
+        _resolved_substrate_entry_ref_from_registry_entry(entry) for entry in selected_entries
     )
     registry_artifact_ref = (
         f"substrate-registry://{registry.substrate_version_id}/"
@@ -10757,13 +10695,9 @@ def _s10_empirical_projection(
         return None, "empirical_evidence_authority_denials_mismatch"
 
     scalar_refs = {
-        "observed_outcome_ref": _s10_artifact_ref_id(
-            _object_get(evidence, "observed_outcome_ref")
-        ),
+        "observed_outcome_ref": _s10_artifact_ref_id(_object_get(evidence, "observed_outcome_ref")),
         "prediction_ref": _s10_artifact_ref_id(_object_get(evidence, "prediction_ref")),
-        "historical_implementation_ref": _s10_artifact_ref_id(
-            _object_get(evidence, "report_ref")
-        ),
+        "historical_implementation_ref": _s10_artifact_ref_id(_object_get(evidence, "report_ref")),
         "evaluation_design_ref": _s10_artifact_ref_id(
             _object_get(evidence, "evaluation_design_ref")
         ),
@@ -10781,9 +10715,7 @@ def _s10_empirical_projection(
     if source_lineage_refs is None or method_lineage_refs is None:
         return None, "empirical_evidence_nested_ref_missing"
 
-    temporal_values = {
-        key: _object_get(evidence, key) for key in _S10_TEMPORAL_ROLE_KEYS
-    }
+    temporal_values = {key: _object_get(evidence, key) for key in _S10_TEMPORAL_ROLE_KEYS}
     if _bound_s10_temporal_roles(temporal_values) is None:
         return None, "empirical_evidence_time_mismatch"
 
@@ -10915,13 +10847,11 @@ def _resolve_s10_empirical_evidence(
         return None, "empirical_evidence_time_mismatch"
     if expected_temporal_roles is not None:
         expected_payload = {
-            key: _object_get(expected_temporal_roles, key)
-            for key in _S10_TEMPORAL_ROLE_KEYS
+            key: _object_get(expected_temporal_roles, key) for key in _S10_TEMPORAL_ROLE_KEYS
         }
         expected_bound = _bound_s10_temporal_roles(expected_payload)
         if expected_bound is None or any(
-            expected_bound[key] != loaded_temporal_roles[key]
-            for key in _S10_TEMPORAL_ROLE_KEYS
+            expected_bound[key] != loaded_temporal_roles[key] for key in _S10_TEMPORAL_ROLE_KEYS
         ):
             return None, "empirical_evidence_time_mismatch"
 
@@ -10966,9 +10896,7 @@ def _build_s10_forecast_inputs(
         str(evidence.get("calibration_status")) if calibration_bound else None
     )
     effective_forecast_tier = (
-        str(evidence.get("forecast_tier"))
-        if calibration_bound
-        else forecast_tier
+        str(evidence.get("forecast_tier")) if calibration_bound else forecast_tier
     )
     if empirical_evidence_error is not None or (
         calibration_status is not None and not calibration_bound
@@ -11125,14 +11053,12 @@ def _build_real_s10_forecast_inputs(
         "expected_rule_version_ref",
     )
     expected_temporal_roles = _method_result_field(method_result, "temporal_roles")
-    resolved_empirical_evidence, empirical_evidence_error = (
-        _resolve_s10_empirical_evidence(
-            raw_ref=empirical_evidence_ref,
-            resolver=empirical_evidence_resolver,
-            selected_method_fqn=selected_method_fqn,
-            expected_rule_version_ref=expected_rule_version_ref,
-            expected_temporal_roles=expected_temporal_roles,
-        )
+    resolved_empirical_evidence, empirical_evidence_error = _resolve_s10_empirical_evidence(
+        raw_ref=empirical_evidence_ref,
+        resolver=empirical_evidence_resolver,
+        selected_method_fqn=selected_method_fqn,
+        expected_rule_version_ref=expected_rule_version_ref,
+        expected_temporal_roles=expected_temporal_roles,
     )
     policy_context_ref = f"policy-context://{world_record.world_model_record_id}"
     return _build_s10_forecast_inputs(
@@ -11322,7 +11248,8 @@ def _bound_s10_temporal_roles(
     if len(set(roles.values())) != len(roles):
         return None
     if not (
-        roles["data_valid_time"] < roles["calibration_window_start"]
+        roles["data_valid_time"]
+        < roles["calibration_window_start"]
         < roles["calibration_window_end"]
         <= roles["prediction_time"]
         < roles["observation_time"]
@@ -11389,9 +11316,7 @@ def _s10_value_authority_boundary(*, predictive: bool = False) -> dict[str, Any]
     ]
     if predictive:
         may_not_use_for.extend(
-            denial
-            for denial in sorted(_S10_PREDICTIVE_DENIALS)
-            if denial not in may_not_use_for
+            denial for denial in sorted(_S10_PREDICTIVE_DENIALS) if denial not in may_not_use_for
         )
     return {
         "authoritative_for": [
@@ -11696,9 +11621,7 @@ def _selector_problem_with_owner_context(
 ) -> DesignProblem:
     """Project owner data context without discarding problem authority."""
 
-    return problem.model_copy(
-        update={"runtime_hints": {**problem.runtime_hints, **context}}
-    )
+    return problem.model_copy(update={"runtime_hints": {**problem.runtime_hints, **context}})
 
 
 def _run_value_transport(
@@ -11772,28 +11695,30 @@ def _value_outer_set_from_foundry_result(
         raise ValueError("foundry_method_refused_value:uncertainty_missing")
     point_value = float(point)
     lower_ci, upper_ci = (float(interval[0]), float(interval[1]))
+    if not (
+        math.isfinite(point_value)
+        and math.isfinite(lower_ci)
+        and math.isfinite(upper_ci)
+        and lower_ci <= upper_ci
+    ):
+        raise ValueError("foundry_method_refused_value:uncertainty_invalid")
     identification_status = _derive_value_identification_status(
         transport_receipt=transport_receipt,
         calibration_receipt=calibration_receipt,
     )
     if identification_status == "point":
         lower = upper = point_value
-    elif identification_status == "proxy":
-        half_width = max(abs(upper_ci - lower_ci) / 2.0, abs(point_value) * 0.1, 0.01)
-        lower = point_value - half_width
-        upper = point_value + half_width
     else:
         lower = lower_ci
         upper = upper_ci
-        if lower == upper:
-            lower -= 0.01
-            upper += 0.01
     method_name = str(getattr(report, "method", "foundry_value"))
     world_hash = str(_object_get(world_record, "content_hash"))
     return ValueOuterSet.interval_box(
         coordinates=(method_name,),
         lower=(lower,),
         upper=(upper,),
+        statistical_lower=(lower_ci,),
+        statistical_upper=(upper_ci,),
         identification_mode=identification_status,
         assumptions=(
             "foundry_method_output",
@@ -12506,9 +12431,7 @@ def _stop_projection_decision(terminal_kind: str) -> Literal["stop", "abstain"]:
     """Project an already-selected stop through the complete typed terminal map."""
 
     if set(_N6_TERMINAL_STOP_PROJECTIONS) != set(SearchTerminalKind):
-        raise GenerationCycleError(
-            "n6_stop_terminal_projection_denominator_mismatch"
-        )
+        raise GenerationCycleError("n6_stop_terminal_projection_denominator_mismatch")
     try:
         kind = SearchTerminalKind(terminal_kind)
     except (TypeError, ValueError) as exc:
@@ -12705,13 +12628,9 @@ def _generation_cycle_block_guard_reason(run: GenerationCycleRun) -> str | None:
         enforce_no_retry_without_new_grammar(
             previous_candidate_ref=final_cycle.selected_candidate_ref,
             next_candidate_ref=final_cycle.revision_request.next_candidate_ref,
-            previous_grammar_elements=(
-                final_cycle.revision_request.previous_grammar_elements
-            ),
+            previous_grammar_elements=(final_cycle.revision_request.previous_grammar_elements),
             next_grammar_elements=final_cycle.revision_request.next_grammar_elements,
-            introduced_grammar_elements=(
-                final_cycle.revision_request.new_grammar_elements
-            ),
+            introduced_grammar_elements=(final_cycle.revision_request.new_grammar_elements),
             design_problem=current_problem,
         )
     except GenerationCycleError as exc:
@@ -13118,9 +13037,7 @@ def inspect_n6_source_census(repo_root: Path) -> N6SourceCensusGateResult:
             source_root_present = True
             paths = _enumerate_n6_source_paths(source_root, unresolved)
     relative_paths = tuple(path.relative_to(root).as_posix() for path in paths)
-    path_set_digest = hashlib.sha256(
-        "\n".join(relative_paths).encode("utf-8")
-    ).hexdigest()
+    path_set_digest = hashlib.sha256("\n".join(relative_paths).encode("utf-8")).hexdigest()
     if not relative_paths:
         unresolved.add("source_denominator_empty")
     path_enumeration_complete = not any(
@@ -13137,9 +13054,7 @@ def inspect_n6_source_census(repo_root: Path) -> N6SourceCensusGateResult:
             unresolved.add("source_read_or_parse_incomplete")
             continue
         parent_by_node = {
-            child: parent
-            for parent in ast.walk(tree)
-            for child in ast.iter_child_nodes(parent)
+            child: parent for parent in ast.walk(tree) for child in ast.iter_child_nodes(parent)
         }
         imported_owner_aliases: set[str] = set()
         unresolved_import_aliases: set[str] = set()
@@ -13163,8 +13078,7 @@ def inspect_n6_source_census(repo_root: Path) -> N6SourceCensusGateResult:
                     if isinstance(node.ctx, ast.Store):
                         shadowed_owner_aliases.add(node.id)
                 elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and any(
-                    argument.arg in imported_owner_aliases
-                    for argument in node.args.args
+                    argument.arg in imported_owner_aliases for argument in node.args.args
                 ):
                     shadowed_owner_aliases.update(
                         argument.arg
@@ -13174,9 +13088,7 @@ def inspect_n6_source_census(repo_root: Path) -> N6SourceCensusGateResult:
         if shadowed_owner_aliases:
             unresolved.add("lexical_alias_shadowing_not_reconciled")
         called_function_nodes = {
-            id(node.func)
-            for node in ast.walk(tree)
-            if isinstance(node, ast.Call)
+            id(node.func) for node in ast.walk(tree) if isinstance(node, ast.Call)
         }
         for node in ast.walk(tree):
             if (
@@ -13300,18 +13212,12 @@ def _enumerate_n6_source_paths(
             try:
                 if entry.is_symlink():
                     if entry.is_dir(follow_symlinks=True):
-                        unresolved.add(
-                            "source_denominator_symlink_directory_not_followed"
-                        )
-                    elif entry.name.endswith(".py") and entry.is_file(
-                        follow_symlinks=True
-                    ):
+                        unresolved.add("source_denominator_symlink_directory_not_followed")
+                    elif entry.name.endswith(".py") and entry.is_file(follow_symlinks=True):
                         paths.append(entry_path)
                 elif entry.is_dir(follow_symlinks=False):
                     pending.append(entry_path)
-                elif entry.name.endswith(".py") and entry.is_file(
-                    follow_symlinks=False
-                ):
+                elif entry.name.endswith(".py") and entry.is_file(follow_symlinks=False):
                     paths.append(entry_path)
             except OSError:
                 unresolved.add("source_denominator_entry_inspection_failed")
@@ -13349,9 +13255,7 @@ def _is_allowed_n6_fixture_owner_dispatch(
     class_name: str | None = None
     current = parents.get(call)
     while current is not None:
-        if function_name is None and isinstance(
-            current, (ast.FunctionDef, ast.AsyncFunctionDef)
-        ):
+        if function_name is None and isinstance(current, (ast.FunctionDef, ast.AsyncFunctionDef)):
             function_name = current.name
         if isinstance(current, ast.ClassDef):
             class_name = current.name

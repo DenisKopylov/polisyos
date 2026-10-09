@@ -422,7 +422,7 @@ def load_proof_witness_index(
 ) -> ProofWitnessIndex:
     """Load a proof-witness index."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return ProofWitnessIndex.model_validate(payload)
 
 
@@ -454,7 +454,7 @@ def load_proof_composability_certificate(
 ) -> ProofComposabilityCertificate:
     """Load a proof-composability certificate."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return ProofComposabilityCertificate.model_validate(payload)
 
 

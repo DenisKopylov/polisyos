@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core import contracts as core_contracts  # noqa: TC001 - Pydantic runtime type
@@ -13,7 +15,7 @@ class LexSearchResultItem(LegalFactResult):
 
 
 class LexSearchResponse(BaseModel):
-    """Return ranked Lex facts through the lossless HTTP boundary projection."""
+    """Return ranked Lex facts with the actual retrieval mode and refusal reason."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -21,6 +23,8 @@ class LexSearchResponse(BaseModel):
     query: str
     results: list[LexSearchResultItem] = Field(default_factory=list)
     total: int = 0
+    search_mode: Literal["text", "vector"] = "text"
+    vector_refusal_code: str | None = None
 
 
 __all__ = ["LexSearchResponse", "LexSearchResultItem"]

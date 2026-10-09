@@ -7,6 +7,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -112,7 +113,9 @@ class LatentMobilityReportAdapter:
         report = build_latent_mobility_report(payload, horizon=int(params.get("horizon", 5)))
         artifact_store = resolve_artifact_store(state, params)
         report_ref = (
-            persist_mobility_report(artifact_store, report) if artifact_store is not None else None
+            persist_mobility_report(_ensure_ir_artifact_store(artifact_store), report)
+            if artifact_store is not None
+            else None
         )
         return {
             "result": report,

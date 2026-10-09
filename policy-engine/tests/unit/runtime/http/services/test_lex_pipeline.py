@@ -2,14 +2,20 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 
 import pytest
 
 import polisyos.lex as lex_facade
-from polisyos.core.contracts.control import LexSearchRequest
+from polisyos.core.contracts.control import (
+    LegalQueryGenerationIntentV1,
+    LexSearchRequest,
+)
 from polisyos.lex.knowledge import LegalFactResult
+from polisyos.runtime.http.app import create_runtime_api_app
+from polisyos.runtime.http.container import RuntimeContainerOverrides
 from polisyos.runtime.http.services.control.lex_pipeline import LexPipelineMixin
 
 
@@ -86,6 +92,18 @@ def _trap_legacy_store(monkeypatch: pytest.MonkeyPatch) -> None:
     )
 
 
+def test_runtime_container_rejects_untyped_legal_query_encoder_provider(
+    tmp_path: Path,
+) -> None:
+    with pytest.raises(ValueError, match="legal_query_encoder_provider_invalid"):
+        create_runtime_api_app(
+            cas_root=tmp_path / ".polisyos" / "cas",
+            container_overrides=RuntimeContainerOverrides(
+                legal_query_encoder_provider=lambda: object(),  # type: ignore[arg-type]
+            ),
+        )
+
+
 def test_search_lex_graph_uses_public_graph_and_preserves_owner_results(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -98,11 +116,21 @@ def test_search_lex_graph_uses_public_graph_and_preserves_owner_results(
     instances: list[Any] = []
 
     class _RecordingGraph:
-        def __init__(self, *, db_path: Path, index_dir: Path) -> None:
+        def __init__(
+            self,
+            *,
+            db_path: Path,
+            index_dir: Path,
+            query_encoder: object | None = None,
+            query_profile: tuple[object, ...] | None = None,
+        ) -> None:
             self.db_path = db_path
             self.index_dir = index_dir
+            self.query_encoder = query_encoder
+            self.query_profile = query_profile
             self.search_calls: list[tuple[str, dict[str, object]]] = []
             self.close_count = 0
+            self.query_profile_error = None
             instances.append(self)
 
         def text_search(self, query: str, **kwargs: object) -> list[LegalFactResult]:
@@ -137,6 +165,205 @@ def test_search_lex_graph_uses_public_graph_and_preserves_owner_results(
         result.model_dump(mode="python") for result in owner_results
     ]
     assert graph.close_count == 1
+    assert graph.query_profile is None
+    assert response.search_mode == "text"
+    assert response.vector_refusal_code == "query_profile_unavailable"
+
+
+def test_search_lex_graph_preserves_valid_intent_and_typed_provider_refusal(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    request = _request(tmp_path).model_copy(
+        update={
+            "query_generation_intent": (
+                LegalQueryGenerationIntentV1(
+                    basis_kind="legal_lex_facts_embedding",
+                    generation_id="a" * 32,
+                    inventory_json=json.dumps(
+                        {"basis": {"basis_kind": "legal_lex_facts_embedding"}},
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    ),
+                ),
+            )
+        }
+    )
+    owner_results = [_owner_result(suffix="typed", similarity=0.8)]
+    instances: list[Any] = []
+
+    class _ProfilelessGraph:
+        def __init__(
+            self,
+            *,
+            db_path: Path,
+            index_dir: Path,
+            query_encoder: object | None = None,
+            query_profile: tuple[object, ...] | None = None,
+        ) -> None:
+            self.query_encoder = query_encoder
+            self.query_profile = query_profile
+            self.close_count = 0
+            self.query_profile_error = type(
+                "Refusal", (), {"code": "query_encoder_assets_unavailable"}
+            )()
+            self.hybrid_calls: list[tuple[str, dict[str, object]]] = []
+            instances.append(self)
+
+        def hybrid_search(self, query: str, **kwargs: object) -> list[LegalFactResult]:
+            self.hybrid_calls.append((query, kwargs))
+            return owner_results
+
+        def close(self) -> None:
+            self.close_count += 1
+
+    monkeypatch.setattr(lex_facade, "LegalKnowledgeGraph", _ProfilelessGraph)
+    _trap_legacy_store(monkeypatch)
+
+    response = LexPipelineMixin().search_lex_graph(request, request_id="req-typed-refusal")
+
+    assert len(instances) == 1
+    graph = instances[0]
+    assert graph.query_profile is not None
+    assert len(graph.query_profile) == 1
+    assert graph.query_profile[0].basis_kind == "legal_lex_facts_embedding"
+    assert graph.hybrid_calls == [
+        (
+            "worker leave",
+            {"top_k": 7, "trust_tier": None, "include_candidates": False},
+        )
+    ]
+    assert response.search_mode == "text"
+    assert response.vector_refusal_code == "query_encoder_assets_unavailable"
+    assert [item.fact_id for item in response.results] == ["fact-typed"]
+    assert graph.close_count == 1
+
+
+def test_search_lex_graph_rejects_malformed_intent_and_keeps_text_results(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    request = _request(tmp_path).model_copy(
+        update={
+            "query_generation_intent": (
+                LegalQueryGenerationIntentV1(
+                    basis_kind="legal_lex_facts_embedding",
+                    generation_id="a" * 32,
+                    inventory_json="{not-json",
+                ),
+            )
+        }
+    )
+    owner_results = [_owner_result(suffix="text", similarity=0.7)]
+
+    class _TextGraph:
+        def __init__(
+            self,
+            *,
+            db_path: Path,
+            index_dir: Path,
+            query_encoder: object | None = None,
+            query_profile: tuple[object, ...] | None = None,
+        ) -> None:
+            self.query_encoder = query_encoder
+            self.query_profile = query_profile
+            self.close_count = 0
+            self.text_calls: list[tuple[str, dict[str, object]]] = []
+
+        def text_search(self, query: str, **kwargs: object) -> list[LegalFactResult]:
+            self.text_calls.append((query, kwargs))
+            return owner_results
+
+        def close(self) -> None:
+            self.close_count += 1
+
+    graph: _TextGraph | None = None
+
+    def _graph_factory(**kwargs: object) -> _TextGraph:
+        nonlocal graph
+        graph = _TextGraph(**kwargs)  # type: ignore[arg-type]
+        return graph
+
+    monkeypatch.setattr(lex_facade, "LegalKnowledgeGraph", _graph_factory)
+    _trap_legacy_store(monkeypatch)
+
+    response = LexPipelineMixin().search_lex_graph(request, request_id="req-malformed-intent")
+
+    assert graph is not None
+    assert graph.query_profile is None
+    assert graph.text_calls == [
+        (
+            "worker leave",
+            {"top_k": 7, "trust_tier": None, "include_candidates": False},
+        )
+    ]
+    assert response.search_mode == "text"
+    assert response.vector_refusal_code == "query_profile_malformed"
+    assert [item.fact_id for item in response.results] == ["fact-text"]
+    assert graph.close_count == 1
+
+
+def test_search_lex_graph_treats_empty_present_intent_as_malformed(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    request = _request(tmp_path).model_copy(update={"query_generation_intent": ()})
+    owner_results = [_owner_result(suffix="empty-intent", similarity=0.6)]
+
+    class _TextGraph:
+        def __init__(
+            self,
+            *,
+            db_path: Path,
+            index_dir: Path,
+            query_encoder: object | None = None,
+            query_profile: tuple[object, ...] | None = None,
+        ) -> None:
+            self.query_profile = query_profile
+            self.close_count = 0
+
+        def text_search(self, query: str, **kwargs: object) -> list[LegalFactResult]:
+            del query, kwargs
+            return owner_results
+
+        def close(self) -> None:
+            self.close_count += 1
+
+    graph: _TextGraph | None = None
+
+    def _graph_factory(**kwargs: object) -> _TextGraph:
+        nonlocal graph
+        graph = _TextGraph(**kwargs)  # type: ignore[arg-type]
+        return graph
+
+    monkeypatch.setattr(lex_facade, "LegalKnowledgeGraph", _graph_factory)
+    _trap_legacy_store(monkeypatch)
+
+    response = LexPipelineMixin().search_lex_graph(request, request_id="req-empty-intent")
+
+    assert graph is not None
+    assert graph.query_profile is None
+    assert graph.close_count == 1
+    assert response.search_mode == "text"
+    assert response.vector_refusal_code == "query_profile_malformed"
+    assert [item.fact_id for item in response.results] == ["fact-empty-intent"]
+
+
+def test_search_lex_graph_reports_malformed_present_intent_without_database(
+    tmp_path: Path,
+) -> None:
+    request = LexSearchRequest(
+        query="worker leave",
+        top_k=7,
+        output_dir=str(tmp_path),
+        query_generation_intent=(),
+    )
+
+    response = LexPipelineMixin().search_lex_graph(request, request_id="req-empty-no-db")
+
+    assert response.search_mode == "text"
+    assert response.vector_refusal_code == "query_profile_malformed"
+    assert response.results == []
 
 
 def test_search_lex_graph_degrades_known_error_and_closes_graph(
@@ -147,7 +374,15 @@ def test_search_lex_graph_degrades_known_error_and_closes_graph(
     instances: list[Any] = []
 
     class _FailingGraph:
-        def __init__(self, *, db_path: Path, index_dir: Path) -> None:
+        def __init__(
+            self,
+            *,
+            db_path: Path,
+            index_dir: Path,
+            query_encoder: object | None = None,
+            query_profile: tuple[object, ...] | None = None,
+        ) -> None:
+            self.query_encoder = query_encoder
             self.close_count = 0
             instances.append(self)
 
@@ -165,6 +400,8 @@ def test_search_lex_graph_degrades_known_error_and_closes_graph(
     assert response.query == "worker leave"
     assert response.results == []
     assert response.total == 0
+    assert response.search_mode == "text"
+    assert response.vector_refusal_code == "lex_search_failed"
     assert len(instances) == 1
     assert instances[0].close_count == 1
 
@@ -180,7 +417,15 @@ def test_search_lex_graph_propagates_unknown_error_and_closes_graph_in_finally(
     instances: list[Any] = []
 
     class _FailingGraph:
-        def __init__(self, *, db_path: Path, index_dir: Path) -> None:
+        def __init__(
+            self,
+            *,
+            db_path: Path,
+            index_dir: Path,
+            query_encoder: object | None = None,
+            query_profile: tuple[object, ...] | None = None,
+        ) -> None:
+            self.query_encoder = query_encoder
             self.close_count = 0
             instances.append(self)
 

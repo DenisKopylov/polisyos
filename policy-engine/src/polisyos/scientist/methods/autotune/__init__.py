@@ -12,6 +12,7 @@ import importlib
 from typing import Any
 
 from .models import (
+    BayesianSourceProfile,
     BenchmarkedEvaluator,
     BenchmarkEvaluation,
     BenchmarkSplit,
@@ -39,6 +40,7 @@ from .models import (
 from .registry import ChampionRegistry
 
 __all__ = [
+    "BayesianSourceProfile",
     "BenchmarkEvaluation",
     "BenchmarkSplit",
     "BenchmarkSplitManifest",
@@ -46,6 +48,8 @@ __all__ = [
     "BenchmarkedEvaluator",
     "ChampionPointer",
     "ChampionRegistry",
+    "MethodDispatchBinding",
+    "MethodJobExecutionWorkPacket",
     "MetricDirection",
     "MutationArtifact",
     "PromotionDecision",
@@ -58,6 +62,7 @@ __all__ = [
     "load_json_artifact",
     "load_model_artifact",
     "persist_benchmark_evaluation",
+    "persist_method_job_execution_work_packet",
     "persist_benchmark_suite",
     "persist_mutation_artifact",
     "persist_split_manifest",
@@ -68,18 +73,22 @@ __all__ = [
 try:
     from .runtime import (
         ChampionBackedRuntimeLoader,
+        MethodJobBenchmarkEvaluator,
         PydanticMutationCodec,
         SearchLoopRunner,
         SequenceCandidateGenerator,
+        read_method_job_execution_work_packet,
         seed_loop_baseline,
     )
 
     __all__.extend(
         [
             "ChampionBackedRuntimeLoader",
+            "MethodJobBenchmarkEvaluator",
             "PydanticMutationCodec",
             "SearchLoopRunner",
             "SequenceCandidateGenerator",
+            "read_method_job_execution_work_packet",
             "seed_loop_baseline",
         ]
     )
@@ -87,9 +96,29 @@ except Exception:  # pragma: no cover - optional import guard for package init c
     pass
 
 _OPTIONAL_LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "MethodDispatchBinding": (
+        "polisyos.scientist.methods.autotune.execution_work",
+        "MethodDispatchBinding",
+    ),
+    "MethodJobExecutionWorkPacket": (
+        "polisyos.scientist.methods.autotune.execution_work",
+        "MethodJobExecutionWorkPacket",
+    ),
+    "persist_method_job_execution_work_packet": (
+        "polisyos.scientist.methods.autotune.execution_work",
+        "persist_method_job_execution_work_packet",
+    ),
     "ChampionBackedRuntimeLoader": (
         "polisyos.scientist.methods.autotune.runtime",
         "ChampionBackedRuntimeLoader",
+    ),
+    "MethodJobBenchmarkEvaluator": (
+        "polisyos.scientist.methods.autotune.runtime",
+        "MethodJobBenchmarkEvaluator",
+    ),
+    "read_method_job_execution_work_packet": (
+        "polisyos.scientist.methods.autotune.runtime",
+        "read_method_job_execution_work_packet",
     ),
     "PydanticMutationCodec": (
         "polisyos.scientist.methods.autotune.runtime",
@@ -124,7 +153,9 @@ _OPTIONAL_LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 
 def __getattr__(name: str) -> Any:
     if name not in _OPTIONAL_LAZY_IMPORTS:
-        raise AttributeError(f"module 'polisyos.scientist.methods.autotune' has no attribute '{name}'")
+        raise AttributeError(
+            f"module 'polisyos.scientist.methods.autotune' has no attribute '{name}'"
+        )
     module_name, attr_name = _OPTIONAL_LAZY_IMPORTS[name]
     module = importlib.import_module(module_name)
     value = getattr(module, attr_name)

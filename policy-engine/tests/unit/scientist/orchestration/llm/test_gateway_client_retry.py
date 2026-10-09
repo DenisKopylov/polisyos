@@ -3,10 +3,18 @@
 from __future__ import annotations
 
 import json
+from decimal import Decimal
+from pathlib import Path
+from typing import Any
 from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from polisyos.core.llm.response import extract_llm_response_data
+from polisyos.core.llm.traced_client import TracedLLMClient
+from polisyos.scientist.orchestration.engine.budget import BudgetState
+from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.orchestration.llm.gateway_client import (
     GatewayLLMClient,
     _HTTPError,
@@ -410,6 +418,578 @@ class TestIntelligentRetry:
 
 
 class TestUsageParsing:
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("raw_usage", "expected_usage_status", "expected_origin", "expected_amount"),
+        [
+            ("{}", "missing", "unknown", None),
+            ('{"prompt_tokens":"bad","completion_tokens":"also-bad"}', "invalid", "unknown", None),
+            ('{"prompt_tokens":-1,"completion_tokens":1}', "invalid", "unknown", None),
+            ('{"prompt_tokens":1.5,"completion_tokens":0.5}', "invalid", "unknown", None),
+            ('{"prompt_tokens":null,"completion_tokens":1}', "invalid", "unknown", None),
+            ('{"prompt_tokens":true,"completion_tokens":1}', "invalid", "unknown", None),
+            ('{"prompt_tokens":[],"completion_tokens":1}', "invalid", "unknown", None),
+            ('{"prompt_tokens":{},"completion_tokens":1}', "invalid", "unknown", None),
+            ('{"prompt_tokens":1e-1000,"completion_tokens":1}', "invalid", "unknown", None),
+            ('{"prompt_tokens":"1e-1000","completion_tokens":1}', "invalid", "unknown", None),
+            (
+                '{"prompt_tokens":null,"input_tokens":2,"completion_tokens":1}',
+                "invalid",
+                "unknown",
+                None,
+            ),
+            (
+                '{"prompt_tokens":2,"completion_tokens":1,"cost_status":null,"total_cost_usd":0.25}',
+                "known",
+                "unknown",
+                None,
+            ),
+            (
+                '{"prompt_tokens":2,"completion_tokens":1,"cost_status":[],"total_cost_usd":0.25}',
+                "known",
+                "unknown",
+                None,
+            ),
+            (
+                '{"prompt_tokens":2,"completion_tokens":1,"cost_status":{},"total_cost_usd":0.25}',
+                "known",
+                "unknown",
+                None,
+            ),
+            (
+                '{"prompt_tokens":2,"completion_tokens":1,"cost_status":17,"total_cost_usd":0.25}',
+                "known",
+                "unknown",
+                None,
+            ),
+            (
+                '{"prompt_tokens":2,"completion_tokens":1,"cost_status":true,"total_cost_usd":0.25}',
+                "known",
+                "unknown",
+                None,
+            ),
+            (
+                '{"prompt_tokens":2,"completion_tokens":1,"cost_status":"reported","total_cost_usd":0.25}',
+                "known",
+                "unknown",
+                None,
+            ),
+            ('{"input_tokens":"2","output_tokens":"1"}', "known", "estimated", Decimal("0.00005")),
+            (
+                '{"prompt_tokens":2.0,"completion_tokens":1.0}',
+                "known",
+                "estimated",
+                Decimal("0.00005"),
+            ),
+            ('{"prompt_tokens":0,"completion_tokens":0}', "known", "estimated", Decimal(0)),
+            ('{"prompt_tokens":2,"completion_tokens":1}', "known", "estimated", Decimal("0.00005")),
+            (
+                '{"prompt_tokens":2,"completion_tokens":1,"total_tokens":"bad"}',
+                "invalid",
+                "unknown",
+                None,
+            ),
+        ],
+    )
+    async def test_raw_wire_usage_status_reaches_durable_settlement(
+        self,
+        tmp_path: Path,
+        raw_usage: str,
+        expected_usage_status: str,
+        expected_origin: str,
+        expected_amount: Decimal | None,
+    ) -> None:
+        ledger_path = tmp_path / "ledger.json"
+        store = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+        response_json = (
+            '{"model":"fixture-model","choices":[{"message":{"content":"answer"}}],'
+            f'"usage":{raw_usage}'
+            "}"
+        )
+
+        class _FakeResponse:
+            status = 200
+            headers: dict[str, str] = {}
+
+            async def text(self) -> str:
+                return response_json
+
+        class _AsyncContext:
+            async def __aenter__(self) -> _FakeResponse:
+                return _FakeResponse()
+
+            async def __aexit__(self, *_args: object) -> None:
+                return None
+
+        class _FakeSession:
+            closed = False
+
+            def post(self, *_args: object, **_kwargs: object) -> _AsyncContext:
+                return _AsyncContext()
+
+            async def close(self) -> None:
+                self.closed = True
+
+        gateway = GatewayLLMClient(
+            base_url="http://test.local",
+            api_key="key",
+            model="fixture-model",
+        )
+        gateway._session = _FakeSession()
+        traced = TracedLLMClient(
+            gateway,
+            model_name="fixture-model",
+            producer_settlement_store=store,
+        )
+
+        response = await traced.generate(user="policy question")
+
+        parsed = extract_llm_response_data(response.response)
+        event = response.settlement.event
+        record = FileBudgetLedger(ledger_path).snapshot().producer_settlements[event.event_id]
+        assert parsed.usage_status == expected_usage_status
+        assert event.cost_origin == expected_origin
+        assert event.amount == expected_amount
+        assert record.status == ("committed" if expected_amount is not None else "unknown")
+        assert record.cost_origin == expected_origin
+        assert record.amount == expected_amount
+
+    @pytest.mark.asyncio
+    async def test_response_labels_cannot_rebind_configured_model_or_provider(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -> None:
+        ledger_path = tmp_path / "ledger.json"
+        store = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+        response_json = (
+            '{"model":"spoof-response-model","provider":"spoof-response-provider",'
+            '"choices":[{"message":{"content":"answer"}}],'
+            '"usage":{"prompt_tokens":2,"completion_tokens":1}}'
+        )
+
+        class _FakeResponse:
+            status = 200
+            headers: dict[str, str] = {}
+
+            async def text(self) -> str:
+                return response_json
+
+        class _AsyncContext:
+            async def __aenter__(self) -> _FakeResponse:
+                return _FakeResponse()
+
+            async def __aexit__(self, *_args: object) -> None:
+                return None
+
+        class _FakeSession:
+            closed = False
+
+            def post(self, *_args: object, **_kwargs: object) -> _AsyncContext:
+                return _AsyncContext()
+
+            async def close(self) -> None:
+                self.closed = True
+
+        pricing_models: list[str] = []
+
+        def _configured_price(*, model: str, prompt_tokens: int, completion_tokens: int) -> Decimal:
+            pricing_models.append(model)
+            assert (prompt_tokens, completion_tokens) == (2, 1)
+            return Decimal("0.31") if model == "configured-model" else Decimal("9.99")
+
+        monkeypatch.setattr(
+            "polisyos.core.llm.traced_client.estimate_llm_cost_usd",
+            _configured_price,
+        )
+        gateway = GatewayLLMClient(
+            base_url="http://test.local",
+            api_key="key",
+            model="configured-model",
+            provider_hint="configured-logical-route",
+            max_retries=0,
+        )
+        gateway._session = _FakeSession()
+        traced = TracedLLMClient(
+            gateway,
+            model_name="configured-model",
+            provider_name="configured-logical-route",
+            producer_settlement_store=store,
+        )
+
+        response = await traced.generate(user="policy question")
+
+        event = response.settlement.event
+        record = FileBudgetLedger(ledger_path).snapshot().producer_settlements[event.event_id]
+        assert response.response.model == "spoof-response-model"
+        assert response.response.provider == "spoof-response-provider"
+        assert event.model == record.model == "configured-model"
+        assert event.provider == record.provider == "configured-logical-route"
+        assert event.cost_origin == record.cost_origin == "estimated"
+        assert event.amount == record.amount == Decimal("0.31")
+        assert pricing_models == ["configured-model", "configured-model"]
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        (
+            "usage_cost_fields",
+            "top_level_cost_fields",
+            "expected_status",
+            "expected_origin",
+            "expected_amount",
+        ),
+        [
+            ("", "", "missing", "estimated", Decimal("0.00005")),
+            (',"total_cost_usd":0', "", "known", "reported", Decimal(0)),
+            (',"total_cost_usd":0.25', "", "known", "reported", Decimal("0.25")),
+            (',"total_cost_usd":"0.25"', "", "known", "reported", Decimal("0.25")),
+            (',"total_cost_usd":true', "", "invalid", "unknown", None),
+            (',"total_cost_usd":null', "", "invalid", "unknown", None),
+            (',"total_cost_usd":[]', "", "invalid", "unknown", None),
+            (',"total_cost_usd":{}', "", "invalid", "unknown", None),
+            (',"total_cost_usd":"not-a-cost"', "", "invalid", "unknown", None),
+            (',"total_cost_usd":-0.01', "", "invalid", "unknown", None),
+            (',"cost_usd":0.25', "", "known", "reported", Decimal("0.25")),
+            (',"cost":0.25', "", "known", "reported", Decimal("0.25")),
+            ("", ',"cost":0.25', "known", "reported", Decimal("0.25")),
+            (
+                ',"total_cost_usd":0.5,"cost_usd":0.25',
+                "",
+                "known",
+                "reported",
+                Decimal("0.5"),
+            ),
+            (
+                "",
+                ',"cost_usd":0.5,"total_cost_usd":0.25',
+                "known",
+                "reported",
+                Decimal("0.25"),
+            ),
+            (
+                ',"total_cost_usd":null,"cost_usd":0.25',
+                ',"cost_usd":0.5',
+                "invalid",
+                "unknown",
+                None,
+            ),
+            (
+                ',"cost":0.25',
+                ',"cost_usd":0.5',
+                "known",
+                "reported",
+                Decimal("0.25"),
+            ),
+            (
+                ',"base_cost_usd":0.2,"platform_fee_usd":0.02',
+                "",
+                "known",
+                "reported",
+                Decimal("0.22"),
+            ),
+            (',"base_cost_usd":0.2', "", "invalid", "unknown", None),
+        ],
+    )
+    async def test_raw_wire_cost_alias_domain_reaches_durable_settlement(
+        self,
+        tmp_path: Path,
+        usage_cost_fields: str,
+        top_level_cost_fields: str,
+        expected_status: str,
+        expected_origin: str,
+        expected_amount: Decimal | None,
+    ) -> None:
+        ledger_path = tmp_path / "ledger.json"
+        store = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+        raw_text = (
+            '{"model":"fixture-model",'
+            '"choices":[{"message":{"content":"answer"}}],'
+            '"usage":{"prompt_tokens":2,"completion_tokens":1'
+            f"{usage_cost_fields}}}{top_level_cost_fields}" + "}"
+        )
+
+        class _Response:
+            status = 200
+            headers: dict[str, str] = {}
+
+            async def text(self) -> str:
+                return raw_text
+
+        class _Request:
+            async def __aenter__(self) -> _Response:
+                return _Response()
+
+            async def __aexit__(self, *_args: object) -> None:
+                return None
+
+        class _Session:
+            closed = False
+
+            def post(self, *_args: Any, **_kwargs: Any) -> _Request:
+                return _Request()
+
+            async def close(self) -> None:
+                self.closed = True
+
+        gateway = GatewayLLMClient(
+            base_url="http://test.local",
+            api_key="key",
+            model="fixture-model",
+            max_retries=0,
+        )
+        gateway._session = _Session()
+        traced = TracedLLMClient(
+            gateway,
+            model_name="fixture-model",
+            producer_settlement_store=store,
+        )
+
+        response = await traced.generate(user="policy question")
+        parsed = extract_llm_response_data(response.response)
+        record = (
+            FileBudgetLedger(ledger_path)
+            .snapshot()
+            .producer_settlements[response.settlement.event.event_id]
+        )
+        assert response.usage.cost_status == expected_status
+        assert parsed.cost_status == expected_status
+        assert response.settlement.event.cost_origin == expected_origin
+        assert response.settlement.event.amount == expected_amount
+        assert record.status == ("committed" if expected_amount is not None else "unknown")
+        assert record.cost_origin == expected_origin
+        assert record.amount == expected_amount
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("raw_cost", "expected_origin", "expected_amount", "expected_status"),
+        [
+            (0, "reported", Decimal(0), "committed"),
+            (-0.01, "unknown", None, "unknown"),
+            ("not-a-cost", "unknown", None, "unknown"),
+            (None, "estimated", Decimal("0.00005"), "committed"),
+        ],
+    )
+    async def test_raw_gateway_cost_evidence_reaches_durable_producer_event(
+        self,
+        tmp_path: Path,
+        raw_cost: Any,
+        expected_origin: str,
+        expected_amount: Decimal | None,
+        expected_status: str,
+    ):
+        ledger_path = tmp_path / "ledger.json"
+        store = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+        payload = {
+            "model": "fixture-model",
+            "choices": [{"message": {"content": "answer"}}],
+            "usage": {"prompt_tokens": 2, "completion_tokens": 1},
+        }
+        if raw_cost is not None:
+            payload["usage"]["total_cost_usd"] = raw_cost
+
+        gateway = GatewayLLMClient(
+            base_url="http://test.local",
+            api_key="key",
+            model="fixture-model",
+        )
+        with patch.object(
+            gateway,
+            "_post_json",
+            new_callable=AsyncMock,
+            return_value=payload,
+        ):
+            traced = TracedLLMClient(
+                gateway,
+                model_name="fixture-model",
+                producer_settlement_store=store,
+            )
+            response = await traced.generate(user="policy question")
+
+        event = response.settlement.event
+        record = FileBudgetLedger(ledger_path).snapshot().producer_settlements[event.event_id]
+        assert event.cost_origin == expected_origin
+        assert event.amount == expected_amount
+        assert record.status == expected_status
+        assert record.cost_origin == expected_origin
+        assert record.amount == expected_amount
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "raw_cost_token",
+        ["1e-1000", '"1e-1000"', "1e1000", '"1e1000"'],
+    )
+    async def test_unrepresentable_raw_cost_remains_unknown(
+        self, tmp_path: Path, raw_cost_token: str
+    ) -> None:
+        ledger_path = tmp_path / "ledger.json"
+        store = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+        raw_text = (
+            '{"model":"fixture-model",'
+            '"choices":[{"message":{"content":"answer"}}],'
+            '"usage":{"prompt_tokens":2,"completion_tokens":1,'
+            f'"total_cost_usd":{raw_cost_token}'
+            "}}"
+        )
+
+        class _Response:
+            status = 200
+            headers: dict[str, str] = {}
+
+            async def text(self) -> str:
+                return raw_text
+
+        class _Request:
+            async def __aenter__(self) -> _Response:
+                return _Response()
+
+            async def __aexit__(self, *_args: object) -> None:
+                return None
+
+        class _Session:
+            closed = False
+
+            def post(self, *_args: Any, **_kwargs: Any) -> _Request:
+                return _Request()
+
+            async def close(self) -> None:
+                self.closed = True
+
+        gateway = GatewayLLMClient(
+            base_url="http://test.local",
+            api_key="key",
+            model="fixture-model",
+            max_retries=0,
+        )
+        gateway._session = _Session()
+        traced = TracedLLMClient(
+            gateway,
+            model_name="fixture-model",
+            producer_settlement_store=store,
+        )
+
+        response = await traced.generate(user="policy question")
+
+        record = (
+            FileBudgetLedger(ledger_path)
+            .snapshot()
+            .producer_settlements[response.settlement.event.event_id]
+        )
+        assert response.usage.cost_status == "invalid"
+        assert record.cost_origin == "unknown"
+        assert record.amount is None
+        assert record.status == "unknown"
+
+    @pytest.mark.parametrize(
+        ("raw_cost", "expected_status", "expected_amount"),
+        [
+            (0, "known", 0.0),
+            (0.0, "known", 0.0),
+            (Decimal("0"), "known", 0.0),
+            ("0", "known", 0.0),
+            (1, "known", 1.0),
+            (1.0, "known", 1.0),
+            (Decimal("0.25"), "known", 0.25),
+            ("0.25", "known", 0.25),
+            ("5e-324", "known", 5e-324),
+            (Decimal("1e-1000"), "invalid", None),
+            ("1e-1000", "invalid", None),
+            (Decimal("1e1000"), "invalid", None),
+            ("1e1000", "invalid", None),
+            (10**400, "invalid", None),
+            (-1, "invalid", None),
+            (float("inf"), "invalid", None),
+            (float("nan"), "invalid", None),
+            ("Infinity", "invalid", None),
+            ("not-a-cost", "invalid", None),
+            (True, "invalid", None),
+            ([], "invalid", None),
+            ({}, "invalid", None),
+        ],
+    )
+    def test_present_cost_primitives_keep_exact_zero_and_reject_unrepresentable_values(
+        self, raw_cost: Any, expected_status: str, expected_amount: float | None
+    ) -> None:
+        client = GatewayLLMClient(
+            base_url="http://test.local",
+            api_key="key",
+            model="m",
+        )
+        payload = {
+            "choices": [{"message": {"content": "ok"}}],
+            "usage": {
+                "prompt_tokens": 2,
+                "completion_tokens": 1,
+                "total_cost_usd": raw_cost,
+            },
+        }
+
+        parsed = client._parse_completion_payload(payload).usage
+
+        assert parsed.cost_status == expected_status
+        assert parsed.cost_usd == expected_amount
+
+    def test_explicit_null_cost_does_not_fall_through_to_alias_or_estimate(self) -> None:
+        client = GatewayLLMClient(
+            base_url="http://test.local",
+            api_key="key",
+            model="m",
+        )
+        payload = {
+            "choices": [{"message": {"content": "ok"}}],
+            "usage": {
+                "prompt_tokens": 2,
+                "completion_tokens": 1,
+                "total_cost_usd": None,
+                "cost_usd": 0.25,
+            },
+        }
+
+        parsed = client._parse_completion_payload(payload).usage
+
+        assert parsed.cost_status == "invalid"
+        assert parsed.cost_usd is None
+
+        alias_payload = {
+            "choices": [{"message": {"content": "ok"}}],
+            "usage": {
+                "prompt_tokens": 2,
+                "completion_tokens": 1,
+                "cost_usd": 0.25,
+            },
+        }
+        alias = client._parse_completion_payload(alias_payload).usage
+        assert alias.cost_status == "known"
+        assert alias.cost_usd == 0.25
+
+    def test_raw_cost_values_keep_reported_zero_and_invalid_distinct(self):
+        client = GatewayLLMClient(
+            base_url="http://test.local",
+            api_key="key",
+            model="m",
+        )
+        payload_base = {
+            "model": "m",
+            "choices": [{"message": {"content": "ok"}}],
+            "usage": {"prompt_tokens": 10, "completion_tokens": 5},
+        }
+
+        reported_zero = client._parse_completion_payload(
+            {**payload_base, "usage": {**payload_base["usage"], "total_cost_usd": 0}}
+        )
+        negative = client._parse_completion_payload(
+            {**payload_base, "usage": {**payload_base["usage"], "total_cost_usd": -0.01}}
+        )
+        malformed = client._parse_completion_payload(
+            {**payload_base, "usage": {**payload_base["usage"], "total_cost_usd": "not-a-cost"}}
+        )
+        missing = client._parse_completion_payload(payload_base)
+
+        assert extract_llm_response_data(reported_zero).cost_status == "known"
+        assert extract_llm_response_data(reported_zero).cost_usd == 0
+        assert extract_llm_response_data(negative).cost_status == "invalid"
+        assert extract_llm_response_data(malformed).cost_status == "invalid"
+        assert extract_llm_response_data(missing).cost_status == "missing"
+
     @pytest.mark.asyncio
     async def test_total_cost_usd_is_parsed_from_usage(self):
         client = GatewayLLMClient(

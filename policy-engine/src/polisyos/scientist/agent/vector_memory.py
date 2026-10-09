@@ -218,7 +218,7 @@ class VectorMemoryStore:
         """Load the index + metadata from the artifact store."""
         import json
 
-        bundle_bytes = store.get_bytes(ref.artifact_id)
+        bundle_bytes = store.get_bytes(ref)
         bundle = json.loads(bundle_bytes)
 
         dim = int(bundle["dim"])

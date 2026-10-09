@@ -291,7 +291,7 @@ def load_causal_execution_bundle(
         The validated causal execution bundle.
     """
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return CausalExecutionBundle.model_validate(payload)
 
 

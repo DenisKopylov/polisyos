@@ -9,6 +9,7 @@ from typing import Any, Literal
 
 import numpy as np
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.foundry.methods.base import SlotSpec, SlotType, Unit
 from polisyos.ir.analytics.forecasting_uncertainty import (
     FanChartSpec,
@@ -164,7 +165,9 @@ def _max_point_aggregation_error_by_horizon(
             bottom_forecasts, dtype=float
         )
         if expected.shape != reconciled.shape:
-            raise ValueError("aggregation_matrix @ bottom_forecasts must match reconciled_forecasts")
+            raise ValueError(
+                "aggregation_matrix @ bottom_forecasts must match reconciled_forecasts"
+            )
         errors = np.max(np.abs(reconciled - expected), axis=0)
         return {h: float(errors[h - 1]) for h in range(1, horizon_count + 1)}
 
@@ -311,7 +314,7 @@ def _persist_json_ref(
     schema_version: str = "1.0",
 ) -> ArtifactRefModel:
     ref = put_json_artifact(
-        store,
+        _ensure_ir_artifact_store(store),
         payload,
         kind=kind,
         schema_name=schema_name,
@@ -1088,9 +1091,7 @@ def build_reconciled_conformal_bundle(
                 horizon_end=horizon,
                 diagnostic_state=state,
                 allowed_methods=(
-                    (ForecastCalibrationMethod.CONFORMAL_AFTER_RECONCILIATION,)
-                    if gate_ok
-                    else ()
+                    (ForecastCalibrationMethod.CONFORMAL_AFTER_RECONCILIATION,) if gate_ok else ()
                 ),
                 gate_eligible=gate_ok,
                 fallback=ForecastCalibrationMethod.COHERENT_BOOTSTRAP if not gate_ok else None,
@@ -1141,12 +1142,12 @@ def build_reconciled_conformal_bundle(
         "diagnostic_state_by_horizon": diagnostic_state_by_horizon,
         "aggregation_group_count": len(aggregation_groups),
         "node_count": int(reconciled.shape[0]),
-        "fan_chart_source": "coherent_sample_paths" if paths_for_fan is not None else "conformal_residuals",
+        "fan_chart_source": "coherent_sample_paths"
+        if paths_for_fan is not None
+        else "conformal_residuals",
     }
     status = (
-        ReconciliationStatus.CERTIFIED
-        if preconditions_passed
-        else ReconciliationStatus.FALLBACK
+        ReconciliationStatus.CERTIFIED if preconditions_passed else ReconciliationStatus.FALLBACK
     )
     certificate = ReconciliationCertificate(
         status=status,
@@ -1166,7 +1167,9 @@ def build_reconciled_conformal_bundle(
         diagnostics=diagnostics,
         coherent_sample_paths_ref=posterior_predictive_ref,
         node_level_diagnostics_ref=node_level_diagnostics_ref,
-        fallback_reason=None if preconditions_passed else "reconciled calibration preconditions failed",
+        fallback_reason=None
+        if preconditions_passed
+        else "reconciled calibration preconditions failed",
     )
 
     return ForecastingUncertaintyBundleV2(
@@ -1191,9 +1194,7 @@ def build_reconciled_conformal_bundle(
             sample_count_by_horizon=sample_count_by_horizon,
             regime_flags=tuple(dict.fromkeys(regime_flags)),
             recommended_fallback=(
-                ForecastCalibrationMethod.COHERENT_BOOTSTRAP
-                if not bundle_gate_eligible
-                else None
+                ForecastCalibrationMethod.COHERENT_BOOTSTRAP if not bundle_gate_eligible else None
             ),
             calibration_window=n_calibration,
             last_recalibrated_at=generated_at,

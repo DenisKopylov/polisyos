@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.rough_path_semantics import (
     PathLiftMethod,
@@ -17,7 +20,6 @@ from polisyos.ir.analytics.rough_path_semantics import (
     persist_rough_path_intervention_certificate,
 )
 from polisyos.ir.registry.refs import ArtifactRefModel, RoughPathInterventionCertificateRef
-from pydantic import ValidationError
 
 
 def _artifact_id(ch: str) -> str:
@@ -82,10 +84,13 @@ def test_certificate_round_trips_via_store(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     certificate = _certificate()
 
-    ref = persist_rough_path_intervention_certificate(store, certificate)
+    ref = persist_rough_path_intervention_certificate(_ensure_ir_artifact_store(store), certificate)
 
     assert isinstance(ref, RoughPathInterventionCertificateRef)
-    assert load_rough_path_intervention_certificate(store, ref) == certificate
+    assert (
+        load_rough_path_intervention_certificate(_ensure_ir_artifact_store(store), ref)
+        == certificate
+    )
 
 
 def test_bounds_only_certificate_cannot_claim_fully_identified() -> None:

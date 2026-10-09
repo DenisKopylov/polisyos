@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import date
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.dual_certificate import (
     load_dual_certificate_bundle,
@@ -13,6 +14,7 @@ from polisyos.ir.analytics.partial_identification import (
     load_bounds_bundle,
     load_bounds_tightening_log,
 )
+from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.observation.bundles import BoundsChannelSpec, BoundsEstimationBundle
 from polisyos.ir.observation.causal_execution import BoundsEstimationTask
 from polisyos.ir.observation.contract_compilers import (
@@ -28,7 +30,6 @@ from polisyos.ir.observation.contracts import (
     ObservationRecord,
     SourceConfidenceTier,
 )
-from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.scientist.methods.causal.execution import BoundsEstimationRunner
 
 
@@ -141,7 +142,7 @@ def test_bounds_estimation_runner_persists_interval_and_width_reflects_censoring
     assert low_entry.width is not None
     assert high_entry.width >= low_entry.width
 
-    persisted = load_bounds_bundle(store, low_entry.bounds_bundle_ref)
+    persisted = load_bounds_bundle(_ensure_ir_artifact_store(store), low_entry.bounds_bundle_ref)
     assert persisted.lower_bound is not None
     assert persisted.upper_bound is not None
 
@@ -169,7 +170,7 @@ def test_bounds_estimation_runner_enables_iv_selection_and_surfaces_missing_path
     ok_entry, warning_entry = runner.run([ok_task, warning_task])
 
     assert ok_entry.bounds_bundle_ref is not None
-    ok_bundle = load_bounds_bundle(store, ok_entry.bounds_bundle_ref)
+    ok_bundle = load_bounds_bundle(_ensure_ir_artifact_store(store), ok_entry.bounds_bundle_ref)
     methods = {summary.method for summary in ok_bundle.method_summaries}
     assert BoundMethod.LP_BALKE_PEARL in methods
     assert BoundMethod.IV_BOUNDS in methods
@@ -245,7 +246,7 @@ def test_bounds_estimation_runner_persists_dual_certificate_for_exact_auto_bound
 
     assert entry.status == "ok"
     assert entry.bounds_bundle_ref is not None
-    bundle = load_bounds_bundle(store, entry.bounds_bundle_ref)
+    bundle = load_bounds_bundle(_ensure_ir_artifact_store(store), entry.bounds_bundle_ref)
     assert bundle.dual_certificate_ref is not None
     assert bundle.sharpness_status == "sharp"
     assert bundle.tightening_status is TighteningStatus.IMPROVED
@@ -253,10 +254,14 @@ def test_bounds_estimation_runner_persists_dual_certificate_for_exact_auto_bound
     assert bundle.tightening_log_ref is not None
     assert bundle.best_in_class_claim.proof_ref == bundle.tightening_log_ref
 
-    cert = load_dual_certificate_bundle(store, bundle.dual_certificate_ref)
+    cert = load_dual_certificate_bundle(
+        _ensure_ir_artifact_store(store), bundle.dual_certificate_ref
+    )
     validation = validate_dual_certificate_bundle(cert)
     assert validation.ok, validation.errors
-    tightening_log = load_bounds_tightening_log(store, bundle.tightening_log_ref)
+    tightening_log = load_bounds_tightening_log(
+        _ensure_ir_artifact_store(store), bundle.tightening_log_ref
+    )
     assert tightening_log.status is TighteningStatus.IMPROVED
     assert tightening_log.entries
 
@@ -281,7 +286,7 @@ def test_bounds_estimation_runner_persists_dual_certificate_for_exact_iv_bounds(
 
     assert entry.status == "ok"
     assert entry.bounds_bundle_ref is not None
-    bundle = load_bounds_bundle(store, entry.bounds_bundle_ref)
+    bundle = load_bounds_bundle(_ensure_ir_artifact_store(store), entry.bounds_bundle_ref)
     assert bundle.dual_certificate_ref is not None
     assert bundle.sharpness_status == "sharp"
     assert bundle.tightening_status is TighteningStatus.IMPROVED
@@ -289,9 +294,13 @@ def test_bounds_estimation_runner_persists_dual_certificate_for_exact_iv_bounds(
     assert bundle.tightening_log_ref is not None
     assert bundle.best_in_class_claim.proof_ref == bundle.tightening_log_ref
 
-    cert = load_dual_certificate_bundle(store, bundle.dual_certificate_ref)
+    cert = load_dual_certificate_bundle(
+        _ensure_ir_artifact_store(store), bundle.dual_certificate_ref
+    )
     validation = validate_dual_certificate_bundle(cert)
     assert validation.ok, validation.errors
-    tightening_log = load_bounds_tightening_log(store, bundle.tightening_log_ref)
+    tightening_log = load_bounds_tightening_log(
+        _ensure_ir_artifact_store(store), bundle.tightening_log_ref
+    )
     assert tightening_log.status is TighteningStatus.IMPROVED
     assert tightening_log.entries

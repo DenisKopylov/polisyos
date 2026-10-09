@@ -603,7 +603,7 @@ async def _build_snapshot_from_evidence_async(
     """Build a DataSnapshot from evidence bundle artifacts in CAS."""
     from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 
-    evidence_payload = from_canonical_bytes(await store.get_bytes(evidence_ref.artifact_id))
+    evidence_payload = from_canonical_bytes(await store.get_bytes(evidence_ref))
     evidence_bundle = EvidenceBundle.model_validate(evidence_payload)
 
     if not evidence_bundle.sources:

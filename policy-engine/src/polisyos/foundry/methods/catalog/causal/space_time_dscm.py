@@ -23,6 +23,7 @@ from pydantic import (
     model_validator,
 )
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -1431,7 +1432,9 @@ def estimate_space_time_spde_g_computation(
     )
     artifact_store = resolve_artifact_store({}, params)
     space_time_certificate_ref = (
-        persist_space_time_causal_certificate(artifact_store, space_time_certificate)
+        persist_space_time_causal_certificate(
+            _ensure_ir_artifact_store(artifact_store), space_time_certificate
+        )
         if artifact_store is not None
         else None
     )

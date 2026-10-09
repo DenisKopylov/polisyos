@@ -7,6 +7,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -54,7 +55,7 @@ def _persist_quality_certificate(
     if artifact_store is None:
         return None
     ref = put_json_artifact(
-        artifact_store,
+        _ensure_ir_artifact_store(artifact_store),
         quality_certificate,
         kind="ir.sae_quality_certificate",
         schema_name="ir.sae_quality_certificate",
@@ -669,7 +670,9 @@ class CausalFrontierFayHerriotEstimator:
             source_method="survey.estimation.causal_frontier_fay_herriot",
         )
         dependence_ref = (
-            persist_dependence_structure(artifact_store, dependence_structure)
+            persist_dependence_structure(
+                _ensure_ir_artifact_store(artifact_store), dependence_structure
+            )
             if artifact_store is not None
             else None
         )

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
 from polisyos.ir.analytics.literature import EvidenceParameter
@@ -44,8 +45,8 @@ def test_context_adaptive_parameter_bundle_artifact_roundtrip(tmp_path) -> None:
         selection_timestamp="2026-03-02T12:00:00+00:00",
     )
 
-    ref = persist_context_adaptive_parameter_bundle(store, bundle)
-    loaded = load_context_adaptive_parameter_bundle(store, ref)
+    ref = persist_context_adaptive_parameter_bundle(_ensure_ir_artifact_store(store), bundle)
+    loaded = load_context_adaptive_parameter_bundle(_ensure_ir_artifact_store(store), ref)
 
     assert isinstance(ref, ContextAdaptiveParameterBundleRef)
     assert ref.kind == "ir.context_adaptive_parameter_bundle"

@@ -101,7 +101,6 @@ class Level0StaticValidator(FunnelStage):
             duration_seconds=duration,
             uncertainty_envelope=UncertaintyEnvelope.deterministic(),
             failure_cards=cards,
-            compute_actual_usd=0.0,
             fidelity_level=self.fidelity_level,
         )
 

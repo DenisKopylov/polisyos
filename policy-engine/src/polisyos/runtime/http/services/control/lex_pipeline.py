@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import uuid
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -19,6 +20,8 @@ from .._control_contracts import _build_api_meta
 from .lex_search_projection import LexSearchResponse, LexSearchResultItem
 
 if TYPE_CHECKING:
+    from polisyos.lex.knowledge.store import LegalQueryProfile
+    from polisyos.runtime.http.container import LegalQueryEncoderProvider
     from polisyos.runtime.http.execution_policy import RuntimePrincipal
 
     from ..control_plane_store import ControlJobExecutionScope, ControlJobRecord
@@ -26,8 +29,61 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 
+def _legal_query_profiles_from_request(
+    request: LexSearchRequest,
+) -> tuple[LegalQueryProfile, ...]:
+    """Convert exact request snapshots to immutable Legal owner profiles."""
+    from polisyos.lex.knowledge.store import LegalQueryProfile, LegalQueryProfileError
+
+    intent = request.query_generation_intent
+    if intent is None:
+        raise LegalQueryProfileError("query_profile_unavailable")
+    if not intent:
+        raise LegalQueryProfileError("query_profile_malformed")
+
+    profiles: list[LegalQueryProfile] = []
+    for item in intent:
+        try:
+            inventory = json.loads(item.inventory_json)
+            canonical_inventory = json.dumps(
+                inventory,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            )
+        except (TypeError, ValueError) as exc:
+            raise LegalQueryProfileError("query_profile_malformed") from exc
+        if (
+            not isinstance(inventory, dict)
+            or canonical_inventory != item.inventory_json
+            or not isinstance(inventory.get("basis"), dict)
+            or inventory["basis"].get("basis_kind") != item.basis_kind
+        ):
+            raise LegalQueryProfileError("query_profile_malformed")
+        profiles.append(
+            LegalQueryProfile(
+                basis_kind=item.basis_kind,
+                generation_id=item.generation_id,
+                inventory_bytes=canonical_inventory.encode("utf-8"),
+            )
+        )
+    return tuple(profiles)
+
+
 class LexPipelineMixin:
     """Lex batch-pipeline endpoints for the control-plane service."""
+
+    def bind_legal_query_encoder_provider(
+        self,
+        provider: LegalQueryEncoderProvider | None,
+    ) -> None:
+        """Bind the runtime-composed Legal encoder owner, if one is configured."""
+        from polisyos.runtime.http.container import LegalQueryEncoderProvider
+
+        if provider is not None and type(provider) is not LegalQueryEncoderProvider:
+            raise TypeError("legal_query_encoder_provider_invalid")
+        self._legal_query_encoder_provider = provider
 
     def trigger_lex_pipeline(
         self,
@@ -271,8 +327,17 @@ class LexPipelineMixin:
         *,
         request_id: str | None = None,
     ) -> LexSearchResponse:
-        """Run a Lex text search against the generated knowledge graph and return ranked facts."""
+        """Search Lex facts, preserving text fallback and typed vector refusal."""
         db_path = Path(request.output_dir) / "lex_knowledge_graph.duckdb"
+
+        from polisyos.lex.knowledge.store import LegalQueryProfileError
+
+        profile_error: LegalQueryProfileError | None = None
+        try:
+            query_profile = _legal_query_profiles_from_request(request)
+        except LegalQueryProfileError as exc:
+            query_profile = None
+            profile_error = exc
 
         if not db_path.exists():
             return LexSearchResponse(
@@ -280,6 +345,12 @@ class LexPipelineMixin:
                 query=request.query,
                 results=[],
                 total=0,
+                search_mode="text",
+                vector_refusal_code=profile_error.code
+                if profile_error is not None
+                else "selected_generation_unavailable"
+                if query_profile is not None
+                else None,
             )
 
         try:
@@ -287,14 +358,54 @@ class LexPipelineMixin:
 
             from polisyos.lex import LegalKnowledgeGraph
 
-            graph = LegalKnowledgeGraph(db_path=db_path, index_dir=Path(request.output_dir))
-            try:
-                raw_results = graph.text_search(
-                    request.query,
-                    top_k=request.top_k,
-                    trust_tier=None,
-                    include_candidates=False,
+            query_encoder: object | None = None
+            provider_error: LegalQueryProfileError | None = None
+            provider = getattr(self, "_legal_query_encoder_provider", None)
+            if profile_error is None and provider is not None:
+                from polisyos.runtime.http.container import (
+                    LegalQueryEncoderProvider,
+                    LegalQueryEncoderProviderError,
                 )
+
+                if type(provider) is not LegalQueryEncoderProvider:
+                    provider_error = LegalQueryProfileError("query_encoder_provider_invalid")
+                else:
+                    try:
+                        query_encoder = provider.resolve_encoder()
+                    except LegalQueryEncoderProviderError as exc:
+                        provider_error = LegalQueryProfileError(exc.code)
+
+            graph = LegalKnowledgeGraph(
+                db_path=db_path,
+                index_dir=Path(request.output_dir),
+                query_encoder=query_encoder,
+                query_profile=query_profile,
+            )
+            try:
+                if profile_error is None and provider_error is None:
+                    raw_results = graph.hybrid_search(
+                        request.query,
+                        top_k=request.top_k,
+                        trust_tier=None,
+                        include_candidates=False,
+                    )
+                    refusal_code = (
+                        graph.query_profile_error.code
+                        if graph.query_profile_error is not None
+                        else None
+                    )
+                    search_mode = "vector" if refusal_code is None else "text"
+                else:
+                    raw_results = graph.text_search(
+                        request.query,
+                        top_k=request.top_k,
+                        trust_tier=None,
+                        include_candidates=False,
+                    )
+                    refusal_code = (
+                        profile_error.code if profile_error is not None else provider_error.code
+                    )
+                    search_mode = "text"
             finally:
                 graph.close()
 
@@ -308,6 +419,8 @@ class LexPipelineMixin:
                 query=request.query,
                 results=items,
                 total=len(items),
+                search_mode=search_mode,
+                vector_refusal_code=refusal_code,
             )
         except (
             duckdb.Error,
@@ -322,4 +435,6 @@ class LexPipelineMixin:
                 query=request.query,
                 results=[],
                 total=0,
+                search_mode="text",
+                vector_refusal_code="lex_search_failed",
             )

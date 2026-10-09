@@ -10,6 +10,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -174,10 +175,7 @@ def _trust_region(
         state = "red"
     elif (
         n_obs < _GREEN_MIN_OBS
-        or (
-            seasonal_period > 1
-            and seasonal_cycles < _GREEN_MIN_SEASONAL_CYCLES
-        )
+        or (seasonal_period > 1 and seasonal_cycles < _GREEN_MIN_SEASONAL_CYCLES)
         or noise_ratio > _GREEN_MAX_NOISE_RATIO
     ):
         state = "amber"
@@ -187,15 +185,11 @@ def _trust_region(
     if family == "deepar" and related_series_count < _GLOBAL_POOL_MIN_RELATED_SERIES:
         reasons.append("global_pool_insufficient")
         state = "red" if n_obs <= 120 else "amber"
-    elif family == "tft" and not (
-        has_static_covariates or has_known_future_covariates
-    ):
+    elif family == "tft" and not (has_static_covariates or has_known_future_covariates):
         reasons.append("covariate_context_missing")
         if state == "green":
             state = "amber"
-    elif family == "patchtst" and not (
-        multivariate_context or long_context or n_obs >= 180
-    ):
+    elif family == "patchtst" and not (multivariate_context or long_context or n_obs >= 180):
         reasons.append("long_context_insufficient")
         if n_obs <= 120 and state == "green":
             state = "amber"
@@ -340,7 +334,9 @@ def _choose_baseline(
     n_origins: int,
 ) -> tuple[str, Callable[[np.ndarray, int], np.ndarray], _ValidationMetrics]:
     candidates = (_THETA_SOURCE, _ETS_SOURCE)
-    scored: list[tuple[float, str, Callable[[np.ndarray, int], np.ndarray], _ValidationMetrics]] = []
+    scored: list[
+        tuple[float, str, Callable[[np.ndarray, int], np.ndarray], _ValidationMetrics]
+    ] = []
     for source_method in candidates:
         fn = _make_baseline_fn(source_method, alpha=alpha, beta=beta)
         metrics = _rolling_validation_metrics(
@@ -354,7 +350,9 @@ def _choose_baseline(
 
 
 def _mean_finite(values: Mapping[int, float | None]) -> float | None:
-    finite = [float(value) for value in values.values() if value is not None and math.isfinite(value)]
+    finite = [
+        float(value) for value in values.values() if value is not None and math.isfinite(value)
+    ]
     return float(np.mean(finite)) if finite else None
 
 
@@ -475,7 +473,7 @@ def _persist_selection_artifact(
         return metadata
     selection = dict(metadata["method_selection"])
     ref = put_json_artifact(
-        artifact_store,
+        _ensure_ir_artifact_store(artifact_store),
         {
             "payload_kind": "forecasting_method_selection",
             "method_fqn": _GUARDED_FQN,
@@ -553,10 +551,7 @@ def _annotate_bundle(
         if policy_regime == "neural_shadow" and state is HorizonDiagnosticState.GREEN:
             state = HorizonDiagnosticState.AMBER
         horizon_source = source_by_horizon.get(rule.horizon_start)
-        if (
-            policy_regime == "guarded_neural_ensemble"
-            and horizon_source == baseline_method
-        ):
+        if policy_regime == "guarded_neural_ensemble" and horizon_source == baseline_method:
             regime = "neural_abstained"
             if state is HorizonDiagnosticState.GREEN:
                 state = HorizonDiagnosticState.AMBER
@@ -685,9 +680,7 @@ class GuardedNeuralForecastEstimator:
         )
         neural_fn = _make_neural_fn(neural_family=neural_family, period=period)
         neural_method = _neural_source_method(neural_family)
-        neural_backend_status = (
-            "available" if neural_fn is not None else "adapter_not_configured"
-        )
+        neural_backend_status = "available" if neural_fn is not None else "adapter_not_configured"
         neural_forecast = (
             np.asarray(neural_fn(series, horizon), dtype=float) if neural_fn is not None else None
         )
@@ -840,9 +833,7 @@ class GuardedNeuralForecastEstimator:
 
         scales = _baseline_interval_scales(baseline_bundle, horizon=horizon)
         disagreement = np.abs(neural_forecast - baseline_forecast) / np.maximum(scales, _EPS)
-        disagreement_by_horizon = {
-            h: float(disagreement[h - 1]) for h in range(1, horizon + 1)
-        }
+        disagreement_by_horizon = {h: float(disagreement[h - 1]) for h in range(1, horizon + 1)}
         weights = np.zeros(horizon, dtype=float)
         abstained_horizons: list[int] = []
         block_later = False
@@ -968,9 +959,7 @@ class GuardedNeuralForecastEstimator:
             decision_thresholds=decision_thresholds,
         )
         wis_degraded = (
-            baseline_wis is not None
-            and candidate_wis is not None
-            and candidate_wis > baseline_wis
+            baseline_wis is not None and candidate_wis is not None and candidate_wis > baseline_wis
         )
         coverage_gap_failed = _coverage_gap_exceeds(candidate_bundle, coverage_gap_tolerance)
         if wis_degraded or coverage_gap_failed:

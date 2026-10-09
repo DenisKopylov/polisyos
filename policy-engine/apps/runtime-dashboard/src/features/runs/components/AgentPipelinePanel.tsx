@@ -82,7 +82,8 @@ export default function AgentPipelinePanel({
         completionTokens: number;
         totalTokens: number;
         latencyMs: number;
-        costUsd: number;
+        costUsd: number | null;
+        costUnknown: boolean;
       }
     >();
 
@@ -100,7 +101,8 @@ export default function AgentPipelinePanel({
           completionTokens: 0,
           totalTokens: 0,
           latencyMs: 0,
-          costUsd: /* policyos-quantity: telemetry */ 0,
+          costUsd: null,
+          costUnknown: false,
         };
         existing.steps += 1;
         existing.promptTokens += step.promptTokens ?? 0;
@@ -109,7 +111,12 @@ export default function AgentPipelinePanel({
           step.totalTokens ??
           (step.promptTokens ?? 0) + (step.completionTokens ?? 0);
         existing.latencyMs += step.latencyMs ?? 0;
-        existing.costUsd += step.costUsd ?? 0;
+        if (step.costUnknown ?? false) {
+          existing.costUnknown = true;
+        }
+        if (step.costUsd != null) {
+          existing.costUsd = (existing.costUsd ?? 0) + step.costUsd;
+        }
         if (!existing.provider && step.provider) {
           existing.provider = step.provider;
         }
@@ -632,11 +639,13 @@ export default function AgentPipelinePanel({
                     {t("panels.agentPipeline.cost")}
                   </p>
                   <p>
-                    {row.costUsd > 0
-                      ? formatCurrency(row.costUsd, "USD", undefined, {
-                          maximumFractionDigits: 6,
-                        })
-                      : "-"}
+                    {row.costUnknown
+                      ? t("panels.agentPipeline.costUnknown")
+                      : row.costUsd != null
+                        ? formatCurrency(row.costUsd, "USD", undefined, {
+                            maximumFractionDigits: 6,
+                          })
+                        : "-"}
                   </p>
                 </div>
               </div>
@@ -791,14 +800,46 @@ export default function AgentPipelinePanel({
                     {t("panels.agentPipeline.cost")}
                   </p>
                   <p>
-                    {selectedStep.costUsd != null
-                      ? formatCurrency(selectedStep.costUsd, "USD", undefined, {
-                          maximumFractionDigits: 6,
-                        })
-                      : "-"}
+                    {selectedStep.costUnknown
+                      ? t("panels.agentPipeline.costUnknown")
+                      : selectedStep.costUsd != null
+                        ? formatCurrency(
+                            selectedStep.costUsd,
+                            "USD",
+                            undefined,
+                            {
+                              maximumFractionDigits: 6,
+                            },
+                          )
+                        : "-"}
                   </p>
                 </div>
               </div>
+              {selectedStep.costEvents?.length ? (
+                <div>
+                  <p className="text-muted mb-1 text-xs uppercase">
+                    {t("panels.agentPipeline.costEvents")}
+                  </p>
+                  <ul className="space-y-1 text-xs">
+                    {selectedStep.costEvents.map((event) => (
+                      <li key={event.eventId}>
+                        <span className="font-mono">{event.eventId}</span>
+                        {" · "}
+                        <span className="font-medium">{event.costOrigin}</span>
+                        {" · "}
+                        {event.settlementStatus}
+                        {" · "}
+                        {event.costUsd != null
+                          ? formatCurrency(event.costUsd, "USD", undefined, {
+                              maximumFractionDigits: 6,
+                            })
+                          : t("panels.agentPipeline.costUnknown")}
+                        {event.originEventId ? ` · ${event.originEventId}` : ""}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
               {selectedStep.prompt ? (
                 <div>
                   <p className="text-muted mb-1 text-xs uppercase">

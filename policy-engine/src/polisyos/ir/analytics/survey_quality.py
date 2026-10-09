@@ -383,7 +383,7 @@ def load_survey_quality_certificate(
 
     from polisyos.ir.artifacts.io import get_json_artifact
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return SurveyQualityCertificate.model_validate(payload)
 
 

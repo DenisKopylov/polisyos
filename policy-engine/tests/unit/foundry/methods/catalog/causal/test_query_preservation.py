@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.graph_reconciliation import ComposeSCMFragments
 from polisyos.foundry.methods.catalog.causal.protocols import FragmentCompositionData
@@ -159,7 +160,7 @@ def _persist_human_verified_latent_bridge(
     pair_key: str,
 ) -> LatentBridgeHypothesisRef:
     return persist_latent_bridge_hypothesis(
-        store,
+        _ensure_ir_artifact_store(store),
         LatentBridgeHypothesis(
             bridge_id=f"latent::bridge::{pair_key}",
             pair_key=pair_key,

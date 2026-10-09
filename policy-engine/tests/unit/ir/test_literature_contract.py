@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.literature import (
@@ -150,8 +151,8 @@ def test_article_extraction_artifact_persist_load(tmp_path) -> None:
         extraction_confidence=0.88,
     )
 
-    ref = persist_article_extraction_result(store, result)
-    loaded = load_article_extraction_result(store, ref["artifact_id"])
+    ref = persist_article_extraction_result(_ensure_ir_artifact_store(store), result)
+    loaded = load_article_extraction_result(_ensure_ir_artifact_store(store), ref["artifact_id"])
 
     assert loaded.openalex_id == result.openalex_id
     assert loaded.year == 2024
@@ -205,9 +206,10 @@ def test_design_family_does_not_implicitly_derive_evidence_strength() -> None:
         source_basis_status=ClaimVocabularyAxisStatus.CANDIDATE,
     )
 
-    assert VersionedClaimVocabularyEnvelope.model_validate_json(
-        disagreement.model_dump_json()
-    ) == disagreement
+    assert (
+        VersionedClaimVocabularyEnvelope.model_validate_json(disagreement.model_dump_json())
+        == disagreement
+    )
     assert disagreement.design_family_hint is DesignFamily.OLS
     assert disagreement.evidence_strength is EvidenceStrength.RCT
 
@@ -319,8 +321,8 @@ def test_literature_prior_artifact_persist_load_roundtrip(tmp_path) -> None:
         metadata={"topic": "labor"},
     )
 
-    ref = persist_literature_causal_prior(store, prior)
-    loaded = load_literature_causal_prior(store, ref)
+    ref = persist_literature_causal_prior(_ensure_ir_artifact_store(store), prior)
+    loaded = load_literature_causal_prior(_ensure_ir_artifact_store(store), ref)
     assert loaded == prior
     assert loaded.edges[0].src == "x"
     assert loaded.metadata["topic"] == "labor"
@@ -341,8 +343,8 @@ def test_literature_prior_roundtrips_declared_absence_without_value_token(tmp_pa
         ]
     )
 
-    ref = persist_literature_causal_prior(store, prior)
-    loaded = load_literature_causal_prior(store, ref)
+    ref = persist_literature_causal_prior(_ensure_ir_artifact_store(store), prior)
+    loaded = load_literature_causal_prior(_ensure_ir_artifact_store(store), ref)
     graph = loaded.to_causal_graph_model(nodes=["x", "y"])
 
     edge = loaded.edges[0]
@@ -381,8 +383,8 @@ def test_literature_prior_roundtrips_environment_audit(tmp_path) -> None:
         metadata={"topic": "labor"},
     )
 
-    ref = persist_literature_causal_prior(store, prior)
-    loaded = load_literature_causal_prior(store, ref)
+    ref = persist_literature_causal_prior(_ensure_ir_artifact_store(store), prior)
+    loaded = load_literature_causal_prior(_ensure_ir_artifact_store(store), ref)
     graph = loaded.to_causal_graph_model(nodes=["x", "y"])
 
     assert loaded.environment_audit is not None

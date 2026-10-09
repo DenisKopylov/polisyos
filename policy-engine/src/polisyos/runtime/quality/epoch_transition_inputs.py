@@ -81,7 +81,7 @@ class CanonicalEpochTransitionSourceResolver:
             # Validate before filtering, so malformed same-kind records are not
             # quietly dropped from the purported complete source population.
             receipt = self._adapter._read_production_receipt(ref)
-            manifest = self._artifacts.get_manifest(ref.artifact_id)
+            manifest = self._artifacts.get_manifest(ref)
             if manifest.artifact_schema is not None or manifest.canon is not None:
                 raise ValueError("epoch_transition_source_receipt_profile_mismatch")
             if receipt.requested_query_context_ref != requested_query_context_ref:
@@ -502,10 +502,10 @@ class CanonicalEpochPerturbationAdjudicationProvider:
                     != row
                 ):
                     raise ValueError("epoch_adjudication_independent_owner_binding_mismatch")
-                evidence = self._artifacts.get_bytes(row.owner_evidence_ref.artifact_id)
-                manifest = self._artifacts.get_manifest(row.owner_evidence_ref.artifact_id)
+                evidence = self._artifacts.get_bytes(row.owner_evidence_ref)
+                manifest = self._artifacts.get_manifest(row.owner_evidence_ref)
                 if (
-                    not self._artifacts.verify(row.owner_evidence_ref.artifact_id).ok
+                    not self._artifacts.verify(row.owner_evidence_ref).ok
                     or cascade._raw_hash(evidence) != row.owner_evidence_content_hash
                     or row.owner_evidence_content_hash != str(row.owner_evidence_ref.artifact_id)
                     or manifest.kind != row.owner_evidence_ref.kind

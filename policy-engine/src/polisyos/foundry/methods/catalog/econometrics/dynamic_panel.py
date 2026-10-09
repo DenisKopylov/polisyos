@@ -9,6 +9,8 @@ from typing import Any, ClassVar
 
 import numpy as np
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+
 try:  # pragma: no cover - exercised in full scientific environments.
     from scipy.stats import chi2, norm
     from scipy.stats import t as student_t
@@ -1111,7 +1113,9 @@ def _persist_dependence(
         diagnostic,
         source_method=source_method,
     )
-    dependence_ref = persist_dependence_structure(artifact_store, dependence_structure)
+    dependence_ref = persist_dependence_structure(
+        _ensure_ir_artifact_store(artifact_store), dependence_structure
+    )
     updated_diagnostic = diagnostic.model_copy(
         update={"shared_artifacts_ref": str(dependence_ref.artifact_id)}
     )

@@ -16,11 +16,6 @@ from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.ir.connectors import QualityTier
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.governance.passes.pii_check_pass import PIICheckPass
 from polisyos.scientist.governance.passes.quality_gate_pass import QualityGatePass
 from polisyos.scientist.nodes.builtins import errors as node_errors
@@ -28,6 +23,16 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_INPUT_BINDINGS_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 logger = get_logger(__name__)
 _DATA_PLANE_GATE_LOAD_ERRORS = (
@@ -98,9 +103,7 @@ class DataPlaneGateNode:
             return NodeOutcome(status="fail", state=state, error=error)
 
         try:
-            snapshot_payload = from_canonical_bytes(
-                ctx.store.get_bytes(data_snapshot_ref.artifact_id)
-            )
+            snapshot_payload = from_canonical_bytes(ctx.store.get_bytes(data_snapshot_ref))
             snapshot = DataSnapshot.model_validate(snapshot_payload)
         except _DATA_PLANE_GATE_LOAD_ERRORS as exc:
             error = NodeError(
@@ -236,7 +239,7 @@ def _load_quality_report(
     if snapshot.quality_report_ref is None:
         return None, None
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(snapshot.quality_report_ref.artifact_id))
+        payload = from_canonical_bytes(ctx.store.get_bytes(snapshot.quality_report_ref))
     except _DATA_PLANE_GATE_LOAD_ERRORS as exc:
         return None, emit_degraded_path(
             component="scientist.data_plane_gate",

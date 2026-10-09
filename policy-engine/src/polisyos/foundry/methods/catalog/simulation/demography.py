@@ -8,6 +8,7 @@ from typing import Any, ClassVar, Literal
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -133,7 +134,9 @@ def _require_microsim_gate(
     ref_payload = state.get("microsim_calibration_report_ref")
     if isinstance(ref_payload, dict) and artifact_store is not None:
         ref = MicrosimCalibrationReportRef.model_validate(ref_payload)
-        report = load_microsim_calibration_report(artifact_store, ref).model_dump(mode="json")
+        report = load_microsim_calibration_report(
+            _ensure_ir_artifact_store(artifact_store), ref
+        ).model_dump(mode="json")
         if not bool(report.get("can_run_microsim", False)):
             reason = ", ".join(report.get("blocking_reasons", ())) or str(
                 report.get("compatibility_status", "blocked")

@@ -5,6 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.catalog.causal.did import (
@@ -86,8 +87,8 @@ def test_maintained_default_request_uses_real_dedicated_registry_dispatch_and_fr
         method_class=method, signature=method.signature, output=result.output
     )
     assert slots["report"] is report and slots["result"] is report
-    ref = persist_causal_effect_report(FileSystemCAS(tmp_path), report)
-    fresh = load_causal_effect_report(FileSystemCAS(tmp_path), ref)
+    ref = persist_causal_effect_report(_ensure_ir_artifact_store(FileSystemCAS(tmp_path)), report)
+    fresh = load_causal_effect_report(_ensure_ir_artifact_store(FileSystemCAS(tmp_path)), ref)
     assert fresh.model_dump(mode="json") == report.model_dump(mode="json")
     # Synthetic planner refs/pass labels above did not provide Runtime authority;
     # this witness measures supported route/defaults/ABI and an actual synthetic job only.

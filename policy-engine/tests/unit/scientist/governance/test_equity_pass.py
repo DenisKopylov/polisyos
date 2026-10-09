@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.governance.passes.base import IssueSeverity, PassContext
 from polisyos.ir.analytics.distributional import (
     CohortDimension,
     CohortImpact,
@@ -12,7 +14,6 @@ from polisyos.ir.analytics.distributional import (
     WinnersLosersTable,
     persist_distributional_report,
 )
-from polisyos.core.governance.passes.base import IssueSeverity, PassContext
 from polisyos.scientist.governance.passes.equity_pass import EquityPass
 from polisyos.scientist.governance.profiles import ValidationProfile
 
@@ -82,7 +83,7 @@ def _build_report(
 
 def test_equity_pass_strict_emits_blockers(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
-    report_ref = persist_distributional_report(store, _build_report())
+    report_ref = persist_distributional_report(_ensure_ir_artifact_store(store), _build_report())
 
     ctx = PassContext(
         ir=None,

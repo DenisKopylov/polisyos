@@ -5,15 +5,26 @@ from __future__ import annotations
 import json
 import os
 import threading
-from dataclasses import dataclass
+from collections.abc import Mapping
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 
+from polisyos.common.async_tools import run_shared_executor_sync
 from polisyos.common.logger import get_logger
 from polisyos.common.serialization import to_python_data
-from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.backends.config import (
+    ArtifactStoreConfig,
+    build_artifact_store,
+    with_ambient_ownership_enforcement_if_supported,
+)
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
@@ -23,6 +34,7 @@ from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.components_bridge import bootstrap_method_registry_from_components
 from polisyos.foundry.methods.exceptions import MethodNotFoundError
 from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.ir.analytics.posterior_summary import PosteriorPointRole, PosteriorSummaryRef
 from polisyos.ir.governance.validation import ValidationIssue
 from polisyos.scientist.compute.job_spec import JobKey, JobResult, JobSpec
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
@@ -51,16 +63,17 @@ _RUNNER_DEGRADED_ERRORS = (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Mapping
+    from collections.abc import Callable
     from pathlib import Path
 
     from polisyos.core.artifacts.protocol import ArtifactStore
 
 
 def _build_store(cas_root: Path) -> ArtifactStore:
+    store = build_artifact_store(ArtifactStoreConfig(backend="filesystem", root=str(cas_root)))
     return cast(
         "ArtifactStore",
-        build_artifact_store(ArtifactStoreConfig(backend="filesystem", root=str(cas_root))),
+        with_ambient_ownership_enforcement_if_supported(store),
     )
 
 
@@ -93,6 +106,9 @@ class MethodExecutionArtifacts:
 
     result_ref: ArtifactRef
     evidence_ref: ArtifactRef
+    posterior_summary_refs: dict[PosteriorPointRole, PosteriorSummaryRef] = field(
+        default_factory=dict
+    )
 
 
 @dataclass(frozen=True)
@@ -257,18 +273,56 @@ class MethodBackend:
         signature = method_class.signature
 
         dispatcher = self._dispatcher_provider()
-        method_result = dispatcher.dispatch(
-            method_class=method_class,
-            signature=signature,
-            state=input_state,
-            params=method_params,
-            seed=seed,
-        )
+        dispatch_binding: dict[str, Any] | None = None
+        dispatch_binding_status: str | None = None
+
+        def dispatch_with_observation() -> Any:
+            nonlocal dispatch_binding, dispatch_binding_status
+            if method_params.get("capture_execution_work") is True:
+                from polisyos.core.canon import fingerprint
+                from polisyos.scientist.methods.autotune.execution_work import (
+                    MethodDispatchBinding,
+                    fingerprint_method_input_value,
+                )
+
+                try:
+                    if not isinstance(input_state, Mapping):
+                        raise ValueError("dispatch input state is not a slot mapping")
+                    binding = MethodDispatchBinding(
+                        schema_version="1.1",
+                        method_fqn=signature.fqn,
+                        method_version=signature.version,
+                        method_seed=seed,
+                        method_params_fingerprint=fingerprint(dict(method_params)),
+                        input_refs=dict(input_refs or {}),
+                        input_schemas={
+                            name: store.get_manifest(ref).artifact_schema
+                            for name, ref in sorted((input_refs or {}).items())
+                        },
+                        input_state_fingerprints={
+                            name: fingerprint_method_input_value(value)
+                            for name, value in sorted(input_state.items())
+                        },
+                    )
+                except (OSError, TypeError, ValueError):
+                    dispatch_binding_status = "not_established"
+                else:
+                    dispatch_binding = binding.model_dump(mode="json")
+                    dispatch_binding_status = "recomputed"
+            return dispatcher.dispatch(
+                method_class=method_class,
+                signature=signature,
+                state=input_state,
+                params=method_params,
+                seed=seed,
+            )
+
+        method_result = run_shared_executor_sync(dispatch_with_observation)
 
         result_payload = to_python_data(method_result.output, sort_keys=True)
         result_inputs: list[InputRef] = []
         for slot_name, ref in sorted((input_refs or {}).items(), key=lambda kv: kv[0]):
-            result_inputs.append(InputRef(artifact_id=ref.artifact_id, role=f"input:{slot_name}"))
+            result_inputs.append(input_ref_from_artifact_ref(ref, role=f"input:{slot_name}"))
 
         result_ref = store.put_json(
             result_payload,
@@ -309,7 +363,12 @@ class MethodBackend:
             "warnings": list(method_result.warnings),
             "artifacts": to_python_data(method_result.artifacts, sort_keys=True),
             "result_ref": str(result_ref.artifact_id),
+            "method_result_ref": result_ref.model_dump(mode="json"),
         }
+        if dispatch_binding_status is not None:
+            evidence_payload["method_dispatch_binding_status"] = dispatch_binding_status
+            if dispatch_binding is not None:
+                evidence_payload["method_dispatch_binding"] = dispatch_binding
         evidence_ref = store.put_json(
             evidence_payload,
             ArtifactWriteOptions(
@@ -319,15 +378,53 @@ class MethodBackend:
                     name="polisyos.scientist.MethodExecutionEvidence",
                     version="0.1.0",
                 ),
-                inputs=[InputRef(artifact_id=result_ref.artifact_id, role="method_result")],
+                inputs=[
+                    InputRef(
+                        artifact_id=result_ref.artifact_id,
+                        role="method_result",
+                        manifest_profile_sha256=result_ref.manifest_profile_sha256,
+                    )
+                ],
             ),
             canon_spec=CanonSpec(forbid_floats=False),
         )
+
+        posterior_result = (
+            result_payload.get("result") if isinstance(result_payload, dict) else None
+        )
+        declares_posterior_draws = (
+            method_class.signature.backend.value == "bayesian"
+            and isinstance(posterior_result, Mapping)
+            and posterior_result.get("sampler_family") == "mcmc"
+            and isinstance(posterior_result.get("draws_ref"), str)
+        )
+        has_posterior_draw_evidence = "posterior_draws" in method_result.artifacts
+        if has_posterior_draw_evidence and method_class.signature.backend.value != "bayesian":
+            raise ValueError("non-Bayesian method cannot emit native posterior draw evidence")
+        if declares_posterior_draws and not has_posterior_draw_evidence:
+            raise ValueError("method result declares native posterior draws without their evidence")
+
+        posterior_summary_refs: dict[PosteriorPointRole, PosteriorSummaryRef] = {}
+        if has_posterior_draw_evidence:
+            from polisyos.foundry.calibration.uncertainty_adapter import (
+                persist_posterior_summary_from_method_evidence,
+            )
+
+            for point_role in (
+                PosteriorPointRole.POSTERIOR_MEAN,
+                PosteriorPointRole.POSTERIOR_MEDIAN,
+            ):
+                posterior_summary_refs[point_role] = persist_posterior_summary_from_method_evidence(
+                    store,
+                    evidence_ref,
+                    point_role=point_role,
+                )
 
         return ExecutionResult(
             exec_artifacts=MethodExecutionArtifacts(
                 result_ref=result_ref,
                 evidence_ref=evidence_ref,
+                posterior_summary_refs=posterior_summary_refs,
             ),
             applied=None,
             final_state=method_result.output,
@@ -434,7 +531,7 @@ def _load_input_refs(
     store = (store_factory or _build_store)(cas_root)
     loaded: dict[str, Any] = {}
     for slot_name, ref in input_refs.items():
-        payload = store.get_bytes(ref.artifact_id)
+        payload = store.get_bytes(ref)
         loaded[slot_name] = json.loads(payload.decode("utf-8"))
     return loaded
 
@@ -713,6 +810,7 @@ def _run_method_job(
         simulation_results_ref=artifacts.result_ref,
         method_result_ref=artifacts.result_ref,
         method_evidence_ref=artifacts.evidence_ref,
+        posterior_summary_refs=artifacts.posterior_summary_refs,
         final_state=result.final_state,
         warnings=warnings,
     )

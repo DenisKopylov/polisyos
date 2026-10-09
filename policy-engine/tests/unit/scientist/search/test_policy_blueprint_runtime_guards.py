@@ -8,6 +8,7 @@ from types import SimpleNamespace
 import pytest
 
 import polisyos.scientist.nodes.builtins.c6c_runtime_support as c6c_runtime_support
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -346,8 +347,12 @@ def test_runtime_strategic_helper_persists_normalized_contract_and_real_causal_c
 ) -> None:
     ctx = _build_ctx(tmp_path, run_id="runtime_strategic_ok")
     tables = _runtime_payoff_tables()
-    leader_ref = persist_strategic_payoff_table(ctx.store, tables["leader"])
-    follower_ref = persist_strategic_payoff_table(ctx.store, tables["follower"])
+    leader_ref = persist_strategic_payoff_table(
+        _ensure_ir_artifact_store(ctx.store), tables["leader"]
+    )
+    follower_ref = persist_strategic_payoff_table(
+        _ensure_ir_artifact_store(ctx.store), tables["follower"]
+    )
     contract = _runtime_contract(
         utility_refs={
             "leader": leader_ref,
@@ -385,10 +390,14 @@ def test_runtime_strategic_helper_persists_normalized_contract_and_real_causal_c
     assert output.strategic_scm_ref is not None
     assert output.strategic_response_bundle_ref is not None
     assert output.strategic_response_summary is not None
-    normalized_contract = load_strategic_scm(ctx.store, output.strategic_scm_ref)
+    normalized_contract = load_strategic_scm(
+        _ensure_ir_artifact_store(ctx.store), output.strategic_scm_ref
+    )
     assert normalized_contract.utility_refs["leader"] == leader_ref
     assert (
-        load_strategic_payoff_table(ctx.store, normalized_contract.utility_refs["leader"])
+        load_strategic_payoff_table(
+            _ensure_ir_artifact_store(ctx.store), normalized_contract.utility_refs["leader"]
+        )
         == tables["leader"]
     )
     assert output.strategic_response_summary["causal_component_ref"]["artifact_id"] == str(
@@ -397,17 +406,25 @@ def test_runtime_strategic_helper_persists_normalized_contract_and_real_causal_c
     assert output.strategic_response_summary["performative_loop"]["stability_status"] == (
         "certified_convergent"
     )
-    bundle = load_strategic_response_bundle(ctx.store, output.strategic_response_bundle_ref)
+    bundle = load_strategic_response_bundle(
+        _ensure_ir_artifact_store(ctx.store), output.strategic_response_bundle_ref
+    )
     assert bundle.performative_shift_ref is not None
-    shift_summary = load_performative_shift_summary(ctx.store, bundle.performative_shift_ref)
+    shift_summary = load_performative_shift_summary(
+        _ensure_ir_artifact_store(ctx.store), bundle.performative_shift_ref
+    )
     assert shift_summary.analysis_scope.value == "iterated_loop"
 
 
 def test_runtime_strategic_helper_blocks_when_causal_report_is_missing(tmp_path) -> None:
     ctx = _build_ctx(tmp_path, run_id="runtime_strategic_no_causal")
     tables = _runtime_payoff_tables()
-    leader_ref = persist_strategic_payoff_table(ctx.store, tables["leader"])
-    follower_ref = persist_strategic_payoff_table(ctx.store, tables["follower"])
+    leader_ref = persist_strategic_payoff_table(
+        _ensure_ir_artifact_store(ctx.store), tables["leader"]
+    )
+    follower_ref = persist_strategic_payoff_table(
+        _ensure_ir_artifact_store(ctx.store), tables["follower"]
+    )
     contract = _runtime_contract(
         utility_refs={
             "leader": leader_ref,
@@ -471,7 +488,9 @@ def test_runtime_strategic_helper_blocks_on_unreadable_contract_payoff_refs(tmp_
     assert output.strategic_response_summary["blocked_reason"] == (
         "strategic_contract_payoff_ref_unreadable"
     )
-    stored_contract = load_strategic_scm(ctx.store, output.strategic_scm_ref)
+    stored_contract = load_strategic_scm(
+        _ensure_ir_artifact_store(ctx.store), output.strategic_scm_ref
+    )
     assert stored_contract.utility_refs == contract.utility_refs
 
 
@@ -486,8 +505,12 @@ def test_runtime_strategic_helper_blocks_on_contract_payoff_mismatch(tmp_path) -
             }
         }
     )
-    leader_ref = persist_strategic_payoff_table(ctx.store, mismatched_leader)
-    follower_ref = persist_strategic_payoff_table(ctx.store, tables["follower"])
+    leader_ref = persist_strategic_payoff_table(
+        _ensure_ir_artifact_store(ctx.store), mismatched_leader
+    )
+    follower_ref = persist_strategic_payoff_table(
+        _ensure_ir_artifact_store(ctx.store), tables["follower"]
+    )
     contract = _runtime_contract(
         utility_refs={
             "leader": leader_ref,
@@ -555,8 +578,12 @@ def test_runtime_strategic_helper_persistence_failure_records_degraded_path(
 ) -> None:
     ctx = _build_ctx(tmp_path, run_id="runtime_strategic_persistence_failure")
     tables = _runtime_payoff_tables()
-    leader_ref = persist_strategic_payoff_table(ctx.store, tables["leader"])
-    follower_ref = persist_strategic_payoff_table(ctx.store, tables["follower"])
+    leader_ref = persist_strategic_payoff_table(
+        _ensure_ir_artifact_store(ctx.store), tables["leader"]
+    )
+    follower_ref = persist_strategic_payoff_table(
+        _ensure_ir_artifact_store(ctx.store), tables["follower"]
+    )
     contract = _runtime_contract(
         utility_refs={
             "leader": leader_ref,

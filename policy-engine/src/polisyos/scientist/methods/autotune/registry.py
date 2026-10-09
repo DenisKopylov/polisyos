@@ -165,7 +165,7 @@ class ChampionRegistry:
         if evaluation.suite_version != suite.suite_version:
             return "suite_version_mismatch"
         for artifact_ref in (candidate_ref, evaluation_ref):
-            manifest = self._store.get_manifest(artifact_ref.artifact_id)
+            manifest = self._store.get_manifest(artifact_ref)
             if not any(
                 item.role == "benchmark_suite" and item.artifact_id == suite_ref.artifact_id
                 for item in manifest.inputs

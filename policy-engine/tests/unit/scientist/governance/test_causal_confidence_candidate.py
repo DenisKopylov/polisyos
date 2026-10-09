@@ -7,6 +7,7 @@ from dataclasses import replace
 import numpy as np
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import ExecPlanRef, MetricsRef, SimulationResult
 from polisyos.core.governance.passes.base import IssueSeverity, PassContext
@@ -64,7 +65,7 @@ def test_fake_or_relabelled_causal_ref_cannot_pass_any_gate_ratio(
     tmp_path, source, location, min_ratio
 ) -> None:
     writer = FileSystemCAS(tmp_path)
-    ref = persist_uncertainty_envelope(writer, _envelope(source))
+    ref = persist_uncertainty_envelope(_ensure_ir_artifact_store(writer), _envelope(source))
     state = (
         {"artifacts_index": {"causal_envelope_ref": ref}}
         if location == "artifacts_index"
@@ -78,7 +79,9 @@ def test_fake_or_relabelled_causal_ref_cannot_pass_any_gate_ratio(
 
 def test_healthy_simulation_metrics_cannot_dilute_causal_candidate(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
-    causal_ref = persist_uncertainty_envelope(store, _envelope("ensemble"))
+    causal_ref = persist_uncertainty_envelope(
+        _ensure_ir_artifact_store(store), _envelope("ensemble")
+    )
     simulation_ref = _simulation(store, metric_count=8)
     issues = ConfidencePass().validate(
         _context(
@@ -112,7 +115,9 @@ def _simulation(store: FileSystemCAS, metric_count: int = 1):
     metrics = store.put_json(
         {"values": {}}, PutOptions(kind="foundry.metrics", media_type="application/json")
     )
-    envelope_ref = persist_uncertainty_envelope(store, _envelope("ensemble"))
+    envelope_ref = persist_uncertainty_envelope(
+        _ensure_ir_artifact_store(store), _envelope("ensemble")
+    )
     result = SimulationResult(
         exec_plan_ref=ExecPlanRef(artifact_id=plan.artifact_id),
         metrics_ref=MetricsRef(artifact_id=metrics.artifact_id),
@@ -153,7 +158,7 @@ def test_native_known_dgp_success_interval_is_candidate_at_actual_confidence_con
         report.confidence_interval, rel=0, abs=1e-12
     )
     writer = FileSystemCAS(tmp_path)
-    ref = persist_uncertainty_envelope(writer, envelope)
+    ref = persist_uncertainty_envelope(_ensure_ir_artifact_store(writer), envelope)
     issues = ConfidencePass().validate(
         _context(FileSystemCAS(tmp_path), {"causal_envelope_ref": ref}, min_ratio=0.0)
     )

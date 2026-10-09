@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.microsim.protocols import (
     ReweightingCompatibilityReason,
@@ -43,8 +45,8 @@ def test_microsim_calibration_report_round_trips_via_store(tmp_path) -> None:
         metadata={"solver": "gmm"},
     )
 
-    ref = persist_microsim_calibration_report(store, report)
-    loaded = load_microsim_calibration_report(store, ref)
+    ref = persist_microsim_calibration_report(_ensure_ir_artifact_store(store), report)
+    loaded = load_microsim_calibration_report(_ensure_ir_artifact_store(store), ref)
 
     assert loaded == report
 
@@ -94,8 +96,8 @@ def test_dependence_structure_round_trips_via_store(tmp_path) -> None:
         metadata={"graph_id": "g1"},
     )
 
-    ref = persist_dependence_structure(store, structure)
-    loaded = load_dependence_structure(store, ref)
+    ref = persist_dependence_structure(_ensure_ir_artifact_store(store), structure)
+    loaded = load_dependence_structure(_ensure_ir_artifact_store(store), ref)
 
     assert loaded == structure
 
@@ -111,8 +113,8 @@ def test_mobility_report_round_trips_via_store(tmp_path) -> None:
         metadata={"log_scale": True},
     )
 
-    ref = persist_mobility_report(store, report)
-    loaded = load_mobility_report(store, ref)
+    ref = persist_mobility_report(_ensure_ir_artifact_store(store), report)
+    loaded = load_mobility_report(_ensure_ir_artifact_store(store), ref)
 
     assert loaded == report
 
@@ -162,8 +164,8 @@ def test_mobility_report_v2_round_trips_with_typed_blocks(tmp_path) -> None:
         metadata={"code_version": "mobility-v2"},
     )
 
-    ref = persist_mobility_report(store, report)
-    loaded = load_mobility_report(store, ref)
+    ref = persist_mobility_report(_ensure_ir_artifact_store(store), report)
+    loaded = load_mobility_report(_ensure_ir_artifact_store(store), ref)
 
     assert loaded.schema_version == "2.0"
     assert loaded.artifact_name == "mobility_report_v2.json"

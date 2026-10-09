@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
@@ -21,8 +22,6 @@ from polisyos.ir.analytics.welfare import (
     persist_welfare_bundle,
 )
 from polisyos.ir.registry.refs import ArtifactRefModel
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_WELFARE_BUNDLE_REF,
@@ -30,6 +29,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_REGISTRY_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def test_decision_packet_includes_welfare_section(tmp_path) -> None:
@@ -61,7 +62,7 @@ def test_decision_packet_includes_welfare_section(tmp_path) -> None:
         PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
     )
     channel_ref = persist_channel_decomposition_artifact(
-        store,
+        _ensure_ir_artifact_store(store),
         ChannelDecompositionArtifact(
             target_kind=ChannelDecompositionTargetKind.SOCIAL_WELFARE,
             policy_class=ChannelPolicyClass.LOCAL_AFFINE_TAX_TRANSFER,
@@ -90,7 +91,7 @@ def test_decision_packet_includes_welfare_section(tmp_path) -> None:
         ),
     )
     welfare_ref = persist_welfare_bundle(
-        store,
+        _ensure_ir_artifact_store(store),
         WelfareBundle(
             welfare_measure="net_social_welfare",
             model_class="linearized_ge_io",

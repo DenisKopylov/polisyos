@@ -80,7 +80,7 @@ def load_causal_block_bridge(
     ref: CausalBlockBridgeRef,
 ) -> CausalBlockBridge:
     """Load and validate a persisted causal block bridge."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return CausalBlockBridge.model_validate(payload)
 
 

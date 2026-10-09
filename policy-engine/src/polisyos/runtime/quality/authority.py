@@ -6,7 +6,7 @@ import json
 from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Final, Literal, Protocol
+from typing import Any, Final, Literal, Protocol, cast
 
 from pydantic import (
     BaseModel,
@@ -17,6 +17,7 @@ from pydantic import (
     model_validator,
 )
 
+from polisyos.core import artifacts as core_artifacts
 from polisyos.core import canon
 from polisyos.runtime.quality.evaluation_safety import (
     EvalSafetyMetricsProjection,
@@ -80,13 +81,10 @@ TimeSourceConsistencyDisposition = Literal[
     "blocked_for_owner_review",
 ]
 TimeSourceConsistencyProducerRef = Literal[
-    "polisyos.runtime.http.services.temporal."
-    "build_time_source_consistency_audit_projection"
+    "polisyos.runtime.http.services.temporal.build_time_source_consistency_audit_projection"
 ]
 TimeSourceConsistencyProjectionKind = Literal["time_source_consistency_audit_projection"]
-TimeSourceConsistencyProjectionScope = Literal[
-    "catalog_source_runtime_time_role_consistency"
-]
+TimeSourceConsistencyProjectionScope = Literal["catalog_source_runtime_time_role_consistency"]
 ValidationStatus = Literal["pass", "fail", "blocked", "not_applicable"]
 BlockingStatus = Literal["non_blocking", "blocking", "non_overridable"]
 _EvalSafetyManifestIdentityState = Literal["exact", "other", "unresolved"]
@@ -104,19 +102,17 @@ AuthorityRootCauseClass = Literal[
     "schema_contract_failure",
 ]
 
-AUTHORITY_ENVELOPE_CONTRACT_NAME = "runtime_quality.evidence_authority_envelope"
-AUTHORITY_ENVELOPE_CONTRACT_VERSION = "1.0.0"
+AUTHORITY_ENVELOPE_CONTRACT_NAME = core_artifacts.AUTHORITY_ENVELOPE_SCHEMA_NAME
+AUTHORITY_ENVELOPE_CONTRACT_VERSION = core_artifacts.AUTHORITY_ENVELOPE_SCHEMA_VERSION
 EVIDENCE_AUTHORITY_ENVELOPE_SCHEMA_ID = (
-    "https://schemas.policyos.local/runtime_quality/"
-    "evidence_authority_envelope_v1.schema.json"
+    "https://schemas.policyos.local/runtime_quality/evidence_authority_envelope_v1.schema.json"
 )
 DEFAULT_AUTHORITY_ENVELOPE_SCHEMA_PATH = (
     Path(__file__).resolve().parents[4]
     / "schemas/runtime_quality/evidence_authority_envelope_v1.schema.json"
 )
 TIME_SOURCE_CONSISTENCY_PRODUCER_REF: Final[TimeSourceConsistencyProducerRef] = (
-    "polisyos.runtime.http.services.temporal."
-    "build_time_source_consistency_audit_projection"
+    "polisyos.runtime.http.services.temporal.build_time_source_consistency_audit_projection"
 )
 TIME_SOURCE_CONSISTENCY_PROJECTION_KIND: Final[TimeSourceConsistencyProjectionKind] = (
     "time_source_consistency_audit_projection"
@@ -129,9 +125,9 @@ TIME_SOURCE_INCONSISTENT_DISPOSITION: Final[TimeSourceConsistencyDisposition] = 
 TIME_SOURCE_INSUFFICIENT_EVIDENCE_DISPOSITION: Final[TimeSourceConsistencyDisposition] = (
     "insufficient_evidence"
 )
-TIME_SOURCE_BLOCKED_FOR_OWNER_REVIEW_DISPOSITION: Final[
-    TimeSourceConsistencyDisposition
-] = "blocked_for_owner_review"
+TIME_SOURCE_BLOCKED_FOR_OWNER_REVIEW_DISPOSITION: Final[TimeSourceConsistencyDisposition] = (
+    "blocked_for_owner_review"
+)
 TIME_SOURCE_CONSISTENCY_ROLE_FIELDS: Final[tuple[str, ...]] = (
     "catalog_watermark",
     "source_observed_at",
@@ -190,9 +186,7 @@ class TimeSourceConsistencyAuditProjection(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    projection_kind: TimeSourceConsistencyProjectionKind = (
-        TIME_SOURCE_CONSISTENCY_PROJECTION_KIND
-    )
+    projection_kind: TimeSourceConsistencyProjectionKind = TIME_SOURCE_CONSISTENCY_PROJECTION_KIND
     producer_ref: TimeSourceConsistencyProducerRef = TIME_SOURCE_CONSISTENCY_PRODUCER_REF
     projection_scope: TimeSourceConsistencyProjectionScope = (
         TIME_SOURCE_CONSISTENCY_PROJECTION_SCOPE
@@ -216,14 +210,10 @@ class TimeSourceConsistencyAuditProjection(BaseModel):
 
     @model_validator(mode="after")
     def _require_recomputed_disposition(self) -> TimeSourceConsistencyAuditProjection:
-        role_values = {
-            field: getattr(self, field) for field in TIME_SOURCE_CONSISTENCY_ROLE_FIELDS
-        }
+        role_values = {field: getattr(self, field) for field in TIME_SOURCE_CONSISTENCY_ROLE_FIELDS}
         recomputed = resolve_time_source_consistency_disposition(role_values)
         if self.mismatch_disposition != recomputed:
-            raise ValueError(
-                "time-source disposition does not match authority-owned recomputation"
-            )
+            raise ValueError("time-source disposition does not match authority-owned recomputation")
         return self
 
 
@@ -314,9 +304,7 @@ class OutcomeReplayProof(BaseModel):
 
     schema_version: str = "policyos.runtime.outcome_replay_proof.v1"
     case_id: str = Field(min_length=1)
-    canonicalizer_ref: str = (
-        "tools.quality.validation.gy_evidence_canon.canonical_evidence_hash"
-    )
+    canonicalizer_ref: str = "tools.quality.validation.gy_evidence_canon.canonical_evidence_hash"
     replay_levels: list[Literal["A", "B", "C"]]
     input_hashes: dict[str, str]
     output_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
@@ -398,9 +386,7 @@ def build_outcome_replay_proof(
     ledger = contract.get("search_ledger")
     ledger = dict(ledger) if isinstance(ledger, Mapping) else {}
     incompleteness = contract.get("incompleteness_record")
-    incompleteness = (
-        dict(incompleteness) if isinstance(incompleteness, Mapping) else {}
-    )
+    incompleteness = dict(incompleteness) if isinstance(incompleteness, Mapping) else {}
     input_hashes = {
         str(ref): gy_content_hash(payload)
         for ref, payload in sorted(input_payloads.items(), key=lambda item: str(item[0]))
@@ -771,7 +757,8 @@ class EvidenceAuthorityEnvelope(BaseModel):
             "cell_id": (closure.cell_id, self.cell_id),
         }
         mismatch_names = [
-            name for name, (closure_value, envelope_value) in mismatches.items()
+            name
+            for name, (closure_value, envelope_value) in mismatches.items()
             if closure_value != envelope_value
         ]
         if mismatch_names:
@@ -1222,8 +1209,7 @@ def authority_surface_decision(
             integrity_error = str(exc)
         else:
             candidate_issue_codes = [
-                str(issue.get("code") or "candidate_firewall_blocked")
-                for issue in issues
+                str(issue.get("code") or "candidate_firewall_blocked") for issue in issues
             ]
             if candidate_issue_codes:
                 blocking_reasons.append("candidate_firewall_blocked")
@@ -1314,11 +1300,7 @@ def _strict_eval_safety_surface_payload(
     projection_payload = projection.model_dump(mode="json")
     surfaces = projection.authority_surface_packet.surfaces
     packet_purposes = {row.purpose for row in surfaces.values()}
-    packet_denials = {
-        denied_use
-        for row in surfaces.values()
-        for denied_use in row.may_not_use_for
-    }
+    packet_denials = {denied_use for row in surfaces.values() for denied_use in row.may_not_use_for}
     boundary = projection.authority_boundary
     if (
         set(boundary.authoritative_for) != packet_purposes
@@ -1532,10 +1514,16 @@ def _surface_authority_payload(
     except Exception:
         return payload
     authority = getattr(manifest, "authority", None)
-    envelope_ref = getattr(authority, "authority_envelope_ref", None)
-    if not envelope_ref:
+    if authority is None:
         return payload
     try:
+        envelope_ref = core_artifacts.resolve_authority_envelope_ref(
+            cast("core_artifacts.ArtifactStore", artifact_store),
+            authority,
+        )
+        if not artifact_store.verify(envelope_ref).ok:
+            return payload
+        artifact_store.get_manifest(envelope_ref)
         envelope_bytes = artifact_store.get_bytes(envelope_ref)
         envelope_payload = canon.from_canonical_bytes(envelope_bytes)
     except Exception:
@@ -1852,10 +1840,7 @@ def _authority_payload_sequence(payload: Mapping[str, Any], key: str) -> tuple[s
     else:
         return ()
     return tuple(
-        text
-        for item in raw_values
-        for text in (_optional_text(str(item)),)
-        if text is not None
+        text for item in raw_values for text in (_optional_text(str(item)),) if text is not None
     )
 
 
@@ -2290,9 +2275,7 @@ def _runtime_owned_domain_failure(
         return False
     role = (_authority_payload_text(envelope, "authority_role") or "").casefold()
     provenance = (_authority_payload_text(envelope, "provenance_kind") or "").casefold()
-    validation_status = (
-        _authority_payload_text(envelope, "validation_status") or ""
-    ).casefold()
+    validation_status = (_authority_payload_text(envelope, "validation_status") or "").casefold()
     return (
         role == "producer_authority"
         and provenance in {"runtime_emitted", "runtime_blocker"}

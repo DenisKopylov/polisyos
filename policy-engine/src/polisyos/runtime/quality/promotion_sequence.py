@@ -648,12 +648,14 @@ class N9PromotionEvidenceSource:
             type(row) is not N9PromotionEvidenceSourceSelection for row in self.selections
         ):
             raise TypeError("promotion_evidence_source_selection_must_be_typed")
-        object.__setattr__(self, "_selection_json", tuple(
-            row.model_dump_json() for row in self.selections
-        ))
+        object.__setattr__(
+            self, "_selection_json", tuple(row.model_dump_json() for row in self.selections)
+        )
 
     def resolve(
-        self, candidate_summary: CandidateSummary, problem: DesignProblem,
+        self,
+        candidate_summary: CandidateSummary,
+        problem: DesignProblem,
     ) -> N9PromotionEvidenceSourceResolution:
         """Inspect the complete configured set and refuse missing or ambiguous identity."""
 
@@ -667,17 +669,22 @@ class N9PromotionEvidenceSource:
             row = N9PromotionEvidenceSourceSelection.model_validate_json(row_json)
             content_hash = gy_content_hash(row.model_dump(mode="json"))
             inputs.append("configured_promotion_evidence_selection@" + content_hash)
-            if (row.design_problem_binding == binding
-                    and row.candidate_id == candidate_summary.candidate_id
-                    and row.candidate_content_hash == candidate_summary.content_hash
-                    and row.candidate_summary_content_hash
-                    == promotion_candidate_summary_content_hash(candidate_summary)):
+            if (
+                row.design_problem_binding == binding
+                and row.candidate_id == candidate_summary.candidate_id
+                and row.candidate_content_hash == candidate_summary.content_hash
+                and row.candidate_summary_content_hash
+                == promotion_candidate_summary_content_hash(candidate_summary)
+            ):
                 matches.append((row, content_hash))
         selected = matches[0] if len(matches) == 1 else None
         code = (
-            "promotion_evidence_source_selected" if selected is not None
-            else "promotion_evidence_source_unconfigured" if not self._selection_json
-            else "promotion_evidence_source_ambiguous" if len(matches) > 1
+            "promotion_evidence_source_selected"
+            if selected is not None
+            else "promotion_evidence_source_unconfigured"
+            if not self._selection_json
+            else "promotion_evidence_source_ambiguous"
+            if len(matches) > 1
             else "promotion_evidence_source_identity_mismatch"
         )
         return N9PromotionEvidenceSourceResolution(
@@ -694,20 +701,32 @@ class N9PromotionEvidenceSource:
         )
 
     def context_for(
-        self, *, candidate_summary: CandidateSummary, problem: DesignProblem,
+        self,
+        *,
+        candidate_summary: CandidateSummary,
+        problem: DesignProblem,
         store: core_artifacts.ArtifactStore,
     ) -> Mapping[str, Any]:
         """Persist the selector boundary and pass only typed inputs to existing writers."""
 
         resolution = self.resolve(candidate_summary, problem)
         ref, semantic_hash, _ = _persist_model(
-            store=store, value=resolution, kind="runtime.n9_evidence_source_resolution",
+            store=store,
+            value=resolution,
+            kind="runtime.n9_evidence_source_resolution",
         )
-        context: dict[str, Any] = {"producer_root_refs": (ArtifactRef(
-            artifact_id=str(ref.artifact_id), artifact_type="N9PromotionEvidenceSourceResolution",
-            content_hash=semantic_hash, schema_ref=resolution.schema_version,
-            uri=f"cas://{ref.artifact_id}", version="v1",
-        ),)}
+        context: dict[str, Any] = {
+            "producer_root_refs": (
+                ArtifactRef(
+                    artifact_id=str(ref.artifact_id),
+                    artifact_type="N9PromotionEvidenceSourceResolution",
+                    content_hash=semantic_hash,
+                    schema_ref=resolution.schema_version,
+                    uri=f"cas://{ref.artifact_id}",
+                    version="v1",
+                ),
+            )
+        }
         selection = resolution.selection
         if selection is not None:
             if selection.effective_independence is not None:
@@ -1392,14 +1411,20 @@ class N9PromotionEvidenceBridgeRepository:
             or manifest.warnings != []
         ):
             raise ValueError("measurement_root_source_manifest_invalid")
-        for linked_ref_value in (
-            authority.authority_envelope_ref,
-            authority.diagnostic_event_ref,
-        ):
-            linked_id = core_artifacts.ArtifactID(linked_ref_value)
-            linked_raw = self._store.get_bytes(linked_id)
-            linked_report = self._store.verify(linked_id)
-            linked_manifest = self._store.get_manifest(linked_id)
+        linked_refs = (
+            core_artifacts.resolve_authority_envelope_ref(self._store, authority),
+            core_artifacts.ArtifactID(authority.diagnostic_event_ref),
+        )
+        for linked_ref in linked_refs:
+            linked_id = (
+                linked_ref.artifact_id
+                if isinstance(linked_ref, core_artifacts.ArtifactRef)
+                else linked_ref
+            )
+            linked_ref_value = str(linked_id)
+            linked_raw = self._store.get_bytes(linked_ref)
+            linked_report = self._store.verify(linked_ref)
+            linked_manifest = self._store.get_manifest(linked_ref)
             if (
                 not linked_report.ok
                 or _raw_hash(linked_raw) != linked_ref_value
@@ -1972,9 +1997,7 @@ class _HistoricalCandidateSummaryP0(_StrictModel):
         "grounding_failed",
         "grounding_unavailable",
     ]
-    grounding_source: Literal["cgf_firewall", "grounding_unavailable"] = (
-        "grounding_unavailable"
-    )
+    grounding_source: Literal["cgf_firewall", "grounding_unavailable"] = "grounding_unavailable"
     grounding_disposition: str | None = None
     grounding_score: float = Field(ge=0.0, le=1.0)
     current_valid: bool
@@ -2017,9 +2040,7 @@ class _HistoricalCandidateSummaryP1(_StrictModel):
         "grounding_failed",
         "grounding_unavailable",
     ]
-    grounding_source: Literal["cgf_firewall", "grounding_unavailable"] = (
-        "grounding_unavailable"
-    )
+    grounding_source: Literal["cgf_firewall", "grounding_unavailable"] = "grounding_unavailable"
     grounding_disposition: str | None = None
     grounding_issue_codes: tuple[str, ...] = ()
     grounding_report_ref: str | None = None
@@ -2068,9 +2089,7 @@ class _HistoricalCandidateSummaryP2(_StrictModel):
         "grounding_failed",
         "grounding_unavailable",
     ]
-    grounding_source: Literal["cgf_firewall", "grounding_unavailable"] = (
-        "grounding_unavailable"
-    )
+    grounding_source: Literal["cgf_firewall", "grounding_unavailable"] = "grounding_unavailable"
     grounding_disposition: str | None = None
     grounding_issue_codes: tuple[str, ...] = ()
     grounding_report_ref: str | None = None
@@ -2218,9 +2237,9 @@ class CanonicalPromotionOwnerProjection(_StrictModel):
 class _LegacyCanonicalPromotionOwnerProjectionV3(_StrictModel):
     """Frozen v3 owner projection for v5/v6 receipts with p0 summaries."""
 
-    schema_version: Literal[
-        "policyos.policy_design_case.layer3_gy.n9_owner_projection.v3"
-    ] = _LEGACY_PROMOTION_OWNER_PROJECTION_V3_SCHEMA_VERSION
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_owner_projection.v3"] = (
+        _LEGACY_PROMOTION_OWNER_PROJECTION_V3_SCHEMA_VERSION
+    )
     design_problem_binding: N9DesignProblemBinding
     candidate_summary: _HistoricalCandidateSummaryP0
     value_receipt: ValueGateReceipt | None = None
@@ -2276,9 +2295,9 @@ class _LegacyCanonicalPromotionOwnerProjectionV3(_StrictModel):
 class _LegacyCanonicalPromotionOwnerProjectionV3History(_StrictModel):
     """Frozen v7-history owner supporting exact p0/p1/p2 summary profiles."""
 
-    schema_version: Literal[
-        "policyos.policy_design_case.layer3_gy.n9_owner_projection.v3"
-    ] = _LEGACY_PROMOTION_OWNER_PROJECTION_V3_SCHEMA_VERSION
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_owner_projection.v3"] = (
+        _LEGACY_PROMOTION_OWNER_PROJECTION_V3_SCHEMA_VERSION
+    )
     design_problem_binding: N9DesignProblemBinding
     candidate_summary: (
         _HistoricalCandidateSummaryP0
@@ -2481,22 +2500,51 @@ _LEGACY_PROMOTION_SEQUENCE_V1_SCHEMA_VERSION = (
 )
 
 _V1PromotionObligationClass = Literal[
-    "syntax", "type", "slot", "param", "coupling", "effect", "identification",
-    "calibration", "measurement", "data", "implementation", "equilibrium",
-    "normative", "eval_safety", "value",
+    "syntax",
+    "type",
+    "slot",
+    "param",
+    "coupling",
+    "effect",
+    "identification",
+    "calibration",
+    "measurement",
+    "data",
+    "implementation",
+    "equilibrium",
+    "normative",
+    "eval_safety",
+    "value",
 ]
 _V1PromotionGateId = Literal[
-    "gy_waist", "ring2_waist", "cgf_grounding", "cg2_bind_promotability",
-    "gyk_entailment", "n5_coupling", "n8_value", "n8_calibration", "n8_transport",
-    "s6_blind_spot", "s7_mandate_delegation", "s8_value_posture",
-    "g4_governed_promotion", "gy_o0_eval_safety",
+    "gy_waist",
+    "ring2_waist",
+    "cgf_grounding",
+    "cg2_bind_promotability",
+    "gyk_entailment",
+    "n5_coupling",
+    "n8_value",
+    "n8_calibration",
+    "n8_transport",
+    "s6_blind_spot",
+    "s7_mandate_delegation",
+    "s8_value_posture",
+    "g4_governed_promotion",
+    "gy_o0_eval_safety",
 ]
 _V1PromotionObligationStatus = Literal[
-    "satisfied", "failed", "unknown", "scope_insufficient", "not_applicable_data_only",
+    "satisfied",
+    "failed",
+    "unknown",
+    "scope_insufficient",
+    "not_applicable_data_only",
 ]
 _V1PromotionFailClosedReason = Literal[
-    "single_obligation_fail", "joint_obligation_inconsistency", "proof_timeout",
-    "scope_insufficient", "unknown",
+    "single_obligation_fail",
+    "joint_obligation_inconsistency",
+    "proof_timeout",
+    "scope_insufficient",
+    "unknown",
 ]
 
 
@@ -2522,9 +2570,9 @@ class _LegacyV1PromotionObligation(_StrictModel):
     detail: str = Field(..., min_length=1, max_length=1000)
     evidence_refs: list[str] = Field(default_factory=list, max_length=40)
     risk_spend: _LegacyV1PromotionRiskSpendRecord | None = None
-    semantic_scope: Literal[
-        "real_semantics", "scope_insufficient", "data_only_not_required"
-    ] = "real_semantics"
+    semantic_scope: Literal["real_semantics", "scope_insufficient", "data_only_not_required"] = (
+        "real_semantics"
+    )
 
     @model_validator(mode="after")
     def _fail_closed_reason_matches_status(self) -> _LegacyV1PromotionObligation:
@@ -2567,18 +2615,37 @@ class _LegacyV1AuthorityBoundary(_StrictModel):
     authoritative_for: list[str] = Field(..., min_length=1, max_length=20)
     may_not_use_for: list[str] = Field(..., min_length=1, max_length=20)
     source_authority: Literal[
-        "deterministic_producer", "governed_config", "human_governance", "llm_candidate",
-        "llm_critic", "llm_drafter",
+        "deterministic_producer",
+        "governed_config",
+        "human_governance",
+        "llm_candidate",
+        "llm_critic",
+        "llm_drafter",
     ]
     posture: Literal["shadow", "advisory", "governed", "production"]
     rule_version_refs: list[str] = Field(..., min_length=1, max_length=20)
-    evidence_kind: Literal[
-        "measurement", "derivation", "proxy", "transport", "bounds", "simulation",
-        "elicitation", "incomparable_meet",
-    ] | None = None
-    decision_grade: Literal[
-        "unsupported", "descriptive_only", "advisory_admissible", "decision_admissible",
-    ] | None = None
+    evidence_kind: (
+        Literal[
+            "measurement",
+            "derivation",
+            "proxy",
+            "transport",
+            "bounds",
+            "simulation",
+            "elicitation",
+            "incomparable_meet",
+        ]
+        | None
+    ) = None
+    decision_grade: (
+        Literal[
+            "unsupported",
+            "descriptive_only",
+            "advisory_admissible",
+            "decision_admissible",
+        ]
+        | None
+    ) = None
     evidence_basis: _LegacyV1EvidenceBasis | None = None
     known_limits: list[str] = Field(default_factory=list, max_length=80)
 
@@ -2598,9 +2665,7 @@ class _LegacyV1AuthorityBoundary(_StrictModel):
 class _LegacyV1ArtifactRef(_StrictModel):
     """Frozen artifact reference nested in a v1 authority trace."""
 
-    artifact_id: str = Field(
-        ..., pattern=r"^(?:[a-z][a-z0-9_.-]*|sha256:[0-9a-f]{64})$"
-    )
+    artifact_id: str = Field(..., pattern=r"^(?:[a-z][a-z0-9_.-]*|sha256:[0-9a-f]{64})$")
     artifact_type: str = Field(..., min_length=1, max_length=80)
     content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
     schema_ref: str = Field(..., min_length=1, max_length=200)
@@ -2615,11 +2680,20 @@ class _LegacyV1AuthorityDerivationTrace(_StrictModel):
     output_artifact_ref: _LegacyV1ArtifactRef
     declared_authority_transform: dict[str, Any]
     computed_evidence_kind: Literal[
-        "measurement", "derivation", "proxy", "transport", "bounds", "simulation",
-        "elicitation", "incomparable_meet",
+        "measurement",
+        "derivation",
+        "proxy",
+        "transport",
+        "bounds",
+        "simulation",
+        "elicitation",
+        "incomparable_meet",
     ]
     computed_decision_grade: Literal[
-        "unsupported", "descriptive_only", "advisory_admissible", "decision_admissible",
+        "unsupported",
+        "descriptive_only",
+        "advisory_admissible",
+        "decision_admissible",
     ]
     producer_root_classes: list[str]
     method_classification: str
@@ -2653,19 +2727,25 @@ class _LegacyV1AuthorityDerivationTrace(_StrictModel):
             computed_covers_request = self.computed_evidence_kind != "incomparable_meet"
         elif self.computed_evidence_kind == "measurement":
             computed_covers_request = requested_kind in {
-                "derivation", "proxy", "transport", "bounds", "simulation", "elicitation"
+                "derivation",
+                "proxy",
+                "transport",
+                "bounds",
+                "simulation",
+                "elicitation",
             }
         elif self.computed_evidence_kind == "derivation":
             computed_covers_request = requested_kind in {
-                "proxy", "transport", "bounds", "simulation", "elicitation"
+                "proxy",
+                "transport",
+                "bounds",
+                "simulation",
+                "elicitation",
             }
-        kind_self_promotes = (
-            isinstance(requested_kind, str) and not computed_covers_request
-        )
+        kind_self_promotes = isinstance(requested_kind, str) and not computed_covers_request
         grade_self_promotes = (
             isinstance(requested_grade, str)
-            and kind_rank.get(requested_grade, 0)
-            > kind_rank[self.computed_decision_grade]
+            and kind_rank.get(requested_grade, 0) > kind_rank[self.computed_decision_grade]
         )
         if self.transform_mismatch_disposition == "matched" and (
             kind_self_promotes or grade_self_promotes
@@ -2683,17 +2763,25 @@ class _LegacyV1AuthorityDerivationTrace(_StrictModel):
 class _LegacyCanonicalPromotionReceiptV1(_StrictModel):
     """Original flat N9 v1 receipt shape from the first canonical owner."""
 
-    schema_version: Literal[
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v1"] = (
         "policyos.policy_design_case.layer3_gy.n9_promotion.v1"
-    ] = "policyos.policy_design_case.layer3_gy.n9_promotion.v1"
+    )
     candidate_id: str = Field(..., min_length=1)
     status: Literal["grounded_partial_admissible", "shadow", "abstention"]
     promoted: bool
     terminal_kind: Literal[
-        "a_spec_gap", "tool_failure", "composition_invalid", "recursive_blocked",
-        "search_ceiling_repair_required", "human_decision_required", "acquisition_required",
-        "budget_exhausted", "frontier_stable", "grounded_admissible",
-        "grounded_partial_admissible", "grounded_abstention",
+        "a_spec_gap",
+        "tool_failure",
+        "composition_invalid",
+        "recursive_blocked",
+        "search_ceiling_repair_required",
+        "human_decision_required",
+        "acquisition_required",
+        "budget_exhausted",
+        "frontier_stable",
+        "grounded_admissible",
+        "grounded_partial_admissible",
+        "grounded_abstention",
     ]
     obligations: tuple[_LegacyV1PromotionObligation, ...]
     risk_spend: _LegacyV1PromotionRiskSpendSummary
@@ -2743,9 +2831,11 @@ class _LegacyCanonicalPromotionReceiptV1Captured(_LegacyCanonicalPromotionReceip
             raise ValueError("consumer_promotable_requires_production_lane")
         if self.promotion_lane == "contract_testing" and not self.non_promotable_reason:
             raise ValueError("contract_lane_receipt_requires_non_promotable_reason")
-        if self.promoted and any(
-            obligation.status == "scope_insufficient" for obligation in self.obligations
-        ) and (self.promotion_lane != "contract_testing" or self.consumer_promotable):
+        if (
+            self.promoted
+            and any(obligation.status == "scope_insufficient" for obligation in self.obligations)
+            and (self.promotion_lane != "contract_testing" or self.consumer_promotable)
+        ):
             raise ValueError("scope_insufficient_cannot_mint_authoritative_promotion")
         return self
 
@@ -2753,9 +2843,9 @@ class _LegacyCanonicalPromotionReceiptV1Captured(_LegacyCanonicalPromotionReceip
 class _LegacyCanonicalPromotionReceiptV7(CanonicalPromotionReceipt):
     """Typed v7 history; readable and projectable but never current authority."""
 
-    schema_version: Literal[
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v7"] = (
         "policyos.policy_design_case.layer3_gy.n9_promotion.v7"
-    ] = "policyos.policy_design_case.layer3_gy.n9_promotion.v7"
+    )
     owner_projection: _LegacyCanonicalPromotionOwnerProjectionV3History
 
 
@@ -2771,9 +2861,9 @@ class _LegacyCanonicalPromotionReceiptV6(CanonicalPromotionReceipt):
 class _LegacyCanonicalPromotionReceiptV5(CanonicalPromotionReceipt):
     """Exact v5/v2 obligation-scope receipt retained only for history reads."""
 
-    schema_version: Literal[
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v5"] = (
         "policyos.policy_design_case.layer3_gy.n9_promotion.v5"
-    ] = "policyos.policy_design_case.layer3_gy.n9_promotion.v5"
+    )
     owner_projection: _LegacyCanonicalPromotionOwnerProjectionV3
 
 
@@ -3662,10 +3752,13 @@ class CanonicalN9PromotionPort:
                 source_store = promotion_runtime.store
 
                 def source_context(
-                    summary: CandidateSummary, problem: DesignProblem,
+                    summary: CandidateSummary,
+                    problem: DesignProblem,
                 ) -> Mapping[str, Any]:
                     return source.context_for(
-                        candidate_summary=summary, problem=problem, store=source_store,
+                        candidate_summary=summary,
+                        problem=problem,
+                        store=source_store,
                     )
 
                 context_provider = source_context
@@ -3744,9 +3837,7 @@ class CanonicalN9PromotionPort:
         """Build a private port whose receipts can never authorize N6."""
 
         del cls
-        if (confidence_ledger_session is None) == (
-            confidence_ledger_session_factory is None
-        ):
+        if (confidence_ledger_session is None) == (confidence_ledger_session_factory is None):
             raise ValueError("confidence_ledger_verification_session_source_invalid")
         owner_root = repo_root.resolve()
         if owner_root != Path(__file__).resolve().parents[4]:
@@ -4829,7 +4920,8 @@ def _run_promotion_sequence_with_bound_session(
         evidence_resolutions=evidence_resolutions,
         promotion_safety_resolution=(
             promotion_evidence_resolver.resolve_promotion_safety(promotion_input=promotion_input)
-            if promotion_evidence_resolver is not None else None
+            if promotion_evidence_resolver is not None
+            else None
         ),
     )
     ledger_receipt = confidence_ledger_session.receipt()
@@ -4879,7 +4971,8 @@ def _rebind_promotion_receipt_to_ledger_head(
         evidence_resolutions=evidence_resolutions,
         promotion_safety_resolution=(
             promotion_evidence_resolver.resolve_promotion_safety(promotion_input=promotion_input)
-            if promotion_evidence_resolver is not None else None
+            if promotion_evidence_resolver is not None
+            else None
         ),
     )
 
@@ -5321,7 +5414,8 @@ def _validate_promotion_receipt_with_bound_session(
         evidence_resolutions=evidence_resolutions,
         promotion_safety_resolution=(
             promotion_evidence_resolver.resolve_promotion_safety(promotion_input=replay_input)
-            if promotion_evidence_resolver is not None else None
+            if promotion_evidence_resolver is not None
+            else None
         ),
     )
     issues.extend(

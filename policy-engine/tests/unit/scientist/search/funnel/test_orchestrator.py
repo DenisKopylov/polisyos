@@ -77,6 +77,36 @@ def _make_stage(
 
 
 class TestFunnelOrchestrator:
+    def test_unknown_stage_cost_stays_unknown_in_trace_and_outcome(self):
+        stage = _make_stage(0, "L0")
+        orchestrator = FunnelOrchestrator([stage])
+
+        ticket = orchestrator.submit({}, {})
+        outcome = orchestrator.advance(ticket, target_level=0)
+
+        assert outcome.trace[0].compute_cost_usd is None
+        assert outcome.trace[0].compute_cost_origin == "unknown"
+        assert outcome.compute_cost_usd is None
+        assert outcome.compute_cost_origin == "unknown"
+        assert outcome.stage_results[0].compute_cost_usd is None
+
+    def test_unknown_cost_status_survives_policy_runtime_serialization(self):
+        from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
+            _serialize_funnel_outcome,
+        )
+
+        orchestrator = FunnelOrchestrator([_make_stage(0, "L0")])
+        outcome = orchestrator.advance(orchestrator.submit({}, {}), target_level=0)
+
+        payload = _serialize_funnel_outcome(outcome)
+
+        assert payload["compute_cost_usd"] is None
+        assert payload["compute_cost_origin"] == "unknown"
+        assert payload["trace"][0]["compute_cost_usd"] is None
+        assert payload["trace"][0]["compute_cost_origin"] == "unknown"
+        assert payload["stage_results"]["0"]["compute_cost_usd"] is None
+        assert payload["stage_results"]["0"]["compute_cost_origin"] == "unknown"
+
     def test_runs_all_stages_on_passing_candidate(self):
         stages = [
             _make_stage(0, "L0"),
@@ -326,7 +356,8 @@ class TestFunnelOrchestrator:
             _make_stage(3, "L3"),
         ]
         for stage, cost in zip(stages[:3], (0.1, 0.2, 0.3), strict=True):
-            stage.evaluate.return_value.compute_actual_usd = cost
+            stage.evaluate.return_value.compute_cost_usd = cost
+            stage.evaluate.return_value.compute_cost_origin = "estimated"
         stages[3].estimated_cost_usd = 1.0
         tracker = _Tracker()
         budget = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("0.5"))})
@@ -346,7 +377,7 @@ class TestFunnelOrchestrator:
         assert ticket.last_scheduling_decision.recommended_action == "defer"
         prior_stage_results = dict(ticket.stage_results)
         prior_trace = list(ticket.trace)
-        prior_cost = sum(step.compute_actual_usd for step in ticket.trace)
+        prior_cost = sum(step.compute_cost_usd or 0.0 for step in ticket.trace)
 
         tracker.mode = "freeze_frontier"
         successor = orch.submit(candidate, context)
@@ -357,7 +388,7 @@ class TestFunnelOrchestrator:
         assert successor.continuation_reason is not None
         assert successor.stage_results == prior_stage_results
         assert successor.trace == prior_trace
-        assert sum(step.compute_actual_usd for step in successor.trace) == prior_cost
+        assert sum(step.compute_cost_usd or 0.0 for step in successor.trace) == prior_cost
 
     def test_retry_cheaper_continuation_preserves_partial_progress(self):
         stages = [
@@ -371,7 +402,8 @@ class TestFunnelOrchestrator:
             _make_stage(4, "L4"),
         ]
         for stage, cost in zip(stages[:3], (0.1, 0.2, 0.3), strict=True):
-            stage.evaluate.return_value.compute_actual_usd = cost
+            stage.evaluate.return_value.compute_cost_usd = cost
+            stage.evaluate.return_value.compute_cost_origin = "estimated"
         stages[2].evaluate.return_value.feedback["timeout_risk"] = 0.9
         budget = BudgetState(spent={"run": Decimal("0")})
         orch = FunnelOrchestrator(stages, budget_state=budget)
@@ -386,7 +418,7 @@ class TestFunnelOrchestrator:
         assert ticket.last_scheduling_decision.recommended_action == "retry_cheaper"
         prior_stage_results = dict(ticket.stage_results)
         prior_trace = list(ticket.trace)
-        prior_cost = sum(step.compute_actual_usd for step in ticket.trace)
+        prior_cost = sum(step.compute_cost_usd or 0.0 for step in ticket.trace)
 
         budget.record_spend("run", Decimal("0.01"))
         successor = orch.submit(candidate, context)
@@ -397,12 +429,13 @@ class TestFunnelOrchestrator:
         assert successor.continuation_reason is not None
         assert successor.stage_results == prior_stage_results
         assert successor.trace == prior_trace
-        assert sum(step.compute_actual_usd for step in successor.trace) == prior_cost
+        assert sum(step.compute_cost_usd or 0.0 for step in successor.trace) == prior_cost
 
     def test_stage_defer_continuation_without_scheduler_decision(self):
         stages = [_make_stage(0, "L0"), _make_stage(1, "L1"), _make_stage(2, "L2")]
         for stage, cost in zip(stages[:2], (0.1, 0.2), strict=True):
-            stage.evaluate.return_value.compute_actual_usd = cost
+            stage.evaluate.return_value.compute_cost_usd = cost
+            stage.evaluate.return_value.compute_cost_origin = "estimated"
         stages[1].evaluate.return_value.terminal_action = "defer"
         budget = BudgetState(spent={"run": Decimal("0")})
         orch = FunnelOrchestrator(stages, budget_state=budget)
@@ -416,7 +449,7 @@ class TestFunnelOrchestrator:
         assert ticket.last_scheduling_decision is None
         prior_stage_results = dict(ticket.stage_results)
         prior_trace = list(ticket.trace)
-        prior_cost = sum(step.compute_actual_usd for step in ticket.trace)
+        prior_cost = sum(step.compute_cost_usd or 0.0 for step in ticket.trace)
 
         budget.record_spend("run", Decimal("0.01"))
         successor = orch.submit(candidate, context)
@@ -427,7 +460,7 @@ class TestFunnelOrchestrator:
         assert successor.continuation_reason is not None
         assert successor.stage_results == prior_stage_results
         assert successor.trace == prior_trace
-        assert sum(step.compute_actual_usd for step in successor.trace) == prior_cost
+        assert sum(step.compute_cost_usd or 0.0 for step in successor.trace) == prior_cost
 
     def test_interleaved_context_continuation_uses_exact_context_predecessor(self):
         stages = [_make_stage(0, "L0"), _make_stage(1, "L1"), _make_stage(2, "L2")]
@@ -440,7 +473,8 @@ class TestFunnelOrchestrator:
                 is_promising=True,
                 stage_name=f"{context['dataset_version']}-L{level}",
                 uncertainty_envelope=UncertaintyEnvelope.deterministic(),
-                compute_actual_usd=0.1 if is_context_a else 0.2,
+                compute_cost_usd=0.1 if is_context_a else 0.2,
+                compute_cost_origin="estimated",
                 fidelity_level=level,
                 terminal_action="defer" if level == 1 else None,
             )
@@ -462,7 +496,7 @@ class TestFunnelOrchestrator:
         assert outcome_a.final_action == "defer"
         prior_a_results = dict(ticket_a.stage_results)
         prior_a_trace = list(ticket_a.trace)
-        prior_a_cost = sum(step.compute_actual_usd for step in ticket_a.trace)
+        prior_a_cost = sum(step.compute_cost_usd or 0.0 for step in ticket_a.trace)
 
         ticket_b = orch.submit(candidate, context_b)
         outcome_b = orch.advance(ticket_b, policy="full")
@@ -479,7 +513,7 @@ class TestFunnelOrchestrator:
         assert successor_a.stage_results == prior_a_results
         assert successor_a.stage_results[1].objective_value == 1.0
         assert successor_a.trace == prior_a_trace
-        assert sum(step.compute_actual_usd for step in successor_a.trace) == prior_a_cost
+        assert sum(step.compute_cost_usd or 0.0 for step in successor_a.trace) == prior_a_cost
 
     def test_burn_in_policy_bypasses_cheap_rejection_until_level4(self):
         reject_signal = CheapSignalVector(structural_validity=0.3)

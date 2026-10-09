@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -214,7 +215,9 @@ class CompileCrossGraphEvidenceNode:
                 target_context=target_context,
                 notes=["cross_graph_invalid_config"],
             )
-            profile_ref = persist_cross_graph_evidence_profile(ctx.store, profile)
+            profile_ref = persist_cross_graph_evidence_profile(
+                _ensure_ir_artifact_store(ctx.store), profile
+            )
             new_state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF] = profile_ref
             new_state.params["cross_graph_evidence_summary"] = profile.summary.model_dump(
                 mode="json"
@@ -293,10 +296,12 @@ class CompileCrossGraphEvidenceNode:
                         index_dir=index_dir,
                     )
                     prepared_read = owned_prepared_read
-                payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
+                payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref))
                 bundle = TrinityBundle.model_validate(payload)
                 literature_prior = (
-                    load_literature_causal_prior(ctx.store, literature_prior_ref)
+                    load_literature_causal_prior(
+                        _ensure_ir_artifact_store(ctx.store), literature_prior_ref
+                    )
                     if literature_prior_ref is not None
                     else None
                 )
@@ -356,7 +361,9 @@ class CompileCrossGraphEvidenceNode:
                 "benchmark_summary": dict(benchmark_summary),
             }
         )
-        profile_ref = persist_cross_graph_evidence_profile(ctx.store, profile, inputs=inputs)
+        profile_ref = persist_cross_graph_evidence_profile(
+            _ensure_ir_artifact_store(ctx.store), profile, inputs=inputs
+        )
         new_state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF] = profile_ref
         new_state.params["cross_graph_evidence_summary"] = profile.summary.model_dump(mode="json")
         new_state.params["cross_graph_benchmark_summary"] = dict(benchmark_summary)
@@ -396,7 +403,7 @@ def _resolve_causal_graph(
     if ref is None:
         return None
     try:
-        return load_causal_graph_model(ctx.store, ref)
+        return load_causal_graph_model(_ensure_ir_artifact_store(ctx.store), ref)
     except _CROSS_GRAPH_RUNTIME_ERRORS:
         return None
 

@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Any
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.ir.analytics.causal import (
     build_data_readiness_report,
@@ -245,7 +246,8 @@ class Level2CausalPlausibility(FunnelStage):
             uncertainty_envelope=envelope,
             cheap_signal=signal,
             failure_cards=cards,
-            compute_actual_usd=duration * 0.001,  # rough estimate
+            compute_cost_usd=duration * 0.001,
+            compute_cost_origin="estimated",
             fidelity_level=self.fidelity_level,
             audit_refs=audit_refs,
             feedback={
@@ -386,7 +388,7 @@ class Level2CausalPlausibility(FunnelStage):
     def _persist_proof_bundle(self, proof_bundle: Any) -> ArtifactRef | None:
         if self._artifact_store is None:
             return None
-        ref = persist_proof_bundle(self._artifact_store, proof_bundle)
+        ref = persist_proof_bundle(_ensure_ir_artifact_store(self._artifact_store), proof_bundle)
         return _to_artifact_ref(ref)
 
     def _persist_negative_certificate(
@@ -395,13 +397,15 @@ class Level2CausalPlausibility(FunnelStage):
     ) -> ArtifactRef | None:
         if self._artifact_store is None:
             return None
-        ref = persist_negative_certificate(self._artifact_store, certificate)
+        ref = persist_negative_certificate(
+            _ensure_ir_artifact_store(self._artifact_store), certificate
+        )
         return _to_artifact_ref(ref)
 
     def _persist_data_readiness_report(self, report: Any) -> ArtifactRef | None:
         if self._artifact_store is None:
             return None
-        ref = persist_data_readiness_report(self._artifact_store, report)
+        ref = persist_data_readiness_report(_ensure_ir_artifact_store(self._artifact_store), report)
         return _to_artifact_ref(ref)
 
     def _persist_bounds_bundle(
@@ -412,11 +416,13 @@ class Level2CausalPlausibility(FunnelStage):
         if self._artifact_store is None or payload is None:
             return None
         bundle, bundle_inputs = hydrate_bounds_bundle_with_dual_certificate(
-            self._artifact_store,
+            _ensure_ir_artifact_store(self._artifact_store),
             payload,
             certificate_payload,
         )
-        ref = persist_bounds_bundle(self._artifact_store, bundle, inputs=bundle_inputs)
+        ref = persist_bounds_bundle(
+            _ensure_ir_artifact_store(self._artifact_store), bundle, inputs=bundle_inputs
+        )
         return _to_artifact_ref(ref)
 
     @staticmethod

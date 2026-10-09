@@ -6,6 +6,7 @@ from pathlib import Path
 import networkx as nx
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.admg_ops import ancestors
 from polisyos.ir.analytics.causal_graph import (
@@ -53,8 +54,10 @@ def test_native_networkx_mixed_export_after_cas_all_input_permutations(tmp_path:
     store = FileSystemCAS(tmp_path / "cas")
     for ordering in permutations(_edges()):
         graph = CausalGraphModel(graph_type=GraphType.ADMG, nodes=["X", "Y"], edges=ordering)
-        ref = persist_causal_graph_model(store, graph)
-        reloaded = load_causal_graph_model(FileSystemCAS(tmp_path / "cas"), ref)
+        ref = persist_causal_graph_model(_ensure_ir_artifact_store(store), graph)
+        reloaded = load_causal_graph_model(
+            _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "cas")), ref
+        )
         _assert_full_export(reloaded)
 
 

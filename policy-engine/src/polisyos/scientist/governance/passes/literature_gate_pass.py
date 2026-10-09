@@ -5,6 +5,7 @@ from __future__ import annotations
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.core.governance.profiles import ProfileLevel
@@ -130,7 +131,7 @@ def _resolve_graph(ctx: PassContext) -> CausalGraphModel | None:
     if store is None:
         return None
     try:
-        return load_causal_graph_model(store, ref)
+        return load_causal_graph_model(_ensure_ir_artifact_store(store), ref)
     except (AttributeError, OSError, RuntimeError, TypeError, ValidationError, ValueError) as exc:
         emit_degraded_path(
             component="governance.literature_gate_pass",
@@ -156,7 +157,7 @@ def _resolve_cross_graph_profile(ctx: PassContext) -> CrossGraphEvidenceProfile 
         return None
     try:
         ref = CrossGraphEvidenceProfileRef.model_validate(raw_ref)
-        return load_cross_graph_evidence_profile(store, ref)
+        return load_cross_graph_evidence_profile(_ensure_ir_artifact_store(store), ref)
     except (AttributeError, OSError, RuntimeError, TypeError, ValidationError, ValueError) as exc:
         emit_degraded_path(
             component="governance.literature_gate_pass",

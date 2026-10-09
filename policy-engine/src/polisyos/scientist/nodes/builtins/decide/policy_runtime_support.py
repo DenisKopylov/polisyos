@@ -11,7 +11,9 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol
 from pydantic import ValidationError
 
 from polisyos.core import components as core_components
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, ProducerInfo, SchemaInfo
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.foundry import Metrics
@@ -54,6 +56,7 @@ from polisyos.scientist.methods.discovery.priors import (
 )
 from polisyos.scientist.methods.search.adversarial import load_platform_meta_evaluation_report
 from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
+from polisyos.scientist.methods.search.funnel.types import FunnelExecutedWorkPacket
 from polisyos.scientist.methods.search.judge_stack import (
     PolicyPromotionCoordinator,
     PolicyPromotionResult,
@@ -523,7 +526,21 @@ def persist_policy_evaluation_vector(
     evaluation_vector: PolicyEvaluationVector,
 ) -> ArtifactRef:
     """Persist policy evaluation vector helper."""
-    return ctx.store.put_json(
+    return persist_policy_evaluation_vector_to_store(
+        ctx.store,
+        candidate_ref=candidate_ref,
+        evaluation_vector=evaluation_vector,
+    )
+
+
+def persist_policy_evaluation_vector_to_store(
+    store: ArtifactStore,
+    *,
+    candidate_ref: ArtifactRef,
+    evaluation_vector: PolicyEvaluationVector,
+) -> ArtifactRef:
+    """Persist a native policy-runtime evaluation vector to the supplied CAS."""
+    return store.put_json(
         evaluation_vector,
         PutOptions(
             kind="scientist.policy_evaluation_vector",
@@ -533,6 +550,33 @@ def persist_policy_evaluation_vector(
                 version="1.0",
             ),
             inputs=[InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+
+
+def persist_funnel_executed_work_packet(
+    store: ArtifactStore,
+    packet: FunnelExecutedWorkPacket,
+) -> ArtifactRef:
+    """Persist a completed policy-runtime invocation record with CAS lineage."""
+    return store.put_json(
+        packet,
+        PutOptions(
+            kind="scientist.search.funnel_native_work_packet",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.search.FunnelExecutedWorkPacket",
+                version=packet.schema_version,
+            ),
+            producer=ProducerInfo(
+                component="scientist.policy_runtime_work_packet",
+                version="1.0.0",
+            ),
+            inputs=[
+                InputRef(artifact_id=packet.candidate_ref.artifact_id, role="candidate"),
+                InputRef(artifact_id=packet.source_result_ref.artifact_id, role="source_result"),
+            ],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
@@ -663,7 +707,15 @@ def build_policy_simulation_results(
         "ate": ate,
         "bootstrap": {
             "ci_width": ci_width,
-            "draws": 500 if fidelity == "full" else (64 if fidelity == "medium" else 32),
+            "requested_draw_count": (
+                500 if fidelity == "full" else (64 if fidelity == "medium" else 32)
+            ),
+            "requested_draw_source": "fidelity_default",
+            "draw_execution_status": "not_instrumented",
+            "attempted_draw_count": None,
+            "successful_draw_count": None,
+            "failed_draw_count": None,
+            "unattempted_draw_count": None,
             "fidelity": fidelity,
         },
         "objective_channels": {
@@ -768,7 +820,7 @@ def load_simulation_metrics(ctx: ExecutionContext, state: ExperimentState) -> di
     metrics_ref = state.artifacts_index.get(ARTIFACT_METRICS_REF)
     if metrics_ref is None:
         return {}
-    payload = from_canonical_bytes(ctx.store.get_bytes(metrics_ref.artifact_id))
+    payload = from_canonical_bytes(ctx.store.get_bytes(metrics_ref))
     metrics = Metrics.model_validate(payload)
     output: dict[str, float] = {}
     for key, value in metrics.values.items():
@@ -787,7 +839,11 @@ def load_simulation_metrics(ctx: ExecutionContext, state: ExperimentState) -> di
 def load_distributional_report_for_state(ctx: ExecutionContext, state: ExperimentState):
     """Load distributional report for state."""
     ref = state.artifacts_index.get(ARTIFACT_DISTRIBUTIONAL_REPORT_REF)
-    return None if ref is None else load_distributional_report(ctx.store, ref)
+    return (
+        None
+        if ref is None
+        else load_distributional_report(_ensure_ir_artifact_store(ctx.store), ref)
+    )
 
 
 def load_causal_report(ctx: ExecutionContext, state: ExperimentState) -> CausalEffectReport | None:
@@ -795,9 +851,7 @@ def load_causal_report(ctx: ExecutionContext, state: ExperimentState) -> CausalE
     ref = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
     if ref is None:
         return None
-    return CausalEffectReport.model_validate(
-        from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
-    )
+    return CausalEffectReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
 
 
 def load_governance_report(
@@ -807,15 +861,17 @@ def load_governance_report(
     ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
     if ref is None:
         return None
-    return GovernanceReport.model_validate(
-        from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
-    )
+    return GovernanceReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
 
 
 def load_cross_graph_profile(ctx: ExecutionContext, state: ExperimentState):
     """Load cross graph profile."""
     ref = state.artifacts_index.get(ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF)
-    return None if ref is None else load_cross_graph_evidence_profile(ctx.store, ref)
+    return (
+        None
+        if ref is None
+        else load_cross_graph_evidence_profile(_ensure_ir_artifact_store(ctx.store), ref)
+    )
 
 
 def load_prior_knowledge_bundle_for_state(
@@ -1004,7 +1060,9 @@ def load_search_uncertainty(ctx: ExecutionContext, state: ExperimentState):
     ref = state.artifacts_index.get(ARTIFACT_CAUSAL_ENVELOPE_REF)
     if ref is None:
         return to_search_uncertainty_envelope(None)
-    return to_search_uncertainty_envelope(load_uncertainty_envelope(ctx.store, ref))
+    return to_search_uncertainty_envelope(
+        load_uncertainty_envelope(_ensure_ir_artifact_store(ctx.store), ref)
+    )
 
 
 def load_ambiguity_certificate(
@@ -1038,7 +1096,7 @@ def load_ambiguity_certificate(
         if ref is None:
             continue
         try:
-            payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+            payload = from_canonical_bytes(ctx.store.get_bytes(ref))
         except _POLICY_RUNTIME_LOAD_ERRORS:
             continue
         certificate = _parse_ambiguity_certificate(payload)
@@ -1073,9 +1131,7 @@ def load_benchmark_evaluation(
     ref: ArtifactRef,
 ) -> BenchmarkEvaluation:
     """Load benchmark evaluation."""
-    return BenchmarkEvaluation.model_validate(
-        from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
-    )
+    return BenchmarkEvaluation.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
 
 
 def load_governance_report_from_ref(
@@ -1083,9 +1139,7 @@ def load_governance_report_from_ref(
     ref: ArtifactRef,
 ) -> GovernanceReport:
     """Load governance report from ref."""
-    return GovernanceReport.model_validate(
-        from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
-    )
+    return GovernanceReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
 
 
 def run_promotion_with_evidence(
@@ -1185,7 +1239,7 @@ def run_promotion_with_evidence(
     if data_readiness_report_ref is not None:
         try:
             data_readiness_report = load_data_readiness_report(
-                ctx.store,
+                _ensure_ir_artifact_store(ctx.store),
                 data_readiness_report_ref,
             )
         except _POLICY_RUNTIME_LOAD_ERRORS:
@@ -1490,9 +1544,7 @@ def _build_evidence_driven_simulation_metrics(
 
 def _parse_policy_evaluation(value: Any) -> PolicyEvaluationVector | None:
     try:
-        return _normalize_policy_evaluation_vector(
-            value, allow_mapping=isinstance(value, Mapping)
-        )
+        return _normalize_policy_evaluation_vector(value, allow_mapping=isinstance(value, Mapping))
     except _POLICY_RUNTIME_VALIDATION_ERRORS:
         return None
 

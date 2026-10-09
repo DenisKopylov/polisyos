@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
 from polisyos.ir import (
@@ -437,10 +438,10 @@ def test_canonical_artifacts_round_trip_via_store(tmp_path) -> None:
         fallback_data_available=True,
     )
 
-    proof_ref = persist_proof_bundle(store, proof)
-    bounds_ref = persist_bounds_bundle(store, bounds)
-    readiness_ref = persist_data_readiness_report(store, readiness)
+    proof_ref = persist_proof_bundle(_ensure_ir_artifact_store(store), proof)
+    bounds_ref = persist_bounds_bundle(_ensure_ir_artifact_store(store), bounds)
+    readiness_ref = persist_data_readiness_report(_ensure_ir_artifact_store(store), readiness)
 
-    assert load_proof_bundle(store, proof_ref) == proof
-    assert load_bounds_bundle(store, bounds_ref) == bounds
-    assert load_data_readiness_report(store, readiness_ref) == readiness
+    assert load_proof_bundle(_ensure_ir_artifact_store(store), proof_ref) == proof
+    assert load_bounds_bundle(_ensure_ir_artifact_store(store), bounds_ref) == bounds
+    assert load_data_readiness_report(_ensure_ir_artifact_store(store), readiness_ref) == readiness

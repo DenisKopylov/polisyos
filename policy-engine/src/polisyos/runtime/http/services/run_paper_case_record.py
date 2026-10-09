@@ -66,9 +66,7 @@ class RunBoundDesignRecordResolver:
             raise RunPaperSourceError(str(exc)) from exc
 
     def _resolve_source(self, source: TerminalCoreRunSource) -> ResolvedRunBoundDesignRecord:
-        binding_refs = [
-            ref for ref in source.manifest.outputs if ref.kind == _BINDING_KIND
-        ]
+        binding_refs = [ref for ref in source.manifest.outputs if ref.kind == _BINDING_KIND]
         if len(binding_refs) != 1:
             raise RunPaperSourceError(
                 "terminal run manifest must name exactly one run-bound DesignRecord binding"
@@ -155,10 +153,10 @@ class RunBoundDesignRecordResolver:
     ) -> artifacts.ArtifactManifest:
         if artifact_ref.kind != kind or artifact_ref.media_type != _JSON_MEDIA_TYPE:
             raise RunPaperSourceError(f"{role} reference metadata mismatch")
-        verification = self._store.verify(artifact_ref.artifact_id)
+        verification = self._store.verify(artifact_ref)
         if not verification.ok:
             raise RunPaperSourceError(f"{role} failed CAS verification")
-        sidecar = self._store.get_manifest(artifact_ref.artifact_id)
+        sidecar = self._store.get_manifest(artifact_ref)
         if sidecar.kind != kind or sidecar.media_type != _JSON_MEDIA_TYPE:
             raise RunPaperSourceError(f"{role} sidecar identity mismatch")
         if (
@@ -173,7 +171,7 @@ class RunBoundDesignRecordResolver:
 
     def _load_payload(self, artifact_ref: artifacts.ArtifactRef, *, role: str) -> object:
         try:
-            payload_bytes = self._store.get_bytes(artifact_ref.artifact_id)
+            payload_bytes = self._store.get_bytes(artifact_ref)
             if canon.content_hash(payload_bytes, prefix=True) != str(artifact_ref.artifact_id):
                 raise ValueError("resolved bytes do not match their content address")
             return canon.from_canonical_bytes(payload_bytes)

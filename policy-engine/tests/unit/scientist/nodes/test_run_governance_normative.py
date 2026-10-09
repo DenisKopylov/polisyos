@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from unittest.mock import patch
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.registry import build_default_registry_bundle
@@ -109,9 +110,7 @@ def test_run_governance_phase2_accepts_complete_six_judge_tail(tmp_path) -> None
     )
 
     assert report.verdict == "approve"
-    assert not any(
-        issue["code"] == "GY_PHASE2_GOVERNANCE_TAIL_BLOCKED" for issue in report.issues
-    )
+    assert not any(issue["code"] == "GY_PHASE2_GOVERNANCE_TAIL_BLOCKED" for issue in report.issues)
 
 
 def test_run_governance_preserves_human_gate_precedence(tmp_path) -> None:
@@ -136,7 +135,7 @@ def test_run_governance_uses_branch_state_for_params_and_report(tmp_path) -> Non
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.governance.branch"))
 
     normative_ref = persist_normative_arbitration_result(
-        store,
+        _ensure_ir_artifact_store(store),
         NormativeArbitrationResult(
             model_completeness=NormativeModelCompleteness.COMPLETE,
             option_matrix=[
@@ -218,7 +217,7 @@ def _run_governance_with_normative_result(
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.governance"))
 
     normative_ref = persist_normative_arbitration_result(
-        store,
+        _ensure_ir_artifact_store(store),
         NormativeArbitrationResult(
             model_completeness=completeness,
             option_matrix=[

@@ -7,6 +7,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -111,7 +112,7 @@ def _persist_spatial_dependence_ref(
         },
         metadata={"has_weights_matrix": data.weights_matrix is not None},
     )
-    return persist_dependence_structure(artifact_store, structure)
+    return persist_dependence_structure(_ensure_ir_artifact_store(artifact_store), structure)
 
 
 def _spatial_weights(data: SpatialData, *, decay: float = 1.0) -> np.ndarray:

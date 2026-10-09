@@ -228,8 +228,8 @@ class StateSnapshotFeasibilityProbe:
 
     def _load_state_for_snapshot(self, data_snapshot_ref: str) -> Any:
         try:
-            from polisyos.foundry.execute.executor import load_state_snapshot
             from polisyos.foundry.execute._internal.snapshots import _SnapshotStateLayoutError
+            from polisyos.foundry.execute.executor import load_state_snapshot
         except ModuleNotFoundError as exc:  # pragma: no cover - optional dependency
             load_state_snapshot = None
             _SnapshotStateLayoutError = None
@@ -257,7 +257,7 @@ class StateSnapshotFeasibilityProbe:
     def _load_raw_state_snapshot(self, snapshot_artifact_id: str | ArtifactID) -> Any:
         snapshot_payload = from_canonical_bytes(self._cas.get_bytes(snapshot_artifact_id))
         snapshot = StateSnapshot.model_validate(snapshot_payload)
-        blob = np.load(BytesIO(self._cas.get_bytes(snapshot.state_ref.artifact_id)))
+        blob = np.load(BytesIO(self._cas.get_bytes(snapshot.state_ref)))
         flat = {key: np.asarray(blob[key]) for key in blob.files}
         return self._to_namespace(self._nest_state(flat))
 

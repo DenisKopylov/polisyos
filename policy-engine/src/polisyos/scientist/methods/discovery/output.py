@@ -9,6 +9,7 @@ from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -104,9 +105,13 @@ DISCOVERY_TASK_PROFILE_SCHEMA_NAME = "polisyos.scientist.methods.discovery.Disco
 GRAPH_HYPOTHESIS_SET_SCHEMA_NAME = "polisyos.scientist.methods.discovery.GraphHypothesisSet"
 REFUTATION_REPORT_SCHEMA_NAME = "polisyos.scientist.methods.discovery.RefutationReport"
 REPRODUCIBILITY_REPORT_SCHEMA_NAME = "polisyos.scientist.methods.discovery.ReproducibilityReport"
-ACTIVE_DISAMBIGUATION_PLAN_SCHEMA_NAME = "polisyos.scientist.methods.discovery.ActiveDisambiguationPlan"
+ACTIVE_DISAMBIGUATION_PLAN_SCHEMA_NAME = (
+    "polisyos.scientist.methods.discovery.ActiveDisambiguationPlan"
+)
 DISCOVERY_AUDIT_BUNDLE_SCHEMA_NAME = "polisyos.scientist.methods.discovery.DiscoveryAuditBundle"
-DISCOVERY_ARTIFACT_BUNDLE_SCHEMA_NAME = "polisyos.scientist.methods.discovery.DiscoveryArtifactBundle"
+DISCOVERY_ARTIFACT_BUNDLE_SCHEMA_NAME = (
+    "polisyos.scientist.methods.discovery.DiscoveryArtifactBundle"
+)
 _LATENT_CARDINALITY_METADATA_KEYS = {
     "model_class",
     "identifiability_status",
@@ -454,7 +459,7 @@ class DiscoveryArtifactBuilder:
         hypothesis_updates: dict[str, GraphHypothesis] = {}
         for candidate in source.portfolio_result.candidates:
             ref = persist_causal_discovery_report(
-                store,
+                _ensure_ir_artifact_store(store),
                 candidate.source_report,
                 inputs=ir_inputs,
             )
@@ -934,7 +939,7 @@ def _load_model(
     ref: ArtifactRef,
     model_cls: type[BaseModel],
 ) -> Any:
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return model_cls.model_validate(payload)
 
 
@@ -1400,7 +1405,7 @@ def load_source_discovery_reports_for_bundle(
                 ref_map[hypothesis.hypothesis_id] = hypothesis.source_discovery_report_ref
     reports: dict[str, CausalDiscoveryReport] = {}
     for hypothesis_id, ref in ref_map.items():
-        reports[hypothesis_id] = load_causal_discovery_report(store, ref)
+        reports[hypothesis_id] = load_causal_discovery_report(_ensure_ir_artifact_store(store), ref)
     return reports
 
 

@@ -614,11 +614,9 @@ class OpenWorldRiskVectorArtifactRepository:
         expected_verifier_provenance_ref: ArtifactRef,
     ) -> VerifiedOpenWorldRiskVector | OpenWorldRiskResolutionNonReceipt:
         try:
-            provenance_report = self._store.verify(expected_verifier_provenance_ref.artifact_id)
-            provenance = self._store.get_bytes(expected_verifier_provenance_ref.artifact_id)
-            provenance_manifest = self._store.get_manifest(
-                expected_verifier_provenance_ref.artifact_id
-            )
+            provenance_report = self._store.verify(expected_verifier_provenance_ref)
+            provenance = self._store.get_bytes(expected_verifier_provenance_ref)
+            provenance_manifest = self._store.get_manifest(expected_verifier_provenance_ref)
             if (
                 not provenance_report.ok
                 or expected_verifier_provenance_ref.kind != "chronology.open_world_risk_verifier"
@@ -652,7 +650,7 @@ class OpenWorldRiskVectorArtifactRepository:
             )
             if not isinstance(value, OpenWorldRiskVector):
                 raise TypeError("open_world_vector_model_mismatch")
-            raw = self._store.get_bytes(vector_artifact_ref.artifact_id)
+            raw = self._store.get_bytes(vector_artifact_ref)
             if (
                 _raw_hash(raw) != expected_raw_cas_hash
                 or c4_semantic_digest("open_world_risk_vector", value) != expected_semantic_hash
@@ -790,9 +788,7 @@ class OpenWorldRiskVectorArtifactRepository:
             if isinstance(aggregate, PromotionOwnerQueryContextNonReceipt):
                 raise ValueError(aggregate.code)
             member = contexts.resolve_bound_member(bound_member_ref=gate.bound_member_ref)
-            problem_raw = self._store.get_bytes(
-                aggregate.statement.design_problem_binding_ref.artifact_id
-            )
+            problem_raw = self._store.get_bytes(aggregate.statement.design_problem_binding_ref)
             problem = DesignProblem.model_validate(canon.from_canonical_bytes(problem_raw))
             owner_contexts = aggregate.statement.ordered_candidate_contexts
             if (
@@ -873,9 +869,7 @@ class BoundProblemDeclaredScopeManifestProvider:
             occurrence = self._contexts.resolve_occurrence(
                 occurrence_ref=member.statement.candidate_occurrence_ref
             )
-            problem_raw = self._store.get_bytes(
-                aggregate.statement.design_problem_binding_ref.artifact_id
-            )
+            problem_raw = self._store.get_bytes(aggregate.statement.design_problem_binding_ref)
             problem = DesignProblem.model_validate(canon.from_canonical_bytes(problem_raw))
             model_value = problem.model_spec_ref or "declared_absent"
             calibration_value = occurrence.candidate_summary.value_ref or "declared_absent"
@@ -1222,11 +1216,11 @@ def persist_and_verify_design_problem_snapshot(
         raw,
         ArtifactWriteOptions(kind="runtime.design_problem", media_type="application/json"),
     )
-    report = store.verify(ref.artifact_id)
-    manifest = store.get_manifest(ref.artifact_id)
+    report = store.verify(ref)
+    manifest = store.get_manifest(ref)
     if (
         not report.ok
-        or store.get_bytes(ref.artifact_id) != raw
+        or store.get_bytes(ref) != raw
         or str(ref.artifact_id) != _raw_hash(raw)
         or manifest.kind != "runtime.design_problem"
         or manifest.media_type != "application/json"

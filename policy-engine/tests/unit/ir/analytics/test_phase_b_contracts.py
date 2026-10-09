@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentOverallStatus,
@@ -173,9 +174,7 @@ def test_latent_component_requires_every_edge_to_allow_promotion() -> None:
                     "readiness_cap": "proof_only",
                     "promotion_allowed": False,
                     "no_promotion_reasons": ["latent_artifact_proof_only"],
-                    "metadata": {
-                        "latent_artifact_blockers": ["latent_artifact_proof_only"]
-                    },
+                    "metadata": {"latent_artifact_blockers": ["latent_artifact_proof_only"]},
                 }
             },
         }
@@ -402,26 +401,31 @@ def test_phase_b_contracts_round_trip_via_store(tmp_path) -> None:
         certificates=[certificate],
     )
 
-    fragment_ref = persist_scm_fragment(store, fragment)
-    certificate_ref = persist_variable_alignment_certificate(store, certificate)
-    report_ref = persist_alignment_report(store, report)
+    fragment_ref = persist_scm_fragment(_ensure_ir_artifact_store(store), fragment)
+    certificate_ref = persist_variable_alignment_certificate(
+        _ensure_ir_artifact_store(store), certificate
+    )
+    report_ref = persist_alignment_report(_ensure_ir_artifact_store(store), report)
 
     assert isinstance(fragment_ref, SCMFragmentRef)
     assert isinstance(certificate_ref, VariableAlignmentCertificateRef)
     assert isinstance(report_ref, AlignmentReportRef)
-    assert load_scm_fragment(store, fragment_ref) == fragment
-    assert load_variable_alignment_certificate(store, certificate_ref) == certificate
-    assert load_alignment_report(store, report_ref) == report
+    assert load_scm_fragment(_ensure_ir_artifact_store(store), fragment_ref) == fragment
+    assert (
+        load_variable_alignment_certificate(_ensure_ir_artifact_store(store), certificate_ref)
+        == certificate
+    )
+    assert load_alignment_report(_ensure_ir_artifact_store(store), report_ref) == report
 
 
 def test_cyclic_scm_fragment_round_trip_via_store(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     fragment = _cyclic_fragment()
 
-    fragment_ref = persist_scm_fragment(store, fragment)
+    fragment_ref = persist_scm_fragment(_ensure_ir_artifact_store(store), fragment)
 
     assert isinstance(fragment_ref, SCMFragmentRef)
-    assert load_scm_fragment(store, fragment_ref) == fragment
+    assert load_scm_fragment(_ensure_ir_artifact_store(store), fragment_ref) == fragment
 
 
 def test_verify_fragment_alignment_returns_exact_mapping() -> None:
@@ -713,9 +717,9 @@ def test_legacy_latent_bridge_human_flag_cannot_authorize_latent_alignment() -> 
     assert report.review_status is AlignmentReviewStatus.CLEAR
     certificate = report.per_variable_certificates[0]
     assert certificate.alignment_type is AlignmentType.INCOMPATIBLE
-    assert "latent_governance_recomputation_missing" in certificate.metadata[
-        "hard_conflict_reasons"
-    ]
+    assert (
+        "latent_governance_recomputation_missing" in certificate.metadata["hard_conflict_reasons"]
+    )
     governance = report.per_variable_certificates[0].metadata["latent_bridge_governance"]
     assert governance["readiness_cap"] == "proof_only"
     assert governance["promotion_allowed"] is False
@@ -787,7 +791,7 @@ def test_interface_mapping_and_composition_certificate_round_trip(tmp_path) -> N
             variable_units={"employment_rate": "percent"},
         ),
     )
-    mapping_ref = persist_interface_mapping(store, mapping)
+    mapping_ref = persist_interface_mapping(_ensure_ir_artifact_store(store), mapping)
     certificate = CompositionCertificate(
         status="preserved",
         composed_graph_ref="artifact:graph:stitched",
@@ -798,12 +802,15 @@ def test_interface_mapping_and_composition_certificate_round_trip(tmp_path) -> N
         source_fragment_graph_refs={"a": "artifact:graph:a", "b": "artifact:graph:b"},
         failure_card_bundle_ref="artifact:failure_cards:bundle",
     )
-    certificate_ref = persist_composition_certificate(store, certificate)
+    certificate_ref = persist_composition_certificate(_ensure_ir_artifact_store(store), certificate)
 
     assert isinstance(mapping_ref, InterfaceMappingRef)
     assert isinstance(certificate_ref, CompositionCertificateRef)
-    assert load_interface_mapping(store, mapping_ref) == mapping
-    assert load_composition_certificate(store, certificate_ref) == certificate
+    assert load_interface_mapping(_ensure_ir_artifact_store(store), mapping_ref) == mapping
+    assert (
+        load_composition_certificate(_ensure_ir_artifact_store(store), certificate_ref)
+        == certificate
+    )
 
 
 def test_completeness_scope_is_in_scope_for_exact_observed_dag_adjustment() -> None:

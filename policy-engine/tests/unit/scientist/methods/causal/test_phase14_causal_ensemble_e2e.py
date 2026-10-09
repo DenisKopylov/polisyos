@@ -3,6 +3,8 @@ from __future__ import annotations
 import logging
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -24,8 +26,6 @@ from polisyos.ir.analytics.structural_causal_model import (
 )
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
 from polisyos.scientist.compute.job_spec import JobKey, JobResult
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.causal.resolve_transport import RunTransportabilityNode
 from polisyos.scientist.nodes.builtins.causal.run_causal_ensemble import RunCausalEnsembleNode
 from polisyos.scientist.nodes.builtins.causal.run_causal_queries import RunCausalQueriesNode
@@ -36,6 +36,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def _build_ctx(tmp_path, *, run_id: str) -> ExecutionContext:
@@ -124,7 +126,7 @@ def test_phase14_causal_ensemble_full_e2e_acceptance(
     for method, coef in (("pc", 1.0), ("fci", 2.0), ("ges", 3.0)):
         graph = _diamond_graph(method)
         scm_refs[method] = persist_structural_causal_model_spec(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             _scm_for_graph(graph, coef=coef),
         )
 
@@ -165,7 +167,9 @@ def test_phase14_causal_ensemble_full_e2e_acceptance(
     assert query_outcome.status == "ok"
 
     single_envelope_ref = query_outcome.state.artifacts_index[ARTIFACT_CAUSAL_QUERY_ENVELOPE_REF]
-    single_envelope = load_uncertainty_envelope(ctx.store, single_envelope_ref)
+    single_envelope = load_uncertainty_envelope(
+        _ensure_ir_artifact_store(ctx.store), single_envelope_ref
+    )
     single_width = single_envelope.confidence_interval[1] - single_envelope.confidence_interval[0]
 
     ensemble_state = query_outcome.state.model_copy(deep=True)
@@ -188,7 +192,7 @@ def test_phase14_causal_ensemble_full_e2e_acceptance(
     assert ensemble_outcome.status == "ok"
 
     ensemble_ref = ensemble_outcome.state.artifacts_index[ARTIFACT_CAUSAL_ENSEMBLE_REF]
-    ensemble = load_causal_model_ensemble(ctx.store, ensemble_ref)
+    ensemble = load_causal_model_ensemble(_ensure_ir_artifact_store(ctx.store), ensemble_ref)
     assert len(ensemble.members) == 3
     assert pytest.approx(ensemble.edge_inclusion_frequency["M→Y"], rel=1e-6) == (2.0 / 3.0)
     assert pytest.approx(ensemble.edge_inclusion_frequency["N→Y"], rel=1e-6) == (2.0 / 3.0)
@@ -198,7 +202,7 @@ def test_phase14_causal_ensemble_full_e2e_acceptance(
         != single_envelope_ref.artifact_id
     )
     ensemble_envelope = load_uncertainty_envelope(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         ensemble_outcome.state.artifacts_index[ARTIFACT_CAUSAL_ENVELOPE_REF],
     )
     ensemble_width = (
@@ -207,7 +211,7 @@ def test_phase14_causal_ensemble_full_e2e_acceptance(
     assert ensemble_width > single_width
 
     report_ref = persist_causal_effect_report(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         CausalEffectReport(
             method=CausalMethod.DOWHY_BACKDOOR,
             status=EstimationStatus.SUCCESS,
@@ -236,6 +240,8 @@ def test_phase14_causal_ensemble_full_e2e_acceptance(
     assert transport_outcome.status == "ok"
 
     updated_report_ref = transport_outcome.state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF]
-    updated_report = load_causal_effect_report(ctx.store, updated_report_ref)
+    updated_report = load_causal_effect_report(
+        _ensure_ir_artifact_store(ctx.store), updated_report_ref
+    )
     assert updated_report.transport_result is not None
     assert updated_report.transport_result.id_confidence_under_pag is not None

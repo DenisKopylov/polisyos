@@ -8,8 +8,15 @@ from dataclasses import dataclass, field
 from math import isfinite
 from typing import Any, Literal
 
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.ir import TypedFailureCard, UncertaintyType
+from polisyos.scientist.methods.search.artifact_minimality import (
+    ArtifactFunction,
+    ArtifactMinimalityMixin,
+    artifact_functions_field,
+)
 from polisyos.scientist.methods.search.stages import SearchStage, StageResult
 from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope,
@@ -17,6 +24,97 @@ from polisyos.scientist.methods.search.uncertainty import (
 )
 
 FunnelEvaluationStatus = Literal["not_evaluated", "partial", "evaluated"]
+FunnelCostOrigin = Literal["reported", "estimated", "unknown"]
+FunnelWorkPacketStatus = Literal["available", "unavailable", "rejected"]
+
+
+def _validate_funnel_cost(amount: float | None, origin: FunnelCostOrigin) -> None:
+    """Reject amounts that disagree with their source-evidence status."""
+    if origin not in {"reported", "estimated", "unknown"}:
+        raise ValueError("unsupported funnel cost origin")
+    if amount is None:
+        if origin != "unknown":
+            raise ValueError("known funnel cost origin requires a cost amount")
+        return
+    if isinstance(amount, bool) or not isfinite(amount) or amount < 0.0:
+        raise ValueError("funnel cost amount must be finite and non-negative")
+    if origin == "unknown":
+        raise ValueError("unknown funnel cost cannot carry an amount")
+
+
+class FunnelExecutedWorkPacket(ArtifactMinimalityMixin):
+    """Source-bound record of one completed native policy-runtime invocation.
+
+    The current policy runtime does not execute a scientific draw loop. The
+    invocation counter is therefore reported separately from requested draw
+    configuration, while actual draw counters remain uninstrumented.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    authority_purpose: Literal["engineering_execution_observation"] = (
+        "engineering_execution_observation"
+    )
+    artifact_functions: set[ArtifactFunction] = Field(
+        default_factory=lambda: artifact_functions_field(ArtifactFunction.REPLAY_AUDIT)
+    )
+    run_id: str = Field(min_length=1)
+    ticket_id: str = Field(min_length=1)
+    candidate_hash: str = Field(min_length=1)
+    candidate_ref: ArtifactRef
+    stage_level: Literal[3, 4]
+    stage_name: Literal["funnel_L3_medium", "funnel_L4_full"]
+    fidelity: Literal["medium", "full"]
+    evaluation_attempt_id: str = Field(min_length=1)
+    observed_at: AwareDatetime
+    backend_kind: str = Field(min_length=1)
+    work_unit: Literal["policy_runtime_evaluator_invocation"] = (
+        "policy_runtime_evaluator_invocation"
+    )
+    attempted_invocation_count: Literal[1] = 1
+    completed_invocation_count: Literal[1] = 1
+    failed_invocation_count: Literal[0] = 0
+    source_result_ref: ArtifactRef
+    requested_draw_count: int | None = Field(default=None, ge=0, strict=True)
+    requested_draw_source: Literal["fidelity_default"] = "fidelity_default"
+    draw_execution_status: Literal["not_instrumented"] = "not_instrumented"
+    attempted_draw_count: None = None
+    successful_draw_count: None = None
+    failed_draw_count: None = None
+    unattempted_draw_count: None = None
+    input_signature: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_runtime_binding(self) -> FunnelExecutedWorkPacket:
+        if self.candidate_ref.kind != "scientist.policy_design.candidate":
+            raise ValueError("work packet candidate_ref must identify a policy candidate")
+        if self.source_result_ref.kind != "scientist.policy_evaluation_vector":
+            raise ValueError("work packet source_result_ref must identify a policy evaluation")
+        expected = {
+            3: ("funnel_L3_medium", "medium"),
+            4: ("funnel_L4_full", "full"),
+        }[self.stage_level]
+        if (self.stage_name, self.fidelity) != expected:
+            raise ValueError("work packet stage and fidelity do not match")
+        return self
+
+
+def parse_funnel_work_packet_feedback(
+    feedback: Mapping[str, Any],
+) -> tuple[ArtifactRef | None, FunnelWorkPacketStatus]:
+    """Read the producer's typed packet reference claim for consumer admission."""
+    raw_ref = feedback.get("policy_runtime_work_packet_ref")
+    raw_status = feedback.get("policy_runtime_work_packet_status")
+    if raw_ref is None:
+        return None, "unavailable" if raw_status in {None, "unavailable"} else "rejected"
+    try:
+        ref = raw_ref if isinstance(raw_ref, ArtifactRef) else ArtifactRef.model_validate(raw_ref)
+    except (TypeError, ValueError):
+        return None, "rejected"
+    if raw_status != "available":
+        return None, "rejected"
+    return ref, "available"
 
 
 def statistical_uncertainty_from_ci_width(
@@ -182,7 +280,10 @@ class FunnelStageResult(StageResult):
     )
     cheap_signal: CheapSignalVector | None = None
     failure_cards: list[TypedFailureCard] = field(default_factory=list)
-    compute_actual_usd: float = 0.0
+    compute_cost_usd: float | None = None
+    compute_cost_origin: FunnelCostOrigin = "unknown"
+    executed_work_packet_ref: ArtifactRef | None = None
+    executed_work_packet_status: FunnelWorkPacketStatus = "unavailable"
     fidelity_level: int = 0
     audit_refs: list[ArtifactRef] = field(default_factory=list)
     uncertainty_observation_ref: ArtifactRef | None = None
@@ -199,9 +300,27 @@ class FunnelStageResult(StageResult):
         | None
     ) = None
 
+    def __post_init__(self) -> None:
+        """Keep cost evidence aligned with its declared origin."""
+        _validate_funnel_cost(self.compute_cost_usd, self.compute_cost_origin)
+        _validate_funnel_work_packet(
+            self.executed_work_packet_ref,
+            self.executed_work_packet_status,
+        )
+
     @property
     def has_blockers(self) -> bool:
         return any(fc.is_blocker for fc in self.failure_cards)
+
+
+def _validate_funnel_work_packet(
+    ref: ArtifactRef | None,
+    status: FunnelWorkPacketStatus,
+) -> None:
+    if status == "available" and ref is None:
+        raise ValueError("available executed-work status requires a packet reference")
+    if status == "unavailable" and ref is not None:
+        raise ValueError("unavailable executed-work status cannot carry a packet reference")
 
 
 class FunnelStage(SearchStage):

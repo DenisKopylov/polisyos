@@ -7,6 +7,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import SimulationResult
@@ -55,8 +56,6 @@ from polisyos.ir.registry.refs import (
     WelfareBundleRef,
 )
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_FISCAL_FEEDBACK_LINK_REF,
     ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF,
@@ -64,6 +63,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_WELFARE_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.schema import (
     PolicyCandidateSchema,
     load_policy_candidate_schema,
@@ -194,7 +195,9 @@ def resolve_phase3_gate(
         blocking_reasons.append(_PHASE3_BLOCK_WELFARE_MISSING)
     else:
         try:
-            welfare_bundle = load_welfare_bundle(ctx.store, welfare_bundle_ref)
+            welfare_bundle = load_welfare_bundle(
+                _ensure_ir_artifact_store(ctx.store), welfare_bundle_ref
+            )
         except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
             blocking_reasons.append(_PHASE3_BLOCK_WELFARE_MISSING)
         else:
@@ -342,7 +345,7 @@ def ensure_optimization_ambiguity_certificate(
         certificate = _build_canonical_ambiguity_certificate(payload)
 
     return persist_optimization_ambiguity_certificate(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         certificate,
         inputs=_ambiguity_inputs(state),
     )
@@ -382,7 +385,9 @@ def ensure_fiscal_feedback_link(
         ambiguity_certificate_ref=ambiguity_certificate_ref,
         metadata={"source": "phase3_gate_resolver"},
     )
-    ref = persist_fiscal_feedback_link(ctx.store, link, inputs=_ambiguity_inputs(state))
+    ref = persist_fiscal_feedback_link(
+        _ensure_ir_artifact_store(ctx.store), link, inputs=_ambiguity_inputs(state)
+    )
     state.artifacts_index[ARTIFACT_FISCAL_FEEDBACK_LINK_REF] = ArtifactRef.model_validate(
         ref.model_dump(mode="json")
     )
@@ -416,7 +421,9 @@ def phase3_gate_reference_blockers(
         blockers.append(_PHASE3_BLOCK_WELFARE_MISSING)
     else:
         try:
-            welfare = load_welfare_bundle(store, status.welfare_bundle_ref)
+            welfare = load_welfare_bundle(
+                _ensure_ir_artifact_store(store), status.welfare_bundle_ref
+            )
         except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
             blockers.append(_PHASE3_BLOCK_WELFARE_MISSING)
         else:
@@ -431,7 +438,9 @@ def phase3_gate_reference_blockers(
         blockers.append(_PHASE3_BLOCK_AMBIGUITY_MISSING)
     else:
         try:
-            load_optimization_ambiguity_certificate(store, status.ambiguity_certificate_ref)
+            load_optimization_ambiguity_certificate(
+                _ensure_ir_artifact_store(store), status.ambiguity_certificate_ref
+            )
         except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
             blockers.append(_PHASE3_BLOCK_AMBIGUITY_MISSING)
 
@@ -441,9 +450,7 @@ def phase3_gate_reference_blockers(
         else:
             try:
                 SemanticICCertificate.model_validate(
-                    from_canonical_bytes(
-                        store.get_bytes(status.semantic_ic_certificate_ref.artifact_id)
-                    )
+                    from_canonical_bytes(store.get_bytes(status.semantic_ic_certificate_ref))
                 )
             except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
                 blockers.append(_PHASE3_BLOCK_MECHANISM_CERTIFICATE_MISSING)
@@ -451,14 +458,18 @@ def phase3_gate_reference_blockers(
             blockers.append(_PHASE3_BLOCK_MECHANISM_CERTIFICATE_MISSING)
         else:
             try:
-                load_mechanism_ic_certificate(store, status.mechanism_ic_certificate_ref)
+                load_mechanism_ic_certificate(
+                    _ensure_ir_artifact_store(store), status.mechanism_ic_certificate_ref
+                )
             except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
                 blockers.append(_PHASE3_BLOCK_MECHANISM_CERTIFICATE_MISSING)
         if status.mechanism_welfare_loss_bound_ref is None:
             blockers.append(_PHASE3_BLOCK_MECHANISM_WELFARE_BOUND_MISSING)
         else:
             try:
-                load_mechanism_welfare_loss_bound(store, status.mechanism_welfare_loss_bound_ref)
+                load_mechanism_welfare_loss_bound(
+                    _ensure_ir_artifact_store(store), status.mechanism_welfare_loss_bound_ref
+                )
             except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
                 blockers.append(_PHASE3_BLOCK_MECHANISM_WELFARE_BOUND_MISSING)
 
@@ -467,7 +478,9 @@ def phase3_gate_reference_blockers(
             blockers.append(_PHASE3_BLOCK_FISCAL_FEEDBACK_MISSING)
         else:
             try:
-                load_fiscal_feedback_link(store, status.fiscal_feedback_ref)
+                load_fiscal_feedback_link(
+                    _ensure_ir_artifact_store(store), status.fiscal_feedback_ref
+                )
             except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
                 blockers.append(_PHASE3_BLOCK_FISCAL_FEEDBACK_MISSING)
 
@@ -532,7 +545,7 @@ def ensure_social_weight_manifest_artifact(
             "source_handle": handle,
         },
     )
-    return persist_social_weight_manifest(ctx.store, artifact)
+    return persist_social_weight_manifest(_ensure_ir_artifact_store(ctx.store), artifact)
 
 
 def _resolve_candidate(
@@ -560,7 +573,7 @@ def _resolve_candidate(
     if trinity_ref is None:
         return None
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
+        payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref))
         return PolicyCandidateSchema.from_trinity_bundle(
             TrinityBundle.model_validate(payload),
             candidate_id=str(state.params.get("policy_candidate_id") or state.run_id),
@@ -580,7 +593,7 @@ def _resolve_welfare_bundle_ref(
     if sim_ref is None:
         return None
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(sim_ref.artifact_id))
+        payload = from_canonical_bytes(ctx.store.get_bytes(sim_ref))
         result = SimulationResult.model_validate(payload)
     except (OSError, RuntimeError, TypeError, ValueError):
         return None
@@ -882,7 +895,7 @@ def _mechanism_family_unsupported(
     for ref in report_refs:
         try:
             report = ICVerificationReport.model_validate(
-                from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+                from_canonical_bytes(ctx.store.get_bytes(ref))
             )
         except (OSError, RuntimeError, TypeError, ValueError):
             continue
@@ -947,7 +960,7 @@ def _phase3_fiscal_feedback_required(
         return False
     try:
         decomposition = load_channel_decomposition_artifact(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             welfare_bundle.channel_decomposition_ref,
         )
     except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
@@ -1052,7 +1065,7 @@ def _coerce_ref(value: Any, ref_cls):
 
 def _load_json_mapping(ctx: ExecutionContext, ref: ArtifactRef) -> dict[str, Any] | None:
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+        payload = from_canonical_bytes(ctx.store.get_bytes(ref))
     except (OSError, RuntimeError, TypeError, ValueError):
         return None
     if isinstance(payload, Mapping):

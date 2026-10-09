@@ -220,7 +220,7 @@ def load_dependence_structure(
 
     from polisyos.ir.artifacts.io import get_json_artifact
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return DependenceStructure.model_validate(payload)
 
 

@@ -412,7 +412,7 @@ def load_local_independence_weighting_certificate(
 ) -> LocalIndependenceWeightingCertificate:
     """Load a persisted local-independence weighting certificate."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return LocalIndependenceWeightingCertificate.model_validate(payload)
 
 

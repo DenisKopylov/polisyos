@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from pathlib import Path
 from typing import Any, cast
 
 from pydantic import ValidationError
@@ -20,15 +21,21 @@ from polisyos.scientist.orchestration.engine.runner.serialization import (
     serialize_outcome,
     serialize_state,
 )
+from polisyos.scientist.orchestration.engine.runner.worker_pool import NodeTask
 
 _logger = logging.getLogger(__name__)
 _TRACE_IMPORT_ERRORS = (ImportError, ModuleNotFoundError, AttributeError)
 _TRACE_RUNTIME_ERRORS = (RuntimeError, TypeError, ValueError)
 _REGISTRY_REF_ERRORS = (ValidationError, TypeError, ValueError)
 _METRICS_INIT_ERRORS = (AttributeError, OSError, RuntimeError, TypeError, ValueError)
+_TIMEOUT_CONTEXT_WIRE_SCHEMA = "polisyos.scientist.timeout_context.v1"
 
 
-async def run_node_in_worker(payload: dict[str, Any]) -> bytes:
+async def run_node_in_worker(
+    payload: dict[str, Any],
+    *,
+    timeout_authority: tuple[Any, float] | None = None,
+) -> bytes:
     """Execute one node and return its typed, serialised outcome.
 
     This is the async entry point used by Temporal activities.
@@ -63,14 +70,39 @@ async def run_node_in_worker(payload: dict[str, Any]) -> bytes:
     )
 
     try:
-        # Build a minimal execution context for this worker
-        ctx = _build_worker_context(context_meta)
+        # Timeout workers use a strict local context wire and share the
+        # parent's revocable write authority. Distributed workers retain their
+        # established reconstruction contract.
+        if timeout_authority is None:
+            ctx = _build_worker_context(context_meta)
+        else:
+            ctx = _build_timeout_worker_context(context_meta)
+            if ctx.run.run_manifest.run_id != state.run_id:
+                raise ValueError("timeout_worker_run_id_mismatch")
+            from polisyos.scientist.orchestration.engine.retry import (
+                _AttemptAuthority,
+                _build_attempt_context,
+            )
+
+            authority = _AttemptAuthority(
+                timeout_authority[1],
+                shared_active=timeout_authority[0],
+            )
+            ctx = _build_attempt_context(ctx, authority)
 
         # Resolve and execute the node
         from polisyos.scientist.orchestration.engine.registry import NodeRegistry, discover_nodes
 
         registry = NodeRegistry()
-        discover_nodes(registry)
+        if timeout_authority is None:
+            discover_nodes(registry)
+        else:
+            discover_nodes(
+                registry,
+                include_entry_points=False,
+                include_builtin_nodes=True,
+                include_dev_scan=False,
+            )
 
         node = registry.get(node_id)
 
@@ -151,6 +183,46 @@ async def run_node_in_worker(payload: dict[str, Any]) -> bytes:
 def run_node_in_worker_sync(payload: dict[str, Any]) -> bytes:
     """Synchronous wrapper for Ray remote tasks."""
     return asyncio.run(run_node_in_worker(payload))
+
+
+def run_node_task_in_timeout_worker_sync(
+    task: NodeTask,
+    *,
+    authority_active: Any,
+    deadline_monotonic: float,
+) -> bytes:
+    """Run one typed ``NodeTask`` with a strict reconstructed local context.
+
+    This is the spawn-safe timeout entry point. It deliberately disables a
+    nested timeout and requires the task's context metadata to identify the
+    exact store and existing run trace.
+    """
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    tenant_scope_meta = task.context_meta.get("tenant_scope")
+    if not isinstance(tenant_scope_meta, dict):
+        raise ValueError("timeout_worker_tenant_scope_required")
+    tenant_id = tenant_scope_meta.get("tenant_id")
+    cell_id = tenant_scope_meta.get("cell_id")
+    if not isinstance(tenant_id, str) or not tenant_id.strip():
+        raise ValueError("timeout_worker_tenant_id_required")
+    payload = {
+        "node_id": task.node_id,
+        "alias": task.alias,
+        "params": task.params,
+        "state_bytes": task.state_bytes,
+        "trace_carrier": task.trace_carrier,
+        "timeout_s": None,
+        "max_retries": 0,
+        "context_meta": task.context_meta,
+    }
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        return asyncio.run(
+            run_node_in_worker(
+                payload,
+                timeout_authority=(authority_active, deadline_monotonic),
+            )
+        )
 
 
 async def run_node_state_in_worker(payload: dict[str, Any]) -> bytes:
@@ -402,6 +474,144 @@ def _build_worker_context(meta: dict[str, Any]) -> Any:
                 log=_logger,
             )
     return ctx
+
+
+def _build_timeout_worker_context(meta: dict[str, Any]) -> Any:
+    """Reconstruct only the exact filesystem/run context admitted for timeout work."""
+    from polisyos.core.artifacts.signing import SigningConfig
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.observability import is_hpc_observability_enabled
+    from polisyos.core.run.context import RunContext
+    from polisyos.core.run.manifest import RunManifest
+    from polisyos.core.trace.sink import JsonlTraceSink
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+
+    if set(meta) != {
+        "schema",
+        "depth",
+        "logger_name",
+        "run_id",
+        "workflow_id",
+        "store",
+        "run",
+        "tenant_scope",
+    }:
+        raise ValueError("timeout_worker_context_fields_invalid")
+    if meta.get("schema") != _TIMEOUT_CONTEXT_WIRE_SCHEMA:
+        raise ValueError("timeout_worker_context_schema_unsupported")
+    depth = meta.get("depth")
+    logger_name = meta.get("logger_name")
+    store_meta = meta.get("store")
+    run_meta = meta.get("run")
+    tenant_scope_meta = meta.get("tenant_scope")
+    if type(depth) is not int or depth < 0 or not isinstance(logger_name, str):
+        raise ValueError("timeout_worker_context_identity_invalid")
+    if not isinstance(store_meta, dict) or set(store_meta) != {
+        "backend",
+        "root",
+        "tenant_id",
+        "cell_id",
+        "ownership_enforced",
+        "ownership_requires_scope",
+        "signing_config",
+        "hpc_observability_enabled",
+    }:
+        raise ValueError("timeout_worker_store_context_invalid")
+    if not isinstance(run_meta, dict) or set(run_meta) != {
+        "manifest",
+        "trace_path",
+        "tenant_id",
+        "cell_id",
+    }:
+        raise ValueError("timeout_worker_run_context_invalid")
+    if not isinstance(tenant_scope_meta, dict) or set(tenant_scope_meta) != {
+        "tenant_id",
+        "cell_id",
+    }:
+        raise ValueError("timeout_worker_tenant_scope_invalid")
+    if store_meta.get("backend") != "filesystem":
+        raise ValueError("timeout_worker_filesystem_cas_required")
+    root_raw = store_meta.get("root")
+    trace_raw = run_meta.get("trace_path")
+    if not isinstance(root_raw, str) or not isinstance(trace_raw, str):
+        raise ValueError("timeout_worker_store_paths_required")
+    root = Path(root_raw)
+    trace_path = Path(trace_raw)
+    if not root.is_absolute() or not trace_path.is_absolute():
+        raise ValueError("timeout_worker_absolute_paths_required")
+    root = root.resolve(strict=True)
+    trace_path = trace_path.resolve(strict=False)
+    try:
+        trace_path.relative_to(root)
+    except ValueError as exc:
+        raise ValueError("timeout_worker_trace_path_outside_store") from exc
+
+    tenant_id = store_meta.get("tenant_id")
+    cell_id = store_meta.get("cell_id")
+    ambient_tenant = tenant_scope_meta.get("tenant_id")
+    ambient_cell = tenant_scope_meta.get("cell_id")
+    if not isinstance(ambient_tenant, str) or not ambient_tenant.strip():
+        raise ValueError("timeout_worker_ambient_tenant_required")
+    for owner_tenant, owner_cell in (
+        (tenant_id, cell_id),
+        (run_meta.get("tenant_id"), run_meta.get("cell_id")),
+    ):
+        if owner_tenant is not None and (
+            ambient_tenant != owner_tenant
+            or (owner_cell is not None and ambient_cell != owner_cell)
+        ):
+            raise ValueError("timeout_worker_ambient_owner_mismatch")
+    ownership_enforced = store_meta.get("ownership_enforced")
+    ownership_requires_scope = store_meta.get("ownership_requires_scope")
+    hpc_observability_enabled = store_meta.get("hpc_observability_enabled")
+    if (
+        type(ownership_enforced) is not bool
+        or type(ownership_requires_scope) is not bool
+        or type(hpc_observability_enabled) is not bool
+    ):
+        raise ValueError("timeout_worker_store_ownership_invalid")
+    if is_hpc_observability_enabled() != hpc_observability_enabled:
+        raise ValueError("timeout_worker_observability_setting_mismatch")
+    try:
+        signing_config = SigningConfig.model_validate(store_meta.get("signing_config"))
+        run_manifest = RunManifest.model_validate(run_meta.get("manifest"))
+    except (TypeError, ValueError, ValidationError) as exc:
+        raise ValueError("timeout_worker_context_model_invalid") from exc
+    if run_manifest.tenant_id != run_meta.get("tenant_id") or run_manifest.cell_id != run_meta.get(
+        "cell_id"
+    ):
+        raise ValueError("timeout_worker_manifest_owner_mismatch")
+    if not isinstance(meta.get("run_id"), str) or meta["run_id"] != run_manifest.run_id:
+        raise ValueError("timeout_worker_run_id_required")
+    if not isinstance(meta.get("workflow_id"), str):
+        raise ValueError("timeout_worker_workflow_id_invalid")
+
+    store = FileSystemCAS(
+        root,
+        signing_config=signing_config,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        ownership_enforced=ownership_enforced,
+        ownership_requires_scope=ownership_requires_scope,
+    )
+    if store._hpc_enabled != hpc_observability_enabled:
+        raise ValueError("timeout_worker_observability_setting_mismatch")
+    run = RunContext(
+        store=store,
+        trace=JsonlTraceSink(trace_path),
+        run_manifest=run_manifest,
+        _trace_path=trace_path,
+        _audit_sink=None,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        access_scope=None,
+    )
+    return ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger(logger_name),
+        depth=depth,
+    )
 
 
 def _restore_parent_trace_context(

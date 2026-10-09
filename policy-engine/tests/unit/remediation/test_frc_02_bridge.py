@@ -20,6 +20,7 @@ from typing import Any
 import pytest
 
 from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.ir.analytics.backtest import (
     BacktestReport,
     BacktestScenario,
@@ -142,7 +143,7 @@ def _persist_context_ref(
     if payload_fields is not None:
         payload.update(payload_fields)
     ref = put_json_artifact(
-        store,
+        _ensure_ir_artifact_store(store),
         payload,
         kind=kind,
         schema_name=schema_name,
@@ -327,12 +328,9 @@ def _persist_report_into_store(
         policy_ref=POLICY_REF,
         threshold=threshold,
     )
-    inputs = [
-        InputRef(artifact_id=ref["artifact_id"], role=role)
-        for role, ref in refs.items()
-    ]
-    report_ref = persist_backtest_report(store, report, inputs=inputs)
-    persisted = load_backtest_report(store, report_ref)
+    inputs = [InputRef(artifact_id=ref["artifact_id"], role=role) for role, ref in refs.items()]
+    report_ref = persist_backtest_report(_ensure_ir_artifact_store(store), report, inputs=inputs)
+    persisted = load_backtest_report(_ensure_ir_artifact_store(store), report_ref)
     return report_ref, persisted, refs
 
 
@@ -500,11 +498,8 @@ def _persist_contradictory_projection(
             "metadata": forged_metadata,
         }
     )
-    inputs = [
-        InputRef(artifact_id=ref["artifact_id"], role=role)
-        for role, ref in refs.items()
-    ]
-    return persist_backtest_report(store, forged_report, inputs=inputs)
+    inputs = [InputRef(artifact_id=ref["artifact_id"], role=role) for role, ref in refs.items()]
+    return persist_backtest_report(_ensure_ir_artifact_store(store), forged_report, inputs=inputs)
 
 
 def test_persisted_backtest_report_readback_produces_neutral_empirical_interval_hit_evidence(
@@ -535,9 +530,7 @@ def test_persisted_backtest_report_readback_produces_neutral_empirical_interval_
     assert evidence.recomputed_pass_rate == pytest.approx(0.5)
     assert evidence.persisted_numerator == 1
     assert evidence.persisted_denominator == 2
-    assert evidence.observed_outcome_ref.identity_value == (
-        "observation://frc02/held-out/v1"
-    )
+    assert evidence.observed_outcome_ref.identity_value == ("observation://frc02/held-out/v1")
     assert evidence.evidence_origin == "persisted_backtest"
     # These are typed evidence fields, not a free-form metadata assertion.  A
     # predictive calibration observation cannot mint causal, treatment, or S10
@@ -720,9 +713,7 @@ def test_context_binding_mismatches_fail_closed_before_cas_write(tmp_path: Path)
     forged_scope = baseline_context.scope_binding_ref.model_copy(
         update={"identity_value": "frc02-bridge-forged-scope"}
     )
-    corrupted_context = baseline_context.model_copy(
-        update={"scope_binding_ref": forged_scope}
-    )
+    corrupted_context = baseline_context.model_copy(update={"scope_binding_ref": forged_scope})
     actions: tuple[Callable[[], Any], ...] = (
         lambda: bridge.produce_empirical_calibration_evidence(
             store,

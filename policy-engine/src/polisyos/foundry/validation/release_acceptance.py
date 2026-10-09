@@ -207,12 +207,10 @@ class ReleaseAcceptanceRunner:
 
         steps: list[ReleaseAcceptanceStep] = []
         try:
-            manifest_bytes = self._store.get_bytes(release_manifest_ref.artifact_id)
-            runtime_agents_bytes = self._store.get_bytes(
-                runtime_agent_registry_ref.artifact_id
-            )
-            cell_registry_bytes = self._store.get_bytes(cell_registry_ref.artifact_id)
-            trinity_bytes = self._store.get_bytes(trinity_bundle_ref.artifact_id)
+            manifest_bytes = self._store.get_bytes(release_manifest_ref)
+            runtime_agents_bytes = self._store.get_bytes(runtime_agent_registry_ref)
+            cell_registry_bytes = self._store.get_bytes(cell_registry_ref)
+            trinity_bytes = self._store.get_bytes(trinity_bundle_ref)
             trinity_bundle = TrinityBundle.model_validate_json(trinity_bytes)
             runtime_agents = pd.read_parquet(BytesIO(runtime_agents_bytes))
             cell_registry = pd.read_parquet(BytesIO(cell_registry_bytes))
@@ -379,14 +377,10 @@ class ReleaseAcceptanceRunner:
         original_metrics_ref = _extract_metrics_ref(execute_result)
         replay_metrics_ref = _extract_metrics_ref(replay_execute_result)
         original_sim_payload = SimulationResult.model_validate(
-            from_canonical_bytes(
-                self._store.get_bytes(execute_result.simulation_result_ref.artifact_id)
-            )
+            from_canonical_bytes(self._store.get_bytes(execute_result.simulation_result_ref))
         ).model_dump(mode="json")
         replay_sim_payload = SimulationResult.model_validate(
-            from_canonical_bytes(
-                self._store.get_bytes(replay_execute_result.simulation_result_ref.artifact_id)
-            )
+            from_canonical_bytes(self._store.get_bytes(replay_execute_result.simulation_result_ref))
         ).model_dump(mode="json")
         normalized_original = _normalize_simulation_payload(original_sim_payload)
         normalized_replay = _normalize_simulation_payload(replay_sim_payload)
@@ -397,8 +391,8 @@ class ReleaseAcceptanceRunner:
             stable_original_metrics: dict[str, Any] = {}
             stable_replay_metrics: dict[str, Any] = {}
         else:
-            original_metrics_bytes = self._store.get_bytes(original_metrics_ref.artifact_id)
-            replay_metrics_bytes = self._store.get_bytes(replay_metrics_ref.artifact_id)
+            original_metrics_bytes = self._store.get_bytes(original_metrics_ref)
+            replay_metrics_bytes = self._store.get_bytes(replay_metrics_ref)
             original_metrics_sha = _sha256_bytes(original_metrics_bytes)
             replay_metrics_sha = _sha256_bytes(replay_metrics_bytes)
             stable_original_metrics = _stable_metrics(
@@ -441,9 +435,7 @@ class ReleaseAcceptanceRunner:
             technical_passed=all(step.status == "passed" for step in steps),
             manifest_path=manifest_path,
             release_bundle_root=release_bundle_root,
-            original_simulation_result_ref=str(
-                execute_result.simulation_result_ref.artifact_id
-            ),
+            original_simulation_result_ref=str(execute_result.simulation_result_ref.artifact_id),
             replay_simulation_result_ref=str(
                 replay_execute_result.simulation_result_ref.artifact_id
             ),

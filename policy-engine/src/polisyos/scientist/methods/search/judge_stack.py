@@ -9,6 +9,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -162,7 +163,7 @@ def load_judge_verdict(
     ref: ArtifactRef,
 ) -> JudgeVerdict:
     """Load judge verdict."""
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return JudgeVerdict.model_validate(payload)
 
 
@@ -506,7 +507,9 @@ class JudgeStack:
             metrics["proof_precondition_coverage"] = 1.0
 
         if self._store is not None and bundle.proof_bundle_ref is not None:
-            proof_bundle = load_proof_bundle(self._store, bundle.proof_bundle_ref)
+            proof_bundle = load_proof_bundle(
+                _ensure_ir_artifact_store(self._store), bundle.proof_bundle_ref
+            )
             proof_coverage = 1.0 if proof_bundle.completeness_regime == "complete" else 0.5
             if proof_bundle.proof_status != "identified":
                 proof_coverage = min(proof_coverage, 0.5)
@@ -530,7 +533,9 @@ class JudgeStack:
                 )
 
         if self._store is not None and bundle.bounds_bundle_ref is not None:
-            bounds_bundle = load_bounds_bundle(self._store, bundle.bounds_bundle_ref)
+            bounds_bundle = load_bounds_bundle(
+                _ensure_ir_artifact_store(self._store), bundle.bounds_bundle_ref
+            )
             lower = bounds_bundle.lower_bound
             upper = bounds_bundle.upper_bound
             gap = 0.0
@@ -677,7 +682,7 @@ class JudgeStack:
             and bundle.data_readiness_report_ref is not None
         ):
             report = load_data_readiness_report(
-                self._store,
+                _ensure_ir_artifact_store(self._store),
                 bundle.data_readiness_report_ref,
             )
         if bundle.effective_claim_mode() in {"bounds", "estimation"} and report is None:
@@ -1526,7 +1531,7 @@ class PolicyPromotionCoordinator:
         data_readiness_report_ref = judge_input.data_readiness_report_ref
         if data_readiness_report_ref is None and judge_input.data_readiness_report is not None:
             persisted = persist_data_readiness_report(
-                self._store,
+                _ensure_ir_artifact_store(self._store),
                 judge_input.data_readiness_report,
             )
             data_readiness_report_ref = _to_artifact_ref(persisted)
@@ -2073,7 +2078,9 @@ def _resolve_dp_consumer_summary(
 
     if store is not None and bundle.data_readiness_report_ref is not None:
         try:
-            loaded_report = load_data_readiness_report(store, bundle.data_readiness_report_ref)
+            loaded_report = load_data_readiness_report(
+                _ensure_ir_artifact_store(store), bundle.data_readiness_report_ref
+            )
         except Exception:
             loaded_report = None
         summary = _coerce_dp_summary(getattr(loaded_report, "dp_distortion", None))
@@ -2082,7 +2089,9 @@ def _resolve_dp_consumer_summary(
 
     if store is not None and bundle.proof_bundle_ref is not None:
         try:
-            proof_bundle = load_proof_bundle(store, bundle.proof_bundle_ref)
+            proof_bundle = load_proof_bundle(
+                _ensure_ir_artifact_store(store), bundle.proof_bundle_ref
+            )
         except Exception:
             proof_bundle = None
         summary = _coerce_dp_summary_from_metadata(
@@ -2094,7 +2103,9 @@ def _resolve_dp_consumer_summary(
 
     if store is not None and bundle.bounds_bundle_ref is not None:
         try:
-            bounds_bundle = load_bounds_bundle(store, bundle.bounds_bundle_ref)
+            bounds_bundle = load_bounds_bundle(
+                _ensure_ir_artifact_store(store), bundle.bounds_bundle_ref
+            )
         except Exception:
             bounds_bundle = None
         summary = _coerce_dp_summary_from_metadata(

@@ -322,7 +322,7 @@ def _present_berl_payload() -> dict[str, object]:
         },
         "assumptions": {
             "perturbation_distribution": {"name": "portable"},
-            "feature_dependence_policy": {"primary": "conditional_observational"},
+            "feature_dependence_policy": {"primary": "marginal"},
         },
         "methods": [
             {
@@ -359,6 +359,61 @@ def test_preflight_runs_present_berl_input_and_ignores_success_marker() -> None:
     assert any("p95_infidelity_upper_bound_exceeds_tolerance" in x for x in report.gate_failures)
 
 
+@pytest.mark.parametrize(
+    ("profile", "expected_violation"),
+    [
+        ("conditional_observational", "conditional_feature_law_unverified"),
+        ("future_profile", "feature_dependence_profile_unsupported"),
+    ],
+)
+def test_preflight_blocks_unadmitted_feature_dependence_profiles(
+    profile: str,
+    expected_violation: str,
+) -> None:
+    payload = _present_berl_payload()
+    policy = payload["assumptions"]["feature_dependence_policy"]
+    policy["primary"] = profile
+    method = payload["methods"][0]
+    method["assumptions"] = {"feature_dependence_policy": profile}
+    payload["audit"]["artifact_refs"] = ["cas://self-attested/conditional-law-verified"]
+
+    report = build_phase5_validation_report(
+        _ctx(), _state(), artifact_payload=payload, artifact_kind="scientist.explanation_bundle"
+    )
+    component = next(c for c in report.phase5_components if c.name == "explanation")
+
+    assert component.status == "blocked"
+    assert any(expected_violation in blocker for blocker in component.blockers)
+
+
+def test_preflight_preserves_typed_reason_for_malformed_profile() -> None:
+    payload = _present_berl_payload()
+    payload["assumptions"]["feature_dependence_policy"]["primary"] = {
+        "profile": "conditional_observational"
+    }
+
+    report = build_phase5_validation_report(
+        _ctx(), _state(), artifact_payload=payload, artifact_kind="scientist.explanation_bundle"
+    )
+    component = next(c for c in report.phase5_components if c.name == "explanation")
+
+    assert component.status == "blocked"
+    assert any("feature_dependence_profile_malformed" in item for item in component.blockers)
+
+
+def test_preflight_blocks_method_policy_profile_mismatch() -> None:
+    payload = _present_berl_payload()
+    payload["methods"][0]["assumptions"] = {"feature_dependence_policy": "marginal_interventional"}
+
+    report = build_phase5_validation_report(
+        _ctx(), _state(), artifact_payload=payload, artifact_kind="scientist.explanation_bundle"
+    )
+    component = next(c for c in report.phase5_components if c.name == "explanation")
+
+    assert component.status == "blocked"
+    assert any("method_feature_dependence_profile_mismatch" in item for item in component.blockers)
+
+
 @pytest.mark.parametrize("mutation", ["marker_only", "malformed", "unavailable"])
 def test_preflight_fails_closed_when_actual_berl_validation_is_unavailable(
     mutation: str,
@@ -380,4 +435,9 @@ def test_preflight_fails_closed_when_actual_berl_validation_is_unavailable(
     report = build_phase5_validation_report(
         _ctx(), _state(), artifact_payload=payload, artifact_kind="scientist.explanation_bundle"
     )
-    assert any("validation unavailable or input malformed" in x for x in report.gate_failures)
+    expected_reason = {
+        "marker_only": "feature_dependence_profile_malformed",
+        "malformed": "explanation_bundle_invalid",
+        "unavailable": "validation unavailable or input malformed",
+    }[mutation]
+    assert any(expected_reason in x for x in report.gate_failures)

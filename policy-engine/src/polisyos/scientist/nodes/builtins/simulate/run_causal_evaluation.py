@@ -12,6 +12,7 @@ import numpy as np
 from pydantic import ValidationError
 
 from polisyos.core import artifacts as core_artifacts
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts import build_skip_blocker_record
@@ -479,7 +480,9 @@ def _run_primary_causal_job(
     )
     role = "dowhy_observational_data" if is_dowhy else "causal_observational_data"
     refs = dict(spec.input_refs)
-    if role in refs and refs[role] != source:
+    if role in refs and core_artifacts.artifact_ref_identity_key(refs[role]) != (
+        core_artifacts.artifact_ref_identity_key(source)
+    ):
         raise ValueError("primary causal job source reference mismatch")
     refs[role] = source
     bound_spec = spec.model_copy(update={"input_refs": refs})
@@ -653,6 +656,14 @@ def _to_core_artifact_ref(ref: object | None) -> core_artifacts.ArtifactRef | No
     if callable(model_dump):
         return core_artifacts.ArtifactRef.model_validate(model_dump(mode="json"))
     return core_artifacts.ArtifactRef.model_validate(ref)
+
+
+def _revalidate_causal_artifact_ref(ref: object) -> core_artifacts.ArtifactRef:
+    """Normalize a typed or structured ref through the canonical ArtifactRef owner."""
+    normalized = _to_core_artifact_ref(ref)
+    if normalized is None:
+        raise ValueError("causal_artifact_ref_required")
+    return core_artifacts.ArtifactRef.model_validate(normalized.model_dump(mode="json"))
 
 
 def _load_observational_data(
@@ -969,14 +980,16 @@ def materialize_causal_output_contract(
 ) -> OutputAwareNodeOutcome:
     """Complete the current causal output contract; this grants no EvalSafety authority."""
     current = list(produced)
+    current_identities = {
+        core_artifacts.artifact_ref_identity_key(_revalidate_causal_artifact_ref(ref))
+        for ref in current
+    }
     provisional = NodeOutcome(status="ok", state=output_state, artifacts=current)
     dispositions: list[NodeOutputDisposition] = []
     for output_key in _SPEC.produces:
         if output_key in output_state.artifacts_index:
-            ref = core_artifacts.ArtifactRef.model_validate(
-                output_state.artifacts_index[output_key]
-            )
-            if ref not in current:
+            ref = _revalidate_causal_artifact_ref(output_state.artifacts_index[output_key])
+            if core_artifacts.artifact_ref_identity_key(ref) not in current_identities:
                 raise ValueError(f"output_not_emitted_current_attempt:{output_key}")
             dispositions.append(
                 NodeOutputDisposition(
@@ -1033,10 +1046,11 @@ class RunCausalEvaluationNode:
             raise ValueError("causal_output_disposition_population_mismatch")
         for key, row in rows.items():
             if row.disposition == "produced":
-                if (
-                    core_artifacts.ArtifactRef.model_validate(outcome.state.artifacts_index[key])
-                    != row.artifact_ref
-                ):
+                state_ref = _revalidate_causal_artifact_ref(outcome.state.artifacts_index[key])
+                disposition_ref = _revalidate_causal_artifact_ref(row.artifact_ref)
+                if core_artifacts.artifact_ref_identity_key(
+                    state_ref
+                ) != core_artifacts.artifact_ref_identity_key(disposition_ref):
                     raise ValueError(f"causal_output_disposition_ref_mismatch:{key}")
                 continue
             if key in outcome.state.artifacts_index:
@@ -1051,11 +1065,39 @@ class RunCausalEvaluationNode:
             actual = NodeOutputRefusal.model_validate(
                 _load_output_contract_json(ctx, row.artifact_ref)
             )
-            if actual != expected:
+            actual_source_identities = tuple(
+                core_artifacts.artifact_ref_identity_key(_revalidate_causal_artifact_ref(ref))
+                for ref in actual.source_refs
+            )
+            expected_source_identities = tuple(
+                core_artifacts.artifact_ref_identity_key(_revalidate_causal_artifact_ref(ref))
+                for ref in expected.source_refs
+            )
+            if (
+                actual.model_dump(mode="json", exclude={"source_refs"})
+                != expected.model_dump(mode="json", exclude={"source_refs"})
+                or actual_source_identities != expected_source_identities
+            ):
                 raise ValueError(f"causal_output_refusal_content_mismatch:{key}")
             manifest = ctx.store.get_manifest(row.artifact_ref)
+            actual_lineage = tuple(
+                core_artifacts.InputRef.model_validate(
+                    input_ref.model_dump(mode="json")
+                ).model_dump(mode="json")
+                for input_ref in manifest.inputs
+            )
+            expected_lineage = tuple(
+                core_artifacts.InputRef.model_validate(
+                    core_artifacts.input_ref_from_artifact_ref(
+                        _revalidate_causal_artifact_ref(ref),
+                        role=f"source:{index}",
+                    ).model_dump(mode="json")
+                ).model_dump(mode="json")
+                for index, ref in enumerate(expected.source_refs)
+            )
             if (
                 manifest.kind != "scientist.node_output_refusal"
+                or manifest.media_type != "application/json"
                 or manifest.artifact_schema
                 != core_artifacts.SchemaInfo(
                     name="polisyos.scientist.NodeOutputRefusal", version="1.0"
@@ -1064,11 +1106,7 @@ class RunCausalEvaluationNode:
                 != core_artifacts.ProducerInfo(
                     component=expected.node_id, version="polisyos.scientist.causal_output.v1"
                 )
-                or manifest.inputs
-                != [
-                    core_artifacts.input_ref_from_artifact_ref(ref, role=f"source:{index}")
-                    for index, ref in enumerate(expected.source_refs)
-                ]
+                or actual_lineage != expected_lineage
             ):
                 raise ValueError(f"causal_output_refusal_lineage_mismatch:{key}")
 
@@ -1399,7 +1437,7 @@ class RunCausalEvaluationNode:
                         else:
                             sensitivity_ref = _to_core_artifact_ref(
                                 persist_sensitivity_result(
-                                    ctx.store,
+                                    _ensure_ir_artifact_store(ctx.store),
                                     sensitivity_result,
                                     inputs=input_refs or None,
                                 )
@@ -1437,7 +1475,7 @@ class RunCausalEvaluationNode:
 
         report_ref = _to_core_artifact_ref(
             persist_causal_effect_report(
-                ctx.store,
+                _ensure_ir_artifact_store(ctx.store),
                 report,
                 inputs=input_refs or None,
             )
@@ -1463,7 +1501,7 @@ class RunCausalEvaluationNode:
         if envelope is not None:
             envelope_ref = _to_core_artifact_ref(
                 persist_uncertainty_envelope(
-                    ctx.store,
+                    _ensure_ir_artifact_store(ctx.store),
                     envelope,
                     inputs=input_refs or None,
                 )
@@ -1485,7 +1523,7 @@ class RunCausalEvaluationNode:
                 )
             hte_ref = _to_core_artifact_ref(
                 persist_hte_result(
-                    ctx.store,
+                    _ensure_ir_artifact_store(ctx.store),
                     hte_result,
                     inputs=input_refs or None,
                 )
@@ -1507,7 +1545,7 @@ class RunCausalEvaluationNode:
                 )
             recommendation_ref = _to_core_artifact_ref(
                 persist_policy_recommendation(
-                    ctx.store,
+                    _ensure_ir_artifact_store(ctx.store),
                     recommendation,
                     inputs=input_refs or None,
                 )

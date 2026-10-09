@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 from scipy.stats import binom
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.did import StaggeredDifferenceInDifferences
 from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
@@ -169,8 +170,10 @@ def test_closed_interval_endpoints_and_adjacent_nulls_share_integer_decision(
         assert (count < threshold) is outside
         assert report.p_value == (1 + count) / (draws + 1)
         assert (report.p_value < report.method_params["significance_level"]) is outside
-        ref = persist_causal_effect_report(FileSystemCAS(tmp_path), report)
-        fresh = load_causal_effect_report(FileSystemCAS(tmp_path), ref)
+        ref = persist_causal_effect_report(
+            _ensure_ir_artifact_store(FileSystemCAS(tmp_path)), report
+        )
+        fresh = load_causal_effect_report(_ensure_ir_artifact_store(FileSystemCAS(tmp_path)), ref)
         assert fresh.method_params["null_rejected"] is outside
         assert fresh.confidence_interval == (lower, upper)
 

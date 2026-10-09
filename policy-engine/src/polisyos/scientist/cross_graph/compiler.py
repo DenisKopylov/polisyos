@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.data_forge.read_api.academic import (
     ParameterCandidate,
     SKGQuery,
@@ -2028,15 +2029,15 @@ def _materialize_alignment_governance_inputs(
         if not pair_key or pair_key in seen_pairs:
             continue
         seen_pairs.add(pair_key)
-        source_ref = _coerce_alignment_hypothesis_ref(
-            config.explicit_latent_bridges.get(pair_key)
-        )
+        source_ref = _coerce_alignment_hypothesis_ref(config.explicit_latent_bridges.get(pair_key))
         candidate: LatentBridgeHypothesis | None = None
         if source_ref is not None:
             if artifact_store is None:
                 continue
             try:
-                candidate = load_latent_bridge_hypothesis(artifact_store, source_ref)
+                candidate = load_latent_bridge_hypothesis(
+                    _ensure_ir_artifact_store(artifact_store), source_ref
+                )
             except _ALIGNMENT_GOVERNANCE_LOAD_ERRORS:
                 continue
         elif config.explicit_latent_bridges.get(pair_key) in (None, ""):
@@ -2052,7 +2053,9 @@ def _materialize_alignment_governance_inputs(
                 "artifact_store is required to persist governed latent bridge hypotheses"
             )
         governed = materialize_latent_bridge_governance(candidate)
-        governed_ref = persist_latent_bridge_hypothesis(artifact_store, governed)
+        governed_ref = persist_latent_bridge_hypothesis(
+            _ensure_ir_artifact_store(artifact_store), governed
+        )
         inputs.append(
             _build_latent_governance_input(
                 source_ref=source_ref,

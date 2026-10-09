@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
@@ -46,8 +47,6 @@ from polisyos.ir.analytics.uncertainty import (
     persist_uncertainty_envelope,
 )
 from polisyos.ir.registry.refs import ArtifactRefModel
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF,
@@ -60,6 +59,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_REGISTRY_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def test_decision_packet_includes_distributional_and_econometric_sections(tmp_path) -> None:
@@ -92,7 +93,7 @@ def test_decision_packet_includes_distributional_and_econometric_sections(tmp_pa
     )
 
     distributional_ref = persist_distributional_report(
-        store,
+        _ensure_ir_artifact_store(store),
         DistributionalReport(
             breakdowns=[
                 DimensionBreakdown(
@@ -127,7 +128,7 @@ def test_decision_packet_includes_distributional_and_econometric_sections(tmp_pa
         ),
     )
     ordinal_poverty_ref = persist_ordinal_poverty_report(
-        store,
+        _ensure_ir_artifact_store(store),
         OrdinalPovertyReport(
             baseline=OrdinalPovertyEstimate(
                 headcount_h=0.5,
@@ -163,7 +164,7 @@ def test_decision_packet_includes_distributional_and_econometric_sections(tmp_pa
         ),
     )
     proof_ref = persist_proof_bundle(
-        store,
+        _ensure_ir_artifact_store(store),
         ProofBundle(
             proof_status="identified",
             proof_stratum="A0_trusted",
@@ -174,7 +175,7 @@ def test_decision_packet_includes_distributional_and_econometric_sections(tmp_pa
         ),
     )
     marginal_proof_ref = persist_distributional_proof_artifact(
-        store,
+        _ensure_ir_artifact_store(store),
         DistributionalProofArtifact(
             base_proof_ref=proof_ref,
             target=DistributionalProofTarget.CDF,
@@ -183,7 +184,7 @@ def test_decision_packet_includes_distributional_and_econometric_sections(tmp_pa
         ),
     )
     coupling_proof_ref = persist_distributional_proof_artifact(
-        store,
+        _ensure_ir_artifact_store(store),
         DistributionalProofArtifact(
             target=DistributionalProofTarget.COUPLING,
             theorem_family="ot_coupling_scenario",
@@ -203,7 +204,7 @@ def test_decision_packet_includes_distributional_and_econometric_sections(tmp_pa
         PutOptions(kind="ir.ot_coupling_summary", media_type="application/json"),
     )
     distributional_bundle_ref = persist_distributional_effect_bundle(
-        store,
+        _ensure_ir_artifact_store(store),
         DistributionalEffectBundle(
             outcome_name="income",
             distributional_query_kind="interventional_law",
@@ -254,7 +255,7 @@ def test_decision_packet_includes_distributional_and_econometric_sections(tmp_pa
         PutOptions(kind="scientist.method_evidence", media_type="application/json"),
     )
     econometric_envelope_ref = persist_uncertainty_envelope(
-        store,
+        _ensure_ir_artifact_store(store),
         UncertaintyEnvelope(
             point_estimate=1.8,
             confidence_interval=(1.4, 2.2),
@@ -342,7 +343,7 @@ def test_decision_packet_includes_kernel_summary_from_causal_method_evidence(tmp
         PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
     )
     proof_ref = persist_proof_bundle(
-        store,
+        _ensure_ir_artifact_store(store),
         ProofBundle(
             proof_status="identified",
             proof_stratum="A0_trusted",
@@ -353,7 +354,7 @@ def test_decision_packet_includes_kernel_summary_from_causal_method_evidence(tmp
         ),
     )
     kernel_spec_ref = persist_kernel_estimator_spec(
-        store,
+        _ensure_ir_artifact_store(store),
         KernelEstimatorSpec(
             estimand_hash="deadbeefcafefeed",
             proof_bundle_ref=proof_ref,
@@ -370,7 +371,7 @@ def test_decision_packet_includes_kernel_summary_from_causal_method_evidence(tmp
         ),
     )
     evidence_ref = persist_causal_evidence_bundle(
-        store,
+        _ensure_ir_artifact_store(store),
         EvidenceBundle(
             run_id="R_packet_kernel",
             query_str="E[Y|do(T=1)] - E[Y|do(T=0)]",

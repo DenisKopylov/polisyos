@@ -1,0 +1,21 @@
+id = "2026-10-09-e02-berl-persisted-law-admission"
+title = "Refuse unverified BERL conditional-law claims in persisted consumers"
+type = "fixed"
+component = "berl"
+owner = "team-runtime-quality"
+summary = "Phase-5 and warrant-reliability consumers now run the shared BERL profile admission before accepting persisted explanations. Conditional-observational profiles remain diagnostic until a verified observed-feature law resolver exists; malformed, unknown, and method-mismatched profiles carry a stable refusal."
+evidence = [
+  "tests/unit/berl/test_contracts.py",
+  "tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
+  "tests/unit/scientist/validation/test_phase5_preflight.py",
+  "tests/unit/runtime/quality/test_berl_warrant_reliability.py",
+]
+compatibility = "No bundle schema change. Existing persisted conditional-observational claims are refused when revalidated by Phase-5 and warrant-reliability consumers; marginal and marginal-interventional profiles remain supported."
+change_class = "internal"
+surface_classification = "public_experimental: BERL persisted bundle admission"
+migration = "Do not relabel historical conditional bundles. Regenerate under an existing supported marginal profile only when that matches the computation. A future conditional-law producer requires a separately admitted, source-bound law resolver and migration contract."
+api = "The shared BERL validator returns diagnostic_only with conditional_feature_law_unverified, feature_dependence_profile_unsupported, feature_dependence_profile_malformed, or method_feature_dependence_profile_mismatch as applicable. Both persisted consumers propagate the validator result."
+limitations = "No verified conditional-law producer/resolver exists, so this does not admit a conditional profile. A profile string, per-method assumption, or artifact reference is not evidence of a verified law."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/berl/README.md"]
+runbook_docs = []

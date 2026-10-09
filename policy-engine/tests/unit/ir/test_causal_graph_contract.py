@@ -4,6 +4,7 @@ from itertools import permutations
 
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
@@ -310,7 +311,6 @@ def test_causal_graph_networkx_preserves_single_edge_payload() -> None:
     assert edge_payload["metadata"] == {"relation": "single"}
 
 
-
 def test_causal_graph_rejects_contemporaneous_cycle_even_with_lagged_edges() -> None:
     with pytest.raises(ValueError, match="acyclic"):
         CausalGraphModel(
@@ -361,8 +361,8 @@ def test_causal_graph_artifact_roundtrip(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     graph = _minimal_dag()
 
-    ref = persist_causal_graph_model(store, graph)
-    loaded = load_causal_graph_model(store, ref)
+    ref = persist_causal_graph_model(_ensure_ir_artifact_store(store), graph)
+    loaded = load_causal_graph_model(_ensure_ir_artifact_store(store), ref)
 
     assert isinstance(ref, CausalGraphModelRef)
     assert ref.kind == "ir.causal_graph_model"

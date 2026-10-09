@@ -36,9 +36,7 @@ if TYPE_CHECKING:
 S2_DESIGN_SEARCH_SCHEMA_VERSION = "policyos.policy_design_case.layer2_s2_design_search.v1"
 S2_DESIGN_RECORD_RULE_VERSION = "policyos.layer2.s2.design_search.v1"
 RUN_BOUND_DESIGN_RECORD_BINDING_KIND = "policyos.pdc.run_bound_design_record_binding"
-RUN_BOUND_DESIGN_RECORD_BINDING_SCHEMA_VERSION = (
-    "policyos.pdc.run_bound_design_record_binding.v1"
-)
+RUN_BOUND_DESIGN_RECORD_BINDING_SCHEMA_VERSION = "policyos.pdc.run_bound_design_record_binding.v1"
 
 CounterexampleClass = Literal[
     "real_design_blocker",
@@ -595,9 +593,7 @@ class Layer2S13PostDeployAccountabilityPostureInput(Layer2ReadinessModel):
     def _validate_accountability_posture(
         self,
     ) -> Layer2S13PostDeployAccountabilityPostureInput:
-        missing_denials = set(_S13_REQUIRED_POSTURE_MAY_NOT_USE_FOR) - set(
-            self.may_not_use_for
-        )
+        missing_denials = set(_S13_REQUIRED_POSTURE_MAY_NOT_USE_FOR) - set(self.may_not_use_for)
         if missing_denials:
             raise ValueError("S13 accountability posture missing may_not_use_for denials")
         if set(self.authority_boundary.authoritative_for).intersection(
@@ -779,8 +775,7 @@ class RefinementDecision(Layer2ReadinessModel):
         if self.decision == "human_decision" and not self.governance_decision_class_ref:
             raise ValueError("human_decision requires governance_decision_class_ref")
         if self.governance_decision_class and (
-            self.governance_decision_class.decision_class_id
-            != self.governance_decision_class_ref
+            self.governance_decision_class.decision_class_id != self.governance_decision_class_ref
         ):
             raise ValueError("governance decision class ref mismatch")
         return self
@@ -1464,10 +1459,10 @@ def _require_persisted_s2_sidecar(
     schema_version: str,
     producer: artifacts.ProducerInfo,
 ) -> None:
-    verification = store.verify(artifact_ref.artifact_id)
+    verification = store.verify(artifact_ref)
     if not verification.ok:
         raise ValueError(f"persisted {artifact_ref.kind} failed CAS verification")
-    sidecar = store.get_manifest(artifact_ref.artifact_id)
+    sidecar = store.get_manifest(artifact_ref)
     if sidecar.kind != artifact_ref.kind or sidecar.media_type != artifact_ref.media_type:
         raise ValueError(f"persisted {artifact_ref.kind} sidecar identity mismatch")
     if (
@@ -1596,7 +1591,7 @@ def load_s2_search_ledger(
 ) -> SearchLedger:
     """Load a persisted S2 SearchLedger from CAS."""
 
-    payload = canon.from_canonical_bytes(store.get_bytes(artifact_ref.artifact_id))
+    payload = canon.from_canonical_bytes(store.get_bytes(artifact_ref))
     return SearchLedger.model_validate(payload)
 
 
@@ -1683,9 +1678,7 @@ def _candidate_from_expansion(
             composition_posture.coupling_regime if composition_posture is not None else None
         ),
         composition_disposition=(
-            composition_posture.composition_disposition
-            if composition_posture is not None
-            else None
+            composition_posture.composition_disposition if composition_posture is not None else None
         ),
         decomposition_result_ref=(
             composition_posture.decomposition_result_ref
@@ -1693,9 +1686,7 @@ def _candidate_from_expansion(
             else None
         ),
         composition_receipt_ref=(
-            composition_posture.composition_receipt_ref
-            if composition_posture is not None
-            else None
+            composition_posture.composition_receipt_ref if composition_posture is not None else None
         ),
         forecast_support_label=(
             composition_posture.forecast_support_label if composition_posture is not None else None
@@ -1767,11 +1758,7 @@ def _constraint_store(
         hard_constraint_ids=[
             "shadow_only",
             "authority_boundary_required",
-            *[
-                entry.constraint_id
-                for entry in constraint_records
-                if entry.status == "block"
-            ],
+            *[entry.constraint_id for entry in constraint_records if entry.status == "block"],
         ],
         governance_owned_gap_ids=[
             "a_spec_gap",
@@ -2022,29 +2009,19 @@ def _search_ledger(
         value_choice_provenance_refs=_s8_value_choice_provenance_refs(value_posture),
         pareto_archive_refs=_s8_pareto_archive_refs(value_posture),
         authorized_value_schedule_refs=_s8_authorized_value_schedule_refs(value_posture),
-        shadow_scenario_value_schedule_refs=_s8_shadow_scenario_value_schedule_refs(
-            value_posture
-        ),
-        value_authorization_decision_refs=_s8_value_authorization_decision_refs(
-            value_posture
-        ),
+        shadow_scenario_value_schedule_refs=_s8_shadow_scenario_value_schedule_refs(value_posture),
+        value_authorization_decision_refs=_s8_value_authorization_decision_refs(value_posture),
         value_choice_status=_s8_value_choice_status(value_posture),
         forecast_support_refs=_s10_forecast_support_refs(forecast_posture),
-        forecast_calibration_record_refs=_s10_forecast_calibration_record_refs(
-            forecast_posture
-        ),
+        forecast_calibration_record_refs=_s10_forecast_calibration_record_refs(forecast_posture),
         forecast_posture_refs=_s10_forecast_posture_refs(forecast_posture),
         forecast_authority_status=_s10_forecast_authority_status(forecast_posture),
         forecast_authority_boundary=(
             forecast_posture.authority_boundary if forecast_posture is not None else None
         ),
         predictive_knowledge_refs=_s11_predictive_knowledge_refs(predictive_posture),
-        predictive_axis_upgrade_refs=_s11_predictive_axis_upgrade_refs(
-            predictive_posture
-        ),
-        proof_carrying_analytics_refs=_s11_proof_carrying_analytics_refs(
-            predictive_posture
-        ),
+        predictive_axis_upgrade_refs=_s11_predictive_axis_upgrade_refs(predictive_posture),
+        proof_carrying_analytics_refs=_s11_proof_carrying_analytics_refs(predictive_posture),
         ir_analytics_bridge_refs=_s11_ir_analytics_bridge_refs(predictive_posture),
         s11_calibration_record_refs=_s11_calibration_record_refs(predictive_posture),
         s11_forecast_quality_constraint_refs=(
@@ -2053,58 +2030,36 @@ def _search_ledger(
         s11_regime_strategy_constraint_refs=(
             _s11_regime_strategy_constraint_refs(predictive_posture)
         ),
-        s11_residual_limitation_refs=_s11_residual_limitation_refs(
-            predictive_posture
-        ),
-        predictive_authority_status=_s11_predictive_authority_status(
-            predictive_posture
-        ),
+        s11_residual_limitation_refs=_s11_residual_limitation_refs(predictive_posture),
+        predictive_authority_status=_s11_predictive_authority_status(predictive_posture),
         predictive_authority_boundary=(
-            predictive_posture.authority_boundary
-            if predictive_posture is not None
-            else None
+            predictive_posture.authority_boundary if predictive_posture is not None else None
         ),
-        resource_allocation_policy_refs=_s12_resource_allocation_policy_refs(
-            resource_posture
-        ),
+        resource_allocation_policy_refs=_s12_resource_allocation_policy_refs(resource_posture),
         envelope_growth_ledger_refs=_s12_envelope_growth_ledger_refs(resource_posture),
         growth_thermometer_refs=_s12_growth_thermometer_refs(resource_posture),
         voi_allocation_refs=_s12_voi_allocation_refs(resource_posture),
         explore_exploit_posture=_s12_explore_exploit_posture(resource_posture),
         resource_authority_boundary=(
-            resource_posture.authority_boundary
-            if resource_posture is not None
-            else None
+            resource_posture.authority_boundary if resource_posture is not None else None
         ),
-        accountability_posture_refs=_s13_accountability_posture_refs(
-            accountability_posture
-        ),
+        accountability_posture_refs=_s13_accountability_posture_refs(accountability_posture),
         accountability_phase=_s13_accountability_phase(accountability_posture),
         deployment_dossier_refs=_s13_deployment_dossier_refs(accountability_posture),
         divergence_record_refs=_s13_divergence_record_refs(accountability_posture),
-        learning_update_proposal_refs=_s13_learning_update_proposal_refs(
-            accountability_posture
-        ),
+        learning_update_proposal_refs=_s13_learning_update_proposal_refs(accountability_posture),
         envelope_revision_refs=_s13_envelope_revision_refs(accountability_posture),
-        certified_envelope_delta_refs=_s13_certified_envelope_delta_refs(
-            accountability_posture
-        ),
+        certified_envelope_delta_refs=_s13_certified_envelope_delta_refs(accountability_posture),
         assurance_case_delta_refs=_s13_assurance_case_delta_refs(accountability_posture),
         mape_k_trace_refs=_s13_mape_k_trace_refs(accountability_posture),
-        public_revision_state_refs=_s13_public_revision_state_refs(
-            accountability_posture
-        ),
+        public_revision_state_refs=_s13_public_revision_state_refs(accountability_posture),
         public_accountability_note_refs=_s13_public_accountability_note_refs(
             accountability_posture
         ),
         action_item_statuses=_s13_action_item_statuses(accountability_posture),
         action_item_closure_refs=_s13_action_item_closure_refs(accountability_posture),
-        human_decision_request_refs=_s13_human_decision_request_refs(
-            accountability_posture
-        ),
-        human_decision_record_refs=_s13_human_decision_record_refs(
-            accountability_posture
-        ),
+        human_decision_request_refs=_s13_human_decision_request_refs(accountability_posture),
+        human_decision_record_refs=_s13_human_decision_record_refs(accountability_posture),
         historical_prior_influence_refs=_s13_historical_prior_influence_refs(
             accountability_posture
         ),
@@ -2113,9 +2068,7 @@ def _search_ledger(
             if accountability_posture is not None
             else None
         ),
-        lifecycle_reissue_dispositions=_s13_lifecycle_reissue_dispositions(
-            accountability_posture
-        ),
+        lifecycle_reissue_dispositions=_s13_lifecycle_reissue_dispositions(accountability_posture),
         envelope_revision_direction=(
             accountability_posture.envelope_revision_direction
             if accountability_posture is not None
@@ -2127,9 +2080,7 @@ def _search_ledger(
             else None
         ),
         a_before_b_status=(
-            accountability_posture.a_before_b_status
-            if accountability_posture is not None
-            else None
+            accountability_posture.a_before_b_status if accountability_posture is not None else None
         ),
         accountability_authority_boundary=(
             accountability_posture.authority_boundary
@@ -2267,9 +2218,7 @@ def _design_record(
 
     if blind_spot_posture is not None:
         axis_positions.extend(_s6_axis_positions(blind_spot_posture, input.rule_version_ref))
-        firewall_status.extend(
-            _s6_firewall_statuses(blind_spot_posture, input.rule_version_ref)
-        )
+        firewall_status.extend(_s6_firewall_statuses(blind_spot_posture, input.rule_version_ref))
         ledger_refs.extend(_s6_ledger_refs(blind_spot_posture))
         projection_audiences = ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
 
@@ -2593,9 +2542,7 @@ def _s6_projection_fields(
         "s6_overall_posture": blind_spot_posture.overall_posture,
         "s6_maturity": blind_spot_posture.maturity,
         "s6_pattern_ids": pattern_ids,
-        "s6_firewall_status": {
-            firewall.cell_ref: firewall.status for firewall in s6_firewalls
-        },
+        "s6_firewall_status": {firewall.cell_ref: firewall.status for firewall in s6_firewalls},
         "s6_refinement_route": _s6_refinement_decision(blind_spot_posture),
         "s6_regime_reissue_required": blind_spot_posture.regime_reissue_required,
         "s6_strategy_cap": (
@@ -2623,8 +2570,7 @@ def _s6_projection_fields(
                 "s6_axis_rows": list(blind_spot_posture.axis_rows),
                 "s6_bridge_consumer_rows": list(blind_spot_posture.bridge_consumer_rows),
                 "s6_constraint_store_updates": [
-                    record.model_dump(mode="json")
-                    for record in constraint_store.constraint_records
+                    record.model_dump(mode="json") for record in constraint_store.constraint_records
                 ],
                 "s6_c3_authority_dimension_rows": list(
                     blind_spot_posture.c3_authority_dimension_rows
@@ -2698,9 +2644,7 @@ def _s7_projection_fields(
                     if record.cell_ref == "CROSS_CUTTING.scientist_orchestration"
                 ],
                 "handoff_rows": list(delegation_posture.handoff_rows),
-                "authority_boundary": delegation_posture.authority_boundary.model_dump(
-                    mode="json"
-                ),
+                "authority_boundary": delegation_posture.authority_boundary.model_dump(mode="json"),
                 "governed_pilot_eligible": _s7_governed_pilot_eligible(
                     delegation_posture,
                     blind_spot_posture=blind_spot_posture,
@@ -2758,13 +2702,9 @@ def _s8_projection_fields(
                     value_posture.objective_function_provenance_ref
                 ),
                 "pareto_archive_ref": value_posture.pareto_archive_ref,
-                "value_tradeoff_disclosure_ref": (
-                    value_posture.value_tradeoff_disclosure_ref
-                ),
+                "value_tradeoff_disclosure_ref": (value_posture.value_tradeoff_disclosure_ref),
                 "mandate_record_ref": value_posture.mandate_record_ref,
-                "s6_mandate_firewall_disposition": (
-                    value_posture.s6_mandate_firewall_disposition
-                ),
+                "s6_mandate_firewall_disposition": (value_posture.s6_mandate_firewall_disposition),
                 "principal_refs": list(value_posture.principal_refs),
                 "principal_conflict_rows": list(value_posture.conflict_rows),
                 "affected_group_rows": list(value_posture.affected_group_rows),
@@ -2776,21 +2716,15 @@ def _s8_projection_fields(
                 "rejected_nondominated_alternative_ids": list(
                     value_posture.rejected_nondominated_alternative_ids
                 ),
-                "value_provenance_completeness": (
-                    value_posture.value_provenance_completeness
-                ),
+                "value_provenance_completeness": (value_posture.value_provenance_completeness),
                 "integrity_status": _s8_integrity_status(value_posture),
-                "authority_boundary": value_posture.authority_boundary.model_dump(
-                    mode="json"
-                ),
+                "authority_boundary": value_posture.authority_boundary.model_dump(mode="json"),
             }
         )
     if audience == "MACHINE":
         fields.update(
             {
-                "social_weight_provenance_refs": list(
-                    value_posture.social_weight_provenance_refs
-                ),
+                "social_weight_provenance_refs": list(value_posture.social_weight_provenance_refs),
                 "delegation_refs": list(value_posture.delegation_refs),
                 "value_authorization_decision_refs": list(
                     value_posture.value_authorization_decision_refs
@@ -2801,8 +2735,7 @@ def _s8_projection_fields(
                     if record.cell_ref == _S8_VALUE_CHOICE_CELL_REF
                 ],
                 "s8_handoff_rows": [
-                    record.model_dump(mode="json")
-                    for record in _s8_handoff_records(value_posture)
+                    record.model_dump(mode="json") for record in _s8_handoff_records(value_posture)
                 ],
                 "deterministic_value_replay_refs": _s8_ledger_refs(value_posture),
             }
@@ -2832,12 +2765,8 @@ def _s10_projection_fields(
         ),
         "forecast_support_label": forecast_posture.forecast_support_label,
         "forecast_support_ref": forecast_posture.forecast_support_ref,
-        "forecast_calibration_record_ref": (
-            forecast_posture.forecast_calibration_record_ref
-        ),
-        "forecast_authority_boundary": forecast_posture.authority_boundary.model_dump(
-            mode="json"
-        ),
+        "forecast_calibration_record_ref": (forecast_posture.forecast_calibration_record_ref),
+        "forecast_authority_boundary": forecast_posture.authority_boundary.model_dump(mode="json"),
         "weakest_boundary_inherited": True,
     }
     if audience in {"EXPERT", "MACHINE"}:
@@ -2851,18 +2780,12 @@ def _s10_projection_fields(
                 "credible_evaluation_evidence_ref": (
                     forecast_posture.credible_evaluation_evidence_ref
                 ),
-                "dynamic_equilibrium_check_ref": (
-                    forecast_posture.dynamic_equilibrium_check_ref
-                ),
+                "dynamic_equilibrium_check_ref": (forecast_posture.dynamic_equilibrium_check_ref),
                 "sensitivity_analysis_ref": forecast_posture.sensitivity_analysis_ref,
-                "uncertainty_interval_refs": list(
-                    forecast_posture.uncertainty_interval_refs
-                ),
+                "uncertainty_interval_refs": list(forecast_posture.uncertainty_interval_refs),
                 "s5_forecast_support_ref": forecast_posture.s5_forecast_support_ref,
                 "s6_firewall_status_refs": list(forecast_posture.s6_firewall_status_refs),
-                "s8_value_choice_provenance_ref": (
-                    forecast_posture.s8_value_choice_provenance_ref
-                ),
+                "s8_value_choice_provenance_ref": (forecast_posture.s8_value_choice_provenance_ref),
                 "s8_value_tradeoff_disclosure_ref": (
                     forecast_posture.s8_value_tradeoff_disclosure_ref
                 ),
@@ -2896,8 +2819,7 @@ def _s11_projection_fields(
     s11_constraints = [
         record.model_dump(mode="json")
         for record in constraint_store.constraint_records
-        if record.cell_ref
-        in {_S11_REGIME_CELL_REF, _S11_FORECAST_QUALITY_CELL_REF}
+        if record.cell_ref in {_S11_REGIME_CELL_REF, _S11_FORECAST_QUALITY_CELL_REF}
     ]
     fields: dict[str, object] = {
         "s11_predictive_posture_ref": predictive_posture.predictive_knowledge_ref,
@@ -2911,15 +2833,11 @@ def _s11_projection_fields(
         "per_axis_predictive_calibration_threshold_ref": (
             predictive_posture.per_axis_predictive_calibration_threshold_ref
         ),
-        "proof_carrying_analytics_ref": (
-            predictive_posture.proof_carrying_analytics_ref
-        ),
+        "proof_carrying_analytics_ref": (predictive_posture.proof_carrying_analytics_ref),
         "ir_analytics_bridge_ref": predictive_posture.ir_analytics_bridge_ref,
         "residual_limitation_refs": list(predictive_posture.residual_limitation_refs),
         "weakest_boundary_reason": predictive_posture.weakest_boundary_reason,
-        "forecast_quality_disposition": (
-            predictive_posture.forecast_quality_disposition
-        ),
+        "forecast_quality_disposition": (predictive_posture.forecast_quality_disposition),
         "s10_forecast_support_ref": predictive_posture.s10_forecast_support_ref,
         "s10_forecast_tier": predictive_posture.s10_forecast_tier,
         "s11_constraint_store_updates": s11_constraints,
@@ -2933,9 +2851,7 @@ def _s11_projection_fields(
             {
                 "s6_floor_status_refs": list(predictive_posture.s6_floor_status_refs),
                 "s6_axis_rows": list(predictive_posture.s6_axis_rows),
-                "s6_bridge_consumer_rows": list(
-                    predictive_posture.s6_bridge_consumer_rows
-                ),
+                "s6_bridge_consumer_rows": list(predictive_posture.s6_bridge_consumer_rows),
                 "s6_constraint_store_update_refs": list(
                     predictive_posture.s6_constraint_store_update_refs
                 ),
@@ -2948,12 +2864,8 @@ def _s11_projection_fields(
                 "system_dynamics_handoff_required": (
                     predictive_posture.system_dynamics_handoff_required
                 ),
-                "s11_calibration_record_refs": list(
-                    predictive_posture.s11_calibration_record_refs
-                ),
-                "method_infrastructure_refs": list(
-                    predictive_posture.method_infrastructure_refs
-                ),
+                "s11_calibration_record_refs": list(predictive_posture.s11_calibration_record_refs),
+                "method_infrastructure_refs": list(predictive_posture.method_infrastructure_refs),
                 "per_axis_predictive_calibration_denominator": (
                     predictive_posture.per_axis_predictive_calibration_denominator
                 ),
@@ -3011,13 +2923,9 @@ def _s12_projection_fields(
         ),
         "residual_limitation_refs": list(resource_posture.residual_limitation_refs),
         "resource_allocation_disposition": (
-            "blocked"
-            if resource_posture.explore_exploit_posture == "blocked"
-            else "advisory_only"
+            "blocked" if resource_posture.explore_exploit_posture == "blocked" else "advisory_only"
         ),
-        "resource_authority_boundary": resource_posture.authority_boundary.model_dump(
-            mode="json"
-        ),
+        "resource_authority_boundary": resource_posture.authority_boundary.model_dump(mode="json"),
         "may_not_be_used_for": list(resource_posture.may_not_use_for),
     }
     if audience in {"EXPERT", "MACHINE"}:
@@ -3040,13 +2948,9 @@ def _s13_projection_fields(
         "authority_role": "projection_only",
         "accountability_posture_ref": accountability_posture.accountability_posture_ref,
         "deployment_dossier_ref": accountability_posture.deployment_dossier_ref,
-        "envelope_revision_direction": (
-            accountability_posture.envelope_revision_direction
-        ),
+        "envelope_revision_direction": (accountability_posture.envelope_revision_direction),
         "public_revision_state_ref": accountability_posture.public_revision_state_ref,
-        "public_accountability_note_ref": (
-            accountability_posture.public_accountability_note_ref
-        ),
+        "public_accountability_note_ref": (accountability_posture.public_accountability_note_ref),
         "closed_case_historical_meaning": "preserved",
         "may_not_be_used_for": _merge_unique_strings(
             accountability_posture.may_not_use_for,
@@ -3058,40 +2962,26 @@ def _s13_projection_fields(
 
     base.update(
         {
-            "divergence_record_refs": list(
-                accountability_posture.divergence_record_refs
-            ),
+            "divergence_record_refs": list(accountability_posture.divergence_record_refs),
             "learning_update_proposal_refs": list(
                 accountability_posture.learning_update_proposal_refs
             ),
             "envelope_revision_ref": accountability_posture.envelope_revision_ref,
-            "certified_envelope_delta_ref": (
-                accountability_posture.certified_envelope_delta_ref
-            ),
+            "certified_envelope_delta_ref": (accountability_posture.certified_envelope_delta_ref),
             "assurance_case_delta_ref": accountability_posture.assurance_case_delta_ref,
             "attribution_status": accountability_posture.attribution_status,
             "attribution_classes": list(accountability_posture.attribution_classes),
             "learning_change_control_classes": list(
                 accountability_posture.learning_change_control_classes
             ),
-            "lifecycle_reissue_disposition": (
-                accountability_posture.lifecycle_reissue_disposition
-            ),
+            "lifecycle_reissue_disposition": (accountability_posture.lifecycle_reissue_disposition),
             "assurance_case_change": accountability_posture.assurance_case_change,
             "mape_k_trace_ref": accountability_posture.mape_k_trace_ref,
             "action_item_status": accountability_posture.action_item_status,
-            "action_item_closure_refs": list(
-                accountability_posture.action_item_closure_refs
-            ),
-            "human_decision_request_refs": list(
-                accountability_posture.human_decision_request_refs
-            ),
-            "human_decision_record_refs": list(
-                accountability_posture.human_decision_record_refs
-            ),
-            "oversight_effectiveness_ref": (
-                accountability_posture.oversight_effectiveness_ref
-            ),
+            "action_item_closure_refs": list(accountability_posture.action_item_closure_refs),
+            "human_decision_request_refs": list(accountability_posture.human_decision_request_refs),
+            "human_decision_record_refs": list(accountability_posture.human_decision_record_refs),
+            "oversight_effectiveness_ref": (accountability_posture.oversight_effectiveness_ref),
             "oversight_accountability_state": (
                 accountability_posture.oversight_accountability_state
             ),
@@ -3212,10 +3102,7 @@ def _s8_constraint_entries(
             consumer_ref="INTERVENTION.design_candidate",
             refinement_route="block_candidate",
             evidence_refs=[],
-            reason=(
-                "Ranked value choice attempted without injected S8 value-choice "
-                "provenance."
-            ),
+            reason=("Ranked value choice attempted without injected S8 value-choice provenance."),
             rule_version_ref=rule_version_ref,
         )
     ]
@@ -3260,8 +3147,7 @@ def _s11_constraint_entries(
             )
         )
     if (
-        predictive_posture.forecast_quality_disposition
-        != "unchanged_s10_tier_consumed"
+        predictive_posture.forecast_quality_disposition != "unchanged_s10_tier_consumed"
         or _s11_calibration_limits_downstream(predictive_posture)
     ):
         entries.append(
@@ -3380,8 +3266,7 @@ def _s11_refinement_decision(
         return None
     if (
         predictive_posture.effective_predictive_posture == "fail_closed"
-        or predictive_posture.forecast_quality_disposition
-        == "blocked_by_s11_calibration"
+        or predictive_posture.forecast_quality_disposition == "blocked_by_s11_calibration"
     ):
         return "block_candidate"
     return None
@@ -3435,9 +3320,7 @@ def _s7_handoff_refs(
     if delegation_posture is None:
         return []
     return [
-        str(row["handoff_id"])
-        for row in delegation_posture.handoff_rows
-        if row.get("handoff_id")
+        str(row["handoff_id"]) for row in delegation_posture.handoff_rows if row.get("handoff_id")
     ][:40]
 
 
@@ -3653,10 +3536,7 @@ def _attempts_ranked_value_choice(
     design_strategy: str | None,
     counterexample_class: str | None,
 ) -> bool:
-    return (
-        design_strategy == "expected_welfare_optimization"
-        or counterexample_class == "value_gap"
-    )
+    return design_strategy == "expected_welfare_optimization" or counterexample_class == "value_gap"
 
 
 def _s7_run_status(
@@ -3759,8 +3639,7 @@ def _s8_firewall_status(
     if _s8_blocks_ranked_selection(value_posture):
         status: Literal["pass", "warn", "limit", "block"] = "block"
     elif (
-        value_posture.disposition in {"authorized"}
-        and value_posture.p20_firewall_status == "pass"
+        value_posture.disposition in {"authorized"} and value_posture.p20_firewall_status == "pass"
     ):
         status = "pass"
     elif value_posture.disposition == "contested_multi_principal":
@@ -3946,8 +3825,7 @@ def _s11_constraint_status(
 ) -> Literal["pass", "warn", "limit", "block"]:
     if (
         predictive_posture.effective_predictive_posture == "fail_closed"
-        or predictive_posture.forecast_quality_disposition
-        == "blocked_by_s11_calibration"
+        or predictive_posture.forecast_quality_disposition == "blocked_by_s11_calibration"
     ):
         return "block"
     if _s11_calibration_limits_downstream(predictive_posture):
@@ -3963,8 +3841,7 @@ def _s11_calibration_limits_downstream(
     return (
         predictive_posture.per_axis_predictive_calibration_status
         in {"absent", "stale", "poor", "out_of_scope"}
-        or predictive_posture.forecast_quality_disposition
-        != "unchanged_s10_tier_consumed"
+        or predictive_posture.forecast_quality_disposition != "unchanged_s10_tier_consumed"
     )
 
 
@@ -4382,10 +4259,7 @@ def _s13_mape_k_trace_refs(
 def _s13_public_revision_state_refs(
     accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None,
 ) -> list[str]:
-    if (
-        accountability_posture is None
-        or accountability_posture.public_revision_state_ref is None
-    ):
+    if accountability_posture is None or accountability_posture.public_revision_state_ref is None:
         return []
     return [accountability_posture.public_revision_state_ref]
 
@@ -4544,9 +4418,7 @@ def _s10_handoff_record(
             ],
         ],
         disposition="consumed",
-        authority_purpose=(
-            "Layer2S10ForecastPostureInput forecast_support_posture_consumed"
-        ),
+        authority_purpose=("Layer2S10ForecastPostureInput forecast_support_posture_consumed"),
         may_not_use_for=_merge_unique_strings(
             forecast_posture.may_not_use_for,
             _S10_REQUIRED_HANDOFF_MAY_NOT_USE_FOR,
@@ -4569,8 +4441,7 @@ def _s11_handoff_record(
             else "consumed"
         ),
         authority_purpose=(
-            "Layer2S11PredictivePostureInput predictive_axis_maturity_upgrade "
-            "constraint_consumed"
+            "Layer2S11PredictivePostureInput predictive_axis_maturity_upgrade constraint_consumed"
         ),
         may_not_use_for=_merge_unique_strings(
             predictive_posture.may_not_use_for,
@@ -4589,13 +4460,10 @@ def _s12_handoff_record(
         target_cell_ref="INTERVENTION.design_candidate",
         artifact_refs=_s12_design_record_ledger_refs(resource_posture),
         disposition=(
-            "blocked"
-            if resource_posture.explore_exploit_posture == "blocked"
-            else "consumed"
+            "blocked" if resource_posture.explore_exploit_posture == "blocked" else "consumed"
         ),
         authority_purpose=(
-            "Layer2S12ResourceEconomicsPostureInput allocation_priority_input "
-            "constraint_consumed"
+            "Layer2S12ResourceEconomicsPostureInput allocation_priority_input constraint_consumed"
         ),
         may_not_use_for=_merge_unique_strings(
             resource_posture.may_not_use_for,
@@ -4635,10 +4503,7 @@ def _s8_action_route(value_posture: Layer2S8ValuePostureInput) -> str:
 
 
 def _s8_integrity_status(value_posture: Layer2S8ValuePostureInput) -> str:
-    if (
-        value_posture.p20_firewall_status == "block"
-        or value_posture.p22_firewall_status == "block"
-    ):
+    if value_posture.p20_firewall_status == "block" or value_posture.p22_firewall_status == "block":
         return "block"
     if (
         value_posture.disposition == "authorized"
@@ -5012,8 +4877,7 @@ def _handoff_records(
         )
     if delegation_posture is not None:
         records.extend(
-            ClusterHandoffRecord.model_validate(row)
-            for row in delegation_posture.handoff_rows
+            ClusterHandoffRecord.model_validate(row) for row in delegation_posture.handoff_rows
         )
     if value_posture is not None:
         records.extend(_s8_handoff_records(value_posture))
@@ -5128,9 +4992,7 @@ def _deterministic_replay_key(
     if forecast_posture is not None:
         payload["forecast_posture"] = {
             "forecast_support_ref": forecast_posture.forecast_support_ref,
-            "forecast_calibration_record_ref": (
-                forecast_posture.forecast_calibration_record_ref
-            ),
+            "forecast_calibration_record_ref": (forecast_posture.forecast_calibration_record_ref),
             "forecast_tier": forecast_posture.forecast_tier,
             "design_graph_ref": forecast_posture.design_graph_ref,
             "prediction_context_ref": forecast_posture.prediction_context_ref,

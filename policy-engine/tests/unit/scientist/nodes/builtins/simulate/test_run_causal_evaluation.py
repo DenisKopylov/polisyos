@@ -9,6 +9,7 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
@@ -706,12 +707,14 @@ def causal_recorded_output_case(tmp_path, monkeypatch):
         input_state.artifacts_index.pop(key, None)
     output_state = state.model_copy(deep=True)
     output_state.params = dict(params)
-    report_ref = owner._to_core_artifact_ref(persist_causal_effect_report(store, report))
+    report_ref = owner._to_core_artifact_ref(
+        persist_causal_effect_report(_ensure_ir_artifact_store(store), report)
+    )
     output_state.artifacts_index["causal_report_ref"] = report_ref
     envelope = report.to_uncertainty_envelope()
     if envelope is not None:
         output_state.artifacts_index["causal_envelope_ref"] = owner._to_core_artifact_ref(
-            persist_uncertainty_envelope(store, envelope)
+            persist_uncertainty_envelope(_ensure_ir_artifact_store(store), envelope)
         )
     ctx = SimpleNamespace(store=store)
     return ctx, input_state, output_state, list(output_state.artifacts_index.values())
@@ -759,6 +762,124 @@ def test_causal_output_contract_uses_complete_real_method_population(causal_reco
         rule.output_key for rule in node.spec.output_rules if rule.availability == "required"
     }
     assert all(rows[key].disposition == "produced" for key in required)
+
+
+def test_causal_output_contract_matches_branch_state_ref_identity(causal_recorded_output_case):
+    from polisyos.scientist.nodes.builtins.simulate import run_causal_evaluation as owner
+    from polisyos.scientist.orchestration.engine.state_branching import branch_state
+
+    ctx, input_state, output_state, produced = causal_recorded_output_case
+    branched = branch_state(
+        output_state, write_paths=("artifacts_index",), enforce_write_scope=True
+    ).state
+    tracked_ref = branched.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF]
+    assert type(tracked_ref) is not type(produced[0])
+
+    outcome = owner.materialize_causal_output_contract(
+        ctx=ctx,
+        input_state=input_state,
+        output_state=branched,
+        produced=produced,
+        supporting_artifacts={},
+    )
+    owner.RunCausalEvaluationNode().verify_output_dispositions(
+        ctx=ctx, input_state=input_state, outcome=outcome
+    )
+
+
+def test_causal_output_contract_normalizes_structured_branch_state_ref(
+    causal_recorded_output_case,
+):
+    from polisyos.scientist.nodes.builtins.simulate import run_causal_evaluation as owner
+    from polisyos.scientist.orchestration.engine.state_branching import branch_state
+
+    ctx, input_state, output_state, produced = causal_recorded_output_case
+    branched = branch_state(
+        output_state, write_paths=("artifacts_index",), enforce_write_scope=True
+    ).state
+    current_ref = branched.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF]
+    branched.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF] = current_ref.model_dump(mode="json")
+
+    outcome = owner.materialize_causal_output_contract(
+        ctx=ctx,
+        input_state=input_state,
+        output_state=branched,
+        produced=produced,
+        supporting_artifacts={},
+    )
+    owner.RunCausalEvaluationNode().verify_output_dispositions(
+        ctx=ctx, input_state=input_state, outcome=outcome
+    )
+
+
+def test_causal_output_contract_fails_closed_on_malformed_structured_ref(
+    causal_recorded_output_case,
+):
+    from pydantic import ValidationError
+
+    from polisyos.scientist.nodes.builtins.simulate import run_causal_evaluation as owner
+    from polisyos.scientist.orchestration.engine.state_branching import branch_state
+
+    ctx, input_state, output_state, produced = causal_recorded_output_case
+    branched = branch_state(
+        output_state, write_paths=("artifacts_index",), enforce_write_scope=True
+    ).state
+    branched.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF] = {
+        "artifact_id": "sha256:" + "b" * 64,
+        "kind": "ir.causal_effect_report",
+    }
+
+    with pytest.raises(ValidationError):
+        owner.materialize_causal_output_contract(
+            ctx=ctx,
+            input_state=input_state,
+            output_state=branched,
+            produced=produced,
+            supporting_artifacts={},
+        )
+
+
+@pytest.mark.parametrize("mutation", ["kind", "media_type", "profile", "foreign_ref"])
+def test_causal_output_contract_rejects_nonemitted_ref_identity(
+    causal_recorded_output_case, mutation
+):
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.scientist.nodes.builtins.simulate import run_causal_evaluation as owner
+    from polisyos.scientist.orchestration.engine.state_branching import branch_state
+
+    ctx, input_state, output_state, produced = causal_recorded_output_case
+    branched = branch_state(
+        output_state, write_paths=("artifacts_index",), enforce_write_scope=True
+    ).state
+    current_ref = ArtifactRef.model_validate(
+        branched.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF].model_dump(mode="json")
+    )
+    if mutation == "kind":
+        foreign_ref = current_ref.model_copy(update={"kind": "foreign.causal_report"})
+    elif mutation == "media_type":
+        foreign_ref = current_ref.model_copy(update={"media_type": "application/octet-stream"})
+    elif mutation == "profile":
+        foreign_ref = current_ref.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "a" * 64}
+        )
+    else:
+        from polisyos.core.artifacts.store import PutOptions
+
+        foreign_ref = ctx.store.put_json(
+            {"foreign": "report"},
+            PutOptions(kind=current_ref.kind, media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+    branched.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF] = foreign_ref
+
+    with pytest.raises(ValueError, match="output_not_emitted_current_attempt:causal_report_ref"):
+        owner.materialize_causal_output_contract(
+            ctx=ctx,
+            input_state=input_state,
+            output_state=branched,
+            produced=produced,
+            supporting_artifacts={},
+        )
 
 
 @pytest.mark.parametrize(
@@ -818,6 +939,56 @@ def test_causal_output_contract_rejects_each_missing_required_output(causal_reco
                 produced=produced,
                 supporting_artifacts={},
             )
+
+
+@pytest.mark.parametrize("mutation", ["kind", "media_type"])
+def test_causal_output_refusal_readback_rejects_matching_wrong_manifest_header(
+    causal_recorded_output_case, mutation
+):
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.scientist.nodes.builtins.simulate import run_causal_evaluation as owner
+
+    ctx, input_state, _, _ = causal_recorded_output_case
+    outcome = _materialized_causal_output(causal_recorded_output_case)
+    rows = list(outcome.output_dispositions)
+    index = next(index for index, row in enumerate(rows) if row.disposition == "refused")
+    old_ref = rows[index].artifact_ref
+    original_payload = ctx.store.get_bytes(old_ref)
+    manifest = ctx.store.get_manifest(old_ref)
+    if mutation == "kind":
+        changed_manifest = manifest.model_copy(update={"kind": "foreign.node_output_refusal"})
+        changed_ref = ArtifactRef.model_validate(
+            {
+                **old_ref.model_dump(mode="python"),
+                "kind": "foreign.node_output_refusal",
+            }
+        )
+    else:
+        changed_manifest = manifest.model_copy(update={"media_type": "text/plain"})
+        changed_ref = ArtifactRef.model_validate(
+            {**old_ref.model_dump(mode="python"), "media_type": "text/plain"}
+        )
+    assert changed_manifest.artifact_schema == manifest.artifact_schema
+    assert changed_manifest.producer == manifest.producer
+    manifest_path = ctx.store._manifest_path_for_ref(
+        old_ref.artifact_id, old_ref.manifest_profile_sha256
+    )
+    manifest_path.write_text(changed_manifest.model_dump_json(by_alias=True))
+    assert ctx.store.get_bytes(changed_ref) == original_payload
+
+    rows[index] = rows[index].model_copy(update={"artifact_ref": changed_ref})
+    changed_outcome = outcome.model_copy(
+        update={
+            "artifacts": [changed_ref if ref == old_ref else ref for ref in outcome.artifacts],
+            "output_dispositions": tuple(rows),
+        }
+    )
+    with pytest.raises(
+        ValueError, match=f"causal_output_refusal_lineage_mismatch:{rows[index].output_key}"
+    ):
+        owner.RunCausalEvaluationNode().verify_output_dispositions(
+            ctx=ctx, input_state=input_state, outcome=changed_outcome
+        )
 
 
 @pytest.mark.parametrize("mutation", ["drop_parent", "forge_role", "schema", "kind", "producer"])

@@ -1,0 +1,17 @@
+id = "2026-10-09-e02-r3-llm-cost-status"
+title = "Preserve LLM cost origin and producer settlement"
+type = "fixed"
+component = "core-llm"
+owner = "runtime"
+summary = "Provider usage now preserves missing and invalid evidence, including reported zero and nonzero JSON costs that would underflow binary-float conversion. Producer cost events distinguish reported, estimated, admitted reuse, and unknown amounts, and the durable local ledger retains pending and terminal provider outcomes. Durable event model and logical-route identity are pinned by the pre-dispatch configured intent; response-declared labels cannot change local identity or estimate basis. Every cache route, including non-reusable provider bypasses, preserves physical producer settlement; cancellation of a cache waiter does not hide the provider event. The ordinary NL runtime composes an app-scoped ledger and projects compiler/preflight plus model-variant events into distinct agents steps from persisted run state. Identical event IDs are deduplicated across sources and conflicting payloads are refused. Funnel and VOI costs preserve their explicit estimate/unknown origin."
+evidence = ["tests/unit/core/llm/test_response.py", "tests/unit/core/llm/test_traced_client_settlement.py", "tests/unit/runtime/http/services/test_response_shapes_monetary.py", "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py", "tests/unit/runtime/http/test_insights_api.py", "tests/unit/runtime/http/test_runtime_service_container.py", "tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py", "tests/unit/scientist/orchestration/llm/test_prompt_cache_scope_admission.py"]
+compatibility = "Existing provider routes remain available. Scoped prompt-cache reuse requires the typed authorizer; cache metadata alone does not authorize a reuse event. Reported zero and reuse zero remain distinct from unknown cost."
+change_class = "internal"
+surface_classification = "Additive internal producer/event fields and nullable NL cost projections; no new external billing claim."
+migration = "Budget ledger snapshot 1.2 adds producer settlement records while accepting valid 1.0 and 1.1 snapshots."
+api = "The gateway factory accepts an optional durable producer settlement store and budget key; the runtime container supplies its app-scoped ledger by default. Run cost events preserve nullable amount, origin, settlement status, durability, receipts, and payload digest through the agents read surface. Persisted preflight rows appear in the design_problem_compiler/nl_preflight step; exact duplicate event IDs across audit and state sources count once, and conflicting same-ID payloads fail the read."
+limitations = "The local ledger does not establish an external invoice or billing receipt. LLM token-price estimates and funnel configuration/duration estimates are heuristics, not scientific or external price calibration. Numeric costs that cannot be represented by the current cost parser remain invalid/unknown. Native evaluator work/draw counts are not established by these monetary fields."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/core/llm/README.md", "src/polisyos/scientist/orchestration/llm/README.md", "src/polisyos/scientist/orchestration/engine/README.md", "src/polisyos/runtime/http/README.md", "docs/reference/api/runs.md"]
+runbook_docs = []

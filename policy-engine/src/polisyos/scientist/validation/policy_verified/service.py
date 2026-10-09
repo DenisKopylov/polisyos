@@ -72,9 +72,7 @@ _POLICY_VERIFIED_TOOLKIT_ERRORS = (
 )
 _POLICY_VERIFIED_JSON_ERRORS = (TypeError, ValueError, json.JSONDecodeError)
 _POLICY_VERIFIED_ASYNC_RUN_ERRORS = (RuntimeError, TypeError, ValueError)
-POLICY_VERIFIED_HARDCODED_FORMALIZER_STRANGLED = (
-    "policy_verified_hardcoded_formalizer_strangled"
-)
+POLICY_VERIFIED_HARDCODED_FORMALIZER_STRANGLED = "policy_verified_hardcoded_formalizer_strangled"
 
 
 def build_policy_request_frame(ctx: ExecutionContext, state: ExperimentState) -> PolicyRequestFrame:
@@ -608,7 +606,7 @@ def _load_research_intent(store: FileSystemCAS, raw_ref: Any) -> ResearchIntent 
     except _POLICY_VERIFIED_MODEL_ERRORS:
         return None
     try:
-        payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+        payload = from_canonical_bytes(store.get_bytes(ref))
     except _POLICY_VERIFIED_ARTIFACT_LOAD_ERRORS:
         return None
     try:
@@ -709,7 +707,7 @@ def _load_cross_graph_profile(
         return None
     try:
         return CrossGraphEvidenceProfile.model_validate(
-            from_canonical_bytes(store.get_bytes(raw_ref.artifact_id))
+            from_canonical_bytes(store.get_bytes(raw_ref))
         )
     except (*_POLICY_VERIFIED_ARTIFACT_LOAD_ERRORS, *_POLICY_VERIFIED_MODEL_ERRORS):
         return None

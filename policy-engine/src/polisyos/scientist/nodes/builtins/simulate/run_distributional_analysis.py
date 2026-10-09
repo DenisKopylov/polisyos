@@ -10,6 +10,7 @@ from typing import Any
 import numpy as np
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -98,10 +99,6 @@ from polisyos.ir.registry.refs import (
     OrdinalPovertyReportRef,
     ProofBundleRef,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF,
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
@@ -111,6 +108,15 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_INPUT_BINDINGS_REF,
     INPUT_STATE_SNAPSHOT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 _BASE_CAUSAL_ASSUMPTIONS = [
     "distributional_estimand_not_proof_kernel_identified",
@@ -267,7 +273,7 @@ class RunDistributionalAnalysisNode:
             )
 
         try:
-            sim_payload = from_canonical_bytes(ctx.store.get_bytes(sim_result_ref.artifact_id))
+            sim_payload = from_canonical_bytes(ctx.store.get_bytes(sim_result_ref))
             sim_result = SimulationResult.model_validate(sim_payload)
         except _DISTRIBUTIONAL_LOAD_ERRORS as exc:
             return NodeOutcome(
@@ -503,9 +509,11 @@ class RunDistributionalAnalysisNode:
                 },
             )
             bundle_ref = persist_distributional_effect_bundle(
-                ctx.store, bundle, inputs=artifact_inputs
+                _ensure_ir_artifact_store(ctx.store), bundle, inputs=artifact_inputs
             )
-            report_ref = persist_distributional_report(ctx.store, report, inputs=artifact_inputs)
+            report_ref = persist_distributional_report(
+                _ensure_ir_artifact_store(ctx.store), report, inputs=artifact_inputs
+            )
         except _DISTRIBUTIONAL_EXECUTION_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
@@ -807,7 +815,9 @@ def _maybe_build_ordinal_poverty_report(
                 "counterfactual_agent_count": counterfactual_agent_count,
             },
         )
-        ref = persist_ordinal_poverty_report(ctx.store, report, inputs=artifact_inputs)
+        ref = persist_ordinal_poverty_report(
+            _ensure_ir_artifact_store(ctx.store), report, inputs=artifact_inputs
+        )
         summary = _ordinal_poverty_summary_from_report(report, ref=ref)
         event_message = (
             "Ordinal multidimensional poverty report generated"
@@ -878,7 +888,7 @@ def _resolve_distributional_graph(
     try:
         payload = raw.model_dump(mode="json") if hasattr(raw, "model_dump") else raw
         graph_ref = CausalGraphModelRef.model_validate(payload)
-        return graph_ref, load_causal_graph_model(ctx.store, graph_ref)
+        return graph_ref, load_causal_graph_model(_ensure_ir_artifact_store(ctx.store), graph_ref)
     except _DISTRIBUTIONAL_LOAD_ERRORS:
         return None, None
 
@@ -1183,7 +1193,7 @@ def _resolve_distributional_bounds(
                         dual_certificate_payload
                     )
                     dual_certificate_ref = persist_distributional_dual_certificate(
-                        ctx.store,
+                        _ensure_ir_artifact_store(ctx.store),
                         certificate,
                         inputs=inputs,
                     )
@@ -1191,7 +1201,7 @@ def _resolve_distributional_bounds(
                         bundle, dual_certificate_ref
                     )
                 ref = persist_distributional_bounds_bundle(
-                    ctx.store,
+                    _ensure_ir_artifact_store(ctx.store),
                     bundle,
                     inputs=[
                         *inputs,
@@ -1677,7 +1687,7 @@ def _persist_distributional_assumption_cards(
             seen.add(candidate)
             scope = _assumption_scope(candidate, default_scope=default_scope)
             ref = persist_causal_assumption_card(
-                ctx.store,
+                _ensure_ir_artifact_store(ctx.store),
                 CausalAssumptionCard(
                     scope=scope,
                     status=_assumption_status(
@@ -1729,7 +1739,7 @@ def _maybe_persist_distributional_estimand_ast(
         )
     except _DISTRIBUTIONAL_VALIDATION_ERRORS:
         return None
-    return persist_estimand_ast(ctx.store, estimand_ast, inputs=inputs)
+    return persist_estimand_ast(_ensure_ir_artifact_store(ctx.store), estimand_ast, inputs=inputs)
 
 
 def _bound_uniformity_for_justification(
@@ -1772,7 +1782,9 @@ def _persist_distributional_proof_artifacts(
 ) -> tuple[DistributionalProofArtifactRef | None, DistributionalProofArtifactRef | None]:
     proof_bundle_ref: ProofBundleRef | None = None
     if proof_bundle is not None:
-        proof_bundle_ref = persist_proof_bundle(ctx.store, proof_bundle, inputs=inputs)
+        proof_bundle_ref = persist_proof_bundle(
+            _ensure_ir_artifact_store(ctx.store), proof_bundle, inputs=inputs
+        )
     estimand_ast_ref = _maybe_persist_distributional_estimand_ast(
         ctx,
         proof_bundle=proof_bundle,
@@ -1786,7 +1798,7 @@ def _persist_distributional_proof_artifacts(
     bounds_refs = list(distributional_bounds_refs or [])
     if proof_bundle_ref is not None:
         marginal_ref = persist_distributional_proof_artifact(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             DistributionalProofArtifact(
                 base_proof_ref=proof_bundle_ref,
                 estimand_ast_ref=estimand_ast_ref,
@@ -1833,7 +1845,7 @@ def _persist_distributional_proof_artifacts(
         bounds_metadata = dict(distributional_bounds_metadata or {})
         first_bounds_ref = bounds_refs[0]
         marginal_ref = persist_distributional_proof_artifact(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             DistributionalProofArtifact(
                 target=distributional_bounds_target or DistributionalProofTarget.CDF,
                 bounded_curve_ref=first_bounds_ref,
@@ -1869,7 +1881,7 @@ def _persist_distributional_proof_artifacts(
     coupling_negative_ref: NegativeCertificateRef | None = None
     if coupling_negative_certificate is not None:
         coupling_negative_ref = persist_negative_certificate(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             coupling_negative_certificate,
             inputs=inputs,
         )
@@ -1877,7 +1889,7 @@ def _persist_distributional_proof_artifacts(
     coupling_status = _coupling_status_for_justification(coupling_justification)
     if coupling_status is not DistributionalCouplingStatus.NOT_USED:
         coupling_ref = persist_distributional_proof_artifact(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             DistributionalProofArtifact(
                 base_proof_ref=proof_bundle_ref,
                 estimand_ast_ref=estimand_ast_ref,
@@ -2070,7 +2082,7 @@ def _persist_scalar_artifacts(
         else _coupling_assumptions(weighting_mode=result.weighting_mode)
     )
     baseline_ref = persist_discrete_distribution_summary(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         _distribution_summary(
             outcome_name=outcome_name,
             values=baseline_values,
@@ -2080,7 +2092,7 @@ def _persist_scalar_artifacts(
         inputs=inputs,
     )
     counterfactual_ref = persist_discrete_distribution_summary(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         _distribution_summary(
             outcome_name=outcome_name,
             values=counterfactual_values,
@@ -2090,17 +2102,17 @@ def _persist_scalar_artifacts(
         inputs=inputs,
     )
     quantile_ref = persist_quantile_shift_summary(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         _quantile_summary(outcome_name=outcome_name, result=result, metadata=artifact_metadata),
         inputs=inputs,
     )
     tail_ref = persist_tail_risk_delta_summary(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         _tail_summary(outcome_name=outcome_name, result=result, metadata=artifact_metadata),
         inputs=inputs,
     )
     coupling_ref = persist_ot_coupling_summary(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         _coupling_summary(result=result, metadata=artifact_metadata),
         inputs=inputs,
     )
@@ -2209,7 +2221,9 @@ def _persist_subgroup_comparison(
         causal_assumptions=list(causal_assumptions),
         metadata=artifact_metadata,
     )
-    return persist_subgroup_distribution_comparison(ctx.store, comparison, inputs=inputs)
+    return persist_subgroup_distribution_comparison(
+        _ensure_ir_artifact_store(ctx.store), comparison, inputs=inputs
+    )
 
 
 def _income_quintile_subgroups(incomes_before: np.ndarray) -> list[_SubgroupSpec]:
@@ -2304,7 +2318,7 @@ def _resolve_baseline_snapshot_ref(
     input_bindings_ref = state.inputs.get(INPUT_INPUT_BINDINGS_REF)
     if input_bindings_ref is not None:
         try:
-            payload = from_canonical_bytes(ctx.store.get_bytes(input_bindings_ref.artifact_id))
+            payload = from_canonical_bytes(ctx.store.get_bytes(input_bindings_ref))
             bindings = FoundryInputBindings.model_validate(payload)
             return bindings.bound_state_snapshot_ref
         except _DISTRIBUTIONAL_LOAD_ERRORS:
@@ -2314,7 +2328,7 @@ def _resolve_baseline_snapshot_ref(
     if data_snapshot_ref is None:
         return None
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(data_snapshot_ref.artifact_id))
+        payload = from_canonical_bytes(ctx.store.get_bytes(data_snapshot_ref))
         snapshot = DataSnapshot.model_validate(payload)
     except _DISTRIBUTIONAL_LOAD_ERRORS:
         return None

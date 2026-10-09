@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from pydantic import ValidationError
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.transport_check import CheckTransportability
 from polisyos.ir.analytics.causal import CausalEffectReport, CausalMethod, EstimationStatus
@@ -26,7 +29,6 @@ from polisyos.ir.analytics.transportability import (
     persist_transportability_result,
 )
 from polisyos.ir.registry.refs import TransportabilityResultRef
-from pydantic import ValidationError
 
 
 def test_transportability_result_artifact_roundtrip(tmp_path) -> None:
@@ -38,8 +40,8 @@ def test_transportability_result_artifact_roundtrip(tmp_path) -> None:
         notes=["minimal contract"],
     )
 
-    ref = persist_transportability_result(store, result)
-    loaded = load_transportability_result(store, ref)
+    ref = persist_transportability_result(_ensure_ir_artifact_store(store), result)
+    loaded = load_transportability_result(_ensure_ir_artifact_store(store), ref)
 
     assert isinstance(ref, TransportabilityResultRef)
     assert ref.kind == "ir.transportability_result"

@@ -9,8 +9,9 @@ from __future__ import annotations
 
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, ClassVar
 
+import duckdb
 import pytest
 
 import polisyos.runtime.quality.generation_cycle as generation_cycle
@@ -65,50 +66,74 @@ def _project_value_outer_set(
     )
 
 
-class _RowsCursor:
-    def __init__(self, rows: tuple[tuple[Any, ...], ...]) -> None:
-        self._rows = rows
-
-    def fetchall(self) -> list[tuple[Any, ...]]:
-        return list(self._rows)
-
-
-class _RowsConnection:
-    def __init__(self, rows: tuple[tuple[Any, ...], ...]) -> None:
-        self._rows = rows
-        self.calls: list[tuple[str, tuple[Any, ...]]] = []
-
-    def execute(self, statement: str, parameters: Any = None) -> _RowsCursor:
-        self.calls.append((statement, tuple(parameters or ())))
-        rows = self._rows
-        if "country_code = ?" in statement:
-            scope_region = tuple(parameters or ())[1]
-            rows = tuple(row for row in rows if row[0] == scope_region)
-        return _RowsCursor(rows)
-
-    def close(self) -> None:
-        return None
-
-
-def test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed(
+def _seed_emp01_catalog(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
-) -> None:
-    """Unbound measurement units are refused after applying the geographic scope."""
+    rows: tuple[tuple[Any, ...], ...],
+    *,
+    bulk_region_rows: tuple[str, int] | None = None,
+) -> Path:
+    """Seed the real catalog table consumed by the production DuckDB query."""
 
     catalog_path = tmp_path / "l1.duckdb"
-    catalog_path.touch()
-    rows = (
-        ("UA", 2020, 10.0, "dataset-percent", "obs-ua-percent-2020", '{"unit":"percent"}'),
-        ("UA", 2020, 1000.0, "dataset-usd", "obs-ua-usd-2020", '{"unit":"usd"}'),
-        ("UA", 2021, 11.0, "dataset-percent", "obs-ua-percent-2021", '{"unit":"percent"}'),
-        ("UA", 2022, 12.0, "dataset-percent", "obs-ua-percent-2022", '{"unit":"percent"}'),
-        ("UA", 2023, 13.0, "dataset-percent", "obs-ua-percent-2023", '{"unit":"percent"}'),
-        ("PL", 2020, 99.0, "dataset-foreign", "obs-pl-2020", '{"unit":"percent"}'),
-        ("PL", 2021, 98.0, "dataset-foreign", "obs-pl-2021", '{"unit":"percent"}'),
-    )
-    connection = _RowsConnection(rows)
-
+    with duckdb.connect(str(catalog_path)) as connection:
+        connection.execute(
+            """
+            CREATE TABLE ds_observations (
+                observation_id VARCHAR PRIMARY KEY,
+                dataset_id VARCHAR NOT NULL,
+                raw_variable VARCHAR NOT NULL,
+                canonical_var VARCHAR NOT NULL,
+                country_code VARCHAR NOT NULL,
+                year INTEGER,
+                survey_year INTEGER,
+                wave INTEGER,
+                value DOUBLE,
+                condition_json VARCHAR DEFAULT '{}'
+            )
+            """
+        )
+        values = [
+            (
+                observation_id,
+                dataset_id,
+                "outcome",
+                "outcome",
+                country_code,
+                period,
+                None,
+                None,
+                value,
+                condition_json,
+            )
+            for country_code, period, value, dataset_id, observation_id, condition_json in rows
+        ]
+        if values:
+            connection.executemany(
+                "INSERT INTO ds_observations VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                values,
+            )
+        if bulk_region_rows is not None:
+            country_code, row_count = bulk_region_rows
+            dataset_id = "dataset-percent" if country_code == "UA" else "dataset-foreign"
+            connection.execute(
+                """
+                INSERT INTO ds_observations
+                SELECT
+                    'obs-bulk-' || CAST(row_number AS VARCHAR),
+                    ?,
+                    'outcome',
+                    'outcome',
+                    ?,
+                    CAST(1900 + row_number AS INTEGER),
+                    NULL,
+                    NULL,
+                    CAST(row_number AS DOUBLE),
+                    '{"unit":"percent"}'
+                FROM range(?) AS generated(row_number)
+                """,
+                [dataset_id, country_code, row_count],
+            )
     monkeypatch.setattr(
         substrate_registry,
         "default_substrate_catalog_paths",
@@ -119,10 +144,28 @@ def test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed(
         "default_acquisition_overlay_path",
         lambda _repo_root: None,
     )
-    monkeypatch.setattr(
-        read_api.catalog,
-        "open_catalog_read_session",
-        lambda _path, overlay_path=None: connection,
+    return catalog_path
+
+
+def test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """Unbound measurement units are refused after applying the geographic scope."""
+
+    rows = (
+        ("UA", 2020, 10.0, "dataset-percent", "obs-ua-percent-2020", '{"unit":"percent"}'),
+        ("UA", 2020, 1000.0, "dataset-usd", "obs-ua-usd-2020", '{"unit":"usd"}'),
+        ("UA", 2021, 11.0, "dataset-percent", "obs-ua-percent-2021", '{"unit":"percent"}'),
+        ("UA", 2022, 12.0, "dataset-percent", "obs-ua-percent-2022", '{"unit":"percent"}'),
+        ("UA", 2023, 13.0, "dataset-percent", "obs-ua-percent-2023", '{"unit":"percent"}'),
+    )
+    foreign_row_count = 20_001
+    _seed_emp01_catalog(
+        monkeypatch,
+        tmp_path,
+        rows,
+        bulk_region_rows=("PL", foreign_row_count),
     )
     monkeypatch.setattr(
         data_state_substrate,
@@ -132,7 +175,7 @@ def test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed(
             coverage_ref="catalog://emp01/outcome",
             dataset_count=3,
             metric_binding_count=1,
-            observation_count=len(rows),
+            observation_count=len(rows) + foreign_row_count,
         ),
     )
 
@@ -147,18 +190,14 @@ def test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed(
     with pytest.raises(
         generation_cycle.ValueOwnerAccessError,
         match="measurement-unit-binding",
-    ):
+    ) as exc_info:
         generation_cycle.RealValueOwnerGateway(repo_root=tmp_path).load_value_data_profile(
             candidate=candidate,
             problem=problem,
             world_record=SimpleNamespace(),
         )
 
-    assert connection.calls
-    assert connection.calls[0][1][0] == "outcome"
-    statement = connection.calls[0][0]
-    assert statement.index("country_code = ?") < statement.index("LIMIT")
-    assert connection.calls[0][1][1] == "UA"
+    assert exc_info.value.code == "acquire_data:value_owner_unit_binding_ambiguous"
 
 
 def test_scope_filter_excludes_other_regions_before_profile_limit(
@@ -167,35 +206,13 @@ def test_scope_filter_excludes_other_regions_before_profile_limit(
 ) -> None:
     """A declared region is applied in the owner query before profile shaping."""
 
-    catalog_path = tmp_path / "l1.duckdb"
-    catalog_path.touch()
     rows = (
         ("UA", 2020, 10.0, "dataset-percent", "obs-ua-2020", '{"unit":"percent"}'),
         ("UA", 2021, 11.0, "dataset-percent", "obs-ua-2021", '{"unit":"percent"}'),
         ("UA", 2022, 12.0, "dataset-percent", "obs-ua-2022", '{"unit":"percent"}'),
         ("UA", 2023, 13.0, "dataset-percent", "obs-ua-2023", '{"unit":"percent"}'),
-        ("PL", 2020, 99.0, "dataset-foreign", "obs-pl-2020", '{"unit":"percent"}'),
-        ("PL", 2021, 98.0, "dataset-foreign", "obs-pl-2021", '{"unit":"percent"}'),
-        ("PL", 2022, 97.0, "dataset-foreign", "obs-pl-2022", '{"unit":"percent"}'),
-        ("PL", 2023, 96.0, "dataset-foreign", "obs-pl-2023", '{"unit":"percent"}'),
     )
-    connection = _RowsConnection(rows)
-
-    monkeypatch.setattr(
-        substrate_registry,
-        "default_substrate_catalog_paths",
-        lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
-    )
-    monkeypatch.setattr(
-        read_api.catalog,
-        "default_acquisition_overlay_path",
-        lambda _repo_root: None,
-    )
-    monkeypatch.setattr(
-        read_api.catalog,
-        "open_catalog_read_session",
-        lambda _path, overlay_path=None: connection,
-    )
+    _seed_emp01_catalog(monkeypatch, tmp_path, rows, bulk_region_rows=("PL", 20_001))
     monkeypatch.setattr(
         data_state_substrate,
         "l1_dcat_variable_availability",
@@ -204,7 +221,7 @@ def test_scope_filter_excludes_other_regions_before_profile_limit(
             coverage_ref="catalog://emp01/outcome",
             dataset_count=2,
             metric_binding_count=1,
-            observation_count=len(rows),
+            observation_count=len(rows) + 20_001,
         ),
     )
 
@@ -221,8 +238,6 @@ def test_scope_filter_excludes_other_regions_before_profile_limit(
     assert profile.unit_count == 1
     assert all(row.unit_id == "UA" for row in profile.rows)
     assert all(len(row.source_row_content_hashes) == 1 for row in profile.rows)
-    assert connection.calls
-    assert connection.calls[0][1] == ("outcome", "UA")
 
 
 def test_cross_period_mixed_dataset_units_fail_closed(
@@ -231,31 +246,13 @@ def test_cross_period_mixed_dataset_units_fail_closed(
 ) -> None:
     """Distinct source identities across periods cannot masquerade as one unit."""
 
-    catalog_path = tmp_path / "l1.duckdb"
-    catalog_path.touch()
     rows = (
         ("UA", 2020, 10.0, "dataset-percent", "obs-ua-2020", '{"unit":"percent"}'),
         ("UA", 2021, 1000.0, "dataset-usd", "obs-ua-2021", '{"unit":"usd"}'),
         ("UA", 2022, 12.0, "dataset-percent", "obs-ua-2022", '{"unit":"percent"}'),
         ("UA", 2023, 1100.0, "dataset-usd", "obs-ua-2023", '{"unit":"usd"}'),
     )
-    connection = _RowsConnection(rows)
-
-    monkeypatch.setattr(
-        substrate_registry,
-        "default_substrate_catalog_paths",
-        lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
-    )
-    monkeypatch.setattr(
-        read_api.catalog,
-        "default_acquisition_overlay_path",
-        lambda _repo_root: None,
-    )
-    monkeypatch.setattr(
-        read_api.catalog,
-        "open_catalog_read_session",
-        lambda _path, overlay_path=None: connection,
-    )
+    _seed_emp01_catalog(monkeypatch, tmp_path, rows)
     monkeypatch.setattr(
         data_state_substrate,
         "l1_dcat_variable_availability",
@@ -322,27 +319,11 @@ def test_owner_row_cap_refuses_truncated_profile(
 ) -> None:
     """A bounded catalog read never classifies an incomplete owner panel."""
 
-    catalog_path = tmp_path / "l1.duckdb"
-    catalog_path.touch()
-    rows = tuple(
-        ("UA", 2000 + index, float(index), "dataset-percent", f"obs-{index}", '{"unit":"percent"}')
-        for index in range(20_001)
-    )
-    connection = _RowsConnection(rows)
-    monkeypatch.setattr(
-        substrate_registry,
-        "default_substrate_catalog_paths",
-        lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
-    )
-    monkeypatch.setattr(
-        read_api.catalog,
-        "default_acquisition_overlay_path",
-        lambda _repo_root: None,
-    )
-    monkeypatch.setattr(
-        read_api.catalog,
-        "open_catalog_read_session",
-        lambda _path, overlay_path=None: connection,
+    _seed_emp01_catalog(
+        monkeypatch,
+        tmp_path,
+        (),
+        bulk_region_rows=("UA", 20_001),
     )
 
     with pytest.raises(
@@ -357,8 +338,6 @@ def test_owner_row_cap_refuses_truncated_profile(
         )
 
     assert exc_info.value.code == "acquire_data:value_owner_rows_truncated"
-    assert connection.calls
-    assert "LIMIT 20001" in connection.calls[0][0]
 
 
 def test_empty_selected_profile_returns_no_profile_before_unit_binding(
@@ -367,24 +346,7 @@ def test_empty_selected_profile_returns_no_profile_before_unit_binding(
 ) -> None:
     """An empty scoped selection is incomplete, not a unit-binding violation."""
 
-    catalog_path = tmp_path / "l1.duckdb"
-    catalog_path.touch()
-    connection = _RowsConnection(())
-    monkeypatch.setattr(
-        substrate_registry,
-        "default_substrate_catalog_paths",
-        lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
-    )
-    monkeypatch.setattr(
-        read_api.catalog,
-        "default_acquisition_overlay_path",
-        lambda _repo_root: None,
-    )
-    monkeypatch.setattr(
-        read_api.catalog,
-        "open_catalog_read_session",
-        lambda _path, overlay_path=None: connection,
-    )
+    _seed_emp01_catalog(monkeypatch, tmp_path, ())
 
     assert (
         generation_cycle._load_value_data_profile_from_l1_dcat(
@@ -432,7 +394,7 @@ def test_selection_diagram_requires_verified_causal_artifact(
 
     class _Problem:
         domain = "emp01-domain"
-        runtime_hints: dict[str, Any] = {}
+        runtime_hints: ClassVar[dict[str, Any]] = {}
 
         def model_dump(self, *, mode: str) -> dict[str, str]:
             assert mode == "json"

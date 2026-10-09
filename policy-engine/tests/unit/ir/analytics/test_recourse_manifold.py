@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.recourse_manifold import (
     ActionChannel,
@@ -372,11 +374,11 @@ def test_render_recourse_query_is_stable() -> None:
 def test_contracts_roundtrip_through_cas(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     manifold = _minimal_manifold()
-    manifold_ref = persist_intervention_cost_manifold(store, manifold)
+    manifold_ref = persist_intervention_cost_manifold(_ensure_ir_artifact_store(store), manifold)
     assert manifold_ref.kind == "ir.intervention_cost_manifold"
 
     query = _query(manifold_ref)
-    query_ref = persist_optimal_recourse_query(store, query)
+    query_ref = persist_optimal_recourse_query(_ensure_ir_artifact_store(store), query)
     assert query_ref.kind == "ir.optimal_recourse_intervention_query"
 
     proof = build_recourse_proof_bundle(
@@ -388,7 +390,7 @@ def test_contracts_roundtrip_through_cas(tmp_path) -> None:
         mutable_nodes=query.mutable_nodes,
         immutable_nodes=query.immutable_nodes,
     )
-    proof_ref = persist_recourse_proof_bundle(store, proof)
+    proof_ref = persist_recourse_proof_bundle(_ensure_ir_artifact_store(store), proof)
     assert proof_ref.kind == "ir.recourse_proof_bundle"
 
     action = InterventionProgram(
@@ -408,7 +410,7 @@ def test_contracts_roundtrip_through_cas(tmp_path) -> None:
         optimality_gap=0.0,
         recoverability_ref=proof_ref,
     )
-    cert_ref = persist_feasibility_certificate(store, cert)
+    cert_ref = persist_feasibility_certificate(_ensure_ir_artifact_store(store), cert)
     assert cert_ref.kind == "ir.recourse_feasibility_certificate"
 
     bundle = OptimalRecourseInterventionBundle(
@@ -422,11 +424,13 @@ def test_contracts_roundtrip_through_cas(tmp_path) -> None:
         readiness_cap=proof.readiness_cap,
         candidate_supports_explored=3,
     )
-    bundle_ref = persist_recourse_bundle(store, bundle)
+    bundle_ref = persist_recourse_bundle(_ensure_ir_artifact_store(store), bundle)
     assert bundle_ref.kind == "ir.optimal_recourse_intervention_bundle"
 
-    assert load_intervention_cost_manifold(store, manifold_ref) == manifold
-    assert load_optimal_recourse_query(store, query_ref) == query
-    assert load_recourse_proof_bundle(store, proof_ref) == proof
-    assert load_feasibility_certificate(store, cert_ref) == cert
-    assert load_recourse_bundle(store, bundle_ref) == bundle
+    assert (
+        load_intervention_cost_manifold(_ensure_ir_artifact_store(store), manifold_ref) == manifold
+    )
+    assert load_optimal_recourse_query(_ensure_ir_artifact_store(store), query_ref) == query
+    assert load_recourse_proof_bundle(_ensure_ir_artifact_store(store), proof_ref) == proof
+    assert load_feasibility_certificate(_ensure_ir_artifact_store(store), cert_ref) == cert
+    assert load_recourse_bundle(_ensure_ir_artifact_store(store), bundle_ref) == bundle

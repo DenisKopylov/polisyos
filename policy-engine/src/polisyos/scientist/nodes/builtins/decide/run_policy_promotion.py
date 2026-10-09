@@ -8,6 +8,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import from_canonical_bytes
@@ -17,6 +18,7 @@ from polisyos.ir.analytics.causal import CausalEffectReport
 from polisyos.ir.analytics.cross_graph import load_cross_graph_evidence_profile
 from polisyos.ir.analytics.distributional import load_distributional_report
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
+from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,
     BenchmarkSplit,
@@ -24,10 +26,14 @@ from polisyos.scientist.methods.autotune.models import (
     PromotionPolicy,
 )
 from polisyos.scientist.methods.autotune.registry import ChampionRegistry
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.governance.report import GovernanceReport
+from polisyos.scientist.methods.search.adversarial import load_platform_meta_evaluation_report
+from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
+from polisyos.scientist.methods.search.judge_stack import (
+    PolicyPromotionCoordinator,
+    PolicyPromotionResult,
+    to_search_uncertainty_envelope,
+)
+from polisyos.scientist.methods.search.promotion_evidence import PromotionEvidenceBundle
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
     _is_policy_mode,
@@ -48,6 +54,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_STRESS_TEST_REPORT_REF,
     REPORT_GOVERNANCE_REPORT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.objectives import (
     ObjectiveStack,
     PolicyEvaluationBundle,
@@ -57,14 +66,6 @@ from polisyos.scientist.policy_design.schema import (
     PolicyCandidateSchema,
     persist_policy_candidate_schema,
 )
-from polisyos.scientist.methods.search.adversarial import load_platform_meta_evaluation_report
-from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
-from polisyos.scientist.methods.search.judge_stack import (
-    PolicyPromotionCoordinator,
-    PolicyPromotionResult,
-    to_search_uncertainty_envelope,
-)
-from polisyos.scientist.methods.search.promotion_evidence import PromotionEvidenceBundle
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_policy_promotion@1.0.0"),
@@ -310,7 +311,7 @@ def _load_simulation_metrics(ctx: ExecutionContext, state: ExperimentState) -> d
     metrics_ref = state.artifacts_index.get(ARTIFACT_METRICS_REF)
     if metrics_ref is None:
         return {}
-    payload = from_canonical_bytes(ctx.store.get_bytes(metrics_ref.artifact_id))
+    payload = from_canonical_bytes(ctx.store.get_bytes(metrics_ref))
     metrics = Metrics.model_validate(payload)
     output: dict[str, float] = {}
     for key, value in metrics.values.items():
@@ -361,23 +362,23 @@ def _build_selection_benchmark_evaluation(
 
 
 def _load_benchmark_evaluation(ctx: ExecutionContext, ref: ArtifactRef) -> BenchmarkEvaluation:
-    return BenchmarkEvaluation.model_validate(
-        from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
-    )
+    return BenchmarkEvaluation.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
 
 
 def _load_distributional_report(ctx: ExecutionContext, state: ExperimentState):
     ref = state.artifacts_index.get(ARTIFACT_DISTRIBUTIONAL_REPORT_REF)
-    return None if ref is None else load_distributional_report(ctx.store, ref)
+    return (
+        None
+        if ref is None
+        else load_distributional_report(_ensure_ir_artifact_store(ctx.store), ref)
+    )
 
 
 def _load_causal_report(ctx: ExecutionContext, state: ExperimentState) -> CausalEffectReport | None:
     ref = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
     if ref is None:
         return None
-    return CausalEffectReport.model_validate(
-        from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
-    )
+    return CausalEffectReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
 
 
 def _load_governance_report(
@@ -386,30 +387,32 @@ def _load_governance_report(
     ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
     if ref is None:
         return None
-    return GovernanceReport.model_validate(
-        from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
-    )
+    return GovernanceReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
 
 
 def _load_governance_report_from_ref(
     ctx: ExecutionContext,
     ref: ArtifactRef,
 ) -> GovernanceReport | None:
-    return GovernanceReport.model_validate(
-        from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
-    )
+    return GovernanceReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
 
 
 def _load_cross_graph_profile(ctx: ExecutionContext, state: ExperimentState):
     ref = state.artifacts_index.get(ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF)
-    return None if ref is None else load_cross_graph_evidence_profile(ctx.store, ref)
+    return (
+        None
+        if ref is None
+        else load_cross_graph_evidence_profile(_ensure_ir_artifact_store(ctx.store), ref)
+    )
 
 
 def _load_search_uncertainty(ctx: ExecutionContext, state: ExperimentState):
     ref = state.artifacts_index.get(ARTIFACT_CAUSAL_ENVELOPE_REF)
     if ref is None:
         return to_search_uncertainty_envelope(None)
-    return to_search_uncertainty_envelope(load_uncertainty_envelope(ctx.store, ref))
+    return to_search_uncertainty_envelope(
+        load_uncertainty_envelope(_ensure_ir_artifact_store(ctx.store), ref)
+    )
 
 
 def _resolve_funnel_outcome(state: ExperimentState) -> FunnelOutcome | None:

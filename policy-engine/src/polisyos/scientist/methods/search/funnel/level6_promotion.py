@@ -198,6 +198,7 @@ class Level6PromotionStage(FunnelStage):
             )
 
         duration = (datetime.now(UTC) - start).total_seconds()
+        cost_usd = max(self._estimated_cost_usd, duration * self._cost_per_second_usd)
         side_information = ActionableSideInformation(
             candidate_id=str(
                 candidate.get("candidate_id")
@@ -224,9 +225,12 @@ class Level6PromotionStage(FunnelStage):
             policy_budget_explanation={},
             compute_budget_explanation={
                 "level6_wall_seconds": float(duration),
-                "level6_usd": max(self._estimated_cost_usd, duration * self._cost_per_second_usd),
+                "level6_usd": cost_usd,
             },
-            metadata={"terminal_action": terminal_action},
+            metadata={
+                "terminal_action": terminal_action,
+                "compute_cost_evidence": {"amount_usd": cost_usd, "origin": "estimated"},
+            },
         )
         store = resolve_actionable_store(context=context, store=self._store)
         side_information_ref = None
@@ -263,10 +267,8 @@ class Level6PromotionStage(FunnelStage):
                 else UncertaintyEnvelope.unknown()
             ),
             failure_cards=failure_cards,
-            compute_actual_usd=max(
-                self._estimated_cost_usd,
-                duration * self._cost_per_second_usd,
-            ),
+            compute_cost_usd=cost_usd,
+            compute_cost_origin="estimated",
             fidelity_level=self.fidelity_level,
             audit_refs=audit_refs,
             actionable_side_information_ref=side_information_ref,

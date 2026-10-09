@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.forecasting.benchmarking import (
     run_regime_shift_calibration_benchmark,
@@ -42,7 +44,9 @@ def test_regime_shift_forecaster_emits_hybrid_bundle_with_assignment_and_break_r
     assert bundle.benchmark_status.value == "green"
     assert bundle.regime_status.value == "calibrated"
 
-    assignment = get_json_artifact(store, bundle.assignment_posterior_ref.artifact_id)
+    assignment = get_json_artifact(
+        _ensure_ir_artifact_store(store), bundle.assignment_posterior_ref.artifact_id
+    )
     assert assignment["posterior_type"] == "hard_assignment_proxy"
     assert set(assignment["states"]) == {"regime_0", "regime_1"}
 

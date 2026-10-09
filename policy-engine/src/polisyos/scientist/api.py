@@ -48,6 +48,7 @@ if TYPE_CHECKING:
     from polisyos.core.governance.passes.base import ValidatorPass
     from polisyos.pdc import EvalSafetyVerifierPort, EvaluationExecutionContext
     from polisyos.scientist.governance.pipeline import ValidationPipeline
+    from polisyos.scientist.orchestration.engine.context import FoundryPort
     from polisyos.scientist.orchestration.engine.metrics_protocol import EngineMetricsCollector
     from polisyos.scientist.orchestration.engine.registry import NodeBootstrapReport, NodeRegistry
     from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -219,6 +220,7 @@ def run_experiment(
     metrics: Any | None = None,
     store: ArtifactStore | None = None,
     store_factory: Callable[[], ArtifactStore] | None = None,
+    foundry: FoundryPort | None = None,
     quota_registry: QuotaRegistry | None = None,
     engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
     eval_safety_execution_context: EvaluationExecutionContext | None = None,
@@ -236,6 +238,7 @@ def run_experiment(
     Args:
         state: Mapping or `ExperimentState` payload to seed the run. When `None`,
             a fresh run id and empty state container are generated.
+        foundry: Optional Foundry port override forwarded to the selected workflow.
         epoch_certificate_issuance_owner: Privileged in-process owner installed
             by Runtime composition; never read from or serialized into state.
 
@@ -307,6 +310,7 @@ def run_experiment(
                     initial_state,
                     store=store,
                     store_factory=store_factory,
+                    foundry=foundry,
                     tracer=resolved_tracer,
                     metrics=resolved_metrics,
                     quota_registry=quota_registry,

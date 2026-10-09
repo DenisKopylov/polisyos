@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.mechanism_design import (
     IncentiveCertificateStatus,
@@ -102,10 +104,15 @@ def test_mechanism_design_artifacts_round_trip_via_store(tmp_path) -> None:
         prior_weights=(1.0, 1.0, 1.0),
     )
 
-    spec_ref = persist_mechanism_family_spec(store, spec)
-    certificate_ref = persist_incentive_compatibility_certificate(store, certificate)
-    bound_ref = persist_mechanism_welfare_loss_bound(store, bound)
+    spec_ref = persist_mechanism_family_spec(_ensure_ir_artifact_store(store), spec)
+    certificate_ref = persist_incentive_compatibility_certificate(
+        _ensure_ir_artifact_store(store), certificate
+    )
+    bound_ref = persist_mechanism_welfare_loss_bound(_ensure_ir_artifact_store(store), bound)
 
-    assert load_mechanism_family_spec(store, spec_ref) == spec
-    assert load_incentive_compatibility_certificate(store, certificate_ref) == certificate
-    assert load_mechanism_welfare_loss_bound(store, bound_ref) == bound
+    assert load_mechanism_family_spec(_ensure_ir_artifact_store(store), spec_ref) == spec
+    assert (
+        load_incentive_compatibility_certificate(_ensure_ir_artifact_store(store), certificate_ref)
+        == certificate
+    )
+    assert load_mechanism_welfare_loss_bound(_ensure_ir_artifact_store(store), bound_ref) == bound

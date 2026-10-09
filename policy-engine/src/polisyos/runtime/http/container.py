@@ -7,6 +7,11 @@ from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Literal
 
+from polisyos.common.async_tools import (
+    SharedExecutorProfile,
+    configure_shared_executor_profile,
+    resolve_shared_executor_profile,
+)
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.runtime.http.access_audit import RuntimeDataAccessAuditTrail
 from polisyos.runtime.http.dependencies import RuntimeApiContext, build_runtime_api_context
@@ -42,12 +47,16 @@ from polisyos.scientist import (
 from polisyos.scientist.governance.continuous import (
     PublicVerificationRecordPopulationProvider,
 )
+from polisyos.scientist.orchestration.engine.budget import BudgetState
+from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 
 if TYPE_CHECKING:
     from collections.abc import Callable
     from pathlib import Path
 
     from polisyos.core import contracts as core_contracts
+    from polisyos.core.contracts.control import CatalogRunProfile
     from polisyos.runtime.http.execution_policy import ResolvedExecutionPolicy
     from polisyos.runtime.http.security import RuntimeSecurityConfig
     from polisyos.runtime.http.services.human_decisions import HumanDecisionService
@@ -61,9 +70,79 @@ if TYPE_CHECKING:
 LifecycleStatus = Literal["created", "starting", "ready", "stopping", "stopped", "failed"]
 
 
+class LegalQueryEncoderProviderError(ValueError):
+    """Typed refusal from the runtime-composed Legal encoder provider."""
+
+    def __init__(self, code: str) -> None:
+        self.code = code
+        super().__init__(code)
+
+
+@dataclass(frozen=True, slots=True, eq=False)
+class LegalQueryEncoderProvider:
+    """Runtime-owned access to one already-loaded local Legal query encoder.
+
+    The provider derives its own asset identity; callers cannot supply an identity
+    label. It is an execution seam for a loaded encoder, not a claim of legal or
+    production authority. The request profile and Legal store independently bind
+    that encoder to the selected generation before a vector result is returned.
+    """
+
+    encoder: object = field(repr=False, compare=False)
+    _asset_identity: str = field(init=False, repr=False)
+    _device: str = field(init=False, repr=False)
+    _dimension: int = field(init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        """Require a loaded encoder with recomputable assets and query methods."""
+        from polisyos.data_forge.read_api import legal as legal_read_api
+
+        dimension_method = getattr(self.encoder, "get_sentence_embedding_dimension", None)
+        encode_method = getattr(self.encoder, "encode", None)
+        device_value = getattr(self.encoder, "device", None)
+        device = str(device_value) if device_value is not None else ""
+        try:
+            dimension = int(dimension_method()) if callable(dimension_method) else -1
+            identity = legal_read_api.derive_encoder_identity(self.encoder)
+        except (AttributeError, ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("legal_query_encoder_assets_unavailable") from exc
+        if not callable(encode_method) or not device or dimension < 1:
+            raise ValueError("legal_query_encoder_profile_unavailable")
+        object.__setattr__(self, "_asset_identity", identity.content_identity)
+        object.__setattr__(self, "_device", device)
+        object.__setattr__(self, "_dimension", dimension)
+
+    def resolve_encoder(self) -> object:
+        """Return the loaded encoder only while its declared assets stay stable."""
+        from polisyos.data_forge.read_api import legal as legal_read_api
+
+        dimension_method = getattr(self.encoder, "get_sentence_embedding_dimension", None)
+        encode_method = getattr(self.encoder, "encode", None)
+        device_value = getattr(self.encoder, "device", None)
+        device = str(device_value) if device_value is not None else ""
+        try:
+            dimension = int(dimension_method()) if callable(dimension_method) else -1
+            identity = legal_read_api.derive_encoder_identity(self.encoder)
+        except (AttributeError, ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise LegalQueryEncoderProviderError("query_encoder_assets_unavailable") from exc
+        if (
+            not callable(encode_method)
+            or identity.content_identity != self._asset_identity
+            or device != self._device
+            or dimension != self._dimension
+        ):
+            raise LegalQueryEncoderProviderError("query_encoder_assets_changed")
+        return self.encoder
+
+
 @dataclass(frozen=True)
 class RuntimeContainerOverrides:
-    """Optional dependency overrides used by tests or alternate embeddings."""
+    """Optional dependency overrides used by tests or alternate embeddings.
+
+    ``llm_producer_settlement_store`` must use a durable ledger. The default
+    runtime creates an app-scoped file ledger under ``core_runs_root/.runtime``;
+    overrides can supply the same existing producer-settlement owner explicitly.
+    """
 
     runtime_api_context: RuntimeApiContext | None = None
     review_collaboration_hub: ReviewCollaborationHub | None = None
@@ -81,6 +160,8 @@ class RuntimeContainerOverrides:
     epoch_claim_lifecycle_bridge: Any | None = None
     acquisition_authority_provider: Any | None = None
     acquisition_execution_port: Any | None = None
+    legal_query_encoder_provider: LegalQueryEncoderProvider | None = None
+    llm_producer_settlement_store: BudgetMiddleware | None = None
 
 
 @dataclass(frozen=True)
@@ -102,6 +183,34 @@ class RuntimeContainerConfig:
     )
     candidate_simulation_profiles: tuple[Any, ...] = ()
     candidate_simulation_model_declarations: tuple[Any, ...] = ()
+    process_worker_capacity: int | None = None
+    process_worker_profile_revision: str | None = None
+    catalog_run_profile: CatalogRunProfile | None = None
+    _resolved_process_worker_profile: SharedExecutorProfile = field(
+        init=False,
+        repr=False,
+        compare=False,
+    )
+
+    def __post_init__(self) -> None:
+        """Reject incomplete runtime profiles during composition."""
+        profile = resolve_shared_executor_profile(
+            capacity=self.process_worker_capacity,
+            revision=self.process_worker_profile_revision,
+        )
+        object.__setattr__(self, "_resolved_process_worker_profile", profile)
+        if self.catalog_run_profile is not None:
+            if not isinstance(self.catalog_run_profile, str):
+                raise ValueError("catalog_run_profile_invalid")
+            from polisyos.data_forge.domains.catalog.selection import (
+                validate_catalog_run_profile,
+            )
+
+            validate_catalog_run_profile(self.catalog_run_profile)
+
+    def shared_executor_profile(self) -> SharedExecutorProfile:
+        """Resolve the configured candidate profile or the legacy host fallback."""
+        return self._resolved_process_worker_profile
 
 
 @dataclass
@@ -150,6 +259,8 @@ class RuntimeServiceContainer:
     control_registry_providers: ControlRegistryProviders
     public_decision_verification_service: PublicDecisionVerificationService
     candidate_simulation_context_admission_owner: Any | None = None
+    legal_query_encoder_provider: LegalQueryEncoderProvider | None = None
+    llm_producer_settlement_store: BudgetMiddleware | None = None
     control_service: ControlPlaneService | None = None
     epoch_certificate_issuance_owner: DecisionPacketEpochIssuanceOwner | None = None
     human_decision_service: HumanDecisionService | None = None
@@ -167,6 +278,7 @@ class RuntimeServiceContainer:
         runtime_security: RuntimeSecurityConfig,
     ) -> RuntimeServiceContainer:
         """Construct a container with lazy startup for heavyweight services."""
+        configure_shared_executor_profile(config.shared_executor_profile())
         overrides = config.overrides
         if type(config.candidate_simulation_profiles) is not tuple:
             raise TypeError("candidate_simulation_profiles_must_be_tuple")
@@ -174,6 +286,20 @@ class RuntimeServiceContainer:
             raise TypeError("candidate_simulation_model_declarations_must_be_tuple")
         runtime_metrics = overrides.runtime_metrics or (config.metrics_factory or get_metrics)()
         runtime_tracer = overrides.runtime_tracer or (config.tracer_factory or get_tracer)()
+        producer_settlement_store = overrides.llm_producer_settlement_store
+        if producer_settlement_store is None:
+            producer_settlement_store = BudgetMiddleware(
+                BudgetState(),
+                ledger=FileBudgetLedger(
+                    config.core_runs_root / ".runtime" / "llm-cost-ledger.json"
+                ),
+            )
+        if type(producer_settlement_store) is not BudgetMiddleware:
+            raise TypeError("llm_producer_settlement_store_must_be_budget_middleware")
+        try:
+            _ = producer_settlement_store.settlement_owner_identity
+        except (OSError, RuntimeError, ValueError) as exc:
+            raise ValueError("llm_producer_settlement_store_must_be_durable") from exc
         runtime_api_context = overrides.runtime_api_context or build_runtime_api_context(
             cas_root=config.cas_root,
             core_runs_root=config.core_runs_root,
@@ -184,7 +310,9 @@ class RuntimeServiceContainer:
             artifact_redaction_hooks=config.artifact_redaction_hooks,
             metrics=runtime_metrics,
             tracer=runtime_tracer,
+            producer_settlement_store=producer_settlement_store,
         )
+        runtime_api_context.debug.bind_producer_settlement_store(producer_settlement_store)
         candidate_context_owner = (
             ConfiguredCandidateSimulationContextAdmissionOwner(
                 profiles=config.candidate_simulation_profiles,
@@ -201,9 +329,22 @@ class RuntimeServiceContainer:
                 metrics=runtime_metrics,
             )
         )
-        control_registry_providers = (
-            overrides.control_registry_providers or _resolve_default_control_registry_providers()
-        )
+        control_registry_providers = overrides.control_registry_providers
+        if control_registry_providers is None:
+            control_registry_providers = _resolve_default_control_registry_providers(
+                catalog_run_profile=config.catalog_run_profile
+            )
+        elif config.catalog_run_profile is not None:
+            if (
+                control_registry_providers.catalog_run_profile is not None
+                and control_registry_providers.catalog_run_profile != config.catalog_run_profile
+            ):
+                raise ValueError("catalog_run_profile_runtime_configuration_mismatch")
+            if control_registry_providers.catalog_run_profile is None:
+                control_registry_providers = replace(
+                    control_registry_providers,
+                    catalog_run_profile=config.catalog_run_profile,
+                )
         if overrides.decision_validity_service is not None and not (
             ControlPlaneService.is_decision_validity_owner(overrides.decision_validity_service)
         ):
@@ -218,13 +359,17 @@ class RuntimeServiceContainer:
             overrides.control_service, ControlPlaneService
         ):
             raise ValueError("control_service_owner_invalid")
+        if (
+            overrides.legal_query_encoder_provider is not None
+            and type(overrides.legal_query_encoder_provider) is not LegalQueryEncoderProvider
+        ):
+            raise ValueError("legal_query_encoder_provider_invalid")
         if candidate_context_owner is not None and overrides.control_service is not None:
             override_owner = overrides.control_service._cycle_substrate_context_admission_owner
             if (
                 type(override_owner) is not ConfiguredCandidateSimulationContextAdmissionOwner
                 or override_owner.profiles != candidate_context_owner.profiles
-                or override_owner.model_declarations
-                != candidate_context_owner.model_declarations
+                or override_owner.model_declarations != candidate_context_owner.model_declarations
                 or override_owner.store is not runtime_api_context.store
             ):
                 raise ValueError("candidate_simulation_context_owner_override_mismatch")
@@ -326,6 +471,8 @@ class RuntimeServiceContainer:
                 claim_owner=claim_ledger_owner,
             ),
             candidate_simulation_context_admission_owner=candidate_context_owner,
+            legal_query_encoder_provider=overrides.legal_query_encoder_provider,
+            llm_producer_settlement_store=producer_settlement_store,
             control_service=overrides.control_service,
         )
 
@@ -407,8 +554,14 @@ class RuntimeServiceContainer:
                     cycle_substrate_context_admission_owner=(
                         self.candidate_simulation_context_admission_owner
                     ),
+                    llm_producer_settlement_store=self.llm_producer_settlement_store,
                 )
                 self.control_service = control_service
+            control_service.bind_llm_producer_settlement_store(self.llm_producer_settlement_store)
+            self.runtime_api_context.debug.bind_producer_control_job_store(
+                control_service._control_store
+            )
+            control_service.bind_legal_query_encoder_provider(self.legal_query_encoder_provider)
             custody = self._resolve_human_decision_custody(app)
             from polisyos.runtime.http.services.human_decision_contracts import (
                 HumanDecisionResolverPolicy,
@@ -622,6 +775,9 @@ class RuntimeServiceContainer:
 
     def _bind_legacy_state(self, app: Any) -> None:
         if self.control_service is not None:
+            self.runtime_api_context.debug.bind_producer_control_job_store(
+                self.control_service._control_store
+            )
             self.runtime_api_context.scenarios.bind_scenario_head_store(
                 self.control_service.scenario_head_store,
             )
@@ -791,8 +947,10 @@ def resolve_runtime_review_opa_guard(subject: Any) -> Any | None:
     return container.runtime_review_opa_guard if container is not None else None
 
 
-def _resolve_default_control_registry_providers() -> ControlRegistryProviders:
-    return resolve_control_registry_providers()
+def _resolve_default_control_registry_providers(
+    *, catalog_run_profile: CatalogRunProfile | None = None
+) -> ControlRegistryProviders:
+    return resolve_control_registry_providers(catalog_run_profile=catalog_run_profile)
 
 
 async def _close_maybe_async(resource: Any) -> None:
@@ -828,6 +986,8 @@ def _human_decision_resource_state(
 
 
 __all__ = [
+    "LegalQueryEncoderProvider",
+    "LegalQueryEncoderProviderError",
     "RuntimeContainerConfig",
     "RuntimeContainerOverrides",
     "RuntimeLifecycleState",

@@ -348,7 +348,7 @@ def persist_hte_result(
 
 def load_hte_result(store: ArtifactStore, ref: HTEResultRef) -> HTEResult:
     """Load hte result."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return HTEResult.model_validate(payload)
 
 
@@ -378,7 +378,7 @@ def load_policy_recommendation(
     ref: PolicyRecommendationRef,
 ) -> PolicyRecommendation:
     """Load policy recommendation."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return PolicyRecommendation.model_validate(payload)
 
 

@@ -1424,7 +1424,7 @@ def load_continuous_time_query(
     ref: ContinuousTimeQueryRef,
 ) -> ContinuousTimeQuery:
     """Load continuous time query."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return ContinuousTimeQuery.model_validate(payload)
 
 
@@ -1454,7 +1454,7 @@ def load_temporal_intervention_trajectory(
     ref: TemporalInterventionTrajectoryRef,
 ) -> TemporalInterventionTrajectory:
     """Load temporal intervention trajectory."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return TemporalInterventionTrajectory.model_validate(payload)
 
 
@@ -1484,7 +1484,7 @@ def load_temporal_identification_certificate(
     ref: TemporalIdentificationCertificateRef,
 ) -> TemporalIdentificationCertificate:
     """Load temporal identification certificate."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return TemporalIdentificationCertificate.model_validate(payload)
 
 
@@ -1514,7 +1514,7 @@ def load_dynamic_treatment_regime(
     ref: DynamicTreatmentRegimeRef,
 ) -> DynamicTreatmentRegime:
     """Load dynamic treatment regime."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return DynamicTreatmentRegime.model_validate(payload)
 
 
@@ -1544,7 +1544,7 @@ def load_effect_trajectory_bundle(
     ref: EffectTrajectoryBundleRef,
 ) -> EffectTrajectoryBundle:
     """Load effect trajectory bundle."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return EffectTrajectoryBundle.model_validate(payload)
 
 

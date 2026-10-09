@@ -16,13 +16,13 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any, Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.scientist.orchestration.engine.budget import BudgetState
 
 _CANONICAL_LEDGER_CONTRACT = "scientist.multi_host_budget_ledger.v1"
 _COORDINATION_MODE = "shared_posix_file_lock"
-_SNAPSHOT_VERSION = "1.1"
+_SNAPSHOT_VERSION = "1.3"
 
 __all__ = [
     "BudgetLedger",
@@ -31,6 +31,8 @@ __all__ = [
     "BudgetLedgerSnapshot",
     "BudgetLedgerWriter",
     "BudgetLedgerSpendReceipt",
+    "BudgetLedgerProducerRecord",
+    "BudgetLedgerProducerRunBinding",
     "BudgetLedgerSettlementOutcomeUnknownError",
     "FileBudgetLedger",
 ]
@@ -59,6 +61,8 @@ class BudgetLedgerMutation(BaseModel):
         "release",
         "commit_reservation",
         "settle_spend",
+        "begin_producer_event",
+        "settle_producer_event",
     ]
     key: str | None = None
     amount: Decimal | None = None
@@ -85,6 +89,78 @@ class BudgetLedgerSpendReceipt(BaseModel):
     provider: str | None = None
     revision: int = Field(ge=1)
     committed_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+
+class BudgetLedgerProducerRunBinding(BaseModel):
+    """Immutable server-issued run scope used to reconcile producer events."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["polisyos.scientist.budget_ledger.producer_run_binding.v1"] = (
+        "polisyos.scientist.budget_ledger.producer_run_binding.v1"
+    )
+    run_id: str = Field(min_length=1)
+    tenant_id: str = Field(min_length=1)
+    cell_id: str = Field(min_length=1)
+    profile_id: str = Field(min_length=1)
+    control_job_id: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _require_established_identity(self) -> BudgetLedgerProducerRunBinding:
+        values = (
+            self.run_id,
+            self.tenant_id,
+            self.cell_id,
+            self.profile_id,
+            self.control_job_id,
+        )
+        if any(
+            not value.strip()
+            or value != value.strip()
+            or value.casefold() in {"unknown", "none", "null", "anonymous"}
+            for value in values
+        ):
+            raise ValueError("producer_run_binding_identity_not_established")
+        return self
+
+
+class BudgetLedgerProducerRecord(BaseModel):
+    """Durable state of one provider outcome, including unresolved attempts."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    event_id: str = Field(min_length=1)
+    request_digest: str = Field(pattern=r"^[a-f0-9]{64}$")
+    payload_digest: str | None = Field(default=None, pattern=r"^[a-f0-9]{64}$")
+    key: str = Field(min_length=1)
+    model: str = Field(min_length=1)
+    provider: str = Field(min_length=1)
+    amount: Decimal | None = Field(default=None, ge=0, allow_inf_nan=False)
+    cost_origin: Literal["reported", "estimated", "reuse", "unknown"] = "unknown"
+    status: Literal["pending", "committed", "unknown", "unmanaged"] = "pending"
+    origin_event_id: str | None = None
+    run_binding: BudgetLedgerProducerRunBinding | None = Field(
+        default=None,
+        json_schema_extra={"introduced_in": "1.3"},
+    )
+    revision: int = Field(ge=1)
+    committed_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+    def model_post_init(self, __context: Any) -> None:
+        if self.status == "pending" and (
+            self.payload_digest is not None or self.amount is not None
+        ):
+            raise ValueError("pending producer event cannot claim a response or amount")
+        if self.cost_origin == "unknown" and self.amount is not None:
+            raise ValueError("unknown producer cost cannot carry an amount")
+        if self.amount is None and self.cost_origin != "unknown":
+            raise ValueError("missing producer amount must retain unknown cost origin")
+        if self.status == "committed" and self.amount is None:
+            raise ValueError("committed producer outcome requires a known amount")
+        if self.status in {"unknown", "committed"} and self.payload_digest is None:
+            raise ValueError("settled producer outcome requires a response digest")
+        if self.run_binding is not None and self.key != f"nl-run:{self.run_binding.run_id}":
+            raise ValueError("producer_run_binding_budget_key_mismatch")
 
 
 class BudgetLedgerSettlementOutcomeUnknownError(RuntimeError):
@@ -115,6 +191,9 @@ class BudgetLedgerSnapshot(BaseModel):
     state: BudgetState = Field(default_factory=BudgetState)
     spend_receipts: dict[str, BudgetLedgerSpendReceipt] = Field(
         default_factory=dict, json_schema_extra={"introduced_in": "1.1"}
+    )
+    producer_settlements: dict[str, BudgetLedgerProducerRecord] = Field(
+        default_factory=dict, json_schema_extra={"introduced_in": "1.2"}
     )
 
 
@@ -186,7 +265,12 @@ def _decode_snapshot(raw: str) -> BudgetLedgerSnapshot:
         raise ValueError("existing budget ledger is empty")
     value = json.loads(raw)
     version = value.get("schema_version") if isinstance(value, dict) else None
-    if not isinstance(version, str) or version not in {"1.0", _SNAPSHOT_VERSION}:
+    if not isinstance(version, str) or version not in {
+        "1.0",
+        "1.1",
+        "1.2",
+        _SNAPSHOT_VERSION,
+    }:
         raise ValueError("budget ledger schema_version is missing or unsupported")
     if (
         value.get("canonical_contract") != _CANONICAL_LEDGER_CONTRACT
@@ -211,6 +295,15 @@ def _decode_snapshot(raw: str) -> BudgetLedgerSnapshot:
             provider_amounts[receipt.provider] = (
                 provider_amounts.get(receipt.provider, Decimal("0")) + receipt.amount
             )
+    for event_id, record in snapshot.producer_settlements.items():
+        if record.event_id != event_id or record.revision > snapshot.revision:
+            raise ValueError("producer settlement identity/revision disagrees with snapshot")
+        receipt = snapshot.spend_receipts.get(event_id)
+        if record.status == "committed":
+            if receipt is None or receipt.amount != record.amount:
+                raise ValueError("committed producer outcome requires its exact spend receipt")
+            if receipt.payload_digest != record.payload_digest:
+                raise ValueError("producer settlement and spend receipt digest disagree")
     for key, amount in amounts.items():
         if snapshot.state.spent.get(key, Decimal("0")) < amount:
             raise ValueError("budget settlement receipts exceed the recorded spend")
@@ -265,6 +358,33 @@ class BudgetLedger(Protocol):
         provider: str | None = None,
     ) -> BudgetLedgerSpendReceipt: ...
     def resolve_spend(self, event_id: str) -> BudgetLedgerSpendReceipt | None: ...
+    def begin_producer_event(
+        self,
+        event_id: str,
+        request_digest: str,
+        key: str,
+        model: str,
+        provider: str,
+        *,
+        run_binding: BudgetLedgerProducerRunBinding | None = None,
+    ) -> BudgetLedgerProducerRecord: ...
+    def settle_producer_event(
+        self,
+        event_id: str,
+        request_digest: str,
+        payload_digest: str,
+        key: str,
+        model: str,
+        provider: str,
+        amount: Decimal | None,
+        cost_origin: Literal["reported", "estimated", "reuse", "unknown"],
+        origin_event_id: str | None = None,
+        run_binding: BudgetLedgerProducerRunBinding | None = None,
+    ) -> BudgetLedgerProducerRecord: ...
+    def resolve_producer_event(self, event_id: str) -> BudgetLedgerProducerRecord | None: ...
+    def list_producer_events_for_run(
+        self, run_binding: BudgetLedgerProducerRunBinding
+    ) -> tuple[BudgetLedgerProducerRecord, ...]: ...
 
 
 def _fsync_dir(path: Path) -> None:
@@ -484,6 +604,7 @@ class FileBudgetLedger:
                             revision=revision,
                             recent_mutations=mutations,
                             spend_receipts=receipts,
+                            producer_settlements=snapshot.producer_settlements,
                         )
                     )
                 except OSError as exc:
@@ -491,6 +612,235 @@ class FileBudgetLedger:
                         event_id, payload_digest
                     ) from exc
                 return written.spend_receipts[event_id]
+
+    def begin_producer_event(
+        self,
+        event_id: str,
+        request_digest: str,
+        key: str,
+        model: str,
+        provider: str,
+        *,
+        run_binding: BudgetLedgerProducerRunBinding | None = None,
+    ) -> BudgetLedgerProducerRecord:
+        """Persist the provider intent before dispatch; pending is never zero."""
+        with self._thread_lock:
+            with self._file_lock(exclusive=True):
+                snapshot = self._load_snapshot()
+                if snapshot is None:
+                    raise FileNotFoundError(
+                        "budget ledger requires explicit load_or_bootstrap before use"
+                    )
+                existing = snapshot.producer_settlements.get(event_id)
+                if existing is not None:
+                    if (
+                        existing.request_digest != request_digest
+                        or existing.key != key
+                        or existing.model != model
+                        or existing.provider != provider
+                        or existing.run_binding != run_binding
+                    ):
+                        raise ValueError("producer event ID conflicts with an existing intent")
+                    return existing
+                revision = snapshot.revision + 1
+                record = BudgetLedgerProducerRecord(
+                    event_id=event_id,
+                    request_digest=request_digest,
+                    key=key,
+                    model=model,
+                    provider=provider,
+                    run_binding=run_binding,
+                    amount=None,
+                    cost_origin="unknown",
+                    status="pending",
+                    revision=revision,
+                )
+                settlements = dict(snapshot.producer_settlements)
+                settlements[event_id] = record
+                mutations = list(snapshot.recent_mutations)
+                mutations.append(
+                    self._build_mutation(
+                        revision=revision,
+                        operation="begin_producer_event",
+                        key=key,
+                        provider=provider,
+                    )
+                )
+                try:
+                    written = self._persist_snapshot(
+                        self._build_snapshot(
+                            state=snapshot.state,
+                            revision=revision,
+                            recent_mutations=mutations,
+                            spend_receipts=snapshot.spend_receipts,
+                            producer_settlements=settlements,
+                        )
+                    )
+                except OSError as exc:
+                    raise BudgetLedgerSettlementOutcomeUnknownError(
+                        event_id, request_digest
+                    ) from exc
+                return written.producer_settlements[event_id]
+
+    def settle_producer_event(
+        self,
+        event_id: str,
+        request_digest: str,
+        payload_digest: str,
+        key: str,
+        model: str,
+        provider: str,
+        amount: Decimal | None,
+        cost_origin: Literal["reported", "estimated", "reuse", "unknown"],
+        origin_event_id: str | None = None,
+        run_binding: BudgetLedgerProducerRunBinding | None = None,
+    ) -> BudgetLedgerProducerRecord:
+        """Atomically publish one terminal producer status and any known charge."""
+        status: Literal["committed", "unknown"] = "unknown" if amount is None else "committed"
+        candidate = BudgetLedgerProducerRecord(
+            event_id=event_id,
+            request_digest=request_digest,
+            payload_digest=payload_digest,
+            key=key,
+            model=model,
+            provider=provider,
+            amount=amount,
+            cost_origin=cost_origin,
+            status=status,
+            origin_event_id=origin_event_id,
+            run_binding=run_binding,
+            revision=1,
+        )
+        with self._thread_lock:
+            with self._file_lock(exclusive=True):
+                snapshot = self._load_snapshot()
+                if snapshot is None:
+                    raise FileNotFoundError(
+                        "budget ledger requires explicit load_or_bootstrap before use"
+                    )
+                existing_record = snapshot.producer_settlements.get(event_id)
+                if existing_record is not None:
+                    intent_identity = (
+                        "request_digest",
+                        "key",
+                        "model",
+                        "provider",
+                        "run_binding",
+                    )
+                    if any(
+                        getattr(existing_record, field) != getattr(candidate, field)
+                        for field in intent_identity
+                    ):
+                        raise ValueError(
+                            "producer event run binding conflicts with existing intent"
+                        )
+                    if existing_record.status != "pending":
+                        identity = (
+                            "payload_digest",
+                            "key",
+                            "model",
+                            "provider",
+                            "amount",
+                            "cost_origin",
+                            "status",
+                            "origin_event_id",
+                        )
+                        if any(
+                            getattr(existing_record, field) != getattr(candidate, field)
+                            for field in identity
+                        ):
+                            raise ValueError("producer event retry conflicts with prior outcome")
+                        return existing_record
+
+                state = _branch_budget_state(snapshot.state)
+                receipts = dict(snapshot.spend_receipts)
+                if amount is not None:
+                    existing_receipt = receipts.get(event_id)
+                    if existing_receipt is not None:
+                        identity = ("payload_digest", "key", "amount", "provider")
+                        if any(
+                            getattr(existing_receipt, field)
+                            != getattr(
+                                BudgetLedgerSpendReceipt(
+                                    event_id=event_id,
+                                    payload_digest=payload_digest,
+                                    key=key,
+                                    amount=amount,
+                                    provider=provider,
+                                    revision=existing_receipt.revision,
+                                ),
+                                field,
+                            )
+                            for field in identity
+                        ):
+                            raise ValueError("producer charge conflicts with existing receipt")
+                    else:
+                        state.record_spend(key, amount, provider=provider)
+                        revision = snapshot.revision + 1
+                        receipts[event_id] = BudgetLedgerSpendReceipt(
+                            event_id=event_id,
+                            payload_digest=payload_digest,
+                            key=key,
+                            amount=amount,
+                            provider=provider,
+                            revision=revision,
+                        )
+                revision = snapshot.revision + 1
+                record = candidate.model_copy(update={"revision": revision})
+                settlements = dict(snapshot.producer_settlements)
+                settlements[event_id] = record
+                mutations = list(snapshot.recent_mutations)
+                mutations.append(
+                    self._build_mutation(
+                        revision=revision,
+                        operation="settle_producer_event",
+                        key=key,
+                        amount=amount,
+                        applied_amount=amount,
+                        provider=provider,
+                    )
+                )
+                try:
+                    written = self._persist_snapshot(
+                        self._build_snapshot(
+                            state=state,
+                            revision=revision,
+                            recent_mutations=mutations,
+                            spend_receipts=receipts,
+                            producer_settlements=settlements,
+                        )
+                    )
+                except OSError as exc:
+                    raise BudgetLedgerSettlementOutcomeUnknownError(
+                        event_id, payload_digest
+                    ) from exc
+                return written.producer_settlements[event_id]
+
+    def resolve_producer_event(self, event_id: str) -> BudgetLedgerProducerRecord | None:
+        """Read exact pending, unknown, or committed producer status."""
+        with self._file_lock(exclusive=False):
+            snapshot = self._load_snapshot()
+        if snapshot is None:
+            raise FileNotFoundError("budget ledger requires explicit load_or_bootstrap before use")
+        return snapshot.producer_settlements.get(event_id)
+
+    def list_producer_events_for_run(
+        self,
+        run_binding: BudgetLedgerProducerRunBinding,
+    ) -> tuple[BudgetLedgerProducerRecord, ...]:
+        """Read only producer records whose immutable run binding exactly matches."""
+        if type(run_binding) is not BudgetLedgerProducerRunBinding:
+            raise TypeError("producer_run_binding_must_be_typed")
+        with self._file_lock(exclusive=False):
+            snapshot = self._load_snapshot()
+        if snapshot is None:
+            raise FileNotFoundError("budget ledger requires explicit load_or_bootstrap before use")
+        records = (
+            record
+            for record in snapshot.producer_settlements.values()
+            if record.run_binding == run_binding
+        )
+        return tuple(sorted(records, key=lambda record: (record.revision, record.event_id)))
 
     def resolve_spend(self, event_id: str) -> BudgetLedgerSpendReceipt | None:
         """Resolve a durable local receipt; absence is not an assertion of zero cost."""
@@ -559,6 +909,7 @@ class FileBudgetLedger:
                         state=state,
                         recent_mutations=tuple(mutations[-self._mutation_history_limit :]),
                         spend_receipts=snapshot.spend_receipts,
+                        producer_settlements=snapshot.producer_settlements,
                     )
                 )
                 return BudgetLedgerMutationResult(
@@ -612,6 +963,7 @@ class FileBudgetLedger:
         revision: int = 0,
         recent_mutations: tuple[BudgetLedgerMutation, ...] | list[BudgetLedgerMutation] = (),
         spend_receipts: dict[str, BudgetLedgerSpendReceipt] | None = None,
+        producer_settlements: dict[str, BudgetLedgerProducerRecord] | None = None,
     ) -> BudgetLedgerSnapshot:
         return BudgetLedgerSnapshot(
             canonical_contract=_CANONICAL_LEDGER_CONTRACT,
@@ -623,6 +975,7 @@ class FileBudgetLedger:
             recent_mutations=list(recent_mutations)[-self._mutation_history_limit :],
             state=state,
             spend_receipts=dict(spend_receipts or {}),
+            producer_settlements=dict(producer_settlements or {}),
         )
 
     def _build_mutation(
@@ -636,6 +989,8 @@ class FileBudgetLedger:
             "release",
             "commit_reservation",
             "settle_spend",
+            "begin_producer_event",
+            "settle_producer_event",
         ],
         key: str | None = None,
         amount: Decimal | None = None,

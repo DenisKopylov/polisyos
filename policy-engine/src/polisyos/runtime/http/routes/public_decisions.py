@@ -203,7 +203,7 @@ def issue_public_decision_record(
         except GovernedPublicRecordError as exc:
             raise HTTPException(status_code=409, detail=exc.code) from exc
     try:
-        packet = json.loads(ctx.store.get_bytes(run.decision_packet_ref.artifact_id))
+        packet = json.loads(ctx.store.get_bytes(run.decision_packet_ref))
         if not isinstance(packet, dict):
             raise ValueError("decision packet must be an object")
         issued_at = datetime.now(UTC)

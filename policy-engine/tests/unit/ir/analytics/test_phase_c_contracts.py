@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.dynamic_regime import (
     CausalTranslationCertificate,
@@ -48,7 +51,6 @@ from polisyos.ir.registry.refs import (
     TemporalIdentificationCertificateRef,
     TemporalInterventionTrajectoryRef,
 )
-from pydantic import ValidationError
 
 
 def _artifact_id(ch: str) -> str:
@@ -313,23 +315,33 @@ def test_phase_c_contracts_round_trip_via_store(tmp_path) -> None:
         threshold_value=0.2,
     )
 
-    intervention_ref = persist_temporal_intervention_trajectory(store, intervention)
-    certificate_ref = persist_temporal_identification_certificate(store, certificate)
-    query_ref = persist_continuous_time_query(store, query)
-    regime_ref = persist_dynamic_treatment_regime(store, regime)
+    intervention_ref = persist_temporal_intervention_trajectory(
+        _ensure_ir_artifact_store(store), intervention
+    )
+    certificate_ref = persist_temporal_identification_certificate(
+        _ensure_ir_artifact_store(store), certificate
+    )
+    query_ref = persist_continuous_time_query(_ensure_ir_artifact_store(store), query)
+    regime_ref = persist_dynamic_treatment_regime(_ensure_ir_artifact_store(store), regime)
     bundle = _bundle(query_ref=query_ref, identification_certificate_ref=certificate_ref)
-    bundle_ref = persist_effect_trajectory_bundle(store, bundle)
+    bundle_ref = persist_effect_trajectory_bundle(_ensure_ir_artifact_store(store), bundle)
 
     assert isinstance(intervention_ref, TemporalInterventionTrajectoryRef)
     assert isinstance(certificate_ref, TemporalIdentificationCertificateRef)
     assert isinstance(query_ref, ContinuousTimeQueryRef)
     assert isinstance(regime_ref, DynamicTreatmentRegimeRef)
     assert isinstance(bundle_ref, EffectTrajectoryBundleRef)
-    assert load_temporal_intervention_trajectory(store, intervention_ref) == intervention
-    assert load_temporal_identification_certificate(store, certificate_ref) == certificate
-    assert load_continuous_time_query(store, query_ref) == query
-    assert load_dynamic_treatment_regime(store, regime_ref) == regime
-    assert load_effect_trajectory_bundle(store, bundle_ref) == bundle
+    assert (
+        load_temporal_intervention_trajectory(_ensure_ir_artifact_store(store), intervention_ref)
+        == intervention
+    )
+    assert (
+        load_temporal_identification_certificate(_ensure_ir_artifact_store(store), certificate_ref)
+        == certificate
+    )
+    assert load_continuous_time_query(_ensure_ir_artifact_store(store), query_ref) == query
+    assert load_dynamic_treatment_regime(_ensure_ir_artifact_store(store), regime_ref) == regime
+    assert load_effect_trajectory_bundle(_ensure_ir_artifact_store(store), bundle_ref) == bundle
 
 
 def test_local_independence_temporal_identification_certificate_validates() -> None:

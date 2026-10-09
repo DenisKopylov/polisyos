@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.invariance import (
     RegimeShiftComputationalFeasibility,
@@ -150,8 +152,10 @@ def test_regime_shift_certificate_roundtrips_through_cas(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     certificate = _certificate()
 
-    ref = persist_regime_shift_identification_certificate(store, certificate)
-    loaded = load_regime_shift_identification_certificate(store, ref)
+    ref = persist_regime_shift_identification_certificate(
+        _ensure_ir_artifact_store(store), certificate
+    )
+    loaded = load_regime_shift_identification_certificate(_ensure_ir_artifact_store(store), ref)
 
     assert isinstance(ref, RegimeShiftIdentificationCertificateRef)
     assert ref.kind == "ir.regime_shift_identification_certificate"

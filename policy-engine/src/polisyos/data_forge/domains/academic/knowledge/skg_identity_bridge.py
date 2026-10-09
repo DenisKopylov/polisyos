@@ -334,7 +334,7 @@ def replay_source_identity_bundle(
     outcome or limitations differ from recomputation. The returned DTO is an
     audit projection, not a transferable production authority token.
     """
-    manifest = store.get_manifest(ref.artifact_id)
+    manifest = store.get_manifest(ref)
     if (
         manifest.kind != _KIND
         or manifest.artifact_schema is None
@@ -342,7 +342,7 @@ def replay_source_identity_bundle(
         != (_KIND, _SCHEMA_VERSION)
     ):
         raise ValueError("source_identity_bundle_schema_mismatch")
-    persisted = SourceIdentityBundle.model_validate_json(store.get_bytes(ref.artifact_id))
+    persisted = SourceIdentityBundle.model_validate_json(store.get_bytes(ref))
     selection = SourceIdentitySelection.model_validate_json(selection.model_dump_json())
     if persisted.selection != selection:
         raise ValueError("source_identity_selection_mismatch")

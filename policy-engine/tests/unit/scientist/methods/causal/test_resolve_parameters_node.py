@@ -5,6 +5,7 @@ import logging
 
 import duckdb
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -104,7 +105,7 @@ def test_resolve_parameters_node_persists_bundle_and_bridge_payload(tmp_path) ->
     db_path = tmp_path / "skg.duckdb"
     _seed_skg(db_path)
     graph_ref = persist_causal_graph_model(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         CausalGraphModel(
             graph_type=GraphType.DAG,
             nodes=["fiscal_multiplier"],
@@ -133,7 +134,9 @@ def test_resolve_parameters_node_persists_bundle_and_bridge_payload(tmp_path) ->
     assert outcome.status == "ok"
     assert ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF in outcome.state.artifacts_index
     bundle_ref = outcome.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
-    bundle = load_context_adaptive_parameter_bundle(ctx.store, bundle_ref)
+    bundle = load_context_adaptive_parameter_bundle(
+        _ensure_ir_artifact_store(ctx.store), bundle_ref
+    )
 
     # E2E scenario from phase DoD: UA should select CEE-like estimate.
     assert bundle.parameters["fiscal_multiplier"].value == 1.35
@@ -160,7 +163,7 @@ def test_existing_bundle_is_revalidated_for_changed_request(tmp_path) -> None:
     db_path = tmp_path / "skg.duckdb"
     _seed_skg(db_path)
     graph_ref = persist_causal_graph_model(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
     )
     state = ExperimentState(
@@ -197,7 +200,9 @@ def test_existing_bundle_is_revalidated_for_changed_request(tmp_path) -> None:
     second_ref = second.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
     assert second_ref != first_ref
 
-    second_bundle = load_context_adaptive_parameter_bundle(ctx.store, second_ref)
+    second_bundle = load_context_adaptive_parameter_bundle(
+        _ensure_ir_artifact_store(ctx.store), second_ref
+    )
     assert second_bundle.target_context == ContextProfile(
         context_id="US",
         income_level="high",
@@ -213,7 +218,7 @@ def test_matching_bundle_reuses_without_reinvoking_selector(tmp_path, monkeypatc
     db_path = tmp_path / "skg.duckdb"
     _seed_skg(db_path)
     graph_ref = persist_causal_graph_model(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
     )
     state = ExperimentState(
@@ -258,7 +263,7 @@ def test_changed_domain_invalidates_bundle_and_idempotency_key(tmp_path) -> None
     db_path = tmp_path / "skg.duckdb"
     _seed_skg(db_path)
     graph_ref = persist_causal_graph_model(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
     )
     state = ExperimentState(
@@ -293,7 +298,9 @@ def test_changed_domain_invalidates_bundle_and_idempotency_key(tmp_path) -> None
     assert second.status == "ok"
     second_ref = second.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
     assert second_ref != first_ref
-    second_bundle = load_context_adaptive_parameter_bundle(ctx.store, second_ref)
+    second_bundle = load_context_adaptive_parameter_bundle(
+        _ensure_ir_artifact_store(ctx.store), second_ref
+    )
     assert second_bundle.simulation_domain == "monetary"
 
 

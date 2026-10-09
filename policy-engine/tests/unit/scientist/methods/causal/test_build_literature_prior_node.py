@@ -3,12 +3,12 @@ from __future__ import annotations
 import logging
 
 import duckdb
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.ir.analytics.literature import load_literature_causal_prior
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.causal.build_literature_prior import (
     BuildLiteraturePriorNode,
 )
@@ -16,6 +16,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_LITERATURE_PRIOR_GRAPH_REF,
     ARTIFACT_LITERATURE_PRIOR_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def _build_ctx(tmp_path):
@@ -78,7 +80,7 @@ def test_build_literature_prior_node_persists_prior_and_graph(tmp_path) -> None:
     assert ARTIFACT_LITERATURE_PRIOR_REF in outcome.state.artifacts_index
     assert ARTIFACT_LITERATURE_PRIOR_GRAPH_REF in outcome.state.artifacts_index
     prior_ref = outcome.state.artifacts_index[ARTIFACT_LITERATURE_PRIOR_REF]
-    prior = load_literature_causal_prior(ctx.store, prior_ref)
+    prior = load_literature_causal_prior(_ensure_ir_artifact_store(ctx.store), prior_ref)
     assert len(prior.edges) == 1
     assert prior.skg_version_id == 7
     assert prior.environment_audit is not None
@@ -112,7 +114,7 @@ def test_build_literature_prior_node_runs_environment_audit_when_skg_missing(tmp
 
     assert outcome.status == "ok"
     prior_ref = outcome.state.artifacts_index[ARTIFACT_LITERATURE_PRIOR_REF]
-    prior = load_literature_causal_prior(ctx.store, prior_ref)
+    prior = load_literature_causal_prior(_ensure_ir_artifact_store(ctx.store), prior_ref)
     assert prior.edges == []
     assert prior.environment_audit is not None
     assert prior.environment_audit.status == "ok"

@@ -345,7 +345,7 @@ security
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 - Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/core/__init__.py:from __future__ import annotations.
 
-<details><summary>Source-declared candidates (489; native exports unproved)</summary>
+<details><summary>Source-declared candidates (504; native exports unproved)</summary>
 
 ```text
 *_CHRONOLOGY_EXPORTS
@@ -366,6 +366,11 @@ SKIP_BLOCKER_REQUIRED_FIELDS
 SKIP_BLOCKER_SURFACES
 ActiveDisambiguationPlanRef
 ActivityType
+AgentPipelineAttempt
+AgentPipelineCostEvent
+AgentPipelineResponse
+AgentPipelineStep
+AgentPipelineView
 AgentType
 ApiMeta
 ArtifactContentPreview
@@ -620,8 +625,13 @@ KnowledgeBundle
 KnowledgeBundleRef
 LegalContext
 LegalEvaluationRequest
+LegalQueryGenerationBasisKind
+LegalQueryGenerationIntentV1
 LegalReport
 LegalReportRef
+LexSearchRequest
+LexSearchResponse
+LexSearchResultItem
 LinkReportRef
 LiteratureCausalPriorRef
 LoweredIR
@@ -714,6 +724,9 @@ ResearchIntent
 ResearchIntentRef
 RuleBackend
 RuleType
+RunCandidateSimulationAcquisitionHistoryEntry
+RunCandidateSimulationN5Observation
+RunCandidateSimulationProjection
 RunDetails
 RunDetailsResponse
 RunErrorView
@@ -723,6 +736,8 @@ RunLineageResponse
 RunNodeRecord
 RunNodesResponse
 RunRecordV1
+RunRecursiveCycleBranchFailure
+RunRecursiveCycleCheckpoint
 RunSummary
 RunTimelineEvent
 RunTimelineResponse
@@ -1046,7 +1061,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Summary: Expose the stable IR contract surface through a lazy package facade.
 - Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/ir/__init__.py:from __future__ import annotations.
 
-<details><summary>Source-declared candidates (288; native exports unproved)</summary>
+<details><summary>Source-declared candidates (292; native exports unproved)</summary>
 
 ```text
 ABMBifurcationReport
@@ -1080,15 +1095,16 @@ CalibrationSplitPlan
 CalibrationSplitWindow
 CalibrationTarget
 CalibrationTargetBundleManifest
+CausalAttributionSpec
 CausalBlockBridge
 CausalBlockBridgeRef
-CausalDiscoveryReport
-CausalEffectReport
-CausalExecutionBundle
-CausalExecutionBundleRef
-CausalAttributionSpec
 CausalContrastRegime
 CausalContrastSpec
+CausalDiscoveryReport
+CausalEffectReport
+CausalEstimatorInterval
+CausalExecutionBundle
+CausalExecutionBundleRef
 CausalInterventionSpec
 CausalMethod
 CausalModelEnsemble
@@ -1096,11 +1112,10 @@ CausalModelEnsembleRef
 CausalPanelBundleManifest
 CausalQuery
 CausalQueryResult
-CausalResultKind
-CausalEstimatorInterval
 CausalQueryResultRef
-CausalRegime
 CausalReadinessBundle
+CausalRegime
+CausalResultKind
 CohortDimension
 CohortImpact
 CompiledLexIntervention
@@ -1244,6 +1259,10 @@ PolicyInterventionSpec
 PolicyPortfolio
 PolicyRecommendation
 PolicySpec
+PosteriorParameterSummary
+PosteriorPointRole
+PosteriorSummaryRef
+PosteriorSummaryV11
 ProblemConstraintSpec
 ProblemDomain
 ProblemFrame
@@ -1267,6 +1286,8 @@ RegimeShiftForecastBundle
 RegimeShiftForecastBundleRef
 RegionSectorPanels
 RuleType
+SCMFitProvenance
+SCMTrainingRows
 SchemaChangepoint
 SchemaRegimeRegistry
 SchemaRegimeSpec
@@ -1288,8 +1309,6 @@ StakeholderSpec
 StrategicResponseChannel
 StrategicResponseSpecsBundle
 StructuralCausalModelSpec
-SCMTrainingRows
-SCMFitProvenance
 SubgroupEffect
 SuccessCriterion
 SurveyAssumptionComponent
@@ -1348,7 +1367,7 @@ persist_dependent_sensitivity_result
 - Summary: Curated lazy facade for analytics IR contracts.
 - Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/ir/__init__.py:from __future__ import annotations.
 
-<details><summary>Source-declared candidates (280; native exports unproved)</summary>
+<details><summary>Source-declared candidates (284; native exports unproved)</summary>
 
 ```text
 ABMBifurcationReport
@@ -1521,6 +1540,10 @@ Phase4GateStatus
 Phase4TemporalPolicyGateVerdict
 PlaceboResult
 PolicyRecommendation
+PosteriorParameterSummary
+PosteriorPointRole
+PosteriorSummaryRef
+PosteriorSummaryV11
 PrivacyAwareTransportCertificate
 PrivacyAwareTransportCertificateRef
 PrivacyObservedMode
@@ -2230,16 +2253,22 @@ resolve_execution_posture
 - Summary: Expose uncertainty propagation helpers used around Foundry simulation outputs.
 - Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/foundry/__init__.py:from __future__ import annotations.
 
-<details><summary>Source-declared candidates (12; native exports unproved)</summary>
+<details><summary>Source-declared candidates (18; native exports unproved)</summary>
 
 ```text
 AdaptiveStoppingConfig
 AggregationStrategy
 FabricUncertaintyContext
+MonteCarloPropagator
 PropagationConfig
 PropagationDispatcher
 PropagationResult
 PropagationStrategy
+PosteriorJointInputMatrix
+PosteriorPushforwardFailure
+PosteriorPushforwardOutcomeCode
+PosteriorPushforwardOutputSummary
+PosteriorPushforwardResult
 QuasiMCSampler
 aggregate_envelopes
 compute_first_order_indices
@@ -3703,7 +3732,7 @@ run_legal_benchmark
 - Summary: Legal knowledge graph: SPO entities, facts, and semantic search.
 - Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/lex/__init__.py:from __future__ import annotations.
 
-<details><summary>Source-declared candidates (11; native exports unproved)</summary>
+<details><summary>Source-declared candidates (14; native exports unproved)</summary>
 
 ```text
 LegalEntity
@@ -3712,6 +3741,9 @@ LegalFactResult
 LegalKnowledgeGraph
 LegalProvision
 LegalProvisionResult
+LegalQueryInput
+LegalQueryProfile
+LegalQueryProfileError
 LegalRuleThresholdRow
 LegalSearchResult
 LegalTemporalCompetence

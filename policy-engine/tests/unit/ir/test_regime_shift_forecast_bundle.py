@@ -3,9 +3,9 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 import pytest
-from polisyos.ir.registry.refs import ArtifactRefModel
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.forecasting_uncertainty import (
     FanChartSpec,
@@ -28,6 +28,7 @@ from polisyos.ir.analytics.regime_shift_forecast import (
     load_regime_shift_forecast_bundle,
     persist_regime_shift_forecast_bundle,
 )
+from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.ir.schemas import get_ir_type
 
 
@@ -199,8 +200,8 @@ def test_regime_shift_forecast_bundle_cas_roundtrip(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     bundle = _sample_bundle()
 
-    ref = persist_regime_shift_forecast_bundle(store, bundle)
-    loaded = load_regime_shift_forecast_bundle(store, ref)
+    ref = persist_regime_shift_forecast_bundle(_ensure_ir_artifact_store(store), bundle)
+    loaded = load_regime_shift_forecast_bundle(_ensure_ir_artifact_store(store), ref)
 
     assert ref.kind == "ir.regime_shift_forecast_bundle"
     assert loaded == bundle

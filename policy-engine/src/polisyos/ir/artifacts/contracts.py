@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -13,7 +13,7 @@ from typing import (
     runtime_checkable,
 )
 
-from pydantic import BaseModel, ConfigDict, RootModel, field_validator
+from pydantic import BaseModel, ConfigDict, Field, RootModel, field_validator
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -21,6 +21,35 @@ if TYPE_CHECKING:
     from polisyos.ir.model_layer.canon import CanonSpec
 
 _SHA256_HEX_RE = re.compile(r"^[0-9a-f]{64}$")
+
+
+def _is_string_root_model(value: Any) -> bool:
+    """Return whether a value is a Pydantic scalar root whose only field is ``str``."""
+    model_fields = getattr(type(value), "model_fields", None)
+    root_field = model_fields.get("root") if isinstance(model_fields, Mapping) else None
+    return (
+        getattr(type(value), "__pydantic_root_model__", False) is True
+        and isinstance(model_fields, Mapping)
+        and set(model_fields) == {"root"}
+        and getattr(root_field, "annotation", None) is str
+    )
+
+
+def _normalize_scalar_artifact_id(value: Any) -> ArtifactID:
+    """Normalize a string ID, native IR ID, or exact scalar root-model ID."""
+    if isinstance(value, str):
+        return ArtifactID.model_validate(value)
+    if isinstance(value, ArtifactID):
+        return value
+    if not _is_string_root_model(value):
+        raise TypeError("Artifact ID selector must be a string scalar")
+    model_dump = getattr(value, "model_dump", None)
+    if not callable(model_dump):
+        raise TypeError("Artifact ID root model must expose model_dump()")
+    dumped = model_dump(mode="python")
+    if not isinstance(dumped, str):
+        raise TypeError("Artifact ID root model must dump to a string")
+    return ArtifactID.model_validate(dumped)
 
 
 class ArtifactID(RootModel[str]):
@@ -104,6 +133,11 @@ class InputRef(BaseModel):
     model_config = ConfigDict(extra="forbid")
     artifact_id: ArtifactID
     role: str
+    manifest_profile_sha256: str | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
 
 
 @dataclass(frozen=True)
@@ -138,7 +172,7 @@ class ArtifactViewRef(Protocol):
     def manifest_profile_sha256(self) -> str | None: ...
 
 
-type ArtifactSelector = ArtifactID | ArtifactViewRef | Mapping[str, Any] | str
+type ArtifactSelector = ArtifactID | RootModel[str] | ArtifactViewRef | Mapping[str, Any] | str
 
 
 @dataclass(frozen=True)
@@ -190,6 +224,7 @@ def _as_payload(value: Any) -> dict[str, Any]:
     return {
         "artifact_id": getattr(value, "artifact_id", value),
         "role": getattr(value, "role", "input"),
+        "manifest_profile_sha256": getattr(value, "manifest_profile_sha256", None),
     }
 
 
@@ -232,27 +267,110 @@ def to_store_put_options(opts: PutOptions) -> StorePutOptions:
 
 def normalize_artifact_ref(ref: Any) -> dict[str, str]:
     """Normalize a store-specific artifact handle into the stable IR ref mapping boundary."""
-    payload = _as_payload(ref)
-    artifact_id = payload.get("artifact_id")
-    kind = payload.get("kind")
-    media_type = payload.get("media_type")
-    if artifact_id is None or kind is None or media_type is None:
-        raise ValueError("artifact ref payload must include artifact_id, kind, media_type")
-    normalized = {
-        "artifact_id": str(artifact_id),
-        "kind": str(kind),
-        "media_type": str(media_type),
+    from polisyos.ir.registry.refs import ArtifactRefModel
+
+    model_dump = getattr(ref, "model_dump", None)
+    if callable(model_dump):
+        model_fields = getattr(type(ref), "model_fields", None)
+        _refuse_unknown_model_fields(model_fields, ArtifactRefModel.model_fields)
+        payload = model_dump(mode="python")
+        if not isinstance(payload, Mapping):
+            raise TypeError("Artifact reference model_dump() must return a mapping")
+        _refuse_unknown_model_fields(_declared_public_fields(ref), ArtifactRefModel.model_fields)
+        payload = dict(payload)
+    elif isinstance(ref, Mapping):
+        payload = dict(ref)
+        declared_fields = _declared_public_fields(ref)
+        if hasattr(ref, "__dict__"):
+            declared_fields.update(name for name in vars(ref) if not name.startswith("_"))
+        _refuse_unknown_model_fields(declared_fields, ArtifactRefModel.model_fields)
+    elif hasattr(ref, "__dataclass_fields__"):
+        payload = asdict(ref)
+        _refuse_unknown_model_fields(_selector_public_fields(ref), ArtifactRefModel.model_fields)
+    elif hasattr(ref, "__dict__"):
+        instance_payload = {
+            name: value for name, value in vars(ref).items() if not name.startswith("_")
+        }
+        model_fields = ArtifactRefModel.model_fields
+        required_fields = {name for name, field in model_fields.items() if field.is_required()}
+        _refuse_unknown_model_fields(_selector_public_fields(ref), model_fields)
+        if required_fields <= set(instance_payload):
+            payload = instance_payload
+        else:
+            payload = _structural_artifact_ref_payload(ref, model_fields)
+    else:
+        model_fields = ArtifactRefModel.model_fields
+        payload = _structural_artifact_ref_payload(ref, model_fields)
+    if not all(isinstance(key, str) for key in payload):
+        raise TypeError("Artifact reference payload keys must be strings")
+    validated = ArtifactRefModel.model_validate(payload)
+    return {key: str(value) for key, value in dict(validated).items()}
+
+
+def _declared_public_fields(value: Any) -> set[str]:
+    """Return declared annotations, properties, and slots for a structural ref."""
+    names: set[str] = set()
+    for cls in type(value).__mro__:
+        if cls is BaseModel:
+            break
+        names.update(
+            name for name in cls.__dict__.get("__annotations__", {}) if not name.startswith("_")
+        )
+        names.update(
+            name
+            for name, member in cls.__dict__.items()
+            if not name.startswith("_") and isinstance(member, property)
+        )
+        slots = cls.__dict__.get("__slots__", ())
+        if isinstance(slots, str):
+            slots = (slots,)
+        names.update(name for name in slots if isinstance(name, str) and not name.startswith("_"))
+    return names
+
+
+def _selector_public_fields(value: Any) -> set[str]:
+    """Collect public selector fields before projecting a supported ref shape."""
+    names = _declared_public_fields(value)
+    if isinstance(value, Mapping):
+        names.update(name for name in value if isinstance(name, str))
+    if hasattr(value, "__dict__"):
+        names.update(name for name in vars(value) if not name.startswith("_"))
+    if hasattr(value, "__dataclass_fields__"):
+        names.update(name for name in value.__dataclass_fields__ if not name.startswith("_"))
+    return names
+
+
+def _structural_artifact_ref_payload(
+    ref: Any,
+    model_fields: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Project only an exact structural ref, rejecting declared extensions."""
+    required_fields = tuple(name for name, field in model_fields.items() if field.is_required())
+    if not all(hasattr(ref, name) for name in required_fields):
+        raise TypeError("Artifact reference selector does not expose the required fields")
+    _refuse_unknown_model_fields(_declared_public_fields(ref), model_fields)
+    return {
+        field_name: getattr(ref, field_name)
+        for field_name in model_fields
+        if hasattr(ref, field_name)
     }
-    manifest_profile_sha256 = payload.get("manifest_profile_sha256")
-    if manifest_profile_sha256 is not None:
-        if (
-            not isinstance(manifest_profile_sha256, str)
-            or not manifest_profile_sha256.startswith("sha256:")
-            or _SHA256_HEX_RE.fullmatch(manifest_profile_sha256.removeprefix("sha256:")) is None
-        ):
-            raise ValueError("artifact ref profile selector must be sha256:<64 lowercase hex>")
-        normalized["manifest_profile_sha256"] = manifest_profile_sha256
-    return normalized
+
+
+def _refuse_unknown_model_fields(
+    supplied: object,
+    allowed: Mapping[str, Any],
+) -> None:
+    """Refuse declared selector fields outside the canonical ref model."""
+    if isinstance(supplied, Mapping):
+        supplied_fields = set(supplied)
+    elif isinstance(supplied, set):
+        supplied_fields = supplied
+    else:
+        return
+    unknown = supplied_fields - set(allowed)
+    if unknown:
+        names = ", ".join(sorted(unknown))
+        raise TypeError(f"Artifact reference selector has unexpected field(s): {names}")
 
 
 __all__ = [

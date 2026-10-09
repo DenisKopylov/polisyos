@@ -56,23 +56,15 @@ class CanonInfo(BaseModel):
         return cls(
             name=getattr(spec, "name", cls.model_fields["name"].default),
             version=getattr(spec, "version", cls.model_fields["version"].default),
-            forbid_floats=getattr(
-                spec, "forbid_floats", cls.model_fields["forbid_floats"].default
-            ),
+            forbid_floats=getattr(spec, "forbid_floats", cls.model_fields["forbid_floats"].default),
             forbid_nan_inf=getattr(
                 spec, "forbid_nan_inf", cls.model_fields["forbid_nan_inf"].default
             ),
-            exclude_none=getattr(
-                spec, "exclude_none", cls.model_fields["exclude_none"].default
-            ),
+            exclude_none=getattr(spec, "exclude_none", cls.model_fields["exclude_none"].default),
             max_depth=getattr(spec, "max_depth", cls.model_fields["max_depth"].default),
             sort_keys=getattr(spec, "sort_keys", cls.model_fields["sort_keys"].default),
-            separators=getattr(
-                spec, "separators", cls.model_fields["separators"].default
-            ),
-            ensure_ascii=getattr(
-                spec, "ensure_ascii", cls.model_fields["ensure_ascii"].default
-            ),
+            separators=getattr(spec, "separators", cls.model_fields["separators"].default),
+            ensure_ascii=getattr(spec, "ensure_ascii", cls.model_fields["ensure_ascii"].default),
         )
 
 
@@ -194,6 +186,11 @@ class ArtifactAuthorityInfo(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     authority_envelope_ref: str
+    authority_envelope_manifest_profile_sha256: str | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
     diagnostic_event_ref: str
     manifest_ref: str
     payload_sha256: str
@@ -219,9 +216,7 @@ class InputRef(BaseModel):
     @classmethod
     def _validate_manifest_profile_sha256(cls, value: str | None) -> str | None:
         if value is not None and not _is_manifest_profile_sha256(value):
-            raise ValueError(
-                "manifest_profile_sha256 must be sha256:<64 lowercase hex>"
-            )
+            raise ValueError("manifest_profile_sha256 must be sha256:<64 lowercase hex>")
         return value
 
 
@@ -264,9 +259,7 @@ class ArtifactRef(BaseModel):
     @classmethod
     def _validate_manifest_profile_sha256(cls, value: str | None) -> str | None:
         if value is not None and not _is_manifest_profile_sha256(value):
-            raise ValueError(
-                "manifest_profile_sha256 must be sha256:<64 lowercase hex>"
-            )
+            raise ValueError("manifest_profile_sha256 must be sha256:<64 lowercase hex>")
         return value
 
 

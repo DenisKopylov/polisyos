@@ -25,6 +25,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from polisyos.common import serialization
 from polisyos.core import artifacts, canon
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.pdc import (
     SearchTerminalKind,
     SearchTerminalState,
@@ -40,6 +41,7 @@ from polisyos.runtime.quality.substrate_registry import (
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.data_forge.domains.catalog.selection import CatalogRunProfile
     from polisyos.data_forge.read_api import academic
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.production_grounding_calibration import (
@@ -79,6 +81,20 @@ def _emission_is_sealed(
         and stored[1] == _canonical_model_bytes(model)
         and (context is _UNSPECIFIED_EMISSION_CONTEXT or stored[2] == context)
     )
+
+
+def _validated_catalog_run_profile(value: object | None) -> CatalogRunProfile | None:
+    """Validate caller-selected catalog scope without supplying a default."""
+    if value is None:
+        return None
+    from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+        CatalogSelectionError,
+    )
+    from polisyos.data_forge.domains.catalog.selection import validate_catalog_run_profile
+
+    if not isinstance(value, str):
+        raise CatalogSelectionError("unsupported_run_profile", repr(value))
+    return validate_catalog_run_profile(value)
 
 
 ACQUISITION_PLANNER_SCHEMA_VERSION = "policyos.runtime.acquisition_planner.v1"
@@ -327,9 +343,7 @@ class AcquisitionFamily(StrEnum):
     SAFE = "SAFE"
 
 
-_VALUE_INPUT_WORLD_KNOWLEDGE_SCHEMA_VERSION = (
-    "policyos.runtime.value_input_world_knowledge_gap.v1"
-)
+_VALUE_INPUT_WORLD_KNOWLEDGE_SCHEMA_VERSION = "policyos.runtime.value_input_world_knowledge_gap.v1"
 _VALUE_INPUT_WORLD_KNOWLEDGE_SOURCE = "n8_value_input_world_knowledge"
 _VALUE_INPUT_WORLD_KNOWLEDGE_ALTERNATIVES = (
     "owner_rollout_assignment",
@@ -341,15 +355,9 @@ _VALUE_INPUT_WORLD_KNOWLEDGE_CENSUS_REF = (
 _VALUE_INPUT_WORLD_KNOWLEDGE_CENSUS_HASH = (
     "sha256:c6822ee88e9815508799f65e829086ef30e8809c00bca26bfa529dae3deea60c"
 )
-_VALUE_INPUT_WORLD_KNOWLEDGE_GAP_ID = (
-    "requirement-gap:data_requirement:value-input-world-knowledge"
-)
-_VALUE_INPUT_WORLD_KNOWLEDGE_COMPILED_REF = (
-    "runtime-requirement:value-input-world-knowledge:v1"
-)
-_GROUNDING_COVERAGE_SCHEMA_VERSION = (
-    "policyos.runtime.grounding_coverage_gap.v1"
-)
+_VALUE_INPUT_WORLD_KNOWLEDGE_GAP_ID = "requirement-gap:data_requirement:value-input-world-knowledge"
+_VALUE_INPUT_WORLD_KNOWLEDGE_COMPILED_REF = "runtime-requirement:value-input-world-knowledge:v1"
+_GROUNDING_COVERAGE_SCHEMA_VERSION = "policyos.runtime.grounding_coverage_gap.v1"
 _GROUNDING_COVERAGE_SOURCE = "cgf_grounding_coverage"
 
 
@@ -389,9 +397,7 @@ class _ValueInputWorldKnowledgeCensusEvidence(BaseModel):
     artifact_ref: Literal[
         "architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json"
     ]
-    content_hash: Literal[
-        "sha256:c6822ee88e9815508799f65e829086ef30e8809c00bca26bfa529dae3deea60c"
-    ]
+    content_hash: Literal["sha256:c6822ee88e9815508799f65e829086ef30e8809c00bca26bfa529dae3deea60c"]
     authority_purpose: Literal["costing_and_provenance_only"]
 
 
@@ -652,8 +658,7 @@ class AcquisitionRequirementGap(BaseModel):
         metadata = self.metadata
         if not (
             metadata.get("source") == "l1_dcat_variable_availability"
-            or metadata.get("schema_version")
-            == "policyos.runtime.l1_variable_availability_gap.v1"
+            or metadata.get("schema_version") == "policyos.runtime.l1_variable_availability_gap.v1"
             or self.requirement_gap_id.startswith(
                 "requirement-gap:data_requirement:l1-variable-availability:"
             )
@@ -670,14 +675,8 @@ class AcquisitionRequirementGap(BaseModel):
                 "variable_id": availability.variable_id,
             }
         ).removeprefix("sha256:")[:16]
-        expected_gap_id = (
-            "requirement-gap:data_requirement:l1-variable-availability:"
-            f"{identity}"
-        )
-        expected_compiled_ref = (
-            "runtime-requirement:l1-variable-availability:"
-            f"{identity}:v1"
-        )
+        expected_gap_id = f"requirement-gap:data_requirement:l1-variable-availability:{identity}"
+        expected_compiled_ref = f"runtime-requirement:l1-variable-availability:{identity}:v1"
         expected_gate = (
             MandatoryGateState.NONE
             if normalized.authority_level is AuthorityLevel.RESEARCH
@@ -687,8 +686,7 @@ class AcquisitionRequirementGap(BaseModel):
         if (
             self.requirement_gap_id != expected_gap_id
             or self.compiled_requirement_ref != expected_compiled_ref
-            or self.requirement_schema_version
-            != "policyos.runtime.l1_variable_availability_gap.v1"
+            or self.requirement_schema_version != "policyos.runtime.l1_variable_availability_gap.v1"
             or self.requirement_family is not RequirementGapFamily.DATA
             or self.gap_type is not AcquisitionGapType.DATA_SNAPSHOT_RELEASE
             or self.claim_ref != expected_claim
@@ -700,8 +698,7 @@ class AcquisitionRequirementGap(BaseModel):
             or self.mandatory_gate_state is not expected_gate
             or self.mandatory_gate_refs != (expected_compiled_ref,)
             or self.limitation_permitted
-            or self.decision_owner_ref
-            != "polisyos.runtime.quality.acquisition_planner"
+            or self.decision_owner_ref != "polisyos.runtime.quality.acquisition_planner"
             or self.producer_output_ref != availability.coverage_ref
         ):
             raise ValueError("l1_variable_availability_gap_binding_mismatch")
@@ -755,8 +752,7 @@ class AcquisitionRequirementGap(BaseModel):
             or self.mandatory_gate_state is not expected_gate
             or self.mandatory_gate_refs != (compiled_ref,)
             or self.limitation_permitted
-            or self.decision_owner_ref
-            != "polisyos.runtime.quality.acquisition_planner"
+            or self.decision_owner_ref != "polisyos.runtime.quality.acquisition_planner"
             or self.producer_output_ref != normalized.grounding_report_ref
         ):
             raise ValueError("grounding_coverage_gap_binding_mismatch")
@@ -873,10 +869,14 @@ class AcquisitionActionRecord(BaseModel):
                 raise ValueError("closeout_block acquisition records require blocker_ref")
             if self.limitation_ref or self.accepted_deficit_ref:
                 raise ValueError("closeout_block cannot also be limitation or deficit")
-        if self.terminal_disposition in {
-            AcquisitionDisposition.PUBLISH_WITH_LIMITATION,
-            AcquisitionDisposition.PROXY_WITH_LIMITATION,
-        } and not self.limitation_ref:
+        if (
+            self.terminal_disposition
+            in {
+                AcquisitionDisposition.PUBLISH_WITH_LIMITATION,
+                AcquisitionDisposition.PROXY_WITH_LIMITATION,
+            }
+            and not self.limitation_ref
+        ):
             raise ValueError("limitation acquisition records require limitation_ref")
         if (
             self.terminal_disposition is AcquisitionDisposition.ACCEPTED_DEFICIT
@@ -1317,6 +1317,7 @@ class RealAcquisitionOwnerGateway:
         dataset_catalog_factory: Callable[[Path, Path], object] | None = None,
         retrieval_service_factory: Callable[[Path, ArtifactStore | None, object], object]
         | None = None,
+        catalog_run_profile: CatalogRunProfile | None = None,
         captured_at: datetime | None = None,
         skg_source_snapshot: academic.SourceSnapshot | None = None,
     ) -> None:
@@ -1326,6 +1327,7 @@ class RealAcquisitionOwnerGateway:
         self._allow_openalex_network = bool(allow_openalex_network)
         self._dataset_catalog_factory = dataset_catalog_factory
         self._retrieval_service_factory = retrieval_service_factory
+        self._catalog_run_profile = _validated_catalog_run_profile(catalog_run_profile)
         self._captured_at = _utc(captured_at)
         self._skg_source_snapshot = skg_source_snapshot
         self._skg_calibration_source: ProductionCG2CalibrationSource | None = None
@@ -1386,9 +1388,7 @@ class RealAcquisitionOwnerGateway:
             graph = catalog_read_api.DatasetCatalogGraph(
                 paths.l1_dcat_path,
                 paths.l1_dcat_path.parent,
-                overlay_path=catalog_read_api.default_acquisition_overlay_path(
-                    self._repo_root
-                ),
+                overlay_path=catalog_read_api.default_acquisition_overlay_path(self._repo_root),
             )
         try:
             request = DataResolveRequest(
@@ -1427,7 +1427,10 @@ class RealAcquisitionOwnerGateway:
                         raise ValueError("fabric_fetch_capture_store_missing")
                     if service_store is not self._artifact_store:
                         raise ValueError("fabric_fetch_capture_store_identity_mismatch")
-                    response = service.resolve(request)
+                    response = service.resolve(
+                        request,
+                        run_profile=self._catalog_run_profile,
+                    )
                     if len(response.fetch_plans) != 1:
                         raise ValueError("fabric_fetch_capture_requires_one_plan")
                     plan = response.fetch_plans[0]
@@ -1465,7 +1468,10 @@ class RealAcquisitionOwnerGateway:
                     artifact_store=self._artifact_store,
                     dataset_catalog=graph,
                 )
-                response = service.resolve(request)
+                response = service.resolve(
+                    request,
+                    run_profile=self._catalog_run_profile,
+                )
         finally:
             close = getattr(graph, "close", None)
             if callable(close):
@@ -1480,12 +1486,8 @@ class RealAcquisitionOwnerGateway:
             "candidate_count": len(response.candidates),
             "warnings": response.warnings,
             "families": list(families),
-            "fetch_plans": [
-                plan.model_dump(mode="json") for plan in response.fetch_plans
-            ],
-            "candidates": [
-                candidate.model_dump(mode="json") for candidate in response.candidates
-            ],
+            "fetch_plans": [plan.model_dump(mode="json") for plan in response.fetch_plans],
+            "candidates": [candidate.model_dump(mode="json") for candidate in response.candidates],
         }
         if capture_fetches:
             owner_response.update(
@@ -1966,9 +1968,7 @@ class AcquisitionPlanner:
         )
         if strategy_record and strategy_record.voi_expected_cost is not None:
             money_usd = float(strategy_record.voi_expected_cost)
-        data_need_spec_cls = import_module(
-            "polisyos.scientist.agent.protocols"
-        ).DataNeedSpec
+        data_need_spec_cls = import_module("polisyos.scientist.agent.protocols").DataNeedSpec
         data_need = data_need_spec_cls(
             metric=missing_distribution,
             geography=None,
@@ -2074,8 +2074,7 @@ class AcquisitionPlanner:
                 "Pinned identification gap exceeds deterministic VOI-per-cost threshold."
                 if selected
                 else (
-                    "Pinned identification gap did not exceed deterministic "
-                    "VOI-per-cost threshold."
+                    "Pinned identification gap did not exceed deterministic VOI-per-cost threshold."
                 )
             ),
             authority_gain_basis=authority_gain_basis,
@@ -2422,9 +2421,7 @@ def rank_acquisition_candidates_by_family(
         )
         widths = {
             str(key): max(0.0, float(value))
-            for key, value in (
-                candidate.get("frontier_width_shrinkage_by_design") or {}
-            ).items()
+            for key, value in (candidate.get("frontier_width_shrinkage_by_design") or {}).items()
         }
         if family is AcquisitionFamily.ID:
             score = round(sum(widths.values()) + 0.01 * len(widths), 6)
@@ -2585,7 +2582,9 @@ def _project_owner_artifacts_into_world(
             )
             continue
         if registry is None:
-            fail_closed.append(f"world_write_rejected:{artifact.requirement_ref}:world_registry_missing")
+            fail_closed.append(
+                f"world_write_rejected:{artifact.requirement_ref}:world_registry_missing"
+            )
             outcomes.append(
                 AcquisitionWorldWriteOutcome(
                     requirement_ref=artifact.requirement_ref,
@@ -2772,9 +2771,7 @@ def _registrations_from_owner_artifact(
     if not isinstance(raw, Sequence) or isinstance(raw, (str, bytes, bytearray)):
         return ()
     return tuple(
-        SubstrateRegistration.model_validate(item)
-        for item in raw
-        if isinstance(item, Mapping)
+        SubstrateRegistration.model_validate(item) for item in raw if isinstance(item, Mapping)
     )
 
 
@@ -3110,10 +3107,11 @@ def _validate_fabric_capture_ref(
 ) -> tuple[Any, bytes]:
     if ref.kind != expected_kind or ref.media_type not in expected_media_types:
         raise ValueError("fabric_fetch_capture_ref_metadata_mismatch")
-    manifest = store.get_manifest(ref.artifact_id)
+    ir_store = _ensure_ir_artifact_store(store)
+    manifest = ir_store.get_manifest(ref)
     if manifest.kind != expected_kind or manifest.media_type != ref.media_type:
         raise ValueError("fabric_fetch_capture_ref_manifest_mismatch")
-    return manifest, store.get_bytes(ref.artifact_id)
+    return manifest, ir_store.get_bytes(ref)
 
 
 def _fabric_response_payload(
@@ -3122,9 +3120,7 @@ def _fabric_response_payload(
     response: Mapping[str, Any],
 ) -> dict[str, Any]:
     families = (
-        _required_families_for_spec(spec)
-        if _owner_response_has_acquired_content(response)
-        else ()
+        _required_families_for_spec(spec) if _owner_response_has_acquired_content(response) else ()
     )
     registrations = [
         {
@@ -3181,9 +3177,10 @@ def _owner_response_has_acquired_content(response: Mapping[str, Any]) -> bool:
     }:
         return False
     if "candidate_count" in response or "fetch_plan_count" in response:
-        return int(response.get("candidate_count") or 0) > 0 or int(
-            response.get("fetch_plan_count") or 0
-        ) > 0
+        return (
+            int(response.get("candidate_count") or 0) > 0
+            or int(response.get("fetch_plan_count") or 0) > 0
+        )
     if response.get("owner_response_kind") == "skg_local_schema_probe":
         return int(response.get("table_count") or 0) > 0
     if response.get("owner_response_kind") == "openalex_live_response":
@@ -3402,9 +3399,7 @@ def _affected_region_for_slots(
         design_id for slot in slots for design_id in dependency_index.get(slot, ())
     )
     stages = {
-        design_id: tuple(
-            world.design_revalidation_stages.get(design_id) or _REVALIDATION_STAGES
-        )
+        design_id: tuple(world.design_revalidation_stages.get(design_id) or _REVALIDATION_STAGES)
         for design_id in design_ids
     }
     return AcquisitionAffectedRegion(
@@ -3496,23 +3491,19 @@ def _cost_basis_for_gap(
     line_items: dict[str, float] = {}
     if basis.get("enumerator_days"):
         line_items["enumerator_days"] = (
-            float(basis["enumerator_days"])
-            * _ACQUISITION_RATE_BASIS["enumerator_day_usd"]
+            float(basis["enumerator_days"]) * _ACQUISITION_RATE_BASIS["enumerator_day_usd"]
         )
     if basis.get("registry_extracts"):
         line_items["registry_extracts"] = (
-            float(basis["registry_extracts"])
-            * _ACQUISITION_RATE_BASIS["registry_extract_base_usd"]
+            float(basis["registry_extracts"]) * _ACQUISITION_RATE_BASIS["registry_extract_base_usd"]
         )
     if basis.get("expert_hours"):
         line_items["expert_review"] = (
-            float(basis["expert_hours"])
-            * _ACQUISITION_RATE_BASIS["expert_hour_usd"]
+            float(basis["expert_hours"]) * _ACQUISITION_RATE_BASIS["expert_hour_usd"]
         )
     if basis.get("data_license_days"):
         line_items["data_license_or_panel"] = (
-            float(basis["data_license_days"])
-            * _ACQUISITION_RATE_BASIS["data_license_day_usd"]
+            float(basis["data_license_days"]) * _ACQUISITION_RATE_BASIS["data_license_day_usd"]
         )
     money_usd = round(sum(line_items.values()), 2)
     return {
@@ -3653,9 +3644,7 @@ def l1_variable_availability_requirement_gap(
         if isinstance(availability, L1VariableAvailability)
         else L1VariableAvailability.model_validate(availability)
     )
-    verified = L1VariableAvailability.model_validate(
-        verified.model_dump(mode="python")
-    )
+    verified = L1VariableAvailability.model_validate(verified.model_dump(mode="python"))
     if verified.status != "unavailable":
         raise ValueError("l1_variable_is_not_an_acquisition_gap")
     level = (
@@ -3691,23 +3680,18 @@ def l1_variable_availability_requirement_gap(
     )
     return AcquisitionRequirementGap(
         requirement_gap_id=(
-            "requirement-gap:data_requirement:l1-variable-availability:"
-            f"{identity}"
+            f"requirement-gap:data_requirement:l1-variable-availability:{identity}"
         ),
         requirement_family=RequirementGapFamily.DATA,
         compiled_requirement_ref=compiled_ref,
-        requirement_schema_version=(
-            "policyos.runtime.l1_variable_availability_gap.v1"
-        ),
+        requirement_schema_version=("policyos.runtime.l1_variable_availability_gap.v1"),
         gap_type=AcquisitionGapType.DATA_SNAPSHOT_RELEASE,
         claim_ref=f"value-claim:{candidate_id}",
         scenario_requirement_refs=(
             design_problem_ref,
             verified.coverage_ref,
         ),
-        missing_requirement_fields=(
-            f"canonical_variable_observations:{verified.variable_id}",
-        ),
+        missing_requirement_fields=(f"canonical_variable_observations:{verified.variable_id}",),
         authority_level=level,
         mandatory_gate_state=(
             MandatoryGateState.NONE
@@ -3745,9 +3729,7 @@ def grounding_coverage_requirement_gap(
         design_problem_ref=design_problem_ref,
     )
     normalized_issues = tuple(dict.fromkeys(str(item) for item in issue_codes if str(item)))
-    normalized_evidence = tuple(
-        dict.fromkeys(str(item) for item in evidence_refs if str(item))
-    )
+    normalized_evidence = tuple(dict.fromkeys(str(item) for item in evidence_refs if str(item)))
     metadata = _GroundingCoverageGapMetadata(
         schema_version=_GROUNDING_COVERAGE_SCHEMA_VERSION,
         source=_GROUNDING_COVERAGE_SOURCE,
@@ -3770,9 +3752,7 @@ def grounding_coverage_requirement_gap(
     ).removeprefix("sha256:")[:16]
     compiled_ref = f"runtime-requirement:grounding-coverage:{identity}:v1"
     return AcquisitionRequirementGap(
-        requirement_gap_id=(
-            f"requirement-gap:data_requirement:grounding-coverage:{identity}"
-        ),
+        requirement_gap_id=(f"requirement-gap:data_requirement:grounding-coverage:{identity}"),
         requirement_family=RequirementGapFamily.DATA,
         compiled_requirement_ref=compiled_ref,
         requirement_schema_version=_GROUNDING_COVERAGE_SCHEMA_VERSION,
@@ -3783,9 +3763,7 @@ def grounding_coverage_requirement_gap(
             grounding_report_ref,
             *normalized_evidence,
         ),
-        missing_requirement_fields=(
-            f"grounding_relation_or_owner_lever:{candidate_id}",
-        ),
+        missing_requirement_fields=(f"grounding_relation_or_owner_lever:{candidate_id}",),
         authority_level=level,
         mandatory_gate_state=(
             MandatoryGateState.NONE
@@ -3833,7 +3811,7 @@ def value_input_world_knowledge_requirement_gap(
                     satisfaction_status="unsatisfied",
                 )
                 for alternative in _VALUE_INPUT_WORLD_KNOWLEDGE_ALTERNATIVES
-            )
+            ),
         ),
         satisfaction_status="unsatisfied",
         census_evidence=_ValueInputWorldKnowledgeCensusEvidence(
@@ -3854,8 +3832,7 @@ def value_input_world_knowledge_requirement_gap(
             _VALUE_INPUT_WORLD_KNOWLEDGE_CENSUS_REF,
         ),
         missing_requirement_fields=(
-            "world_knowledge:any_of("
-            "owner_rollout_assignment,certified_skg_identity_bridge)",
+            "world_knowledge:any_of(owner_rollout_assignment,certified_skg_identity_bridge)",
         ),
         authority_level=AuthorityLevel.PRODUCTION,
         mandatory_gate_state=MandatoryGateState.NON_OVERRIDABLE,
@@ -4034,11 +4011,7 @@ def _method_validity_requirement_gap(payload: Mapping[str, Any]) -> AcquisitionR
         missing_requirement_fields=(
             *(f"method_family:{family}" for family in method_families),
             *(f"assumption_gate:{item}" for item in assumptions if item),
-            *(
-                ("method_output_ref",)
-                if _bool(payload.get("requires_method_output"), True)
-                else ()
-            ),
+            *(("method_output_ref",) if _bool(payload.get("requires_method_output"), True) else ()),
             *(
                 ("uncertainty_envelope_ref",)
                 if _bool(payload.get("requires_uncertainty_envelope"), True)
@@ -4058,9 +4031,7 @@ def _scholar_support_requirement_gap(payload: Mapping[str, Any]) -> AcquisitionR
         and authority_level is not AuthorityLevel.RESEARCH
         else MandatoryGateState.NONE
     )
-    publication_tier_fields = (
-        (f"publication_tier:{publication_tier}",) if publication_tier else ()
-    )
+    publication_tier_fields = (f"publication_tier:{publication_tier}",) if publication_tier else ()
     return _compiled_requirement_gap(
         family=RequirementGapFamily.SCHOLAR_SUPPORT,
         payload=payload,
@@ -4217,7 +4188,7 @@ def load_acquisition_planner_report(
 ) -> AcquisitionPlannerReport:
     """Load a persisted acquisition planner report from CAS."""
 
-    payload = canon.from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = canon.from_canonical_bytes(store.get_bytes(ref))
     return AcquisitionPlannerReport.model_validate(payload)
 
 
@@ -4248,8 +4219,10 @@ def acquisition_report_deficit_records(
         if isinstance(report, AcquisitionPlannerReport)
         else AcquisitionPlannerReport.model_validate(report)
     )
-    expires_at = _utc(ttl_expires_at) if ttl_expires_at else _utc() + timedelta(
-        seconds=DEFAULT_ACQUISITION_TTL_SECONDS
+    expires_at = (
+        _utc(ttl_expires_at)
+        if ttl_expires_at
+        else _utc() + timedelta(seconds=DEFAULT_ACQUISITION_TTL_SECONDS)
     )
     rows: list[dict[str, Any]] = []
     for record in normalized.acquisition_records:
@@ -4312,9 +4285,7 @@ def _plan_gap(
     recommended = _recommended_strategy(gap=gap, eligible=eligible, ranked_records=ranked_records)
     disposition = _disposition_for_strategy(recommended)
     ineligible = tuple(_ineligible_strategy_values(eligible_values, ranked))
-    ineligible_records = tuple(
-        record for record in ranked_records if not record.eligible
-    ) or tuple(
+    ineligible_records = tuple(record for record in ranked_records if not record.eligible) or tuple(
         AcquisitionStrategyRecord(
             strategy=strategy,
             eligible=False,
@@ -4607,9 +4578,7 @@ def _required_remediation_strategies(
             AcquisitionStrategy.RERUN,
             AcquisitionStrategy.METHOD_REMEDIATION,
         ),
-        AcquisitionGapType.ACADEMIC_SCHOLAR_SUPPORT: (
-            AcquisitionStrategy.ACADEMIC_RETRIEVAL,
-        ),
+        AcquisitionGapType.ACADEMIC_SCHOLAR_SUPPORT: (AcquisitionStrategy.ACADEMIC_RETRIEVAL,),
         AcquisitionGapType.PARTICIPATION_AFFECTED_PERSON_CLAIM: (
             AcquisitionStrategy.CONSULTATION,
             AcquisitionStrategy.SURVEY,
@@ -4618,9 +4587,7 @@ def _required_remediation_strategies(
             AcquisitionStrategy.ACADEMIC_RETRIEVAL,
             AcquisitionStrategy.RERUN,
         ),
-        AcquisitionGapType.COST_SLA_RUNTIME_DEGRADATION: (
-            AcquisitionStrategy.RERUN,
-        ),
+        AcquisitionGapType.COST_SLA_RUNTIME_DEGRADATION: (AcquisitionStrategy.RERUN,),
     }
     return matrix[gap_type]
 
@@ -5370,10 +5337,7 @@ def _authority_level_from_spec(payload: Mapping[str, Any]) -> AuthorityLevel:
     ]
     for token in _flatten_text(tokens):
         normalized = _normalized(token)
-        if any(
-            marker in normalized
-            for marker in ("production", "publishable", "regulated")
-        ):
+        if any(marker in normalized for marker in ("production", "publishable", "regulated")):
             return AuthorityLevel.PRODUCTION
         if any(marker in normalized for marker in ("governed", "official", "serious")):
             return AuthorityLevel.GOVERNED

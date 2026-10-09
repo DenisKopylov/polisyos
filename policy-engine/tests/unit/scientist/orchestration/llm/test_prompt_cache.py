@@ -7,6 +7,8 @@ import hashlib
 import time
 
 import pytest
+
+from polisyos.scientist.agent.pi import LLMPIAgent
 from polisyos.scientist.orchestration.llm.gateway_client import (
     GatewayLLMResponse,
     GatewayToolCall,
@@ -266,6 +268,44 @@ class TestCachingLLMClient:
         assert first is not second
 
     @pytest.mark.asyncio
+    async def test_pi_distinct_operations_do_not_reuse_same_content_response(self):
+        class _PIResponseClient:
+            def __init__(self) -> None:
+                self.calls: list[dict[str, object]] = []
+                self.responses = [
+                    '{"problem_frame":{"frame_id":"pf-1","problem_statement":"Improve access"}}',
+                    '{"sub_tasks":[{"task_id":"task-1","description":"Map access barriers"}]}',
+                ]
+
+            async def generate(self, **kwargs):
+                self.calls.append(dict(kwargs))
+                return GatewayLLMResponse(
+                    content=self.responses[len(self.calls) - 1],
+                    usage=GatewayUsage(),
+                    raw={},
+                )
+
+        provider = _PIResponseClient()
+        cached = CachingLLMClient(
+            provider,
+            cache=InMemoryPromptCache(maxsize=10, default_ttl_s=3600),
+            model="m",
+            ttl_s=3600,
+        )
+        agent = LLMPIAgent(cached)
+
+        frame = await agent.create_problem_frame("Improve access")
+        tasks = await agent.decompose_task("Improve access")
+
+        assert frame.problem_statement == "Improve access"
+        assert [(task.task_id, task.description) for task in tasks] == [
+            ("task-1", "Map access barriers")
+        ]
+        assert len(provider.calls) == 2
+        assert all("cacheable" not in call.get("metadata", {}) for call in provider.calls)
+        assert cached._cache.stats()["skip_reasons"] == {"cache_disabled_by_metadata": 2}
+
+    @pytest.mark.asyncio
     async def test_cache_hits_do_not_share_mutable_response_state(self):
         base_client = _FakeLLMClient()
         cache = InMemoryPromptCache(maxsize=10, default_ttl_s=3600)
@@ -317,7 +357,7 @@ class TestCachingLLMClient:
         }
 
     @pytest.mark.asyncio
-    async def test_frozen_snapshot_with_url_reuses(self):
+    async def test_frozen_snapshot_without_authorizer_does_not_reuse(self):
         base_client = _FakeLLMClient()
         client = CachingLLMClient(
             base_client,
@@ -339,13 +379,14 @@ class TestCachingLLMClient:
         )
 
         assert first.content == second.content
-        assert len(base_client.calls) == 1
-        assert client._cache.stats()["hits"] == 1
-        forwarded_metadata = base_client.calls[0][1]["metadata"]
-        assert "content" not in forwarded_metadata["cache_reuse"]["snapshot"]
-        assert forwarded_metadata["cache_reuse"]["snapshot"]["content_hash"].startswith(
-            "sha256:"
-        )
+        assert len(base_client.calls) == 2
+        assert client._cache.stats()["hits"] == 0
+        for _, call_kwargs in base_client.calls:
+            forwarded_metadata = call_kwargs["metadata"]
+            assert "content" not in forwarded_metadata["cache_reuse"]["snapshot"]
+            assert forwarded_metadata["cache_reuse"]["snapshot"]["content_hash"].startswith(
+                "sha256:"
+            )
 
     @pytest.mark.asyncio
     async def test_changed_snapshot_bytes_or_hash_cannot_hit(self):
@@ -356,9 +397,9 @@ class TestCachingLLMClient:
         original = _frozen_snapshot_metadata(content=b"original")
         changed = _frozen_snapshot_metadata(content=b"changed")
         stale_hash = _frozen_snapshot_metadata(content=b"changed")
-        stale_hash["cache_reuse"]["snapshot"]["content_hash"] = original["cache_reuse"][
-            "snapshot"
-        ]["content_hash"]
+        stale_hash["cache_reuse"]["snapshot"]["content_hash"] = original["cache_reuse"]["snapshot"][
+            "content_hash"
+        ]
 
         await client.generate(
             user="Use https://example.org/frozen report",
@@ -377,7 +418,7 @@ class TestCachingLLMClient:
         )
 
         assert len(base_client.calls) == 3
-        assert cache.size == 2
+        assert cache.size == 0
         for _, call_kwargs in base_client.calls:
             assert "content" not in call_kwargs["metadata"]["cache_reuse"]["snapshot"]
 
@@ -428,7 +469,7 @@ class TestCachingLLMClient:
         assert cache.stats()["skips"] == 2
 
     @pytest.mark.asyncio
-    async def test_four_identical_allowed_misses_single_flight(self):
+    async def test_four_identical_ordinary_misses_single_flight(self):
         base_client = _SlowLLMClient()
         client = CachingLLMClient(
             base_client,
@@ -436,15 +477,8 @@ class TestCachingLLMClient:
             model="m",
             ttl_s=3600,
         )
-        metadata = _frozen_snapshot_metadata()
         tasks = [
-            asyncio.create_task(
-                client.generate(
-                    user="Use https://example.org/frozen report",
-                    metadata=metadata,
-                    temperature=0.0,
-                )
-            )
+            asyncio.create_task(client.generate(user="ordinary prompt", temperature=0.0))
             for _ in range(4)
         ]
         await asyncio.wait_for(base_client.started.wait(), timeout=1.0)
@@ -452,7 +486,7 @@ class TestCachingLLMClient:
         responses = await asyncio.gather(*tasks)
 
         assert len(base_client.calls) == 1
-        assert [response.content for response in responses] == ["answer:Use https://example.org/frozen report"] * 4
+        assert [response.content for response in responses] == ["answer:ordinary prompt"] * 4
 
     @pytest.mark.asyncio
     async def test_different_seed_and_tenant_are_separate_flights(self):
@@ -487,7 +521,7 @@ class TestCachingLLMClient:
         assert len(base_client.calls) == 2
 
     @pytest.mark.asyncio
-    async def test_cancelled_follower_does_not_cancel_owner(self):
+    async def test_cancelled_ordinary_follower_does_not_cancel_owner(self):
         base_client = _SlowLLMClient()
         client = CachingLLMClient(
             base_client,
@@ -495,14 +529,9 @@ class TestCachingLLMClient:
             model="m",
             ttl_s=3600,
         )
-        metadata = _frozen_snapshot_metadata()
-        owner = asyncio.create_task(
-            client.generate("same prompt", metadata=metadata, temperature=0.0)
-        )
+        owner = asyncio.create_task(client.generate("same prompt", temperature=0.0))
         await asyncio.wait_for(base_client.started.wait(), timeout=1.0)
-        follower = asyncio.create_task(
-            client.generate("same prompt", metadata=metadata, temperature=0.0)
-        )
+        follower = asyncio.create_task(client.generate("same prompt", temperature=0.0))
         await asyncio.sleep(0)
         follower.cancel()
         with pytest.raises(asyncio.CancelledError):
@@ -515,7 +544,7 @@ class TestCachingLLMClient:
         assert len(base_client.calls) == 1
 
     @pytest.mark.asyncio
-    async def test_failed_owner_clears_inflight_entry(self):
+    async def test_failed_ordinary_owner_clears_inflight_entry(self):
         base_client = _SlowLLMClient(fail_first=True)
         client = CachingLLMClient(
             base_client,
@@ -523,14 +552,9 @@ class TestCachingLLMClient:
             model="m",
             ttl_s=3600,
         )
-        metadata = _frozen_snapshot_metadata()
-        first = asyncio.create_task(
-            client.generate("same prompt", metadata=metadata, temperature=0.0)
-        )
+        first = asyncio.create_task(client.generate("same prompt", temperature=0.0))
         await asyncio.wait_for(base_client.started.wait(), timeout=1.0)
-        follower = asyncio.create_task(
-            client.generate("same prompt", metadata=metadata, temperature=0.0)
-        )
+        follower = asyncio.create_task(client.generate("same prompt", temperature=0.0))
         await asyncio.sleep(0)
         base_client.release.set()
         results = await asyncio.gather(first, follower, return_exceptions=True)
@@ -540,9 +564,7 @@ class TestCachingLLMClient:
 
         base_client.started.clear()
         base_client.release.clear()
-        retry = asyncio.create_task(
-            client.generate("same prompt", metadata=metadata, temperature=0.0)
-        )
+        retry = asyncio.create_task(client.generate("same prompt", temperature=0.0))
         await asyncio.wait_for(base_client.started.wait(), timeout=1.0)
         base_client.release.set()
         response = await retry

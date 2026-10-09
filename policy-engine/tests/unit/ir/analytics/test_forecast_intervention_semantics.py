@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.causal import (
     build_dynamic_proof_bundle,
@@ -36,7 +38,10 @@ from polisyos.ir.analytics.dynamic_causal_semantics import (
     persist_forecast_intervention_certificate,
     persist_forecast_intervention_query,
 )
-from polisyos.ir.registry.refs import ForecastInterventionCertificateRef, ForecastInterventionQueryRef
+from polisyos.ir.registry.refs import (
+    ForecastInterventionCertificateRef,
+    ForecastInterventionQueryRef,
+)
 
 _REPLAY_FINGERPRINTS = {
     "announcement_timing_hash": "sha256:" + ("1" * 64),
@@ -201,13 +206,17 @@ def test_forecast_query_and_certificate_persistence_roundtrip(tmp_path) -> None:
     query = _forecast_query()
     certificate = _identified_forecast_attachment()
 
-    query_ref = persist_forecast_intervention_query(store, query)
-    certificate_ref = persist_forecast_intervention_certificate(store, certificate)
+    query_ref = persist_forecast_intervention_query(_ensure_ir_artifact_store(store), query)
+    certificate_ref = persist_forecast_intervention_certificate(
+        _ensure_ir_artifact_store(store), certificate
+    )
 
     assert isinstance(query_ref, ForecastInterventionQueryRef)
     assert isinstance(certificate_ref, ForecastInterventionCertificateRef)
-    assert load_forecast_intervention_query(store, query_ref) == query
-    loaded_certificate = load_forecast_intervention_certificate(store, certificate_ref)
+    assert load_forecast_intervention_query(_ensure_ir_artifact_store(store), query_ref) == query
+    loaded_certificate = load_forecast_intervention_certificate(
+        _ensure_ir_artifact_store(store), certificate_ref
+    )
     assert isinstance(loaded_certificate, ForecastInterventionCertificate)
     assert loaded_certificate.announcement_node == certificate.announcement_node
     assert loaded_certificate.proof_status == "identified"

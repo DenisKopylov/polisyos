@@ -20,6 +20,21 @@ governance calibration и backtest matrix контуром.
 - **Temporal evaluation** — trajectory и safe-rejection checks для time-aware scenarios.
 - **Trust eligibility** — degraded paths остаются diagnostic, но не повышают trust profile.
 
+## Scientist replay и реплики
+
+Для `prediction_source=scientist` backtest сохраняет cutoff-маску как `fabric.data_snapshot` и
+передаёт её тому же `run_experiment` в том же CAS. Стандартный workflow сохраняет строгую проверку:
+`ModelSpec.data_snapshot_ref` должен указывать на этот срез до связывания входов Foundry. На границе
+исполнения backtest повторно проверяет полный выбранный ref из `foundry.input_bindings`.
+
+`n_simulation_runs=K` запускает K отдельных workflow с уникальными `run_id` и seed в фактическом
+`ExecuteRequest.exec_config`. Артефакт `scientist.backtest.replica_cohort` сохраняет исходный запрос,
+runtime seed source, ссылки на `SimulationResult`/metrics и знаменатель `requested/started/completed/
+failed`; итоговый backtest report ссылается на этот артефакт. Одиночная успешная реплика может
+передать свою trajectory прежнему evaluator. Для K > 1 результаты сохраняются по репликам, а backtest
+явно помечает отсутствие поддержанного multi-run projection и использует naive diagnostic fallback;
+он не усредняет реплики в scalar и не размножает его по горизонту.
+
 ## Public API
 
 - `HistoricalValidationPlan`, `MaskingStrategy`, `PredictionSource`
@@ -32,7 +47,7 @@ governance calibration и backtest matrix контуром.
 
 ## Текущее состояние
 
-- Последнее обновление: 2026-04-03
+- Последнее обновление: 2026-10-09
 - Python modules: 17
 - Exports: 25
 - Недавний delta: пакет теперь является upstream для `BacktestMatrixRunner`

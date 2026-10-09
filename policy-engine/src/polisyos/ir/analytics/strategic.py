@@ -126,7 +126,7 @@ def _load_strategic_leaf(
     ref: ArtifactRefModel,
     model: type[BaseModel],
 ) -> Any:
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return model.model_validate(payload)
 
 
@@ -2224,8 +2224,6 @@ class StrategicResponseBundle(BaseModel):
         return self
 
 
-
-
 def persist_strategic_payoff_table(
     store: ArtifactStore,
     table: FiniteStrategicPayoffTable,
@@ -2252,7 +2250,7 @@ def load_strategic_payoff_table(
     ref: StrategicPayoffTableRef,
 ) -> FiniteStrategicPayoffTable:
     """Load strategic payoff table."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return FiniteStrategicPayoffTable.model_validate(payload)
 
 
@@ -2282,7 +2280,7 @@ def load_strategic_scm(
     ref: StrategicSCMRef,
 ) -> StrategicSCM:
     """Load strategic scm."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return StrategicSCM.model_validate(payload)
 
 
@@ -2312,7 +2310,7 @@ def load_strategic_response_bundle(
     ref: StrategicResponseBundleRef,
 ) -> StrategicResponseBundle:
     """Load strategic response bundle."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return StrategicResponseBundle.model_validate(payload)
 
 

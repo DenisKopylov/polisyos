@@ -18,6 +18,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -1933,7 +1934,9 @@ class DesignMissingnessDREstimator:
         )
         artifact_store = resolve_artifact_store(state, params)
         certificate_ref = (
-            persist_survey_quality_certificate(artifact_store, certificate)
+            persist_survey_quality_certificate(
+                _ensure_ir_artifact_store(artifact_store), certificate
+            )
             if artifact_store is not None
             else None
         )

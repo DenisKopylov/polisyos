@@ -49,7 +49,11 @@ analysis flows.
   non-secret revision. Raw observation corpus and remote response/version
   identity are outside this finite local configuration/assets basis.
   A separately injected RetrievalService profile registry is not bound here;
-  no absent serving CatalogRunProfile is supplied.
+  this batch material basis does not infer a serving CatalogRunProfile.
+  Serving retrieval takes the profile from `DataResolveRequest.catalog_run_profile`
+  or explicit runtime configuration. Missing scope refuses catalog-backed
+  resolution, and a request/runtime conflict is a named 422; neither path
+  silently selects `prod_full`.
 - **Embedding-generation currentness** - the embed producer projects each
   dataset through the versioned Catalog projection and binds the selected
   material basis and loaded encoder assets into the immutable generation.

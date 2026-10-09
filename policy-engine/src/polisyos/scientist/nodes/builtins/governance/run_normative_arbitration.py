@@ -10,6 +10,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -31,6 +32,7 @@ from polisyos.ir.analytics.normative_arbitration import (
     TradeoffCertificate,
     persist_normative_arbitration_result,
 )
+from polisyos.ir.analytics.uncertainty import load_simulation_result_uncertainty_admission
 from polisyos.ir.artifacts import InputRef
 from polisyos.ir.governance.problem_frame import (
     ConstraintSpec,
@@ -46,11 +48,6 @@ from polisyos.ir.governance.problem_frame import (
 )
 from polisyos.ir.registry.refs import DistributionalReportRef
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
@@ -60,6 +57,16 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_TRINITY_BUNDLE_REF,
     REPORT_LEGAL_REPORT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 logger = get_logger(__name__)
 _NORMATIVE_ARTIFACT_ERRORS = (
@@ -134,7 +141,7 @@ class RunNormativeArbitrationNode:
 
         try:
             trinity = TrinityBundle.model_validate(
-                from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
+                from_canonical_bytes(ctx.store.get_bytes(trinity_ref))
             )
         except _NORMATIVE_ARTIFACT_ERRORS as exc:
             emit_degraded_path(
@@ -195,6 +202,7 @@ class RunNormativeArbitrationNode:
             problem_frame=trinity.problem_frame,
             metrics=metrics,
             simulation_result=simulation_result,
+            simulation_result_ref=state.artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF),
             distributional_report=distributional_report,
         )
         utility_summaries, utility_warnings = _compute_stakeholder_utilities(
@@ -335,7 +343,9 @@ class RunNormativeArbitrationNode:
         )
 
         inputs = _build_inputs(state, simulation_result=simulation_result)
-        result_ref = persist_normative_arbitration_result(ctx.store, result, inputs=inputs)
+        result_ref = persist_normative_arbitration_result(
+            _ensure_ir_artifact_store(ctx.store), result, inputs=inputs
+        )
 
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.artifacts_index[ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF] = result_ref
@@ -361,8 +371,9 @@ def _load_metrics(ctx: ExecutionContext, state: ExperimentState) -> Metrics | No
     if ref is None:
         return None
     try:
-        return Metrics.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id)))
+        return Metrics.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
     except _NORMATIVE_ARTIFACT_ERRORS as exc:
+        raise
         emit_degraded_path(
             component="scientist.run_normative_arbitration",
             operation="load_metrics",
@@ -383,9 +394,7 @@ def _load_simulation_result(
     if ref is None:
         return None
     try:
-        return SimulationResult.model_validate(
-            from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
-        )
+        return SimulationResult.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
     except _NORMATIVE_ARTIFACT_ERRORS as exc:
         emit_degraded_path(
             component="scientist.run_normative_arbitration",
@@ -408,7 +417,7 @@ def _load_distributional(
         return None
     try:
         return load_distributional_report(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             DistributionalReportRef(artifact_id=ref.artifact_id),
         )
     except _NORMATIVE_ARTIFACT_ERRORS as exc:
@@ -432,9 +441,7 @@ def _load_legal_report(
     if ref is None:
         return None
     try:
-        return LegalReport.model_validate(
-            from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
-        )
+        return LegalReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
     except _NORMATIVE_ARTIFACT_ERRORS as exc:
         emit_degraded_path(
             component="scientist.run_normative_arbitration",
@@ -554,6 +561,7 @@ def _resolve_binding_values(
     problem_frame: ProblemFrame,
     metrics: Metrics | None,
     simulation_result: SimulationResult | None,
+    simulation_result_ref: ArtifactRef | None,
     distributional_report: DistributionalReport | None,
 ) -> tuple[dict[str, _ResolvedBindingValue], list[str]]:
     warnings: list[str] = []
@@ -582,7 +590,18 @@ def _resolve_binding_values(
             if distributional_report is not None:
                 proposal_value = distributional_report.overall_gini_delta
         elif binding.channel == NormativeOutcomeChannel.UNCERTAINTY_CI_WIDTH_RATIO:
-            proposal_value = _uncertainty_ratio(ctx, simulation_result, binding.outcome_key)
+            proposal_value, limitations = _uncertainty_ratio(
+                ctx,
+                simulation_result_ref,
+                binding.outcome_key,
+            )
+            if limitations:
+                warnings.extend(
+                    f"uncertainty_admission_limited:{binding.binding_id}:{reason}"
+                    for reason in limitations
+                )
+            if proposal_value is None:
+                warnings.append(f"missing_binding_value:{binding.binding_id}")
         elif binding.channel == NormativeOutcomeChannel.SYNTHESIZED:
             proposal_value = synthesized_map.get(binding.outcome_key)
 
@@ -638,43 +657,38 @@ def _metric_value(metrics: Metrics | None, key: str) -> float | None:
 
 def _uncertainty_ratio(
     ctx: ExecutionContext,
-    simulation_result: SimulationResult | None,
+    simulation_result_ref: ArtifactRef | None,
     metric_id: str,
-) -> float | None:
-    if simulation_result is None or not simulation_result.uncertainty_envelopes:
-        return None
-    envelope_ref = simulation_result.uncertainty_envelopes.get(metric_id)
-    if envelope_ref is None:
-        return None
+) -> tuple[float | None, tuple[str, ...]]:
+    if simulation_result_ref is None:
+        return None, ("simulation_result_ref_missing",)
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(envelope_ref.artifact_id))
+        admission = load_simulation_result_uncertainty_admission(
+            _ensure_ir_artifact_store(ctx.store),
+            simulation_result_ref,
+            metric_id,
+        )
     except _NORMATIVE_ARTIFACT_ERRORS as exc:
         emit_degraded_path(
             component="scientist.run_normative_arbitration",
-            operation="load_uncertainty_envelope",
-            reason="uncertainty_envelope_load_failed",
+            operation="admit_simulation_uncertainty",
+            reason="uncertainty_envelope_admission_failed",
             exc=exc,
             details={
-                "run_id": getattr(simulation_result, "run_id", None),
                 "metric_id": metric_id,
             },
             log=logger,
             metrics=ctx.metrics,
         )
-        return None
-    if not isinstance(payload, dict):
-        return None
-    point = _coerce_float(payload.get("point_estimate"))
-    interval = payload.get("confidence_interval")
-    if point is None or not isinstance(interval, (list, tuple)) or len(interval) != 2:
-        return None
-    lower = _coerce_float(interval[0])
-    upper = _coerce_float(interval[1])
-    if lower is None or upper is None:
-        return None
+        return None, ("persisted_uncertainty_admission_failed",)
+    if not admission.admitted or admission.envelope is None:
+        return None, admission.limitation_codes
+    envelope = admission.envelope
+    point = envelope.point_estimate
+    lower, upper = envelope.confidence_interval
     width = upper - lower
     denom = max(abs(point), 1.0)
-    return width / denom
+    return width / denom, ()
 
 
 def _compute_stakeholder_utilities(
@@ -991,6 +1005,20 @@ def _build_inputs(
         if ref is not None:
             refs.append(InputRef(artifact_id=str(ref.artifact_id), role=role))
     if simulation_result is not None and simulation_result.uncertainty_envelopes is not None:
+        if simulation_result.propagation_report_ref is not None:
+            refs.append(
+                InputRef(
+                    artifact_id=str(simulation_result.propagation_report_ref.artifact_id),
+                    role="propagation_report",
+                )
+            )
+        if simulation_result.propagation_config_ref is not None:
+            refs.append(
+                InputRef(
+                    artifact_id=str(simulation_result.propagation_config_ref.artifact_id),
+                    role="propagation_config",
+                )
+            )
         for metric_id, ref in simulation_result.uncertainty_envelopes.items():
             refs.append(InputRef(artifact_id=str(ref.artifact_id), role=f"uncertainty.{metric_id}"))
     return refs

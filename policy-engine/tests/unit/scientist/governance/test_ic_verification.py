@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from decimal import Decimal
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
@@ -47,6 +48,7 @@ from polisyos.ir.governance.problem_frame import (
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.model_layer.model_spec import FidelityLevel, ModelSpec
+from polisyos.ir.model_layer.types import OptimizationDirection
 from polisyos.ir.registry.refs import (
     IncentiveCompatibilityCertificateRef as MechanismICCertificateRef,
 )
@@ -55,7 +57,6 @@ from polisyos.ir.registry.refs import (
     MechanismWelfareLossBoundRef,
 )
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.model_layer.types import OptimizationDirection
 from polisyos.scientist.validation.verification.ic import (
     load_ic_certificate,
     load_ic_negative_certificate,
@@ -793,17 +794,17 @@ def test_verify_incentive_compatibility_routes_bayesian_tax_family(tmp_path) -> 
     assert certificate.witness["certificate_type"] == "monotonicity_envelope_tax_v1"
 
     family_spec = load_mechanism_family_spec(
-        store,
+        _ensure_ir_artifact_store(store),
         MechanismFamilySpecRef.model_validate(certificate.witness["mechanism_family_spec_ref"]),
     )
     mechanism_certificate = load_mechanism_ic_certificate(
-        store,
+        _ensure_ir_artifact_store(store),
         MechanismICCertificateRef.model_validate(
             certificate.witness["mechanism_ic_certificate_ref"]
         ),
     )
     welfare_bound = load_mechanism_welfare_loss_bound(
-        store,
+        _ensure_ir_artifact_store(store),
         MechanismWelfareLossBoundRef.model_validate(
             certificate.witness["mechanism_welfare_loss_bound_ref"]
         ),
@@ -907,7 +908,7 @@ def test_verify_incentive_compatibility_routes_license_family_with_welfare_bound
     assert "mechanism_welfare_loss_bound_ref" in certificate.witness
 
     welfare_bound = load_mechanism_welfare_loss_bound(
-        store,
+        _ensure_ir_artifact_store(store),
         MechanismWelfareLossBoundRef.model_validate(
             certificate.witness["mechanism_welfare_loss_bound_ref"]
         ),

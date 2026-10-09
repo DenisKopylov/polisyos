@@ -1475,6 +1475,31 @@ class FileSystemCAS:
             raise
         return manifest
 
+    @_transactional_read(profile_argument_index=0)
+    def get_manifest_by_profile(
+        self,
+        artifact_id: ArtifactID | str,
+        manifest_profile_sha256: str,
+    ) -> ArtifactManifest:
+        """Resolve one selected manifest view without assuming the default kind."""
+        aid = ArtifactID.model_validate(artifact_id)
+        if re.fullmatch(r"sha256:[0-9a-f]{64}", manifest_profile_sha256) is None:
+            raise ValueError("manifest_profile_sha256 must be sha256:<64 lowercase hex>")
+        self._require_blob_owner(aid, operation="read_manifest_by_profile")
+        self._require_manifest_view_owner(
+            aid,
+            manifest_profile_sha256,
+            operation="read_manifest_by_profile",
+        )
+        manifest_path = self._manifest_path_for_ref(aid, manifest_profile_sha256)
+        if self._ownership_index._path_has_symlink_component(manifest_path):
+            raise ArtifactIntegrityError("CAS manifest path crosses a symlink")
+        manifest = self._manifests.read(manifest_path)
+        _validate_manifest_identity(aid, manifest)
+        if self._manifests.profile_sha256(manifest) != manifest_profile_sha256:
+            raise ArtifactIntegrityError(f"Selected manifest profile mismatch for {aid}")
+        return manifest
+
     @_transactional_read()
     def get_manifest_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
         """Return raw selected-manifest bytes through the owner read boundary."""

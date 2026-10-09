@@ -22,6 +22,7 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
@@ -167,9 +168,7 @@ class _ScientistReleasePostflightReceipt(BaseModel):
     schema_version: Literal["policyos.scientist.release_postflight.v1"] = (
         "policyos.scientist.release_postflight.v1"
     )
-    rule_version: Literal["scientist-release-postflight.v1"] = (
-        "scientist-release-postflight.v1"
-    )
+    rule_version: Literal["scientist-release-postflight.v1"] = "scientist-release-postflight.v1"
     status: Literal["admissible", "blocked"]
     predicate_provenance: Literal["recomputed"] = "recomputed"
     admission_receipt_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
@@ -268,9 +267,7 @@ class _ScientistReleasePredicateReceipt(BaseModel):
     schema_version: Literal["policyos.scientist.release_predicates.v1"] = (
         "policyos.scientist.release_predicates.v1"
     )
-    rule_version: Literal["scientist-release-predicates.v1"] = (
-        "scientist-release-predicates.v1"
-    )
+    rule_version: Literal["scientist-release-predicates.v1"] = "scientist-release-predicates.v1"
     authority_purpose: Literal["scientist_release_predicate_receipt"] = (
         "scientist_release_predicate_receipt"
     )
@@ -288,14 +285,10 @@ class _ScientistReleasePredicateReceipt(BaseModel):
     status: Literal["admissible", "blocked"]
     manifest_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     graph_compression_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
-    manifest_findings_provenance: Literal["institutionally_supplied"] = (
-        "institutionally_supplied"
-    )
+    manifest_findings_provenance: Literal["institutionally_supplied"] = "institutionally_supplied"
     manifest_no_errors_provenance: Literal["recomputed"] = "recomputed"
     manifest_no_errors: bool
-    compression_predicate_provenance: Literal[
-        "independently_reconciled", "not_established"
-    ]
+    compression_predicate_provenance: Literal["independently_reconciled", "not_established"]
     compression_status: Literal["admissible", "blocked", "not_established"]
     compression_layer_count: int = Field(ge=0)
     reconciled_degree_preservation_score: float | None = Field(
@@ -1230,7 +1223,9 @@ class CalibrationGovernanceEvidenceRunner:
                 ),
             ),
         )
-        abstraction_map_ref = persist_finite_state_abstraction_map(self._store, abstraction_map)
+        abstraction_map_ref = persist_finite_state_abstraction_map(
+            _ensure_ir_artifact_store(self._store), abstraction_map
+        )
         certificate = AbstractionCertificate(
             micro_graph_ref=ArtifactRefModel.model_validate(micro_graph_ref.model_dump()),
             macro_graph_ref=ArtifactRefModel.model_validate(macro_graph_ref.model_dump()),
@@ -1238,7 +1233,9 @@ class CalibrationGovernanceEvidenceRunner:
             preservation_type=AbstractionPreservationType.EXACT,
             preserved_queries=("policy_value",),
         )
-        certificate_ref = persist_abstraction_certificate(self._store, certificate)
+        certificate_ref = persist_abstraction_certificate(
+            _ensure_ir_artifact_store(self._store), certificate
+        )
         return abstraction_map_ref, certificate_ref
 
 
@@ -1489,9 +1486,7 @@ def _recompute_identity_resolution_coverage(
     for cohort_name in ("spending", "procurement"):
         rows = [item for item in cohort.rows if item.cohort == cohort_name]
         cohort_identities = {
-            normalized
-            for row in rows
-            if (normalized := _normalize_identity_key(row.raw_identity))
+            normalized for row in rows if (normalized := _normalize_identity_key(row.raw_identity))
         }
         if not cohort_identities:
             raise UkraineStageArtifactVerificationError(
@@ -1898,7 +1893,7 @@ def _verify_release_receipt_cas(
             raise UkraineStageArtifactVerificationError(
                 "admitted handoff refs do not match the exact Scientist evidence contract"
             )
-    manifest_bytes = store.get_bytes(receipt.manifest_ref.artifact_id)
+    manifest_bytes = store.get_bytes(receipt.manifest_ref)
     if len(manifest_bytes) != receipt.manifest_size_bytes:
         raise UkraineStageArtifactVerificationError(
             "admitted release manifest size does not match the admission receipt"
@@ -1965,9 +1960,7 @@ def _build_d5_release_trinity(receipt: VerifiedUkraineReleaseArtifacts) -> Trini
                     params={"rate": Decimal("0.1")},
                     target_region_ids=[facts.primary_region_id],
                     target_sector_ids=[facts.primary_sector_id],
-                    notes=[
-                        "Candidate execution probe; producer facts do not authorize release."
-                    ],
+                    notes=["Candidate execution probe; producer facts do not authorize release."],
                 )
             ],
         ),
@@ -2099,9 +2092,7 @@ def _evaluate_release_predicates(
 ) -> _ScientistReleasePredicateReceipt:
     """Evaluate manifest, compression, and D4 predicates from admitted CAS bytes."""
 
-    manifest = ReleaseManifest.model_validate_json(
-        store.get_bytes(admission.manifest_ref.artifact_id)
-    )
+    manifest = ReleaseManifest.model_validate_json(store.get_bytes(admission.manifest_ref))
     manifest_no_errors = not any(
         finding.severity.strip().casefold() == "error" for finding in manifest.validation
     )
@@ -2123,15 +2114,18 @@ def _evaluate_release_predicates(
         compression_layer_count = len(compression.layers)
         if not compression.layers:
             raise ValueError("compression bundle has no layer records")
-        reconciled_degree = math.fsum(
-            layer.degree_preservation_score for layer in compression.layers
-        ) / compression_layer_count
-        reconciled_weight_error = math.fsum(
-            layer.edge_weight_reconstruction_error for layer in compression.layers
-        ) / compression_layer_count
-        reconciled_overlap = math.fsum(
-            layer.neighborhood_overlap_stability for layer in compression.layers
-        ) / compression_layer_count
+        reconciled_degree = (
+            math.fsum(layer.degree_preservation_score for layer in compression.layers)
+            / compression_layer_count
+        )
+        reconciled_weight_error = (
+            math.fsum(layer.edge_weight_reconstruction_error for layer in compression.layers)
+            / compression_layer_count
+        )
+        reconciled_overlap = (
+            math.fsum(layer.neighborhood_overlap_stability for layer in compression.layers)
+            / compression_layer_count
+        )
         declared_values = (
             compression.fidelity_metrics.degree_preservation_score,
             compression.fidelity_metrics.edge_weight_reconstruction_error,
@@ -2265,9 +2259,9 @@ def run_verified_ukraine_d5_release(
         raise UkraineStageArtifactVerificationError(
             "verified release lacks required method contract bundle contents"
         )
-    if {
-        Path(artifact.source_path).parent.resolve() for artifact in method_bundle.values()
-    } != {method_contract_bundle_dir.resolve()}:
+    if {Path(artifact.source_path).parent.resolve() for artifact in method_bundle.values()} != {
+        method_contract_bundle_dir.resolve()
+    }:
         raise UkraineStageArtifactVerificationError(
             "release bundle directory mismatch for method_contract_bundle_v1"
         )
@@ -2314,9 +2308,7 @@ def run_verified_ukraine_d5_release(
         canon_spec=CanonSpec(forbid_floats=False),
     )
 
-    effective_trinity_ref = foundry_receipt.execution_artifacts.get(
-        "compiled_trinity_bundle_ref"
-    )
+    effective_trinity_ref = foundry_receipt.execution_artifacts.get("compiled_trinity_bundle_ref")
     registry_bundle_ref = foundry_receipt.execution_artifacts.get("registry_bundle_ref")
     if foundry_receipt.technical_passed and effective_trinity_ref and registry_bundle_ref:
         effective_trinity = TrinityBundle.model_validate_json(
@@ -2439,9 +2431,7 @@ def run_verified_ukraine_d5_release(
             details={
                 "receipt_ref": str(predicate_receipt_ref.artifact_id),
                 "status": predicate_receipt.status,
-                "manifest_no_errors_provenance": (
-                    predicate_receipt.manifest_no_errors_provenance
-                ),
+                "manifest_no_errors_provenance": (predicate_receipt.manifest_no_errors_provenance),
                 "compression_predicate_provenance": (
                     predicate_receipt.compression_predicate_provenance
                 ),

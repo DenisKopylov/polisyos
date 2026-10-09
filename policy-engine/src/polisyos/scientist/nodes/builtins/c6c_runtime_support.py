@@ -10,6 +10,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -370,7 +371,9 @@ def persist_runtime_strategic_artifacts(
         )
         if blocked_reason is not None:
             strategic_scm_ref = ArtifactRef.model_validate(
-                persist_strategic_scm(ctx.store, contract, inputs=inputs).model_dump(mode="json")
+                persist_strategic_scm(
+                    _ensure_ir_artifact_store(ctx.store), contract, inputs=inputs
+                ).model_dump(mode="json")
             )
             return StrategicRuntimeOutput(
                 strategic_scm_ref=strategic_scm_ref,
@@ -385,7 +388,9 @@ def persist_runtime_strategic_artifacts(
         if causal_report_ref is None:
             blocked_reason = "missing_causal_report_for_strategic_decomposition"
             strategic_scm_ref = ArtifactRef.model_validate(
-                persist_strategic_scm(ctx.store, contract, inputs=inputs).model_dump(mode="json")
+                persist_strategic_scm(
+                    _ensure_ir_artifact_store(ctx.store), contract, inputs=inputs
+                ).model_dump(mode="json")
             )
             return StrategicRuntimeOutput(
                 strategic_scm_ref=strategic_scm_ref,
@@ -417,9 +422,9 @@ def persist_runtime_strategic_artifacts(
             }
         )
         strategic_scm_ref = ArtifactRef.model_validate(
-            persist_strategic_scm(ctx.store, normalized_contract, inputs=inputs).model_dump(
-                mode="json"
-            )
+            persist_strategic_scm(
+                _ensure_ir_artifact_store(ctx.store), normalized_contract, inputs=inputs
+            ).model_dump(mode="json")
         )
         abstraction_certificate = load_runtime_abstraction_certificate(
             ctx,
@@ -614,7 +619,7 @@ def load_runtime_abstraction_certificate(
     if ref is None:
         return None
     try:
-        return load_abstraction_certificate(ctx.store, ref)
+        return load_abstraction_certificate(_ensure_ir_artifact_store(ctx.store), ref)
     except _RUNTIME_SUPPORT_LOAD_ERRORS as exc:
         _runtime_support_degraded(
             operation="load_runtime_abstraction_certificate",
@@ -704,7 +709,9 @@ def _persist_runtime_payoff_tables(
     inputs: list[IRInputRef],
 ) -> dict[str, ArtifactRefModel]:
     return {
-        agent: persist_strategic_payoff_table(ctx.store, table, inputs=inputs)
+        agent: persist_strategic_payoff_table(
+            _ensure_ir_artifact_store(ctx.store), table, inputs=inputs
+        )
         for agent, table in tables.items()
     }
 
@@ -740,7 +747,9 @@ def _compare_existing_payoff_refs(
     loaded_tables: dict[str, FiniteStrategicPayoffTable] = {}
     try:
         for agent, ref in refs.items():
-            loaded_tables[agent] = load_strategic_payoff_table(ctx.store, ref)
+            loaded_tables[agent] = load_strategic_payoff_table(
+                _ensure_ir_artifact_store(ctx.store), ref
+            )
     except _RUNTIME_SUPPORT_LOAD_ERRORS as exc:
         _runtime_support_degraded(
             operation="compare_existing_payoff_refs",
@@ -770,7 +779,7 @@ def _load_lowered_ir(
         return None
     try:
         ref = LoweredIRRef.model_validate(raw_ref.model_dump(mode="json"))
-        payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+        payload = from_canonical_bytes(ctx.store.get_bytes(ref))
         return LoweredIR.model_validate(payload)
     except _RUNTIME_SUPPORT_LOAD_ERRORS as exc:
         _runtime_support_degraded(
@@ -791,7 +800,7 @@ def _load_program_graph(
         return None
     try:
         ref = ProgramGraphRef.model_validate(raw_ref.model_dump(mode="json"))
-        payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+        payload = from_canonical_bytes(ctx.store.get_bytes(ref))
         return ProgramGraph.model_validate(payload)
     except _RUNTIME_SUPPORT_LOAD_ERRORS as exc:
         _runtime_support_degraded(

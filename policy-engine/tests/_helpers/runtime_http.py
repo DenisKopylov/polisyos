@@ -5,6 +5,7 @@ import sys
 from collections.abc import Mapping
 from contextlib import suppress
 from datetime import datetime, timedelta
+from decimal import Decimal
 from typing import TYPE_CHECKING, Protocol
 
 import pytest
@@ -124,6 +125,92 @@ def _record_fixture_owner(
         )
 
 
+def _seed_fixture_producer_cost_events(
+    settlement_store: object,
+    event_sources: tuple[object, ...],
+    *,
+    run_id: str,
+    tenant_id: str,
+    cell_id: str,
+    execution_profile: str,
+    control_job_id: str,
+) -> None:
+    """Create explicit durable fixture records for rows claiming ledger custody."""
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRunBinding,
+    )
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+    if type(settlement_store) is not BudgetMiddleware:
+        raise TypeError("fixture_producer_settlement_store_must_be_budget_middleware")
+    rows_by_id: dict[str, dict[str, object]] = {}
+    conflicting_ids: set[str] = set()
+
+    def visit(value: object) -> None:
+        if isinstance(value, Mapping):
+            if isinstance(value.get("event_id"), str):
+                event = dict(value)
+                event_id = str(event["event_id"])
+                prior = rows_by_id.setdefault(event_id, event)
+                if prior != event:
+                    conflicting_ids.add(event_id)
+            for child in value.values():
+                visit(child)
+        elif isinstance(value, (list, tuple)):
+            for child in value:
+                visit(child)
+
+    for source in event_sources:
+        visit(source)
+    binding = BudgetLedgerProducerRunBinding(
+        run_id=run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        profile_id=execution_profile,
+        control_job_id=control_job_id,
+    )
+    with settlement_store.producer_run_binding_scope(binding):
+        for event in rows_by_id.values():
+            if str(event["event_id"]) in conflicting_ids:
+                continue
+            if event.get("durability") != "ledger":
+                continue
+            event_id = str(event["event_id"])
+            request_digest = hashlib.sha256(f"fixture-request:{event_id}".encode()).hexdigest()
+            settlement_store.begin_producer_event_safe(
+                event_id,
+                request_digest,
+                key=f"nl-run:{run_id}",
+                model=str(event.get("model") or "fixture-model"),
+                provider=str(event.get("provider") or "fixture-provider"),
+            )
+            status = event.get("settlement_status")
+            if status == "pending":
+                continue
+            if status not in {"committed", "unknown"}:
+                raise ValueError("fixture_ledger_cost_event_status_invalid")
+            raw_amount = event.get("amount", event.get("cost_usd"))
+            amount = None if raw_amount is None else Decimal(str(raw_amount))
+            payload_digest = event.get("payload_digest")
+            if not isinstance(payload_digest, str) or len(payload_digest) != 64:
+                raise ValueError("fixture_ledger_cost_event_payload_digest_invalid")
+            settlement_store.settle_producer_event_safe(
+                event_id,
+                request_digest,
+                payload_digest,
+                key=f"nl-run:{run_id}",
+                model=str(event.get("model") or "fixture-model"),
+                provider=str(event.get("provider") or "fixture-provider"),
+                amount=amount,
+                cost_origin=str(event.get("cost_origin") or "unknown"),
+                origin_event_id=(
+                    str(event["origin_event_id"])
+                    if event.get("origin_event_id") is not None
+                    else None
+                ),
+            )
+
+
 def _attach_run_paper_binding(
     run: RunContext,
     *,
@@ -145,8 +232,7 @@ def _attach_run_paper_binding(
     observed_kinds = tuple(ref.kind for ref in refs)
     if observed_kinds != _RUN_PAPER_BOUND_ARTIFACT_KINDS:
         raise ValueError(
-            "run paper binding factory returned an invalid artifact chain: "
-            f"{observed_kinds!r}"
+            f"run paper binding factory returned an invalid artifact chain: {observed_kinds!r}"
         )
     _record_fixture_owner(
         store,
@@ -294,6 +380,84 @@ def close_registered_runtime_api_envs() -> None:
             close_runtime_api_env(env)
 
 
+def submit_ordinary_nl_post(
+    env: dict[str, object],
+    *,
+    request: str = "Analyze a small-business liquidity support policy.",
+    llm_model: str = "simulated-qwen",
+    max_iterations: int = 1,
+) -> dict[str, object]:
+    """Create and execute a real NL control job, returning its persisted owner."""
+    from tests._helpers.control_worker import dispatch_one_control_job
+
+    client = env.get("client")
+    app = env.get("app")
+    if client is None or app is None:
+        raise TypeError("ordinary_nl_post_requires_test_client_and_app")
+    control_service = getattr(getattr(app, "state", None), "_control_service", None)
+    if control_service is None:
+        raise RuntimeError("ordinary_nl_post_control_service_not_bound")
+    worker = getattr(control_service, "_worker", None)
+    if worker is not None:
+        worker.stop()
+
+    launch_response = client.post(
+        "/api/v1/control/runs/nl",
+        json={
+            "request": request,
+            "llm_model": llm_model,
+            "max_iterations": max_iterations,
+        },
+    )
+    if launch_response.status_code != 200:
+        raise AssertionError(
+            f"ordinary NL control POST failed: {launch_response.status_code}: "
+            f"{launch_response.text}"
+        )
+    launch = launch_response.json()
+    job_id = str(launch["job_id"])
+    job = control_service._control_store.get_job(job_id)
+    if job is None or not job.run_id:
+        raise AssertionError("ordinary NL control POST did not persist its job owner")
+    creation_payload = control_service._control_store.get_job_created_event_payload(job_id)
+    creation_outbox = control_service._control_store.get_job_created_outbox_event(job_id)
+    if creation_outbox is None or creation_outbox.payload != creation_payload:
+        raise AssertionError("ordinary NL control job lost its exact created-event binding")
+
+    dispatch_one_control_job(
+        store=control_service._control_store,
+        handler=control_service._process_control_job,
+        expected_job_id=job_id,
+    )
+    completed = control_service._control_store.get_job(job_id)
+    if completed is None or completed.state != "completed":
+        raise AssertionError(f"ordinary NL control job did not complete: {completed!r}")
+    runtime_container = getattr(getattr(app, "state", None), "runtime_container", None)
+    runtime_context = getattr(runtime_container, "runtime_api_context", None)
+    if runtime_context is None:
+        raise RuntimeError("ordinary NL runtime API context not bound")
+    core_run_id = str(completed.progress["core_run_id"])
+    run = runtime_context.run_index.get_run(core_run_id)
+    if run is None:
+        raise AssertionError("ordinary NL core run is absent from the persisted run index")
+    binding, binding_note = runtime_context.debug._producer_run_binding_for_indexed_run(run)
+    if binding is None or binding_note is not None:
+        raise AssertionError(f"ordinary NL producer owner is not established: {binding_note}")
+    if binding.run_id != str(job.run_id) or binding.control_job_id != job_id:
+        raise AssertionError("ordinary NL producer owner differs from the persisted job")
+    return {
+        "launch": launch,
+        "job": completed,
+        "job_id": job_id,
+        "run_id": core_run_id,
+        "run": run,
+        "binding": binding,
+        "runtime_context": runtime_context,
+        "creation_payload": creation_payload,
+        "creation_outbox": creation_outbox,
+    }
+
+
 def build_runtime_api_env(
     tmp_path: Path,
     *,
@@ -301,6 +465,10 @@ def build_runtime_api_env(
     include_run_paper_fixtures: bool = False,
     run_paper_binding_factory: _RunPaperBindingFactory | None = None,
     app_kwargs: dict[str, object] | None = None,
+    agent_cost_events: object | None = None,
+    nl_preflight_cost_events: object | None = None,
+    seed_ledger_cost_events: bool = True,
+    raise_server_exceptions: bool = True,
 ):
     tenant_a = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
     tenant_b = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
@@ -806,7 +974,15 @@ def build_runtime_api_env(
                         "timestamp": "2026-02-11T12:00:01Z",
                         "node": "drafter",
                         "action": "draft_created",
-                        "details": {"summary": "Draft policy prepared", "attempt": 1},
+                        "details": {
+                            "summary": "Draft policy prepared",
+                            "attempt": 1,
+                            **(
+                                {"cost_events": agent_cost_events}
+                                if agent_cost_events is not None
+                                else {}
+                            ),
+                        },
                     },
                     {
                         "timestamp": "2026-02-11T12:00:02Z",
@@ -916,6 +1092,11 @@ def build_runtime_api_env(
                 "governance_report_ref": governance_ref.model_dump(mode="json"),
             },
             "params": {
+                **(
+                    {"nl_preflight_cost_events": nl_preflight_cost_events}
+                    if nl_preflight_cost_events is not None
+                    else {}
+                ),
                 "validation_trace": {"total_issues": 1, "total_blockers": 1},
                 "retrieval_mode": "hybrid",
                 "retrieval_lane_used": "explorelane",
@@ -1386,6 +1567,20 @@ def build_runtime_api_env(
         if container is not None
         else app.state.runtime_api_ctx.store
     )
+    if (
+        seed_ledger_cost_events
+        and container is not None
+        and (agent_cost_events is not None or nl_preflight_cost_events is not None)
+    ):
+        _seed_fixture_producer_cost_events(
+            container.llm_producer_settlement_store,
+            (agent_cost_events, nl_preflight_cost_events),
+            run_id=core_run_id,
+            tenant_id=tenant_a,
+            cell_id=cell_a,
+            execution_profile="governed",
+            control_job_id="job_ctrl_fixture_001",
+        )
     # Materialize the lazy control service with the container's existing owners.
     # A standalone service over the same CAS would create a different graph.
     control_service = (
@@ -1409,6 +1604,7 @@ def build_runtime_api_env(
                     "cycle_substrate_context_admission_owner": (
                         container.candidate_simulation_context_admission_owner
                     ),
+                    "llm_producer_settlement_store": (container.llm_producer_settlement_store),
                 }
                 if container is not None
                 else {}
@@ -1435,7 +1631,11 @@ def build_runtime_api_env(
     if container is not None:
         container.control_service = control_service
         container.install(app)
-    client = TestClient(app) if include_test_client and TestClient is not None else None
+    client = (
+        TestClient(app, raise_server_exceptions=raise_server_exceptions)
+        if include_test_client and TestClient is not None
+        else None
+    )
 
     env = {
         "app": app,

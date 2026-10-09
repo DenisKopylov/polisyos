@@ -4,6 +4,7 @@ from decimal import Decimal
 
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactAuthorityInfo, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
@@ -27,6 +28,7 @@ from polisyos.ir.analytics import (
     TruthfulnessTier,
 )
 from polisyos.ir.analytics.causal import ProofBundle, load_proof_bundle, persist_proof_bundle
+from polisyos.ir.analytics.evidence_bundle import load_causal_evidence_bundle
 from polisyos.ir.analytics.simulation_proof_bridge import (
     SimulationCalibrationReceipt,
     SimulationCertificationStatus,
@@ -240,18 +242,9 @@ def test_calibration_receipt_preserves_declared_candidate_while_runtime_stays_un
 
     assert receipt.accepted is False
     assert receipt.source == "default_unverified"
-    assert (
-        receipt.truthfulness_receipt.declared_truthfulness_tier
-        is TruthfulnessTier.EXACT
-    )
-    assert (
-        receipt.truthfulness_receipt.runtime_truthfulness_tier
-        is TruthfulnessTier.UNVERIFIED
-    )
-    assert (
-        receipt.truthfulness_receipt.effective_truthfulness_tier
-        is TruthfulnessTier.UNVERIFIED
-    )
+    assert receipt.truthfulness_receipt.declared_truthfulness_tier is TruthfulnessTier.EXACT
+    assert receipt.truthfulness_receipt.runtime_truthfulness_tier is TruthfulnessTier.UNVERIFIED
+    assert receipt.truthfulness_receipt.effective_truthfulness_tier is TruthfulnessTier.UNVERIFIED
 
 
 @pytest.mark.parametrize(
@@ -359,7 +352,7 @@ def test_authority_surface_loaders_reject_forged_persisted_payloads(
     ref = ref_type.model_validate(raw_ref.model_dump(mode="json"))
 
     with pytest.raises(ValueError, match="producer/verifier"):
-        loader(store, ref)
+        loader(_ensure_ir_artifact_store(store), ref)
 
 
 def test_simulation_proof_bridge_defaults_to_scenario_without_causal_context(tmp_path) -> None:
@@ -374,7 +367,7 @@ def test_simulation_proof_bridge_defaults_to_scenario_without_causal_context(tmp
     )
 
     output = build_simulation_proof_bridge_artifacts(
-        store,
+        _ensure_ir_artifact_store(store),
         run_id="R_bridge",
         simulation_result_ref=simulation_ref,
         metrics_ref=metrics_ref,
@@ -382,9 +375,11 @@ def test_simulation_proof_bridge_defaults_to_scenario_without_causal_context(tmp
 
     assert isinstance(output.bridge_ref, SimulationProofBridgeRef)
     assert isinstance(output.calibration_receipt_ref, SimulationCalibrationReceiptRef)
-    bridge = load_simulation_proof_bridge(store, output.bridge_ref)
-    receipt = load_simulation_calibration_receipt(store, output.calibration_receipt_ref)
-    proof = load_proof_bundle(store, output.proof_bundle_ref)
+    bridge = load_simulation_proof_bridge(_ensure_ir_artifact_store(store), output.bridge_ref)
+    receipt = load_simulation_calibration_receipt(
+        _ensure_ir_artifact_store(store), output.calibration_receipt_ref
+    )
+    proof = load_proof_bundle(_ensure_ir_artifact_store(store), output.proof_bundle_ref)
 
     assert bridge.certification_status is SimulationCertificationStatus.SCENARIO
     assert bridge.proof_status == "non_identified"
@@ -392,6 +387,13 @@ def test_simulation_proof_bridge_defaults_to_scenario_without_causal_context(tmp
     assert receipt.accepted is False
     assert proof.metadata["simulation_certification_status"] == "SCENARIO"
     assert "identification_proof_missing" in bridge.degradation_reasons
+    assert bridge.evidence_bundle_ref is not None
+    evidence = load_causal_evidence_bundle(
+        _ensure_ir_artifact_store(store), bridge.evidence_bundle_ref
+    )
+    evidence_manifest = _ensure_ir_artifact_store(store).get_manifest(bridge.evidence_bundle_ref)
+    assert evidence_manifest.artifact_schema.version == "1.0"
+    assert evidence.twin_network_result_ref is None
 
 
 def test_simulation_proof_bridge_rejects_method_execution_as_validity_evidence(
@@ -420,7 +422,7 @@ def test_simulation_proof_bridge_rejects_method_execution_as_validity_evidence(
 
     with pytest.raises(ValueError, match="causal_validity_bundle_ref"):
         build_simulation_proof_bridge_artifacts(
-            store,
+            _ensure_ir_artifact_store(store),
             run_id="R_execution_is_not_validity",
             simulation_result_ref=simulation_ref,
             causal_validity_bundle_ref=method_evidence_ref,
@@ -439,7 +441,7 @@ def test_simulation_proof_bridge_preserves_proof_but_does_not_inflate_real_found
         ).model_dump(mode="json")
     )
     base_proof_ref = persist_proof_bundle(
-        store,
+        _ensure_ir_artifact_store(store),
         ProofBundle(
             proof_status="identified",
             proof_stratum="A0_trusted",
@@ -450,7 +452,7 @@ def test_simulation_proof_bridge_preserves_proof_but_does_not_inflate_real_found
         ),
     )
     output = build_simulation_proof_bridge_artifacts(
-        store,
+        _ensure_ir_artifact_store(store),
         run_id="R_identified",
         simulation_result_ref=simulation_ref,
         metrics_ref=metrics_ref,
@@ -459,9 +461,13 @@ def test_simulation_proof_bridge_preserves_proof_but_does_not_inflate_real_found
         base_proof_bundle_ref=base_proof_ref,
     )
 
-    bridge = load_simulation_proof_bridge(store, output.bridge_ref)
-    calibration = load_simulation_calibration_receipt(store, output.calibration_receipt_ref)
-    proof = load_proof_bundle(store, ProofBundleRef.model_validate(bridge.proof_bundle_ref))
+    bridge = load_simulation_proof_bridge(_ensure_ir_artifact_store(store), output.bridge_ref)
+    calibration = load_simulation_calibration_receipt(
+        _ensure_ir_artifact_store(store), output.calibration_receipt_ref
+    )
+    proof = load_proof_bundle(
+        _ensure_ir_artifact_store(store), ProofBundleRef.model_validate(bridge.proof_bundle_ref)
+    )
 
     assert bridge.certification_status is SimulationCertificationStatus.SCENARIO
     assert bridge.calibration_status == "unverified"
@@ -496,12 +502,14 @@ def test_simulation_proof_bridge_rejects_wrong_kind_receipt_blob(tmp_path) -> No
     )
 
     output = build_simulation_proof_bridge_artifacts(
-        store,
+        _ensure_ir_artifact_store(store),
         run_id="R_wrong_kind",
         simulation_result_ref=simulation_ref,
     )
 
-    receipt = load_simulation_calibration_receipt(store, output.calibration_receipt_ref)
+    receipt = load_simulation_calibration_receipt(
+        _ensure_ir_artifact_store(store), output.calibration_receipt_ref
+    )
     assert receipt.accepted is False
     assert receipt.source == "default_unverified"
     assert "simulation_manifest_kind_mismatch" in receipt.degradation_reasons
@@ -521,12 +529,14 @@ def test_simulation_proof_bridge_rejects_unprovenanced_owner_kind(tmp_path) -> N
     )
 
     output = build_simulation_proof_bridge_artifacts(
-        store,
+        _ensure_ir_artifact_store(store),
         run_id="R_unprovenanced_kind",
         simulation_result_ref=simulation_ref,
     )
 
-    receipt = load_simulation_calibration_receipt(store, output.calibration_receipt_ref)
+    receipt = load_simulation_calibration_receipt(
+        _ensure_ir_artifact_store(store), output.calibration_receipt_ref
+    )
     assert receipt.accepted is False
     assert receipt.source == "default_unverified"
     assert "simulation_manifest_schema_mismatch" in receipt.degradation_reasons
@@ -570,12 +580,14 @@ def test_simulation_proof_bridge_rejects_impossible_receipt_in_typed_owner_paylo
     )
 
     output = build_simulation_proof_bridge_artifacts(
-        store,
+        _ensure_ir_artifact_store(store),
         run_id="R_impossible_receipt",
         simulation_result_ref=simulation_ref,
     )
 
-    receipt = load_simulation_calibration_receipt(store, output.calibration_receipt_ref)
+    receipt = load_simulation_calibration_receipt(
+        _ensure_ir_artifact_store(store), output.calibration_receipt_ref
+    )
     assert receipt.accepted is False
     assert receipt.source == "default_unverified"
     assert "simulation_owner_payload_invalid" in receipt.degradation_reasons
@@ -600,13 +612,15 @@ def test_simulation_proof_bridge_rejects_sibling_metrics_receipt_blob(tmp_path) 
     )
 
     output = build_simulation_proof_bridge_artifacts(
-        store,
+        _ensure_ir_artifact_store(store),
         run_id="R_metrics_wrong_kind",
         simulation_result_ref=simulation_ref,
         metrics_ref=metrics_ref,
     )
 
-    receipt = load_simulation_calibration_receipt(store, output.calibration_receipt_ref)
+    receipt = load_simulation_calibration_receipt(
+        _ensure_ir_artifact_store(store), output.calibration_receipt_ref
+    )
     assert receipt.accepted is False
     assert receipt.source == "default_unverified"
     assert "metrics_manifest_kind_mismatch" in receipt.degradation_reasons
@@ -628,13 +642,15 @@ def test_simulation_proof_bridge_rejects_forged_caller_payload_receipt(tmp_path)
     }
 
     output = build_simulation_proof_bridge_artifacts(
-        store,
+        _ensure_ir_artifact_store(store),
         run_id="R_forged_payload",
         simulation_result_ref=simulation_ref,
         simulation_payload=forged_payload,
     )
 
-    receipt = load_simulation_calibration_receipt(store, output.calibration_receipt_ref)
+    receipt = load_simulation_calibration_receipt(
+        _ensure_ir_artifact_store(store), output.calibration_receipt_ref
+    )
     assert receipt.accepted is False
     assert receipt.source == "default_unverified"
     assert "simulation_payload_content_mismatch" in receipt.degradation_reasons
@@ -652,14 +668,16 @@ def test_simulation_proof_bridge_rejects_forged_caller_metrics_payload(tmp_path)
     )
 
     output = build_simulation_proof_bridge_artifacts(
-        store,
+        _ensure_ir_artifact_store(store),
         run_id="R_forged_metrics_payload",
         simulation_result_ref=simulation_ref,
         metrics_ref=metrics_ref,
         metrics_payload={"values": {"loss": "forged"}},
     )
 
-    receipt = load_simulation_calibration_receipt(store, output.calibration_receipt_ref)
+    receipt = load_simulation_calibration_receipt(
+        _ensure_ir_artifact_store(store), output.calibration_receipt_ref
+    )
     assert receipt.accepted is False
     assert receipt.source == "default_unverified"
     assert "metrics_payload_content_mismatch" in receipt.degradation_reasons
@@ -686,13 +704,15 @@ def test_simulation_proof_bridge_keeps_explicit_receipt_non_authorizing(tmp_path
     )
 
     output = build_simulation_proof_bridge_artifacts(
-        store,
+        _ensure_ir_artifact_store(store),
         run_id="R_explicit_mismatch",
         simulation_result_ref=simulation_ref,
         calibration_receipt=self_attested,
     )
 
-    receipt = load_simulation_calibration_receipt(store, output.calibration_receipt_ref)
+    receipt = load_simulation_calibration_receipt(
+        _ensure_ir_artifact_store(store), output.calibration_receipt_ref
+    )
     assert receipt.accepted is False
     assert receipt.source == "default_unverified"
     assert "explicit_truthfulness_receipt_unverified" in receipt.degradation_reasons
@@ -707,7 +727,7 @@ def test_simulation_proof_bridge_rejects_malformed_explicit_receipt(tmp_path) ->
 
     with pytest.raises(ValueError, match="runtime_truthfulness_tier"):
         build_simulation_proof_bridge_artifacts(
-            store,
+            _ensure_ir_artifact_store(store),
             run_id="R_malformed_explicit",
             simulation_result_ref=simulation_ref,
             calibration_receipt={"runtime_truthfulness_tier": "forged-tier"},

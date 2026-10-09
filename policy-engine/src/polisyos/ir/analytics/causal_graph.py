@@ -563,7 +563,7 @@ def load_causal_graph_model(
     ref: CausalGraphModelRef,
 ) -> CausalGraphModel:
     """Load causal graph model."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return CausalGraphModel.model_validate(payload)
 
 

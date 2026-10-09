@@ -27,19 +27,17 @@ from tests.unit.runtime.quality.test_acquisition_route_loop import _compiled
 
 
 @pytest.mark.asyncio
-async def test_source_limited_n6_v4_replays_through_guarded_compiled_artifact_owner(
+async def test_source_limited_n6_v5_replays_through_guarded_compiled_artifact_owner(
     tmp_path: Path,
 ) -> None:
-    """Persist/reopen v4 through runtime owners, then deny a foreign tenant."""
+    """Persist/reopen v5 through runtime owners, then deny a foreign tenant."""
     compiled = await _compiled()
     leaf_runs = tuple(
-        node.cycle_run
-        for node in compiled.recursive_run.leaf_nodes
-        if node.cycle_run is not None
+        node.cycle_run for node in compiled.recursive_run.leaf_nodes if node.cycle_run is not None
     )
     assert len(leaf_runs) == 1
     produced_run = leaf_runs[0]
-    assert produced_run.schema_version == "policyos.runtime.generation_cycle_controller.v4"
+    assert produced_run.schema_version == "policyos.runtime.generation_cycle_controller.v5"
     assert produced_run.source_custody_limitation is not None
     assert produced_run.source_custody_limitation.status == "not_established"
     assert produced_run.source_custody_limitation.reason_code == "source_store_unavailable"
@@ -66,9 +64,7 @@ async def test_source_limited_n6_v4_replays_through_guarded_compiled_artifact_ow
         control_store=service._control_store,
         artifact_store=tenant_store,
         event_log=service._diagnostic_event_log,
-        core_source_resolver=(
-            service.resolve_completed_control_job_core_run_source
-        ),
+        core_source_resolver=(service.resolve_completed_control_job_core_run_source),
         tenant_id="tenant-a",
         cell_id="cell-a",
     )
@@ -95,12 +91,8 @@ async def test_source_limited_n6_v4_replays_through_guarded_compiled_artifact_ow
                 expected_kind=expected_kind,
                 expected_schema_name=expected_schema,
             )
-            replayed = CompiledRecursiveGenerationCycleRun.model_validate(
-                persisted_payload
-            )
-            assert replayed.schema_version == (
-                COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION
-            )
+            replayed = CompiledRecursiveGenerationCycleRun.model_validate(persisted_payload)
+            assert replayed.schema_version == (COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION)
             replayed_leaf_runs = tuple(
                 node.cycle_run
                 for node in replayed.recursive_run.leaf_nodes
@@ -118,9 +110,7 @@ async def test_source_limited_n6_v4_replays_through_guarded_compiled_artifact_ow
             control_store=service._control_store,
             artifact_store=tenant_store,
             event_log=service._diagnostic_event_log,
-            core_source_resolver=(
-                service.resolve_completed_control_job_core_run_source
-            ),
+            core_source_resolver=(service.resolve_completed_control_job_core_run_source),
             tenant_id="tenant-b",
             cell_id="cell-b",
         )

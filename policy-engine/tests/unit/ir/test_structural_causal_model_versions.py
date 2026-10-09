@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
@@ -70,16 +71,23 @@ def test_actual_legacy_manifest_preserves_version_without_worker_authority(
         canon_spec=CanonSpec(forbid_floats=False),
     )
     ref = StructuralCausalModelSpecRef.model_validate(raw.model_dump(mode="json"))
-    loaded = load_structural_causal_model_spec(FileSystemCAS(tmp_path), ref)
+    loaded = load_structural_causal_model_spec(
+        _ensure_ir_artifact_store(FileSystemCAS(tmp_path)), ref
+    )
     assert loaded.schema_version == "1.0"
     assert (
         loaded.fit_method == "manual"
         and loaded.fit_provenance is None
         and loaded.training_rows is None
     )
-    rewritten = persist_structural_causal_model_spec(store, loaded)
+    rewritten = persist_structural_causal_model_spec(_ensure_ir_artifact_store(store), loaded)
     assert store.get_manifest(rewritten.artifact_id).artifact_schema.version == "1.0"
-    assert load_structural_causal_model_spec(FileSystemCAS(tmp_path), rewritten) == loaded
+    assert (
+        load_structural_causal_model_spec(
+            _ensure_ir_artifact_store(FileSystemCAS(tmp_path)), rewritten
+        )
+        == loaded
+    )
 
 
 def test_current_default_gcm_cannot_inherit_legacy_missing_worker_marker():
@@ -92,9 +100,11 @@ def test_current_default_gcm_cannot_inherit_legacy_missing_worker_marker():
 def test_new_manual_model_cas_envelope_uses_current_version(tmp_path):
     store = FileSystemCAS(tmp_path)
     model = StructuralCausalModelSpec(graph=_root_graph(), fit_method="manual")
-    ref = persist_structural_causal_model_spec(store, model)
+    ref = persist_structural_causal_model_spec(_ensure_ir_artifact_store(store), model)
     assert store.get_manifest(ref.artifact_id).artifact_schema.version == "1.1"
-    loaded = load_structural_causal_model_spec(FileSystemCAS(tmp_path), ref)
+    loaded = load_structural_causal_model_spec(
+        _ensure_ir_artifact_store(FileSystemCAS(tmp_path)), ref
+    )
     assert loaded == model and loaded.fit_provenance is None
 
 
@@ -142,9 +152,9 @@ def test_actual_selected_gcm_producer_manifest_and_fresh_reader(monkeypatch, tmp
     assert model.mechanisms[1].family_params["coefficients"]["X"] == pytest.approx(
         expected[1], abs=1e-12
     )
-    ref = persist_structural_causal_model_spec(store, model)
+    ref = persist_structural_causal_model_spec(_ensure_ir_artifact_store(store), model)
     assert store.get_manifest(ref.artifact_id).artifact_schema.version == "1.1"
     fresh_store = FileSystemCAS(tmp_path)
-    loaded = load_structural_causal_model_spec(fresh_store, ref)
+    loaded = load_structural_causal_model_spec(_ensure_ir_artifact_store(fresh_store), ref)
     validate_source_bound_gcm_spec(loaded, fresh_store)
     assert loaded.model_dump(mode="json") == model.model_dump(mode="json")

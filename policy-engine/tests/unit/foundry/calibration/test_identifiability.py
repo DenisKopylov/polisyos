@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from polisyos.core.artifacts.manifest import SchemaInfo
+
+from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.foundry import (
@@ -17,6 +18,7 @@ from polisyos.foundry.calibration.identifiability import (
     IdentifiabilityDiagnosticConfig,
     IdentifiabilityDiagnosticStatus,
     IdentifiabilityStatus,
+    _response_input_ref,
     aggregate_moment_summary,
     attach_identifiability_diagnostic_ref,
     diagnose_identifiability,
@@ -48,6 +50,33 @@ def _make_hessian_result(
         param_names=param_names,
         strategy="exact",
     )
+
+
+def test_response_input_ref_recovers_selected_kind_by_profile(tmp_path) -> None:
+    """Selected lineage type comes from the chosen profile, not the store default."""
+    store = FileSystemCAS(tmp_path / "selected-response-input")
+    payload = b'{"response":"same-content"}'
+    default_ref = store.put_bytes(
+        payload,
+        PutOptions(kind="test.response.default-kind", media_type="application/json"),
+    )
+    selected_ref = store.put_bytes(
+        payload,
+        PutOptions(kind="test.response.selected-kind", media_type="application/json"),
+    )
+    assert default_ref.artifact_id == selected_ref.artifact_id
+    assert selected_ref.manifest_profile_sha256 is not None
+    lineage = InputRef(
+        artifact_id=selected_ref.artifact_id,
+        role="response_source",
+        manifest_profile_sha256=selected_ref.manifest_profile_sha256,
+    )
+
+    resolved = _response_input_ref(store, lineage)
+
+    assert resolved.kind == "test.response.selected-kind"
+    assert resolved.manifest_profile_sha256 == selected_ref.manifest_profile_sha256
+    assert store.get_bytes(resolved) == payload
 
 
 def test_identified_parameter() -> None:

@@ -7,6 +7,7 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -92,14 +93,24 @@ from polisyos.scientist.policy_design.phase3 import (
 )
 
 
+class _RecordingFileSystemCAS(FileSystemCAS):
+    def __init__(self, root) -> None:
+        super().__init__(root)
+        self.read_selectors: list[ArtifactID | ArtifactRef | str] = []
+
+    def get_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
+        self.read_selectors.append(artifact_id)
+        return super().get_bytes(artifact_id)
+
+
 def test_propagate_welfare_node_writes_partial_bundle_for_pe_only(tmp_path) -> None:
-    store = FileSystemCAS(tmp_path)
+    store = _RecordingFileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
     run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_welfare_partial")
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.welfare.partial"))
 
     env_ref = persist_uncertainty_envelope(
-        store,
+        _ensure_ir_artifact_store(store),
         UncertaintyEnvelope(
             point_estimate=10.0,
             confidence_interval=(8.0, 12.0),
@@ -139,13 +150,27 @@ def test_propagate_welfare_node_writes_partial_bundle_for_pe_only(tmp_path) -> N
         PutOptions(kind="foundry.metrics", media_type="application/json"),
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    sim_result_ref = store.put_json(
-        SimulationResult(
-            exec_plan_ref=ExecPlanRef(artifact_id=exec_plan_ref.artifact_id),
-            metrics_ref=MetricsRef(artifact_id=metrics_ref.artifact_id),
-        ),
-        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+    simulation_result = SimulationResult(
+        exec_plan_ref=ExecPlanRef.model_validate(exec_plan_ref.model_dump(mode="python")),
+        metrics_ref=MetricsRef.model_validate(metrics_ref.model_dump(mode="python")),
     )
+    simulation_result_options = PutOptions(
+        kind="foundry.simulation_result",
+        media_type="application/json",
+    )
+    default_view = store.put_json(
+        simulation_result,
+        simulation_result_options,
+        canon_spec=CanonSpec(forbid_floats=False, max_depth=128),
+    )
+    selected_view = store.put_json(
+        simulation_result,
+        simulation_result_options,
+        canon_spec=CanonSpec(forbid_floats=False, max_depth=64),
+    )
+    assert default_view.artifact_id == selected_view.artifact_id
+    assert default_view.manifest_profile_sha256 != selected_view.manifest_profile_sha256
+    sim_result_ref = SimulationResultRef.model_validate(selected_view.model_dump(mode="python"))
 
     state = ExperimentState(
         run_id="R_welfare_partial",
@@ -158,9 +183,14 @@ def test_propagate_welfare_node_writes_partial_bundle_for_pe_only(tmp_path) -> N
 
     outcome = PropagateWelfareNode().execute(ctx, state)
     assert outcome.status == "ok"
+    assert any(
+        getattr(selector, "manifest_profile_sha256", None) == sim_result_ref.manifest_profile_sha256
+        for selector in store.read_selectors
+    )
     assert ARTIFACT_WELFARE_BUNDLE_REF in outcome.state.artifacts_index
 
-    bundle = load_welfare_bundle(store, outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF])
+    bundle_ref = outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF]
+    bundle = load_welfare_bundle(_ensure_ir_artifact_store(store), bundle_ref)
     assert bundle.point_estimate == 10.0
     assert bundle.credible_interval is not None
     assert bundle.robust_interval == (8.0, 12.0)
@@ -169,14 +199,32 @@ def test_propagate_welfare_node_writes_partial_bundle_for_pe_only(tmp_path) -> N
     assert bundle.sample_bundle_ref is not None
     assert bundle.sensitivity_diagnostics_ref is not None
 
-    sample_bundle = load_welfare_sample_bundle(store, bundle.sample_bundle_ref)
+    sample_bundle = load_welfare_sample_bundle(
+        _ensure_ir_artifact_store(store), bundle.sample_bundle_ref
+    )
     assert len(sample_bundle.welfare_draws) >= 50
+
+    bundle_manifest = store.get_manifest(bundle_ref)
+    bundle_input_profiles = {
+        item.role: item.manifest_profile_sha256 for item in bundle_manifest.inputs
+    }
+    assert bundle_input_profiles["simulation_result"] == sim_result_ref.manifest_profile_sha256
+    assert bundle_input_profiles["metrics"] == simulation_result.metrics_ref.manifest_profile_sha256
 
     updated_payload = from_canonical_bytes(
         store.get_bytes(outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF].artifact_id)
     )
     updated_sim = SimulationResult.model_validate(updated_payload)
     assert updated_sim.welfare_bundle_ref is not None
+    updated_sim_result_ref = outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF]
+    updated_sim_manifest = store.get_manifest(updated_sim_result_ref)
+    updated_input_profiles = {
+        item.role: item.manifest_profile_sha256 for item in updated_sim_manifest.inputs
+    }
+    assert (
+        updated_input_profiles["base_simulation_result"] == sim_result_ref.manifest_profile_sha256
+    )
+    assert updated_input_profiles["welfare_bundle"] == bundle_ref.manifest_profile_sha256
 
 
 def test_propagate_welfare_node_skips_default_operational_metrics_without_welfare_inputs(
@@ -357,7 +405,9 @@ def test_propagate_welfare_node_feeds_feedback_multiplicity_into_welfare_bundle(
     outcome = PropagateWelfareNode().execute(ctx, state)
 
     assert outcome.status == "ok"
-    bundle = load_welfare_bundle(store, outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF])
+    bundle = load_welfare_bundle(
+        _ensure_ir_artifact_store(store), outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF]
+    )
     assert bundle.equilibrium_multiplicity.status == "multiple"
     assert bundle.equilibrium_multiplicity.selection_dependence is True
     assert bundle.equilibrium_multiplicity.report_ref is not None
@@ -428,10 +478,14 @@ def test_propagate_welfare_node_materializes_social_weight_manifest(tmp_path) ->
     outcome = PropagateWelfareNode().execute(ctx, state)
 
     assert outcome.status == "ok"
-    bundle = load_welfare_bundle(store, outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF])
+    bundle = load_welfare_bundle(
+        _ensure_ir_artifact_store(store), outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF]
+    )
     assert bundle.social_weight_ref is not None
     assert bundle.social_weight_ref.kind == "ir.social_weight_manifest"
-    manifest = load_social_weight_manifest(store, bundle.social_weight_ref)
+    manifest = load_social_weight_manifest(
+        _ensure_ir_artifact_store(store), bundle.social_weight_ref
+    )
     assert manifest.manifest_ref == "swr://policy.welfare/test@1.0.0#weights"
     assert manifest.state_keys == ("income",)
     assert bundle.metadata["source_social_weight_handle"] is None
@@ -495,7 +549,7 @@ def test_propagate_welfare_node_persists_channel_decomposition_artifact(tmp_path
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.welfare.channels"))
 
     env_ref = persist_uncertainty_envelope(
-        store,
+        _ensure_ir_artifact_store(store),
         UncertaintyEnvelope(
             point_estimate=0.52,
             confidence_interval=(0.40, 0.64),
@@ -592,10 +646,14 @@ def test_propagate_welfare_node_persists_channel_decomposition_artifact(tmp_path
     outcome = PropagateWelfareNode().execute(ctx, state)
     assert outcome.status == "ok"
 
-    bundle = load_welfare_bundle(store, outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF])
+    bundle = load_welfare_bundle(
+        _ensure_ir_artifact_store(store), outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF]
+    )
     assert bundle.channel_decomposition_ref is not None
 
-    artifact = load_channel_decomposition_artifact(store, bundle.channel_decomposition_ref)
+    artifact = load_channel_decomposition_artifact(
+        _ensure_ir_artifact_store(store), bundle.channel_decomposition_ref
+    )
     assert artifact.identification_status.value == "identified"
     assert artifact.mechanical_vector == (0.6,)
     assert artifact.behavioral_vector == (-0.24,)
@@ -633,7 +691,7 @@ def test_propagate_welfare_node_supports_delta_and_dependence_sampling(tmp_path)
         PutOptions(kind="foundry.simulation_result", media_type="application/json"),
     )
     dependence_ref = persist_dependence_structure(
-        store,
+        _ensure_ir_artifact_store(store),
         build_dependence_structure(
             regime="panel",
             class_label="gaussian_copula",
@@ -685,7 +743,9 @@ def test_propagate_welfare_node_supports_delta_and_dependence_sampling(tmp_path)
     outcome = PropagateWelfareNode().execute(ctx, state)
     assert outcome.status == "ok"
 
-    bundle = load_welfare_bundle(store, outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF])
+    bundle = load_welfare_bundle(
+        _ensure_ir_artifact_store(store), outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF]
+    )
     assert bundle.credible_interval is not None
     assert bundle.sample_bundle_ref is None
     assert bundle.diagnostics["credible_method"] == "delta"
@@ -789,11 +849,9 @@ def test_propagate_welfare_uses_typed_normal_scale_independent_of_display_level(
         PutOptions(kind="ir.welfare_multiplier_matrix", media_type="application/json"),
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    ge_matrix_ref = ArtifactRefModel.model_validate(
-        ge_matrix_artifact_ref.model_dump(mode="json")
-    )
+    ge_matrix_ref = ArtifactRefModel.model_validate(ge_matrix_artifact_ref.model_dump(mode="json"))
     ge_uncertainty_ref = persist_ge_uncertainty_bundle(
-        store,
+        _ensure_ir_artifact_store(store),
         GEUncertaintyBundle(
             model_class="linearized_ge_io",
             representation=GEUncertaintyRepresentation.MULTIPLIER_INTERVALS,
@@ -814,9 +872,7 @@ def test_propagate_welfare_uses_typed_normal_scale_independent_of_display_level(
             params={
                 "welfare_metric_order": ["policy_value"],
                 "welfare_weights": {"policy_value": 1.0},
-                "welfare_pe_sensitivity": {
-                    "policy_value": dict.fromkeys(envelope_refs, 1.0)
-                },
+                "welfare_pe_sensitivity": {"policy_value": dict.fromkeys(envelope_refs, 1.0)},
                 "welfare_input_envelopes": {
                     name: envelope_ref.model_dump(mode="json")
                     for name, envelope_ref in envelope_refs.items()
@@ -856,9 +912,9 @@ def test_propagate_welfare_uses_typed_normal_scale_independent_of_display_level(
             assert envelope.confidence_level is None
             assert envelope.is_heuristic_ci is True
 
-        envelope_ref = persist_uncertainty_envelope(store, envelope)
+        envelope_ref = persist_uncertainty_envelope(_ensure_ir_artifact_store(store), envelope)
         persisted_envelope_refs.append(envelope_ref)
-        persisted_source = load_uncertainty_envelope(store, envelope_ref)
+        persisted_source = load_uncertainty_envelope(_ensure_ir_artifact_store(store), envelope_ref)
         if index < 2:
             assert isinstance(persisted_source.distribution_payload, ParametricFitCarrier)
         if not persisted_source.gate_eligible:
@@ -880,13 +936,13 @@ def test_propagate_welfare_uses_typed_normal_scale_independent_of_display_level(
         )
         state = _state_for_envelope(run_id, {"node.rate": envelope_ref})
         if index == 2:
-            state.params["welfare_input_envelopes"]["node.unused"] = (
-                persisted_envelope_refs[0].model_dump(mode="json")
-            )
+            state.params["welfare_input_envelopes"]["node.unused"] = persisted_envelope_refs[
+                0
+            ].model_dump(mode="json")
         outcome = PropagateWelfareNode().execute(ctx, state)
         assert outcome.status == "ok"
         bundle = load_welfare_bundle(
-            store,
+            _ensure_ir_artifact_store(store),
             outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF],
         )
         status_observations.append(
@@ -896,7 +952,9 @@ def test_propagate_welfare_uses_typed_normal_scale_independent_of_display_level(
             )
         )
         assert bundle.sample_bundle_ref is not None
-        persisted_draws = load_welfare_sample_bundle(store, bundle.sample_bundle_ref)
+        persisted_draws = load_welfare_sample_bundle(
+            _ensure_ir_artifact_store(store), bundle.sample_bundle_ref
+        )
         welfare_draws.append(persisted_draws.welfare_draws)
 
         phase3_gate = resolve_phase3_gate(ctx, outcome.state)
@@ -915,9 +973,7 @@ def test_propagate_welfare_uses_typed_normal_scale_independent_of_display_level(
             }
         )
         persisted_gate_blockers = phase3_gate_reference_blockers(store, forged_pass)
-        persisted_gate_observations.append(
-            "phase3.welfare_not_ok" in persisted_gate_blockers
-        )
+        persisted_gate_observations.append("phase3.welfare_not_ok" in persisted_gate_blockers)
 
     assert all(
         math.isclose(left, right, rel_tol=1e-12, abs_tol=1e-12)
@@ -955,7 +1011,9 @@ def test_propagate_welfare_uses_typed_normal_scale_independent_of_display_level(
     malformed_envelope = display_envelopes[0.95].model_copy(
         update={"distribution_payload": malformed_carrier}
     )
-    malformed_ref = persist_uncertainty_envelope(store, malformed_envelope)
+    malformed_ref = persist_uncertainty_envelope(
+        _ensure_ir_artifact_store(store), malformed_envelope
+    )
     malformed_run_id = "R_welfare_malformed_typed_scale"
     malformed_run = RunContext.start(
         store=store,
@@ -998,7 +1056,7 @@ def test_propagate_welfare_uses_typed_normal_scale_independent_of_display_level(
     )
     assert mixed_outcome.status == "ok"
     mixed_bundle = load_welfare_bundle(
-        store,
+        _ensure_ir_artifact_store(store),
         mixed_outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF],
     )
     assert mixed_bundle.status.value == "degraded"
@@ -1152,15 +1210,13 @@ def test_unassigned_calibration_field_stays_typed_partial_at_welfare_boundary(tm
     report_id = ArtifactID.model_validate(bundle.diagnostics["propagation_report_ref"])
     manifest = store.get_manifest(report_id)
     assert any(
-        item.role == "calibration_report"
-        and str(item.artifact_id) == str(report_ref.artifact_id)
+        item.role == "calibration_report" and str(item.artifact_id) == str(report_ref.artifact_id)
         for item in manifest.inputs
     )
     outer_ref = outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF]
     outer_manifest = store.get_manifest(outer_ref.artifact_id)
     assert any(
-        item.role == "calibration_report"
-        and str(item.artifact_id) == str(report_ref.artifact_id)
+        item.role == "calibration_report" and str(item.artifact_id) == str(report_ref.artifact_id)
         for item in outer_manifest.inputs
     )
 
@@ -1202,7 +1258,7 @@ def _b197_dependence_structure_ref(
     parameter_order: list[str] | None = None,
 ):
     return persist_dependence_structure(
-        store,
+        _ensure_ir_artifact_store(store),
         build_dependence_structure(
             regime="panel",
             class_label="gaussian_copula",
@@ -1238,9 +1294,7 @@ def _run_b197_welfare(
     )
     response_labels = labels or ["A", "B"]
     pe_sensitivity = {
-        label: {f"{label}.rate": 1.0}
-        for label in response_labels
-        if label in {"A", "B"}
+        label: {f"{label}.rate": 1.0} for label in response_labels if label in {"A", "B"}
     }
     if "C" in response_labels:
         pe_sensitivity["C"] = {"C.rate": 1.0}
@@ -1255,11 +1309,7 @@ def _run_b197_welfare(
         config["input_envelopes"] = input_envelopes
     if dependence_structure_ref is not None:
         config["dependence_structure_ref"] = dependence_structure_ref
-    input_refs = (
-        {INPUT_CALIBRATION_REPORT_REF: report_ref}
-        if report_ref is not None
-        else {}
-    )
+    input_refs = {INPUT_CALIBRATION_REPORT_REF: report_ref} if report_ref is not None else {}
     state = ExperimentState(
         run_id=run_id,
         inputs=input_refs,
@@ -1278,7 +1328,7 @@ def _run_b197_welfare(
     outcome = PropagateWelfareNode().execute(ctx, state)
     assert outcome.status == "ok", outcome.error
     bundle = load_welfare_bundle(
-        store,
+        _ensure_ir_artifact_store(store),
         outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF],
     )
     return outcome, bundle
@@ -1313,9 +1363,7 @@ def test_calibrator_tied_report_reaches_delta_and_monte_carlo_welfare(tmp_path) 
     )
     assert delta_bundle.point_estimate == pytest.approx(2.0)
     assert delta_bundle.diagnostics["delta_std"] == pytest.approx(0.1, rel=1e-4)
-    delta_report_id = ArtifactID.model_validate(
-        delta_bundle.diagnostics["propagation_report_ref"]
-    )
+    delta_report_id = ArtifactID.model_validate(delta_bundle.diagnostics["propagation_report_ref"])
     delta_report = from_canonical_bytes(store.get_bytes(delta_report_id))
     assert delta_report["schema_version"] == "2.0"
     assert delta_report["covariance_order"] == ["A.rate", "B.rate"]
@@ -1357,7 +1405,9 @@ def test_calibrator_tied_report_reaches_delta_and_monte_carlo_welfare(tmp_path) 
         weights=[1.0, -1.0],
     )
     assert mc_bundle.sample_bundle_ref is not None
-    samples = load_welfare_sample_bundle(store, mc_bundle.sample_bundle_ref)
+    samples = load_welfare_sample_bundle(
+        _ensure_ir_artifact_store(store), mc_bundle.sample_bundle_ref
+    )
     assert len(samples.welfare_draws) == 100
     assert samples.metadata["calibration_covariance_order"] == ["A.rate", "B.rate"]
     assert samples.metadata["calibration_projection_schema_version"] == "1.0"
@@ -1372,8 +1422,7 @@ def test_calibrator_tied_report_reaches_delta_and_monte_carlo_welfare(tmp_path) 
     mc_report_id = ArtifactID.model_validate(mc_bundle.diagnostics["propagation_report_ref"])
     mc_report = from_canonical_bytes(store.get_bytes(mc_report_id))
     assert (
-        mc_report["dependence_sampling"]["strategy"]
-        == "calibration_report_optimizer_coordinates"
+        mc_report["dependence_sampling"]["strategy"] == "calibration_report_optimizer_coordinates"
     )
     assert mc_report["dependence_sampling"]["preserves_singular_ties"] is True
     mc_report_ref = ArtifactRef(
@@ -1468,10 +1517,7 @@ def test_welfare_withholds_mixed_marginal_pearson_covariance(
         inputs=store.get_manifest(source_report_ref).inputs,
     )
     assert store.get_manifest(report_ref).artifact_schema.version == "2.0"
-    assert any(
-        item.role == "calibration_config"
-        for item in store.get_manifest(report_ref).inputs
-    )
+    assert any(item.role == "calibration_config" for item in store.get_manifest(report_ref).inputs)
 
     uniform = UncertaintyEnvelope(
         point_estimate=0.5,
@@ -1489,7 +1535,7 @@ def test_welfare_withholds_mixed_marginal_pearson_covariance(
         ),
         metadata={"param_name": "B.rate", "std": 1.0 / math.sqrt(12.0)},
     )
-    uniform_ref = persist_uncertainty_envelope(store, uniform)
+    uniform_ref = persist_uncertainty_envelope(_ensure_ir_artifact_store(store), uniform)
     input_envelope_refs = {"B.rate": uniform_ref.model_dump(mode="json")}
     if correlation_profile == "calibration_to_external":
         dependence_ref = _b197_dependence_structure_ref(
@@ -1501,9 +1547,7 @@ def test_welfare_withholds_mixed_marginal_pearson_covariance(
         calibration_distribution = calibration_envelope.distribution_payload
         assert isinstance(calibration_distribution, ParametricFitCarrier)
         calibration_std = float(calibration_distribution.parameters["std"])
-        expected_pairs = [
-            ("A.rate", "B.rate", 0.5 * calibration_std / math.sqrt(12.0))
-        ]
+        expected_pairs = [("A.rate", "B.rate", 0.5 * calibration_std / math.sqrt(12.0))]
     else:
         normal = UncertaintyEnvelope(
             point_estimate=0.5,
@@ -1521,7 +1565,7 @@ def test_welfare_withholds_mixed_marginal_pearson_covariance(
             ),
             metadata={"param_name": "B.rate", "std": 0.1},
         )
-        normal_ref = persist_uncertainty_envelope(store, normal)
+        normal_ref = persist_uncertainty_envelope(_ensure_ir_artifact_store(store), normal)
         input_envelope_refs = {
             "B.rate": normal_ref.model_dump(mode="json"),
             "C.rate": uniform_ref.model_dump(mode="json"),
@@ -1560,9 +1604,7 @@ def test_welfare_withholds_mixed_marginal_pearson_covariance(
     assert bundle.sample_bundle_ref is None
     assert "calibration_mixed_marginal_covariance_unsupported" in bundle.warnings
 
-    propagation_report_id = ArtifactID.model_validate(
-        bundle.diagnostics["propagation_report_ref"]
-    )
+    propagation_report_id = ArtifactID.model_validate(bundle.diagnostics["propagation_report_ref"])
     propagation_report = from_canonical_bytes(store.get_bytes(propagation_report_id))
     assert propagation_report["limitation_code"] == (
         "calibration_mixed_marginal_covariance_unsupported"
@@ -1576,8 +1618,7 @@ def test_welfare_withholds_mixed_marginal_pearson_covariance(
         for pair in resolution["nonzero_covariance_pairs"]
     }
     expected_pair_map = {
-        (left, right): covariance_value
-        for left, right, covariance_value in expected_pairs
+        (left, right): covariance_value for left, right, covariance_value in expected_pairs
     }
     assert set(observed_pairs) == set(expected_pair_map)
     for pair, covariance_value in expected_pair_map.items():
@@ -1768,9 +1809,9 @@ def test_welfare_withholds_scale_diverse_mixed_marginal_covariance(
             covariance_order=external_fields,
             covariance_row=list(covariance[index, 1:]),
         )
-        external_refs[field] = persist_uncertainty_envelope(store, envelope).model_dump(
-            mode="json"
-        )
+        external_refs[field] = persist_uncertainty_envelope(
+            _ensure_ir_artifact_store(store), envelope
+        ).model_dump(mode="json")
 
     dependence_ref = _b197_dependence_structure_ref(
         store,
@@ -1798,18 +1839,14 @@ def test_welfare_withholds_scale_diverse_mixed_marginal_covariance(
     assert bundle.status.value == "partial"
     assert "calibration_mixed_marginal_covariance_unsupported" in bundle.warnings
 
-    propagation_report_id = ArtifactID.model_validate(
-        bundle.diagnostics["propagation_report_ref"]
-    )
+    propagation_report_id = ArtifactID.model_validate(bundle.diagnostics["propagation_report_ref"])
     propagation_report = from_canonical_bytes(store.get_bytes(propagation_report_id))
     resolution = propagation_report["dependence_resolution"]
     assert propagation_report["limitation_code"] == (
         "calibration_mixed_marginal_covariance_unsupported"
     )
     assert resolution["covariance_order"] == ["A.rate", "B.rate", "C.rate"]
-    assert resolution["covariance_predicate"] == (
-        "exact_nonzero_in_admitted_finite_matrix"
-    )
+    assert resolution["covariance_predicate"] == ("exact_nonzero_in_admitted_finite_matrix")
     assert resolution["unsupported_marginal_fields"] == ["C.rate"]
     assert resolution["correlated_fields"] == ["A.rate", "B.rate", "C.rate"]
     observed_pairs = {
@@ -1867,9 +1904,7 @@ def test_welfare_reports_non_normal_calibration_coordinate_capability(
     expected_point = math.fsum([1.0 for _ in ("A", "C")])
     assert bundle.point_estimate == pytest.approx(expected_point)
     assert "calibration_mixed_marginal_covariance_unsupported" not in bundle.warnings
-    propagation_report_id = ArtifactID.model_validate(
-        bundle.diagnostics["propagation_report_ref"]
-    )
+    propagation_report_id = ArtifactID.model_validate(bundle.diagnostics["propagation_report_ref"])
     propagation_report = from_canonical_bytes(store.get_bytes(propagation_report_id))
     if method == "delta":
         # Delta consumes the diagonal marginal variances without inventing a
@@ -1918,7 +1953,7 @@ def test_monte_carlo_samples_independent_external_uniform_marginal_without_calib
         ),
         metadata={"param_name": "C.rate", "std": 1.0 / math.sqrt(12.0)},
     )
-    envelope_ref = persist_uncertainty_envelope(store, envelope)
+    envelope_ref = persist_uncertainty_envelope(_ensure_ir_artifact_store(store), envelope)
     outcome, bundle = _run_b197_welfare(
         store,
         registry_ref,
@@ -1935,7 +1970,7 @@ def test_monte_carlo_samples_independent_external_uniform_marginal_without_calib
     assert bundle.credible_interval is not None
     assert bundle.sample_bundle_ref is not None
     assert bundle.point_estimate == pytest.approx(1.0)
-    samples = load_welfare_sample_bundle(store, bundle.sample_bundle_ref)
+    samples = load_welfare_sample_bundle(_ensure_ir_artifact_store(store), bundle.sample_bundle_ref)
     assert len(samples.welfare_draws) == 100
     assert all(math.isfinite(value) for value in samples.welfare_draws)
     # The one declared external marginal is sampled independently as Uniform[0, 1].
@@ -2008,12 +2043,8 @@ def test_welfare_withholds_interval_when_envelope_covariance_disagrees_with_proj
     assert bundle.credible_interval is None
     assert bundle.status.value == "partial"
     assert "calibration_covariance_conflict" in bundle.warnings
-    propagation_report_id = ArtifactID.model_validate(
-        bundle.diagnostics["propagation_report_ref"]
-    )
-    propagation_report = from_canonical_bytes(
-        store.get_bytes(propagation_report_id)
-    )
+    propagation_report_id = ArtifactID.model_validate(bundle.diagnostics["propagation_report_ref"])
+    propagation_report = from_canonical_bytes(store.get_bytes(propagation_report_id))
     assert propagation_report["limitation_code"] == "calibration_covariance_conflict"
     resolution = propagation_report["dependence_resolution"]
     assert resolution["strategy"] == "calibration_report_projection_conflict"
@@ -2219,9 +2250,7 @@ def test_welfare_suppresses_unproved_or_malformed_calibration_dependence(tmp_pat
     assert unproved_independence_bundle.point_estimate == pytest.approx(3.0)
     assert unproved_independence_bundle.credible_interval is None
     assert unproved_independence_bundle.status.value == "partial"
-    assert "calibration_cross_source_dependence_unknown" in (
-        unproved_independence_bundle.warnings
-    )
+    assert "calibration_cross_source_dependence_unknown" in (unproved_independence_bundle.warnings)
 
     conflicting_inline = report.uncertainty_envelopes["A.rate"].model_copy(
         update={"point_estimate": 0.3}

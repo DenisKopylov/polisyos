@@ -6,6 +6,8 @@ detached-signature contracts. Runtime and governance layers should depend on
 this facade instead of importing private artifact internals.
 """
 
+from typing import TYPE_CHECKING, Any
+
 from ._atomic_write import (
     AtomicFileDurabilityError,
     ensure_directory_durable,
@@ -45,7 +47,16 @@ from .manifest import (
     input_ref_from_artifact_ref,
 )
 from .ownership import ArtifactOwnershipError, ArtifactOwnershipIndex
-from .protocol import ArtifactStore, AsyncArtifactStore, SignatureVerifyingArtifactStore
+from .protocol import (
+    AUTHORITY_ENVELOPE_ARTIFACT_KIND,
+    AUTHORITY_ENVELOPE_SCHEMA_NAME,
+    AUTHORITY_ENVELOPE_SCHEMA_VERSION,
+    ArtifactStore,
+    AsyncArtifactStore,
+    SignatureVerifyingArtifactStore,
+    resolve_authority_envelope_ref,
+    resolve_manifest_by_profile,
+)
 from .registry import RegistryBundle
 from .signing import (
     ArtifactSigner,
@@ -67,6 +78,18 @@ from .signing import (
 from .store import FileSystemCAS, PutOptions
 from .write_contract import ArtifactWriteOptions
 
+if TYPE_CHECKING:
+    from .ir_adapter import ensure_ir_artifact_store as ensure_ir_artifact_store
+
+
+def __getattr__(name: str) -> Any:
+    """Resolve optional artifact adapters without introducing package cycles."""
+    if name == "ensure_ir_artifact_store":
+        from .ir_adapter import ensure_ir_artifact_store
+
+        return ensure_ir_artifact_store
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 
 def artifact_manifest_profile_projection(manifest: ArtifactManifest) -> dict[str, object]:
     """Return the canonical, versioned CAS projection for a manifest view."""
@@ -79,6 +102,9 @@ def artifact_manifest_profile_sha256(manifest: ArtifactManifest) -> str:
 
 
 __all__ = [
+    "AUTHORITY_ENVELOPE_ARTIFACT_KIND",
+    "AUTHORITY_ENVELOPE_SCHEMA_NAME",
+    "AUTHORITY_ENVELOPE_SCHEMA_VERSION",
     "ArtifactGovernanceInfo",
     "ArtifactID",
     "ArtifactIntegrityError",
@@ -134,8 +160,11 @@ __all__ = [
     "compute_key_id",
     "ensure_async_artifact_store",
     "ensure_directory_durable",
+    "ensure_ir_artifact_store",
     "ensure_private_key_permissions",
     "fsync_directory",
     "input_ref_from_artifact_ref",
+    "resolve_authority_envelope_ref",
     "resolve_dependency_graph",
+    "resolve_manifest_by_profile",
 ]

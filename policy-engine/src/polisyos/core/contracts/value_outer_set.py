@@ -79,10 +79,7 @@ def _derive_interval_widths(
     lower: tuple[float, ...],
     upper: tuple[float, ...],
 ) -> tuple[float, ...]:
-    return tuple(
-        max(0.0, round(hi - lo, 12))
-        for lo, hi in zip(lower, upper, strict=True)
-    )
+    return tuple(max(0.0, round(hi - lo, 12)) for lo, hi in zip(lower, upper, strict=True))
 
 
 class DataTrust(BaseModel):
@@ -152,13 +149,33 @@ class ValuePromotionDecision(BaseModel):
 
 
 class ValueOuterSet(BaseModel):
-    """Canonical typed carrier for set-valued value over policy-design worlds."""
+    """Canonical typed carrier for set-valued value over policy-design worlds.
+
+    Optional statistical endpoints preserve an estimator's reported uncertainty
+    separately from the identification set. They are descriptive evidence only:
+    identification, comparison, and promotion continue to use ``lower`` and
+    ``upper``.
+    """
 
     model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
 
     representation: ValueOuterSetRepresentation
     lower: tuple[float, ...] = Field(default_factory=tuple)
     upper: tuple[float, ...] = Field(default_factory=tuple)
+    statistical_lower: tuple[float, ...] | None = Field(
+        default=None,
+        description=(
+            "Source-reported statistical interval lower endpoints, separate from "
+            "identification bounds and not used to authorize promotion."
+        ),
+    )
+    statistical_upper: tuple[float, ...] | None = Field(
+        default=None,
+        description=(
+            "Source-reported statistical interval upper endpoints, separate from "
+            "identification bounds and not used to authorize promotion."
+        ),
+    )
     coordinates: tuple[str, ...] = Field(default_factory=tuple)
     identification_status: ValueOuterSetIdentificationStatus
     assumptions: tuple[str, ...] = Field(default_factory=tuple)
@@ -199,6 +216,16 @@ class ValueOuterSet(BaseModel):
         if info.field_name in {"lower", "upper"}:
             return _coerce_interval_values(items)
         return tuple(str(item) for item in items)
+
+    @field_validator("statistical_lower", "statistical_upper", mode="before")
+    @classmethod
+    def _coerce_optional_statistical_interval(
+        cls,
+        value: Any,
+    ) -> tuple[float, ...] | None:
+        if value is None:
+            return None
+        return _coerce_interval_values(value)
 
     @field_validator("assumptions")
     @classmethod
@@ -281,6 +308,8 @@ class ValueOuterSet(BaseModel):
         coordinates: tuple[str, ...],
         lower: tuple[float, ...],
         upper: tuple[float, ...],
+        statistical_lower: tuple[float, ...] | None = None,
+        statistical_upper: tuple[float, ...] | None = None,
         identification_mode: str,
         assumptions: tuple[str, ...],
         assumption_status: ValueOuterSetAssumptionStatus,
@@ -297,9 +326,9 @@ class ValueOuterSet(BaseModel):
             coordinates=coordinates,
             lower=lower,
             upper=upper,
-            identification_status=cls.identification_status_for_l5_mode(
-                identification_mode
-            ),
+            statistical_lower=statistical_lower,
+            statistical_upper=statistical_upper,
+            identification_status=cls.identification_status_for_l5_mode(identification_mode),
             assumptions=assumptions,
             assumption_status=assumption_status,
             calibration_scope=calibration_scope,
@@ -312,7 +341,13 @@ class ValueOuterSet(BaseModel):
     @model_validator(mode="after")
     def _validate_outer_set(self) -> ValueOuterSet:
         if self.representation != "interval_box":
-            if self.lower or self.upper or self.coordinates:
+            if (
+                self.lower
+                or self.upper
+                or self.statistical_lower is not None
+                or self.statistical_upper is not None
+                or self.coordinates
+            ):
                 raise ValueError("non_interval_representation_payload_unimplemented")
             return self
         if not self.lower or not self.upper or not self.coordinates:
@@ -321,6 +356,22 @@ class ValueOuterSet(BaseModel):
             raise ValueError("interval_box lower, upper, and coordinates must align")
         if any(lo > hi for lo, hi in zip(self.lower, self.upper, strict=True)):
             raise ValueError("interval_box lower must be <= upper for every coordinate")
+        if (self.statistical_lower is None) != (self.statistical_upper is None):
+            raise ValueError("statistical_bounds_must_be_supplied_together")
+        if self.statistical_lower is not None and self.statistical_upper is not None:
+            if len(self.statistical_lower) != len(self.coordinates) or len(
+                self.statistical_upper
+            ) != len(self.coordinates):
+                raise ValueError("statistical_bounds_must_align_with_coordinates")
+            if any(
+                lo > hi
+                for lo, hi in zip(
+                    self.statistical_lower,
+                    self.statistical_upper,
+                    strict=True,
+                )
+            ):
+                raise ValueError("statistical_interval_lower_must_be_lte_upper")
         widths = self.width
         if self.identification_status == "point" and any(
             width > self._POINT_WIDTH_TOLERANCE for width in widths
@@ -431,7 +482,7 @@ class ValueOuterSet(BaseModel):
     def canonical_payload(self) -> dict[str, Any]:
         """Return a stable JSON-compatible payload for content addressing."""
 
-        return {
+        payload = {
             "representation": self.representation,
             "lower": [f"{value:.12g}" for value in self.lower],
             "upper": [f"{value:.12g}" for value in self.upper],
@@ -446,6 +497,10 @@ class ValueOuterSet(BaseModel):
             "epoch": self.epoch,
             "representation_status": self.representation_status,
         }
+        if self.statistical_lower is not None and self.statistical_upper is not None:
+            payload["statistical_lower"] = [f"{value:.12g}" for value in self.statistical_lower]
+            payload["statistical_upper"] = [f"{value:.12g}" for value in self.statistical_upper]
+        return payload
 
     def __hash__(self) -> int:
         payload = json.dumps(self.canonical_payload(), sort_keys=True, separators=(",", ":"))

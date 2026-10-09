@@ -65,6 +65,23 @@ persistent owner state. Direct, recursive, HTTP, and offline promotion paths res
 persisted epoch-validity subject and gate evidence; a route-local state or caller-shaped projection
 cannot bypass that owner.
 
+## NL run cost events
+
+The runtime container supplies an app-scoped durable LLM settlement ledger at
+`core_runs_root/.runtime/llm-cost-ledger.json`, unless a typed store override is provided. Each
+ordinary NL run uses `nl-run:{run_id}` as its accounting key; this records provider outcomes and
+does not add a spend limit. Provider-reported cost, token-price estimate, authenticated cache
+reuse, and unknown amount remain separate event origins. Unknown amounts stay null, and token-price
+estimates remain heuristics.
+
+The durable event's model and logical provider route are pinned from the configured pre-dispatch
+intent. Response-declared labels cannot change the local accounting identity or estimate basis.
+
+Persisted compiler/preflight and model-variant events project to their own steps in
+`GET /api/v1/runs/{run_id}/agents`. The read model deduplicates identical event IDs across those
+sources and rejects conflicting payloads. The local ledger acknowledges local settlement only; it
+does not establish an external invoice or provider billing receipt.
+
 ## Depends on / depended on by
 
 Depends on: `polisyos.common.async_tools`, `polisyos.core.artifacts`,

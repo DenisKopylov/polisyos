@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core import artifacts as core_artifacts
-from polisyos.core.artifacts import ArtifactStore, PutOptions
+from polisyos.core.artifacts import ArtifactStore, PutOptions, resolve_manifest_by_profile
 from polisyos.core.artifacts.backends.config import (
     ArtifactStoreConfig,
     build_artifact_store,
@@ -151,7 +151,9 @@ def verify_staged_foundry_input_state(
             ),
         )
         replay = load_ukraine_foundry_intake(
-            replay_store, stage_manifests=paths, allowed_root=source.allowed_root,
+            replay_store,
+            stage_manifests=paths,
+            allowed_root=source.allowed_root,
         )
         if set(paths) != set(replay.stage_receipt_refs):
             raise ValueError("foundry_staged_intake_source_scope_mismatch")
@@ -170,9 +172,7 @@ def verify_staged_foundry_input_state(
         selected = core_artifacts.ArtifactRef.model_validate(
             state.inputs.get("ukraine_selected_foundry_method_contract_ref")
         )
-        selected_keys = [
-            key for key, ref in replay.method_contract_refs.items() if ref == selected
-        ]
+        selected_keys = [key for key, ref in replay.method_contract_refs.items() if ref == selected]
         if len(selected_keys) != 1:
             raise ValueError("foundry_staged_selected_contract_not_owner_emitted")
         selected_key = selected_keys[0]
@@ -182,9 +182,9 @@ def verify_staged_foundry_input_state(
             != bound.contract_payload
         ):
             raise ValueError("foundry_staged_recorded_input_content_mismatch")
-        expected_refs["ukraine_selected_foundry_method_contract_ref"] = (
-            replay.method_contract_refs[selected_key]
-        )
+        expected_refs["ukraine_selected_foundry_method_contract_ref"] = replay.method_contract_refs[
+            selected_key
+        ]
         supplied_refs["ukraine_selected_foundry_method_contract_ref"] = selected
         if supplied_refs != expected_refs:
             raise ValueError("foundry_staged_intake_owner_content_mismatch")
@@ -198,20 +198,21 @@ def verify_staged_foundry_input_state(
             raise ValueError("foundry_staged_intake_complete_lineage_mismatch")
         for identity, expected_binding in expected_by_id.items():
             _, expected_raw, expected_manifest = _read_binding(
-                replay_store, expected_binding.artifact_ref, "owner_replay:" + identity,
+                replay_store,
+                expected_binding.artifact_ref,
+                "owner_replay:" + identity,
             )
             _, actual_raw, actual_manifest = _read_binding(
-                store, actual_by_id[identity].artifact_ref, "supplied:" + identity,
+                store,
+                actual_by_id[identity].artifact_ref,
+                "supplied:" + identity,
             )
             # created_at is the CAS storage event, not the source stage time.
             # Source finished_at and every other content/manifest field stay bound.
-            if (
-                actual_raw != expected_raw
-                or actual_manifest.model_dump(mode="json", exclude={"created_at"})
-                != expected_manifest.model_dump(mode="json", exclude={"created_at"})
-            ):
+            if actual_raw != expected_raw or actual_manifest.model_dump(
+                mode="json", exclude={"created_at"}
+            ) != expected_manifest.model_dump(mode="json", exclude={"created_at"}):
                 raise ValueError("foundry_staged_intake_owner_content_mismatch:" + identity)
-
 
 
 def install_verified_staged_foundry_inputs(
@@ -252,7 +253,10 @@ def install_verified_staged_foundry_inputs(
     # Preserve the independently verified recorded measurement root; the
     # selected staged DTO must have exactly the same substantive input payload.
     verify_staged_foundry_input_state(
-        store=store, state=result, source=binding.source, bound=bound,
+        store=store,
+        state=result,
+        source=binding.source,
+        bound=bound,
     )
     return result
 
@@ -261,7 +265,9 @@ class FoundryMethodOutputConsumer:
     """Consume Foundry method outputs from Scientist state into GY authority facts."""
 
     def __init__(
-        self, *, store: ArtifactStore | None = None,
+        self,
+        *,
+        store: ArtifactStore | None = None,
         staged_input_source: StagedFoundryInputSource | None = None,
     ) -> None:
         self._store = store
@@ -394,7 +400,10 @@ class FoundryMethodOutputConsumer:
             if report.status != EstimationStatus.SUCCESS:
                 raise ValueError("foundry_method_report_not_successful")
             input_refs = _verified_method_input_refs(
-                store, result_manifest, state, bound,
+                store,
+                result_manifest,
+                state,
+                bound,
                 staged_input_source=self._staged_input_source,
             )
             params = dict(
@@ -1413,7 +1422,8 @@ def _verified_method_input_refs(
     manifest: ArtifactManifest,
     state: ExperimentState,
     bound: RecordedPanelMethodInput,
-    *, staged_input_source: StagedFoundryInputSource | None = None,
+    *,
+    staged_input_source: StagedFoundryInputSource | None = None,
 ) -> dict[str, core_artifacts.ArtifactRef]:
     from polisyos.foundry.data_plane import materialize_method_contract
 
@@ -1426,12 +1436,21 @@ def _verified_method_input_refs(
         slot = item.role.removeprefix("input:")
         if not slot or slot in inputs:
             raise ValueError("foundry_method_input_lineage_duplicate")
-        parent = store.get_manifest(item.artifact_id)
+        if item.manifest_profile_sha256 is None:
+            parent = store.get_manifest(item.artifact_id)
+        else:
+            parent = resolve_manifest_by_profile(
+                store,
+                item.artifact_id,
+                item.manifest_profile_sha256,
+            )
         ref = core_artifacts.ArtifactRef(
             artifact_id=item.artifact_id,
             kind=parent.kind,
             media_type=parent.media_type,
+            manifest_profile_sha256=item.manifest_profile_sha256,
         )
+        parent = store.get_manifest(ref)
         _reference_closure(store, ref, item.role)
         inputs[slot] = ref
 
@@ -1458,7 +1477,10 @@ def _verified_method_input_refs(
         or any(key in mapping for mapping, key in staged_slots.values())
     ):
         verify_staged_foundry_input_state(
-            store=store, state=state, source=staged_input_source, bound=bound,
+            store=store,
+            state=state,
+            source=staged_input_source,
+            bound=bound,
         )
         for slot, (mapping, key) in staged_slots.items():
             if inputs.get(slot) != core_artifacts.ArtifactRef.model_validate(mapping[key]):

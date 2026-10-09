@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import numpy as np
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
 from polisyos.ir.analytics.causal import load_data_readiness_report, load_proof_bundle
@@ -207,17 +209,24 @@ def test_fallback_audit_trail(tmp_path) -> None:
     assert bundle.bounds_bundle_ref is not None
     assert bundle.negative_certificate_ref is not None
     assert cert.quantitative_diagnostics["fallback_level"] == 4
-    assert load_proof_bundle(store, bundle.proof_bundle_ref).proof_status == "non_identified"
-    assert load_data_readiness_report(store, bundle.data_readiness_report_ref).decision in {
+    assert (
+        load_proof_bundle(_ensure_ir_artifact_store(store), bundle.proof_bundle_ref).proof_status
+        == "non_identified"
+    )
+    assert load_data_readiness_report(
+        _ensure_ir_artifact_store(store), bundle.data_readiness_report_ref
+    ).decision in {
         "pass",
         "warn",
         "unknown",
     }
     assert (
-        load_bounds_bundle(store, bundle.bounds_bundle_ref).lower_bound
+        load_bounds_bundle(_ensure_ir_artifact_store(store), bundle.bounds_bundle_ref).lower_bound
         == cert.bounds_bundle.lower_bound
     )
     assert (
-        load_negative_certificate(store, bundle.negative_certificate_ref).blocking_type
+        load_negative_certificate(
+            _ensure_ir_artifact_store(store), bundle.negative_certificate_ref
+        ).blocking_type
         is BlockingType.HEDGE_STRUCTURE
     )

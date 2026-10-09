@@ -76,7 +76,7 @@ def persist_research_dag(
 def load_research_dag(store: Any, ref: ArtifactRef) -> ResearchDAGArtifact:
     """Load a persisted research DAG from CAS."""
 
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return ResearchDAGArtifact.model_validate(payload)
 
 

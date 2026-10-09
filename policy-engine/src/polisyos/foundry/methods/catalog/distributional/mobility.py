@@ -7,6 +7,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -806,7 +807,9 @@ class MobilityMatrixEstimator:
             metadata={"valid_observations": n_valid},
         )
         report_ref = (
-            persist_mobility_report(artifact_store, report) if artifact_store is not None else None
+            persist_mobility_report(_ensure_ir_artifact_store(artifact_store), report)
+            if artifact_store is not None
+            else None
         )
         return {
             "result": report,
@@ -1084,7 +1087,9 @@ class AttritionAdjustedMobilityMatrixEstimator:
             )
             artifact_store = resolve_artifact_store(state, params)
             if artifact_store is not None:
-                bounds_ref = persist_bounds_bundle(artifact_store, bounds_bundle)
+                bounds_ref = persist_bounds_bundle(
+                    _ensure_ir_artifact_store(artifact_store), bounds_bundle
+                )
             bounds_payload = MobilityBounds(
                 bundle_ref=bounds_ref,
                 cell_bounds=_cell_bounds_payload(cell_lower, cell_upper),
@@ -1181,7 +1186,9 @@ class AttritionAdjustedMobilityMatrixEstimator:
         )
 
         report_ref = (
-            persist_mobility_report(artifact_store, report) if artifact_store is not None else None
+            persist_mobility_report(_ensure_ir_artifact_store(artifact_store), report)
+            if artifact_store is not None
+            else None
         )
         return {
             "result": report,
@@ -1409,7 +1416,9 @@ class SequentialIPCWLifetimeMobilityEstimator:
                 },
             )
             if artifact_store is not None:
-                bounds_ref = persist_bounds_bundle(artifact_store, bounds_bundle)
+                bounds_ref = persist_bounds_bundle(
+                    _ensure_ir_artifact_store(artifact_store), bounds_bundle
+                )
             bounds_payload = MobilityBounds(
                 bundle_ref=bounds_ref,
                 cell_bounds=_cell_bounds_payload(cell_lower, cell_upper),
@@ -1536,7 +1545,9 @@ class SequentialIPCWLifetimeMobilityEstimator:
             },
         )
         report_ref = (
-            persist_mobility_report(artifact_store, report) if artifact_store is not None else None
+            persist_mobility_report(_ensure_ir_artifact_store(artifact_store), report)
+            if artifact_store is not None
+            else None
         )
         return {
             "result": report,
@@ -1685,7 +1696,9 @@ class RefreshmentSampleMobilityEstimator:
                 },
             )
             if artifact_store is not None:
-                bounds_ref = persist_bounds_bundle(artifact_store, bounds_bundle)
+                bounds_ref = persist_bounds_bundle(
+                    _ensure_ir_artifact_store(artifact_store), bounds_bundle
+                )
             bounds_payload = MobilityBounds(
                 bundle_ref=bounds_ref,
                 cell_bounds=_cell_bounds_payload(cell_lower, cell_upper),
@@ -1761,7 +1774,9 @@ class RefreshmentSampleMobilityEstimator:
             },
         )
         report_ref = (
-            persist_mobility_report(artifact_store, report) if artifact_store is not None else None
+            persist_mobility_report(_ensure_ir_artifact_store(artifact_store), report)
+            if artifact_store is not None
+            else None
         )
         return {
             "result": report,
@@ -1877,7 +1892,9 @@ class IntergenerationalElasticityEstimator:
             metadata={"log_scale": True},
         )
         report_ref = (
-            persist_mobility_report(artifact_store, report) if artifact_store is not None else None
+            persist_mobility_report(_ensure_ir_artifact_store(artifact_store), report)
+            if artifact_store is not None
+            else None
         )
         return {
             "result": report,

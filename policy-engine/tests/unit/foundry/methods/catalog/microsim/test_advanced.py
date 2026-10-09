@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.microsim import (
@@ -265,7 +267,9 @@ def test_dynamic_microsim_persists_generated_phase4_validation_report(tmp_path) 
     )["result"]
 
     assert result.dynamic_validation_report_ref is not None
-    loaded = load_dynamic_microsim_validation_report(store, result.dynamic_validation_report_ref)
+    loaded = load_dynamic_microsim_validation_report(
+        _ensure_ir_artifact_store(store), result.dynamic_validation_report_ref
+    )
     assert loaded.validation_status in {"green", "amber"}
     assert result.metadata["dynamic_validation_status"] == loaded.validation_status
 
@@ -289,7 +293,9 @@ def test_dynamic_microsim_persists_supplied_amber_report_with_warning(tmp_path) 
     )["result"]
 
     assert result.dynamic_validation_report_ref is not None
-    loaded = load_dynamic_microsim_validation_report(store, result.dynamic_validation_report_ref)
+    loaded = load_dynamic_microsim_validation_report(
+        _ensure_ir_artifact_store(store), result.dynamic_validation_report_ref
+    )
     assert loaded.validation_status == "amber"
     assert result.metadata["dynamic_validation_status"] == "amber"
     assert result.metadata["dynamic_validation_warning_count"] == 1
@@ -304,7 +310,9 @@ def test_dynamic_microsim_refuses_red_phase4_validation_report_ref(tmp_path) -> 
         refusal_code="dynamic_microsim_validation_red",
         blocking_reasons=("dynamic_microsim_validation_red",),
     )
-    report_ref = persist_dynamic_microsim_validation_report(store, red_report)
+    report_ref = persist_dynamic_microsim_validation_report(
+        _ensure_ir_artifact_store(store), red_report
+    )
 
     with pytest.raises(ValueError, match="dynamic_microsim_validation_red"):
         DynamicMicrosimEstimator.pure_step(

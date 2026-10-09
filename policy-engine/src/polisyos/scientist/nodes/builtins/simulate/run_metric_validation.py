@@ -7,6 +7,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -22,16 +23,16 @@ from polisyos.core.contracts.scientist import (
     MetricValidationReportRef as CoreMetricValidationReportRef,
 )
 from polisyos.ir.analytics.metric_validation_report import persist_metric_validation_report
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_METRIC_OBSERVATION_BUNDLE_REF,
     ARTIFACT_METRIC_VALIDATION_REPORT_REF,
     ARTIFACT_METRICS_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.validation.metrics import (
     CorrectionMethod,
     FamilyScope,
@@ -221,7 +222,7 @@ class RunMetricValidationNode:
             family_scope=config.family_scope,
         )
         persisted_report_ref = persist_metric_validation_report(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             report,
             inputs=[
                 InputRef(artifact_id=str(bundle_ref.artifact_id), role="metric_observation_bundle"),
@@ -308,7 +309,7 @@ def _load_config(payload: Any) -> MetricValidationNodeConfig:
 
 
 def _load_model(ctx: ExecutionContext, ref: ArtifactRef, model_cls: type[Any]) -> Any:
-    payload = ctx.store.get_bytes(ref.artifact_id)
+    payload = ctx.store.get_bytes(ref)
     return model_cls.model_validate_json(payload)
 
 

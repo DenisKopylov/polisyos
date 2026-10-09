@@ -5,6 +5,7 @@ from typing import Any
 import pytest
 
 from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.http.resilience import (
     guard_runtime_cas,
@@ -550,17 +551,13 @@ def test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_members
     )
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         substrate_registry_artifact_ref = persist_substrate_registry(store, registry)
-        substrate_registry_manifest = store.get_manifest(
-            substrate_registry_artifact_ref
-        )
+        substrate_registry_manifest = store.get_manifest(substrate_registry_artifact_ref)
     assert substrate_registry_artifact_ref.kind == SUBSTRATE_REGISTRY_ARTIFACT_KIND
     assert substrate_registry_manifest.kind == SUBSTRATE_REGISTRY_ARTIFACT_KIND
 
     synthetic_world_record = _world_record("education", registry)
     persisted_registry_ref = synthetic_world_record.substrate_registry_ref.model_copy(
-        update={
-            "registry_artifact_ref": str(substrate_registry_artifact_ref.artifact_id)
-        }
+        update={"registry_artifact_ref": str(substrate_registry_artifact_ref.artifact_id)}
     )
     world_record_draft = synthetic_world_record.model_copy(
         update={"substrate_registry_ref": persisted_registry_ref}
@@ -571,8 +568,7 @@ def test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_members
             **world_record_draft.model_dump(mode="python"),
             "content_hash": world_record_content_hash,
             "world_model_record_id": (
-                "world_model_record_"
-                + world_record_content_hash.removeprefix("sha256:")[:16]
+                "world_model_record_" + world_record_content_hash.removeprefix("sha256:")[:16]
             ),
         }
     )
@@ -644,9 +640,7 @@ def test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_members
         }
     )
     declaration_fields = {
-        "schema_version": (
-            "policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"
-        ),
+        "schema_version": ("policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"),
         "profile_config_ref": candidate_simulation_profile_ref(profile),
         "profile_content_hash": profile.content_hash,
         "profile_selection_ref": profile.profile_selection_ref,
@@ -695,9 +689,7 @@ def test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_members
     # different, valid declaration/profile. The sibling is not the view chosen
     # by this handoff; its manifest must not replay against the original
     # declaration selector.
-    foreign_profile_fields = profile.model_dump(
-        mode="python", exclude={"content_hash"}
-    )
+    foreign_profile_fields = profile.model_dump(mode="python", exclude={"content_hash"})
     foreign_profile_fields.update(
         {
             "profile_id": "handoff-controlled-candidate-sibling",
@@ -714,15 +706,11 @@ def test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_members
         {
             **foreign_profile_fields,
             "content_hash": gy_content_hash(
-                foreign_profile_draft.model_dump(
-                    mode="json", exclude={"content_hash"}
-                )
+                foreign_profile_draft.model_dump(mode="json", exclude={"content_hash"})
             ),
         }
     )
-    foreign_declaration_fields = declaration.model_dump(
-        mode="python", exclude={"content_hash"}
-    )
+    foreign_declaration_fields = declaration.model_dump(mode="python", exclude={"content_hash"})
     foreign_declaration_fields.update(
         {
             "profile_config_ref": candidate_simulation_profile_ref(foreign_profile),
@@ -730,26 +718,20 @@ def test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_members
             "profile_selection_ref": foreign_profile.profile_selection_ref,
         }
     )
-    foreign_declaration_draft = (
-        CandidateSimulationSyntheticModelDeclarationV1.model_construct(
-            **foreign_declaration_fields,
-            content_hash="sha256:" + "0" * 64,
-        )
+    foreign_declaration_draft = CandidateSimulationSyntheticModelDeclarationV1.model_construct(
+        **foreign_declaration_fields,
+        content_hash="sha256:" + "0" * 64,
     )
     foreign_declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
         {
             **foreign_declaration_fields,
             "content_hash": gy_content_hash(
-                foreign_declaration_draft.model_dump(
-                    mode="json", exclude={"content_hash"}
-                )
+                foreign_declaration_draft.model_dump(mode="json", exclude={"content_hash"})
             ),
         }
     )
     foreign_ncm_spec = candidate_ncm_spec_from_declaration(foreign_declaration)
-    assert foreign_ncm_spec.model_dump(mode="json") == selected_ncm_spec.model_dump(
-        mode="json"
-    )
+    assert foreign_ncm_spec.model_dump(mode="json") == selected_ncm_spec.model_dump(mode="json")
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         foreign_declaration_ref = repository.persist_candidate_model_declaration(
             declaration=foreign_declaration,
@@ -792,19 +774,22 @@ def test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_members
             "candidate_model_declaration",
             foreign_declaration_ref.manifest_profile_sha256,
         )
-        assert load_ncm_spec_selected_view(
-            store,
-            ncm_ref,
-            expected_tenant_id=tenant_id,
-            expected_cell_id=cell_id,
-            expected_declaration_ref=declaration_ref,
-        ) == selected_ncm_spec
+        assert (
+            load_ncm_spec_selected_view(
+                _ensure_ir_artifact_store(store),
+                ncm_ref,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+                expected_declaration_ref=declaration_ref,
+            )
+            == selected_ncm_spec
+        )
         with pytest.raises(
             ValueError,
             match=r"^ncm_selected_view_declaration_lineage_mismatch$",
         ):
             load_ncm_spec_selected_view(
-                store,
+                _ensure_ir_artifact_store(store),
                 foreign_ncm_ref,
                 expected_tenant_id=tenant_id,
                 expected_cell_id=cell_id,
@@ -841,20 +826,14 @@ def test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_members
     assert artifact_ref_identity_key(handoff.ncm_ref) == artifact_ref_identity_key(ncm_ref)
     assert handoff.ncm_ref.manifest_profile_sha256 is None
     assert foreign_ncm_ref.artifact_id == handoff.ncm_ref.artifact_id
-    assert artifact_ref_identity_key(foreign_ncm_ref) != artifact_ref_identity_key(
-        handoff.ncm_ref
-    )
+    assert artifact_ref_identity_key(foreign_ncm_ref) != artifact_ref_identity_key(handoff.ncm_ref)
     assert foreign_ncm_ref.manifest_profile_sha256 is not None
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         assert store.get_manifest(ncm_ref).inputs[0].artifact_id == declaration_ref.artifact_id
 
     with pytest.raises(ValueError, match="model_binding_incomplete"):
-        CandidateSimulationContextHandoff.model_validate(
-            {**payload, "ncm_ref": None}
-        )
+        CandidateSimulationContextHandoff.model_validate({**payload, "ncm_ref": None})
 
     foreign_ref = ncm_ref.model_copy(update={"artifact_id": "sha256:" + "d" * 64})
     with pytest.raises(ValueError, match="selected_ref_mismatch"):
-        CandidateSimulationContextHandoff.model_validate(
-            {**payload, "ncm_ref": foreign_ref}
-        )
+        CandidateSimulationContextHandoff.model_validate({**payload, "ncm_ref": foreign_ref})

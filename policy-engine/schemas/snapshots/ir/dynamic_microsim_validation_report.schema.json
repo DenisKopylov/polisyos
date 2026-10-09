@@ -16,6 +16,19 @@
           "title": "Kind",
           "type": "string"
         },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
         "media_type": {
           "title": "Media Type",
           "type": "string"
@@ -41,6 +54,19 @@
           "default": "ir.microsim_calibration_report",
           "title": "Kind",
           "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
         },
         "media_type": {
           "const": "application/json",

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.kernel_causal import (
     KernelEstimatorSpec,
@@ -50,8 +52,8 @@ def test_kernel_estimator_spec_round_trip_via_store(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     spec = _ready_spec()
 
-    ref = persist_kernel_estimator_spec(store, spec)
-    loaded = load_kernel_estimator_spec(store, ref)
+    ref = persist_kernel_estimator_spec(_ensure_ir_artifact_store(store), spec)
+    loaded = load_kernel_estimator_spec(_ensure_ir_artifact_store(store), ref)
 
     assert loaded == spec
     assert ref.kind == "ir.kernel_estimator_spec"
@@ -125,8 +127,8 @@ def test_operator_effect_bundle_round_trip_via_store(tmp_path) -> None:
         ),
     )
 
-    ref = persist_operator_effect_bundle(store, bundle)
-    loaded = load_operator_effect_bundle(store, ref)
+    ref = persist_operator_effect_bundle(_ensure_ir_artifact_store(store), bundle)
+    loaded = load_operator_effect_bundle(_ensure_ir_artifact_store(store), ref)
 
     assert loaded == bundle
     assert ref.kind == "ir.operator_effect_bundle"

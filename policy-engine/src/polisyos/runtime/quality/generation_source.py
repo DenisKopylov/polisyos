@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
@@ -24,6 +25,7 @@ from polisyos.core.artifacts.manifest import (
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
 )
+from polisyos.core.contracts.runtime import AgentPipelineCostEvent
 from polisyos.data_forge.domains.academic.knowledge.skg_versioning import (
     ConfidenceLayerVintage,
     _confidence_layer_vintage_for_sha256,
@@ -54,10 +56,9 @@ SOURCE_KIND = "runtime.generation_source_handoff"
 SOURCE_RULE = "policyos.runtime.generation_source_preservation.v1"
 N4_CANDIDATE_PROPOSAL_SCHEMA = "policyos.runtime.quality.n4_candidate_proposal_record.v1"
 N4_CANDIDATE_PROPOSAL_V2_SCHEMA = "policyos.runtime.quality.n4_candidate_proposal_record.v2"
+N4_CANDIDATE_PROPOSAL_V3_SCHEMA = "policyos.runtime.quality.n4_candidate_proposal_record.v3"
 N4_CANDIDATE_PROPOSAL_KIND = "runtime.quality.n4_candidate_proposal"
-N4_CANDIDATE_PROPOSAL_LOCATOR_SCHEMA = (
-    "policyos.runtime.quality.n4_candidate_proposal_locator.v1"
-)
+N4_CANDIDATE_PROPOSAL_LOCATOR_SCHEMA = "policyos.runtime.quality.n4_candidate_proposal_locator.v1"
 N4_CANDIDATE_SCENARIO_SOURCE_LOCATOR_SCHEMA = (
     "policyos.runtime.quality.n4_candidate_scenario_source_locator.v1"
 )
@@ -67,18 +68,10 @@ _SOURCE_CANON = canon.CanonSpec(forbid_floats=False, exclude_none=False)
 _CANDIDATE_SIMULATION_INPUT_KIND = "runtime.quality.candidate_simulation_n5_input"
 _CANDIDATE_SIMULATION_EXECUTION_KIND = "runtime.quality.candidate_simulation_execution"
 _N4_CANDIDATE_SCENARIO_SOURCE_KIND = "runtime.quality.n4_candidate_scenario_source"
-_N4_CANDIDATE_SCENARIO_SOURCE_SCHEMA = (
-    "policyos.runtime.quality.n4_candidate_scenario_source.v1"
-)
-_N4_CANDIDATE_SCENARIO_SOURCE_V2_SCHEMA = (
-    "policyos.runtime.quality.n4_candidate_scenario_source.v2"
-)
-_N4_CANDIDATE_SCENARIO_SOURCE_V3_SCHEMA = (
-    "policyos.runtime.quality.n4_candidate_scenario_source.v3"
-)
-_CANDIDATE_MODEL_DECLARATION_KIND = (
-    "runtime.quality.candidate_simulation_model_declaration"
-)
+_N4_CANDIDATE_SCENARIO_SOURCE_SCHEMA = "policyos.runtime.quality.n4_candidate_scenario_source.v1"
+_N4_CANDIDATE_SCENARIO_SOURCE_V2_SCHEMA = "policyos.runtime.quality.n4_candidate_scenario_source.v2"
+_N4_CANDIDATE_SCENARIO_SOURCE_V3_SCHEMA = "policyos.runtime.quality.n4_candidate_scenario_source.v3"
+_CANDIDATE_MODEL_DECLARATION_KIND = "runtime.quality.candidate_simulation_model_declaration"
 
 
 def _validated_content_bound_record[ContentBoundModelT: BaseModel](
@@ -245,9 +238,7 @@ def _candidate_scenario_source_v3_write_options(
         input_ref_from_artifact_ref(source.ncm_ref, role="candidate_ncm_spec"),
     ]
     if origin_source_ref is not None:
-        refs.append(
-            input_ref_from_artifact_ref(origin_source_ref, role="origin_n4_source_v3")
-        )
+        refs.append(input_ref_from_artifact_ref(origin_source_ref, role="origin_n4_source_v3"))
     return artifacts.ArtifactWriteOptions(
         kind=_N4_CANDIDATE_SCENARIO_SOURCE_KIND,
         media_type="application/json",
@@ -297,6 +288,29 @@ def _n4_candidate_proposal_v2_write_options() -> artifacts.ArtifactWriteOptions:
     )
 
 
+def _n4_candidate_proposal_v3_write_options(
+    record: N4CandidateProposalRecordV3,
+) -> artifacts.ArtifactWriteOptions:
+    return artifacts.ArtifactWriteOptions(
+        kind=N4_CANDIDATE_PROPOSAL_KIND,
+        media_type="application/json",
+        schema=artifacts.SchemaInfo(name=N4_CANDIDATE_PROPOSAL_V3_SCHEMA, version="3.0"),
+        producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
+        tenant_context=ArtifactTenantContextInfo(
+            tenant_id=record.tenant_id,
+            cell_id=record.cell_id,
+        ),
+        same_input_closure=ArtifactSameInputClosureInfo(
+            closure_id=f"n4-candidate-proposal-v3:{record.run_id}:{record.job_id}",
+            status="candidate_only",
+            run_id=record.run_id,
+            job_id=record.job_id,
+            tenant_id=record.tenant_id,
+            cell_id=record.cell_id,
+        ),
+    )
+
+
 def _has_n4_candidate_proposal_owner_profile(manifest: artifacts.ArtifactManifest) -> bool:
     return _has_owner_profile(manifest, _n4_candidate_proposal_write_options())
 
@@ -305,6 +319,16 @@ def _has_n4_candidate_proposal_v2_owner_profile(
     manifest: artifacts.ArtifactManifest,
 ) -> bool:
     return _has_owner_profile(manifest, _n4_candidate_proposal_v2_write_options())
+
+
+def _has_n4_candidate_proposal_v3_owner_profile(
+    manifest: artifacts.ArtifactManifest,
+    record: N4CandidateProposalRecordV3,
+) -> bool:
+    return _has_owner_profile(
+        manifest,
+        _n4_candidate_proposal_v3_write_options(record),
+    )
 
 
 def _has_owner_profile(
@@ -344,9 +368,9 @@ class _StrictModel(BaseModel):
 class N4CandidateProposalRecord(_StrictModel):
     """Persist one tenant-bound N4 proposal with an explicit authority limitation."""
 
-    schema_version: Literal[
-        "policyos.runtime.quality.n4_candidate_proposal_record.v1"
-    ] = N4_CANDIDATE_PROPOSAL_SCHEMA
+    schema_version: Literal["policyos.runtime.quality.n4_candidate_proposal_record.v1"] = (
+        N4_CANDIDATE_PROPOSAL_SCHEMA
+    )
     authority_purpose: Literal["candidate_proposal"] = "candidate_proposal"
     status: Literal["candidate_limited"] = "candidate_limited"
     execution_band: Literal["candidate"] = "candidate"
@@ -378,9 +402,10 @@ class N4CandidateProposalRecord(_StrictModel):
             raise ValueError("n4_candidate_proposal_problem_ref_mismatch")
         if self.proposal.design_problem_ref != problem_ref:
             raise ValueError("n4_candidate_proposal_source_problem_mismatch")
-        expected_request_hash = "sha256:" + hashlib.sha256(
-            self.problem.nl_provenance.raw_request.encode("utf-8")
-        ).hexdigest()
+        expected_request_hash = (
+            "sha256:"
+            + hashlib.sha256(self.problem.nl_provenance.raw_request.encode("utf-8")).hexdigest()
+        )
         if self.request_hash != expected_request_hash:
             raise ValueError("n4_candidate_proposal_request_binding_mismatch")
         if self.proposal.execution_band != self.execution_band:
@@ -408,18 +433,55 @@ class N4CandidateProposalSimulationDisposition(_StrictModel):
 class N4CandidateProposalSimulationRecord(N4CandidateProposalRecord):
     """Versioned N4 proposal carrying a content-bound simulation disposition."""
 
-    schema_version: Literal[
-        "policyos.runtime.quality.n4_candidate_proposal_record.v2"
-    ] = N4_CANDIDATE_PROPOSAL_V2_SCHEMA
+    schema_version: Literal["policyos.runtime.quality.n4_candidate_proposal_record.v2"] = (
+        N4_CANDIDATE_PROPOSAL_V2_SCHEMA
+    )
     simulation_disposition: N4CandidateProposalSimulationDisposition
+
+
+class N4CandidateProposalRecordV3(N4CandidateProposalRecord):
+    """Current N4 proposal source with traced producer events and Core-run binding.
+
+    Historical v1/v2 records remain readable as their original exact models.
+    Current V3 events preserve both the DesignProblem compiler and N4 call sets
+    so the normal Core-run agent reader can reconcile provider cost provenance.
+    """
+
+    schema_version: Literal["policyos.runtime.quality.n4_candidate_proposal_record.v3"] = (
+        N4_CANDIDATE_PROPOSAL_V3_SCHEMA
+    )
+    nl_preflight_cost_events: tuple[AgentPipelineCostEvent, ...]
+    n4_generation_cost_events: tuple[AgentPipelineCostEvent, ...]
+    simulation_disposition: N4CandidateProposalSimulationDisposition | None = None
+    core_run_id: str | None = Field(default=None, min_length=1)
+    control_job_attempt: int | None = Field(default=None, ge=1)
+
+    @property
+    def producer_cost_events(self) -> tuple[AgentPipelineCostEvent, ...]:
+        """Return the deduplicated event rows emitted by both N4 producer stages."""
+        return (*self.nl_preflight_cost_events, *self.n4_generation_cost_events)
+
+    @model_validator(mode="after")
+    def _verify_v3_cost_events(self) -> N4CandidateProposalRecordV3:
+        if (self.core_run_id is None) != (self.control_job_attempt is None):
+            raise ValueError("n4_candidate_proposal_core_run_binding_incomplete")
+        seen: dict[str, AgentPipelineCostEvent] = {}
+        for event in self.producer_cost_events:
+            previous = seen.get(event.event_id)
+            if previous is not None:
+                if previous != event:
+                    raise ValueError("n4_candidate_proposal_cost_event_identity_conflict")
+                raise ValueError("n4_candidate_proposal_cost_event_duplicate")
+            seen[event.event_id] = event
+        return self
 
 
 class N4CandidateProposalLocator(_StrictModel):
     """Versioned job pointer retaining the Core CAS manifest-view selector."""
 
-    schema_version: Literal[
-        "policyos.runtime.quality.n4_candidate_proposal_locator.v1"
-    ] = N4_CANDIDATE_PROPOSAL_LOCATOR_SCHEMA
+    schema_version: Literal["policyos.runtime.quality.n4_candidate_proposal_locator.v1"] = (
+        N4_CANDIDATE_PROPOSAL_LOCATOR_SCHEMA
+    )
     artifact_ref: artifacts.ArtifactRef
 
     @model_validator(mode="after")
@@ -435,9 +497,9 @@ class N4CandidateProposalLocator(_StrictModel):
 class N4CandidateScenarioSourceLocator(_StrictModel):
     """Versioned pointer to a configured-profile N4 scenario-source record."""
 
-    schema_version: Literal[
-        "policyos.runtime.quality.n4_candidate_scenario_source_locator.v1"
-    ] = N4_CANDIDATE_SCENARIO_SOURCE_LOCATOR_SCHEMA
+    schema_version: Literal["policyos.runtime.quality.n4_candidate_scenario_source_locator.v1"] = (
+        N4_CANDIDATE_SCENARIO_SOURCE_LOCATOR_SCHEMA
+    )
     artifact_ref: artifacts.ArtifactRef
 
     @model_validator(mode="after")
@@ -446,9 +508,7 @@ class N4CandidateScenarioSourceLocator(_StrictModel):
             self.artifact_ref.kind != _N4_CANDIDATE_SCENARIO_SOURCE_KIND
             or self.artifact_ref.media_type != "application/json"
         ):
-            raise ValueError(
-                "n4_candidate_scenario_source_locator_owner_profile_mismatch"
-            )
+            raise ValueError("n4_candidate_scenario_source_locator_owner_profile_mismatch")
         return self
 
 
@@ -700,12 +760,10 @@ class N4CandidateScenarioSourceRecordV1(_StrictModel):
     and all grounding/authority claims.
     """
 
-    schema_version: Literal[
-        "policyos.runtime.quality.n4_candidate_scenario_source.v1"
-    ] = _N4_CANDIDATE_SCENARIO_SOURCE_SCHEMA
-    authority_purpose: Literal["candidate_scenario_n5_only"] = (
-        "candidate_scenario_n5_only"
+    schema_version: Literal["policyos.runtime.quality.n4_candidate_scenario_source.v1"] = (
+        _N4_CANDIDATE_SCENARIO_SOURCE_SCHEMA
     )
+    authority_purpose: Literal["candidate_scenario_n5_only"] = "candidate_scenario_n5_only"
     status: Literal["candidate_unverified", "candidate_limited"] = "candidate_limited"
     n5_status: Literal["not_run"] = "not_run"
     n8_status: Literal["not_run"] = "not_run"
@@ -722,11 +780,14 @@ class N4CandidateScenarioSourceRecordV1(_StrictModel):
     candidate: n4.N4CandidateScenarioProposalCandidate | None = None
     profile: CandidateSimulationScenarioProfile
     profile_config_ref: str = Field(..., min_length=1, strict=True)
-    candidate_limitation_code: Literal[
-        "candidate_scenario_profile_action_not_matched",
-        "candidate_scenario_worker_lease_not_current",
-        "candidate_scenario_proposal_atom_not_established",
-    ] | None = None
+    candidate_limitation_code: (
+        Literal[
+            "candidate_scenario_profile_action_not_matched",
+            "candidate_scenario_worker_lease_not_current",
+            "candidate_scenario_proposal_atom_not_established",
+        ]
+        | None
+    ) = None
     context_job_ref: ArtifactRef
     context_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$", strict=True)
     world_model_record_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$", strict=True)
@@ -760,15 +821,11 @@ class N4CandidateScenarioSourceRecordV1(_StrictModel):
             self.design_problem_ref != gy_content_hash(self.problem.model_dump(mode="json"))
             or self.proposal.design_problem_ref != self.design_problem_ref
             or self.cycle_problem_ref != cycle_job_design_problem_ref(self.problem)
-            or self.profile.profile_selection_ref
-            != cycle_job_profile_selection_ref(self.problem)
+            or self.profile.profile_selection_ref != cycle_job_profile_selection_ref(self.problem)
         ):
             raise ValueError("n4_candidate_scenario_problem_binding_mismatch")
         if self.candidate is None:
-            if (
-                self.status != "candidate_limited"
-                or self.candidate_limitation_code is None
-            ):
+            if self.status != "candidate_limited" or self.candidate_limitation_code is None:
                 raise ValueError("n4_candidate_scenario_candidate_missing")
         else:
             interventions = tuple(
@@ -785,8 +842,7 @@ class N4CandidateScenarioSourceRecordV1(_StrictModel):
                 self.candidate.atom.intervention_id != interventions[0].intervention_id
                 or self.candidate.atom.operator_kind.trinity_kind != interventions[0].kind
                 or self.candidate.atom.direct_effect_bundle.params != interventions[0].params
-                or self.candidate.atom.target_world_slots
-                != (self.profile.rule.target_world_slot,)
+                or self.candidate.atom.target_world_slots != (self.profile.rule.target_world_slot,)
                 or self.candidate.atom.causal_do_expr.write_variables
                 != (self.profile.rule.target_world_slot,)
                 or self.status != "candidate_unverified"
@@ -820,9 +876,9 @@ class N4CandidateScenarioSourceRecordV1(_StrictModel):
 class N4CandidateScenarioSourceRecordV2(_StrictModel):
     """Versioned selected-view extension around unchanged historical source V1."""
 
-    schema_version: Literal[
-        "policyos.runtime.quality.n4_candidate_scenario_source.v2"
-    ] = _N4_CANDIDATE_SCENARIO_SOURCE_V2_SCHEMA
+    schema_version: Literal["policyos.runtime.quality.n4_candidate_scenario_source.v2"] = (
+        _N4_CANDIDATE_SCENARIO_SOURCE_V2_SCHEMA
+    )
     source_record: N4CandidateScenarioSourceRecordV1
     model_declaration: CandidateSimulationSyntheticModelDeclarationV1
     model_declaration_ref: ArtifactRef
@@ -1013,9 +1069,9 @@ class N4CandidateScenarioSourceRecordV3(_StrictModel):
     occurrence and, when re-entering after acquisition, the exact origin source.
     """
 
-    schema_version: Literal[
-        "policyos.runtime.quality.n4_candidate_scenario_source.v3"
-    ] = _N4_CANDIDATE_SCENARIO_SOURCE_V3_SCHEMA
+    schema_version: Literal["policyos.runtime.quality.n4_candidate_scenario_source.v3"] = (
+        _N4_CANDIDATE_SCENARIO_SOURCE_V3_SCHEMA
+    )
     source_record: N4CandidateScenarioSourceRecordV2
     source_ref: ArtifactRef
     stable_subject_ref: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$", strict=True)
@@ -1304,7 +1360,7 @@ class GenerationSourceRepository:
             ),
         )
         ref = persist_ncm_spec_selected_view(
-            self.store,
+            _ensure_ir_artifact_store(self.store),
             ncm_spec,
             write_options=options,
         )
@@ -1408,15 +1464,15 @@ class GenerationSourceRepository:
             CycleSubstrateContextArtifactOwner,
         )
 
-        context_job = (
-            CycleSubstrateContextArtifactOwner(store=self.store).resolve_historical_job_artifact(
-                source_v1.context_job_ref,
-                problem=source_v1.problem,
-                expected_job_id=source_v1.job_id,
-                expected_run_id=source_v1.run_id,
-                expected_tenant_id=source_v1.tenant_id,
-                expected_cell_id=source_v1.cell_id,
-            )
+        context_job = CycleSubstrateContextArtifactOwner(
+            store=self.store
+        ).resolve_historical_job_artifact(
+            source_v1.context_job_ref,
+            problem=source_v1.problem,
+            expected_job_id=source_v1.job_id,
+            expected_run_id=source_v1.run_id,
+            expected_tenant_id=source_v1.tenant_id,
+            expected_cell_id=source_v1.cell_id,
         )
         context_slot_units = {
             item.slot_id: item.unit
@@ -1443,10 +1499,8 @@ class GenerationSourceRepository:
             expected_cell_id=source_v1.cell_id,
         )
         if (
-            context_slot_units.get(declaration.target_world_slot)
-            != declaration.target_unit_id
-            or context_slot_units.get(declaration.outcome_variable)
-            != declaration.outcome_unit_id
+            context_slot_units.get(declaration.target_world_slot) != declaration.target_unit_id
+            or context_slot_units.get(declaration.outcome_variable) != declaration.outcome_unit_id
         ):
             raise ValueError("n4_candidate_scenario_source_v2_unit_binding_mismatch")
         ncm_manifest = self.store.get_manifest(source.ncm_ref)
@@ -1476,7 +1530,7 @@ class GenerationSourceRepository:
         )
 
         ncm_spec = load_ncm_spec_selected_view(
-            self.store,
+            _ensure_ir_artifact_store(self.store),
             source.ncm_ref,
             expected_tenant_id=source_v1.tenant_id,
             expected_cell_id=source_v1.cell_id,
@@ -1509,9 +1563,7 @@ class GenerationSourceRepository:
             candidate=candidate,
             profile=source_record.profile,
         )
-        if candidate.candidate_id != (
-            "candidate_" + semantic_hash.removeprefix("sha256:")[:16]
-        ):
+        if candidate.candidate_id != ("candidate_" + semantic_hash.removeprefix("sha256:")[:16]):
             raise ValueError("n4_candidate_scenario_v3_candidate_identity_mismatch")
         payload = {
             "source_record": source_record,
@@ -1613,12 +1665,15 @@ class GenerationSourceRepository:
         )
         if current_v2 != source.source_record:
             raise ValueError("n4_candidate_scenario_source_v3_nested_source_mismatch")
-        if candidate_scenario_semantic_identity_hash(
-            stable_subject_ref=source.stable_subject_ref,
-            proposal=current_v2.proposal,
-            candidate=current_v2.candidate,
-            profile=current_v2.profile,
-        ) != source.semantic_identity_hash:
+        if (
+            candidate_scenario_semantic_identity_hash(
+                stable_subject_ref=source.stable_subject_ref,
+                proposal=current_v2.proposal,
+                candidate=current_v2.candidate,
+                profile=current_v2.profile,
+            )
+            != source.semantic_identity_hash
+        ):
             raise ValueError("n4_candidate_scenario_source_v3_identity_recompute_mismatch")
         if source.origin_source_ref is not None:
             origin = self.load_candidate_scenario_source_v3(
@@ -1671,10 +1726,7 @@ class GenerationSourceRepository:
                 expected_tenant_id=expected_tenant_id,
                 expected_cell_id=expected_cell_id,
             )
-        if (
-            schema.name == _N4_CANDIDATE_SCENARIO_SOURCE_V3_SCHEMA
-            and schema.version == "3.0"
-        ):
+        if schema.name == _N4_CANDIDATE_SCENARIO_SOURCE_V3_SCHEMA and schema.version == "3.0":
             return self.load_candidate_scenario_source_v3(
                 ref,
                 expected_run_id=expected_run_id,
@@ -1703,7 +1755,8 @@ class GenerationSourceRepository:
             "candidate_scenario_profile_action_not_matched",
             "candidate_scenario_worker_lease_not_current",
             "candidate_scenario_proposal_atom_not_established",
-        ] | None,
+        ]
+        | None,
         context_job_ref: ArtifactRef,
         context_hash: str,
         world_model_record_hash: str,
@@ -1758,9 +1811,7 @@ class GenerationSourceRepository:
 
         if type(input_record) is not CandidateSimulationN5InputV2:
             raise TypeError("candidate_simulation_n5_input_untyped")
-        record = CandidateSimulationN5InputV2.model_validate(
-            input_record.model_dump(mode="python")
-        )
+        record = CandidateSimulationN5InputV2.model_validate(input_record.model_dump(mode="python"))
         options = _candidate_simulation_write_options(
             kind=_CANDIDATE_SIMULATION_INPUT_KIND,
             schema_name=record.schema_version,
@@ -1884,8 +1935,7 @@ class GenerationSourceRepository:
             context_job.problem != source.problem
             or context_job.design_problem_ref != source.cycle_problem_ref
             or context_job.context.content_hash != source.context_hash
-            or context_job.context.world_model_record.content_hash
-            != source.world_model_record_hash
+            or context_job.context.world_model_record.content_hash != source.world_model_record_hash
             or source.profile.context_inputs.world_model_record.content_hash
             != source.world_model_record_hash
             or source.profile.context_inputs.intervention_substrate is None
@@ -1896,9 +1946,7 @@ class GenerationSourceRepository:
             raise ValueError("n4_candidate_scenario_source_context_binding_mismatch")
         return source
 
-    def persist_candidate_simulation_input_v3(
-        self, *, input_record: object
-    ) -> ArtifactRef:
+    def persist_candidate_simulation_input_v3(self, *, input_record: object) -> ArtifactRef:
         """Persist N5 input while retaining the selected upstream CAS views."""
 
         from polisyos.runtime.quality.candidate_simulation import (
@@ -1907,9 +1955,7 @@ class GenerationSourceRepository:
 
         if type(input_record) is not CandidateSimulationN5InputV3:
             raise TypeError("candidate_simulation_n5_input_untyped")
-        record = CandidateSimulationN5InputV3.model_validate(
-            input_record.model_dump(mode="python")
-        )
+        record = CandidateSimulationN5InputV3.model_validate(input_record.model_dump(mode="python"))
         options = _candidate_simulation_write_options(
             kind=_CANDIDATE_SIMULATION_INPUT_KIND,
             schema_name=record.schema_version,
@@ -1941,9 +1987,7 @@ class GenerationSourceRepository:
 
         if type(input_record) is not CandidateSimulationN5InputV4:
             raise TypeError("candidate_simulation_n5_input_untyped")
-        record = CandidateSimulationN5InputV4.model_validate(
-            input_record.model_dump(mode="python")
-        )
+        record = CandidateSimulationN5InputV4.model_validate(input_record.model_dump(mode="python"))
         options = _candidate_simulation_write_options(
             kind=_CANDIDATE_SIMULATION_INPUT_KIND,
             schema_name=record.schema_version,
@@ -1975,9 +2019,7 @@ class GenerationSourceRepository:
 
         if type(input_record) is not CandidateSimulationN5InputV5:
             raise TypeError("candidate_simulation_n5_input_untyped")
-        record = CandidateSimulationN5InputV5.model_validate(
-            input_record.model_dump(mode="python")
-        )
+        record = CandidateSimulationN5InputV5.model_validate(input_record.model_dump(mode="python"))
         options = _candidate_simulation_write_options(
             kind=_CANDIDATE_SIMULATION_INPUT_KIND,
             schema_name=record.schema_version,
@@ -2310,10 +2352,8 @@ class GenerationSourceRepository:
         ):
             raise ValueError("candidate_simulation_execution_handoff_mismatch")
         if (
-            simulation.k_world_ref_before
-            != input_record.materialization.world_model_record_hash
-            or simulation.k_world_ref_after
-            != input_record.materialization.world_model_record_hash
+            simulation.k_world_ref_before != input_record.materialization.world_model_record_hash
+            or simulation.k_world_ref_after != input_record.materialization.world_model_record_hash
         ):
             raise ValueError("candidate_simulation_execution_world_binding_mismatch")
         payload = {
@@ -2410,9 +2450,7 @@ class GenerationSourceRepository:
         is_input = type(record) is CandidateSimulationN5InputV2
         expected_schema = record.schema_version
         expected_kind = (
-            _CANDIDATE_SIMULATION_INPUT_KIND
-            if is_input
-            else _CANDIDATE_SIMULATION_EXECUTION_KIND
+            _CANDIDATE_SIMULATION_INPUT_KIND if is_input else _CANDIDATE_SIMULATION_EXECUTION_KIND
         )
         if (
             manifest.kind != expected_kind
@@ -2473,14 +2511,10 @@ class GenerationSourceRepository:
             expected_cell_id=cell_id,
         )
         expected_problem_ref = (
-            record.materialization.problem_ref
-            if is_input
-            else record.problem_ref
+            record.materialization.problem_ref if is_input else record.problem_ref
         )
         expected_context_hash = (
-            record.materialization.context_hash
-            if is_input
-            else context_job.context.content_hash
+            record.materialization.context_hash if is_input else context_job.context.content_hash
         )
         if (
             context_job.design_problem_ref != expected_problem_ref
@@ -2491,8 +2525,7 @@ class GenerationSourceRepository:
         ):
             raise ValueError("candidate_simulation_v2_context_job_binding_mismatch")
         if not is_input and (
-            context_job.context.world_model_record.content_hash
-            != record.world_model_record_hash
+            context_job.context.world_model_record.content_hash != record.world_model_record_hash
         ):
             raise ValueError("candidate_simulation_v2_context_world_binding_mismatch")
         if require_current_lease and (
@@ -2552,14 +2585,11 @@ class GenerationSourceRepository:
             or manifest.kind != _CANDIDATE_SIMULATION_INPUT_KIND
             or manifest.media_type != "application/json"
             or manifest.artifact_schema is None
-            or manifest.artifact_schema.name
-            != "policyos.runtime.candidate_simulation.n5_input.v2"
+            or manifest.artifact_schema.name != "policyos.runtime.candidate_simulation.n5_input.v2"
             or manifest.artifact_schema.version != "2.0"
         ):
             raise ValueError("candidate_simulation_v2_input_manifest_mismatch")
-        record = CandidateSimulationN5InputV2.model_validate(
-            canon.from_canonical_bytes(body)
-        )
+        record = CandidateSimulationN5InputV2.model_validate(canon.from_canonical_bytes(body))
         options = _candidate_simulation_write_options(
             kind=_CANDIDATE_SIMULATION_INPUT_KIND,
             schema_name=record.schema_version,
@@ -2615,9 +2645,7 @@ class GenerationSourceRepository:
             raise ValueError("candidate_simulation_v3_record_invalid") from exc
         is_input = type(record) is CandidateSimulationN5InputV3
         expected_kind = (
-            _CANDIDATE_SIMULATION_INPUT_KIND
-            if is_input
-            else _CANDIDATE_SIMULATION_EXECUTION_KIND
+            _CANDIDATE_SIMULATION_INPUT_KIND if is_input else _CANDIDATE_SIMULATION_EXECUTION_KIND
         )
         expected_schema = record.schema_version
         if (
@@ -2756,9 +2784,7 @@ class GenerationSourceRepository:
                 record.n5_result_ref,
                 store=self.store,
                 expected_world_model_record_content_hash=record.world_model_record_hash,
-                expected_atom_ids=(
-                    input_record.materialization.derived_n5_atom.intervention_id,
-                ),
+                expected_atom_ids=(input_record.materialization.derived_n5_atom.intervention_id,),
             )
             if (
                 result.receipt.payload_hash != record.n5_result_content_hash
@@ -2807,9 +2833,7 @@ class GenerationSourceRepository:
             raise ValueError("candidate_simulation_v4_record_invalid") from exc
         is_input = type(record) is CandidateSimulationN5InputV4
         expected_kind = (
-            _CANDIDATE_SIMULATION_INPUT_KIND
-            if is_input
-            else _CANDIDATE_SIMULATION_EXECUTION_KIND
+            _CANDIDATE_SIMULATION_INPUT_KIND if is_input else _CANDIDATE_SIMULATION_EXECUTION_KIND
         )
         if (
             manifest.kind != expected_kind
@@ -2876,9 +2900,7 @@ class GenerationSourceRepository:
         # profile reference, so replay must resolve that exact input before
         # checking source membership.
         input_record = (
-            record
-            if is_input
-            else self._load_candidate_simulation_input_v4(record.n5_input_ref)
+            record if is_input else self._load_candidate_simulation_input_v4(record.n5_input_ref)
         )
         if not is_input and (
             type(input_record) is not CandidateSimulationN5InputV4
@@ -2926,8 +2948,7 @@ class GenerationSourceRepository:
                 or materialization.profile_hash != source.profile.content_hash
                 or materialization.problem_ref != source.cycle_problem_ref
                 or materialization.context_hash != source.context_hash
-                or materialization.world_model_record_hash
-                != source.world_model_record_hash
+                or materialization.world_model_record_hash != source.world_model_record_hash
                 or materialization.original_atom_hash != source.candidate.atom.content_hash
             ):
                 raise ValueError("candidate_simulation_v4_input_context_mismatch")
@@ -2995,9 +3016,7 @@ class GenerationSourceRepository:
             raise ValueError("candidate_simulation_v5_record_invalid") from exc
         is_input = type(record) is CandidateSimulationN5InputV5
         expected_kind = (
-            _CANDIDATE_SIMULATION_INPUT_KIND
-            if is_input
-            else _CANDIDATE_SIMULATION_EXECUTION_KIND
+            _CANDIDATE_SIMULATION_INPUT_KIND if is_input else _CANDIDATE_SIMULATION_EXECUTION_KIND
         )
         if (
             manifest.kind != expected_kind
@@ -3061,9 +3080,7 @@ class GenerationSourceRepository:
         # profile reference, so replay must resolve that exact input before
         # checking source membership.
         input_record = (
-            record
-            if is_input
-            else self._load_candidate_simulation_input_v5(record.n5_input_ref)
+            record if is_input else self._load_candidate_simulation_input_v5(record.n5_input_ref)
         )
         if not is_input and (
             type(input_record) is not CandidateSimulationN5InputV5
@@ -3127,10 +3144,8 @@ class GenerationSourceRepository:
                 or materialization.profile_hash != source_v1.profile.content_hash
                 or materialization.problem_ref != source_v1.cycle_problem_ref
                 or materialization.context_hash != source_v1.context_hash
-                or materialization.world_model_record_hash
-                != source_v1.world_model_record_hash
-                or materialization.original_atom_hash
-                != source_v1.candidate.atom.content_hash
+                or materialization.world_model_record_hash != source_v1.world_model_record_hash
+                or materialization.original_atom_hash != source_v1.candidate.atom.content_hash
                 or materialization.outcome_variable
                 != source_v1.problem.outcome_of_interest.target_variable
             ):
@@ -3168,9 +3183,7 @@ class GenerationSourceRepository:
             raise ValueError("candidate_simulation_v5_input_cas_integrity_failed")
         body = self.store.get_bytes(ref)
         try:
-            record = CandidateSimulationN5InputV5.model_validate(
-                canon.from_canonical_bytes(body)
-            )
+            record = CandidateSimulationN5InputV5.model_validate(canon.from_canonical_bytes(body))
         except (TypeError, ValueError) as exc:
             raise ValueError("candidate_simulation_v5_input_invalid") from exc
         return self.resolve_candidate_simulation_v5(
@@ -3197,9 +3210,7 @@ class GenerationSourceRepository:
             raise ValueError("candidate_simulation_v4_input_selected_view_mismatch")
         body = self.store.get_bytes(ref)
         try:
-            record = CandidateSimulationN5InputV4.model_validate(
-                canon.from_canonical_bytes(body)
-            )
+            record = CandidateSimulationN5InputV4.model_validate(canon.from_canonical_bytes(body))
         except (TypeError, ValueError) as exc:
             raise ValueError("candidate_simulation_v4_input_invalid") from exc
         return self.resolve_candidate_simulation_v4(
@@ -3227,9 +3238,7 @@ class GenerationSourceRepository:
         body = self.store.get_bytes(ref)
         if "sha256:" + hashlib.sha256(body).hexdigest() != str(ref.artifact_id):
             raise ValueError("candidate_simulation_v3_input_cas_content_mismatch")
-        record = CandidateSimulationN5InputV3.model_validate(
-            canon.from_canonical_bytes(body)
-        )
+        record = CandidateSimulationN5InputV3.model_validate(canon.from_canonical_bytes(body))
         if (
             manifest.kind != _CANDIDATE_SIMULATION_INPUT_KIND
             or manifest.media_type != "application/json"
@@ -3282,8 +3291,12 @@ class GenerationSourceRepository:
         problem: DesignProblem,
         proposal: n4.N4CandidateProposalSource,
         simulation_disposition: N4CandidateProposalSimulationDisposition | None = None,
+        nl_preflight_cost_events: Sequence[AgentPipelineCostEvent] = (),
+        n4_generation_cost_events: Sequence[AgentPipelineCostEvent] = (),
+        core_run_id: str | None = None,
+        control_job_attempt: int | None = None,
     ) -> artifacts.ArtifactRef:
-        """Persist N4 output through the runtime-supplied CAS and its typed outcome."""
+        """Persist current N4 output, traced producer events, and Core-run binding."""
         if simulation_disposition is not None:
             simulation_disposition = N4CandidateProposalSimulationDisposition.model_validate(
                 simulation_disposition.model_dump(mode="python")
@@ -3300,6 +3313,30 @@ class GenerationSourceRepository:
         problem_ref = gy_content_hash(problem.model_dump(mode="json"))
         if proposal.design_problem_ref != problem_ref:
             raise ValueError("n4_candidate_proposal_problem_mismatch")
+        seen_events: dict[str, AgentPipelineCostEvent] = {}
+
+        def normalize_events(
+            rows: Sequence[AgentPipelineCostEvent],
+        ) -> tuple[AgentPipelineCostEvent, ...]:
+            normalized: list[AgentPipelineCostEvent] = []
+            for raw_event in rows:
+                event_payload = (
+                    raw_event.model_dump(mode="python")
+                    if isinstance(raw_event, AgentPipelineCostEvent)
+                    else raw_event
+                )
+                event = AgentPipelineCostEvent.model_validate(event_payload)
+                previous = seen_events.get(event.event_id)
+                if previous is not None:
+                    if previous != event:
+                        raise ValueError("n4_candidate_proposal_cost_event_identity_conflict")
+                    continue
+                seen_events[event.event_id] = event
+                normalized.append(event)
+            return tuple(normalized)
+
+        normalized_preflight_events = normalize_events(nl_preflight_cost_events)
+        normalized_n4_events = normalize_events(n4_generation_cost_events)
         payload = {
             "job_id": job_id,
             "run_id": run_id,
@@ -3309,28 +3346,23 @@ class GenerationSourceRepository:
             "design_problem_ref": problem_ref,
             "problem": problem,
             "proposal": proposal,
+            "nl_preflight_cost_events": normalized_preflight_events,
+            "n4_generation_cost_events": normalized_n4_events,
+            "simulation_disposition": simulation_disposition,
+            "core_run_id": core_run_id,
+            "control_job_attempt": control_job_attempt,
         }
-        if simulation_disposition is None:
-            draft = N4CandidateProposalRecord.model_construct(
-                **payload,
-                content_hash="sha256:" + "0" * 64,
-            ).model_dump(mode="python", exclude={"content_hash"})
-            write_options = _n4_candidate_proposal_write_options()
-        else:
-            payload["simulation_disposition"] = simulation_disposition
-            draft = N4CandidateProposalSimulationRecord.model_construct(
-                **payload,
-                content_hash="sha256:" + "0" * 64,
-            ).model_dump(mode="python", exclude={"content_hash"})
-            write_options = _n4_candidate_proposal_v2_write_options()
+        draft = N4CandidateProposalRecordV3.model_construct(
+            **payload,
+            content_hash="sha256:" + "0" * 64,
+        ).model_dump(mode="python", exclude={"content_hash"})
         draft["content_hash"] = _source_content_hash(draft)
-        artifact = (
-            N4CandidateProposalRecord.model_validate(draft)
-            if simulation_disposition is None
-            else N4CandidateProposalSimulationRecord.model_validate(draft)
-        )
+        artifact = N4CandidateProposalRecordV3.model_validate(draft)
         body = canon.to_canonical_bytes(artifact, _SOURCE_CANON)
-        return self.store.put_bytes(body, write_options)
+        return self.store.put_bytes(
+            body,
+            _n4_candidate_proposal_v3_write_options(artifact),
+        )
 
     def load_candidate_proposal(
         self,
@@ -3341,7 +3373,11 @@ class GenerationSourceRepository:
         tenant_id: str,
         cell_id: str,
         raw_request: str,
-    ) -> N4CandidateProposalRecord | N4CandidateProposalSimulationRecord:
+    ) -> (
+        N4CandidateProposalRecord
+        | N4CandidateProposalSimulationRecord
+        | N4CandidateProposalRecordV3
+    ):
         """Verify exact bytes, owner profile, and served job/tenant identity."""
         locator = (
             ref
@@ -3362,20 +3398,27 @@ class GenerationSourceRepository:
         if not self.store.verify(selected_ref).ok:
             raise ValueError("n4_candidate_proposal_cas_integrity_failed")
         manifest = self.store.get_manifest(selected_ref)
-        v1_owner_profile = _has_n4_candidate_proposal_owner_profile(manifest)
-        v2_owner_profile = _has_n4_candidate_proposal_v2_owner_profile(manifest)
-        if v1_owner_profile == v2_owner_profile:
-            raise ValueError("n4_candidate_proposal_owner_profile_mismatch")
         body = self.store.get_bytes(selected_ref)
         if "sha256:" + hashlib.sha256(body).hexdigest() != str(artifact_ref.artifact_id):
             raise ValueError("n4_candidate_proposal_cas_content_mismatch")
         payload = canon.from_canonical_bytes(body)
-        record_type = (
-            N4CandidateProposalRecord
-            if v1_owner_profile
-            else N4CandidateProposalSimulationRecord
+        schema_name = (
+            manifest.artifact_schema.name if manifest.artifact_schema is not None else None
         )
-        artifact = record_type.model_validate(payload)
+        if schema_name == N4_CANDIDATE_PROPOSAL_SCHEMA:
+            if not _has_n4_candidate_proposal_owner_profile(manifest):
+                raise ValueError("n4_candidate_proposal_owner_profile_mismatch")
+            artifact = N4CandidateProposalRecord.model_validate(payload)
+        elif schema_name == N4_CANDIDATE_PROPOSAL_V2_SCHEMA:
+            if not _has_n4_candidate_proposal_v2_owner_profile(manifest):
+                raise ValueError("n4_candidate_proposal_owner_profile_mismatch")
+            artifact = N4CandidateProposalSimulationRecord.model_validate(payload)
+        elif schema_name == N4_CANDIDATE_PROPOSAL_V3_SCHEMA:
+            artifact = N4CandidateProposalRecordV3.model_validate(payload)
+            if not _has_n4_candidate_proposal_v3_owner_profile(manifest, artifact):
+                raise ValueError("n4_candidate_proposal_owner_profile_mismatch")
+        else:
+            raise ValueError("n4_candidate_proposal_owner_profile_mismatch")
         expected = {
             "job_id": job_id,
             "run_id": run_id,
@@ -3398,7 +3441,11 @@ class GenerationSourceRepository:
         tenant_id: str,
         cell_id: str,
         raw_request: str,
-    ) -> N4CandidateProposalRecord | N4CandidateProposalSimulationRecord:
+    ) -> (
+        N4CandidateProposalRecord
+        | N4CandidateProposalSimulationRecord
+        | N4CandidateProposalRecordV3
+    ):
         """Admit a current served proposal only when inner provenance matches its owner.
 
         Historical v1 proposals remain byte-exact; current workers use this
@@ -3424,9 +3471,7 @@ class GenerationSourceRepository:
     def load_candidate_proposal_projection_for_served_job(
         self,
         locator: (
-            N4CandidateProposalLocator
-            | N4CandidateScenarioSourceLocator
-            | Mapping[str, Any]
+            N4CandidateProposalLocator | N4CandidateScenarioSourceLocator | Mapping[str, Any]
         ),
         *,
         job_id: str,
@@ -3438,14 +3483,16 @@ class GenerationSourceRepository:
     ) -> (
         N4CandidateProposalRecord
         | N4CandidateProposalSimulationRecord
+        | N4CandidateProposalRecordV3
         | N4CandidateScenarioSourceRecord
     ):
         """Dispatch the existing progress pointer to its exact N4 source owner."""
 
         typed_locator: N4CandidateProposalLocator | N4CandidateScenarioSourceLocator
-        if type(locator) is N4CandidateProposalLocator or type(
-            locator
-        ) is N4CandidateScenarioSourceLocator:
+        if (
+            type(locator) is N4CandidateProposalLocator
+            or type(locator) is N4CandidateScenarioSourceLocator
+        ):
             typed_locator = locator
         elif isinstance(locator, Mapping):
             schema_version = locator.get("schema_version")
@@ -3467,10 +3514,7 @@ class GenerationSourceRepository:
                 cell_id=cell_id,
                 raw_request=raw_request,
             )
-            if (
-                expected_design_problem is not None
-                and artifact.problem != expected_design_problem
-            ):
+            if expected_design_problem is not None and artifact.problem != expected_design_problem:
                 raise ValueError("n4_candidate_proposal_projection_problem_mismatch")
             return artifact
 
@@ -3483,10 +3527,7 @@ class GenerationSourceRepository:
         )
         if artifact.problem.nl_provenance.raw_request != raw_request:
             raise ValueError("n4_candidate_scenario_projection_request_mismatch")
-        if (
-            expected_design_problem is not None
-            and artifact.problem != expected_design_problem
-        ):
+        if expected_design_problem is not None and artifact.problem != expected_design_problem:
             raise ValueError("n4_candidate_scenario_projection_problem_mismatch")
         return artifact
 
@@ -3518,8 +3559,22 @@ class GenerationSourceRepository:
         problem: DesignProblem,
         organ: n4.DesignGenerationOrganRun,
         execution_scope: ExecutionScope = "production",
+        job_id: str | None = None,
+        tenant_id: str | None = None,
+        cell_id: str | None = None,
     ) -> ArtifactRef:
-        """Persist original N4 bytes and return the exact owner-selected view."""
+        """Persist original N4 bytes and return the exact owner-selected view.
+
+        When the caller is serving a natural-language job, the optional job
+        identity binds the source view to that job's run and tenant. Existing
+        non-served callers retain the historical unscoped source profile.
+        """
+
+        scope = (job_id, tenant_id, cell_id)
+        if any(value is not None for value in scope) and not all(
+            isinstance(value, str) and value.strip() for value in scope
+        ):
+            raise ValueError("generation_source_job_scope_incomplete")
 
         payload = {
             "run_id": run_id,
@@ -3538,28 +3593,68 @@ class GenerationSourceRepository:
         draft["content_hash"] = _source_content_hash(draft)
         artifact = GenerationSourceHandoff.model_validate(draft)
         body = canon.to_canonical_bytes(artifact, _SOURCE_CANON)
-        ref = self.store.put_bytes(
-            body,
-            _source_write_options(),
-        )
+        if job_id is None:
+            options = _source_write_options()
+        else:
+            if tenant_id is None or cell_id is None:
+                raise ValueError("generation_source_job_scope_incomplete")
+            options = _candidate_simulation_write_options(
+                kind=SOURCE_KIND,
+                schema_name=SOURCE_SCHEMA,
+                schema_version="1.0",
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                source_ref=artifact.content_hash,
+            )
+        ref = self.store.put_bytes(body, options)
         return ref
 
-    def load(self, ref: ArtifactRef | str, *, run_id: str) -> GenerationSourceHandoff:
+    def load(
+        self,
+        ref: ArtifactRef | str,
+        *,
+        run_id: str,
+        expected_job_id: str | None = None,
+        expected_tenant_id: str | None = None,
+        expected_cell_id: str | None = None,
+    ) -> GenerationSourceHandoff:
         """Verify Core custody, exact typed source and its canonical run binding."""
+        scope = (expected_job_id, expected_tenant_id, expected_cell_id)
+        if any(value is not None for value in scope) and not all(
+            isinstance(value, str) and value.strip() for value in scope
+        ):
+            raise ValueError("generation_source_expected_job_scope_incomplete")
         artifact_id = str(ref.artifact_id) if isinstance(ref, ArtifactRef) else ref
         if not self.store.verify(ref).ok:
             raise ValueError("generation_source_cas_integrity_failed")
         manifest = self.store.get_manifest(ref)
         if isinstance(ref, ArtifactRef) and not _ref_selects_manifest(ref, manifest):
             raise ValueError("generation_source_selected_view_mismatch")
-        if not _has_source_owner_profile(manifest):
-            raise ValueError("generation_source_owner_profile_mismatch")
         body = self.store.get_bytes(ref)
         if "sha256:" + hashlib.sha256(body).hexdigest() != artifact_id:
             raise ValueError("generation_source_cas_content_mismatch")
         artifact = GenerationSourceHandoff.model_validate(canon.from_canonical_bytes(body))
         if artifact.run_id != run_id:
             raise ValueError("generation_source_run_mismatch")
+        if expected_job_id is None:
+            owner_options = _source_write_options()
+        else:
+            if expected_tenant_id is None or expected_cell_id is None:
+                raise ValueError("generation_source_expected_job_scope_incomplete")
+            owner_options = _candidate_simulation_write_options(
+                kind=SOURCE_KIND,
+                schema_name=SOURCE_SCHEMA,
+                schema_version="1.0",
+                job_id=expected_job_id,
+                run_id=run_id,
+                tenant_id=expected_tenant_id,
+                cell_id=expected_cell_id,
+                source_ref=artifact.content_hash,
+            )
+        if not _has_owner_profile(manifest, owner_options):
+            raise ValueError("generation_source_owner_profile_mismatch")
         return artifact
 
     def resolve(
@@ -3572,9 +3667,7 @@ class GenerationSourceRepository:
     ) -> GenerationSourceResolution:
         """Resolve the whole source set before selecting one exact candidate occurrence."""
         ref_keys = tuple(
-            artifact_ref_identity_key(ref)
-            if isinstance(ref, ArtifactRef)
-            else (ref, "", "", None)
+            artifact_ref_identity_key(ref) if isinstance(ref, ArtifactRef) else (ref, "", "", None)
             for ref in refs
         )
         if len(ref_keys) != len(set(ref_keys)):
@@ -3650,9 +3743,7 @@ class GenerationSourceRepository:
                     return GenerationSourceResolution(
                         status="not_established",
                         code="effect_writer_projection_grounding_mismatch",
-                        source_ref=(
-                            str(ref.artifact_id) if isinstance(ref, ArtifactRef) else ref
-                        ),
+                        source_ref=(str(ref.artifact_id) if isinstance(ref, ArtifactRef) else ref),
                     )
                 result["effect_obligation_writer_input"] = writer.model_copy(
                     update={"proposal": proposal}
@@ -3681,9 +3772,7 @@ class GenerationSourceRepository:
         owners: dict[Identity, str] = {}
         synthetic = scope_synthetic
         ref_keys = tuple(
-            artifact_ref_identity_key(ref)
-            if isinstance(ref, ArtifactRef)
-            else (ref, "", "", None)
+            artifact_ref_identity_key(ref) if isinstance(ref, ArtifactRef) else (ref, "", "", None)
             for ref in refs
         )
         if len(ref_keys) != len(set(ref_keys)):
@@ -3711,8 +3800,7 @@ class GenerationSourceRepository:
         payload = {
             "run_id": run_id,
             "source_refs": tuple(
-                str(ref.artifact_id) if isinstance(ref, ArtifactRef) else ref
-                for ref in refs
+                str(ref.artifact_id) if isinstance(ref, ArtifactRef) else ref for ref in refs
             ),
             "synthetic": synthetic,
             "expected_identity_count": len(set(expected)),

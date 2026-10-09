@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.causal import ProofBundle, build_data_readiness_report
 from polisyos.ir.analytics.dp_robustness import (
@@ -184,8 +185,8 @@ def test_dp_certificate_round_trip_and_proof_bundle_metadata_attachment(tmp_path
         ),
     )
 
-    ref = persist_dp_robustness_certificate(store, certificate)
-    loaded = load_dp_robustness_certificate(store, ref)
+    ref = persist_dp_robustness_certificate(_ensure_ir_artifact_store(store), certificate)
+    loaded = load_dp_robustness_certificate(_ensure_ir_artifact_store(store), ref)
     attached = attach_dp_robustness_to_proof_bundle(_proof_bundle(), ref, loaded)
 
     assert loaded == certificate

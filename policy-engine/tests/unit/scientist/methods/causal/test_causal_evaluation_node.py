@@ -6,6 +6,8 @@ import logging
 import numpy as np
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+
 _PYGRAPHVIZ_INSTALLED = importlib.util.find_spec("pygraphviz") is not None
 
 from polisyos.core.artifacts.manifest import SchemaInfo
@@ -896,7 +898,7 @@ def test_causal_evaluation_node_persists_causal_validity_bundle_for_hte_inputs(
             CausalEdge(src="B", dst="C", mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.TAIL),
         ],
     )
-    pag_ref = persist_causal_graph_model(store, pag_graph)
+    pag_ref = persist_causal_graph_model(_ensure_ir_artifact_store(store), pag_graph)
 
     def _fake_run_job(spec, *, cas_root, method_state):
         del cas_root, method_state

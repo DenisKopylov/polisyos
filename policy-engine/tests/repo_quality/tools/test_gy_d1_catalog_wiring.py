@@ -300,6 +300,7 @@ def constructor_census() -> tuple[list[ConstructorSite], dict[str, Any]]:
 
 @pytest.fixture(scope="module")
 def catalog_context(tmp_path_factory):
+    from polisyos.core.artifacts import FileSystemCAS
     from polisyos.data_forge.read_api import catalog as catalog_api
     from polisyos.fabric.retrieval.providers import resolve_retrieval_providers
     from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
@@ -345,6 +346,7 @@ def catalog_context(tmp_path_factory):
     )
     providers = resolve_retrieval_providers()
     control = object.__new__(ControlPlaneService)
+    control._artifact_store = FileSystemCAS(root / "cas")
     control._registry_providers = resolve_control_registry_providers(gy_catalog_graph=graph)
     control._tracer = providers.tracer
     control._metrics = providers.metrics
@@ -405,8 +407,31 @@ def test_complete_constructor_census():
 
 def test_actual_constructor_resolves_catalog(catalog_context, monkeypatch):
     from polisyos.core.contracts.control import DataNeed, DataResolveRequest
+    from polisyos.data_forge.domains.catalog.registry import (
+        CatalogSourceRegistryEntry,
+        CatalogSourceRegistrySpec,
+    )
+    from polisyos.data_forge.read_api import catalog as catalog_api
     from polisyos.data_forge.read_api.catalog import DatasetCatalogGraph
 
+    source_registry = CatalogSourceRegistrySpec(
+        sources=(
+            CatalogSourceRegistryEntry(
+                source_id="static_csv",
+                family="controlled_test_fixture",
+                wave="T",
+                endpoint="file://controlled-test-fixture",
+                connector_id="static_csv",
+                execution_tier="fetchable",
+                run_lane="catalog",
+            ),
+        )
+    )
+    monkeypatch.setattr(
+        catalog_api,
+        "load_catalog_source_registry",
+        lambda: source_registry,
+    )
     sites, report = constructor_census()
     outcomes = []
     for site in sites:
@@ -417,6 +442,7 @@ def test_actual_constructor_resolves_catalog(catalog_context, monkeypatch):
                     data_needs=[DataNeed(metric="metric.gy_d1_catalog_only")],
                     mode="fastlane",
                     allow_explore_fallback=False,
+                    catalog_run_profile="prod_full",
                 )
             )
             assert isinstance(service._dataset_catalog, DatasetCatalogGraph), "catalog is not real"
@@ -635,6 +661,7 @@ def test_every_constructor_binds_full_fetch_into_n9_and_catalog_removal_refuses(
                     data_needs=[DataNeed(metric=owner.plan.metric_id)],
                     mode="fastlane",
                     allow_explore_fallback=False,
+                    catalog_run_profile="prod_full",
                 )
                 reference = owner.service.resolve(request)
                 assert reference.fetch_plans, "real owner positive control cannot resolve"
@@ -763,6 +790,7 @@ def test_actual_nl_fetch_default_binds_measurement_and_persistence_removal_refus
                 data_needs=[DataNeed(metric=owner.plan.metric_id)],
                 mode="fastlane",
                 allow_explore_fallback=False,
+                catalog_run_profile="prod_full",
             )
         )
         assert resolved.fetch_plans

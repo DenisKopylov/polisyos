@@ -321,7 +321,7 @@ def load_graph_hypothesis(
     ref: GraphHypothesisRef,
 ) -> GraphHypothesis:
     """Load graph hypothesis."""
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return GraphHypothesis.model_validate(payload)
 
 

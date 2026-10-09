@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.abstraction import (
     AbstractionPreservationType,
@@ -89,7 +91,9 @@ def _linear_gaussian_scm(
 def test_verify_continuous_linear_gaussian_policy_value_certificate(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "continuous-linear-gaussian")
     abstraction_map = _continuous_map()
-    map_ref = persist_finite_state_abstraction_map(store, abstraction_map)
+    map_ref = persist_finite_state_abstraction_map(
+        _ensure_ir_artifact_store(store), abstraction_map
+    )
 
     certificate = verify_continuous_approximate_abstraction(
         _linear_gaussian_scm(
@@ -145,7 +149,9 @@ def test_verify_continuous_linear_gaussian_policy_value_certificate(tmp_path) ->
 def test_verify_continuous_lipschitz_dag_propagates_local_defects(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "continuous-lipschitz")
     abstraction_map = _continuous_map()
-    map_ref = persist_finite_state_abstraction_map(store, abstraction_map)
+    map_ref = persist_finite_state_abstraction_map(
+        _ensure_ir_artifact_store(store), abstraction_map
+    )
 
     certificate = verify_continuous_approximate_abstraction(
         _linear_gaussian_scm(
@@ -210,7 +216,9 @@ def test_verify_continuous_abstraction_returns_invalid_for_incomplete_lipschitz_
 ) -> None:
     store = FileSystemCAS(tmp_path / "continuous-lipschitz-invalid")
     abstraction_map = _continuous_map()
-    map_ref = persist_finite_state_abstraction_map(store, abstraction_map)
+    map_ref = persist_finite_state_abstraction_map(
+        _ensure_ir_artifact_store(store), abstraction_map
+    )
 
     certificate = verify_continuous_approximate_abstraction(
         _linear_gaussian_scm(

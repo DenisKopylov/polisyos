@@ -170,7 +170,7 @@ class AttractorAnalysisService:
         return load_continuation_branch(self._store, ref), ref
 
     def _load_model(self, ref: ArtifactRef, model: type[_ModelT]) -> _ModelT:
-        payload = from_canonical_bytes(self._store.get_bytes(ref.artifact_id))
+        payload = from_canonical_bytes(self._store.get_bytes(ref))
         return model.model_validate(payload)
 
     @staticmethod

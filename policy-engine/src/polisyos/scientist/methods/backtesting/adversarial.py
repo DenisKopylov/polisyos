@@ -8,6 +8,7 @@ from typing import Any
 
 import numpy as np
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.ir.analytics.abm_bridge import ABMAlignmentReport, load_abm_alignment_report
 from polisyos.ir.analytics.abstraction import (
@@ -328,8 +329,12 @@ def run_phase_d4_challenge_suites(
 ) -> tuple[list[ChallengeSuiteResult], tuple[str, ...]]:
     """Run D.4 strategic and abstraction suites when supporting evidence exists."""
 
-    from polisyos.scientist.methods.backtesting.abstraction_suite import run_abstraction_challenge_suite
-    from polisyos.scientist.methods.backtesting.strategic_suite import run_strategic_challenge_suites
+    from polisyos.scientist.methods.backtesting.abstraction_suite import (
+        run_abstraction_challenge_suite,
+    )
+    from polisyos.scientist.methods.backtesting.strategic_suite import (
+        run_strategic_challenge_suites,
+    )
 
     strategic_summary = _resolve_strategic_summary(
         store,
@@ -391,7 +396,7 @@ def _resolve_strategic_summary(
     bundle_ref = artifacts_index.get(ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF)
     if bundle_ref is not None:
         try:
-            bundle = load_strategic_response_bundle(store, bundle_ref)
+            bundle = load_strategic_response_bundle(_ensure_ir_artifact_store(store), bundle_ref)
             summary: dict[str, Any] = {
                 "fallback_mode": bundle.fallback_mode.value,
                 "equilibrium_selection_dependence": bundle.equilibrium_selection_dependence,
@@ -399,28 +404,30 @@ def _resolve_strategic_summary(
                 "blocked_reason": bundle.blocked_reason,
                 "strategic_response_bundle_ref": bundle_ref.model_dump(mode="json"),
                 "closure_summary": load_strategic_closure_summary(
-                    store,
+                    _ensure_ir_artifact_store(store),
                     bundle.strategic_closure_ref,
                 ).model_dump(mode="json"),
             }
-            equilibrium_set = load_equilibrium_set_summary(store, bundle.equilibrium_set_ref)
+            equilibrium_set = load_equilibrium_set_summary(
+                _ensure_ir_artifact_store(store), bundle.equilibrium_set_ref
+            )
             if equilibrium_set.equilibrium_profiles:
                 summary["equilibrium_profiles"] = [
                     dict(profile) for profile in equilibrium_set.equilibrium_profiles
                 ]
             if bundle.selected_equilibrium_ref is not None:
                 selected = load_equilibrium_selection_summary(
-                    store, bundle.selected_equilibrium_ref
+                    _ensure_ir_artifact_store(store), bundle.selected_equilibrium_ref
                 )
                 summary["selected_equilibrium"] = dict(selected.selected_equilibrium)
             if bundle.performative_shift_ref is not None:
                 performative_shift = load_performative_shift_summary(
-                    store, bundle.performative_shift_ref
+                    _ensure_ir_artifact_store(store), bundle.performative_shift_ref
                 )
                 if performative_shift.performative_shift is not None:
                     summary["performative_shift"] = float(performative_shift.performative_shift)
             post_value = load_post_adaptation_policy_value_summary(
-                store,
+                _ensure_ir_artifact_store(store),
                 bundle.post_adaptation_policy_value_ref,
             )
             if post_value.point_value is not None:
@@ -451,7 +458,7 @@ def _load_abstraction_certificate_if_present(
     if ref is None:
         return None
     try:
-        return load_abstraction_certificate(store, ref)
+        return load_abstraction_certificate(_ensure_ir_artifact_store(store), ref)
     except Exception:
         return None
 
@@ -464,7 +471,7 @@ def _load_abm_alignment_report_if_present(
     if ref is None:
         return None
     try:
-        return load_abm_alignment_report(store, ref)
+        return load_abm_alignment_report(_ensure_ir_artifact_store(store), ref)
     except Exception:
         return None
 

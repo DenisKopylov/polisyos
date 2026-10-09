@@ -5,6 +5,7 @@ import logging
 import pytest
 
 import polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph as reconcile_module
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -88,7 +89,7 @@ def _persist_human_verified_latent_bridge(
     pair_key: str,
 ) -> LatentBridgeHypothesisRef:
     return persist_latent_bridge_hypothesis(
-        store,
+        _ensure_ir_artifact_store(store),
         LatentBridgeHypothesis(
             bridge_id=f"latent::bridge::{pair_key}",
             pair_key=pair_key,
@@ -123,7 +124,7 @@ def test_reconcile_causal_graph_node_persists_graph_and_params(tmp_path) -> None
         edges=[LiteratureEdgePrior(src="tax", dst="employment", confidence=0.7)],
         skg_version_id=2,
     )
-    prior_ref = persist_literature_causal_prior(ctx.store, prior)
+    prior_ref = persist_literature_causal_prior(_ensure_ir_artifact_store(ctx.store), prior)
     data_graph = CausalGraphModel(
         graph_type=GraphType.DAG,
         nodes=["tax", "employment"],
@@ -155,7 +156,7 @@ def test_reconcile_causal_graph_node_persists_graph_and_params(tmp_path) -> None
     assert outcome.state.params["needs_expert_review"] is True
     assert "reconciliation_diagnostics" in outcome.state.params
     graph_ref = outcome.state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF]
-    graph = load_causal_graph_model(ctx.store, graph_ref)
+    graph = load_causal_graph_model(_ensure_ir_artifact_store(ctx.store), graph_ref)
     assert graph.metadata["needs_expert_review"] is True
 
 
@@ -196,10 +197,10 @@ def test_reconcile_causal_graph_node_composes_fragments_and_persists_artifacts(t
             )
         ],
     )
-    graph_a_ref = persist_causal_graph_model(ctx.store, graph_a)
-    graph_b_ref = persist_causal_graph_model(ctx.store, graph_b)
+    graph_a_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), graph_a)
+    graph_b_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), graph_b)
     fragment_a_ref = persist_scm_fragment(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         SCMFragment(
             fragment_id="labor_a",
             graph_ref=str(graph_a_ref.artifact_id),
@@ -211,7 +212,7 @@ def test_reconcile_causal_graph_node_composes_fragments_and_persists_artifacts(t
         ),
     )
     fragment_b_ref = persist_scm_fragment(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         SCMFragment(
             fragment_id="labor_b",
             graph_ref=str(graph_b_ref.artifact_id),
@@ -241,15 +242,15 @@ def test_reconcile_causal_graph_node_composes_fragments_and_persists_artifacts(t
     assert ARTIFACT_INTERFACE_MAPPING_REF in outcome.state.artifacts_index
     assert ARTIFACT_COMPOSITION_CERTIFICATE_REF in outcome.state.artifacts_index
     composed_graph = load_causal_graph_model(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         outcome.state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF],
     )
     mapping = load_interface_mapping(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         outcome.state.artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF],
     )
     certificate = load_composition_certificate(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         outcome.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF],
     )
 
@@ -278,8 +279,8 @@ def test_reconcile_causal_graph_node_recomputes_content_mismatched_precomputed_a
         nodes=["employment_rate", "wages"],
         edges=[CausalEdge(src="employment_rate", dst="wages", combined_confidence=0.7)],
     )
-    graph_a_ref = persist_causal_graph_model(ctx.store, graph_a)
-    graph_b_ref = persist_causal_graph_model(ctx.store, graph_b)
+    graph_a_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), graph_a)
+    graph_b_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), graph_b)
     fragments = [
         {
             "fragment_id": "labor_a",
@@ -347,10 +348,12 @@ def test_reconcile_causal_graph_node_recomputes_content_mismatched_precomputed_a
             ]
         }
     )
-    report_ref = persist_alignment_report(ctx.store, forged_report)
-    mapping_ref = persist_interface_mapping(ctx.store, forged_mapping)
-    assert load_alignment_report(ctx.store, report_ref) == forged_report
-    assert load_interface_mapping(ctx.store, mapping_ref) == forged_mapping
+    report_ref = persist_alignment_report(_ensure_ir_artifact_store(ctx.store), forged_report)
+    mapping_ref = persist_interface_mapping(_ensure_ir_artifact_store(ctx.store), forged_mapping)
+    assert load_alignment_report(_ensure_ir_artifact_store(ctx.store), report_ref) == forged_report
+    assert (
+        load_interface_mapping(_ensure_ir_artifact_store(ctx.store), mapping_ref) == forged_mapping
+    )
 
     state = ExperimentState(
         run_id="R_phase9_compose_reuse",
@@ -386,7 +389,7 @@ def test_reconcile_causal_graph_node_recomputes_content_mismatched_precomputed_a
         mapping_ref.artifact_id
     )
     loaded_report = load_alignment_report(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         outcome.state.artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF],
     )
     assert loaded_report.overall_status.value == "aligned"
@@ -438,10 +441,10 @@ def test_reconcile_causal_graph_node_updates_query_preservation_cache_without_re
             )
         ],
     )
-    graph_a_ref = persist_causal_graph_model(ctx.store, graph_a)
-    graph_b_ref = persist_causal_graph_model(ctx.store, graph_b)
+    graph_a_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), graph_a)
+    graph_b_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), graph_b)
     fragment_a_ref = persist_scm_fragment(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         SCMFragment(
             fragment_id="labor_core",
             graph_ref=str(graph_a_ref.artifact_id),
@@ -456,7 +459,7 @@ def test_reconcile_causal_graph_node_updates_query_preservation_cache_without_re
         ),
     )
     fragment_b_ref = persist_scm_fragment(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         SCMFragment(
             fragment_id="training",
             graph_ref=str(graph_b_ref.artifact_id),
@@ -499,7 +502,7 @@ def test_reconcile_causal_graph_node_updates_query_preservation_cache_without_re
 
     assert replay_outcome.status == "ok"
     certificate = load_composition_certificate(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         replay_outcome.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF],
     )
     assert len(certificate.checked_queries) == 1
@@ -553,10 +556,10 @@ def test_reconcile_causal_graph_node_persists_latent_projection_certificate_arti
             ),
         ],
     )
-    graph_a_ref = persist_causal_graph_model(ctx.store, graph_a)
-    graph_b_ref = persist_causal_graph_model(ctx.store, graph_b)
+    graph_a_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), graph_a)
+    graph_b_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), graph_b)
     fragment_a_ref = persist_scm_fragment(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         SCMFragment(
             fragment_id="a",
             graph_ref=str(graph_a_ref.artifact_id),
@@ -571,7 +574,7 @@ def test_reconcile_causal_graph_node_persists_latent_projection_certificate_arti
         ),
     )
     fragment_b_ref = persist_scm_fragment(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         SCMFragment(
             fragment_id="b",
             graph_ref=str(graph_b_ref.artifact_id),
@@ -617,7 +620,7 @@ def test_reconcile_causal_graph_node_persists_latent_projection_certificate_arti
 
     assert outcome.status == "ok"
     certificate = load_composition_certificate(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         outcome.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF],
     )
     assert len(certificate.query_certificates) == 1
@@ -669,10 +672,10 @@ def test_reconcile_causal_graph_node_persists_negative_certificate_for_latent_he
             ),
         ],
     )
-    graph_a_ref = persist_causal_graph_model(ctx.store, graph_a)
-    graph_b_ref = persist_causal_graph_model(ctx.store, graph_b)
+    graph_a_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), graph_a)
+    graph_b_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), graph_b)
     fragment_a_ref = persist_scm_fragment(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         SCMFragment(
             fragment_id="a",
             graph_ref=str(graph_a_ref.artifact_id),
@@ -687,7 +690,7 @@ def test_reconcile_causal_graph_node_persists_negative_certificate_for_latent_he
         ),
     )
     fragment_b_ref = persist_scm_fragment(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         SCMFragment(
             fragment_id="b",
             graph_ref=str(graph_b_ref.artifact_id),
@@ -733,7 +736,7 @@ def test_reconcile_causal_graph_node_persists_negative_certificate_for_latent_he
 
     assert outcome.status == "ok"
     certificate = load_composition_certificate(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         outcome.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF],
     )
     assert len(certificate.query_certificates) == 1
@@ -741,7 +744,7 @@ def test_reconcile_causal_graph_node_persists_negative_certificate_for_latent_he
     assert record.status == "broken"
     assert record.negative_certificate_ref is not None
     negative_certificate = load_negative_certificate(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         NegativeCertificateRef.model_validate({"artifact_id": record.negative_certificate_ref}),
     )
     assert negative_certificate.blocking_type is BlockingType.HEDGE_STRUCTURE
@@ -755,15 +758,15 @@ def test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_com
 ) -> None:
     ctx = _build_ctx(tmp_path)
     labor_graph_ref = persist_causal_graph_model(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         CausalGraphModel(graph_type=GraphType.DAG, nodes=["rate"], edges=[]),
     )
     health_graph_ref = persist_causal_graph_model(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         CausalGraphModel(graph_type=GraphType.DAG, nodes=["rate"], edges=[]),
     )
     fragment_a_ref = persist_scm_fragment(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         SCMFragment(
             fragment_id="labor",
             graph_ref=str(labor_graph_ref.artifact_id),
@@ -776,7 +779,7 @@ def test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_com
         ),
     )
     fragment_b_ref = persist_scm_fragment(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         SCMFragment(
             fragment_id="health",
             graph_ref=str(health_graph_ref.artifact_id),
@@ -809,12 +812,10 @@ def test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_com
     ]
     failure_card_manifest = ctx.store.get_manifest(failure_card_bundle_ref.artifact_id)
     assert failure_card_manifest.artifact_schema is not None
-    assert failure_card_manifest.artifact_schema.name == (
-        "ir.composition_failure_card_bundle"
-    )
+    assert failure_card_manifest.artifact_schema.name == ("ir.composition_failure_card_bundle")
     assert failure_card_manifest.artifact_schema.version == "1.0"
     certificate = load_composition_certificate(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         outcome.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF],
     )
     assert certificate.status == "broken"
@@ -841,20 +842,20 @@ def test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_com
 def test_reconcile_causal_graph_node_rejects_disconnected_fragment_topology(tmp_path) -> None:
     ctx = _build_ctx(tmp_path)
     graph_a_ref = persist_causal_graph_model(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         CausalGraphModel(graph_type=GraphType.DAG, nodes=["employment_rate"], edges=[]),
     )
     graph_b_ref = persist_causal_graph_model(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         CausalGraphModel(graph_type=GraphType.DAG, nodes=["employment_rate"], edges=[]),
     )
     graph_c_ref = persist_causal_graph_model(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         CausalGraphModel(graph_type=GraphType.DAG, nodes=["hospital_occupancy"], edges=[]),
     )
     refs = [
         persist_scm_fragment(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             SCMFragment(
                 fragment_id="a",
                 graph_ref=str(graph_a_ref.artifact_id),
@@ -866,7 +867,7 @@ def test_reconcile_causal_graph_node_rejects_disconnected_fragment_topology(tmp_
             ),
         ),
         persist_scm_fragment(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             SCMFragment(
                 fragment_id="b",
                 graph_ref=str(graph_b_ref.artifact_id),
@@ -878,7 +879,7 @@ def test_reconcile_causal_graph_node_rejects_disconnected_fragment_topology(tmp_
             ),
         ),
         persist_scm_fragment(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             SCMFragment(
                 fragment_id="c",
                 graph_ref=str(graph_c_ref.artifact_id),
@@ -899,7 +900,7 @@ def test_reconcile_causal_graph_node_rejects_disconnected_fragment_topology(tmp_
 
     assert outcome.status == "ok"
     certificate = load_composition_certificate(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         outcome.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF],
     )
     assert certificate.status == "broken"

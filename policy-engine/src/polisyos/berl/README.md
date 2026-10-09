@@ -34,3 +34,11 @@ with the default `conditional_observational` profile return a diagnostic with no
 BERL does not currently admit a verified observed-feature conditional law or sampler. A future
 conditional producer must bind its law, source population, feature order, and version before this
 adapter can make a conditional claim.
+
+Persisted bundle consumers run the same profile gate before Phase-5 or warrant-reliability
+admission. A `conditional_observational` bundle is diagnostic-only until a verified law resolver
+exists; profile strings, method assumptions, and artifact references are declarations, not law
+verification. Unknown or malformed primary and `alternatives_tested` profiles, malformed
+method-level profiles, and method-level profiles that disagree with the bundle are refused. The
+supported `marginal` and `marginal_interventional` profiles remain available under the current
+empirical-replacement contract.

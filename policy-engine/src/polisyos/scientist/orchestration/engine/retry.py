@@ -71,10 +71,22 @@ _PROCESS_RESULT_POLL_S = 0.01
 _PROCESS_GROUP_READY_S = 0.05
 _PROCESS_DELIVERY_GRACE_S = 1.0
 _PROCESS_CLEANUP_GRACE_S = 1.0
+# The spawn timeout wire is intentionally enabled only for the builtin node
+# whose real producer/consumer replay and timeout boundary are covered here.
+# Adding another node requires its own closed-context and cleanup controls.
+_SPAWN_TIMEOUT_NODE_IDS = frozenset({"scientist.node_resolve_parameters@1.0.0"})
 
 
 class _WorkerComputeTimeout(Exception):
     """The worker did not finish computation before the node deadline."""
+
+
+class _WorkerProcessExited(RuntimeError):
+    """The worker exited without publishing a completion mark."""
+
+    def __init__(self, exitcode: int | None) -> None:
+        super().__init__(f"timeout worker exited before completion (exitcode={exitcode})")
+        self.exitcode = exitcode
 
 
 class _WorkerDeliveryTimeout(Exception):
@@ -406,24 +418,48 @@ class _AttemptAuthority:
     denied.  This is a local authority boundary, not a process sandbox.
     """
 
-    def __init__(self, deadline_monotonic: float | None = None) -> None:
+    def __init__(
+        self,
+        deadline_monotonic: float | None = None,
+        *,
+        shared_active: Any = None,
+    ) -> None:
         self._lock = threading.RLock()
         self._active = True
         self._deadline = deadline_monotonic
+        self._shared_active = shared_active
 
     def invoke(self, operation: Any, *args: Any, **kwargs: Any) -> Any:
         """Run one authorized operation, or deny it after revocation."""
         with self._lock:
-            if not self._active or (
-                self._deadline is not None and time.monotonic() >= self._deadline
-            ):
+            active = (
+                self._active if self._shared_active is None else bool(self._shared_active.value)
+            )
+            if not active or (self._deadline is not None and time.monotonic() >= self._deadline):
                 return None
             return operation(*args, **kwargs)
 
     def revoke(self) -> None:
         """Make all subsequent attempt-owned writes no-ops."""
         with self._lock:
-            self._active = False
+            if self._shared_active is None:
+                self._active = False
+            else:
+                self._shared_active.value = False
+
+
+def _new_attempt_authority(
+    deadline_monotonic: float | None,
+    *,
+    process_context: Any = None,
+) -> _AttemptAuthority:
+    """Create a local or process-shared attempt authority for one invocation."""
+    if process_context is None:
+        return _AttemptAuthority(deadline_monotonic)
+    return _AttemptAuthority(
+        deadline_monotonic,
+        shared_active=process_context.Value("b", True, lock=False),
+    )
 
 
 class _AttemptFacade:
@@ -1187,6 +1223,7 @@ def execute_with_retry_sync(
                     attempt_state,
                     timeout_s=remaining,
                     deadline_monotonic=deadline,
+                    alias=alias,
                 )
             else:
                 outcome = node.execute(ctx, attempt_state)
@@ -1345,12 +1382,27 @@ def _execute_with_timeout_sync(
     *,
     timeout_s: float,
     deadline_monotonic: float | None = None,
+    alias: str | None = None,
 ) -> NodeOutcome:
     deadline = _invocation_deadline(timeout_s, deadline_monotonic)
     assert deadline is not None
     _remaining_deadline(deadline)
-    if _can_use_forked_timeout_worker():
-        authority = _AttemptAuthority(deadline)
+    start_method = _timeout_worker_start_method()
+    if start_method == "spawn":
+        process_context = mp.get_context(start_method)
+        authority = _new_attempt_authority(deadline, process_context=process_context)
+        return _execute_with_timeout_process(
+            node,
+            ctx,
+            state.model_copy(deep=True),
+            timeout_s=timeout_s,
+            authority=authority,
+            deadline_monotonic=deadline,
+            alias=alias,
+            process_context=process_context,
+        )
+    if start_method == "fork":
+        authority = _new_attempt_authority(deadline)
         return _execute_with_timeout_process(
             node,
             _build_attempt_context(ctx, authority),
@@ -1358,7 +1410,10 @@ def _execute_with_timeout_sync(
             timeout_s=timeout_s,
             authority=authority,
             deadline_monotonic=deadline,
+            alias=alias,
         )
+    if sys.platform == "darwin":
+        raise _timeout_worker_unsupported("safe_process_start_method_unavailable")
 
     future, authority, completed = _submit_thread_attempt(node, ctx, state, deadline)
     try:
@@ -1409,6 +1464,33 @@ def _can_use_forked_timeout_worker() -> bool:
         return False
 
 
+def _timeout_worker_start_method() -> Literal["fork", "spawn"] | None:
+    """Choose the platform's supported bounded-process start method.
+
+    Linux retains its supervisor/subreaper fork implementation. macOS uses a
+    spawn worker with the closed typed task/context wire; it never inherits a
+    multithreaded parent image through ``fork``.
+    """
+    try:
+        methods = mp.get_all_start_methods()
+    except (RuntimeError, ValueError):
+        return None
+    if sys.platform == "linux" and "fork" in methods:
+        return "fork"
+    if sys.platform == "darwin" and "spawn" in methods:
+        return "spawn"
+    return None
+
+
+def _timeout_worker_unsupported(reason: str) -> NodeTimeoutError:
+    """Return the typed refusal used when no safe timeout worker can admit input."""
+    return NodeTimeoutError(
+        f"Timed node execution refused: {reason}",
+        code="node.timeout_worker_unsupported",
+        details={"execution_state": "unsupported_timeout_worker_input", "reason": reason},
+    )
+
+
 def _delivery_deadline(completion_time: Any = None) -> float:
     """Keep a single bounded delivery window from actual compute completion."""
     completed_at = float(completion_time.value) if completion_time is not None else time.monotonic()
@@ -1434,6 +1516,7 @@ def _owned_process_group_id(
     group_ready: Any,
     *,
     deadline: float,
+    wait_until_deadline: bool = False,
 ) -> int | None:
     """Resolve a worker-owned process group without ever targeting our own.
 
@@ -1445,7 +1528,8 @@ def _owned_process_group_id(
     """
     if group_ready is not None and not group_ready.is_set():
         remaining = max(0.0, deadline - time.monotonic())
-        group_ready.wait(timeout=min(_PROCESS_GROUP_READY_S, remaining))
+        readiness_grace = remaining if wait_until_deadline else _PROCESS_GROUP_READY_S
+        group_ready.wait(timeout=min(readiness_grace, remaining))
     if group_ready is not None and not group_ready.is_set():
         return None
     if not process.is_alive():
@@ -1563,6 +1647,11 @@ def _drain_result_sync(
             raise _WorkerComputeTimeout
         return result
 
+    if not process.is_alive() and not _completion_before_deadline(
+        completion_time,
+        compute_deadline,
+    ):
+        raise _WorkerProcessExited(process.exitcode)
     if not _completion_before_deadline(completion_time, compute_deadline):
         raise _WorkerComputeTimeout
 
@@ -1604,6 +1693,11 @@ async def _drain_result_async(
                 raise _WorkerComputeTimeout
             return result
 
+    if not process.is_alive() and not _completion_before_deadline(
+        completion_time,
+        compute_deadline,
+    ):
+        raise _WorkerProcessExited(process.exitcode)
     if not _completion_before_deadline(completion_time, compute_deadline):
         raise _WorkerComputeTimeout
 
@@ -1655,6 +1749,132 @@ def _worker_timeout_error(
     )
 
 
+def _build_spawn_timeout_task(
+    node: Any,
+    ctx: Any,
+    state: ExperimentState,
+    *,
+    alias: str | None,
+) -> Any:
+    """Build the closed ``NodeTask`` accepted by the macOS spawn worker."""
+    from polisyos.scientist.orchestration.engine.registry import NodeRegistry, discover_nodes
+    from polisyos.scientist.orchestration.engine.runner.serialization import (
+        serialize_state,
+        serialize_timeout_context,
+    )
+    from polisyos.scientist.orchestration.engine.runner.worker_pool import NodeTask
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    from polisyos.scientist.orchestration.engine.state_branching import (
+        mutation_journal_for_state,
+    )
+
+    spec = getattr(node, "spec", None)
+    metadata = getattr(spec, "metadata", None)
+    component_id = getattr(metadata, "component_id", None)
+    if component_id is None:
+        raise ValueError("timeout_worker_canonical_node_required")
+    node_id = str(component_id)
+    if node_id not in _SPAWN_TIMEOUT_NODE_IDS:
+        raise ValueError("timeout_worker_node_not_supported")
+    registry = NodeRegistry()
+    report = discover_nodes(
+        registry,
+        include_entry_points=False,
+        include_builtin_nodes=True,
+        include_dev_scan=False,
+    )
+    if report.errors or report.discovery_errors:
+        raise ValueError("timeout_worker_builtin_registry_unavailable")
+    try:
+        canonical = registry.get(node_id)
+    except _RETRY_RUNTIME_ERRORS as exc:
+        raise ValueError("timeout_worker_node_not_registered") from exc
+    if type(node) is not type(canonical) or node != canonical:
+        raise ValueError("timeout_worker_canonical_node_instance_required")
+    journal = mutation_journal_for_state(state)
+    if journal is not None and journal.operations:
+        raise ValueError("timeout_worker_preexisting_state_mutations_unsupported")
+
+    context_meta = serialize_timeout_context(ctx, expected_run_id=state.run_id)
+    plain_state = ExperimentState.model_validate(
+        state.model_dump(mode="python", by_alias=True, exclude_none=False)
+    )
+    return NodeTask(
+        node_id=node_id,
+        alias=alias or node_id,
+        params={},
+        state_bytes=serialize_state(plain_state),
+        trace_carrier={},
+        timeout_s=None,
+        context_meta=context_meta,
+    )
+
+
+def _typed_node_timeout_worker(
+    task: Any,
+    result_channel: Any,
+    group_ready: Any,
+    completion_time: Any,
+    deadline_monotonic: float,
+    authority_active: Any,
+) -> None:
+    """Execute one typed task in a spawn child and publish a bounded result."""
+    result_channel.close_reader()
+    try:
+        os.setsid()
+    except OSError as exc:
+        group_ready.set()
+        completion_time.value = time.monotonic()
+        result_channel.put(("error", _worker_error_payload(exc)))
+        result_channel.close_writer()
+        return
+    group_ready.set()
+
+    try:
+        from polisyos.scientist.orchestration.engine.runner._activity_worker import (
+            run_node_task_in_timeout_worker_sync,
+        )
+
+        payload = run_node_task_in_timeout_worker_sync(
+            task,
+            authority_active=authority_active,
+            deadline_monotonic=deadline_monotonic,
+        )
+        completion_time.value = time.monotonic()
+        result_channel.put(("ok", payload))
+    except (SystemExit, KeyboardInterrupt) as exc:
+        completion_time.value = time.monotonic()
+        code = exc.code if isinstance(exc, SystemExit) else None
+        if code is not None and not isinstance(code, (int, str)):
+            result_channel.put(
+                (
+                    "error",
+                    {
+                        "message": "SystemExit code is unsupported by the process control contract",
+                        "category": "fatal",
+                        "code": "node.control_unsupported",
+                    },
+                )
+            )
+        else:
+            result_channel.put(
+                (
+                    "control",
+                    {
+                        "kind": "SystemExit"
+                        if isinstance(exc, SystemExit)
+                        else "KeyboardInterrupt",
+                        "code": code,
+                    },
+                )
+            )
+    except _RETRY_RUNTIME_ERRORS as exc:
+        completion_time.value = time.monotonic()
+        result_channel.put(("error", _worker_error_payload(exc)))
+    finally:
+        result_channel.close_writer()
+
+
 def _execute_with_timeout_process(
     node: Any,
     ctx: Any,
@@ -1663,10 +1883,28 @@ def _execute_with_timeout_process(
     timeout_s: float,
     authority: _AttemptAuthority | None = None,
     deadline_monotonic: float | None = None,
+    alias: str | None = None,
+    process_context: Any = None,
 ) -> NodeOutcome:
     deadline = _invocation_deadline(timeout_s, deadline_monotonic)
-    authority = authority or _AttemptAuthority(deadline)
-    mp_ctx = mp.get_context("fork")
+    start_method = _timeout_worker_start_method()
+    if start_method is None:
+        raise _timeout_worker_unsupported("safe_process_start_method_unavailable")
+    mp_ctx = process_context or mp.get_context(start_method)
+    authority = authority or _new_attempt_authority(
+        deadline,
+        process_context=mp_ctx if start_method == "spawn" else None,
+    )
+    task = None
+    if start_method == "spawn":
+        if authority._shared_active is None:
+            raise _timeout_worker_unsupported("process_shared_attempt_authority_required")
+        try:
+            task = _build_spawn_timeout_task(node, ctx, state, alias=alias)
+        except _RETRY_RUNTIME_ERRORS as exc:
+            authority.revoke()
+            reason = str(exc) or type(exc).__name__
+            raise _timeout_worker_unsupported(reason) from exc
     result_queue: _WorkerResultChannel | None = None
     process: Any = None
     lifecycle: _WorkerLifecycle | None = None
@@ -1677,28 +1915,47 @@ def _execute_with_timeout_process(
         lifecycle = _WorkerLifecycle(
             compute_deadline=deadline if deadline is not None else time.monotonic() + timeout_s,
             completion_time=completion_time,
-            cleanup_complete=mp_ctx.Value("b", False),
+            cleanup_complete=mp_ctx.Value("b", False) if start_method == "fork" else None,
         )
-        process = mp_ctx.Process(
-            target=_node_execute_supervisor,
-            args=(
-                node,
-                ctx,
-                state,
-                result_queue,
-                group_ready,
-                completion_time,
-                lifecycle.compute_deadline,
-                lifecycle.cleanup_complete,
-            ),
-            daemon=True,
-        )
+        if start_method == "spawn":
+            if task is None:
+                raise RuntimeError("spawn_timeout_task_missing_after_admission")
+            if authority._shared_active is None:
+                raise RuntimeError("spawn_timeout_authority_missing_after_admission")
+            process = mp_ctx.Process(
+                target=_typed_node_timeout_worker,
+                args=(
+                    task,
+                    result_queue,
+                    group_ready,
+                    completion_time,
+                    lifecycle.compute_deadline,
+                    authority._shared_active,
+                ),
+                daemon=True,
+            )
+        else:
+            process = mp_ctx.Process(
+                target=_node_execute_supervisor,
+                args=(
+                    node,
+                    ctx,
+                    state,
+                    result_queue,
+                    group_ready,
+                    completion_time,
+                    lifecycle.compute_deadline,
+                    lifecycle.cleanup_complete,
+                ),
+                daemon=True,
+            )
         process.start()
         result_queue.close_writer()
         lifecycle.process_group_id = _owned_process_group_id(
             process,
             group_ready,
             deadline=lifecycle.compute_deadline,
+            wait_until_deadline=start_method == "spawn",
         )
         status, payload = _drain_result_sync(
             process,
@@ -1706,7 +1963,16 @@ def _execute_with_timeout_process(
             compute_deadline=lifecycle.compute_deadline,
             completion_time=lifecycle.completion_time,
         )
-        _join_worker_until(process, deadline=_delivery_deadline(lifecycle.completion_time))
+        if start_method == "spawn":
+            cleanup_complete = _terminate_owned_process(
+                process,
+                lifecycle.process_group_id,
+                lifecycle.cleanup_complete,
+            )
+            if not cleanup_complete:
+                raise _worker_timeout_error(timeout_s, cleanup_complete=False)
+        else:
+            _join_worker_until(process, deadline=_delivery_deadline(lifecycle.completion_time))
     except _WorkerComputeTimeout:
         cleanup_complete = _terminate_owned_process(
             process,
@@ -1718,6 +1984,13 @@ def _execute_with_timeout_process(
             timeout_s,
             cleanup_complete=cleanup_complete,
         ) from None
+    except _WorkerProcessExited:
+        authority.revoke()
+        if process is not None and lifecycle is not None:
+            _terminate_owned_process(
+                process, lifecycle.process_group_id, lifecycle.cleanup_complete
+            )
+        raise
     except _WorkerDeliveryTimeout as exc:
         cleanup_complete = _terminate_owned_process(
             process,
@@ -1769,13 +2042,32 @@ async def _execute_with_timeout_process_async(
     timeout_s: float,
     authority: _AttemptAuthority | None = None,
     deadline_monotonic: float | None = None,
+    alias: str | None = None,
+    process_context: Any = None,
 ) -> NodeOutcome:
     deadline = _invocation_deadline(timeout_s, deadline_monotonic)
+    start_method = _timeout_worker_start_method()
+    if start_method is None:
+        raise _timeout_worker_unsupported("safe_process_start_method_unavailable")
+    mp_ctx = process_context or mp.get_context(start_method)
     if authority is None:
-        authority = _AttemptAuthority(deadline)
-        ctx = _build_attempt_context(ctx, authority)
+        authority = _new_attempt_authority(
+            deadline,
+            process_context=mp_ctx if start_method == "spawn" else None,
+        )
+        if start_method == "fork":
+            ctx = _build_attempt_context(ctx, authority)
         state = state.model_copy(deep=True)
-    mp_ctx = mp.get_context("fork")
+    task = None
+    if start_method == "spawn":
+        if authority._shared_active is None:
+            raise _timeout_worker_unsupported("process_shared_attempt_authority_required")
+        try:
+            task = _build_spawn_timeout_task(node, ctx, state, alias=alias)
+        except _RETRY_RUNTIME_ERRORS as exc:
+            authority.revoke()
+            reason = str(exc) or type(exc).__name__
+            raise _timeout_worker_unsupported(reason) from exc
     result_queue: _WorkerResultChannel | None = None
     process: Any = None
     lifecycle: _WorkerLifecycle | None = None
@@ -1786,28 +2078,47 @@ async def _execute_with_timeout_process_async(
         lifecycle = _WorkerLifecycle(
             compute_deadline=deadline if deadline is not None else time.monotonic() + timeout_s,
             completion_time=completion_time,
-            cleanup_complete=mp_ctx.Value("b", False),
+            cleanup_complete=mp_ctx.Value("b", False) if start_method == "fork" else None,
         )
-        process = mp_ctx.Process(
-            target=_node_execute_supervisor,
-            args=(
-                node,
-                ctx,
-                state,
-                result_queue,
-                group_ready,
-                completion_time,
-                lifecycle.compute_deadline,
-                lifecycle.cleanup_complete,
-            ),
-            daemon=True,
-        )
+        if start_method == "spawn":
+            if task is None:
+                raise RuntimeError("spawn_timeout_task_missing_after_admission")
+            if authority._shared_active is None:
+                raise RuntimeError("spawn_timeout_authority_missing_after_admission")
+            process = mp_ctx.Process(
+                target=_typed_node_timeout_worker,
+                args=(
+                    task,
+                    result_queue,
+                    group_ready,
+                    completion_time,
+                    lifecycle.compute_deadline,
+                    authority._shared_active,
+                ),
+                daemon=True,
+            )
+        else:
+            process = mp_ctx.Process(
+                target=_node_execute_supervisor,
+                args=(
+                    node,
+                    ctx,
+                    state,
+                    result_queue,
+                    group_ready,
+                    completion_time,
+                    lifecycle.compute_deadline,
+                    lifecycle.cleanup_complete,
+                ),
+                daemon=True,
+            )
         process.start()
         result_queue.close_writer()
         lifecycle.process_group_id = _owned_process_group_id(
             process,
             group_ready,
             deadline=lifecycle.compute_deadline,
+            wait_until_deadline=start_method == "spawn",
         )
         status, payload = await _drain_result_async(
             process,
@@ -1815,9 +2126,18 @@ async def _execute_with_timeout_process_async(
             compute_deadline=lifecycle.compute_deadline,
             completion_time=lifecycle.completion_time,
         )
-        await _join_worker_until_async(
-            process, deadline=_delivery_deadline(lifecycle.completion_time)
-        )
+        if start_method == "spawn":
+            cleanup_complete = _terminate_owned_process(
+                process,
+                lifecycle.process_group_id,
+                lifecycle.cleanup_complete,
+            )
+            if not cleanup_complete:
+                raise _worker_timeout_error(timeout_s, cleanup_complete=False)
+        else:
+            await _join_worker_until_async(
+                process, deadline=_delivery_deadline(lifecycle.completion_time)
+            )
     except _WorkerComputeTimeout:
         cleanup_complete = _terminate_owned_process(
             process,
@@ -1829,6 +2149,13 @@ async def _execute_with_timeout_process_async(
             timeout_s,
             cleanup_complete=cleanup_complete,
         ) from None
+    except _WorkerProcessExited:
+        authority.revoke()
+        if process is not None and lifecycle is not None:
+            _terminate_owned_process(
+                process, lifecycle.process_group_id, lifecycle.cleanup_complete
+            )
+        raise
     except _WorkerDeliveryTimeout as exc:
         cleanup_complete = _terminate_owned_process(
             process,
@@ -2039,14 +2366,17 @@ async def execute_with_retry_async(
                 deadline_monotonic=deadline,
             )
         if remaining is not None:
-            if _can_use_forked_timeout_worker():
+            if _timeout_worker_start_method() is not None:
                 return await _execute_with_timeout_process_async(
                     node,
                     ctx,
                     attempt_state,
                     timeout_s=remaining,
                     deadline_monotonic=deadline,
+                    alias=alias,
                 )
+            if sys.platform == "darwin":
+                raise _timeout_worker_unsupported("safe_process_start_method_unavailable")
             return await _execute_with_timeout_thread_async(
                 node,
                 ctx,

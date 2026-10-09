@@ -2,7 +2,87 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+
 from . import artifacts as _artifacts
+
+# Keep the historical runtime namespace while declaring every consumed binding to Ruff.
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.mgraph import MGraphMetadata
+
+    from .api import CausalEngine
+    from .artifacts import (
+        Any,
+        BlockingType,
+        CausalGraphModel,
+        CausalQuery,
+        CompositeIntervention,
+        ConditionalIntervention,
+        ConditionalPolicy,
+        CtfQuery,
+        DistributionLawQuery,
+        DistributionRef,
+        EdgeIntervention,
+        EdgeInterventionAssignment,
+        EdgeInterventionNode,
+        EdgeMark,
+        EstimandAST,
+        GraphType,
+        IdentificationResult,
+        IdentificationStatus,
+        InterferenceIntervention,
+        InterventionFallback,
+        InterventionFallbackMode,
+        InterventionIdentificationStatus,
+        InterventionQuery,
+        IRProofStep,
+        JointDecisionCertificate,
+        ModifiedTreatmentPolicyNode,
+        ModifiedTreatmentPolicySpec,
+        MTPIntervention,
+        NegativeCertificate,
+        NodeIntervention,
+        PathIntervention,
+        PathSpecificNode,
+        ProofStep,
+        ProximalIdentificationCertificate,
+        ProxyAnnotation,
+        QueryTarget,
+        QueryTargetKind,
+        QueryType,
+        StochasticIntervention,
+        StochasticInterventionNode,
+        StochasticPolicy,
+        StochasticPolicySpec,
+        TransportIntervention,
+        VariableAssignment,
+        _coerce_mapping_like_data,
+        _infer_proximal_path_target,
+        _singleton_query_name,
+        build_intervention_certificate,
+        certificate_for_typecheck_failure,
+        check_intervention_composition,
+        conditional_intervention_id,
+        dataclasses,
+        dynamic_intervention_id,
+        has_directed_cycle,
+        hashlib,
+        id_star_algorithm,
+        id_with_oracle_fallback,
+        idc_algorithm,
+        idc_star_algorithm,
+        json,
+        multi_outcome_id,
+        mz_id_algorithm,
+        proximal_identify_v1,
+        proximal_spatial_identify_v1,
+        render_intervention_query,
+        sid_algorithm,
+        tr_algorithm,
+        z_id_algorithm,
+    )
 
 globals().update(
     {name: getattr(_artifacts, name) for name in dir(_artifacts) if not name.startswith("__")}
@@ -42,7 +122,6 @@ class CausalEngineIdentificationMixin:
         )
         return f"graph:{hashlib.sha256(raw).hexdigest()}"
 
-
     @staticmethod
     def _selection_target_vars(s_nodes: list[Any] | None) -> frozenset[str]:
         if not s_nodes:
@@ -54,7 +133,6 @@ class CausalEngineIdentificationMixin:
                 target = node.get("target_variable")
             resolved.add(str(target if target is not None else node))
         return frozenset(resolved)
-
 
     @staticmethod
     def _source_domain_s_nodes(source_domains: list[Any] | None) -> frozenset[str]:
@@ -69,7 +147,6 @@ class CausalEngineIdentificationMixin:
                 resolved.add(str(node))
         return frozenset(resolved)
 
-
     @staticmethod
     def _source_domain_z_interventions(source_domains: list[Any] | None) -> frozenset[str]:
         if not source_domains:
@@ -82,7 +159,6 @@ class CausalEngineIdentificationMixin:
             for node in z_nodes or ():
                 resolved.add(str(node))
         return frozenset(resolved)
-
 
     def _maybe_proximal_identify(
         self,
@@ -165,7 +241,6 @@ class CausalEngineIdentificationMixin:
                 },
             }
         )
-
 
     def _dispatch_static_identification(
         self,
@@ -546,7 +621,6 @@ class CausalEngineIdentificationMixin:
             proximal_annotation=proximal_annotation,
         )
 
-
     @staticmethod
     def _intervention_status_from_identification_status(
         status: IdentificationStatus,
@@ -559,7 +633,6 @@ class CausalEngineIdentificationMixin:
         }:
             return InterventionIdentificationStatus.NOT_IDENTIFIABLE
         return InterventionIdentificationStatus.ORACLE_NEEDED
-
 
     @staticmethod
     def _intervention_target_vars(
@@ -599,7 +672,6 @@ class CausalEngineIdentificationMixin:
                 *(CausalEngine._intervention_target_vars(step) for step in intervention.steps)
             )
         return frozenset()
-
 
     @staticmethod
     def _effective_intervention_expr(
@@ -647,7 +719,6 @@ class CausalEngineIdentificationMixin:
             if matched:
                 return matched[-1]
         return steps[-1]
-
 
     @staticmethod
     def _legacy_intervention_query(
@@ -783,7 +854,6 @@ class CausalEngineIdentificationMixin:
 
         return InterventionQuery(target=target, intervention=intervention)
 
-
     def _decorate_identification_result_with_intervention_query(
         self,
         result: IdentificationResult,
@@ -825,7 +895,6 @@ class CausalEngineIdentificationMixin:
             metadata=metadata,
         )
 
-
     @staticmethod
     def _intervention_typecheck_negative_certificate(
         query: InterventionQuery,
@@ -854,7 +923,6 @@ class CausalEngineIdentificationMixin:
             ),
         )
 
-
     @staticmethod
     def _oracle_needed_intervention_result(
         *,
@@ -873,14 +941,12 @@ class CausalEngineIdentificationMixin:
             query_str=render_intervention_query(query),
         )
 
-
     @staticmethod
     def _graph_has_bidirected_confounding(graph: CausalGraphModel) -> bool:
         return any(
             edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.ARROW
             for edge in graph.edges
         )
-
 
     @staticmethod
     def _directed_adjacency(graph: CausalGraphModel) -> dict[str, list[str]]:
@@ -892,12 +958,10 @@ class CausalEngineIdentificationMixin:
             adjacency[node] = sorted(dict.fromkeys(adjacency[node]))
         return adjacency
 
-
     @staticmethod
     def _effective_intervention_type_name(query: InterventionQuery) -> str:
         effective = CausalEngine._effective_intervention_expr(query.intervention)
         return str(getattr(effective, "intervention_type", query.intervention.intervention_type))
-
 
     @staticmethod
     def _intervention_negative_certificate(
@@ -942,7 +1006,6 @@ class CausalEngineIdentificationMixin:
             quantitative_diagnostics=diagnostics,
             constructive_message=constructive_message,
         )
-
 
     def _identify_sigma_stochastic_intervention(
         self,
@@ -1037,7 +1100,6 @@ class CausalEngineIdentificationMixin:
                 "sigma_selection_vars": [policy_spec.target],
             },
         )
-
 
     def _identify_sigma_transport_intervention(
         self,
@@ -1185,7 +1247,6 @@ class CausalEngineIdentificationMixin:
                 "soft transport currently supports atomic node or stochastic base interventions"
             ),
         )
-
 
     def _maybe_identify_proximal_path_intervention(
         self,
@@ -1377,7 +1438,6 @@ class CausalEngineIdentificationMixin:
             },
             query_str=render_intervention_query(query),
         )
-
 
     def _identify_path_intervention_backend(
         self,
@@ -1702,7 +1762,6 @@ class CausalEngineIdentificationMixin:
             )
         return negative
 
-
     def _identify_interference_intervention_backend(
         self,
         *,
@@ -1786,7 +1845,7 @@ class CausalEngineIdentificationMixin:
         if self._artifact_store is not None and intervention.interaction_complex_ref is not None:
             try:
                 metadata["declared_interaction_complex"] = load_interaction_complex(
-                    self._artifact_store,
+                    _ensure_ir_artifact_store(self._artifact_store),
                     intervention.interaction_complex_ref,
                 ).model_dump(mode="json")
             except Exception:
@@ -1797,7 +1856,7 @@ class CausalEngineIdentificationMixin:
         ):
             try:
                 metadata["declared_interference_certificate"] = load_interference_certificate(
-                    self._artifact_store,
+                    _ensure_ir_artifact_store(self._artifact_store),
                     query.context.interference_certificate_ref,
                 ).model_dump(mode="json")
             except Exception:
@@ -1863,7 +1922,6 @@ class CausalEngineIdentificationMixin:
             },
             extra_diagnostics=metadata,
         )
-
 
     def _identify_from_intervention_query(
         self,
@@ -2217,7 +2275,6 @@ class CausalEngineIdentificationMixin:
         )
         return self._decorate_identification_result_with_intervention_query(result, query)
 
-
     def identify(
         self,
         treatment: str | frozenset[str],
@@ -2444,7 +2501,6 @@ class CausalEngineIdentificationMixin:
 
         return result
 
-
     def identify_joint(
         self,
         treatment: str | frozenset[str],
@@ -2485,7 +2541,6 @@ class CausalEngineIdentificationMixin:
             dataset_ref=dataset_ref,
             oracle=oracle,
         )
-
 
     def _identify_with_s_nodes(
         self,

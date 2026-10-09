@@ -378,7 +378,7 @@ def load_policy_candidate_schema(
     ref: ArtifactRef,
 ) -> PolicyCandidateSchema:
     """Load policy candidate schema."""
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return PolicyCandidateSchema.model_validate(payload)
 
 

@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar, Protocol, Self, TypeVar, cast
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, Protocol, Self, TypeVar, cast
 
 from pydantic import (
     ConfigDict,
@@ -140,6 +140,59 @@ class BenchmarkSuite(_PydanticBaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+class BayesianSourceProfile(_PydanticBaseModel):
+    """Measured profile of the optimizer that proposed one search candidate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    profile_kind: Literal["configured_native_gp", "injected_optimizer", "fallback"]
+    optimizer_fqn: str | None = None
+    optimizer_config_fingerprint: str | None = None
+    proposal_source: str = Field(..., min_length=1, max_length=128)
+    search_space_fingerprint: str | None = None
+    input_transform_fingerprint: str | None = None
+    input_transform_state_fingerprint: str | None = None
+    outcome_transform_fingerprint: str | None = None
+    outcome_transform_state_fingerprint: str | None = None
+    noise_model_fingerprint: str | None = None
+    noise_model_state_fingerprint: str | None = None
+    objective_fingerprint: str | None = None
+    context_fingerprint: str | None = None
+    training_corpus_fingerprint: str | None = None
+    training_observation_count: int | None = Field(default=None, ge=0)
+    gp_model_fqn: str | None = None
+    warm_start_eligible: bool = False
+
+    @model_validator(mode="after")
+    def _validate_warm_start_profile(self) -> BayesianSourceProfile:
+        compatibility_fields = (
+            self.search_space_fingerprint,
+            self.input_transform_fingerprint,
+            self.input_transform_state_fingerprint,
+            self.outcome_transform_fingerprint,
+            self.outcome_transform_state_fingerprint,
+            self.noise_model_fingerprint,
+            self.noise_model_state_fingerprint,
+            self.objective_fingerprint,
+            self.context_fingerprint,
+        )
+        if self.warm_start_eligible and (
+            self.profile_kind != "configured_native_gp"
+            or self.proposal_source != "bayesian_acquisition"
+            or not self.optimizer_fqn
+            or not self.optimizer_config_fingerprint
+            or not all(value and value.strip() for value in compatibility_fields)
+            or not self.gp_model_fqn
+            or not self.training_corpus_fingerprint
+            or self.training_observation_count is None
+            or self.training_observation_count < 1
+        ):
+            raise ValueError(
+                "Only a complete configured native GP profile can admit warm-start data"
+            )
+        return self
+
+
 class BenchmarkEvaluation(_PydanticBaseModel):
     """Benchmark evaluation public type."""
 
@@ -149,6 +202,13 @@ class BenchmarkEvaluation(_PydanticBaseModel):
     suite_id: str = Field(..., min_length=1, max_length=128)
     suite_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
     candidate_ref: ArtifactRef
+    method_result_ref: ArtifactRef | None = None
+    method_evidence_ref: ArtifactRef | None = None
+    method_job_key: str | None = Field(default=None, min_length=1, max_length=256)
+    execution_work_packet_ref: ArtifactRef | None = None
+    execution_work_packet_status: Literal["available", "unavailable", "rejected"] = "unavailable"
+    execution_work_packet_note: str | None = Field(default=None, max_length=512)
+    search_source_profile: BayesianSourceProfile | None = None
     selection_metrics: dict[str, float] = Field(default_factory=dict)
     holdout_metrics: dict[str, float] = Field(default_factory=dict)
     sample_counts: dict[str, int] = Field(default_factory=dict)
@@ -158,6 +218,18 @@ class BenchmarkEvaluation(_PydanticBaseModel):
     notes: list[str] = Field(default_factory=list)
     runtime_split_type: BenchmarkSplit | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_execution_work_packet(self) -> BenchmarkEvaluation:
+        if self.execution_work_packet_status == "available" and (
+            self.execution_work_packet_ref is None
+        ):
+            raise ValueError("available MethodJob work requires its persisted packet ref")
+        if self.execution_work_packet_status == "unavailable" and (
+            self.execution_work_packet_ref is not None
+        ):
+            raise ValueError("unavailable MethodJob work cannot carry a packet ref")
+        return self
 
     def metrics_for_split(self, split: BenchmarkSplit) -> dict[str, float]:
         if split == BenchmarkSplit.SELECTION:
@@ -216,9 +288,7 @@ class PromotionPolicy(_PydanticBaseModel):
     required_guardrails: list[str] = Field(default_factory=list)
 
     @model_serializer(mode="wrap")
-    def _serialize_canonical_policy(
-        self, handler: SerializerFunctionWrapHandler
-    ) -> dict[str, Any]:
+    def _serialize_canonical_policy(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
         """Preserve the historical policy shape while retaining explicit units."""
         payload = handler(self)
         if self.unit is None:
@@ -425,6 +495,13 @@ def persist_benchmark_evaluation(
             role="candidate",
         )
     )
+    for role, ref in (
+        ("method_result", evaluation.method_result_ref),
+        ("method_evidence", evaluation.method_evidence_ref),
+        ("execution_work_packet", evaluation.execution_work_packet_ref),
+    ):
+        if ref is not None:
+            merged_inputs.append(InputRef(artifact_id=ref.artifact_id, role=role))
     return store.put_json(
         evaluation,
         ArtifactWriteOptions(

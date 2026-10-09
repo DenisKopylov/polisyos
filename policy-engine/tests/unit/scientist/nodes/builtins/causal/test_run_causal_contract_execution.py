@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
@@ -288,7 +289,7 @@ def test_run_causal_contract_execution_node_persists_aggregate_and_primary_refs(
 
     bundle_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_EXECUTION_BUNDLE_REF]
     bundle = load_causal_execution_bundle(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         CausalExecutionBundleRef.model_validate(bundle_ref.model_dump(mode="json")),
     )
     assert len(bundle.bounds_results) == 1

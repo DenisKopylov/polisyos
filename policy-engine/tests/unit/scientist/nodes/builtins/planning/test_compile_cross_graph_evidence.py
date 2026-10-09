@@ -3,6 +3,8 @@ from __future__ import annotations
 from unittest.mock import patch
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.ir.analytics.cross_graph import load_cross_graph_evidence_profile
@@ -20,7 +22,6 @@ from polisyos.scientist.methods.discovery.priors import (
     PriorEdge,
     persist_graph_prior_bundle,
 )
-from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence import (
     CompileCrossGraphEvidenceNode,
 )
@@ -29,6 +30,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_LITERATURE_PRIOR_REF,
     INPUT_GRAPH_PRIOR_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
+)
+from polisyos.scientist.orchestration.engine.state_branching import (
+    branch_state as real_branch_state,
 )
 
 
@@ -141,7 +145,7 @@ def test_compilation_enriches_profile_from_graph_prior_bundle(
 
     assert outcome.status == "ok"
     profile_ref = outcome.state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF]
-    profile = load_cross_graph_evidence_profile(cas_store, profile_ref)
+    profile = load_cross_graph_evidence_profile(_ensure_ir_artifact_store(cas_store), profile_ref)
     assert any(need.need.cause == "A" and need.need.effect == "B" for need in profile.needs)
     assert any(need.need.cause == "X" and need.need.effect == "Y" for need in profile.needs)
     assert "graph_prior_bundle_enriched" in profile.notes
@@ -169,7 +173,7 @@ def test_compilation_records_degraded_source_statuses_when_sources_missing(
 
     assert outcome.status == "ok"
     profile_ref = outcome.state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF]
-    profile = load_cross_graph_evidence_profile(cas_store, profile_ref)
+    profile = load_cross_graph_evidence_profile(_ensure_ir_artifact_store(cas_store), profile_ref)
     assert profile.source_statuses["academic"].status.value == "missing_path"
     assert profile.source_statuses["datasets"].status.value == "missing_path"
     assert profile.source_statuses["legal"].status.value == "missing_path"
@@ -246,7 +250,7 @@ def test_compilation_persists_degraded_profile_for_invalid_config(
 
     assert outcome.status == "ok"
     profile_ref = outcome.state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF]
-    profile = load_cross_graph_evidence_profile(cas_store, profile_ref)
+    profile = load_cross_graph_evidence_profile(_ensure_ir_artifact_store(cas_store), profile_ref)
     assert profile.summary.status == "degraded"
     assert profile.diagnostics[0].code == "cross_graph.invalid_config"
     assert profile.benchmark_summary["reason"] == "invalid_config"
@@ -267,7 +271,7 @@ def test_compilation_passes_literature_prior_context_into_compiler(
         ),
     )
     prior_ref = persist_literature_causal_prior(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         LiteratureCausalPrior(
             environment_audit=EnvironmentAuditReport(
                 status="warning",

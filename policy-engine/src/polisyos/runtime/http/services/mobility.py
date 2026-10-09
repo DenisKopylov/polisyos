@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, Protocol
 
 import numpy as np
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.foundry.methods.catalog.distributional.mobility import (
     AttritionAdjustedMobilityMatrixEstimator,
@@ -111,7 +112,7 @@ class MobilityService:
         )
         bounds_ref = None
         if request.persist_artifact:
-            bounds_ref = persist_bounds_bundle(self._store, bundle)
+            bounds_ref = persist_bounds_bundle(_ensure_ir_artifact_store(self._store), bundle)
         cell_bounds = {
             f"{row},{col}": [float(cell_lower[row, col]), float(cell_upper[row, col])]
             for row in range(cell_lower.shape[0])
@@ -131,7 +132,7 @@ class MobilityService:
             kind="ir.mobility_report",
             media_type=manifest.media_type,
         )
-        report = load_mobility_report(self._store, ref)
+        report = load_mobility_report(_ensure_ir_artifact_store(self._store), ref)
         return report, self._required_artifact_ref_from_typed(ref)
 
     def load_bounds_for_report(
@@ -141,7 +142,9 @@ class MobilityService:
         report, report_ref = self.load_report(artifact_id)
         if report.bounds.bundle_ref is None:
             raise FileNotFoundError("mobility report has no linked bounds bundle")
-        bundle = load_bounds_bundle(self._store, report.bounds.bundle_ref)
+        bundle = load_bounds_bundle(
+            _ensure_ir_artifact_store(self._store), report.bounds.bundle_ref
+        )
         return bundle, report_ref, self._required_artifact_ref_from_typed(report.bounds.bundle_ref)
 
     def load_diagnostics(

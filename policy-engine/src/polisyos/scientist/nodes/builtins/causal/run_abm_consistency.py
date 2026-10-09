@@ -10,6 +10,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.ir.analytics.abm_bridge import (
@@ -37,10 +38,6 @@ from polisyos.ir.analytics.structural_causal_model import (
     load_structural_causal_model_spec,
 )
 from polisyos.ir.registry.refs import FiniteStateAbstractionMapRef, StructuralCausalModelSpecRef
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
@@ -49,6 +46,15 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF,
     ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_abm_consistency@1.0.0"),
@@ -315,7 +321,7 @@ def _load_single_fallback_effect(
     if report_ref is None:
         return None
     try:
-        report = load_causal_effect_report(ctx.store, report_ref)
+        report = load_causal_effect_report(_ensure_ir_artifact_store(ctx.store), report_ref)
     except _ABM_CONSISTENCY_RUNTIME_ERRORS:
         return None
     if report.point_estimate is None:
@@ -370,13 +376,13 @@ def _load_structural_scm_value(
         ref = _coerce_structural_scm_ref(raw_ref)
         if ref is None:
             return None
-        return load_structural_causal_model_spec(ctx.store, ref)
+        return load_structural_causal_model_spec(_ensure_ir_artifact_store(ctx.store), ref)
 
     if artifact_fallback_key is not None:
         artifact_ref = state.artifacts_index.get(artifact_fallback_key)
         if artifact_ref is not None:
             ref = StructuralCausalModelSpecRef.model_validate(artifact_ref.model_dump(mode="json"))
-            return load_structural_causal_model_spec(ctx.store, ref)
+            return load_structural_causal_model_spec(_ensure_ir_artifact_store(ctx.store), ref)
     return None
 
 
@@ -434,7 +440,9 @@ def _load_exact_abstraction_inputs(
         raise ValueError(
             "Exact abstraction verification requires finite_state_abstraction_map or finite_state_abstraction_map_ref"
         )
-    abstraction_map = load_finite_state_abstraction_map(ctx.store, map_ref)
+    abstraction_map = load_finite_state_abstraction_map(
+        _ensure_ir_artifact_store(ctx.store), map_ref
+    )
     return _ExactAbstractionInputs(
         micro_scm=micro_scm,
         macro_scm=macro_scm,
@@ -495,7 +503,9 @@ def _load_continuous_abstraction_inputs(
                 "Continuous abstraction verification requires continuous_abstraction_map "
                 "or continuous_abstraction_map_ref"
             )
-        abstraction_map = load_finite_state_abstraction_map(ctx.store, map_ref)
+        abstraction_map = load_finite_state_abstraction_map(
+            _ensure_ir_artifact_store(ctx.store), map_ref
+        )
 
     raw_bound_config = state.params.get("continuous_abstraction_bound_config")
     if raw_bound_config is None:
@@ -613,7 +623,7 @@ class RunABMConsistencyCheckNode:
                     )
                 )
             micro_graph_ref = persist_causal_graph_model(
-                ctx.store,
+                _ensure_ir_artifact_store(ctx.store),
                 (
                     continuous_inputs.micro_scm.graph
                     if continuous_inputs is not None
@@ -622,7 +632,7 @@ class RunABMConsistencyCheckNode:
                 inputs=graph_inputs or None,
             )
             macro_graph_ref = persist_causal_graph_model(
-                ctx.store,
+                _ensure_ir_artifact_store(ctx.store),
                 (
                     continuous_inputs.macro_scm.graph
                     if continuous_inputs is not None
@@ -642,7 +652,7 @@ class RunABMConsistencyCheckNode:
             )
             if abstraction_map_ref is None:
                 abstraction_map_ref = persist_finite_state_abstraction_map(
-                    ctx.store,
+                    _ensure_ir_artifact_store(ctx.store),
                     selected_map,
                     inputs=[
                         InputRef(artifact_id=str(micro_graph_ref.artifact_id), role="micro_graph"),
@@ -677,7 +687,7 @@ class RunABMConsistencyCheckNode:
                     preserved_queries=normalized_preserved_queries,
                 )
             abstraction_certificate_ref = persist_abstraction_certificate(
-                ctx.store,
+                _ensure_ir_artifact_store(ctx.store),
                 certificate,
                 inputs=[
                     InputRef(artifact_id=str(micro_graph_ref.artifact_id), role="micro_graph"),
@@ -830,7 +840,9 @@ class RunABMConsistencyCheckNode:
         if causal_ref is not None:
             input_refs.append(InputRef(artifact_id=causal_ref.artifact_id, role="causal_report"))
 
-        report_ref = persist_abm_alignment_report(ctx.store, report, inputs=input_refs)
+        report_ref = persist_abm_alignment_report(
+            _ensure_ir_artifact_store(ctx.store), report, inputs=input_refs
+        )
 
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.artifacts_index[ARTIFACT_ABM_ALIGNMENT_REPORT_REF] = report_ref

@@ -132,10 +132,10 @@ class GlobalCaseIndexProducer:
                     ],
                 ),
             )
-            payload = store.get_bytes(ref.artifact_id)
-            if not store.verify(ref.artifact_id).ok or canon.content_hash(
-                payload, prefix=True
-            ) != str(ref.artifact_id):
+            payload = store.get_bytes(ref)
+            if not store.verify(ref).ok or canon.content_hash(payload, prefix=True) != str(
+                ref.artifact_id
+            ):
                 raise GlobalCaseIndexError("case_index_snapshot_integrity_failed")
             reloaded = GlobalCaseIndexSnapshot.model_validate_json(payload)
             if reloaded != snapshot:
@@ -144,7 +144,12 @@ class GlobalCaseIndexProducer:
         except GlobalCaseIndexError:
             raise
         except (
-            OSError, KeyError, RuntimeError, TypeError, ValueError, TenantIsolationError
+            OSError,
+            KeyError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+            TenantIsolationError,
         ) as exc:
             raise GlobalCaseIndexError("case_index_source_invalid_or_scope_missing") from exc
 

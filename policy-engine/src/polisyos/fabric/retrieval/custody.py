@@ -234,7 +234,9 @@ def _persist_fetched_result(
             core_artifacts.PutOptions(
                 kind=_PAYLOAD_KIND,
                 media_type=media_type,
-                schema=core_artifacts.SchemaInfo(name="polisyos.fabric.fetch_payload.v1", version=_SCHEMA_VERSION),
+                schema=core_artifacts.SchemaInfo(
+                    name="polisyos.fabric.fetch_payload.v1", version=_SCHEMA_VERSION
+                ),
                 producer=_PRODUCER,
                 inputs=[],
             ),
@@ -249,7 +251,9 @@ def _persist_fetched_result(
         receipt = FabricFetchReceipt(
             used_plan=plan,
             request=request,
-            result=FetchResult[core_artifacts.ArtifactRef].model_validate({**metadata, "data": payload_ref}),
+            result=FetchResult[core_artifacts.ArtifactRef].model_validate(
+                {**metadata, "data": payload_ref}
+            ),
             payload_encoding=encoding,
             catalog_binding_ref=binding_ref,
         )
@@ -259,8 +263,12 @@ def _persist_fetched_result(
             kind=_FETCH_KIND,
             schema="polisyos.fabric.fetch_receipt.v1",
             inputs=[
-                core_artifacts.InputRef(artifact_id=payload_ref.artifact_id, role="fetched_payload"),
-                core_artifacts.InputRef(artifact_id=binding_ref.artifact_id, role="catalog_binding"),
+                core_artifacts.InputRef(
+                    artifact_id=payload_ref.artifact_id, role="fetched_payload"
+                ),
+                core_artifacts.InputRef(
+                    artifact_id=binding_ref.artifact_id, role="catalog_binding"
+                ),
             ],
         )
         return payload_ref, receipt_ref
@@ -280,14 +288,15 @@ def _read(
     inputs: list[core_artifacts.InputRef] | None = None,
 ) -> bytes:
     checked = core_artifacts.ArtifactRef.model_validate(ref.model_dump(mode="python"))
-    manifest = store.get_manifest(checked.artifact_id)
-    data = store.get_bytes(checked.artifact_id)
+    manifest = store.get_manifest(checked)
+    data = store.get_bytes(checked)
     if (
         checked.kind != kind
         or checked.media_type != media_type
         or manifest.kind != kind
         or manifest.media_type != media_type
-        or manifest.artifact_schema != core_artifacts.SchemaInfo(name=schema, version=_SCHEMA_VERSION)
+        or manifest.artifact_schema
+        != core_artifacts.SchemaInfo(name=schema, version=_SCHEMA_VERSION)
         or manifest.producer != _PRODUCER
         or manifest.byte_size != len(data)
         or (inputs is not None and manifest.inputs != inputs)
@@ -353,8 +362,12 @@ def resolve_persisted_fetch(
         if receipt.request != _fetch_request(receipt.used_plan, page_size=None):
             raise FabricFetchCustodyError("fabric_fetch_request_mismatch")
         expected_inputs = [
-            core_artifacts.InputRef(artifact_id=receipt.result.data.artifact_id, role="fetched_payload"),
-            core_artifacts.InputRef(artifact_id=receipt.catalog_binding_ref.artifact_id, role="catalog_binding"),
+            core_artifacts.InputRef(
+                artifact_id=receipt.result.data.artifact_id, role="fetched_payload"
+            ),
+            core_artifacts.InputRef(
+                artifact_id=receipt.catalog_binding_ref.artifact_id, role="catalog_binding"
+            ),
         ]
         _read(
             store,

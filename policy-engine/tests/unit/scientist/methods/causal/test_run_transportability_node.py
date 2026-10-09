@@ -5,9 +5,9 @@ import logging
 
 import pytest
 
-_Y0_INSTALLED = importlib.util.find_spec("y0") is not None
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 
-from polisyos.ir.registry.refs import PrivacyAwareTransportCertificateRef
+_Y0_INSTALLED = importlib.util.find_spec("y0") is not None
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
@@ -46,6 +46,7 @@ from polisyos.ir.analytics.transportability import (
     TransportMode,
     load_transportability_result,
 )
+from polisyos.ir.registry.refs import PrivacyAwareTransportCertificateRef
 from polisyos.lex.legal_evaluation.transport_constraints import (
     ConstraintSeverity,
     LegalConstraint,
@@ -148,8 +149,8 @@ class _MissingDatasetRegistry:
 
 def test_run_transportability_node_graceful_skip_without_source_context(tmp_path) -> None:
     ctx = _build_ctx(tmp_path, run_id="R_transport_skip")
-    report_ref = persist_causal_effect_report(ctx.store, _base_report())
-    graph_ref = persist_causal_graph_model(ctx.store, _mediator_graph())
+    report_ref = persist_causal_effect_report(_ensure_ir_artifact_store(ctx.store), _base_report())
+    graph_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), _mediator_graph())
 
     state = ExperimentState(
         run_id="R_transport_skip",
@@ -185,7 +186,9 @@ def test_run_transportability_research_profile_persists_blocking_result_without_
 
     assert outcome.status == "ok"
     transport_ref = outcome.state.artifacts_index[ARTIFACT_TRANSPORTABILITY_RESULT_REF]
-    transport_result = load_transportability_result(ctx.store, transport_ref)
+    transport_result = load_transportability_result(
+        _ensure_ir_artifact_store(ctx.store), transport_ref
+    )
     assert transport_result.status is TransportabilityStatus.UNSUPPORTED
     assert transport_result.transport_mode is TransportMode.NONE
     assert transport_result.unsupported_reason == "missing_causal_report"
@@ -199,7 +202,7 @@ def test_run_transportability_research_profile_persists_blocking_result_without_
     tmp_path,
 ) -> None:
     ctx = _build_ctx(tmp_path, run_id="R_transport_missing_graph")
-    report_ref = persist_causal_effect_report(ctx.store, _base_report())
+    report_ref = persist_causal_effect_report(_ensure_ir_artifact_store(ctx.store), _base_report())
     state = ExperimentState(
         run_id="R_transport_missing_graph",
         artifacts_index={ARTIFACT_CAUSAL_REPORT_REF: report_ref},
@@ -216,12 +219,15 @@ def test_run_transportability_research_profile_persists_blocking_result_without_
 
     assert outcome.status == "ok"
     transport_ref = outcome.state.artifacts_index[ARTIFACT_TRANSPORTABILITY_RESULT_REF]
-    transport_result = load_transportability_result(ctx.store, transport_ref)
+    transport_result = load_transportability_result(
+        _ensure_ir_artifact_store(ctx.store), transport_ref
+    )
     assert transport_result.status is TransportabilityStatus.UNSUPPORTED
     assert transport_result.unsupported_reason == "missing_causal_graph"
     assert outcome.state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF] != report_ref
     updated_report = load_causal_effect_report(
-        ctx.store, outcome.state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF]
+        _ensure_ir_artifact_store(ctx.store),
+        outcome.state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF],
     )
     assert updated_report.transport_result == transport_result
 
@@ -232,8 +238,8 @@ def test_run_transportability_rejects_degraded_transport_outside_dev(
     execution_profile: str,
 ) -> None:
     ctx = _build_ctx(tmp_path, run_id=f"R_transport_strict_{execution_profile}")
-    report_ref = persist_causal_effect_report(ctx.store, _base_report())
-    graph_ref = persist_causal_graph_model(ctx.store, _mediator_graph())
+    report_ref = persist_causal_effect_report(_ensure_ir_artifact_store(ctx.store), _base_report())
+    graph_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), _mediator_graph())
     profile = {"context_id": "DE", "income_level": "high", "institutional_quality": 0.8}
     state = ExperimentState(
         run_id=f"R_transport_strict_{execution_profile}",
@@ -417,8 +423,8 @@ def test_resolution_loop_without_privacy_context_does_not_crash() -> None:
 
 def test_run_transportability_node_updates_causal_report(tmp_path) -> None:
     ctx = _build_ctx(tmp_path, run_id="R_transport_ok")
-    report_ref = persist_causal_effect_report(ctx.store, _base_report())
-    graph_ref = persist_causal_graph_model(ctx.store, _mediator_graph())
+    report_ref = persist_causal_effect_report(_ensure_ir_artifact_store(ctx.store), _base_report())
+    graph_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), _mediator_graph())
 
     profile = {"context_id": "DE", "income_level": "high", "institutional_quality": 0.8}
     state = ExperimentState(
@@ -440,15 +446,15 @@ def test_run_transportability_node_updates_causal_report(tmp_path) -> None:
     assert outcome.status == "ok"
     assert ARTIFACT_TRANSPORTABILITY_RESULT_REF in outcome.state.artifacts_index
     updated_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF]
-    updated = load_causal_effect_report(ctx.store, updated_ref)
+    updated = load_causal_effect_report(_ensure_ir_artifact_store(ctx.store), updated_ref)
     assert updated.transport_result is not None
     assert updated.transport_result.status is TransportabilityStatus.IDENTIFIED
 
 
 def test_run_transportability_node_applies_store_backed_blocked_privacy_gate(tmp_path) -> None:
     ctx = _build_ctx(tmp_path, run_id="R_transport_privacy_blocked")
-    report_ref = persist_causal_effect_report(ctx.store, _base_report())
-    graph_ref = persist_causal_graph_model(ctx.store, _mediator_graph())
+    report_ref = persist_causal_effect_report(_ensure_ir_artifact_store(ctx.store), _base_report())
+    graph_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), _mediator_graph())
 
     profile = {"context_id": "DE", "income_level": "high", "institutional_quality": 0.8}
     state = ExperimentState(
@@ -472,7 +478,9 @@ def test_run_transportability_node_applies_store_backed_blocked_privacy_gate(tmp
 
     assert outcome.status == "ok"
     transport_ref = outcome.state.artifacts_index[ARTIFACT_TRANSPORTABILITY_RESULT_REF]
-    transport_result = load_transportability_result(ctx.store, transport_ref)
+    transport_result = load_transportability_result(
+        _ensure_ir_artifact_store(ctx.store), transport_ref
+    )
     assert transport_result.status is TransportabilityStatus.UNSUPPORTED
     assert transport_result.transport_mode is TransportMode.NONE
     assert transport_result.transport_formula is None
@@ -481,7 +489,9 @@ def test_run_transportability_node_applies_store_backed_blocked_privacy_gate(tmp
     privacy_ref_payload = transport_result.metadata["privacy_certificate_ref"]
     assert privacy_ref_payload is not None
     privacy_ref = PrivacyAwareTransportCertificateRef.model_validate(privacy_ref_payload)
-    loaded_privacy_certificate = load_privacy_aware_transport_certificate(ctx.store, privacy_ref)
+    loaded_privacy_certificate = load_privacy_aware_transport_certificate(
+        _ensure_ir_artifact_store(ctx.store), privacy_ref
+    )
     assert loaded_privacy_certificate.privacy_observed_mode is PrivacyObservedMode.BLOCKED
     assert loaded_privacy_certificate.blocking_reasons == ("privacy_transport_blocked",)
 
@@ -491,10 +501,10 @@ def test_run_transportability_uses_ensemble_consensus_graph_when_available(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     ctx = _build_ctx(tmp_path, run_id="R_transport_ensemble_graph")
-    report_ref = persist_causal_effect_report(ctx.store, _base_report())
+    report_ref = persist_causal_effect_report(_ensure_ir_artifact_store(ctx.store), _base_report())
 
     reconciled_graph_ref = persist_causal_graph_model(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         CausalGraphModel(
             graph_type=GraphType.DAG,
             nodes=["reconciled_X", "reconciled_Y"],
@@ -502,7 +512,7 @@ def test_run_transportability_uses_ensemble_consensus_graph_when_available(
         ),
     )
     consensus_graph_ref = persist_causal_graph_model(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         CausalGraphModel(
             graph_type=GraphType.DAG,
             nodes=["consensus_X", "consensus_Y"],
@@ -510,7 +520,7 @@ def test_run_transportability_uses_ensemble_consensus_graph_when_available(
         ),
     )
     ensemble_ref = persist_causal_model_ensemble(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         CausalModelEnsemble(
             members=[
                 EnsembleMember(
@@ -571,8 +581,8 @@ def test_run_transportability_symbolic_mode_records_backend_issue(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     ctx = _build_ctx(tmp_path, run_id="R_transport_symbolic_unavailable")
-    report_ref = persist_causal_effect_report(ctx.store, _base_report())
-    graph_ref = persist_causal_graph_model(ctx.store, _mediator_graph())
+    report_ref = persist_causal_effect_report(_ensure_ir_artifact_store(ctx.store), _base_report())
+    graph_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), _mediator_graph())
 
     def _fake_solver(**kwargs):
         diagram = kwargs["diagram"]
@@ -615,7 +625,7 @@ def test_run_transportability_symbolic_mode_records_backend_issue(
 
     assert outcome.status == "ok"
     updated_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF]
-    updated = load_causal_effect_report(ctx.store, updated_ref)
+    updated = load_causal_effect_report(_ensure_ir_artifact_store(ctx.store), updated_ref)
     assert updated.transport_result is not None
     assert updated.transport_result.identification_engine == "y0"
     assert updated.transport_result.unsupported_reason == "y0_unavailable"
@@ -636,8 +646,8 @@ def test_run_transportability_solver_mode_maps_symbolic_backend_params(
     solver_mode: str,
 ) -> None:
     ctx = _build_ctx(tmp_path, run_id=f"R_transport_solver_mode_{solver_mode}")
-    report_ref = persist_causal_effect_report(ctx.store, _base_report())
-    graph_ref = persist_causal_graph_model(ctx.store, _mediator_graph())
+    report_ref = persist_causal_effect_report(_ensure_ir_artifact_store(ctx.store), _base_report())
+    graph_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), _mediator_graph())
 
     captured_params: dict[str, object] = {}
 

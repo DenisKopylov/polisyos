@@ -175,6 +175,136 @@ const operatorDiagnosticSchema = z.object({
   projection_labels: z.array(operatorProjectionStateLabelSchema).optional(),
 });
 
+const runCandidateSimulationN5ObservationSchema = z
+  .object({
+    node_ref: z.string().min(1),
+    design_problem_ref: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    design_problem_basis_ref: z
+      .string()
+      .regex(/^sha256:[0-9a-f]{64}$/)
+      .nullable()
+      .optional(),
+    cycle_index: z.number().int().nonnegative().nullable().optional(),
+    candidate_id: z.string().min(1).nullable().optional(),
+    atom_ids: z.array(z.string()),
+    selected_outcomes: z.array(z.string()),
+    status: z.enum([
+      "joint_simulated",
+      "simulation_pending_n5",
+      "simulation_blocked",
+    ]),
+    simulation_ref: z.string().nullable().optional(),
+    simulation_result_ref: artifactRefSchema.nullable().optional(),
+    world_model_record_content_hash: z
+      .string()
+      .regex(/^sha256:[0-9a-f]{64}$/)
+      .nullable()
+      .optional(),
+    k_world_ref_before: z
+      .string()
+      .regex(/^sha256:[0-9a-f]{64}$/)
+      .nullable()
+      .optional(),
+    k_world_ref_after: z
+      .string()
+      .regex(/^sha256:[0-9a-f]{64}$/)
+      .nullable()
+      .optional(),
+    authority_blockers: z.array(z.string()),
+  })
+  .strict();
+
+const runRecursiveCycleBranchFailureSchema = z
+  .object({
+    failed_branch_ref: z.string().min(1),
+    origin_node_ref: z.string().min(1),
+    stage: z.string().min(1),
+    exception_type: z.string().min(1),
+    error_code: z.string().min(1).nullable().optional(),
+    error_message: z.string(),
+  })
+  .strict();
+
+const runRecursiveCycleCheckpointSchema = z
+  .object({
+    schema_version: z.enum([
+      "policyos.runtime.recursive_cycle_checkpoint.v1",
+      "policyos.runtime.recursive_cycle_checkpoint.v2",
+    ]),
+    status: z.literal("partial"),
+    publication_authority: z.literal(false),
+    budget_stop_node_ref: z.string().min(1).nullable().optional(),
+    pending_frontier: z.array(z.string()),
+    completed_design_refs: z.array(z.string()),
+    root_n9_status: z.literal("not_run"),
+    leaf_terminal_kinds: z.record(z.string(), z.string()),
+    failed_branches: z.array(runRecursiveCycleBranchFailureSchema),
+  })
+  .strict();
+
+const runCandidateSimulationAcquisitionHistoryEntrySchema = z
+  .object({
+    route_receipt_ref: artifactRefSchema,
+    reentry_receipt_ref: artifactRefSchema.nullable().optional(),
+    route_id: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    action_generation: z.number().int().positive(),
+    terminal_outcome: z.enum(["reentry_completed", "quarantined_no_growth"]),
+    old_candidate_id: z.string().min(1).nullable().optional(),
+    new_candidate_id: z.string().min(1).nullable().optional(),
+    new_candidate_source_ref: artifactRefSchema.nullable().optional(),
+    origin_source_ref: artifactRefSchema.nullable().optional(),
+    currentness_status: z.literal("not_established"),
+    authority_purpose: z.literal("candidate_observation_only"),
+    publication_authority: z.literal(false),
+  })
+  .strict();
+
+const runCandidateSimulationProjectionSchema = z
+  .object({
+    schema_version: z.literal(
+      "policyos.runtime.run_candidate_simulation_projection.v1",
+    ),
+    run_id: z.string().min(1),
+    artifact_status: z.enum(["resolved", "not_established"]),
+    authority_purpose: z.literal("candidate_observation_only"),
+    publication_authority: z.literal(false),
+    source_ref: artifactRefSchema.nullable().optional(),
+    source_content_hash: z
+      .string()
+      .regex(/^sha256:[0-9a-f]{64}$/)
+      .nullable()
+      .optional(),
+    limitation_code: z
+      .enum([
+        "compiled_cycle_artifact_ambiguous",
+        "compiled_cycle_artifact_ref_invalid",
+        "compiled_cycle_artifact_integrity_not_established",
+        "compiled_cycle_artifact_content_invalid",
+        "n5_observation_not_emitted",
+        "n5_result_reference_not_established",
+      ])
+      .nullable()
+      .optional(),
+    n5_observations: z.array(runCandidateSimulationN5ObservationSchema),
+    recursive_cycle_checkpoint: runRecursiveCycleCheckpointSchema
+      .nullable()
+      .optional(),
+    acquisition_history: z
+      .array(runCandidateSimulationAcquisitionHistoryEntrySchema)
+      .optional(),
+    acquisition_history_limitation_code: z
+      .enum([
+        "acquisition_n4_source_not_established",
+        "acquisition_action_history_not_observed",
+        "acquisition_action_history_incomplete",
+        "acquisition_action_history_integrity_not_established",
+        "acquisition_reentry_source_not_established",
+      ])
+      .nullable()
+      .optional(),
+  })
+  .strict();
+
 const runSummarySchema = z.object({
   run_id: z.string(),
   source_kind: z.literal("core_run"),
@@ -206,6 +336,9 @@ const runDetailsSchemaInner = z.object({
   manifest_ref: artifactRefSchema.nullable().optional(),
   operator_diagnostic: operatorDiagnosticSchema.nullable().optional(),
   policy_design_case_projection: policyDesignCaseProjectionSchema
+    .nullable()
+    .optional(),
+  candidate_simulation: runCandidateSimulationProjectionSchema
     .nullable()
     .optional(),
   trace_ref: artifactRefSchema.nullable().optional(),
@@ -315,6 +448,22 @@ const nodeDebugViewSchema = z.object({
   notes: z.array(z.string()).optional(),
 });
 
+const agentPipelineCostEventSchema = z
+  .object({
+    event_id: z.string().min(1),
+    origin_event_id: z.string().min(1).nullable().optional(),
+    cost_origin: z.enum(["reported", "estimated", "reuse", "unknown"]),
+    amount: z.string().nullable().optional(),
+    cost_usd: z.number().nullable().optional(),
+    settlement_status: z.enum(["pending", "committed", "unknown", "unmanaged"]),
+    durability: z.enum(["ledger", "memory", "none"]).nullable().optional(),
+    receipts: z.array(z.string()).optional(),
+    payload_digest: z.string().min(1).nullable().optional(),
+    model: z.string().nullable().optional(),
+    provider: z.string().nullable().optional(),
+  })
+  .strict();
+
 const agentPipelineStepSchema = z.object({
   attempt: z.number(),
   agent: z.string(),
@@ -330,6 +479,16 @@ const agentPipelineStepSchema = z.object({
   model_variant_id: z.string().nullable().optional(),
   latency_ms: z.number().nullable().optional(),
   cost_usd: z.number().nullable().optional(),
+  reported_cost_usd: z.number().nullable().optional(),
+  estimated_cost_usd: z.number().nullable().optional(),
+  cost_origin: z
+    .enum(["reported", "estimated", "reuse", "unknown"])
+    .nullable()
+    .optional(),
+  cost_origin_counts: z.record(z.string(), z.number()).optional(),
+  settlement_status_counts: z.record(z.string(), z.number()).optional(),
+  settlement_event_ids: z.array(z.string()).optional(),
+  cost_events: z.array(agentPipelineCostEventSchema).optional(),
   token_usage: z.record(z.string(), z.number()).optional(),
 });
 
@@ -340,6 +499,11 @@ const agentPipelineAttemptSchema = z.object({
   started_at: z.string().nullable().optional(),
   finished_at: z.string().nullable().optional(),
   duration_ms: z.number().nullable().optional(),
+  cost_usd: z.number().nullable().optional(),
+  reported_cost_usd: z.number().nullable().optional(),
+  estimated_cost_usd: z.number().nullable().optional(),
+  cost_origin_counts: z.record(z.string(), z.number()).optional(),
+  settlement_status_counts: z.record(z.string(), z.number()).optional(),
   steps: z.array(agentPipelineStepSchema).optional(),
   notes: z.array(z.string()).optional(),
 });
@@ -452,6 +616,11 @@ const agentPipelineViewSchema = z.object({
   run_id: z.string(),
   source_kind: z.literal("core_run"),
   total_attempts: z.number(),
+  cost_usd: z.number().nullable().optional(),
+  reported_cost_usd: z.number().nullable().optional(),
+  estimated_cost_usd: z.number().nullable().optional(),
+  cost_origin_counts: z.record(z.string(), z.number()).optional(),
+  settlement_status_counts: z.record(z.string(), z.number()).optional(),
   latest_verdict: z.string().nullable().optional(),
   attempts: z.array(agentPipelineAttemptSchema).optional(),
   decision_packet_ref: artifactRefSchema.nullable().optional(),
@@ -859,6 +1028,18 @@ const runEvidenceContextViewSchema = z.object({
   warnings: z.array(z.string()).optional(),
 });
 
+const legalQueryGenerationIntentSchema = z
+  .object({
+    basis_kind: z.enum([
+      "legal_lex_entities_embedding",
+      "legal_lex_facts_embedding",
+      "legal_lex_provisions_embedding",
+    ]),
+    generation_id: z.string(),
+    inventory_json: z.string(),
+  })
+  .strict();
+
 const lexSearchResultItemSchema = z.object({
   fact_id: z.string(),
   subject_name: z.string(),
@@ -867,16 +1048,58 @@ const lexSearchResultItemSchema = z.object({
   fact_text: z.string(),
   confidence: z.number(),
   norm_type: z.string(),
-  action_canon: z.string().default(""),
-  norm_type_canon: z.string().default(""),
-  condition_text_uk: z.string().default(""),
-  exception_text_uk: z.string().default(""),
-  procedure_text_uk: z.string().default(""),
-  thresholds_json: z.string().default(""),
-  source_quote_uk: z.string().default(""),
+  action_canon: z.string(),
+  norm_type_canon: z.string(),
+  condition_text_uk: z.string(),
+  exception_text_uk: z.string(),
+  procedure_text_uk: z.string(),
+  thresholds_json: z.string(),
+  source_quote_uk: z.string(),
+  trust_tier: z.enum(["search_candidate", "grounded_fact", "normative_fact"]),
+  grounding_status: z.enum([
+    "exact_quote",
+    "quote_without_offsets",
+    "offsets_without_quote",
+    "missing_quote",
+  ]),
+  canonical_status: z.enum(["canonicalized", "partially_canonicalized", "raw"]),
+  reference_resolution_status: z.enum([
+    "resolved",
+    "partial",
+    "unresolved",
+    "not_applicable",
+  ]),
+  structure_quality: z.string(),
+  constraint_type_canon: z.string(),
+  legal_unit_subtype: z.string(),
+  route_class: z.string(),
+  empty_spo_retry_eligible: z.boolean(),
+  audit_miss_prone: z.boolean(),
+  reference_bearing: z.boolean(),
+  threshold_bearing: z.boolean(),
+  fused_confidence: z.number().nullable().optional(),
+  confidence_breakdown_json: z.string(),
+  consistency_score: z.number().nullable().optional(),
+  hallucination_flags_json: z.string(),
+  quality_band: z.string(),
+  doc_id: z.string(),
+  doc_family_id: z.string(),
+  version_id: z.string(),
+  jurisdiction: z.string(),
+  top_domain: z.string(),
+  effective_from: z.string(),
+  effective_to: z.string(),
+  temporal_state: z.string(),
+  temporal_resolution_status: z.string(),
+  temporal_source_scope: z.string(),
+  temporal_source_kind: z.string(),
+  temporal_confidence: z.number().nullable().optional(),
+  temporal_provenance_json: z.string(),
   doc_name: z.string(),
-  doc_reestr_code: z.string().default(""),
-  provision_citation: z.string().default(""),
+  doc_reestr_code: z.string(),
+  provision_anchor: z.string(),
+  provision_citation: z.string(),
+  similarity: z.number(),
 });
 
 const artifactManifestViewSchema = z.object({
@@ -1682,11 +1905,25 @@ export const promotionDecisionResponseSchema = z.object({
   binding_updated: z.boolean().default(false),
 });
 
+export const lexSearchRequestSchema = z
+  .object({
+    query: z.string().min(1).max(2000),
+    top_k: z.number().int().min(1).max(100).default(20),
+    output_dir: z.string().min(1),
+    query_generation_intent: z
+      .array(legalQueryGenerationIntentSchema)
+      .nullable()
+      .optional(),
+  })
+  .strict();
+
 export const lexSearchResponseSchema = z.object({
   meta: apiMetaSchema,
   query: z.string(),
   results: z.array(lexSearchResultItemSchema).default([]),
   total: z.number().default(0),
+  search_mode: z.enum(["text", "vector"]),
+  vector_refusal_code: z.string().nullable(),
 });
 
 export const nodeDebugSchema = z.object({
@@ -2387,6 +2624,7 @@ export type PromotionCandidatesPayload = z.infer<
 export type PromotionDecisionResponsePayload = z.infer<
   typeof promotionDecisionResponseSchema
 >;
+export type LexSearchRequestPayload = z.infer<typeof lexSearchRequestSchema>;
 export type LexSearchResponsePayload = z.infer<typeof lexSearchResponseSchema>;
 export type NodeDebugPayload = z.infer<typeof nodeDebugSchema>;
 export type RunErrorsPayload = z.infer<typeof runErrorsSchema>;

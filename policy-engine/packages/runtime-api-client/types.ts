@@ -2350,12 +2350,26 @@ export interface components {
         AgentPipelineAttempt: {
             /** Attempt */
             attempt: number;
+            /** Cost Origin Counts */
+            cost_origin_counts?: {
+                [key: string]: number;
+            };
+            /** Cost Usd */
+            cost_usd?: number | null;
             /** Duration Ms */
             duration_ms?: number | null;
+            /** Estimated Cost Usd */
+            estimated_cost_usd?: number | null;
             /** Finished At */
             finished_at?: string | null;
             /** Notes */
             notes?: string[];
+            /** Reported Cost Usd */
+            reported_cost_usd?: number | null;
+            /** Settlement Status Counts */
+            settlement_status_counts?: {
+                [key: string]: number;
+            };
             /** Started At */
             started_at?: string | null;
             /**
@@ -2367,6 +2381,43 @@ export interface components {
             steps?: components["schemas"]["AgentPipelineStep"][];
             /** Verdict */
             verdict?: string | null;
+        };
+        /**
+         * AgentPipelineCostEvent
+         * @description One persisted provider settlement or authenticated reuse event.
+         */
+        AgentPipelineCostEvent: {
+            /** Amount */
+            amount?: string | null;
+            /**
+             * Cost Origin
+             * @enum {string}
+             */
+            cost_origin: "reported" | "estimated" | "reuse" | "unknown";
+            /** Cost Usd */
+            cost_usd?: number | null;
+            /** Durability */
+            durability?: ("ledger" | "memory" | "none") | null;
+            /** Event Id */
+            event_id: string;
+            /** Model */
+            model?: string | null;
+            /** Origin Event Id */
+            origin_event_id?: string | null;
+            /** Payload Digest */
+            payload_digest?: string | null;
+            /** Provider */
+            provider?: string | null;
+            /**
+             * Receipts
+             * @default []
+             */
+            receipts: string[];
+            /**
+             * Settlement Status
+             * @enum {string}
+             */
+            settlement_status: "pending" | "committed" | "unknown" | "unmanaged";
         };
         /**
          * AgentPipelineResponse
@@ -2390,12 +2441,22 @@ export interface components {
              * @default 1
              */
             attempt: number;
+            /** Cost Events */
+            cost_events?: components["schemas"]["AgentPipelineCostEvent"][];
+            /** Cost Origin */
+            cost_origin?: ("reported" | "estimated" | "reuse" | "unknown") | null;
+            /** Cost Origin Counts */
+            cost_origin_counts?: {
+                [key: string]: number;
+            };
             /** Cost Usd */
             cost_usd?: number | null;
             /** Details */
             details?: {
                 [key: string]: unknown;
             };
+            /** Estimated Cost Usd */
+            estimated_cost_usd?: number | null;
             /** Latency Ms */
             latency_ms?: number | null;
             /** Model */
@@ -2406,8 +2467,19 @@ export interface components {
             prompt?: string | null;
             /** Provider */
             provider?: string | null;
+            /** Reported Cost Usd */
+            reported_cost_usd?: number | null;
             /** Response */
             response?: string | null;
+            /**
+             * Settlement Event Ids
+             * @default []
+             */
+            settlement_event_ids: string[];
+            /** Settlement Status Counts */
+            settlement_status_counts?: {
+                [key: string]: number;
+            };
             /**
              * Status
              * @default info
@@ -2430,7 +2502,15 @@ export interface components {
         AgentPipelineView: {
             /** Attempts */
             attempts?: components["schemas"]["AgentPipelineAttempt"][];
+            /** Cost Origin Counts */
+            cost_origin_counts?: {
+                [key: string]: number;
+            };
+            /** Cost Usd */
+            cost_usd?: number | null;
             decision_packet_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /** Estimated Cost Usd */
+            estimated_cost_usd?: number | null;
             evaluator?: components["schemas"]["EvaluatorReportView"] | null;
             execution_plan_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             iteration_lifecycle?: components["schemas"]["IterationLifecycleView"] | null;
@@ -2445,10 +2525,16 @@ export interface components {
             } | null;
             preflight?: components["schemas"]["PreflightReportView"] | null;
             reflexion_terminal_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /** Reported Cost Usd */
+            reported_cost_usd?: number | null;
             reproducibility?: components["schemas"]["ReproducibilityView"] | null;
             retrieval?: components["schemas"]["RetrievalTelemetryView"] | null;
             /** Run Id */
             run_id: string;
+            /** Settlement Status Counts */
+            settlement_status_counts?: {
+                [key: string]: number;
+            };
             /** Source */
             source?: string | null;
             /**
@@ -6425,6 +6511,8 @@ export interface components {
              * @default true
              */
             allow_explore_fallback: boolean;
+            /** Catalog Run Profile */
+            catalog_run_profile?: ("prod_full" | "prod_core_blocking" | "rest_backfill" | "catalog_refresh" | "preflight_core" | "observations_backfill") | null;
             /** Data Needs */
             data_needs: components["schemas"]["DataNeed"][];
             /**
@@ -7585,6 +7673,8 @@ export interface components {
              * @constant
              */
             kind: "ir.distributional_report";
+            /** Manifest Profile Sha256 */
+            manifest_profile_sha256?: string | null;
             /**
              * Media Type
              * @default application/json
@@ -10967,6 +11057,21 @@ export interface components {
             runtime_outcomes: components["schemas"]["ProvingGroundRuntimeOutcomes"];
         };
         /**
+         * LegalQueryGenerationIntentV1
+         * @description Immutable selected embedding-generation inventory supplied for retrieval.
+         */
+        LegalQueryGenerationIntentV1: {
+            /**
+             * Basis Kind
+             * @enum {string}
+             */
+            basis_kind: "legal_lex_entities_embedding" | "legal_lex_facts_embedding" | "legal_lex_provisions_embedding";
+            /** Generation Id */
+            generation_id: string;
+            /** Inventory Json */
+            inventory_json: string;
+        };
+        /**
          * LexGraphStatsResponse
          * @description Return graph-cardinality and top-distribution telemetry for the Lex store.
          */
@@ -11061,6 +11166,8 @@ export interface components {
             output_dir: string;
             /** Query */
             query: string;
+            /** Query Generation Intent */
+            query_generation_intent?: components["schemas"]["LegalQueryGenerationIntentV1"][] | null;
             /**
              * Top K
              * @default 20
@@ -11069,7 +11176,7 @@ export interface components {
         };
         /**
          * LexSearchResponse
-         * @description Return ranked Lex facts through the lossless HTTP boundary projection.
+         * @description Return ranked Lex facts with the actual retrieval mode and refusal reason.
          */
         LexSearchResponse: {
             meta: components["schemas"]["ApiMeta"];
@@ -11078,10 +11185,18 @@ export interface components {
             /** Results */
             results?: components["schemas"]["LexSearchResultItem"][];
             /**
+             * Search Mode
+             * @default text
+             * @enum {string}
+             */
+            search_mode: "text" | "vector";
+            /**
              * Total
              * @default 0
              */
             total: number;
+            /** Vector Refusal Code */
+            vector_refusal_code?: string | null;
         };
         /**
          * LexSearchResultItem
@@ -14290,6 +14405,230 @@ export interface components {
             tenant_id: string;
         };
         /**
+         * RunCandidateSimulationAcquisitionHistoryEntry
+         * @description Persisted acquisition action facts projected as candidate history only.
+         */
+        RunCandidateSimulationAcquisitionHistoryEntry: {
+            /** Action Generation */
+            action_generation: number;
+            /**
+             * Authority Purpose
+             * @default candidate_observation_only
+             * @constant
+             */
+            authority_purpose: "candidate_observation_only";
+            /**
+             * Currentness Status
+             * @default not_established
+             * @constant
+             */
+            currentness_status: "not_established";
+            /** New Candidate Id */
+            new_candidate_id?: string | null;
+            new_candidate_source_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /** Old Candidate Id */
+            old_candidate_id?: string | null;
+            origin_source_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /**
+             * Publication Authority
+             * @default false
+             * @constant
+             */
+            publication_authority: false;
+            reentry_receipt_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /** Route Id */
+            route_id: string;
+            route_receipt_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Terminal Outcome
+             * @enum {string}
+             */
+            terminal_outcome: "reentry_completed" | "quarantined_no_growth";
+        };
+        /**
+         * RunCandidateSimulationChildProfileBinding
+         * @description Historical child profile/context binding with currentness left unestablished.
+         */
+        RunCandidateSimulationChildProfileBinding: {
+            /** Cell Id */
+            cell_id: string;
+            /** Context Hash */
+            context_hash: string;
+            context_job_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Currentness Status
+             * @default not_established
+             * @constant
+             */
+            currentness_status: "not_established";
+            /** Design Problem Ref */
+            design_problem_ref: string;
+            /**
+             * Historical Binding Status
+             * @enum {string}
+             */
+            historical_binding_status: "resolved" | "not_established";
+            /** Job Id */
+            job_id: string;
+            /** Limitation Code */
+            limitation_code?: string | null;
+            model_declaration_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            ncm_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /** Node Ref */
+            node_ref: string;
+            /** Profile Config Ref */
+            profile_config_ref: string;
+            /** Profile Id */
+            profile_id: string;
+            /** Profile Selection Ref */
+            profile_selection_ref: string;
+            root_n4_source_ref: components["schemas"]["ArtifactRef-Output"];
+            /** Run Id */
+            run_id: string;
+            /** Tenant Id */
+            tenant_id: string;
+        };
+        /**
+         * RunCandidateSimulationN5Observation
+         * @description One typed N5 observation projected from a persisted recursive run.
+         */
+        RunCandidateSimulationN5Observation: {
+            /**
+             * Atom Ids
+             * @default []
+             */
+            atom_ids: string[];
+            /**
+             * Authority Blockers
+             * @default []
+             */
+            authority_blockers: string[];
+            /** Candidate Id */
+            candidate_id?: string | null;
+            context_job_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /**
+             * Currentness Status
+             * @default not_established
+             * @constant
+             */
+            currentness_status: "not_established";
+            /** Cycle Index */
+            cycle_index?: number | null;
+            /** Design Problem Basis Ref */
+            design_problem_basis_ref?: string | null;
+            /** Design Problem Ref */
+            design_problem_ref: string;
+            /** K World Ref After */
+            k_world_ref_after?: string | null;
+            /** K World Ref Before */
+            k_world_ref_before?: string | null;
+            /** Lineage Limitation Code */
+            lineage_limitation_code?: string | null;
+            /** Lineage Status */
+            lineage_status?: ("resolved" | "not_established") | null;
+            n4_source_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            n5_input_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /** Node Ref */
+            node_ref: string;
+            /** Profile Config Ref */
+            profile_config_ref?: string | null;
+            /** Profile Selection Ref */
+            profile_selection_ref?: string | null;
+            /**
+             * Selected Outcomes
+             * @default []
+             */
+            selected_outcomes: string[];
+            /** Simulation Ref */
+            simulation_ref?: string | null;
+            simulation_result_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "joint_simulated" | "simulation_pending_n5" | "simulation_blocked";
+            /** World Model Record Content Hash */
+            world_model_record_content_hash?: string | null;
+        };
+        /**
+         * RunCandidateSimulationProjection
+         * @description Source-bound candidate observations exposed for display, never authority.
+         */
+        RunCandidateSimulationProjection: {
+            /**
+             * Acquisition History
+             * @default []
+             */
+            acquisition_history: components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntry"][];
+            /** Acquisition History Limitation Code */
+            acquisition_history_limitation_code?: ("acquisition_n4_source_not_established" | "acquisition_action_history_not_observed" | "acquisition_action_history_incomplete" | "acquisition_action_history_integrity_not_established" | "acquisition_reentry_source_not_established") | null;
+            /**
+             * Artifact Status
+             * @enum {string}
+             */
+            artifact_status: "resolved" | "not_established";
+            /**
+             * Authority Purpose
+             * @default candidate_observation_only
+             * @constant
+             */
+            authority_purpose: "candidate_observation_only";
+            /** Limitation Code */
+            limitation_code?: ("compiled_cycle_artifact_ambiguous" | "compiled_cycle_artifact_ref_invalid" | "compiled_cycle_artifact_integrity_not_established" | "compiled_cycle_artifact_content_invalid" | "n5_observation_not_emitted" | "n5_result_reference_not_established") | null;
+            /**
+             * N4 Child Profile Bindings
+             * @default []
+             */
+            n4_child_profile_bindings: components["schemas"]["RunCandidateSimulationChildProfileBinding"][];
+            /** N4 Child Profile Limitation Code */
+            n4_child_profile_limitation_code?: string | null;
+            /** N4 Child Profile Status */
+            n4_child_profile_status?: ("not_attempted" | "resolved" | "not_established") | null;
+            /** N4 Recursive Source Content Hash */
+            n4_recursive_source_content_hash?: string | null;
+            n4_recursive_source_context_job_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /**
+             * N4 Recursive Source Currentness Status
+             * @default not_established
+             * @constant
+             */
+            n4_recursive_source_currentness_status: "not_established";
+            /** N4 Recursive Source Limitation Code */
+            n4_recursive_source_limitation_code?: string | null;
+            /** N4 Recursive Source Profile Config Ref */
+            n4_recursive_source_profile_config_ref?: string | null;
+            /** N4 Recursive Source Profile Selection Ref */
+            n4_recursive_source_profile_selection_ref?: string | null;
+            n4_recursive_source_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /** N4 Recursive Source Result Status */
+            n4_recursive_source_result_status?: ("generated" | "generation_unavailable" | "preflight_rejected") | null;
+            /** N4 Recursive Source Status */
+            n4_recursive_source_status?: ("resolved" | "not_established") | null;
+            /**
+             * N5 Observations
+             * @default []
+             */
+            n5_observations: components["schemas"]["RunCandidateSimulationN5Observation"][];
+            /**
+             * Publication Authority
+             * @default false
+             * @constant
+             */
+            publication_authority: false;
+            recursive_cycle_checkpoint?: components["schemas"]["RunRecursiveCycleCheckpoint"] | null;
+            /** Run Id */
+            run_id: string;
+            /**
+             * Schema Version
+             * @default policyos.runtime.run_candidate_simulation_projection.v1
+             * @constant
+             */
+            schema_version: "policyos.runtime.run_candidate_simulation_projection.v1";
+            /** Source Content Hash */
+            source_content_hash?: string | null;
+            source_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+        };
+        /**
          * RunCompareResponse
          * @description Response envelope returned by the run comparison endpoint.
          */
@@ -14313,6 +14652,7 @@ export interface components {
          * @description Run details public type.
          */
         RunDetails: {
+            candidate_simulation?: components["schemas"]["RunCandidateSimulationProjection"] | null;
             capability_manifest_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             /** Cell Id */
             cell_id?: string | null;
@@ -15185,6 +15525,75 @@ export interface components {
              */
             source_kind: "core_run";
             temporal_scope?: components["schemas"]["TemporalScope"] | null;
+        };
+        /**
+         * RunRecursiveCycleBranchFailure
+         * @description Exact producer failure carried by a bounded partial recursive run.
+         */
+        RunRecursiveCycleBranchFailure: {
+            /** Error Code */
+            error_code?: string | null;
+            /** Error Message */
+            error_message: string;
+            /** Exception Type */
+            exception_type: string;
+            /** Failed Branch Ref */
+            failed_branch_ref: string;
+            /** Origin Node Ref */
+            origin_node_ref: string;
+            /** Stage */
+            stage: string;
+        };
+        /**
+         * RunRecursiveCycleCheckpoint
+         * @description Read-only checkpoint from an incomplete persisted recursive traversal.
+         */
+        RunRecursiveCycleCheckpoint: {
+            /** Budget Stop Node Ref */
+            budget_stop_node_ref?: string | null;
+            /**
+             * Completed Design Refs
+             * @default []
+             */
+            completed_design_refs: string[];
+            /**
+             * Failed Branches
+             * @default []
+             */
+            failed_branches: components["schemas"]["RunRecursiveCycleBranchFailure"][];
+            /** Leaf Terminal Kinds */
+            leaf_terminal_kinds?: {
+                [key: string]: string;
+            };
+            /**
+             * Pending Frontier
+             * @default []
+             */
+            pending_frontier: string[];
+            /**
+             * Publication Authority
+             * @default false
+             * @constant
+             */
+            publication_authority: false;
+            /**
+             * Root N9 Status
+             * @default not_run
+             * @constant
+             */
+            root_n9_status: "not_run";
+            /**
+             * Schema Version
+             * @default policyos.runtime.recursive_cycle_checkpoint.v1
+             * @enum {string}
+             */
+            schema_version: "policyos.runtime.recursive_cycle_checkpoint.v1" | "policyos.runtime.recursive_cycle_checkpoint.v2";
+            /**
+             * Status
+             * @default partial
+             * @constant
+             */
+            status: "partial";
         };
         /**
          * RunSummary
@@ -16734,6 +17143,8 @@ export interface components {
              * @constant
              */
             kind: "ir.uncertainty_envelope";
+            /** Manifest Profile Sha256 */
+            manifest_profile_sha256?: string | null;
             /**
              * Media Type
              * @default application/json
@@ -16896,6 +17307,8 @@ export interface components {
              * @constant
              */
             kind: "ir.welfare_bundle";
+            /** Manifest Profile Sha256 */
+            manifest_profile_sha256?: string | null;
             /**
              * Media Type
              * @default application/json

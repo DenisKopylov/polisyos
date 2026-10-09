@@ -22,6 +22,16 @@ commits filtered out.
 
 - Change packaging extras by adding umbrella `all` and MkDocs tooling to the `dev` extra.
 - Change the `polisyos` CLI to expose `--version` for installation verification.
+- Route Scientist method dispatch through the canonical process-shared executor and allow Runtime
+  composition to declare its candidate capacity/profile revision. Omitting both settings retains the
+  legacy host-derived candidate fallback; neither setting establishes deployment authority or a
+  cross-process quota.
+- Allow `run_experiment` callers to provide the existing Foundry port seam, and use it to bind each
+  Scientist backtest replica's seed to its actual `ExecuteRequest` while preserving the public workflow
+  route.
+- Persist cutoff-bound Scientist replica receipts with request, seed-source, per-run CAS references,
+  and requested/started/completed/failed counts. Multi-run projection stays explicitly unsupported;
+  results remain per-replica and the report uses the degraded diagnostic fallback.
 
 ## [0.1.0] - 2026-04-03
 

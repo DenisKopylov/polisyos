@@ -4,18 +4,18 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.ir.analytics.causal import CausalEffectReport
 from polisyos.ir.analytics.cross_graph import CrossGraphEvidenceProfile
 from polisyos.ir.analytics.decision_layer import load_optimization_ambiguity_certificate
 from polisyos.ir.analytics.distributional import DistributionalReport
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.evidence.sources import (
     EvidenceSourcesConfig,
     normalize_evidence_sources_config,
 )
 from polisyos.scientist.governance.report import GovernanceReport
+from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
 from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
     _resolve_candidate,
 )
@@ -29,12 +29,13 @@ from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     load_search_uncertainty,
     load_simulation_metrics,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.phase3 import (
     ensure_optimization_ambiguity_certificate,
     phase3_ambiguity_required,
 )
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
-from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
 
 
 @dataclass(frozen=True)
@@ -78,7 +79,7 @@ def resolve_policy_runtime_request(
     ambiguity_certificate = load_ambiguity_certificate(ctx, state)
     if ambiguity_certificate is None and ambiguity_certificate_ref is not None:
         artifact = load_optimization_ambiguity_certificate(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             ambiguity_certificate_ref,
         )
         ambiguity_certificate = dict(artifact.certificate_payload) or {

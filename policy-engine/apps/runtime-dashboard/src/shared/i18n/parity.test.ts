@@ -146,6 +146,10 @@ const NUMERIC_VARIABLE_REASONS = new Map<string, string>([
     "Fallback-plan cardinality derived from the caller array length.",
   ],
   ["fps", "Frames-per-second quantity."],
+  [
+    "generation",
+    "Ordinal action generation from the persisted acquisition-history row; the component verifies it is an integer.",
+  ],
   ["index", "Ordinal section, note, or timeline position."],
   ["info", "Informational-issue tally."],
   ["interval", "Preformatted numeric confidence-interval range."],
@@ -194,7 +198,7 @@ const NUMERIC_VARIABLE_REASONS = new Map<string, string>([
 ]);
 
 const NUMERIC_VARIABLE_KEY_SET_SHA256 =
-  "f34f6dd4f3ea6d555fe00bccef557f1889287fe6e7e167d43fdfbb95104a33f8";
+  "a0b6f7002e41e851fd4c38e2a1061cbc82f827cc744a7e6c94bc5c20a30184ab";
 
 const NON_NUMERIC_VARIABLE_REASONS = new Map<string, string>(
   `actor
@@ -206,6 +210,7 @@ ast
 authority
 baseRunId
 basis
+candidate
 code
 connector
 coverage
@@ -237,6 +242,7 @@ name
 namespace
 needId
 next
+outcome
 outputDir
 parity
 passId
@@ -254,6 +260,7 @@ relation
 requirements
 requestId
 residual
+route
 runId
 scenarioId
 significance
@@ -285,15 +292,28 @@ why`
     ]),
 );
 
+NON_NUMERIC_VARIABLE_REASONS.set(
+  "candidate",
+  "OverviewTab renders old_candidate_id and new_candidate_id only after both pass string checks; these are opaque candidate IDs, not counts.",
+);
+NON_NUMERIC_VARIABLE_REASONS.set(
+  "outcome",
+  "OverviewTab renders terminal_outcome only after it matches the typed reentry_completed or quarantined_no_growth branch; this is categorical status text.",
+);
+NON_NUMERIC_VARIABLE_REASONS.set(
+  "route",
+  "OverviewTab renders route_id only after typeof row.route_id === string; this is an opaque route identifier, not a quantity.",
+);
+
 const NON_NUMERIC_VARIABLE_KEY_SET_SHA256 =
-  "50f796f6c245ab27b028ccce622a0d618dc841fa5fdc8e7c918413293ea5cb80";
+  "d370a8db416c042434b992f66e52e9ac9ead8574559da9c8f7e4a0de99a224b7";
 const INTERPOLATION_VARIABLE_KEY_SET_SHA256 =
-  "77064e6e2907ccf132d4aedc5f682a0be3bf6edec16cb99248d05cb8cff1ab9d";
-const ACTIVE_LOCALE_LEAF_COUNT = 2879;
-const NON_COUNT_MESSAGE_COUNT = 252;
-const NON_COUNT_VARIABLE_USE_COUNT = 375;
+  "69ca1d448f93702bf63e491507acc78e9007dd89eadf9728607f89c634eb9a73";
+const ACTIVE_LOCALE_LEAF_COUNT = 2947;
+const NON_COUNT_MESSAGE_COUNT = 268;
+const NON_COUNT_VARIABLE_USE_COUNT = 392;
 const NON_COUNT_VARIABLE_USE_KEY_SET_SHA256 =
-  "c599dafceb25273820b8337955089b29c2be9854bdbeb6756605e65a740463ee";
+  "42d327e4e3f60e8951349d020503dfe0e001576ea7591cfb816a9417fb3da600";
 
 type NumericUseClassification = "pluralized" | "invariant";
 
@@ -358,6 +378,7 @@ pages.dashboard.runCardMeta#{duration}
 pages.dashboard.sampledRuns#{duration}
 pages.dashboard.successRate#{rate}
 pages.runs.activeRunAnnouncement#{position}
+pages.runs.candidateSimulation.acquisitionRoute#{generation}
 pages.runs.confidenceIntervalShort#{confidence}
 pages.runs.missingArtifacts#{artifacts}
 pages.runs.narrative.ciRange#{level}
@@ -464,8 +485,17 @@ whatIf.parameterSlider.defaultValue#{value}`
     ]),
 );
 
+NUMERIC_INVARIANT_USE_DECLARATIONS.set(
+  "pages.runs.candidateSimulation.acquisitionRoute#{generation}",
+  {
+    classification: "invariant",
+    reason:
+      "OverviewTab verifies row.action_generation with Number.isInteger and renders it as an ordinal beside the fixed action-generation label.",
+  },
+);
+
 const NUMERIC_INVARIANT_USE_KEY_SET_SHA256 =
-  "2e3c9c18f5980770733df476a5d1427c42208c67f745cd50a408bfa43a6d9cae";
+  "de6ac1b88aa2839197dfe2285a00b14c102e1846af3d277dbdcd80c6e1df7eb7";
 
 const NUMERIC_AGREEMENT_COHORT_DECLARATIONS = new Map<
   string,
@@ -800,13 +830,13 @@ const QUANTITATIVE_USE_DECLARATIONS = mergeNumericUseDeclarations(
 );
 
 const QUANTITATIVE_USE_DECLARATION_KEY_SET_SHA256 =
-  "d6f9d00e82629ce96b81712f366c22cb91d6bf65bb31e6fa10e865740bd865a2";
+  "fa5adc190b751d48eb179cd0a0d7eb5b423ac015f3da4bb851165f4687b32af4";
 
-const LEGACY_CONTINUITY_RU_KEY_COUNT = 2456;
+const LEGACY_CONTINUITY_RU_KEY_COUNT = 2480;
 const LEGACY_CONTINUITY_RU_KEY_SET_SHA256 =
-  "afcb270475b8a61f3ff4606478c6a0916ab1890932b56e9468a5cb590a0f014d";
+  "402dc65d6592aab71835f1b9d9c112e9797e74fb4af1cc48cfc4162887a0fec4";
 const LEGACY_CONTINUITY_RU_LEAF_VALUE_SHA256 =
-  "cae91dad4312ba94da446db5d9ca1747f3512937b9da0db39f2708064095b3d4";
+  "6537a3a478e44b2eb68eef75e08b0d76c941872ecaf38c8912b1dc5a1e4de721";
 
 function collectCountMessages(
   value: unknown,
@@ -2132,10 +2162,10 @@ describe("locale catalogs", () => {
 
     expect(paths.size).toBe(26);
     expect(NUMERIC_AGREEMENT_COHORT_DECLARATIONS.size).toBe(43);
-    expect(NUMERIC_VARIABLE_REASONS.size).toBe(77);
-    expect(NON_NUMERIC_VARIABLE_REASONS.size).toBe(81);
-    expect(declaredVariableNames).toHaveLength(158);
-    expect(new Set(declaredVariableNames).size).toBe(158);
+    expect(NUMERIC_VARIABLE_REASONS.size).toBe(78);
+    expect(NON_NUMERIC_VARIABLE_REASONS.size).toBe(84);
+    expect(declaredVariableNames).toHaveLength(162);
+    expect(new Set(declaredVariableNames).size).toBe(162);
     expect([collectLeafPairs(en).length, collectLeafPairs(uk).length]).toEqual([
       ACTIVE_LOCALE_LEAF_COUNT,
       ACTIVE_LOCALE_LEAF_COUNT,
@@ -2155,8 +2185,8 @@ describe("locale catalogs", () => {
         .update(activeUseKeySets[0].join("\n"))
         .digest("hex"),
     ).toBe(NON_COUNT_VARIABLE_USE_KEY_SET_SHA256);
-    expect(NUMERIC_INVARIANT_USE_DECLARATIONS.size).toBe(147);
-    expect(QUANTITATIVE_USE_DECLARATIONS.size).toBe(190);
+    expect(NUMERIC_INVARIANT_USE_DECLARATIONS.size).toBe(148);
+    expect(QUANTITATIVE_USE_DECLARATIONS.size).toBe(191);
     expect(activeScans.flatMap((scan) => scan.parseFailurePaths)).toEqual([]);
     expect(declaredVariableNames).toEqual(activeVariableNames);
     expect(adjudicatedNumericUseKeys).toEqual(activeNumericUseKeys);
@@ -2212,7 +2242,7 @@ describe("locale catalogs", () => {
         .digest("hex"),
     ).toBe(QUANTITATIVE_USE_DECLARATION_KEY_SET_SHA256);
     expect(cohortClassifications).toEqual({ pluralized: 10, invariant: 33 });
-    expect(allClassifications).toEqual({ pluralized: 10, invariant: 180 });
+    expect(allClassifications).toEqual({ pluralized: 10, invariant: 181 });
     expect(labelGuidedPaths.size).toBe(20);
     for (const identity of NUMERIC_AGREEMENT_COHORT_DECLARATIONS.keys()) {
       const parsedIdentity = parseNumericUseIdentity(identity);

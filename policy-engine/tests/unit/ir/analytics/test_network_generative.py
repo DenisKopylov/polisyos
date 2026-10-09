@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import numpy as np
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.network_generative import (
     BlockSupportReport,
@@ -38,9 +40,9 @@ def test_causal_block_bridge_round_trip(tmp_path) -> None:
         aggregate_exposures={"treatment_share_by_block": {"0": 0.5, "1": 0.5}},
     )
 
-    ref = persist_causal_block_bridge(store, bridge)
+    ref = persist_causal_block_bridge(_ensure_ir_artifact_store(store), bridge)
     assert isinstance(ref, CausalBlockBridgeRef)
-    loaded = load_causal_block_bridge(store, ref)
+    loaded = load_causal_block_bridge(_ensure_ir_artifact_store(store), ref)
     assert np.array_equal(
         np.asarray(loaded.cluster_id, dtype=int), np.array([0, 0, 1, 1], dtype=int)
     )

@@ -39,6 +39,8 @@ class TestLevel0StaticValidator:
         result = self.stage.evaluate(_make_candidate(), {})
         assert result.is_promising is True
         assert not result.has_blockers
+        assert result.compute_cost_usd is None
+        assert result.compute_cost_origin == "unknown"
 
     def test_missing_semantic_is_blocker(self):
         result = self.stage.evaluate({}, {})

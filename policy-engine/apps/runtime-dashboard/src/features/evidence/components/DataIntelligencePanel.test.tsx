@@ -1,6 +1,7 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
+import { RuntimeApiRequestError } from "@/api/http";
 import { renderWithProviders } from "@/test/render";
 
 const {
@@ -331,6 +332,72 @@ describe("DataIntelligencePanel", () => {
     expect(screen.getByText("Review source freshness")).toBeInTheDocument();
     expect(screen.getAllByText(/world-bank/).length).toBeGreaterThan(0);
   }, 15_000);
+
+  it("keeps catalog profile selection explicit and explains unresolved or conflicting intent", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<DataIntelligencePanel />, {
+      interactiveProviders: true,
+    });
+
+    const profileSelect = screen.getByLabelText(
+      "panels.dataIntelligence.catalogRunProfile",
+    );
+    expect(profileSelect).toHaveValue("");
+    expect(
+      screen.getByText("panels.dataIntelligence.catalogRunProfileHelp"),
+    ).toBeInTheDocument();
+
+    await user.type(
+      screen.getByLabelText("panels.dataIntelligence.metric"),
+      "inflation",
+    );
+    await user.selectOptions(profileSelect, "prod_core_blocking");
+    await user.click(screen.getByTestId("evidence-resolve"));
+
+    expect(resolveMutateMock).toHaveBeenCalledWith({
+      allow_explore_fallback: true,
+      catalog_run_profile: "prod_core_blocking",
+      data_needs: [
+        expect.objectContaining({
+          metric: "inflation",
+          purpose: "data_intelligence_ui",
+        }),
+      ],
+      mode: "hybrid",
+    });
+  });
+
+  it("displays the typed refusal code for a runtime profile conflict", () => {
+    useResolveDataNeedsMock.mockReturnValueOnce({
+      data: null,
+      error: new RuntimeApiRequestError(
+        {
+          code: "catalog_run_profile_conflict",
+          detail:
+            "The requested catalog run profile conflicts with the runtime selection.",
+          status: 422,
+          status_code: 422,
+          title: "Unprocessable Entity",
+          type: "about:blank",
+        } as never,
+        422,
+        "Resolve failed",
+      ),
+      isPending: false,
+      mutate: resolveMutateMock,
+    });
+
+    renderWithProviders(<DataIntelligencePanel />, {
+      interactiveProviders: true,
+    });
+
+    expect(
+      screen.getByText(/catalog_run_profile_conflict/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("panels.dataIntelligence.catalogRunProfileHelp"),
+    ).toBeInTheDocument();
+  });
 
   it("hydrates context mode from selected run surfaces and auto-previews the selected plan", async () => {
     const onResetContext = vi.fn();

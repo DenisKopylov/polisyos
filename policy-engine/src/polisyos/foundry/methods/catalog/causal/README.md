@@ -83,6 +83,21 @@ broader `polisyos.foundry.methods` facade.
   and grants no authority. The existing class facades retain the same object and
   pickle addresses, and their supported method override reaches the producer.
 
+### CausalEngine Twin result persistence
+
+`CausalEngine.run()` places an actual `TwinNetworkResult` in the returned
+`EvidenceBundle` when a typed SCM and artifact store are available. The audit
+path persists the typed result through the existing IR CAS adapter, binds its
+source/query/SCM lineage to selected manifest profiles, and includes the ref in
+the persisted proof trace. Reference-free audit bundles retain the exact strict
+`ir.causal_evidence_bundle` 1.0 shape; a bundle carrying the Twin ref is schema
+1.1. Current readers accept both versions by the selected manifest view, and
+strict 1.0 readers reject 1.1 as unsupported. Existing 1.0 artifacts need no
+rewrite. The result link is a persistence bridge; it does not grant causal or
+policy authority to the supplied SCM or its output. Selected GCM continues to
+require a fully observed declared static DAG; its existing `ValueError` refusal
+now exposes the typed `reason_code="graph_not_declared_static_dag"`.
+
 ## Extension Points
 
 ### Installed selected-worker profile

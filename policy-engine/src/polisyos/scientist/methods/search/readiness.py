@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -18,15 +19,15 @@ from polisyos.foundry.validation import (
 from polisyos.ir.analytics.causal import DataReadinessReport, load_data_readiness_report
 from polisyos.ir.analytics.cross_graph import CrossGraphEvidenceProfile, EvidenceSourceState
 from polisyos.scientist.methods.discovery.priors import PriorKnowledgeBundle
-from polisyos.scientist.policy_design.objectives import ConstraintStatus, PolicyEvaluationVector
-from polisyos.scientist.policy_design.phase3 import Phase3CertificateStatus
-from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 from polisyos.scientist.methods.search.artifact_minimality import (
     ArtifactFunction,
     ArtifactMinimalityMixin,
     artifact_functions_field,
 )
 from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope, UncertaintyType
+from polisyos.scientist.policy_design.objectives import ConstraintStatus, PolicyEvaluationVector
+from polisyos.scientist.policy_design.phase3 import Phase3CertificateStatus
+from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
 if TYPE_CHECKING:
     from polisyos.scientist.methods.search.judge_stack import JudgeVerdict
@@ -245,7 +246,7 @@ class DecisionReadinessEvaluator:
         ):
             try:
                 resolved_data_readiness = load_data_readiness_report(
-                    self._store,
+                    _ensure_ir_artifact_store(self._store),
                     data_readiness_report_ref,
                 )
             except Exception:
@@ -309,10 +310,9 @@ class DecisionReadinessEvaluator:
                 pending_human_gate=pending_human_gate,
                 phase3_gate=resolved_phase3_gate,
             )
-            if (
-                readiness_cap is not None
-                and _readiness_rank(requirement.readiness_level) > _readiness_rank(readiness_cap)
-            ):
+            if readiness_cap is not None and _readiness_rank(
+                requirement.readiness_level
+            ) > _readiness_rank(readiness_cap):
                 reasons = [*reasons, f"readiness_capped:{readiness_cap.value}"]
             passed = not reasons
             assessments.append(
@@ -494,7 +494,7 @@ def load_decision_readiness_contract(
     ref: ArtifactRef,
 ) -> DecisionReadinessContract:
     """Load decision readiness contract."""
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return DecisionReadinessContract.model_validate(payload)
 
 
@@ -740,7 +740,9 @@ def _coerce_fabric_cap(value: object) -> tuple[DecisionReadiness | None, str | N
     if isinstance(value, dict):
         raw_level = value.get("level") or value.get("readiness_level") or value.get("cap")
         try:
-            return DecisionReadiness(str(raw_level)), str(value.get("reason") or "fabric_trust_gate")
+            return DecisionReadiness(str(raw_level)), str(
+                value.get("reason") or "fabric_trust_gate"
+            )
         except (TypeError, ValueError):
             return None, None
     return None, None

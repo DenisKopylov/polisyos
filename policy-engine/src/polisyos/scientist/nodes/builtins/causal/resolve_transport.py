@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Any
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.data_forge.read_api.academic import SKGQuery
 from polisyos.data_forge.read_api.catalog import (
@@ -108,9 +109,7 @@ PROXY_FALLBACK_THRESHOLD = 0.3
 _VALID_TRANSPORT_SOLVER_MODES: frozenset[str] = frozenset(
     {"auto", "simplified", "symbolic", "symbolic_y0", "symbolic_r", "full_auto"}
 )
-_SERIOUS_TRANSPORT_PROFILES: frozenset[str] = frozenset(
-    {"research", "governed", "production"}
-)
+_SERIOUS_TRANSPORT_PROFILES: frozenset[str] = frozenset({"research", "governed", "production"})
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_transportability@1.0.0"),
@@ -747,7 +746,9 @@ class RunTransportabilityNode:
             report_ref = CausalEffectReportRef.model_validate(
                 report_ref_raw.model_dump(mode="json")
             )
-            causal_report = load_causal_effect_report(ctx.store, report_ref)
+            causal_report = load_causal_effect_report(
+                _ensure_ir_artifact_store(ctx.store), report_ref
+            )
         except _TRANSPORT_LOAD_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
@@ -908,13 +909,13 @@ class RunTransportabilityNode:
                 skg_query.close()
 
         transport_ref = persist_transportability_result(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             transport_result,
             inputs=input_refs,
         )
         updated_report = causal_report.model_copy(update={"transport_result": transport_result})
         updated_report_ref = persist_causal_effect_report(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             updated_report,
             inputs=[
                 InputRef(artifact_id=report_ref.artifact_id, role="causal_report_prev"),
@@ -991,7 +992,7 @@ def _persist_blocking_transportability_result(
         target_context=target_context,
     )
     transport_ref = persist_transportability_result(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         transport_result,
         inputs=input_refs,
     )
@@ -999,18 +1000,14 @@ def _persist_blocking_transportability_result(
     artifacts = [capability_ref, transport_ref]
     new_state = branch_state(state, write_paths=_SPEC.state_writes).state
     new_state.params["transportability_status"] = transport_result.status.value
-    new_state.params["transportability_transport_mode"] = (
-        transport_result.transport_mode.value
-    )
+    new_state.params["transportability_transport_mode"] = transport_result.transport_mode.value
     new_state.params["transportability_identification_engine"] = (
         transport_result.identification_engine
     )
     new_state.params["transportability_capability_hash"] = (
         capability_contract.dependency_fingerprint
     )
-    new_state.params["transportability_degradation_policy"] = (
-        capability_contract.degradation_policy
-    )
+    new_state.params["transportability_degradation_policy"] = capability_contract.degradation_policy
     new_state.params.pop("transportability_id_confidence_under_pag", None)
     new_state.params["transportability_warning"] = f"{reason}: {message}"
     new_state.params["transport_required"] = True
@@ -1021,7 +1018,7 @@ def _persist_blocking_transportability_result(
     if causal_report is not None and report_ref is not None:
         updated_report = causal_report.model_copy(update={"transport_result": transport_result})
         updated_report_ref = persist_causal_effect_report(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             updated_report,
             inputs=[
                 InputRef(artifact_id=report_ref.artifact_id, role="causal_report_prev"),
@@ -1610,7 +1607,7 @@ def _resolve_or_build_capability_contract(
     if raw_ref is not None:
         try:
             ref = CausalCapabilityContractRef.model_validate(raw_ref.model_dump(mode="json"))
-            return load_causal_capability_contract(ctx.store, ref), ref
+            return load_causal_capability_contract(_ensure_ir_artifact_store(ctx.store), ref), ref
         except _TRANSPORT_LOAD_ERRORS:
             logger.debug(
                 "Failed to load causal capability contract from ref %s, rebuilding",
@@ -1618,7 +1615,7 @@ def _resolve_or_build_capability_contract(
                 exc_info=True,
             )
     contract = build_causal_capability_contract()
-    ref = persist_causal_capability_contract(ctx.store, contract)
+    ref = persist_causal_capability_contract(_ensure_ir_artifact_store(ctx.store), contract)
     return contract, ref
 
 
@@ -1688,11 +1685,15 @@ def _resolve_causal_graph(ctx: ExecutionContext, state: ExperimentState) -> Caus
             ensemble_ref = CausalModelEnsembleRef.model_validate(
                 ensemble_ref_raw.model_dump(mode="json")
             )
-            ensemble = load_causal_model_ensemble(ctx.store, ensemble_ref)
+            ensemble = load_causal_model_ensemble(
+                _ensure_ir_artifact_store(ctx.store), ensemble_ref
+            )
             if ensemble.consensus_graph_ref:
                 consensus_ref = _build_graph_ref_from_artifact_id(ensemble.consensus_graph_ref)
                 if consensus_ref is not None:
-                    return load_causal_graph_model(ctx.store, consensus_ref)
+                    return load_causal_graph_model(
+                        _ensure_ir_artifact_store(ctx.store), consensus_ref
+                    )
         except _TRANSPORT_LOAD_ERRORS:
             logger.debug(
                 "Failed to load causal graph from ensemble ref %s; trying fallback refs",
@@ -1706,7 +1707,7 @@ def _resolve_causal_graph(ctx: ExecutionContext, state: ExperimentState) -> Caus
             continue
         try:
             graph_ref = CausalGraphModelRef.model_validate(ref_raw.model_dump(mode="json"))
-            return load_causal_graph_model(ctx.store, graph_ref)
+            return load_causal_graph_model(_ensure_ir_artifact_store(ctx.store), graph_ref)
         except _TRANSPORT_LOAD_ERRORS:
             continue
     return None

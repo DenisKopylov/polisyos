@@ -9,12 +9,18 @@ from unittest.mock import patch
 
 import pytest
 
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
     ArtifactGovernanceInfo,
     ProducerInfo,
     SchemaInfo,
 )
-from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier, KeyPair
+from polisyos.core.artifacts.signing import (
+    Ed25519Signer,
+    Ed25519Verifier,
+    KeyPair,
+    SignatureVerificationStatus,
+)
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
@@ -438,12 +444,112 @@ def _persist_signed(
         canon_spec=canon_spec or CanonSpec(),
     )
     if sign:
-        harness.store.sign_artifact(
-            result.cas_ref.artifact_id,
-            signer,
-            signer_identity=signer_identity,
+        artifact_id = result.cas_ref.artifact_id
+        if not harness.store.has_signature(artifact_id):
+            harness.store.sign_artifact(
+                artifact_id,
+                signer,
+                signer_identity=signer_identity,
+            )
+        verification = harness.store.verify_signature(
+            artifact_id,
+            harness.verifier,
+            strict_identity=True,
         )
+        assert verification.status is SignatureVerificationStatus.VALID, (
+            "test authority artifact must have a verified immutable signature"
+        )
+        assert verification.key_id == signer.key_id
+        assert verification.signer_identity == signer_identity
     return str(result.cas_ref.artifact_id)
+
+
+def test_persist_signed_reuses_verified_immutable_signature(tmp_path: Path) -> None:
+    harness = _harness(tmp_path)
+    payload = _contract(_envelope())
+    source = {
+        "kind": _authority_module().DELEGATION_CONTRACT_ARTIFACT_KIND,
+        "schema_name": "polisyos.runtime.DelegationContract",
+        "schema_version": LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION,
+        "signer": harness.owner_signer,
+        "signer_identity": MANDATE_OWNER_REF,
+    }
+
+    first_ref = _persist_signed(harness, payload, **source)
+    first_signature = harness.store.get_signature_bytes(first_ref)
+    second_ref = _persist_signed(harness, payload, **source)
+
+    assert second_ref == first_ref
+    assert harness.store.get_signature_bytes(second_ref) == first_signature
+    verification = harness.store.verify_signature(
+        second_ref,
+        harness.verifier,
+        strict_identity=True,
+    )
+    assert verification.status is SignatureVerificationStatus.VALID
+    assert verification.key_id == harness.owner_signer.key_id
+    assert verification.signer_identity == MANDATE_OWNER_REF
+
+
+def test_persist_signed_does_not_replace_foreign_immutable_signature(tmp_path: Path) -> None:
+    harness = _harness(tmp_path)
+    payload = _contract(_envelope())
+    options = {
+        "kind": _authority_module().DELEGATION_CONTRACT_ARTIFACT_KIND,
+        "schema_name": "polisyos.runtime.DelegationContract",
+        "schema_version": LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION,
+        "signer": harness.owner_signer,
+        "signer_identity": MANDATE_OWNER_REF,
+    }
+    artifact_ref = _persist_signed(harness, payload, **options, sign=False)
+    foreign_signer = Ed25519Signer(KeyPair.generate().private_key)
+    harness.store.sign_artifact(
+        ArtifactID.model_validate(artifact_ref),
+        foreign_signer,
+        signer_identity=MANDATE_OWNER_REF,
+    )
+    foreign_signature = harness.store.get_signature_bytes(artifact_ref)
+
+    with pytest.raises(AssertionError, match="verified immutable signature"):
+        _persist_signed(harness, payload, **options)
+
+    assert harness.store.get_signature_bytes(artifact_ref) == foreign_signature
+    assert (
+        harness.store.verify_signature(
+            artifact_ref,
+            harness.verifier,
+            strict_identity=True,
+        ).status
+        is SignatureVerificationStatus.UNTRUSTED
+    )
+
+
+def test_persist_signed_does_not_replace_revoked_immutable_signature(tmp_path: Path) -> None:
+    harness = _harness(tmp_path)
+    payload = _contract(_envelope())
+    options = {
+        "kind": _authority_module().DELEGATION_CONTRACT_ARTIFACT_KIND,
+        "schema_name": "polisyos.runtime.DelegationContract",
+        "schema_version": LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION,
+        "signer": harness.owner_signer,
+        "signer_identity": MANDATE_OWNER_REF,
+    }
+    artifact_ref = _persist_signed(harness, payload, **options)
+    original_signature = harness.store.get_signature_bytes(artifact_ref)
+    harness.verifier.add_revoked_key_id(harness.owner_signer.key_id)
+
+    with pytest.raises(AssertionError, match="verified immutable signature"):
+        _persist_signed(harness, payload, **options)
+
+    assert harness.store.get_signature_bytes(artifact_ref) == original_signature
+    assert (
+        harness.store.verify_signature(
+            artifact_ref,
+            harness.verifier,
+            strict_identity=True,
+        ).status
+        is SignatureVerificationStatus.REVOKED
+    )
 
 
 def _binding(
@@ -527,6 +633,7 @@ def _prepare_gateway(
     bound_permission: object | None = None,
     artifact_store: object | None = None,
     mandate_authority_evidence: object | None = None,
+    mandate_authority_evidence_ref_override: str | None = None,
     mandate_authority_at: datetime = NOW,
     include_mandate_authority: bool = True,
 ) -> tuple[object, str, str | None]:
@@ -573,7 +680,9 @@ def _prepare_gateway(
         )
         admission_mapping[authority.agent_action_content_hash(invocation)] = admission_ref
     mandate_authority_mapping: dict[str, str] = {}
-    if include_mandate_authority:
+    if mandate_authority_evidence_ref_override is not None:
+        mandate_authority_mapping[MANDATE_OWNER_REF] = mandate_authority_evidence_ref_override
+    elif include_mandate_authority:
         evidence = mandate_authority_evidence
         if evidence is None:
             evidence = _mandate_authority_evidence(
@@ -889,6 +998,100 @@ def test_current_mandate_evidence_is_rechecked_immediately_before_effect(
             intent=intent,
             persisted=persisted,
         )
+    assert effects == []
+
+
+def test_foreign_mandate_signature_is_refused_with_zero_effect(tmp_path: Path) -> None:
+    authority = _authority_module()
+    harness = _harness(tmp_path)
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = _intent()
+    effects: list[str] = []
+    binding = _binding(operation, effects)
+    evidence_ref = _persist_signed(
+        harness,
+        _mandate_authority_evidence(),
+        kind=authority.CURRENT_MANDATE_OWNER_ARTIFACT_KIND,
+        schema_name="polisyos.runtime.CurrentMandateOwnerEvidence",
+        schema_version=authority.CURRENT_MANDATE_OWNER_SCHEMA_VERSION,
+        signer=harness.mandate_authority_signer,
+        signer_identity=MANDATE_AUTHORITY_IDENTITY,
+        sign=False,
+    )
+    foreign_signer = Ed25519Signer(KeyPair.generate().private_key)
+    harness.store.sign_artifact(
+        ArtifactID.model_validate(evidence_ref),
+        foreign_signer,
+        signer_identity=MANDATE_AUTHORITY_IDENTITY,
+    )
+    foreign_verification = harness.store.verify_signature(
+        evidence_ref,
+        harness.verifier,
+        strict_identity=True,
+    )
+    assert foreign_verification.status is SignatureVerificationStatus.UNTRUSTED
+
+    gateway, _, _ = _prepare_gateway(
+        harness,
+        contract=_contract(_envelope()),
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        bindings=(binding,),
+        include_mandate_authority=False,
+        mandate_authority_evidence_ref_override=evidence_ref,
+    )
+
+    _assert_refused_with_zero_effect(
+        harness,
+        gateway=gateway,
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        effects=effects,
+        expected_reason="current_mandate_authority_authority_unverified",
+    )
+    assert effects == []
+
+
+def test_revoked_mandate_signing_key_is_rechecked_before_effect(tmp_path: Path) -> None:
+    authority = _authority_module()
+    harness = _harness(tmp_path)
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = _intent()
+    effects: list[str] = []
+    gateway, _, _ = _prepare_gateway(
+        harness,
+        contract=_contract(_envelope()),
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        bindings=(_binding(operation, effects),),
+    )
+    decision = _produce(
+        gateway=gateway,
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+    )
+    assert decision.outcome == "allowed"
+    persisted = gateway.persist_decision(decision)
+    assert effects == []
+
+    harness.verifier.add_revoked_key_id(harness.mandate_authority_signer.key_id)
+    with pytest.raises(
+        authority.AgentActionAuthorityOwnerResolutionError,
+        match="current_mandate_authority_authority_unverified",
+    ):
+        gateway.execute_bound_effect(
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+            persisted=persisted,
+        )
+
     assert effects == []
 
 
@@ -2492,7 +2695,7 @@ def test_allowed_decision_is_durable_before_effect(tmp_path: Path) -> None:
         return "done"
 
     binding = _binding(operation, [], handler=observe_events)
-    gateway, _, _ = _prepare_gateway(
+    gateway, contract_ref, admission_ref = _prepare_gateway(
         harness,
         contract=_contract(_envelope()),
         operation=operation,
@@ -2500,6 +2703,28 @@ def test_allowed_decision_is_durable_before_effect(tmp_path: Path) -> None:
         intent=intent,
         bindings=(binding,),
     )
+    assert admission_ref is not None
+    for artifact_ref, expected_identity in (
+        (contract_ref, MANDATE_OWNER_REF),
+        (admission_ref, ADMISSION_PRODUCER_IDENTITY),
+    ):
+        signature = harness.store.verify_signature(
+            artifact_ref,
+            harness.verifier,
+            strict_identity=True,
+        )
+        assert signature.status is SignatureVerificationStatus.VALID
+        assert signature.signer_identity == expected_identity
+        report = reconcile_authority_ref(
+            artifact_store=harness.store,
+            event_log=harness.event_log,
+            cas_ref=artifact_ref,
+            expected_tenant_id="tenant-a",
+            expected_cell_id="cell-a",
+            expected_run_id="run-gy-pa2",
+            expected_job_id="job-gy-pa2",
+        )
+        assert report.durable_event_id is not None
     assert (
         _dispatch(
             gateway=gateway,

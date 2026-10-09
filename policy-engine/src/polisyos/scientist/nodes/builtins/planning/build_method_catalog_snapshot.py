@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.foundry.methods import build_method_catalog_snapshot, persist_method_catalog_snapshot
 from polisyos.foundry.methods.catalog import (
@@ -11,14 +12,14 @@ from polisyos.foundry.methods.catalog import (
 )
 from polisyos.foundry.methods.catalog.causal.capabilities import build_causal_capability_contract
 from polisyos.ir.analytics.causal_capabilities import persist_causal_capability_contract
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_CAPABILITY_CONTRACT_REF,
     ARTIFACT_METHOD_CATALOG_SNAPSHOT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_build_method_catalog_snapshot@1.0.0"),
@@ -63,7 +64,9 @@ class BuildMethodCatalogSnapshotNode:
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         ensure_causal_methods_registered()
         capability_contract = build_causal_capability_contract()
-        capability_ref = persist_causal_capability_contract(ctx.store, capability_contract)
+        capability_ref = persist_causal_capability_contract(
+            _ensure_ir_artifact_store(ctx.store), capability_contract
+        )
         snapshot = build_method_catalog_snapshot(
             run_id=state.run_id,
             capability_contract=capability_contract,

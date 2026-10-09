@@ -778,7 +778,7 @@ def _resolve_search_candidate(
     trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
     if trinity_ref is None:
         return None
-    payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
+    payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref))
     bundle = TrinityBundle.model_validate(payload)
     return PolicyCandidateSchema.from_trinity_bundle(bundle)
 

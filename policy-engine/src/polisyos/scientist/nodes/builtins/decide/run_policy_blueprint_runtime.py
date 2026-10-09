@@ -4,11 +4,14 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -73,6 +76,7 @@ from polisyos.scientist.methods.search.funnel.level5_refutation_governance impor
 )
 from polisyos.scientist.methods.search.funnel.level6_promotion import Level6PromotionStage
 from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator, FunnelOutcome
+from polisyos.scientist.methods.search.funnel.types import FunnelExecutedWorkPacket
 from polisyos.scientist.methods.search.lessons import LessonRegistry
 from polisyos.scientist.methods.search.promotion_evidence import (
     PromotionEvidenceBundle,
@@ -113,6 +117,7 @@ from polisyos.scientist.nodes.builtins.decide.policy_runtime_state import (
     policy_runtime_input_signature,
 )
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+    PolicyRuntimeEvaluationArtifact,
     ProductionPolicyEvaluationBackend,
     build_policy_runtime_evaluation,
     build_selection_benchmark_evaluation,
@@ -121,7 +126,9 @@ from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     load_causal_report,
     load_distributional_report_for_state,
     load_governance_report,
+    persist_funnel_executed_work_packet,
     persist_policy_evaluation_vector,
+    persist_policy_evaluation_vector_to_store,
     run_promotion_with_evidence,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -256,6 +263,7 @@ class _PolicyRuntimeWorkflowEngine(WorkflowEngine):
         candidate = initial_state.get("policy_candidate_schema")
         if not isinstance(candidate, PolicyCandidateSchema):
             raise ValueError("policy_candidate_schema is required for policy runtime workflow.")
+        evaluation_attempt_id = str(uuid4())
         runtime_artifact = self._backend.evaluate(
             candidate,
             fidelity=self._fidelity,
@@ -267,26 +275,40 @@ class _PolicyRuntimeWorkflowEngine(WorkflowEngine):
             governance_report=initial_state.get("governance_report"),
             ambiguity_certificate=initial_state.get("ambiguity_certificate"),
         )
+        work_packet_ref, work_packet_unavailability_reason = _persist_policy_runtime_work_packet(
+            initial_state=initial_state,
+            fidelity=self._fidelity,
+            evaluation_attempt_id=evaluation_attempt_id,
+            runtime_artifact=runtime_artifact,
+        )
+        feedback: dict[str, Any] = {
+            "verdict": "APPROVE" if runtime_artifact.evaluation_vector.feasible else "REJECT",
+            "fidelity_engine": self._fidelity,
+            "blocking_reasons": list(runtime_artifact.evaluation_vector.blocking_reasons),
+            "routing_source": f"policy_runtime_{self._fidelity}",
+            "policy_evaluation": runtime_artifact.evaluation_vector.model_dump(mode="json"),
+            "policy_runtime_fidelity": self._fidelity,
+            "policy_runtime_backend_kind": runtime_artifact.provenance.backend_kind,
+            "policy_runtime_promotable_source": runtime_artifact.provenance.promotable_source,
+            "policy_runtime_degradation_mode": runtime_artifact.provenance.degradation_mode,
+            "policy_runtime_source_components": list(runtime_artifact.provenance.source_components),
+            "policy_runtime_notes": list(runtime_artifact.provenance.notes),
+            "policy_runtime_input_signature": str(
+                initial_state.get("pinned_input_signature") or ""
+            ),
+            "policy_runtime_work_packet_status": (
+                "available" if work_packet_ref is not None else "unavailable"
+            ),
+        }
+        if work_packet_ref is not None:
+            feedback["policy_runtime_work_packet_ref"] = work_packet_ref.model_dump(mode="json")
+        elif work_packet_unavailability_reason is not None:
+            feedback["policy_runtime_work_packet_unavailability_reason"] = (
+                work_packet_unavailability_reason
+            )
         return {
             "simulation_results": runtime_artifact.simulation_results,
-            "feedback": {
-                "verdict": "APPROVE" if runtime_artifact.evaluation_vector.feasible else "REJECT",
-                "fidelity_engine": self._fidelity,
-                "blocking_reasons": list(runtime_artifact.evaluation_vector.blocking_reasons),
-                "routing_source": f"policy_runtime_{self._fidelity}",
-                "policy_evaluation": runtime_artifact.evaluation_vector.model_dump(mode="json"),
-                "policy_runtime_fidelity": self._fidelity,
-                "policy_runtime_backend_kind": runtime_artifact.provenance.backend_kind,
-                "policy_runtime_promotable_source": runtime_artifact.provenance.promotable_source,
-                "policy_runtime_degradation_mode": runtime_artifact.provenance.degradation_mode,
-                "policy_runtime_source_components": list(
-                    runtime_artifact.provenance.source_components
-                ),
-                "policy_runtime_notes": list(runtime_artifact.provenance.notes),
-                "policy_runtime_input_signature": str(
-                    initial_state.get("pinned_input_signature") or ""
-                ),
-            },
+            "feedback": feedback,
             "policy_evaluation": runtime_artifact.evaluation_vector.model_dump(mode="json"),
         }
 
@@ -303,6 +325,68 @@ class _PolicyRuntimeWorkflowEngine(WorkflowEngine):
 
     def reset(self) -> None:
         return None
+
+
+def _persist_policy_runtime_work_packet(
+    *,
+    initial_state: Mapping[str, Any],
+    fidelity: str,
+    evaluation_attempt_id: str,
+    runtime_artifact: PolicyRuntimeEvaluationArtifact,
+) -> tuple[ArtifactRef | None, str | None]:
+    """Persist an invocation packet only when actual runtime identity is available."""
+    identity = initial_state.get("policy_runtime_work_identity")
+    if not isinstance(identity, Mapping):
+        return None, "execution_identity_unavailable"
+    store = initial_state.get("store")
+    if store is None or not hasattr(store, "put_json"):
+        return None, "artifact_store_unavailable"
+
+    candidate_ref = maybe_artifact_ref(identity.get("candidate_ref"))
+    state_candidate_ref = maybe_artifact_ref(initial_state.get("policy_candidate_ref"))
+    if candidate_ref is None or state_candidate_ref != candidate_ref:
+        return None, "candidate_ref_unavailable_or_mismatched"
+    run_id = identity.get("run_id")
+    ticket_id = identity.get("ticket_id")
+    candidate_hash = identity.get("candidate_hash")
+    if not all(
+        isinstance(value, str) and value.strip() for value in (run_id, ticket_id, candidate_hash)
+    ):
+        return None, "run_ticket_or_candidate_identity_unavailable"
+    if fidelity not in {"medium", "full"}:
+        return None, "unsupported_fidelity"
+
+    result_ref = persist_policy_evaluation_vector_to_store(
+        store,
+        candidate_ref=candidate_ref,
+        evaluation_vector=runtime_artifact.evaluation_vector,
+    )
+    bootstrap = runtime_artifact.simulation_results.get("bootstrap", {})
+    requested_draw_count = (
+        bootstrap.get("requested_draw_count") if isinstance(bootstrap, Mapping) else None
+    )
+    if isinstance(requested_draw_count, bool) or not isinstance(requested_draw_count, int):
+        requested_draw_count = None
+    packet = FunnelExecutedWorkPacket(
+        run_id=run_id,
+        ticket_id=ticket_id,
+        candidate_hash=candidate_hash,
+        candidate_ref=candidate_ref,
+        stage_level=3 if fidelity == "medium" else 4,
+        stage_name="funnel_L3_medium" if fidelity == "medium" else "funnel_L4_full",
+        fidelity=fidelity,
+        evaluation_attempt_id=evaluation_attempt_id,
+        observed_at=datetime.now(UTC),
+        backend_kind=runtime_artifact.provenance.backend_kind,
+        source_result_ref=result_ref,
+        requested_draw_count=requested_draw_count,
+        input_signature=(
+            str(initial_state["pinned_input_signature"])
+            if initial_state.get("pinned_input_signature")
+            else None
+        ),
+    )
+    return persist_funnel_executed_work_packet(store, packet), None
 
 
 @dataclass(frozen=True)
@@ -1213,7 +1297,9 @@ def _persist_runtime_strategic_artifacts(
         )
         if blocked_reason is not None:
             strategic_scm_ref = ArtifactRef.model_validate(
-                persist_strategic_scm(ctx.store, contract, inputs=inputs).model_dump(mode="json")
+                persist_strategic_scm(
+                    _ensure_ir_artifact_store(ctx.store), contract, inputs=inputs
+                ).model_dump(mode="json")
             )
             return _StrategicRuntimeOutput(
                 strategic_scm_ref=strategic_scm_ref,
@@ -1227,7 +1313,9 @@ def _persist_runtime_strategic_artifacts(
         if causal_report_ref is None:
             blocked_reason = "missing_causal_report_for_strategic_decomposition"
             strategic_scm_ref = ArtifactRef.model_validate(
-                persist_strategic_scm(ctx.store, contract, inputs=inputs).model_dump(mode="json")
+                persist_strategic_scm(
+                    _ensure_ir_artifact_store(ctx.store), contract, inputs=inputs
+                ).model_dump(mode="json")
             )
             return _StrategicRuntimeOutput(
                 strategic_scm_ref=strategic_scm_ref,
@@ -1258,9 +1346,9 @@ def _persist_runtime_strategic_artifacts(
             }
         )
         strategic_scm_ref = ArtifactRef.model_validate(
-            persist_strategic_scm(ctx.store, normalized_contract, inputs=inputs).model_dump(
-                mode="json"
-            )
+            persist_strategic_scm(
+                _ensure_ir_artifact_store(ctx.store), normalized_contract, inputs=inputs
+            ).model_dump(mode="json")
         )
         abstraction_certificate = _load_runtime_abstraction_certificate(ctx, artifacts_index)
         baseline_policy_value = _selection_baseline_policy_value(selection_artifact)
@@ -1381,7 +1469,9 @@ def _persist_runtime_payoff_tables(
     inputs: list[IRInputRef],
 ) -> dict[str, ArtifactRefModel]:
     return {
-        agent: persist_strategic_payoff_table(ctx.store, table, inputs=inputs)
+        agent: persist_strategic_payoff_table(
+            _ensure_ir_artifact_store(ctx.store), table, inputs=inputs
+        )
         for agent, table in tables.items()
     }
 
@@ -1417,7 +1507,9 @@ def _compare_existing_payoff_refs(
     loaded_tables: dict[str, FiniteStrategicPayoffTable] = {}
     try:
         for agent, ref in refs.items():
-            loaded_tables[agent] = load_strategic_payoff_table(ctx.store, ref)
+            loaded_tables[agent] = load_strategic_payoff_table(
+                _ensure_ir_artifact_store(ctx.store), ref
+            )
     except _POLICY_RUNTIME_LOAD_ERRORS:
         return "unreadable_ref"
     if set(loaded_tables) != set(raw_tables):
@@ -1471,7 +1563,7 @@ def _load_runtime_abstraction_certificate(
         return None
     try:
         return load_abstraction_certificate(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             ref,
         )
     except _POLICY_RUNTIME_LOAD_ERRORS:
@@ -2067,6 +2159,8 @@ def _serialize_funnel_outcome(outcome: FunnelOutcome) -> dict[str, Any]:
     return {
         "ticket_id": outcome.ticket_id,
         "candidate_hash": outcome.candidate_hash,
+        "compute_cost_usd": outcome.compute_cost_usd,
+        "compute_cost_origin": outcome.compute_cost_origin,
         "trace": [
             {
                 "fidelity_level": step.fidelity_level,
@@ -2074,7 +2168,14 @@ def _serialize_funnel_outcome(outcome: FunnelOutcome) -> dict[str, Any]:
                 "objective_value": step.objective_value,
                 "is_promising": step.is_promising,
                 "duration_seconds": step.duration_seconds,
-                "compute_actual_usd": step.compute_actual_usd,
+                "compute_cost_usd": step.compute_cost_usd,
+                "compute_cost_origin": step.compute_cost_origin,
+                "executed_work_packet_status": step.executed_work_packet_status,
+                "executed_work_packet_ref": (
+                    None
+                    if step.executed_work_packet_ref is None
+                    else step.executed_work_packet_ref.model_dump(mode="json")
+                ),
                 "routing_decision": step.routing_decision,
                 "voi_action": step.voi_action,
                 "voi_priority": step.voi_priority,
@@ -2091,6 +2192,14 @@ def _serialize_funnel_outcome(outcome: FunnelOutcome) -> dict[str, Any]:
                 "feedback": result.feedback,
                 "failure_cards": [card.model_dump(mode="json") for card in result.failure_cards],
                 "fidelity_level": result.fidelity_level,
+                "compute_cost_usd": result.compute_cost_usd,
+                "compute_cost_origin": result.compute_cost_origin,
+                "executed_work_packet_status": result.executed_work_packet_status,
+                "executed_work_packet_ref": (
+                    None
+                    if result.executed_work_packet_ref is None
+                    else result.executed_work_packet_ref.model_dump(mode="json")
+                ),
                 "terminal_action": result.terminal_action,
             }
             for level, result in outcome.stage_results.items()
@@ -2260,9 +2369,7 @@ def _load_stress_test_report(
 ) -> StressTestReport | None:
     if ref is None:
         return None
-    return StressTestReport.model_validate(
-        from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
-    )
+    return StressTestReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
 
 
 def _extract_level4_policy_runtime_provenance(

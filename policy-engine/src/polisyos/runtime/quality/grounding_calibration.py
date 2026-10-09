@@ -103,15 +103,18 @@ def _world_matches_proof_input(
         and manifest.media_type == declaration.source_ref.media_type == "application/json"
         and schema is not None
         and schema.name == WORLD_MODEL_RECORD_SCHEMA_NAME
-        and schema.version == declaration.source_schema_version
-        == world.schema_version == WORLD_MODEL_RECORD_SCHEMA_VERSION
+        and schema.version
+        == declaration.source_schema_version
+        == world.schema_version
+        == WORLD_MODEL_RECORD_SCHEMA_VERSION
         and world.content_hash == declaration.world_content_hash
         and world.created_at == declaration.world_created_at
     )
 
 
 def resolve_grounding_proof_world_input(
-    repo_root: Path, declaration: GroundingProofWorldInput,
+    repo_root: Path,
+    declaration: GroundingProofWorldInput,
 ) -> WorldModelRecord:
     """Resolve complete declared source bytes and reject metadata substitutions."""
     from polisyos.runtime.quality.world_model_record import load_world_model_record
@@ -131,7 +134,7 @@ def resolve_grounding_proof_world_input(
     )
     # Core verifies the entire original blob/manifest identity. No fresh builder
     # can substitute an equal logical hash with a different genuine creation time.
-    manifest = store.get_manifest(declaration.source_ref.artifact_id)
+    manifest = store.get_manifest(declaration.source_ref)
     world = load_world_model_record(store, declaration.source_ref)
     if not _world_matches_proof_input(declaration, manifest, world):
         raise ValueError("grounding_proof_world_binding_mismatch")
@@ -139,7 +142,10 @@ def resolve_grounding_proof_world_input(
 
 
 def produce_grounding_proof_world_input(
-    repo_root: Path, *, world_cas: Path, world_ref: str,
+    repo_root: Path,
+    *,
+    world_cas: Path,
+    world_ref: str,
 ) -> GroundingProofWorldInput:
     """Emit a synthetic proof-input declaration from an existing verified source."""
     from polisyos.runtime.quality.world_model_record import load_world_model_record
@@ -165,7 +171,8 @@ def produce_grounding_proof_world_input(
         "purpose": "structural_grounding_proof_only",
         "source_ref": {
             "artifact_id": str(manifest.artifact_id),
-            "kind": manifest.kind, "media_type": manifest.media_type,
+            "kind": manifest.kind,
+            "media_type": manifest.media_type,
         },
         "cas_root": location.relative_to(root).as_posix(),
         "source_schema_version": schema.version,
@@ -181,7 +188,9 @@ def produce_grounding_proof_world_input(
 
 
 def load_grounding_proof_world_input(
-    repo_root: Path, *, binding_path: Path | None = None,
+    repo_root: Path,
+    *,
+    binding_path: Path | None = None,
 ) -> tuple[GroundingProofWorldInput, WorldModelRecord]:
     """Read the sole proof-source declaration and resolve its original WMR."""
     path = binding_path or repo_root / PROOF_WORLD_INPUT_PATH
@@ -235,10 +244,12 @@ def grounding_proof_world_input_evidence(
     evidence = {
         "binding_ref": f"repo:{PROOF_WORLD_INPUT_PATH}",
         "binding_content_hash": declaration.content_hash,
-        "synthetic": declaration.synthetic, "purpose": declaration.purpose,
+        "synthetic": declaration.synthetic,
+        "purpose": declaration.purpose,
         "source_ref": declaration.source_ref.model_dump(mode="json"),
         "source_schema_version": declaration.source_schema_version,
-        "world_content_hash": world.content_hash, "world_created_at": world.created_at,
+        "world_content_hash": world.content_hash,
+        "world_created_at": world.created_at,
         "strangle_receipt": {**packet, "content_hash": gy_content_hash(packet)},
     }
     return evidence, world
@@ -261,7 +272,8 @@ def grounding_proof_world_input_evidence_issues(evidence: Mapping[str, Any]) -> 
         or evidence.get("purpose") != "structural_grounding_proof_only"
         or receipt.get("default_flipped") is not True
         or not all(
-            receipt.get(field) is True for field in (
+            receipt.get(field) is True
+            for field in (
                 "repeat_source_bytes_and_time_equal",
                 "rehashed_wrong_source_time_refused",
                 "matching_predicate_removal_accepts_wrong_time",

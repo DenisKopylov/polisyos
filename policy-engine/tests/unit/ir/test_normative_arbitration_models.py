@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.normative_arbitration import (
     ArbitrationOption,
@@ -72,8 +73,8 @@ def test_normative_arbitration_result_roundtrip(tmp_path) -> None:
         provenance=NormativeProvenance(trinity_bundle_ref="sha256:" + "1" * 64),
     )
 
-    ref = persist_normative_arbitration_result(store, result)
-    loaded = load_normative_arbitration_result(store, ref)
+    ref = persist_normative_arbitration_result(_ensure_ir_artifact_store(store), result)
+    loaded = load_normative_arbitration_result(_ensure_ir_artifact_store(store), ref)
 
     assert loaded.selected_policy == NormativeArbitrationPolicy.WEIGHTED_WELFARE
     assert loaded.selected_option == ArbitrationOption.PROPOSAL

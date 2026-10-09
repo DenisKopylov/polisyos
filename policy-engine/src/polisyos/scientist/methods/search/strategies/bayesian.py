@@ -10,6 +10,7 @@ from dataclasses import asdict, dataclass
 from typing import Any
 
 from polisyos.common.logger import get_logger
+from polisyos.core.canon import CanonSpec, fingerprint
 
 # Imported lazily through _deps to keep module importable without optional stack.
 from polisyos.scientist.methods.search.strategies._deps import (
@@ -39,6 +40,19 @@ from polisyos.scientist.methods.search.strategies.types import (
 
 logger = get_logger(__name__)
 
+
+def _profile_fingerprint(value: Any) -> str | None:
+    if value is None:
+        return None
+    try:
+        return fingerprint(
+            value,
+            canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+        )
+    except (TypeError, ValueError, OverflowError):
+        return None
+
+
 _WARM_COMPATIBILITY_METADATA = "warm_start_compatibility"
 _WARM_COMPATIBILITY_FIELDS = (
     "search_space_fingerprint",
@@ -52,7 +66,6 @@ _EXPECTED_WARM_COMPATIBILITY = {
     "input_transform_fingerprint": "Normalize[0,1]",
     "outcome_transform_fingerprint": "Standardize[m=1]",
     "noise_model_fingerprint": "GaussianLikelihood[inferred]",
-    "objective_fingerprint": "scalar_score[minimize]",
 }
 _WARM_REJECTION_REASONS = {
     "invalid outcome",
@@ -60,6 +73,8 @@ _WARM_REJECTION_REASONS = {
     "incompatible normalized parameters",
     "missing or incompatible warm-start fingerprint",
     "incompatible context fingerprint",
+    "incompatible objective fingerprint",
+    "source profile is not fitted native GP",
 }
 
 
@@ -81,6 +96,29 @@ class BayesianConfig:
     exploration_switch_threshold: float = 0.3
     refit_interval: int = 5
     warm_start_noise_factor: float = 0.1
+
+
+@dataclass(frozen=True, slots=True)
+class BayesianFitProfile:
+    """Measured native optimizer and fitted-corpus profile for one proposal."""
+
+    profile_kind: str
+    optimizer_fqn: str
+    optimizer_config_fingerprint: str | None
+    proposal_source: str
+    search_space_fingerprint: str | None
+    input_transform_fingerprint: str | None
+    input_transform_state_fingerprint: str | None
+    outcome_transform_fingerprint: str | None
+    outcome_transform_state_fingerprint: str | None
+    noise_model_fingerprint: str | None
+    noise_model_state_fingerprint: str | None
+    objective_fingerprint: str | None
+    context_fingerprint: str | None
+    training_corpus_fingerprint: str | None
+    training_observation_count: int | None
+    gp_model_fqn: str | None
+    warm_start_eligible: bool
 
 
 class BayesianOptimizer(BaseSearchStrategy):
@@ -106,8 +144,13 @@ class BayesianOptimizer(BaseSearchStrategy):
         self._warm_evals: list[Evaluation] = []
         self._warm_evaluation_ids: set[int] = set()
         self._warm_context_fingerprint: str | None = None
+        self._warm_start_target_objective_fingerprint: str | None = None
+        self._run_context_fingerprint: str | None = None
+        self._run_objective_fingerprint: str | None = None
         self._warm_start_rejections: list[dict[str, Any]] = []
         self._warm_start_rejection_history_complete = True
+        self._last_fitted_training_corpus_fingerprint: str | None = None
+        self._last_fitted_training_observation_count: int | None = None
         self._fitted_train_X: Any = None
         self._fitted_train_y_bo: Any = None
         self._last_refit_iteration: int = -1
@@ -124,8 +167,16 @@ class BayesianOptimizer(BaseSearchStrategy):
             logger.warning("BayesianOptimizer dependencies unavailable: {}", exc)
             self._botorch_ready = False
 
-    def warm_start(self, evaluations: list[Evaluation]) -> None:
+    def warm_start(
+        self,
+        evaluations: list[Evaluation],
+        *,
+        target_context_fingerprint: str | None = None,
+        target_objective_fingerprint: str | None = None,
+    ) -> None:
         """Pre-seed GP with historical evaluations from similar runs."""
+        if (target_context_fingerprint is None) != (target_objective_fingerprint is None):
+            raise ValueError("target context and objective fingerprints must be supplied together")
         accepted: list[Evaluation] = []
         rejected: list[str] = []
         for evaluation in evaluations:
@@ -141,12 +192,28 @@ class BayesianOptimizer(BaseSearchStrategy):
                 rejected.append("incompatible normalized parameters")
                 self._record_warm_start_rejection(evaluation, rejected[-1])
                 continue
-            compatibility = self._warm_compatibility(evaluation)
+            compatibility = self._warm_compatibility(
+                evaluation,
+                expected_objective_fingerprint=target_objective_fingerprint,
+            )
             if compatibility is None:
                 rejected.append("missing or incompatible warm-start fingerprint")
                 self._record_warm_start_rejection(evaluation, rejected[-1])
                 continue
             context_fingerprint = compatibility[-1]
+            if (
+                target_context_fingerprint is not None
+                and context_fingerprint != target_context_fingerprint
+            ):
+                rejected.append("incompatible context fingerprint")
+                self._record_warm_start_rejection(evaluation, rejected[-1])
+                continue
+            if target_context_fingerprint is not None and not self._warm_profile_compatible(
+                evaluation
+            ):
+                rejected.append("source profile is not fitted native GP")
+                self._record_warm_start_rejection(evaluation, rejected[-1])
+                continue
             if (
                 self._warm_context_fingerprint is not None
                 and context_fingerprint != self._warm_context_fingerprint
@@ -156,6 +223,8 @@ class BayesianOptimizer(BaseSearchStrategy):
                 continue
             if self._warm_context_fingerprint is None:
                 self._warm_context_fingerprint = context_fingerprint
+            if target_objective_fingerprint is not None:
+                self._warm_start_target_objective_fingerprint = target_objective_fingerprint
             accepted.append(evaluation)
             self._warm_evaluation_ids.add(id(evaluation))
 
@@ -166,10 +235,307 @@ class BayesianOptimizer(BaseSearchStrategy):
             len(rejected),
         )
 
-    def _record_warm_start_rejection(self, evaluation: Evaluation, reason: str) -> None:
-        self._warm_start_rejections.append(
-            {"reason": reason, "evaluation": asdict(evaluation)}
+    @property
+    def warm_start_accepted_count(self) -> int:
+        """Return the number of source evaluations admitted by this optimizer."""
+        return len(self._warm_evals)
+
+    @property
+    def native_gp_ready(self) -> bool:
+        """Return whether the canonical optimizer has its real BoTorch stack."""
+        return self._botorch_ready
+
+    def set_search_run_profile(
+        self,
+        *,
+        context_fingerprint: str,
+        objective_fingerprint: str,
+    ) -> None:
+        """Bind current and historical evaluations to this run's immutable header."""
+        if not context_fingerprint.strip() or not objective_fingerprint.strip():
+            raise ValueError("search-run context and objective fingerprints are required")
+        if self._run_context_fingerprint is not None and (
+            self._run_context_fingerprint != context_fingerprint
+            or self._run_objective_fingerprint != objective_fingerprint
+        ):
+            raise RuntimeError("search-run profile is immutable for this optimizer")
+        if self._warm_evals and (
+            self._warm_context_fingerprint != context_fingerprint
+            or self._warm_start_target_objective_fingerprint != objective_fingerprint
+        ):
+            raise RuntimeError("search-run profile changed after warm-start admission")
+        self._run_context_fingerprint = context_fingerprint
+        self._run_objective_fingerprint = objective_fingerprint
+
+    @property
+    def warm_start_rejections(self) -> tuple[dict[str, Any], ...]:
+        """Return a copy of recorded warm-start rejection evidence."""
+        return tuple(deepcopy(self._warm_start_rejections))
+
+    def effective_fit_profile(
+        self,
+        *,
+        proposal_source: str,
+        context_fingerprint: str | None,
+        objective_fingerprint: str | None,
+    ) -> BayesianFitProfile:
+        """Describe the actual native optimizer, fitted GP, and fit corpus.
+
+        The fit basis comes from the model currently held by this optimizer. A
+        configured native strategy without a successful GP acquisition reports
+        its actual optimizer class but cannot claim a reusable fitted profile.
+        """
+        optimizer_fqn = f"{type(self).__module__}.{type(self).__qualname__}"
+        config_fingerprint = _profile_fingerprint(asdict(self._config))
+        model = self._model
+        model_fqn = (
+            f"{type(model).__module__}.{type(model).__qualname__}" if model is not None else None
         )
+        input_transform = self._input_transform_fingerprint(getattr(model, "input_transform", None))
+        input_transform_state = self._input_transform_state_fingerprint(
+            getattr(model, "input_transform", None)
+        )
+        outcome_transform = self._outcome_transform_fingerprint(
+            getattr(model, "outcome_transform", None)
+        )
+        outcome_transform_state = self._outcome_transform_state_fingerprint(
+            getattr(model, "outcome_transform", None)
+        )
+        noise_model = self._noise_model_fingerprint(getattr(model, "likelihood", None))
+        noise_model_state = self._noise_model_state_fingerprint(getattr(model, "likelihood", None))
+        training_count = self._last_fitted_training_observation_count
+        corpus_fingerprint = self._last_fitted_training_corpus_fingerprint
+        fitted_model_is_live = self._fitted_model_matches_recorded_basis()
+        eligible = bool(
+            self._botorch_ready
+            and proposal_source == "bayesian_acquisition"
+            and fitted_model_is_live
+            and model_fqn == "botorch.models.gp_regression.SingleTaskGP"
+            and input_transform == "Normalize[0,1]"
+            and input_transform_state
+            and outcome_transform == "Standardize[m=1]"
+            and outcome_transform_state
+            and noise_model == "GaussianLikelihood[inferred]"
+            and noise_model_state
+            and self._space.sobol_space_fingerprint()
+            and context_fingerprint
+            and objective_fingerprint
+            and corpus_fingerprint
+            and training_count is not None
+            and training_count > 0
+        )
+        return BayesianFitProfile(
+            profile_kind="configured_native_gp",
+            optimizer_fqn=optimizer_fqn,
+            optimizer_config_fingerprint=config_fingerprint,
+            proposal_source=proposal_source,
+            search_space_fingerprint=self._space.sobol_space_fingerprint(),
+            input_transform_fingerprint=input_transform,
+            input_transform_state_fingerprint=input_transform_state,
+            outcome_transform_fingerprint=outcome_transform,
+            outcome_transform_state_fingerprint=outcome_transform_state,
+            noise_model_fingerprint=noise_model,
+            noise_model_state_fingerprint=noise_model_state,
+            objective_fingerprint=objective_fingerprint,
+            context_fingerprint=context_fingerprint,
+            training_corpus_fingerprint=corpus_fingerprint,
+            training_observation_count=training_count,
+            gp_model_fqn=model_fqn,
+            warm_start_eligible=eligible,
+        )
+
+    def _fitted_model_matches_recorded_basis(self) -> bool:
+        """Confirm the active model still represents the recorded fitted basis."""
+        if (
+            self._model is None
+            or self._fitted_train_X is None
+            or self._fitted_train_y_bo is None
+            or self._last_fitted_training_observation_count is None
+        ):
+            return False
+        if self._fitted_train_X.shape[0] != self._last_fitted_training_observation_count:
+            return False
+        model_X = self._model_train_x()
+        if model_X is None or not self._model_train_x_matches_fitted(model_X):
+            return False
+        return bool(
+            self._torch.isfinite(self._fitted_train_X).all()
+            and self._torch.isfinite(self._fitted_train_y_bo).all()
+            and self._fitted_train_y_bo.shape[0] == self._last_fitted_training_observation_count
+        )
+
+    def _record_fitted_training_corpus(self, evaluations: list[Evaluation]) -> None:
+        """Fingerprint source rows and numeric training data actually used by the GP."""
+        self._last_fitted_training_corpus_fingerprint = None
+        self._last_fitted_training_observation_count = None
+        if not self._fitted_model_matches_current_fit():
+            return
+        rows = [
+            {
+                "candidate_id": evaluation.candidate_id,
+                "provenance_ref": evaluation.provenance_ref,
+                "params_normalized": list(evaluation.params_normalized),
+                "scalar_score": evaluation.scalar_score,
+                "is_valid": evaluation.is_valid,
+            }
+            for evaluation in evaluations
+        ]
+        fit_x = self._fitted_train_X.detach().cpu().tolist()
+        fit_y = self._fitted_train_y_bo.detach().cpu().tolist()
+        count = len(fit_x)
+        if len(rows) != count or len(fit_y) != count:
+            return
+        valid_scores = [
+            evaluation.scalar_score
+            for evaluation in evaluations
+            if evaluation.is_valid and math.isfinite(evaluation.scalar_score)
+        ]
+        if not valid_scores:
+            return
+        worst_valid = max(valid_scores)
+        expected_x = self._torch.tensor(
+            [list(evaluation.params_normalized) for evaluation in evaluations],
+            dtype=self._fitted_train_X.dtype,
+            device=self._fitted_train_X.device,
+        )
+        expected_y = self._torch.tensor(
+            [
+                [
+                    -float(evaluation.scalar_score)
+                    if evaluation.is_valid and math.isfinite(evaluation.scalar_score)
+                    else -(float(worst_valid + self._config.invalid_penalty))
+                ]
+                for evaluation in evaluations
+            ],
+            dtype=self._fitted_train_y_bo.dtype,
+            device=self._fitted_train_y_bo.device,
+        )
+        if not self._torch.equal(expected_x, self._fitted_train_X) or not self._torch.equal(
+            expected_y, self._fitted_train_y_bo
+        ):
+            return
+        corpus_fingerprint = _profile_fingerprint(
+            {
+                "observations": rows,
+                "fitted_normalized_inputs": fit_x,
+                "fitted_minimization_targets": fit_y,
+            }
+        )
+        if corpus_fingerprint is None:
+            return
+        self._last_fitted_training_corpus_fingerprint = corpus_fingerprint
+        self._last_fitted_training_observation_count = count
+
+    def _fitted_model_matches_current_fit(self) -> bool:
+        """Validate a model and fit matrices before binding training source rows."""
+        if self._model is None or self._fitted_train_X is None or self._fitted_train_y_bo is None:
+            return False
+        model_X = self._model_train_x()
+        return model_X is not None and self._model_train_x_matches_fitted(model_X)
+
+    @staticmethod
+    def _input_transform_fingerprint(transform: Any) -> str | None:
+        if transform is None or type(transform).__name__ != "Normalize":
+            return None
+        try:
+            center = float(getattr(transform, "center", math.nan))
+        except (TypeError, ValueError, OverflowError):
+            return None
+        if (
+            getattr(transform, "learn_bounds", False) is not True
+            or getattr(transform, "indices", None) is not None
+            or not math.isclose(center, 0.5)
+            or not getattr(transform, "transform_on_train", False)
+            or not getattr(transform, "transform_on_eval", False)
+            or not getattr(transform, "transform_on_fantasize", False)
+        ):
+            return None
+        return "Normalize[0,1]"
+
+    @staticmethod
+    def _input_transform_state_fingerprint(transform: Any) -> str | None:
+        if transform is None or type(transform).__name__ != "Normalize":
+            return None
+        bounds = getattr(transform, "bounds", None)
+        if hasattr(bounds, "detach"):
+            bounds = bounds.detach().cpu().tolist()
+        return _profile_fingerprint(
+            {
+                "transform": f"{type(transform).__module__}.{type(transform).__qualname__}",
+                "bounds": bounds,
+                "learn_bounds": getattr(transform, "learn_bounds", None),
+                "center": getattr(transform, "center", None),
+                "min_range": getattr(transform, "min_range", None),
+                "transform_on_train": getattr(transform, "transform_on_train", None),
+                "transform_on_eval": getattr(transform, "transform_on_eval", None),
+                "transform_on_fantasize": getattr(transform, "transform_on_fantasize", None),
+            }
+        )
+
+    @staticmethod
+    def _outcome_transform_fingerprint(transform: Any) -> str | None:
+        if transform is None or type(transform).__name__ != "Standardize":
+            return None
+        measure_count = getattr(transform, "_m", None)
+        if hasattr(measure_count, "numel") and measure_count.numel() == 1:
+            measure_count = measure_count.item()
+        if measure_count is None:
+            measure_count = getattr(transform, "m", None)
+        try:
+            if int(measure_count) == 1:
+                return "Standardize[m=1]"
+        except (TypeError, ValueError, OverflowError):
+            return None
+        return None
+
+    @staticmethod
+    def _outcome_transform_state_fingerprint(transform: Any) -> str | None:
+        if transform is None or type(transform).__name__ != "Standardize":
+            return None
+        means = getattr(transform, "means", None)
+        stdvs = getattr(transform, "stdvs", None)
+        if hasattr(means, "detach"):
+            means = means.detach().cpu().tolist()
+        if hasattr(stdvs, "detach"):
+            stdvs = stdvs.detach().cpu().tolist()
+        measure_count = getattr(transform, "_m", None)
+        if hasattr(measure_count, "numel") and measure_count.numel() == 1:
+            measure_count = measure_count.item()
+        try:
+            measure_count = int(measure_count)
+        except (TypeError, ValueError, OverflowError):
+            return None
+        return _profile_fingerprint(
+            {
+                "transform": f"{type(transform).__module__}.{type(transform).__qualname__}",
+                "measure_count": measure_count,
+                "means": means,
+                "standard_deviations": stdvs,
+            }
+        )
+
+    @staticmethod
+    def _noise_model_fingerprint(likelihood: Any) -> str | None:
+        if likelihood is not None and type(likelihood).__name__ == "GaussianLikelihood":
+            return "GaussianLikelihood[inferred]"
+        return None
+
+    @staticmethod
+    def _noise_model_state_fingerprint(likelihood: Any) -> str | None:
+        if likelihood is None or type(likelihood).__name__ != "GaussianLikelihood":
+            return None
+        noise = getattr(likelihood, "noise", None)
+        if hasattr(noise, "detach"):
+            noise = noise.detach().cpu().tolist()
+        return _profile_fingerprint(
+            {
+                "likelihood": f"{type(likelihood).__module__}.{type(likelihood).__qualname__}",
+                "noise": noise,
+            }
+        )
+
+    def _record_warm_start_rejection(self, evaluation: Evaluation, reason: str) -> None:
+        self._warm_start_rejections.append({"reason": reason, "evaluation": asdict(evaluation)})
         logger.info("Bayesian warm-start rejected {}: {}", evaluation.candidate_id, reason)
 
     def suggest(
@@ -199,6 +565,7 @@ class BayesianOptimizer(BaseSearchStrategy):
             try:
                 X, y_bo = self._prepare_training_data(train_set)
                 self._fit_gp(X, y_bo)
+                self._record_fitted_training_corpus(train_set)
                 candidate, acq_value = self._optimize_acquisition(
                     y_bo=y_bo,
                     soft_limit=soft,
@@ -256,6 +623,7 @@ class BayesianOptimizer(BaseSearchStrategy):
             try:
                 X, y_bo = self._prepare_training_data(train_set)
                 self._fit_gp(X, y_bo)
+                self._record_fitted_training_corpus(train_set)
                 restarts, raw_samples = self._effective_optim_params(soft_limit=soft)
                 best_f = y_bo.max()
                 acq = qExpectedImprovement(model=self._model, best_f=best_f)
@@ -450,17 +818,22 @@ class BayesianOptimizer(BaseSearchStrategy):
             if not self._has_compatible_params(evaluation):
                 continue
             requires_warm_fingerprint = id(evaluation) in self._warm_evaluation_ids
-            if requires_warm_fingerprint and self._warm_compatibility(evaluation) is None:
-                continue
-            if _WARM_COMPATIBILITY_METADATA in evaluation.metadata:
-                compatibility = self._warm_compatibility(evaluation)
-                if compatibility is None:
+            if requires_warm_fingerprint:
+                if self._warm_compatibility(evaluation) is None:
                     continue
-                if (
-                    self._warm_context_fingerprint is not None
-                    and compatibility[-1] != self._warm_context_fingerprint
-                ):
-                    continue
+            elif _WARM_COMPATIBILITY_METADATA in evaluation.metadata:
+                if self._run_context_fingerprint is not None:
+                    if not self._current_run_evaluation_compatible(evaluation):
+                        continue
+                else:
+                    compatibility = self._warm_compatibility(evaluation)
+                    if compatibility is None:
+                        continue
+                    if (
+                        self._warm_context_fingerprint is not None
+                        and compatibility[-1] != self._warm_context_fingerprint
+                    ):
+                        continue
             identity = self._evaluation_identity(evaluation)
             if identity in seen:
                 continue
@@ -478,7 +851,28 @@ class BayesianOptimizer(BaseSearchStrategy):
             math.isfinite(value) and 0.0 <= value <= 1.0 for value in normalized
         )
 
-    def _warm_compatibility(self, evaluation: Evaluation) -> tuple[str, ...] | None:
+    def _current_run_evaluation_compatible(self, evaluation: Evaluation) -> bool:
+        """Bind same-run rows to the immutable run header without requiring a prior fit."""
+        payload = evaluation.metadata.get(_WARM_COMPATIBILITY_METADATA)
+        if not isinstance(payload, Mapping):
+            return False
+        expected_optimizer = f"{type(self).__module__}.{type(self).__qualname__}"
+        expected_objective = self._run_objective_fingerprint
+        return bool(
+            payload.get("search_space_fingerprint") == self._space.sobol_space_fingerprint()
+            and payload.get("context_fingerprint") == self._run_context_fingerprint
+            and expected_objective
+            and payload.get("objective_fingerprint") == expected_objective
+            and payload.get("profile_kind") == "configured_native_gp"
+            and payload.get("optimizer_fqn") == expected_optimizer
+        )
+
+    def _warm_compatibility(
+        self,
+        evaluation: Evaluation,
+        *,
+        expected_objective_fingerprint: str | None = None,
+    ) -> tuple[str, ...] | None:
         """Validate the model/data contract carried by a warm-start record."""
         payload = evaluation.metadata.get(_WARM_COMPATIBILITY_METADATA)
         if not isinstance(payload, Mapping):
@@ -492,10 +886,45 @@ class BayesianOptimizer(BaseSearchStrategy):
 
         if values[0] != self._space.sobol_space_fingerprint():
             return None
-        for field, expected in _EXPECTED_WARM_COMPATIBILITY.items():
+        expected_fields = dict(_EXPECTED_WARM_COMPATIBILITY)
+        expected_fields["objective_fingerprint"] = (
+            expected_objective_fingerprint
+            or self._warm_start_target_objective_fingerprint
+            or self._run_objective_fingerprint
+            or "scalar_score[minimize]"
+        )
+        for field, expected in expected_fields.items():
             if payload.get(field) != expected:
                 return None
         return tuple(values)
+
+    def _warm_profile_compatible(self, evaluation: Evaluation) -> bool:
+        """Require a complete profile emitted by a successful native GP fit."""
+        if not self._botorch_ready:
+            return False
+        payload = evaluation.metadata.get(_WARM_COMPATIBILITY_METADATA)
+        if not isinstance(payload, Mapping):
+            return False
+        expected_optimizer = f"{type(self).__module__}.{type(self).__qualname__}"
+        return bool(
+            payload.get("profile_kind") == "configured_native_gp"
+            and payload.get("optimizer_fqn") == expected_optimizer
+            and payload.get("proposal_source") == "bayesian_acquisition"
+            and payload.get("gp_model_fqn") == "botorch.models.gp_regression.SingleTaskGP"
+            and payload.get("warm_start_eligible") is True
+            and isinstance(payload.get("input_transform_state_fingerprint"), str)
+            and bool(payload.get("input_transform_state_fingerprint", "").strip())
+            and isinstance(payload.get("outcome_transform_state_fingerprint"), str)
+            and bool(payload.get("outcome_transform_state_fingerprint", "").strip())
+            and isinstance(payload.get("noise_model_state_fingerprint"), str)
+            and bool(payload.get("noise_model_state_fingerprint", "").strip())
+            and isinstance(payload.get("optimizer_config_fingerprint"), str)
+            and bool(payload.get("optimizer_config_fingerprint", "").strip())
+            and isinstance(payload.get("training_corpus_fingerprint"), str)
+            and bool(payload.get("training_corpus_fingerprint", "").strip())
+            and type(payload.get("training_observation_count")) is int
+            and payload.get("training_observation_count", 0) > 0
+        )
 
     @staticmethod
     def _origin_ref(evaluation: Evaluation) -> str | None:

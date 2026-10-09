@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import re
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any
 
@@ -24,6 +23,8 @@ from .contracts import (
     InputRef,
     PutOptions,
     SchemaInfo,
+    _is_string_root_model,
+    _normalize_scalar_artifact_id,
     normalize_artifact_ref,
     normalize_input_refs,
     to_store_put_options,
@@ -31,9 +32,6 @@ from .contracts import (
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-
-
-_PROFILE_SELECTOR_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 
 
 def put_json_artifact(
@@ -109,48 +107,15 @@ def _reject_json_constant(value: str) -> Any:
 
 def _artifact_selector(value: ArtifactSelector) -> ArtifactSelector:
     """Validate an artifact ID or typed selected-view ref without dropping its selector."""
-    if isinstance(value, (ArtifactID, str)) or isinstance(getattr(value, "root", None), str):
-        return ArtifactID.model_validate(str(value))
-
-    if isinstance(value, Mapping):
-        payload = dict(value)
-    else:
-        payload = {
-            field_name: getattr(value, field_name, None)
-            for field_name in (
-                "artifact_id",
-                "kind",
-                "media_type",
-                "manifest_profile_sha256",
-            )
-            if hasattr(value, field_name)
-        }
-    allowed_fields = {
-        "artifact_id",
-        "kind",
-        "media_type",
-        "manifest_profile_sha256",
-    }
-    if (
-        not {"artifact_id", "kind", "media_type"} <= set(payload)
-        or set(payload) - allowed_fields
-        or not isinstance(payload.get("kind"), str)
-        or not isinstance(payload.get("media_type"), str)
-    ):
-        raise CanonViolation("ir_artifact_view_selector_invalid")
+    if isinstance(value, (ArtifactID, str)) or _is_string_root_model(value):
+        try:
+            return _normalize_scalar_artifact_id(value)
+        except (TypeError, ValueError) as exc:
+            raise CanonViolation("ir_artifact_view_selector_invalid") from exc
     try:
-        ArtifactID.model_validate(str(payload["artifact_id"]))
+        return normalize_artifact_ref(value)
     except (TypeError, ValueError) as exc:
         raise CanonViolation("ir_artifact_view_selector_invalid") from exc
-    profile_selector = payload.get("manifest_profile_sha256")
-    if profile_selector is not None and (
-        not isinstance(profile_selector, str)
-        or _PROFILE_SELECTOR_RE.fullmatch(profile_selector) is None
-    ):
-        raise CanonViolation("ir_artifact_view_selector_invalid")
-    if isinstance(value, Mapping):
-        return payload
-    return value
 
 
 def _raw_manifest_canon(store: Any, selector: ArtifactSelector) -> Any:

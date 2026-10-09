@@ -14,6 +14,7 @@ from _helpers.c7_synthetic_data import (
     persist_c7_synthetic_snapshot,
 )
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
@@ -381,7 +382,9 @@ def _run_pipeline(tmp_path: Path) -> dict[str, object]:
         graph=fixture.proxy_map.graph,
         store=store,
     ).run(transport_bundle)
-    transport_result = load_transportability_result(store, transport_entries[0].result_ref)
+    transport_result = load_transportability_result(
+        _ensure_ir_artifact_store(store), transport_entries[0].result_ref
+    )
 
     candidate_ref = _candidate_ref(store)
     strategic_runner = StrategicResponseRunner(

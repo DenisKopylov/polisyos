@@ -8,6 +8,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.canon import from_canonical_bytes
@@ -304,7 +305,7 @@ def run_phase5_artifact_preflight(
         analyst_facing=preflight_input.analyst_facing,
     )
     validation_ref = persist_validation_report(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         report,
         inputs=_input_refs_for_publication(preflight_input.artifact_ref, judge_verdict_ref),
     )
@@ -1096,15 +1097,15 @@ def _input_refs_for_publication(
 
 def _run_berl_validation(record: Mapping[str, Any]) -> dict[str, Any] | None:
     try:
-        from polisyos.berl.contracts.explanation_bundle import ExplanationBundle
-        from polisyos.berl.contracts.validation_rules import validate_explanation_bundle
+        from polisyos.berl.contracts.validation_rules import (
+            validate_persisted_explanation_bundle_payload,
+        )
 
         # The envelope kind is a transport discriminator, not a BERL field.
         bundle_payload = dict(record)
         if bundle_payload.get("kind") == "scientist.explanation_bundle":
             bundle_payload.pop("kind")
-        bundle = ExplanationBundle.model_validate(bundle_payload)
-        result = validate_explanation_bundle(bundle)
+        _, result = validate_persisted_explanation_bundle_payload(bundle_payload)
         return {
             "passed": result.passed,
             "display_policy": result.display_policy,

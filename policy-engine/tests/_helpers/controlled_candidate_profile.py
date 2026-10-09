@@ -9,8 +9,11 @@ from __future__ import annotations
 
 import copy
 import json
+import threading
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.ir.artifacts import ArtifactStore
 from polisyos.runtime.quality.design_problem import (
     DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION,
@@ -20,6 +23,218 @@ from tools.quality.validation import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+class ControlledCandidateGateway:
+    """Small OpenAI-compatible local gateway for the real traced-client factory."""
+
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._recording: dict[str, object] | None = None
+        self._problem: dict[str, object] | None = None
+        self._n4_cursor = 0
+
+        class Handler(BaseHTTPRequestHandler):
+            owner: ControlledCandidateGateway
+
+            def do_GET(self) -> None:  # noqa: N802
+                if self.path != "/v1/models":
+                    self._send_json(404, {"error": "not_found"})
+                    return
+                with self.owner._lock:
+                    recording = self.owner._recording
+                if recording is None:
+                    self._send_json(503, {"error": "fixture_not_selected"})
+                    return
+                with self.owner._lock:
+                    self.owner._n4_cursor = 0
+                self._send_json(
+                    200,
+                    {"data": [{"id": recording["model_id"], "object": "model"}]},
+                )
+
+            def do_POST(self) -> None:  # noqa: N802
+                if self.path != "/v1/chat/completions":
+                    self._send_json(404, {"error": "not_found"})
+                    return
+                try:
+                    request = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+                except (KeyError, TypeError, ValueError, json.JSONDecodeError):
+                    self._send_json(400, {"error": "malformed_request"})
+                    return
+                if not isinstance(request, dict):
+                    self._send_json(400, {"error": "malformed_request"})
+                    return
+                compiler_name = self._compiler_tool_name(request)
+                if compiler_name is not None:
+                    with self.owner._lock:
+                        problem = self.owner._problem
+                        self.owner._n4_cursor = 0
+                    if problem is None:
+                        self._send_json(503, {"error": "fixture_not_selected"})
+                        return
+                    completion = {
+                        "id": "synthetic-design-problem-completion",
+                        "object": "chat.completion",
+                        "model": request.get("model"),
+                        "provider": "controlled_local_gateway",
+                        "choices": [
+                            {
+                                "index": 0,
+                                "message": {
+                                    "role": "assistant",
+                                    "content": None,
+                                    "tool_calls": [
+                                        {
+                                            "id": "synthetic-design-problem-tool-call",
+                                            "type": "function",
+                                            "function": {
+                                                "name": compiler_name,
+                                                "arguments": json.dumps(
+                                                    problem,
+                                                    sort_keys=True,
+                                                    separators=(",", ":"),
+                                                ),
+                                            },
+                                        }
+                                    ],
+                                },
+                                "finish_reason": "tool_calls",
+                            }
+                        ],
+                        "usage": {"prompt_tokens": 1, "completion_tokens": 1},
+                    }
+                    self._send_json(200, completion)
+                    return
+
+                with self.owner._lock:
+                    recording = self.owner._recording
+                    if recording is None:
+                        response = None
+                    else:
+                        responses = recording.get("responses")
+                        if not isinstance(responses, list) or self.owner._n4_cursor >= len(
+                            responses
+                        ):
+                            response = None
+                        else:
+                            response = responses[self.owner._n4_cursor]
+                            self.owner._n4_cursor += 1
+                if not isinstance(response, dict):
+                    self._send_json(502, {"error": "synthetic_response_exhausted"})
+                    return
+                if response.get("status") == "error":
+                    error = response.get("error")
+                    error_payload = error if isinstance(error, dict) else {}
+                    self._send_json(
+                        502,
+                        {
+                            "error": {
+                                "type": error_payload.get("type") or "synthetic_gateway_error",
+                                "code": error_payload.get("code"),
+                                "message": error_payload.get("message")
+                                or "controlled fixture provider error",
+                            }
+                        },
+                    )
+                    return
+                content = response.get("raw_response")
+                if not isinstance(content, str):
+                    self._send_json(502, {"error": "synthetic_response_malformed"})
+                    return
+                usage = response.get("usage")
+                usage_payload = usage if isinstance(usage, dict) else {}
+                self._send_json(
+                    200,
+                    {
+                        "id": "synthetic-candidate-completion",
+                        "object": "chat.completion",
+                        "model": request.get("model"),
+                        "provider": "controlled_recorded_response",
+                        "choices": [
+                            {
+                                "index": 0,
+                                "message": {"role": "assistant", "content": content},
+                                "finish_reason": "stop",
+                            }
+                        ],
+                        "usage": {
+                            "prompt_tokens": usage_payload.get("prompt_tokens") or 0,
+                            "completion_tokens": usage_payload.get("completion_tokens") or 0,
+                            "total_tokens": usage_payload.get("total_tokens") or 0,
+                        },
+                    },
+                )
+
+            @staticmethod
+            def _compiler_tool_name(request: dict[str, object]) -> str | None:
+                tools = request.get("tools")
+                if not isinstance(tools, list):
+                    return None
+                for tool in tools:
+                    if not isinstance(tool, dict):
+                        continue
+                    function = tool.get("function")
+                    if not isinstance(function, dict):
+                        continue
+                    name = function.get("name")
+                    if name == "emit_design_problem":
+                        return name
+                return None
+
+            def _send_json(self, status: int, payload: object) -> None:
+                body = json.dumps(payload, sort_keys=True).encode("utf-8")
+                self.send_response(status)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(body)))
+                self.send_header("Connection", "close")
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, _format: str, *args: object) -> None:
+                del args
+
+        Handler.owner = self
+        self._server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        self._thread = threading.Thread(target=self._server.serve_forever, daemon=True)
+
+    @property
+    def base_url(self) -> str:
+        """Return this test server's ephemeral OpenAI-compatible API root."""
+        host, port = self._server.server_address
+        return f"http://{host}:{port}/v1"
+
+    def __enter__(self) -> ControlledCandidateGateway:
+        self._thread.start()
+        return self
+
+    def __exit__(self, *_exc: object) -> None:
+        self._server.shutdown()
+        self._server.server_close()
+        self._thread.join(timeout=5)
+
+    def set_fixture(
+        self,
+        recording: dict[str, object],
+        *,
+        problem: object,
+    ) -> None:
+        """Select one immutable synthetic overlay and its compiler product."""
+        self._validate_recording(recording)
+        model_dump = getattr(problem, "model_dump", None)
+        if not callable(model_dump):
+            raise TypeError("controlled_gateway_problem_untyped")
+        problem_payload = model_dump(mode="json")
+        if not isinstance(problem_payload, dict):
+            raise TypeError("controlled_gateway_problem_untyped")
+        with self._lock:
+            self._recording = copy.deepcopy(recording)
+            self._problem = copy.deepcopy(problem_payload)
+            self._n4_cursor = 0
+
+    @staticmethod
+    def _validate_recording(recording: dict[str, object]) -> None:
+        n4_contract._validate_recording_fixture(recording)  # type: ignore[arg-type]
 
 
 def _current_compiler_problem(recording: dict[str, object]):
@@ -50,11 +265,13 @@ def _current_compiler_problem(recording: dict[str, object]):
 def _controlled_procurement_recording(
     recording: dict[str, object], *, outcome_variable: str, intensity: int = 1
 ) -> dict[str, object]:
-    """Keep the real N4 replay path while making its one direct value integer-only."""
+    """Return a new synthetic fixture identity for a controlled N4 replay overlay."""
 
     from polisyos.pdc import gy_content_hash
 
     controlled = copy.deepcopy(recording)
+    base_recording_id = str(controlled.get("recording_id") or "recording")
+    base_content_hash = str(controlled.get("recording_content_hash") or "")
     responses = controlled.get("responses")
     assert isinstance(responses, list)
     for index in (4, 8):
@@ -65,9 +282,7 @@ def _controlled_procurement_recording(
         trinity = json.loads(raw)
         interventions = trinity["policy_spec"]["interventions"]
         procurement = next(
-            item
-            for item in interventions
-            if item.get("kind") == "procurement_shock_intensity"
+            item for item in interventions if item.get("kind") == "procurement_shock_intensity"
         )
         procurement["params"] = {"intensity": intensity}
         procurement["notes"] = [
@@ -78,6 +293,32 @@ def _controlled_procurement_recording(
         rewritten = json.dumps(trinity, sort_keys=True, separators=(",", ":"))
         response["raw_response"] = rewritten
         response["raw_response_hash"] = gy_content_hash(rewritten)
+
+    # Edited provider bytes are a synthetic test fixture, not the historical
+    # provider capture. Give the overlay an identity derived from its changed
+    # bytes and retain an explicit lineage pointer to the immutable source.
+    identity_seed = gy_content_hash(
+        {
+            "base_recording_id": base_recording_id,
+            "base_content_hash": base_content_hash,
+            "response_hashes": [
+                item.get("raw_response_hash") for item in responses if isinstance(item, dict)
+            ],
+            "outcome_variable": outcome_variable,
+            "intensity": intensity,
+        }
+    ).removeprefix("sha256:")[:20]
+    fixture_id = f"synthetic_controlled_n4_{identity_seed}"
+    controlled["fixture_id"] = fixture_id
+    controlled["recording_id"] = fixture_id
+    controlled["recording_source"] = "synthetic_controlled_overlay_of_recorded_capture"
+    controlled["derived_from_recording_id"] = base_recording_id
+    controlled["derived_from_content_hash"] = base_content_hash
+
+    controlled["recording_content_hash"] = gy_content_hash(
+        {key: value for key, value in controlled.items() if key != "recording_content_hash"}
+    )
+    n4_contract._validate_recording_fixture(controlled)
     return controlled
 
 
@@ -168,14 +409,11 @@ def _configured_procurement_profile(
         tenant_id=tenant_id,
         cell_id=cell_id,
     ):
-        ncm_ref = persist_ncm_spec(artifact_store, ncm)
+        ncm_ref = persist_ncm_spec(_ensure_ir_artifact_store(artifact_store), ncm)
 
     candidate_slots = tuple(
         dict.fromkeys(
-            [
-                lever.target_slot
-                for lever in recorded_problem.candidate_lever_space.candidate_levers
-            ]
+            [lever.target_slot for lever in recorded_problem.candidate_lever_space.candidate_levers]
             + ["global.tax_rate", "cells.distress_score", outcome_variable]
         )
     )
@@ -188,8 +426,7 @@ def _configured_procurement_profile(
         selected_registry_entry_hashes=base_context.selected_registry_entry_hashes,
     )
     bindings = tuple(
-        item.model_copy(update={"unit": "synthetic_score"})
-        for item in world.policy_slot_map
+        item.model_copy(update={"unit": "synthetic_score"}) for item in world.policy_slot_map
     )
     foundry = world.foundry_binding_ref.model_copy(
         update={
@@ -264,9 +501,7 @@ def _configured_procurement_profile(
         }
     )
     declaration_fields = {
-        "schema_version": (
-            "policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"
-        ),
+        "schema_version": ("policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"),
         "profile_config_ref": candidate_simulation_profile_ref(profile),
         "profile_content_hash": profile.content_hash,
         "profile_selection_ref": profile.profile_selection_ref,

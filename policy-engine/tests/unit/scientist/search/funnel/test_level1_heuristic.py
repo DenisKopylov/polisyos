@@ -43,6 +43,8 @@ class TestLevel1CheapHeuristic:
         assert result.is_promising is True
         assert result.cheap_signal is not None
         assert result.cheap_signal.routing_decision() in ("advance", "fast_track")
+        assert result.compute_cost_usd is None
+        assert result.compute_cost_origin == "unknown"
 
     def test_cheap_signal_vector_populated(self):
         result = self.stage.evaluate(_make_candidate(), {})

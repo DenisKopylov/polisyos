@@ -13,16 +13,21 @@ from polisyos.core.registry import load_registry_bundle_content
 from polisyos.ir.linker import link_trinity
 from polisyos.ir.registry.registry_fragments import RegistryBundle
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_REGISTRY_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
     REPORT_LINK_REPORT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_link_trinity@1.0.0"),
@@ -81,7 +86,7 @@ class LinkTrinityNode:
             )
             return NodeOutcome(status="fail", state=state, error=error)
 
-        payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
+        payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref))
         bundle = TrinityBundle.model_validate(payload)
 
         registry_content = load_registry_bundle_content(ctx.store, registry_ref)

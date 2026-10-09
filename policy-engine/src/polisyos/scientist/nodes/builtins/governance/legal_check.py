@@ -17,11 +17,6 @@ from polisyos.core.contracts.lex import LegalEvaluationRequest
 from polisyos.core.contracts.trinity import ModelSpecRef, PolicySpecRef, TrinityBundleRef
 from polisyos.lex.api import assemble_norm_pack, evaluate_legality
 from polisyos.lex.types import NormPackBuildRequest
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_SIMULATION_RESULT_REF,
     INPUT_MODEL_SPEC_REF,
@@ -31,6 +26,16 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     REPORT_CHANGE_PROPOSAL_REF,
     REPORT_LEGAL_REPORT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 logger = get_logger(__name__)
 _LEGAL_CHECK_READ_ERRORS = (
@@ -122,7 +127,7 @@ def _read_compliance_grade(
     report_ref: ArtifactRef,
 ) -> tuple[str | None, dict[str, object] | None]:
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(report_ref.artifact_id))
+        payload = from_canonical_bytes(ctx.store.get_bytes(report_ref))
     except _LEGAL_CHECK_READ_ERRORS as exc:
         return None, emit_degraded_path(
             component="scientist.legal_check",

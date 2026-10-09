@@ -14,6 +14,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.ir.observation.causal_readiness import (
     CausalReadinessBundle,
@@ -21,12 +22,17 @@ from polisyos.ir.observation.causal_readiness import (
     load_causal_readiness_bundle,
 )
 from polisyos.ir.registry.refs import CausalReadinessBundleRef
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_CAUSAL_READINESS_BUNDLE_REF
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_counterfactual_identification_gate@1.0.0"),
@@ -165,7 +171,7 @@ def evaluate_counterfactual_gate(
         )
     try:
         bundle = load_causal_readiness_bundle(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             CausalReadinessBundleRef.model_validate(readiness_ref.model_dump(mode="json")),
         )
     except _COUNTERFACTUAL_GATE_LOAD_ERRORS as exc:

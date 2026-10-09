@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.catalog.spatial.protocols import SpatialResult
@@ -157,7 +159,7 @@ def test_spatial_methods_emit_areal_dependence_ref(tmp_path) -> None:
 
     dependence_ref = result["result"].dependence_ref
     assert dependence_ref is not None
-    loaded = load_dependence_structure(store, dependence_ref)
+    loaded = load_dependence_structure(_ensure_ir_artifact_store(store), dependence_ref)
     assert loaded.regime == "areal"
     assert loaded.source_method == "spatial.autocorrelation.moran_i"
 
@@ -423,6 +425,6 @@ def test_advanced_spatial_methods_emit_dependence_ref(tmp_path) -> None:
 
     dependence_ref = kriging_result["result"].dependence_ref
     assert dependence_ref is not None
-    loaded = load_dependence_structure(store, dependence_ref)
+    loaded = load_dependence_structure(_ensure_ir_artifact_store(store), dependence_ref)
     assert loaded.regime == "areal"
     assert loaded.source_method == "spatial.interpolation.gaussian_process_kriging"

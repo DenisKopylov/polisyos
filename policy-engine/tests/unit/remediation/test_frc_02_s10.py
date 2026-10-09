@@ -24,6 +24,7 @@ from typing import Any
 import pytest
 
 from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.ir.analytics.backtest import (
     BacktestReport,
     BacktestScenario,
@@ -128,7 +129,7 @@ def _persist_context_ref(
     if payload_fields is not None:
         payload.update(payload_fields)
     ref = put_json_artifact(
-        store,
+        _ensure_ir_artifact_store(store),
         payload,
         kind=kind,
         schema_name=schema_name,
@@ -216,6 +217,7 @@ def _persist_report(
     method_ref: str = METHOD_REF,
     method_version: str = METHOD_VERSION,
     rule_version_ref: str = RULE_VERSION_REF,
+    temporal_updates: Mapping[str, object] | None = None,
 ) -> tuple[FileSystemCAS, BacktestReportRef, dict[str, dict[str, str]]]:
     """Persist a report whose held-out interval hits are recomputable."""
 
@@ -293,15 +295,33 @@ def _persist_report(
         rule_version_ref=rule_version_ref,
         threshold=threshold,
     )
-    report_ref = persist_backtest_report(
-        store,
-        report,
-        inputs=[
-            InputRef(artifact_id=ref["artifact_id"], role=role)
-            for role, ref in refs.items()
-        ],
+    temporal_roles = _temporal_roles()
+    role_values = {
+        role: getattr(temporal_roles, role)
+        for role in (
+            "data_valid_time",
+            "calibration_window_start",
+            "calibration_window_end",
+            "policy_effective_time",
+            "prediction_time",
+            "observation_time",
+        )
+    }
+    role_values.update(temporal_updates or {})
+    report = report.model_copy(
+        update={
+            "metadata": {
+                **report.metadata,
+                "temporal_roles": {role: value.isoformat() for role, value in role_values.items()},
+            }
+        }
     )
-    load_backtest_report(store, report_ref)
+    report_ref = persist_backtest_report(
+        _ensure_ir_artifact_store(store),
+        report,
+        inputs=[InputRef(artifact_id=ref["artifact_id"], role=role) for role, ref in refs.items()],
+    )
+    load_backtest_report(_ensure_ir_artifact_store(store), report_ref)
     return store, report_ref, refs
 
 
@@ -373,6 +393,7 @@ def _persist_loaded_evidence(
         method_ref=method_ref,
         method_version=method_version,
         rule_version_ref=rule_version_ref,
+        temporal_updates=temporal_updates,
     )
     bridge = _bridge()
     evidence = bridge.produce_empirical_calibration_evidence(
@@ -467,9 +488,7 @@ class _CanonicalEvidenceResolver:
                 "event": "loaded",
                 "evidence_ref": evidence_ref,
                 "evidence": evidence,
-                "nominal_confidence_level": getattr(
-                    evidence, "nominal_confidence_level", None
-                ),
+                "nominal_confidence_level": getattr(evidence, "nominal_confidence_level", None),
             }
         )
         return evidence
@@ -562,37 +581,27 @@ def _assert_evidence_binding(
     assert manifest.kind == source_ref.kind
     assert manifest.media_type == source_ref.media_type
     assert manifest.artifact_schema is not None
-    assert manifest.artifact_schema.name == (
-        "polisyos.calibration.empirical_calibration_evidence"
-    )
+    assert manifest.artifact_schema.name == ("polisyos.calibration.empirical_calibration_evidence")
     assert manifest.artifact_schema.version == "1.1"
     assert manifest.integrity.sha256 == evidence_ref.artifact_id.hex
     evidence_bytes = store.get_bytes(evidence_ref.artifact_id)
     assert hashlib.sha256(evidence_bytes).hexdigest() == evidence_ref.artifact_id.hex
     evidence = _bridge().load_empirical_calibration_evidence(store, evidence_ref)
-    assert (
-        _ref_artifact_id(record.observed_outcome_ref)
-        == str(evidence.observed_outcome_ref.artifact_id)
+    assert _ref_artifact_id(record.observed_outcome_ref) == str(
+        evidence.observed_outcome_ref.artifact_id
     )
-    assert (
-        _ref_artifact_id(record.prediction_ref)
-        == str(evidence.prediction_ref.artifact_id)
+    assert _ref_artifact_id(record.prediction_ref) == str(evidence.prediction_ref.artifact_id)
+    assert _ref_artifact_id(record.historical_implementation_ref) == str(
+        evidence.report_ref.artifact_id
     )
-    assert (
-        _ref_artifact_id(record.historical_implementation_ref)
-        == str(evidence.report_ref.artifact_id)
+    assert _ref_artifact_id(record.evaluation_design_ref) == str(
+        evidence.evaluation_design_ref.artifact_id
     )
-    assert (
-        _ref_artifact_id(record.evaluation_design_ref)
-        == str(evidence.evaluation_design_ref.artifact_id)
+    assert _ref_artifact_id(record.credible_evaluation_evidence_ref) == str(
+        evidence.credible_evaluation_evidence_ref.artifact_id
     )
-    assert (
-        _ref_artifact_id(record.credible_evaluation_evidence_ref)
-        == str(evidence.credible_evaluation_evidence_ref.artifact_id)
-    )
-    assert (
-        _ref_artifact_id(record.calibration_threshold_ref)
-        == str(evidence.calibration_threshold_ref.artifact_id)
+    assert _ref_artifact_id(record.calibration_threshold_ref) == str(
+        evidence.calibration_threshold_ref.artifact_id
     )
     assert tuple(_ref_artifact_id(ref) for ref in record.source_lineage_refs) == tuple(
         str(ref.artifact_id) for ref in evidence.source_lineage_refs
@@ -612,10 +621,7 @@ def _assert_evidence_binding(
         *record.method_lineage_refs,
     )
     assert all(
-        not (
-            str(value).startswith("s10://")
-            or str(getattr(value, "uri", "")).startswith("s10://")
-        )
+        not (str(value).startswith("s10://") or str(getattr(value, "uri", "")).startswith("s10://"))
         for value in source_values
     )
 
@@ -671,9 +677,7 @@ def test_same_ets_shape_with_different_held_out_observations_changes_s10_suitabi
         resolver=limited_resolver,
     )
     assert passing["forecast_support"].forecast_tier == "observable_calibrated"
-    assert limited["forecast_support"].forecast_tier != (
-        passing["forecast_support"].forecast_tier
-    )
+    assert limited["forecast_support"].forecast_tier != (passing["forecast_support"].forecast_tier)
     record = passing["forecast_calibration_record"]
     limited_record = limited["forecast_calibration_record"]
     assert record is not None
@@ -686,25 +690,26 @@ def test_same_ets_shape_with_different_held_out_observations_changes_s10_suitabi
     assert passing_resolver.trace[-1]["event"] == "loaded"
     assert limited_resolver.trace[-1]["event"] == "loaded"
     _assert_evidence_binding(passing_store, record, passing_ref)
-    assert str(record.empirical_evidence_ref.artifact_id) == str(
-        passing_ref.artifact_id
-    )
+    assert str(record.empirical_evidence_ref.artifact_id) == str(passing_ref.artifact_id)
     assert record.prediction_time == passing_evidence.prediction_time
     assert record.observation_time == passing_evidence.observation_time
     assert record.policy_effective_time == passing_evidence.policy_effective_time
     assert record.data_valid_time == passing_evidence.data_valid_time
     assert record.calibration_window_start == passing_evidence.calibration_window_start
     assert record.calibration_window_end == passing_evidence.calibration_window_end
-    assert len(
-        {
-            record.prediction_time,
-            record.observation_time,
-            record.policy_effective_time,
-            record.data_valid_time,
-            record.calibration_window_start,
-            record.calibration_window_end,
-        }
-    ) == 6
+    assert (
+        len(
+            {
+                record.prediction_time,
+                record.observation_time,
+                record.policy_effective_time,
+                record.data_valid_time,
+                record.calibration_window_start,
+                record.calibration_window_end,
+            }
+        )
+        == 6
+    )
 
 
 def test_nominal_confidence_only_does_not_change_s10_suitability(
@@ -726,8 +731,8 @@ def test_nominal_confidence_only_does_not_change_s10_suitability(
         nominal_confidence=0.95,
         threshold=0.5,
     )
-    low_report = load_backtest_report(low_store, low_report_ref)
-    high_report = load_backtest_report(high_store, high_report_ref)
+    low_report = load_backtest_report(_ensure_ir_artifact_store(low_store), low_report_ref)
+    high_report = load_backtest_report(_ensure_ir_artifact_store(high_store), high_report_ref)
     assert low_report.scenarios[0].nominal_confidence_level == pytest.approx(0.80)
     assert high_report.scenarios[0].nominal_confidence_level == pytest.approx(0.95)
     assert low_ref.artifact_id != high_ref.artifact_id
@@ -749,10 +754,7 @@ def test_nominal_confidence_only_does_not_change_s10_suitability(
         evidence_ref=high_ref,
         resolver=high_resolver,
     )
-    assert (
-        low["forecast_support"].forecast_tier
-        == high["forecast_support"].forecast_tier
-    )
+    assert low["forecast_support"].forecast_tier == high["forecast_support"].forecast_tier
     low_record = low.get("forecast_calibration_record")
     high_record = high.get("forecast_calibration_record")
     assert low_record is not None
@@ -786,7 +788,7 @@ def test_legacy_v1_0_evidence_loads_without_nominal_and_preserves_cas_bytes(
     legacy_payload["schema_version"] = "1.0"
     legacy_payload.pop("nominal_confidence_level", None)
     legacy_ref_payload = put_json_artifact(
-        store,
+        _ensure_ir_artifact_store(store),
         legacy_payload,
         kind="ir.empirical_calibration_evidence",
         schema_name="polisyos.calibration.empirical_calibration_evidence",
@@ -796,16 +798,11 @@ def test_legacy_v1_0_evidence_loads_without_nominal_and_preserves_cas_bytes(
                 "artifact_id": str(evidence.report_ref.artifact_id),
                 "role": "backtest_report",
             },
-            *(
-                {"artifact_id": ref["artifact_id"], "role": role}
-                for role, ref in refs.items()
-            ),
+            *({"artifact_id": ref["artifact_id"], "role": role} for role, ref in refs.items()),
         ],
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    legacy_ref = bridge.EmpiricalCalibrationEvidenceRef.model_validate(
-        legacy_ref_payload
-    )
+    legacy_ref = bridge.EmpiricalCalibrationEvidenceRef.model_validate(legacy_ref_payload)
     before = store.get_bytes(legacy_ref.artifact_id)
     before_sha = hashlib.sha256(before).hexdigest()
 

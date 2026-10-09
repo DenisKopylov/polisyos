@@ -24,6 +24,7 @@ from polisyos.scientist.methods.search.funnel.types import (
     UncertaintyEnvelope,
     UncertaintyEstimate,
     UncertaintyType,
+    parse_funnel_work_packet_feedback,
     statistical_uncertainty_from_ci_width,
 )
 from polisyos.scientist.methods.search.uncertainty import search_uncertainty_observation_ref
@@ -134,7 +135,8 @@ class Level3MediumFidelity(FunnelStage):
                     source="L3 workflow error",
                 ),
                 failure_cards=cards,
-                compute_actual_usd=duration * self._cost_per_second,
+                compute_cost_usd=duration * self._cost_per_second,
+                compute_cost_origin="estimated",
                 fidelity_level=self.fidelity_level,
                 feedback={"verdict": "REJECT", "issues": [{"message": str(exc)}]},
             )
@@ -142,7 +144,9 @@ class Level3MediumFidelity(FunnelStage):
         duration = (datetime.now(UTC) - start).total_seconds()
 
         sim_results = result.get("simulation_results", {})
-        feedback = result.get("feedback", {})
+        raw_feedback = result.get("feedback", {})
+        feedback = dict(raw_feedback) if isinstance(raw_feedback, Mapping) else {}
+        work_packet_ref, work_packet_status = parse_funnel_work_packet_feedback(feedback)
         verdict = feedback.get("verdict", "UNKNOWN")
 
         # Compute objective (same formula as ExpensiveStage).
@@ -174,7 +178,10 @@ class Level3MediumFidelity(FunnelStage):
             feedback=feedback,
             uncertainty_envelope=envelope,
             failure_cards=cards,
-            compute_actual_usd=duration * self._cost_per_second,
+            compute_cost_usd=duration * self._cost_per_second,
+            compute_cost_origin="estimated",
+            executed_work_packet_ref=work_packet_ref,
+            executed_work_packet_status=work_packet_status,
             fidelity_level=self.fidelity_level,
             actual_score=objective,
             uncertainty_observation_ref=search_uncertainty_observation_ref(sim_results),

@@ -6,6 +6,8 @@ import sys
 import pytest
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts.ir_adapter import ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.strategic import (
     PerformativeLoopSpec,
@@ -175,16 +177,20 @@ def _ordinal_poverty_estimate() -> OrdinalPovertyEstimate:
 
 def test_distributional_effect_bundle_round_trip_via_store(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
-    baseline_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
+    baseline_ref = persist_discrete_distribution_summary(
+        _ensure_ir_artifact_store(store), _distribution_summary("income")
+    )
     counterfactual_ref = persist_discrete_distribution_summary(
-        store, _distribution_summary("income")
+        _ensure_ir_artifact_store(store), _distribution_summary("income")
     )
     quantile_ref = persist_discrete_distribution_summary(
-        store, _distribution_summary("quantile_proxy")
+        _ensure_ir_artifact_store(store), _distribution_summary("quantile_proxy")
     )
-    tail_ref = persist_discrete_distribution_summary(store, _distribution_summary("tail_proxy"))
+    tail_ref = persist_discrete_distribution_summary(
+        _ensure_ir_artifact_store(store), _distribution_summary("tail_proxy")
+    )
     ordinal_ref = persist_ordinal_poverty_report(
-        store,
+        _ensure_ir_artifact_store(store),
         OrdinalPovertyReport(
             baseline=_ordinal_poverty_estimate(),
             counterfactual=_ordinal_poverty_estimate().model_copy(
@@ -224,8 +230,8 @@ def test_distributional_effect_bundle_round_trip_via_store(tmp_path) -> None:
         readiness_cap="simulation_ready",
     )
 
-    bundle_ref = persist_distributional_effect_bundle(store, bundle)
-    loaded = load_distributional_effect_bundle(store, bundle_ref)
+    bundle_ref = persist_distributional_effect_bundle(_ensure_ir_artifact_store(store), bundle)
+    loaded = load_distributional_effect_bundle(_ensure_ir_artifact_store(store), bundle_ref)
 
     assert loaded == bundle
     assert loaded.justification is DistributionalJustification.SCENARIO
@@ -257,8 +263,8 @@ def test_ordinal_poverty_report_round_trip_via_store(tmp_path) -> None:
         metadata={"run_id": "R_test"},
     )
 
-    ref = persist_ordinal_poverty_report(store, report)
-    loaded = load_ordinal_poverty_report(store, ref)
+    ref = persist_ordinal_poverty_report(_ensure_ir_artifact_store(store), report)
+    loaded = load_ordinal_poverty_report(_ensure_ir_artifact_store(store), ref)
 
     assert loaded == report
     assert loaded.deltas["headcount_h"] == pytest.approx(-0.2)
@@ -267,9 +273,11 @@ def test_ordinal_poverty_report_round_trip_via_store(tmp_path) -> None:
 
 def test_distributional_effect_bundle_uses_weakest_link_semantics(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
-    baseline_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
+    baseline_ref = persist_discrete_distribution_summary(
+        _ensure_ir_artifact_store(store), _distribution_summary("income")
+    )
     counterfactual_ref = persist_discrete_distribution_summary(
-        store, _distribution_summary("income")
+        _ensure_ir_artifact_store(store), _distribution_summary("income")
     )
 
     bundle = DistributionalEffectBundle(
@@ -299,9 +307,11 @@ def test_distributional_effect_bundle_uses_weakest_link_semantics(tmp_path) -> N
 
 def test_distributional_effect_bundle_rejects_identified_without_proof(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
-    baseline_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
+    baseline_ref = persist_discrete_distribution_summary(
+        _ensure_ir_artifact_store(store), _distribution_summary("income")
+    )
     counterfactual_ref = persist_discrete_distribution_summary(
-        store, _distribution_summary("income")
+        _ensure_ir_artifact_store(store), _distribution_summary("income")
     )
 
     with pytest.raises(ValidationError, match="distributional_proof_ref"):
@@ -330,7 +340,7 @@ def test_distributional_proof_artifact_round_trip_via_store(tmp_path) -> None:
         description="Consistency links observed and potential outcomes.",
         testable=False,
     )
-    card_ref = persist_causal_assumption_card(store, card)
+    card_ref = persist_causal_assumption_card(_ensure_ir_artifact_store(store), card)
 
     artifact = DistributionalProofArtifact(
         base_proof_ref=ProofBundleRef.model_validate(
@@ -347,9 +357,11 @@ def test_distributional_proof_artifact_round_trip_via_store(tmp_path) -> None:
         metadata={"distributional_query_kind": "interventional_law"},
     )
 
-    artifact_ref = persist_distributional_proof_artifact(store, artifact)
-    loaded_artifact = load_distributional_proof_artifact(store, artifact_ref)
-    loaded_card = load_causal_assumption_card(store, card_ref)
+    artifact_ref = persist_distributional_proof_artifact(_ensure_ir_artifact_store(store), artifact)
+    loaded_artifact = load_distributional_proof_artifact(
+        _ensure_ir_artifact_store(store), artifact_ref
+    )
+    loaded_card = load_causal_assumption_card(_ensure_ir_artifact_store(store), card_ref)
 
     assert loaded_artifact == artifact
     assert loaded_artifact.target is DistributionalProofTarget.CDF
@@ -399,9 +411,11 @@ def test_distributional_effect_bundle_requires_bounds_refs_for_bounded_justifica
     tmp_path,
 ) -> None:
     store = FileSystemCAS(tmp_path / "cas")
-    baseline_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
+    baseline_ref = persist_discrete_distribution_summary(
+        _ensure_ir_artifact_store(store), _distribution_summary("income")
+    )
     counterfactual_ref = persist_discrete_distribution_summary(
-        store, _distribution_summary("income")
+        _ensure_ir_artifact_store(store), _distribution_summary("income")
     )
 
     with pytest.raises(ValidationError, match="distributional_bounds_refs"):
@@ -431,9 +445,11 @@ def test_distributional_validation_rejects_non_finite_metrics() -> None:
 
 def test_distributional_effect_bundle_rejects_nan_wasserstein(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
-    baseline_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
+    baseline_ref = persist_discrete_distribution_summary(
+        _ensure_ir_artifact_store(store), _distribution_summary("income")
+    )
     counterfactual_ref = persist_discrete_distribution_summary(
-        store, _distribution_summary("income")
+        _ensure_ir_artifact_store(store), _distribution_summary("income")
     )
 
     with pytest.raises(ValidationError, match="wasserstein_distance"):
@@ -498,8 +514,8 @@ def test_legacy_distributional_report_round_trip_unchanged(tmp_path) -> None:
         methodology="agent_aggregation",
     )
 
-    report_ref = persist_distributional_report(store, valid_report)
-    loaded = load_distributional_report(store, report_ref)
+    report_ref = persist_distributional_report(_ensure_ir_artifact_store(store), valid_report)
+    loaded = load_distributional_report(_ensure_ir_artifact_store(store), report_ref)
 
     assert loaded == valid_report
 
@@ -641,8 +657,12 @@ def test_strategic_solver_consumes_ir_compute_budget() -> None:
 
 def test_strategic_ir_contracts_round_trip_via_store(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "strategic")
-    leader_table_ref = persist_strategic_payoff_table(store, _payoff_table("leader"))
-    follower_table_ref = persist_strategic_payoff_table(store, _payoff_table("follower"))
+    leader_table_ref = persist_strategic_payoff_table(
+        _ensure_ir_artifact_store(store), _payoff_table("leader")
+    )
+    follower_table_ref = persist_strategic_payoff_table(
+        _ensure_ir_artifact_store(store), _payoff_table("follower")
+    )
     contract = StrategicSCM(
         base_graph_ref=_artifact_ref("a", kind="ir.causal_graph_model"),
         strategic_agents=("leader", "follower"),
@@ -654,7 +674,7 @@ def test_strategic_ir_contracts_round_trip_via_store(tmp_path) -> None:
         equilibrium_concept="stackelberg",
         compute_budget=ComputeBudget(max_llm_calls=0.0, max_sim_runs=16.0, max_wall_time_s=30.0),
     )
-    contract_ref = persist_strategic_scm(store, contract)
+    contract_ref = persist_strategic_scm(_ensure_ir_artifact_store(store), contract)
 
     bundle = StrategicResponseBundle(
         causal_component_ref=_artifact_ref("c", kind="ir.causal_effect_report"),
@@ -679,11 +699,14 @@ def test_strategic_ir_contracts_round_trip_via_store(tmp_path) -> None:
         ),
         fallback_mode=StrategicFallbackMode.EXACT_EQUILIBRIUM,
     )
-    bundle_ref = persist_strategic_response_bundle(store, bundle)
+    bundle_ref = persist_strategic_response_bundle(_ensure_ir_artifact_store(store), bundle)
 
-    assert load_strategic_payoff_table(store, leader_table_ref) == _payoff_table("leader")
-    assert load_strategic_scm(store, contract_ref) == contract
-    assert load_strategic_response_bundle(store, bundle_ref) == bundle
+    ir_store = ensure_ir_artifact_store(store)
+    assert load_strategic_payoff_table(
+        _ensure_ir_artifact_store(ir_store), leader_table_ref
+    ) == _payoff_table("leader")
+    assert load_strategic_scm(_ensure_ir_artifact_store(ir_store), contract_ref) == contract
+    assert load_strategic_response_bundle(_ensure_ir_artifact_store(ir_store), bundle_ref) == bundle
 
 
 def test_mean_field_equilibrium_certificate_round_trip_and_exact_bundle_support(tmp_path) -> None:
@@ -693,7 +716,9 @@ def test_mean_field_equilibrium_certificate_round_trip_and_exact_bundle_support(
         source_intervention_ref=_artifact_ref("b", kind="ir.intervention_certificate"),
         baseline_policy_ref=_artifact_ref("a", kind="ir.policy_recommendation"),
     )
-    perturbation_ref = persist_mean_field_perturbation_spec(store, perturbation)
+    perturbation_ref = persist_mean_field_perturbation_spec(
+        _ensure_ir_artifact_store(store), perturbation
+    )
     numerics_config = MeanFieldMacroSimulationConfig(
         population_measure_snapshot_ref=_artifact_ref("c", kind="ir.population_measure_snapshot"),
         coefficient_field_ref=_artifact_ref("d", kind="ir.coefficient_field_estimate"),
@@ -705,7 +730,9 @@ def test_mean_field_equilibrium_certificate_round_trip_and_exact_bundle_support(
         time_steps=120,
         state_grid_shape=(64, 32),
     )
-    numerics_config_ref = persist_mean_field_macro_simulation_config(store, numerics_config)
+    numerics_config_ref = persist_mean_field_macro_simulation_config(
+        _ensure_ir_artifact_store(store), numerics_config
+    )
     certificate = MeanFieldEquilibriumCertificate(
         intervention_kind="distributional",
         baseline_policy_ref=_artifact_ref("a", kind="ir.policy_recommendation"),
@@ -743,10 +770,18 @@ def test_mean_field_equilibrium_certificate_round_trip_and_exact_bundle_support(
         },
     )
 
-    certificate_ref = persist_mean_field_equilibrium_certificate(store, certificate)
-    loaded_certificate = load_mean_field_equilibrium_certificate(store, certificate_ref)
-    loaded_perturbation = load_mean_field_perturbation_spec(store, perturbation_ref)
-    loaded_numerics_config = load_mean_field_macro_simulation_config(store, numerics_config_ref)
+    certificate_ref = persist_mean_field_equilibrium_certificate(
+        _ensure_ir_artifact_store(store), certificate
+    )
+    loaded_certificate = load_mean_field_equilibrium_certificate(
+        _ensure_ir_artifact_store(store), certificate_ref
+    )
+    loaded_perturbation = load_mean_field_perturbation_spec(
+        _ensure_ir_artifact_store(store), perturbation_ref
+    )
+    loaded_numerics_config = load_mean_field_macro_simulation_config(
+        _ensure_ir_artifact_store(store), numerics_config_ref
+    )
 
     bundle = StrategicResponseBundle(
         causal_component_ref=_artifact_ref("5", kind="ir.causal_effect_report"),
@@ -767,8 +802,8 @@ def test_mean_field_equilibrium_certificate_round_trip_and_exact_bundle_support(
         fallback_mode=StrategicFallbackMode.EXACT_EQUILIBRIUM,
     )
 
-    bundle_ref = persist_strategic_response_bundle(store, bundle)
-    loaded_bundle = load_strategic_response_bundle(store, bundle_ref)
+    bundle_ref = persist_strategic_response_bundle(_ensure_ir_artifact_store(store), bundle)
+    loaded_bundle = load_strategic_response_bundle(_ensure_ir_artifact_store(store), bundle_ref)
 
     assert loaded_certificate.model_dump(mode="json") == certificate.model_dump(mode="json")
     assert loaded_perturbation == perturbation
@@ -828,8 +863,12 @@ def test_strategic_response_bundle_rejects_discrete_and_mfg_equilibria_together(
 
 def test_persist_strategic_solve_artifacts_can_attach_mfg_numerics_config(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "strategic-mfg-bundle")
-    leader_table_ref = persist_strategic_payoff_table(store, _payoff_table("leader"))
-    follower_table_ref = persist_strategic_payoff_table(store, _payoff_table("follower"))
+    leader_table_ref = persist_strategic_payoff_table(
+        _ensure_ir_artifact_store(store), _payoff_table("leader")
+    )
+    follower_table_ref = persist_strategic_payoff_table(
+        _ensure_ir_artifact_store(store), _payoff_table("follower")
+    )
     contract = StrategicSCM(
         base_graph_ref=_artifact_ref("a", kind="ir.causal_graph_model"),
         strategic_agents=("leader", "follower"),
@@ -847,7 +886,7 @@ def test_persist_strategic_solve_artifacts_can_attach_mfg_numerics_config(tmp_pa
         baseline_policy_value=10.0,
     )
     perturbation_ref = persist_mean_field_perturbation_spec(
-        store,
+        _ensure_ir_artifact_store(store),
         compile_intervention_spec_to_mean_field_perturbation(
             InterventionSpec(type="shifted", shift=1.0),
             source_intervention_ref=_artifact_ref("c", kind="ir.intervention_certificate"),
@@ -899,11 +938,11 @@ def test_persist_strategic_solve_artifacts_can_attach_mfg_numerics_config(tmp_pa
         ),
     )
 
-    loaded_bundle = load_strategic_response_bundle(store, bundle_ref)
+    loaded_bundle = load_strategic_response_bundle(_ensure_ir_artifact_store(store), bundle_ref)
     assert bundle.mfg_equilibrium_ref is not None
     assert loaded_bundle.mfg_equilibrium_ref is not None
     loaded_certificate = load_mean_field_equilibrium_certificate(
-        store, loaded_bundle.mfg_equilibrium_ref
+        _ensure_ir_artifact_store(store), loaded_bundle.mfg_equilibrium_ref
     )
     assert loaded_certificate.provenance is not None
     assert loaded_certificate.provenance.numerics_config_ref is not None
@@ -913,8 +952,12 @@ def test_persist_strategic_solve_artifacts_keeps_loop_certificate_without_point_
     tmp_path,
 ) -> None:
     store = FileSystemCAS(tmp_path / "strategic-loop")
-    leader_table_ref = persist_strategic_payoff_table(store, _payoff_table("leader"))
-    follower_table_ref = persist_strategic_payoff_table(store, _payoff_table("follower"))
+    leader_table_ref = persist_strategic_payoff_table(
+        _ensure_ir_artifact_store(store), _payoff_table("leader")
+    )
+    follower_table_ref = persist_strategic_payoff_table(
+        _ensure_ir_artifact_store(store), _payoff_table("follower")
+    )
     contract = StrategicSCM(
         base_graph_ref=_artifact_ref("a", kind="ir.causal_graph_model"),
         strategic_agents=("leader", "follower"),
@@ -949,7 +992,9 @@ def test_persist_strategic_solve_artifacts_keeps_loop_certificate_without_point_
     )
 
     assert bundle.performative_shift_ref is not None
-    shift_summary = load_performative_shift_summary(store, bundle.performative_shift_ref)
+    shift_summary = load_performative_shift_summary(
+        _ensure_ir_artifact_store(store), bundle.performative_shift_ref
+    )
     assert shift_summary.performative_shift is None
     assert shift_summary.analysis_scope is PerformativeLoopAnalysisScope.ITERATED_LOOP
     assert shift_summary.stability_status is PerformativeLoopStabilityStatus.UNCERTIFIED
@@ -959,8 +1004,12 @@ def test_persist_strategic_solve_artifacts_defaults_to_exact_decomposition_artif
     tmp_path,
 ) -> None:
     store = FileSystemCAS(tmp_path / "strategic-decomposition")
-    leader_table_ref = persist_strategic_payoff_table(store, _payoff_table("leader"))
-    follower_table_ref = persist_strategic_payoff_table(store, _payoff_table("follower"))
+    leader_table_ref = persist_strategic_payoff_table(
+        _ensure_ir_artifact_store(store), _payoff_table("leader")
+    )
+    follower_table_ref = persist_strategic_payoff_table(
+        _ensure_ir_artifact_store(store), _payoff_table("follower")
+    )
     contract = StrategicSCM(
         base_graph_ref=_artifact_ref("a", kind="ir.causal_graph_model"),
         strategic_agents=("leader", "follower"),
@@ -991,7 +1040,7 @@ def test_persist_strategic_solve_artifacts_defaults_to_exact_decomposition_artif
     assert bundle.decomposition_certificate_ref is not None
     assert bundle.anchor_equilibrium_ref is not None
     certificate = load_strategic_decomposition_certificate(
-        store,
+        _ensure_ir_artifact_store(store),
         bundle.decomposition_certificate_ref,
     )
     assert certificate.decomposition_status is StrategicDecompositionStatus.EXACT
@@ -1151,7 +1200,9 @@ def test_abstraction_contracts_round_trip_and_exact_verification(tmp_path) -> No
             ),
         )
     )
-    map_ref = persist_finite_state_abstraction_map(store, abstraction_map)
+    map_ref = persist_finite_state_abstraction_map(
+        _ensure_ir_artifact_store(store), abstraction_map
+    )
     certificate = AbstractionCertificate(
         micro_graph_ref=_artifact_ref("a", kind="ir.causal_graph_model"),
         macro_graph_ref=_artifact_ref("b", kind="ir.causal_graph_model"),
@@ -1160,10 +1211,13 @@ def test_abstraction_contracts_round_trip_and_exact_verification(tmp_path) -> No
         preserved_queries=("observational", "interventional"),
         error_bound=None,
     )
-    cert_ref = persist_abstraction_certificate(store, certificate)
+    cert_ref = persist_abstraction_certificate(_ensure_ir_artifact_store(store), certificate)
 
-    assert load_finite_state_abstraction_map(store, map_ref) == abstraction_map
-    assert load_abstraction_certificate(store, cert_ref) == certificate
+    assert (
+        load_finite_state_abstraction_map(_ensure_ir_artifact_store(store), map_ref)
+        == abstraction_map
+    )
+    assert load_abstraction_certificate(_ensure_ir_artifact_store(store), cert_ref) == certificate
 
     exact = verify_finite_state_exact_abstraction(
         _finite_state_scm(macro=False),
@@ -1190,7 +1244,7 @@ def test_abstraction_contracts_round_trip_and_exact_verification(tmp_path) -> No
 def test_abstraction_certificate_accepts_approximate_type_mean_transport_contract(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "abstraction-approximate")
     map_ref = persist_finite_state_abstraction_map(
-        store,
+        _ensure_ir_artifact_store(store),
         FiniteStateAbstractionMap(
             variable_maps=(
                 VariableStateAbstraction(
@@ -1247,7 +1301,7 @@ def test_abstraction_certificate_accepts_approximate_type_mean_transport_contrac
 def test_abstraction_certificate_rejects_approximate_without_query_bounds(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "abstraction-approximate-invalid")
     map_ref = persist_finite_state_abstraction_map(
-        store,
+        _ensure_ir_artifact_store(store),
         FiniteStateAbstractionMap(
             variable_maps=(
                 VariableStateAbstraction(
@@ -1287,7 +1341,7 @@ def test_abstraction_certificate_rejects_approximate_without_query_bounds(tmp_pa
 def test_abstraction_certificate_policy_value_only_is_single_query_contract(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "abstraction-policy-value")
     map_ref = persist_finite_state_abstraction_map(
-        store,
+        _ensure_ir_artifact_store(store),
         FiniteStateAbstractionMap(
             variable_maps=(
                 VariableStateAbstraction(
@@ -1324,7 +1378,7 @@ def test_abstraction_certificate_policy_value_only_is_single_query_contract(tmp_
 def test_abstraction_certificate_rejects_unverified_intervention_family(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "abstraction-intervention-family")
     map_ref = persist_finite_state_abstraction_map(
-        store,
+        _ensure_ir_artifact_store(store),
         FiniteStateAbstractionMap(
             variable_maps=(
                 VariableStateAbstraction(
@@ -1366,7 +1420,7 @@ def test_abstraction_certificate_accepts_continuous_linear_gaussian_error_bound_
 ) -> None:
     store = FileSystemCAS(tmp_path / "abstraction-continuous-linear-gaussian")
     map_ref = persist_finite_state_abstraction_map(
-        store,
+        _ensure_ir_artifact_store(store),
         FiniteStateAbstractionMap(
             variable_maps=(
                 VariableStateAbstraction(
@@ -1446,7 +1500,7 @@ def test_abstraction_certificate_rejects_continuous_error_bound_spec_below_margi
 ) -> None:
     store = FileSystemCAS(tmp_path / "abstraction-continuous-invalid")
     map_ref = persist_finite_state_abstraction_map(
-        store,
+        _ensure_ir_artifact_store(store),
         FiniteStateAbstractionMap(
             variable_maps=(
                 VariableStateAbstraction(
@@ -1504,7 +1558,7 @@ def test_abstraction_certificate_rejects_continuous_policy_value_only_without_sp
 ) -> None:
     store = FileSystemCAS(tmp_path / "abstraction-continuous-policy-only-invalid")
     map_ref = persist_finite_state_abstraction_map(
-        store,
+        _ensure_ir_artifact_store(store),
         FiniteStateAbstractionMap(
             variable_maps=(
                 VariableStateAbstraction(

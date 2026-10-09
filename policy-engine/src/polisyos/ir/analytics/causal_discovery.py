@@ -1011,7 +1011,7 @@ def load_causal_discovery_report(
     ref: CausalDiscoveryReportRef,
 ) -> CausalDiscoveryReport:
     """Load causal discovery report."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     report = CausalDiscoveryReport.model_validate(payload)
     return _hydrate_algebraic_constraint_payloads(store, report)
 
@@ -1076,7 +1076,7 @@ def _hydrate_algebraic_constraint_payloads(
 
     updates: dict[str, Any] = {}
     if algebraic.implied_constraints_ref is not None and not algebraic.implied_constraints_preview:
-        payload = get_json_artifact(store, algebraic.implied_constraints_ref.artifact_id)
+        payload = get_json_artifact(store, algebraic.implied_constraints_ref)
         updates["implied_constraints_preview"] = [
             ImpliedConstraintSpec.model_validate(item) for item in payload
         ]
@@ -1085,7 +1085,7 @@ def _hydrate_algebraic_constraint_payloads(
         algebraic.violated_constraints_ref is not None
         and not algebraic.violated_constraints_preview
     ):
-        payload = get_json_artifact(store, algebraic.violated_constraints_ref.artifact_id)
+        payload = get_json_artifact(store, algebraic.violated_constraints_ref)
         updates["violated_constraints_preview"] = [
             ConstraintEvaluationResult.model_validate(item) for item in payload
         ]

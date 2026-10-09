@@ -840,7 +840,7 @@ def load_latent_bridge_hypothesis(
     ref: LatentBridgeHypothesisRef,
 ) -> LatentBridgeHypothesis:
     """Load a persisted latent-bridge hypothesis."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return LatentBridgeHypothesis.model_validate(payload)
 
 

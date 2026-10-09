@@ -499,9 +499,7 @@ def _verify_observation_projection_rows(
             f"WHERE observation_id IN ({placeholders})",
             list(observation_ids),
         ).fetchall()
-        stored_by_id = {
-            str(values[observation_id_index]): values for values in stored_rows
-        }
+        stored_by_id = {str(values[observation_id_index]): values for values in stored_rows}
         if len(stored_rows) != len(batch) or len(stored_by_id) != len(batch):
             raise OverlayAdmissionError(content_error_code, "observation_row_denominator_mismatch")
         for expected in batch:
@@ -611,10 +609,7 @@ class ActivatedAcquisitionObservationProjection(_StrictModel):
         row_ids = tuple(row.observation.observation_id for row in self.observations)
         if len(set(row_ids)) != len(row_ids):
             raise ValueError("activated_acquisition_observation_projection_rows_ambiguous")
-        if any(
-            row.observation.canonical_var != self.variable_id
-            for row in self.observations
-        ):
+        if any(row.observation.canonical_var != self.variable_id for row in self.observations):
             raise ValueError("activated_acquisition_observation_projection_variable_mismatch")
         payload = self.model_dump(mode="json", exclude={"projection_content_sha256"})
         if self.projection_content_sha256 != content_sha256(payload):
@@ -739,9 +734,9 @@ def _persist_external_statement(
             media_type="application/vnd.polisyos.epoch+json",
         ),
     )
-    report = artifact_store.verify(ref.artifact_id)
-    manifest = artifact_store.get_manifest(ref.artifact_id)
-    readback = artifact_store.get_bytes(ref.artifact_id)
+    report = artifact_store.verify(ref)
+    manifest = artifact_store.get_manifest(ref)
+    readback = artifact_store.get_bytes(ref)
     if (
         not bool(getattr(report, "ok", False))
         or readback != payload
@@ -772,11 +767,11 @@ def _persist_epoch_statement(
             media_type="application/vnd.polisyos.epoch+json",
         ),
     )
-    report = artifact_store.verify(ref.artifact_id)
-    manifest = artifact_store.get_manifest(ref.artifact_id)
+    report = artifact_store.verify(ref)
+    manifest = artifact_store.get_manifest(ref)
     if (
         not bool(getattr(report, "ok", False))
-        or artifact_store.get_bytes(ref.artifact_id) != payload
+        or artifact_store.get_bytes(ref) != payload
         or getattr(manifest, "artifact_id", None) != ref.artifact_id
         or getattr(manifest, "kind", None) != kind
         or getattr(manifest, "media_type", None) != "application/vnd.polisyos.epoch+json"
@@ -871,9 +866,9 @@ def _load_external_statement(
 ) -> dict[str, object]:
     if ref.kind != expected_kind or ref.media_type != "application/vnd.polisyos.epoch+json":
         raise OverlayAdmissionError("semantic_external_receipt_profile_mismatch")
-    report = artifact_store.verify(ref.artifact_id)
-    manifest = artifact_store.get_manifest(ref.artifact_id)
-    payload = artifact_store.get_bytes(ref.artifact_id)
+    report = artifact_store.verify(ref)
+    manifest = artifact_store.get_manifest(ref)
+    payload = artifact_store.get_bytes(ref)
     if (
         not bool(getattr(report, "ok", False))
         or str(ref.artifact_id) != f"sha256:{hashlib.sha256(payload).hexdigest()}"
@@ -1385,9 +1380,7 @@ class CatalogAcquisitionOverlay:
         try:
             observation_columns = tuple(
                 str(column[1])
-                for column in schema_con.execute(
-                    "PRAGMA table_info('ds_observations')"
-                ).fetchall()
+                for column in schema_con.execute("PRAGMA table_info('ds_observations')").fetchall()
             )
             _observation_projection_columns(
                 observation_columns,
@@ -1583,11 +1576,11 @@ class CatalogAcquisitionOverlay:
         if _enum_value(production_receipt.status) not in {"appended", "no_change"}:
             raise OverlayAdmissionError("semantic_epoch_production_not_positive")
         production_ref = production_receipt.receipt_ref
-        if not artifact_store.has(production_ref.artifact_id):
+        if not artifact_store.has(production_ref):
             raise OverlayAdmissionError("semantic_epoch_production_receipt_missing")
-        production_report = artifact_store.verify(production_ref.artifact_id)
-        production_manifest = artifact_store.get_manifest(production_ref.artifact_id)
-        production_raw = artifact_store.get_bytes(production_ref.artifact_id)
+        production_report = artifact_store.verify(production_ref)
+        production_manifest = artifact_store.get_manifest(production_ref)
+        production_raw = artifact_store.get_bytes(production_ref)
         if (
             not production_report.ok
             or production_manifest.artifact_id != production_ref.artifact_id

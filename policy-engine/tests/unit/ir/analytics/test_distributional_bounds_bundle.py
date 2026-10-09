@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.distributional import (
     CouplingDiagnostics,
@@ -107,8 +109,8 @@ def test_distributional_bounds_bundle_round_trip_via_store(tmp_path) -> None:
         metadata={"theorem_family": "lee_trimming"},
     )
 
-    ref = persist_distributional_bounds_bundle(store, bundle)
-    loaded = load_distributional_bounds_bundle(store, ref)
+    ref = persist_distributional_bounds_bundle(_ensure_ir_artifact_store(store), bundle)
+    loaded = load_distributional_bounds_bundle(_ensure_ir_artifact_store(store), ref)
 
     assert loaded == bundle
     assert loaded.consensus_bounds is not None
@@ -157,12 +159,14 @@ def test_distributional_bounds_bundle_rejects_axis_length_mismatches() -> None:
 
 def test_distributional_effect_bundle_accepts_distributional_bounds_refs(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
-    baseline_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
+    baseline_ref = persist_discrete_distribution_summary(
+        _ensure_ir_artifact_store(store), _distribution_summary("income")
+    )
     counterfactual_ref = persist_discrete_distribution_summary(
-        store, _distribution_summary("income")
+        _ensure_ir_artifact_store(store), _distribution_summary("income")
     )
     bounds_ref = persist_distributional_bounds_bundle(
-        store,
+        _ensure_ir_artifact_store(store),
         DistributionalBoundsBundle(
             estimand_type="quantile_shift",
             functional=DistributionalFunctional.QUANTILE_SHIFT,
@@ -203,12 +207,14 @@ def test_distributional_effect_bundle_accepts_distributional_bounds_refs(tmp_pat
 
 def test_distributional_effect_bundle_rejects_duplicate_bounds_refs(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
-    baseline_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
+    baseline_ref = persist_discrete_distribution_summary(
+        _ensure_ir_artifact_store(store), _distribution_summary("income")
+    )
     counterfactual_ref = persist_discrete_distribution_summary(
-        store, _distribution_summary("income")
+        _ensure_ir_artifact_store(store), _distribution_summary("income")
     )
     bounds_ref = persist_distributional_bounds_bundle(
-        store,
+        _ensure_ir_artifact_store(store),
         DistributionalBoundsBundle(
             estimand_type="ite_tail_risk",
             functional=DistributionalFunctional.ITE_TAIL_RISK,
@@ -274,7 +280,9 @@ def test_distributional_bounds_bundle_accepts_functional_parameters_and_dual_ref
             dual_gaps=(0.0,),
         ),
     )
-    cert_ref = persist_distributional_dual_certificate(store, certificate)
+    cert_ref = persist_distributional_dual_certificate(
+        _ensure_ir_artifact_store(store), certificate
+    )
     bundle = DistributionalBoundsBundle(
         estimand_type="poverty_headcount_y1",
         functional=DistributionalFunctional.POVERTY_HEADCOUNT,
@@ -298,9 +306,13 @@ def test_distributional_bounds_bundle_accepts_functional_parameters_and_dual_ref
     )
 
     attached = attach_distributional_dual_certificate_ref(bundle, cert_ref)
-    persisted_ref = persist_distributional_bounds_bundle(store, attached)
-    loaded_bundle = load_distributional_bounds_bundle(store, persisted_ref)
-    loaded_certificate = load_distributional_dual_certificate(store, cert_ref)
+    persisted_ref = persist_distributional_bounds_bundle(_ensure_ir_artifact_store(store), attached)
+    loaded_bundle = load_distributional_bounds_bundle(
+        _ensure_ir_artifact_store(store), persisted_ref
+    )
+    loaded_certificate = load_distributional_dual_certificate(
+        _ensure_ir_artifact_store(store), cert_ref
+    )
 
     assert loaded_bundle.dual_certificate_ref == cert_ref
     assert loaded_bundle.functional_parameters is not None

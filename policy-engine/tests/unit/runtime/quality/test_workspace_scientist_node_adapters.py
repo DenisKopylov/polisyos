@@ -345,6 +345,56 @@ def test_conformance_resolves_nested_reference_manifest_lineage_before_smoke(tmp
     assert any(item.startswith("input_reference_invalid:params.nested") for item in result.failures)
 
 
+def test_reference_closure_visits_each_selected_view_sharing_one_content_id(tmp_path) -> None:
+    """Closure ancestry is keyed by exact manifest view, not only blob identity."""
+    store = FileSystemCAS(tmp_path / "multi-view-closure")
+    parent_a = store.put_bytes(
+        b'{"parent":"a"}',
+        PutOptions(kind="test.closure.parent-a", media_type="application/json"),
+    )
+    parent_b = store.put_bytes(
+        b'{"parent":"b"}',
+        PutOptions(kind="test.closure.parent-b", media_type="application/json"),
+    )
+    child_payload = b'{"child":"shared bytes"}'
+    child_kind = "test.closure.shared-child"
+    child_a = store.put_bytes(
+        child_payload,
+        PutOptions(
+            kind=child_kind,
+            media_type="application/json",
+            inputs=[InputRef(artifact_id=parent_a.artifact_id, role="parent_a")],
+        ),
+    )
+    child_b = store.put_bytes(
+        child_payload,
+        PutOptions(
+            kind=child_kind,
+            media_type="application/json",
+            inputs=[InputRef(artifact_id=parent_b.artifact_id, role="parent_b")],
+        ),
+    )
+    assert child_a.artifact_id == child_b.artifact_id
+    assert child_a.manifest_profile_sha256 != child_b.manifest_profile_sha256
+
+    bindings = scientist_node_adapters._reference_closure(
+        store,
+        {
+            "first": child_a.model_dump(mode="json"),
+            "second": child_b.model_dump(mode="json"),
+        },
+        "outputs",
+    )
+
+    paths = {binding.path for binding in bindings}
+    assert "outputs.first.lineage[0]" in paths
+    assert "outputs.second.lineage[0]" in paths
+    assert {str(binding.artifact_ref.artifact_id) for binding in bindings} >= {
+        str(parent_a.artifact_id),
+        str(parent_b.artifact_id),
+    }
+
+
 def test_conformance_refuses_contract_that_hides_declared_output(tmp_path) -> None:
     ctx, state = _station(tmp_path)
     adapter = _adapter().model_copy(update={"produced_outputs": []})

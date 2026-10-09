@@ -124,7 +124,7 @@ def load_metric_validation_report(
 ) -> MetricValidationReport:
     """Load a persisted metric validation report from CAS."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return MetricValidationReport.model_validate(payload)
 
 

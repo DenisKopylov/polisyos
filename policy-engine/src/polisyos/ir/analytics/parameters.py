@@ -82,7 +82,7 @@ def load_context_adaptive_parameter_bundle(
     ref: ContextAdaptiveParameterBundleRef,
 ) -> ContextAdaptiveParameterBundle:
     """Load context adaptive parameter bundle."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return ContextAdaptiveParameterBundle.model_validate(payload)
 
 

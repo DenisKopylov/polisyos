@@ -35,23 +35,23 @@ pytestmark = pytest.mark.integration
 def test_scientist_preflight_uses_berl_validation_for_explanation_reliability() -> None:
     valid_bundle = _explanation_bundle()
     valid_component = _explanation_component_for(valid_bundle)
+    conditional_component = _explanation_component_for(
+        _explanation_bundle(feature_dependence_policy="conditional_observational")
+    )
     unbounded_component = _explanation_component_for(
         valid_bundle.model_copy(
-            update={
-                "methods": [
-                    valid_bundle.methods[0].model_copy(update={"infidelity": None})
-                ]
-            }
+            update={"methods": [valid_bundle.methods[0].model_copy(update={"infidelity": None})]}
         )
     )
 
     assert valid_component.status == "pass"
     assert valid_component.blockers == []
-    assert unbounded_component.status == "blocked"
+    assert conditional_component.status == "blocked"
     assert any(
-        "method_missing_infidelity_bound" in item
-        for item in unbounded_component.blockers
+        "conditional_feature_law_unverified" in item for item in conditional_component.blockers
     )
+    assert unbounded_component.status == "blocked"
+    assert any("method_missing_infidelity_bound" in item for item in unbounded_component.blockers)
     assert any("diagnostic-only" in item for item in unbounded_component.blockers)
 
 
@@ -63,9 +63,7 @@ def _explanation_component_for(bundle: ExplanationBundle) -> Phase5GateComponent
         artifact_kind="scientist.explanation_bundle",
     )
     return next(
-        component
-        for component in report.phase5_components
-        if component.name == "explanation"
+        component for component in report.phase5_components if component.name == "explanation"
     )
 
 
@@ -73,7 +71,9 @@ def _ctx() -> ExecutionContext:
     return cast("ExecutionContext", object())
 
 
-def _explanation_bundle() -> ExplanationBundle:
+def _explanation_bundle(
+    *, feature_dependence_policy: str = "marginal_interventional"
+) -> ExplanationBundle:
     return ExplanationBundle(
         bundle_id="scientist-berl-bridge-bundle",
         created_at=datetime(2026, 5, 7, tzinfo=UTC),
@@ -106,7 +106,7 @@ def _explanation_bundle() -> ExplanationBundle:
                 support_constraints="cas://constraints/policy-readiness",
             ),
             feature_dependence_policy=FeatureDependencePolicy(
-                primary="conditional_observational",
+                primary=feature_dependence_policy,
                 alternatives_tested=["marginal_interventional"],
                 causal_claim_made=False,
             ),
@@ -118,11 +118,15 @@ def _explanation_bundle() -> ExplanationBundle:
         ),
         methods=[
             MethodExplanation(
-                method_id="kernel_shap_conditional",
+                method_id=(
+                    "kernel_shap_conditional"
+                    if feature_dependence_policy == "conditional_observational"
+                    else "kernel_shap"
+                ),
                 library="berl-fixture",
                 library_version="1.0.0",
                 params={"coalition_samples": 64},
-                assumptions={"feature_removal": "conditional_observational"},
+                assumptions={"feature_removal": feature_dependence_policy},
                 attributions=[
                     FeatureAttribution(feature="employment_rate", value=0.18),
                     FeatureAttribution(feature="budget_share", value=0.08),

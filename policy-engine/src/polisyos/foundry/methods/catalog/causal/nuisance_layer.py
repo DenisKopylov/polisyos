@@ -10,6 +10,7 @@ import numpy as np
 from polisyos.foundry.methods.catalog.causal.calibration import (
     make_calibrated_propensity_prediction,
 )
+from polisyos.foundry.methods.catalog.causal.ci_backends import BootstrapExecutionCounter
 from polisyos.foundry.methods.catalog.causal.ci_backends import (
     bootstrap_mean_interval as _ci_bootstrap_mean_interval,
 )
@@ -309,14 +310,16 @@ def bootstrap_mean_interval(
     draws: int,
     influence_values: np.ndarray | None = None,
     backend: str = "bootstrap_eif",
+    work_counter: BootstrapExecutionCounter | None = None,
 ) -> tuple[float, float]:
-    """Bootstrap mean interval helper."""
+    """Bootstrap mean interval helper with optional measured loop accounting."""
     return _ci_bootstrap_mean_interval(
         values,
         seed=seed,
         draws=draws,
         influence_values=influence_values,
         backend=backend,
+        work_counter=work_counter,
     )
 
 

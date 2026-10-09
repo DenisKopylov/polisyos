@@ -234,7 +234,7 @@ def load_normative_arbitration_result(
     ref: NormativeArbitrationResultRef,
 ) -> NormativeArbitrationResult:
     """Load normative arbitration result."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return NormativeArbitrationResult.model_validate(payload)
 
 

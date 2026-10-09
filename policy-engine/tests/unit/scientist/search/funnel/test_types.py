@@ -2,14 +2,81 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
+
+import pytest
+
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.methods.search.funnel.types import (
     CheapSignalVector,
+    FunnelExecutedWorkPacket,
     FunnelStageResult,
     TypedFailureCard,
     UncertaintyEnvelope,
     UncertaintyEstimate,
     UncertaintyType,
 )
+
+
+def _artifact_ref(seed: str, kind: str) -> ArtifactRef:
+    return ArtifactRef(
+        artifact_id=f"sha256:{seed * 64}"[:71],
+        kind=kind,
+        media_type="application/json",
+    )
+
+
+def test_executed_work_packet_separates_completed_runtime_call_from_draw_counts() -> None:
+    candidate_ref = _artifact_ref("1", "scientist.policy_design.candidate")
+    result_ref = _artifact_ref("2", "scientist.policy_evaluation_vector")
+
+    packet = FunnelExecutedWorkPacket(
+        run_id="run-1",
+        ticket_id="ticket-1",
+        candidate_hash="a" * 16,
+        candidate_ref=candidate_ref,
+        stage_level=3,
+        stage_name="funnel_L3_medium",
+        fidelity="medium",
+        evaluation_attempt_id="attempt-1",
+        observed_at=datetime.now(UTC),
+        backend_kind="production",
+        source_result_ref=result_ref,
+        requested_draw_count=64,
+        input_signature="input-signature-1",
+    )
+
+    assert packet.attempted_invocation_count == 1
+    assert packet.completed_invocation_count == 1
+    assert packet.failed_invocation_count == 0
+    assert packet.draw_execution_status == "not_instrumented"
+    assert packet.attempted_draw_count is None
+    assert packet.successful_draw_count is None
+    assert packet.failed_draw_count is None
+    assert packet.unattempted_draw_count is None
+
+
+def test_executed_work_packet_rejects_self_labelled_draw_counts() -> None:
+    packet = {
+        "run_id": "run-1",
+        "ticket_id": "ticket-1",
+        "candidate_hash": "a" * 16,
+        "candidate_ref": _artifact_ref("1", "scientist.policy_design.candidate"),
+        "stage_level": 3,
+        "stage_name": "funnel_L3_medium",
+        "fidelity": "medium",
+        "evaluation_attempt_id": "attempt-1",
+        "observed_at": datetime.now(UTC),
+        "backend_kind": "production",
+        "source_result_ref": _artifact_ref("2", "scientist.policy_evaluation_vector"),
+        "requested_draw_count": 64,
+        "input_signature": "input-signature-1",
+        "successful_draw_count": 64,
+    }
+
+    with pytest.raises(ValueError):
+        FunnelExecutedWorkPacket.model_validate(packet)
+
 
 # ---------------------------------------------------------------------------
 # UncertaintyEnvelope
@@ -134,6 +201,30 @@ class TestCheapSignalVector:
 
 
 class TestFunnelStageResult:
+    def test_cost_defaults_to_unknown_without_zero_imputation(self):
+        result = FunnelStageResult(
+            policy_candidate={},
+            objective_value=0.0,
+            is_promising=True,
+            stage_name="test",
+        )
+
+        assert result.compute_cost_usd is None
+        assert result.compute_cost_origin == "unknown"
+
+    def test_estimated_cost_is_not_projected_as_actual(self):
+        result = FunnelStageResult(
+            policy_candidate={},
+            objective_value=0.0,
+            is_promising=True,
+            stage_name="test",
+            compute_cost_usd=0.25,
+            compute_cost_origin="estimated",
+        )
+
+        assert result.compute_cost_usd == 0.25
+        assert result.compute_cost_origin == "estimated"
+
     def test_has_blockers(self):
         result = FunnelStageResult(
             policy_candidate={},

@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import hashlib
 from collections import defaultdict
-from datetime import datetime
-from typing import TYPE_CHECKING, Any, Literal, cast
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 
 from pydantic import ValidationError
 
@@ -21,6 +21,7 @@ from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import SimulationResult
 from polisyos.core.contracts.runtime import (
     AgentPipelineAttempt,
+    AgentPipelineCostEvent,
     AgentPipelineStep,
     AgentPipelineView,
     EvaluatorReportView,
@@ -47,6 +48,10 @@ from polisyos.core.contracts.runtime import (
     SimulationResultCandidateView,
 )
 from polisyos.core.trace import TraceRecord
+from polisyos.scientist.orchestration.engine.budget_ledger import (
+    BudgetLedgerProducerRunBinding,
+)
+from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 
 if TYPE_CHECKING:
@@ -62,6 +67,17 @@ if TYPE_CHECKING:
 
     from .run_index import IndexedRunRecord
     from .timeline import TimelineService
+
+
+class _ReadOnlyControlJobStore(Protocol):
+    """Read-only owner inputs needed to bind one indexed run to its ControlJob."""
+
+    def get_job(self, job_id: str) -> Any | None: ...
+
+    def get_job_created_event_payload(self, job_id: str) -> dict[str, Any]: ...
+
+    def get_job_created_outbox_event(self, job_id: str) -> Any | None: ...
+
 
 _GOVERNANCE_REPORT_KEY = "governance_report_ref"
 _NORMATIVE_ARBITRATION_RESULT_KEY = "normative_arbitration_result_ref"
@@ -113,9 +129,7 @@ _SIMULATION_RESULT_MEDIA_TYPE = "application/json"
 _SIMULATION_RESULT_SCHEMA_NAME = "polisyos.core.SimulationResult"
 _SIMULATION_RESULT_SCHEMA_VERSIONS = frozenset({"1.1", "1.2", "1.3"})
 _SIMULATION_RESULT_STATE_KEY = "simulation_result_ref"
-_EXPERIMENT_STATE_SCHEMA_NAME = (
-    "polisyos.scientist.orchestration.engine.ExperimentState"
-)
+_EXPERIMENT_STATE_SCHEMA_NAME = "polisyos.scientist.orchestration.engine.ExperimentState"
 _EXPERIMENT_STATE_SCHEMA_VERSIONS = frozenset({"1.3"})
 _WORKFLOW_REPORT_SCHEMA_NAME = "polisyos.scientist.orchestration.engine.WorkflowReport"
 _WORKFLOW_REPORT_SCHEMA_VERSIONS = frozenset({"1.0"})
@@ -138,12 +152,52 @@ class DebugService:
         *,
         store: ArtifactStore,
         timeline_service: TimelineService,
+        producer_settlement_store: BudgetMiddleware | None = None,
         sensitive_keys: tuple[str, ...] = _DEFAULT_SENSITIVE_KEYS,
     ) -> None:
         self._store = store
         self._timeline_service = timeline_service
         self._decision_validity_service = DecisionValidityService(store)
         self._sensitive_keys = tuple(key.lower() for key in sensitive_keys)
+        self._producer_settlement_store: BudgetMiddleware | None = None
+        self._producer_control_job_store: _ReadOnlyControlJobStore | None = None
+        if producer_settlement_store is not None:
+            self.bind_producer_settlement_store(producer_settlement_store)
+
+    def bind_producer_settlement_store(self, store: BudgetMiddleware) -> None:
+        """Bind the durable ledger used to reconcile one run owner's events."""
+        if type(store) is not BudgetMiddleware:
+            raise TypeError("producer_settlement_store_must_be_budget_middleware")
+        try:
+            owner_identity = store.settlement_owner_identity
+        except (OSError, RuntimeError, ValueError) as exc:
+            raise ValueError("producer_settlement_store_must_be_durable") from exc
+        current = self._producer_settlement_store
+        if current is not None:
+            try:
+                if current.settlement_owner_identity != owner_identity:
+                    raise ValueError("producer_settlement_store_owner_mismatch")
+            except (OSError, RuntimeError, ValueError) as exc:
+                if isinstance(exc, ValueError) and str(exc) == (
+                    "producer_settlement_store_owner_mismatch"
+                ):
+                    raise
+                raise ValueError("producer_settlement_store_must_be_durable") from exc
+        self._producer_settlement_store = store
+
+    def bind_producer_control_job_store(self, store: _ReadOnlyControlJobStore) -> None:
+        """Bind the durable ControlJob owner used to resolve indexed run backlinks."""
+        required = (
+            "get_job",
+            "get_job_created_event_payload",
+            "get_job_created_outbox_event",
+        )
+        if any(not callable(getattr(store, name, None)) for name in required):
+            raise TypeError("producer_control_job_store_contract_invalid")
+        current = self._producer_control_job_store
+        if current is not None and current is not store:
+            raise ValueError("producer_control_job_store_owner_mismatch")
+        self._producer_control_job_store = store
 
     def list_run_nodes(self, run: IndexedRunRecord) -> list[RunNodeRecord]:
         """List workflow nodes by merging workflow-report rows with trace events."""
@@ -363,9 +417,7 @@ class DebugService:
             )
 
         try:
-            simulation_result = SimulationResult.model_validate(
-                from_canonical_bytes(payload_bytes)
-            )
+            simulation_result = SimulationResult.model_validate(from_canonical_bytes(payload_bytes))
         except (TypeError, ValueError, ValidationError, UnicodeDecodeError) as exc:
             raise SimulationResultProjectionError(
                 "simulation_result_payload_invalid",
@@ -580,7 +632,30 @@ class DebugService:
         state_payload = self._load_experiment_state_payload(run.experiment_state_ref)
         decision_packet_payload = self._load_json_artifact(run.decision_packet_ref)
         audit_trail_rows = _as_list_of_dicts(decision_packet_payload.get("audit_trail"))
-        steps: list[AgentPipelineStep] = []
+        steps = _agent_steps_from_nl_preflight(
+            state_payload,
+            sensitive_keys=self._sensitive_keys,
+        )
+        compiled_steps, compiled_preflight_note = self._agent_steps_from_compiled_cycle(
+            run,
+            sensitive_keys=self._sensitive_keys,
+        )
+        if compiled_steps:
+            steps.extend(compiled_steps)
+            source = "compiled_recursive_generation_cycle"
+        if compiled_preflight_note is not None:
+            notes.append(compiled_preflight_note)
+        proposal_steps, proposal_note = self._agent_steps_from_n4_candidate_proposal(
+            run,
+            sensitive_keys=self._sensitive_keys,
+        )
+        if proposal_steps:
+            steps.extend(proposal_steps)
+            source = source or "n4_candidate_proposal"
+        if proposal_note is not None:
+            notes.append(proposal_note)
+        if steps:
+            source = source or "experiment_state.params"
         if audit_trail_rows:
             steps.extend(
                 _agent_steps_from_audit_trail(
@@ -618,11 +693,52 @@ class DebugService:
         )
         if variant_steps:
             for step in variant_steps:
-                if not _contains_agent_step(steps, step):
+                existing_index = _agent_step_index(steps, step)
+                if existing_index is None:
                     steps.append(step)
+                elif step.cost_events:
+                    existing_step = steps[existing_index]
+                    events_by_id = {event.event_id: event for event in existing_step.cost_events}
+                    for event in step.cost_events:
+                        prior_event = events_by_id.get(event.event_id)
+                        if prior_event is not None and prior_event != event:
+                            raise ValueError("agent_pipeline_cost_event_identity_conflict")
+                        events_by_id[event.event_id] = event
+                    merged_events = list(events_by_id.values())
+                    if len(merged_events) != len(existing_step.cost_events):
+                        steps[existing_index] = AgentPipelineStep.model_validate(
+                            {
+                                **existing_step.model_dump(),
+                                "cost_events": merged_events,
+                            }
+                        )
             source = source or "experiment_state.params"
             if source != "experiment_state.params":
                 source = f"{source}+experiment_state.params"
+
+        producer_steps, producer_note = self._agent_steps_from_producer_ledger(run)
+        if producer_steps:
+            steps.extend(producer_steps)
+            source = source or "llm_producer_settlement_ledger"
+            if source != "llm_producer_settlement_ledger":
+                source = f"{source}+llm_producer_settlement_ledger"
+        if producer_note is not None:
+            notes.append(producer_note)
+
+        ledger_events_by_id = {
+            event.event_id: event for step in producer_steps for event in step.cost_events
+        }
+        for step in steps:
+            if step.agent == "llm_producer_settlement":
+                continue
+            for event in step.cost_events:
+                if (
+                    event.durability == "ledger"
+                    and ledger_events_by_id.get(event.event_id) != event
+                ):
+                    raise ValueError("agent_pipeline_cost_event_ledger_reconciliation_failed")
+
+        steps = _deduplicate_agent_cost_events(steps)
 
         attempts = _group_agent_steps_by_attempt(steps)
         if not attempts:
@@ -767,6 +883,155 @@ class DebugService:
             source=source,
             notes=notes,
         )
+
+    def _agent_steps_from_producer_ledger(
+        self,
+        run: IndexedRunRecord,
+    ) -> tuple[list[AgentPipelineStep], str | None]:
+        """Project only ledger events bound to the indexed run's persisted owner."""
+        settlement_store = self._producer_settlement_store
+        if settlement_store is None:
+            return [], None
+        binding, binding_note = self._producer_run_binding_for_indexed_run(run)
+        if binding is None:
+            return [], binding_note
+        records = settlement_store.list_producer_events_for_run_safe(binding)
+        if not records:
+            return [], None
+        events = [
+            AgentPipelineCostEvent(
+                event_id=record.event_id,
+                origin_event_id=record.origin_event_id,
+                cost_origin=record.cost_origin,
+                amount=record.amount,
+                settlement_status=record.status,
+                durability="ledger",
+                receipts=(record.event_id,) if record.status == "committed" else (),
+                payload_digest=record.payload_digest,
+                model=record.model,
+                provider=record.provider,
+            )
+            for record in records
+        ]
+        return [
+            AgentPipelineStep(
+                attempt=1,
+                agent="llm_producer_settlement",
+                action="durable_ledger",
+                status=(
+                    "warn"
+                    if any(e.settlement_status in {"pending", "unknown"} for e in events)
+                    else "info"
+                ),
+                summary="Provider cost events reconciled to the exact persisted run owner.",
+                details={"source": "app_scoped_producer_settlement_ledger"},
+                model=events[0].model,
+                provider=events[0].provider,
+                cost_events=events,
+            )
+        ], None
+
+    def _producer_run_binding_for_indexed_run(
+        self,
+        run: IndexedRunRecord,
+    ) -> tuple[BudgetLedgerProducerRunBinding | None, str | None]:
+        """Resolve the internal NL ledger key from the persisted ControlJob owner."""
+        from polisyos.runtime.http.services.adapters.core_run import (
+            derive_control_job_core_run_id,
+        )
+        from polisyos.runtime.http.services.control_plane_store import (
+            ControlJobExecutionAdmissionError,
+            _control_job_execution_scope_from_event,
+            _json_values_equal_strict,
+        )
+
+        store = self._producer_control_job_store
+        details = run.details
+        control_job_id = details.control_job_id
+        if not isinstance(control_job_id, str) or not control_job_id.strip():
+            return None, None
+        if store is None:
+            return None, "llm_producer_control_job_owner_not_established"
+        try:
+            job = store.get_job(control_job_id)
+            if job is None:
+                return None, "llm_producer_control_job_owner_not_established"
+            event_payload = store.get_job_created_event_payload(control_job_id)
+            outbox_event = store.get_job_created_outbox_event(control_job_id)
+        except (ControlJobExecutionAdmissionError, OSError, RuntimeError, TypeError, ValueError):
+            return None, "llm_producer_control_job_owner_not_established"
+
+        outbox_payload = getattr(outbox_event, "payload", None)
+        if (
+            getattr(outbox_event, "topic", None) != "control.job.created"
+            or getattr(outbox_event, "job_id", None) != job.job_id
+            or getattr(outbox_event, "run_id", None) != job.run_id
+            or not isinstance(outbox_payload, dict)
+            or not _json_values_equal_strict(outbox_payload, event_payload)
+        ):
+            return None, "llm_producer_control_job_owner_not_established"
+
+        expected_job_fields = {
+            "job_id": job.job_id,
+            "run_id": job.run_id,
+            "job_kind": job.kind,
+            "pipeline_id": job.pipeline_id,
+            "payload_ref": job.payload_ref,
+            "submitted_by": job.submitted_by,
+            "requested_execution_profile": job.requested_execution_profile,
+            "effective_execution_profile": job.effective_execution_profile,
+            "policy_flags": job.policy_flags,
+        }
+        if any(
+            field not in event_payload
+            or not _json_values_equal_strict(event_payload[field], expected)
+            for field, expected in expected_job_fields.items()
+        ):
+            return None, "llm_producer_control_job_owner_not_established"
+        try:
+            scope = _control_job_execution_scope_from_event(event_payload)
+        except ControlJobExecutionAdmissionError:
+            return None, "llm_producer_control_job_owner_not_established"
+
+        progress = job.progress if isinstance(job.progress, dict) else {}
+        core_run_id = progress.get("core_run_id")
+        core_run_attempt = progress.get("core_run_attempt")
+        if (
+            job.state not in {"completed", "failed"}
+            or job.kind != "natural_language_run"
+            or not isinstance(job.run_id, str)
+            or not job.run_id.strip()
+            or scope.status != "established"
+            or scope.tenant_id != details.tenant_id
+            or scope.cell_id != details.cell_id
+            or scope.actor_subject != job.submitted_by
+            or job.effective_execution_profile != details.execution_profile
+            or job.job_id != control_job_id
+            or not isinstance(core_run_id, str)
+            or core_run_id != details.run_id
+            or isinstance(core_run_attempt, bool)
+            or not isinstance(core_run_attempt, int)
+            or core_run_attempt != job.attempt
+        ):
+            return None, "llm_producer_control_job_owner_not_established"
+        try:
+            expected_core_run_id = derive_control_job_core_run_id(
+                job_id=job.job_id,
+                control_run_id=job.run_id,
+                attempt=core_run_attempt,
+            )
+            if expected_core_run_id != run.run_id or run.run_id != details.run_id:
+                return None, "llm_producer_control_job_owner_not_established"
+            binding = BudgetLedgerProducerRunBinding(
+                run_id=job.run_id,
+                tenant_id=scope.tenant_id,
+                cell_id=scope.cell_id,
+                profile_id=job.effective_execution_profile,
+                control_job_id=job.job_id,
+            )
+        except (TypeError, ValueError):
+            return None, "llm_producer_control_job_owner_not_established"
+        return binding, None
 
     def get_run_evidence_context(self, run: IndexedRunRecord) -> RunEvidenceContextView:
         """Return data-needs, fetch-plan, promotion, and related-artifact context."""
@@ -938,12 +1203,11 @@ class DebugService:
             materialization_refs = _materialization_refs_from_payload(
                 _as_dict(production_data_context.get("materialization_refs"))
             )
-        fabric_retrieval_trace_ref = (
-            materialization_refs.get("fabric_retrieval_trace_ref")
-            or _artifact_ref_from_string(
-                _as_str(production_data_context.get("fabric_retrieval_trace_ref")),
-                kind="fabric.retrieval_trace",
-            )
+        fabric_retrieval_trace_ref = materialization_refs.get(
+            "fabric_retrieval_trace_ref"
+        ) or _artifact_ref_from_string(
+            _as_str(production_data_context.get("fabric_retrieval_trace_ref")),
+            kind="fabric.retrieval_trace",
         )
         if fabric_retrieval_trace_ref is not None:
             materialization_refs["fabric_retrieval_trace_ref"] = fabric_retrieval_trace_ref
@@ -954,10 +1218,7 @@ class DebugService:
         if materialization_refs:
             production_data_context.setdefault(
                 "materialization_refs",
-                {
-                    key: str(ref.artifact_id)
-                    for key, ref in materialization_refs.items()
-                },
+                {key: str(ref.artifact_id) for key, ref in materialization_refs.items()},
             )
         packet_inputs = _as_dict(decision_packet_payload.get("inputs"))
         data_snapshot_ref = (
@@ -1239,13 +1500,13 @@ class DebugService:
                 "A workflow binding reference has an unexpected kind or media type",
             )
         try:
-            verification = self._store.verify(ref.artifact_id)
+            verification = self._store.verify(ref)
             if not verification.ok:
                 raise SimulationResultProjectionError(
                     "simulation_result_binding_integrity_failed",
                     "A persisted workflow binding artifact failed CAS integrity verification",
                 )
-            manifest = self._store.get_manifest(ref.artifact_id)
+            manifest = self._store.get_manifest(ref)
             schema = manifest.artifact_schema
             if (
                 manifest.kind != expected_kind
@@ -1271,7 +1532,7 @@ class DebugService:
                     "A persisted workflow binding artifact has an unexpected tenant or cell",
                 )
             manifest_schema_version = schema.version
-            payload = from_canonical_bytes(self._store.get_bytes(ref.artifact_id))
+            payload = from_canonical_bytes(self._store.get_bytes(ref))
         except SimulationResultProjectionError:
             raise
         except (
@@ -1307,17 +1568,238 @@ class DebugService:
         if ref is None:
             return {}
         try:
-            payload = from_canonical_bytes(self._store.get_bytes(ref.artifact_id))
+            payload = from_canonical_bytes(self._store.get_bytes(ref))
         except (FileNotFoundError, OSError, TypeError, ValueError, UnicodeDecodeError) as exc:
             logger.debug("Failed to load JSON artifact %s: %s", ref.artifact_id, exc)
             return {}
         return payload if isinstance(payload, dict) else {}
 
+    def _agent_steps_from_compiled_cycle(
+        self,
+        run: IndexedRunRecord,
+        *,
+        sensitive_keys: tuple[str, ...],
+    ) -> tuple[list[AgentPipelineStep], str | None]:
+        """Project persisted producer events from the verified compiled-cycle artifact."""
+        refs = [
+            ref
+            for ref in run.details.root_artifacts
+            if ref.kind == "runtime.compiled_recursive_generation_cycle"
+        ]
+        if not refs:
+            return [], None
+        if len(refs) != 1:
+            return [], "compiled_cycle_preflight_cost_events_not_established"
+
+        ref = refs[0]
+        try:
+            verification = self._store.verify(ref)
+            if not verification.ok:
+                raise ValueError("compiled_cycle_integrity_not_established")
+            manifest = self._store.get_manifest(ref)
+            tenant_context = manifest.tenant_context
+            if (
+                manifest.kind != ref.kind
+                or manifest.media_type != "application/json"
+                or tenant_context is None
+                or tenant_context.tenant_id != run.details.tenant_id
+                or tenant_context.cell_id != run.details.cell_id
+            ):
+                raise ValueError("compiled_cycle_run_scope_binding_mismatch")
+            payload_bytes = self._store.get_bytes(ref)
+            expected_id = f"sha256:{hashlib.sha256(payload_bytes).hexdigest()}"
+            if (
+                str(ref.artifact_id) != expected_id
+                or str(manifest.artifact_id) != expected_id
+                or manifest.integrity.sha256 != expected_id.removeprefix("sha256:")
+                or manifest.byte_size != len(payload_bytes)
+                or manifest.artifact_schema is None
+                or manifest.artifact_schema.name
+                != "polisyos.runtime.CompiledRecursiveGenerationCycleRun"
+            ):
+                raise ValueError("compiled_cycle_content_binding_mismatch")
+
+            from polisyos.runtime.http.services.control.generation_cycle import (
+                CompiledRecursiveGenerationCycleRun,
+            )
+
+            compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+                from_canonical_bytes(payload_bytes)
+            )
+        except Exception:
+            return [], "compiled_cycle_preflight_cost_events_not_established"
+
+        compiler_events = list(compiled.nl_preflight_cost_events)
+        n4_events = list(compiled.n4_generation_cost_events)
+        if not compiler_events and not n4_events:
+            return [], None
+        steps: list[AgentPipelineStep] = []
+        cost_event_source = "compiled_recursive_generation_cycle"
+        if compiler_events:
+            steps.append(
+                AgentPipelineStep(
+                    attempt=1,
+                    agent="design_problem_compiler",
+                    action="nl_preflight",
+                    status="info",
+                    summary=(
+                        "Traced calls made while compiling the DesignProblem "
+                        "before recursive execution."
+                    ),
+                    details=_sanitize_payload(
+                        {
+                            "cost_event_source": f"{cost_event_source}.nl_preflight_cost_events",
+                            "compiled_cycle_ref": str(ref.artifact_id),
+                        },
+                        sensitive_keys=sensitive_keys,
+                    ),
+                    model=compiler_events[0].model,
+                    provider=compiler_events[0].provider,
+                    cost_events=compiler_events,
+                )
+            )
+        if n4_events:
+            steps.append(
+                AgentPipelineStep(
+                    attempt=1,
+                    agent="design_generation",
+                    action="recursive_n4_generation",
+                    status="info",
+                    summary="Traced calls made by the persisted N4 candidate producer path.",
+                    details=_sanitize_payload(
+                        {
+                            "cost_event_source": f"{cost_event_source}.n4_generation_cost_events",
+                            "compiled_cycle_ref": str(ref.artifact_id),
+                        },
+                        sensitive_keys=sensitive_keys,
+                    ),
+                    model=n4_events[0].model,
+                    provider=n4_events[0].provider,
+                    cost_events=n4_events,
+                )
+            )
+        return (
+            steps,
+            None,
+        )
+
+    def _agent_steps_from_n4_candidate_proposal(
+        self,
+        run: IndexedRunRecord,
+        *,
+        sensitive_keys: tuple[str, ...],
+    ) -> tuple[list[AgentPipelineStep], str | None]:
+        """Project cost events only from the exact run-owned N4 V3 proposal."""
+        refs = [
+            ref
+            for ref in run.details.root_artifacts
+            if ref.kind == "runtime.quality.n4_candidate_proposal"
+        ]
+        if not refs:
+            return [], None
+        if len(refs) != 1:
+            return [], "n4_candidate_proposal_cost_events_not_established"
+
+        ref = refs[0]
+        try:
+            verification = self._store.verify(ref)
+            if not verification.ok:
+                raise ValueError("n4_candidate_proposal_integrity_not_established")
+            manifest = self._store.get_manifest(ref)
+            if (
+                manifest.kind != ref.kind
+                or manifest.media_type != "application/json"
+                or manifest.tenant_context is None
+                or manifest.tenant_context.tenant_id != run.details.tenant_id
+                or manifest.tenant_context.cell_id != run.details.cell_id
+            ):
+                raise ValueError("n4_candidate_proposal_run_scope_binding_mismatch")
+            payload_bytes = self._store.get_bytes(ref)
+            expected_id = f"sha256:{hashlib.sha256(payload_bytes).hexdigest()}"
+            if (
+                str(ref.artifact_id) != expected_id
+                or str(manifest.artifact_id) != expected_id
+                or manifest.integrity.sha256 != expected_id.removeprefix("sha256:")
+                or manifest.byte_size != len(payload_bytes)
+                or manifest.artifact_schema is None
+                or manifest.artifact_schema.name
+                != "policyos.runtime.quality.n4_candidate_proposal_record.v3"
+            ):
+                raise ValueError("n4_candidate_proposal_content_binding_mismatch")
+
+            from polisyos.runtime.quality.generation_source import (
+                N4CandidateProposalRecordV3,
+                _has_n4_candidate_proposal_v3_owner_profile,
+            )
+
+            proposal = N4CandidateProposalRecordV3.model_validate(
+                from_canonical_bytes(payload_bytes)
+            )
+            if (
+                proposal.core_run_id != run.run_id
+                or proposal.job_id != run.details.control_job_id
+                or proposal.tenant_id != run.details.tenant_id
+                or proposal.cell_id != run.details.cell_id
+                or proposal.control_job_attempt is None
+                or not _has_n4_candidate_proposal_v3_owner_profile(manifest, proposal)
+            ):
+                raise ValueError("n4_candidate_proposal_core_run_binding_mismatch")
+        except Exception:
+            return [], "n4_candidate_proposal_cost_events_not_established"
+
+        steps: list[AgentPipelineStep] = []
+        if proposal.nl_preflight_cost_events:
+            events = list(proposal.nl_preflight_cost_events)
+            steps.append(
+                AgentPipelineStep(
+                    attempt=proposal.control_job_attempt,
+                    agent="design_problem_compiler",
+                    action="nl_preflight",
+                    status="info",
+                    summary=(
+                        "Traced calls made while compiling the DesignProblem "
+                        "before candidate generation."
+                    ),
+                    details=_sanitize_payload(
+                        {
+                            "cost_event_source": "n4_candidate_proposal.nl_preflight_cost_events",
+                            "candidate_proposal_ref": str(ref.artifact_id),
+                        },
+                        sensitive_keys=sensitive_keys,
+                    ),
+                    model=events[0].model,
+                    provider=events[0].provider,
+                    cost_events=events,
+                )
+            )
+        if proposal.n4_generation_cost_events:
+            events = list(proposal.n4_generation_cost_events)
+            steps.append(
+                AgentPipelineStep(
+                    attempt=proposal.control_job_attempt,
+                    agent="design_generation",
+                    action="n4_candidate_proposal",
+                    status="info",
+                    summary="Traced calls made by the persisted N4 candidate producer.",
+                    details=_sanitize_payload(
+                        {
+                            "cost_event_source": "n4_candidate_proposal.n4_generation_cost_events",
+                            "candidate_proposal_ref": str(ref.artifact_id),
+                        },
+                        sensitive_keys=sensitive_keys,
+                    ),
+                    model=events[0].model,
+                    provider=events[0].provider,
+                    cost_events=events,
+                )
+            )
+        return steps, None
+
     def _load_manifest(self, ref: ArtifactRef | None) -> Any:
         if ref is None:
             return None
         try:
-            return self._store.get_manifest(ref.artifact_id)
+            return self._store.get_manifest(ref)
         except (FileNotFoundError, OSError, ValidationError, TypeError, ValueError) as exc:
             logger.debug("Failed to load manifest %s: %s", ref.artifact_id, exc)
             return None
@@ -1732,6 +2214,9 @@ def _agent_steps_from_audit_trail(
                 model_variant_id=_as_str(detail_payload.get("model_variant_id")),
                 latency_ms=_as_int_or_none(detail_payload.get("latency_ms")),
                 cost_usd=_as_float_or_none(detail_payload.get("cost_usd")),
+                cost_events=_agent_cost_events(
+                    detail_payload.get("cost_events", row.get("cost_events"))
+                ),
                 token_usage=_token_usage(detail_payload.get("token_usage")),
             )
         )
@@ -1772,6 +2257,7 @@ def _agent_steps_from_timeline(
                 latency_ms=_as_int_or_none(metrics.get("latency_ms"))
                 or _as_int_or_none(metrics.get("duration_ms")),
                 cost_usd=_as_float_or_none(metrics.get("cost_usd")),
+                cost_events=_agent_cost_events(metrics.get("cost_events")),
                 token_usage=_token_usage(metrics.get("token_usage")),
             )
         )
@@ -1848,6 +2334,9 @@ def _agent_steps_from_model_variants(
                         model_variant_id=_as_str(nested.get("model_variant_id")) or variant_id,
                         latency_ms=_as_int_or_none(nested.get("latency_ms")),
                         cost_usd=_as_float_or_none(nested.get("cost_usd")),
+                        cost_events=_agent_cost_events(
+                            nested.get("cost_events", nested_details.get("cost_events"))
+                        ),
                         token_usage=nested_usage,
                     )
                 )
@@ -1876,10 +2365,77 @@ def _agent_steps_from_model_variants(
                 model_variant_id=variant_id,
                 latency_ms=_as_int_or_none(raw_variant.get("latency_ms")),
                 cost_usd=variant_cost,
+                cost_events=_agent_cost_events(raw_variant.get("cost_events")),
                 token_usage=token_usage,
             )
         )
     return steps
+
+
+def _agent_steps_from_nl_preflight(
+    payload: dict[str, Any],
+    *,
+    sensitive_keys: tuple[str, ...],
+) -> list[AgentPipelineStep]:
+    """Project preflight compiler events as their own ordinary producer step."""
+    params = payload.get("params")
+    if not isinstance(params, dict):
+        return []
+    events = _agent_cost_events(params.get("nl_preflight_cost_events"))
+    if not events:
+        return []
+    return [
+        AgentPipelineStep(
+            attempt=1,
+            agent="design_problem_compiler",
+            action="nl_preflight",
+            status="info",
+            summary="Traced calls made while compiling the DesignProblem before variant execution.",
+            details=_sanitize_payload(
+                {"cost_event_source": "params.nl_preflight_cost_events"},
+                sensitive_keys=sensitive_keys,
+            ),
+            model=events[0].model,
+            provider=events[0].provider,
+            cost_events=events,
+        )
+    ]
+
+
+def _deduplicate_agent_cost_events(
+    steps: list[AgentPipelineStep],
+) -> list[AgentPipelineStep]:
+    """Count each producer event once across audit and experiment-state views."""
+    seen: dict[str, AgentPipelineCostEvent] = {}
+    deduplicated: list[AgentPipelineStep] = []
+    for step in steps:
+        retained: list[AgentPipelineCostEvent] = []
+        for event in step.cost_events:
+            prior = seen.get(event.event_id)
+            if prior is not None:
+                if prior != event:
+                    raise ValueError("agent_pipeline_cost_event_identity_conflict")
+                continue
+            seen[event.event_id] = event
+            retained.append(event)
+        if len(retained) == len(step.cost_events):
+            deduplicated.append(step)
+            continue
+        values = step.model_dump()
+        values.update(
+            {
+                "cost_events": retained,
+                "cost_usd": None,
+                "reported_cost_usd": None,
+                "estimated_cost_usd": None,
+                "cost_origin": None,
+                "cost_origin_counts": {},
+                "settlement_status_counts": {},
+                "settlement_event_ids": (),
+            }
+        )
+        deduplicated.append(AgentPipelineStep.model_validate(values))
+    return deduplicated
 
 
 def _agent_from_phase(phase: str) -> str | None:
@@ -1932,15 +2488,19 @@ def _agent_step_from_reflexion_payload(
 
 
 def _contains_agent_step(existing: list[AgentPipelineStep], target: AgentPipelineStep) -> bool:
-    for step in existing:
+    return _agent_step_index(existing, target) is not None
+
+
+def _agent_step_index(existing: list[AgentPipelineStep], target: AgentPipelineStep) -> int | None:
+    for index, step in enumerate(existing):
         if (
             step.attempt == target.attempt
             and step.agent == target.agent
             and step.action == target.action
             and step.timestamp == target.timestamp
         ):
-            return True
-    return False
+            return index
+    return None
 
 
 def _group_agent_steps_by_attempt(steps: list[AgentPipelineStep]) -> list[AgentPipelineAttempt]:
@@ -1952,7 +2512,7 @@ def _group_agent_steps_by_attempt(steps: list[AgentPipelineStep]) -> list[AgentP
     for attempt in sorted(grouped):
         items = sorted(
             grouped[attempt],
-            key=lambda item: item.timestamp or datetime.max,
+            key=lambda item: _agent_step_sort_key(item.timestamp),
         )
         started = next(
             (item.timestamp for item in items if isinstance(item.timestamp, datetime)), None
@@ -2008,6 +2568,15 @@ def _latest_attempt_verdict(attempts: list[AgentPipelineAttempt]) -> str | None:
     return None
 
 
+def _agent_step_sort_key(value: datetime | None) -> datetime:
+    """Normalize mixed or absent timestamps before ordering persisted steps."""
+    if value is None:
+        return datetime.max.replace(tzinfo=UTC)
+    if value.tzinfo is None:
+        return value.replace(tzinfo=UTC)
+    return value.astimezone(UTC)
+
+
 def _as_datetime(value: Any) -> datetime | None:
     if isinstance(value, datetime):
         return value
@@ -2022,6 +2591,27 @@ def _as_datetime(value: Any) -> datetime | None:
         return datetime.fromisoformat(text)
     except ValueError:
         return None
+
+
+def _agent_cost_events(value: object) -> list[AgentPipelineCostEvent]:
+    """Parse lossless producer events from a persisted pipeline step."""
+    if value is None:
+        return []
+    if not isinstance(value, (list, tuple)):
+        raise ValueError("agent_pipeline_cost_events_invalid")
+    events: list[AgentPipelineCostEvent] = []
+    for raw_event in value:
+        if not isinstance(raw_event, dict):
+            raise ValueError("agent_pipeline_cost_event_invalid")
+        event = dict(raw_event)
+        if "payload_digest" not in event:
+            event["payload_digest"] = event.get("producer_payload_digest")
+        if "durability" not in event:
+            event["durability"] = event.get("settlement_durability", "none")
+        if "receipts" not in event:
+            event["receipts"] = event.get("settlement_receipts", ())
+        events.append(AgentPipelineCostEvent.model_validate(event))
+    return events
 
 
 def _as_int_or_none(value: Any) -> int | None:

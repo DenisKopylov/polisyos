@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.dependent_sensitivity import (
     ConditionalSamplerSpec,
@@ -132,8 +134,8 @@ def test_dependent_sensitivity_bundle_accepts_camel_case_contract_payload() -> N
 def test_dependent_sensitivity_bundle_and_result_persist_roundtrip(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     bundle = _bundle()
-    bundle_ref = persist_dependent_sensitivity_bundle(store, bundle)
-    loaded_bundle = load_dependent_sensitivity_bundle(store, bundle_ref)
+    bundle_ref = persist_dependent_sensitivity_bundle(_ensure_ir_artifact_store(store), bundle)
+    loaded_bundle = load_dependent_sensitivity_bundle(_ensure_ir_artifact_store(store), bundle_ref)
 
     result = DependentSensitivityResult.model_validate(
         {
@@ -164,8 +166,8 @@ def test_dependent_sensitivity_bundle_and_result_persist_roundtrip(tmp_path) -> 
             "reproducibility": {"seed": 42, "estimatorVersion": "dc-safe-test"},
         }
     )
-    result_ref = persist_dependent_sensitivity_result(store, result)
-    loaded_result = load_dependent_sensitivity_result(store, result_ref)
+    result_ref = persist_dependent_sensitivity_result(_ensure_ir_artifact_store(store), result)
+    loaded_result = load_dependent_sensitivity_result(_ensure_ir_artifact_store(store), result_ref)
 
     assert bundle_ref.kind == "ir.dependent_sensitivity_bundle"
     assert result_ref.kind == "ir.dependent_sensitivity_result"

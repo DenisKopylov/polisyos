@@ -77,6 +77,7 @@ from polisyos.runtime.quality.design_axes.value_choice_provenance import Normati
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable
 
+    from polisyos.core.contracts.control import CatalogRunProfile
     from polisyos.runtime.http.step_up import StepUpAssertionVerifier, StepUpReplayStore
 
 FastAPI: Any | None
@@ -123,11 +124,19 @@ def create_runtime_api_app(
     normative_authority_trust: NormativeAuthorityTrust | None = None,
     candidate_simulation_profiles: tuple[Any, ...] = (),
     candidate_simulation_model_declarations: tuple[Any, ...] = (),
+    process_worker_capacity: int | None = None,
+    process_worker_profile_revision: str | None = None,
+    catalog_run_profile: CatalogRunProfile | None = None,
     enable_csrf_protection: bool | None = None,
     step_up_verifier: StepUpAssertionVerifier | None = None,
     step_up_replay_store: StepUpReplayStore | None = None,
 ) -> Any:
-    """Create runtime api app."""
+    """Create the runtime API app with optional candidate process capacity.
+
+    An explicit ``process_worker_capacity`` requires a matching
+    ``process_worker_profile_revision``. Omitting both preserves the legacy
+    host-derived candidate profile; neither path establishes deployed authority.
+    """
     if FastAPI is None:
         raise RuntimeError("Runtime HTTP API requires fastapi/starlette dependencies")
 
@@ -231,9 +240,10 @@ def create_runtime_api_app(
             overrides=container_overrides or RuntimeContainerOverrides(),
             normative_authority_trust=(normative_authority_trust or NormativeAuthorityTrust()),
             candidate_simulation_profiles=candidate_simulation_profiles,
-            candidate_simulation_model_declarations=(
-                candidate_simulation_model_declarations
-            ),
+            candidate_simulation_model_declarations=(candidate_simulation_model_declarations),
+            process_worker_capacity=process_worker_capacity,
+            process_worker_profile_revision=process_worker_profile_revision,
+            catalog_run_profile=catalog_run_profile,
         ),
         deployment_policy=deployment_policy,
         runtime_security=RuntimeSecurityConfig(

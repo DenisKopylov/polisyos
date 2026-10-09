@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.causal import (
@@ -165,7 +167,9 @@ def test_fem_spde_g_computation_matches_oracle_linear_policy_simulation(tmp_path
     assert result.positivity_report["g_computation_allowed"] is True
     assert result.space_time_causal_certificate.status == "model_extrapolation"
     assert result.space_time_causal_certificate_ref is not None
-    loaded = load_space_time_causal_certificate(store, result.space_time_causal_certificate_ref)
+    loaded = load_space_time_causal_certificate(
+        _ensure_ir_artifact_store(store), result.space_time_causal_certificate_ref
+    )
     assert loaded == result.space_time_causal_certificate
 
 

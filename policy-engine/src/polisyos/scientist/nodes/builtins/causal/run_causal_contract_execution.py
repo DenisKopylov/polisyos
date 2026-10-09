@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.foundry.data_plane import materialize_method_contract
@@ -113,7 +114,7 @@ class TemporalInterventionSequenceCompiler:
         regime_ref = None
         if self.store is not None and dtr_result is not None:
             regime_ref = persist_dynamic_treatment_regime(
-                self.store,
+                _ensure_ir_artifact_store(self.store),
                 dtr_result.optimal_regime,
                 inputs=base_inputs,
             )
@@ -348,6 +349,7 @@ def _optional_id(value: Any) -> str | None:
     candidate = str(value).strip()
     return candidate or None
 
+
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_causal_contract_execution@1.0.0"),
     kind=ComponentKind.SCIENTIST_NODE,
@@ -499,7 +501,7 @@ class RunCausalContractExecutionNode:
             if ref is not None
         ]
         aggregate_ref = persist_causal_execution_bundle(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             aggregate_bundle,
             inputs=aggregate_inputs,
         )

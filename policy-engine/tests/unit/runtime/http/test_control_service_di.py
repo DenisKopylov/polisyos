@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import os
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
@@ -11,9 +12,14 @@ import pytest
 import polisyos.runtime.http.services.control.generation_cycle as generation_cycle_service
 from polisyos.common.async_tools import get_shared_executor
 from polisyos.core import canon
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.contracts.control import IngestRequest, NaturalLanguageRunRequest
+from polisyos.core.contracts.control import (
+    IngestRequest,
+    NaturalLanguageRunRequest,
+    WorkflowRunRequest,
+)
 from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
 from polisyos.core.security.tenant_context import (
     get_current_cell_id,
@@ -21,6 +27,7 @@ from polisyos.core.security.tenant_context import (
 )
 from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.http.container import RuntimeContainerOverrides
+from polisyos.runtime.http.errors import RuntimeHTTPError
 from polisyos.runtime.http.execution_policy import (
     RuntimeExecutionPolicyResolver,
     RuntimePrincipal,
@@ -118,12 +125,9 @@ def _build_control_service(
     cycle_substrate_context_admission_owner=None,
     candidate_simulation_profiles=(),
     candidate_simulation_model_declarations=(),
+    catalog_run_profile: str | None = None,
 ) -> ControlPlaneService:
-    store = (
-        artifact_store
-        if artifact_store is not None
-        else FileSystemCAS(tmp_path / ".polisyos")
-    )
+    store = artifact_store if artifact_store is not None else FileSystemCAS(tmp_path / ".polisyos")
     admission_owner = cycle_substrate_context_admission_owner
     if candidate_simulation_profiles or candidate_simulation_model_declarations:
         from polisyos.runtime.quality.cycle_substrate import (
@@ -150,7 +154,7 @@ def _build_control_service(
         artifact_store=store,
         retrieval_service=_NoOpRetrievalService(),
         policy_resolver=resolver,
-        registry_providers=_build_registry_providers(),
+        registry_providers=_build_registry_providers(catalog_run_profile=catalog_run_profile),
         cycle_substrate_context_admission_owner=admission_owner,
     )
 
@@ -162,11 +166,104 @@ def test_runtime_api_defaults_core_runs_root_to_cas_runs(tmp_path) -> None:
 
     assert app.state.runtime_api_ctx.core_runs_root == cas_root / "runs"
     assert app.state.runtime_container.config.core_runs_root == cas_root / "runs"
+    assert app.state.runtime_container.config.catalog_run_profile is None
+    assert app.state.runtime_container.control_registry_providers.catalog_run_profile is None
     cache_root = tmp_path / "runtime-http-cache"
     assert os.environ["POLISYOS_CACHE_HOME"] == cache_root.as_posix()
     catalog_graph = app.state.runtime_container.control_registry_providers.gy_catalog_graph
     assert catalog_graph is not None
     assert catalog_graph._store._db_path.is_relative_to(cache_root)
+
+
+def test_runtime_api_preserves_explicit_catalog_run_profile(tmp_path) -> None:
+    app = create_runtime_api_app(
+        cas_root=tmp_path / "configured-profile" / "cas",
+        catalog_run_profile="prod_core_blocking",
+    )
+
+    assert app.state.runtime_container.config.catalog_run_profile == "prod_core_blocking"
+    assert (
+        app.state.runtime_container.control_registry_providers.catalog_run_profile
+        == "prod_core_blocking"
+    )
+
+
+def test_data_resolve_uses_server_profile_and_refuses_conflict(tmp_path) -> None:
+    from types import SimpleNamespace
+
+    from polisyos.core.contracts.control import DataNeed, DataResolveRequest
+
+    service = _build_control_service(tmp_path, catalog_run_profile="prod_full")
+    observed: list[str | None] = []
+
+    class RecordingRetrieval:
+        def resolve(self, request, *, run_profile=None):
+            observed.append(run_profile)
+            return SimpleNamespace(
+                mode=request.mode,
+                fetch_plans=[],
+                candidates=[],
+                warnings=[],
+            )
+
+        def close(self) -> None:
+            return None
+
+    service._retrieval = RecordingRetrieval()
+    try:
+        service.data_resolve(DataResolveRequest(data_needs=[DataNeed(metric="fixture.metric")]))
+        assert observed == ["prod_full"]
+
+        with pytest.raises(RuntimeHTTPError) as conflict_error:
+            service.data_resolve(
+                DataResolveRequest(
+                    data_needs=[DataNeed(metric="fixture.metric")],
+                    catalog_run_profile="rest_backfill",
+                )
+            )
+        assert conflict_error.value.status_code == 422
+        assert conflict_error.value.code == "catalog_run_profile_conflict"
+        assert observed == ["prod_full"]
+    finally:
+        service.close()
+
+
+@pytest.mark.asyncio
+async def test_control_service_forwards_catalog_profile_to_recursive_http_bridge(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service = _build_control_service(tmp_path, catalog_run_profile="prod_full")
+    observed: dict[str, object] = {}
+
+    async def record_bridge_arguments(**kwargs: object) -> object:
+        observed.update(kwargs)
+        return object()
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "compile_and_run_recursive_generation_cycle",
+        record_bridge_arguments,
+    )
+    try:
+        result = await service.compile_and_run_recursive_generation_cycle(
+            raw_request="controlled profile bridge request",
+            context={},
+            model_name="fixture-model",
+            compiler_gateway=None,
+            budget_state=object(),  # type: ignore[arg-type]
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+        )
+
+        assert observed["catalog_run_profile"] == "prod_full"
+        assert result is not None
+    finally:
+        service.close()
 
 
 def test_runtime_container_exposes_one_promotion_owner_runtime(tmp_path) -> None:
@@ -200,7 +297,12 @@ def test_runtime_container_types_malformed_owner_overrides(
 
 
 def test_control_service_types_malformed_promotion_runtime(tmp_path) -> None:
-    store = FileSystemCAS(tmp_path / ".polisyos")
+    store = FileSystemCAS(
+        tmp_path / ".polisyos",
+        tenant_id="tenant-fixture",
+        cell_id="cell-fixture",
+        ownership_enforced=True,
+    )
     resolver = RuntimeExecutionPolicyResolver(
         default_profile="dev",
         worker_backend="external",
@@ -219,6 +321,37 @@ def test_control_service_types_malformed_promotion_runtime(tmp_path) -> None:
             registry_providers=_build_registry_providers(),
             promotion_runtime=object(),  # type: ignore[arg-type]
         )
+
+
+def test_control_service_binds_one_durable_llm_settlement_owner(tmp_path) -> None:
+    from polisyos.scientist.orchestration.engine.budget import BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+    service = _build_control_service(tmp_path)
+    first = BudgetMiddleware(
+        BudgetState(),
+        ledger=FileBudgetLedger(tmp_path / "llm-ledger-one.json"),
+    )
+    second = BudgetMiddleware(
+        BudgetState(),
+        ledger=FileBudgetLedger(tmp_path / "llm-ledger-two.json"),
+    )
+    try:
+        assert service.llm_producer_settlement_store is None
+        service.bind_llm_producer_settlement_store(first)
+        assert service.llm_producer_settlement_store is first
+        service.bind_llm_producer_settlement_store(first)
+        with pytest.raises(ValueError, match="llm_producer_settlement_store_already_bound"):
+            service.bind_llm_producer_settlement_store(second)
+        with pytest.raises(
+            TypeError, match="llm_producer_settlement_store_must_be_budget_middleware"
+        ):
+            service.bind_llm_producer_settlement_store(object())
+        with pytest.raises(ValueError, match="llm_producer_settlement_store_must_be_durable"):
+            service.bind_llm_producer_settlement_store(BudgetMiddleware(BudgetState()))
+    finally:
+        service.close()
 
 
 def test_control_service_owns_one_eval_safety_service_verifier_and_store(tmp_path) -> None:
@@ -881,6 +1014,113 @@ async def test_launch_nl_run_persists_tenant_scope_in_queued_payload(tmp_path) -
         service.close()
 
 
+def test_legacy_workflow_maps_admitted_runtime_scope_at_scientist_boundary(
+    tmp_path, monkeypatch
+) -> None:
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+    service = _build_control_service(tmp_path)
+    principal = RuntimePrincipal(
+        subject="user-fixture",
+        tenant_id="tenant-fixture",
+        cell_id="cell-fixture",
+        roles=frozenset({"analyst"}),
+        authenticated=True,
+    )
+    observed: dict[str, object] = {}
+
+    def capture_scientist_state(payload, **_kwargs):
+        state = ExperimentState.model_validate(payload)
+        observed["state"] = state
+        observed["raw_payload"] = dict(payload)
+        observed["scope"] = (
+            get_current_tenant_id_or_none(),
+            get_current_cell_id(),
+        )
+        return {"status": "success"}
+
+    monkeypatch.setattr("polisyos.scientist.api.run_experiment", capture_scientist_state)
+    try:
+        launch = service.launch_workflow_run(
+            WorkflowRunRequest(
+                data_source={"data_snapshot_ref": "sha256:" + "a" * 64},
+                params={"control_plane_transition": "legacy_shadow"},
+            ),
+            principal=principal,
+        )
+        dispatch_one_control_job(
+            store=service._control_store,
+            handler=service._process_control_job,
+            expected_job_id=launch.job_id,
+        )
+
+        job = service._control_store.get_job(launch.job_id)
+        assert job is not None
+        assert job.state == "completed"
+        state = observed["state"]
+        assert isinstance(state, ExperimentState)
+        assert state.run_id == launch.run_id
+        assert state.control_job_id == launch.job_id
+        assert observed["scope"] == ("tenant-fixture", "cell-fixture")
+        raw_payload = observed["raw_payload"]
+        assert isinstance(raw_payload, dict)
+        assert not {"job_id", "tenant_id", "cell_id"}.intersection(raw_payload)
+    finally:
+        service.close()
+
+
+def test_legacy_workflow_rejects_foreign_persisted_owner_scope_before_scientist(
+    tmp_path, monkeypatch
+) -> None:
+    service = _build_control_service(tmp_path)
+    principal = RuntimePrincipal(
+        subject="user-fixture",
+        tenant_id="tenant-fixture",
+        cell_id="cell-fixture",
+        roles=frozenset({"analyst"}),
+        authenticated=True,
+    )
+    scientist_called = False
+
+    def capture_scientist_state(*_args, **_kwargs):
+        nonlocal scientist_called
+        scientist_called = True
+
+    monkeypatch.setattr("polisyos.scientist.api.run_experiment", capture_scientist_state)
+    try:
+        launch = service.launch_workflow_run(
+            WorkflowRunRequest(
+                data_source={"data_snapshot_ref": "sha256:" + "b" * 64},
+                params={"control_plane_transition": "legacy_shadow"},
+            ),
+            principal=principal,
+        )
+        job = service._control_store.get_job(launch.job_id)
+        assert job is not None and job.payload_ref is not None
+        load_payload_ref = service._load_payload_ref
+
+        def load_foreign_owner_payload(payload_ref: str) -> dict[str, object]:
+            loaded = load_payload_ref(payload_ref)
+            if payload_ref == job.payload_ref:
+                loaded["tenant_id"] = "tenant-foreign"
+            return loaded
+
+        monkeypatch.setattr(service, "_load_payload_ref", load_foreign_owner_payload)
+        dispatch_one_control_job(
+            store=service._control_store,
+            handler=service._process_control_job,
+            expected_job_id=launch.job_id,
+        )
+
+        failed = service._control_store.get_job(launch.job_id)
+        assert failed is not None
+        assert failed.state == "failed"
+        assert failed.error_message == "control_job_payload_owner_scope_mismatch"
+        assert scientist_called is False
+    finally:
+        service.close()
+
+
 @pytest.fixture(scope="module")
 def controlled_recursive_result(tmp_path_factory):
     """Build one owner-bound result used only to probe candidate-intent rejection."""
@@ -1114,7 +1354,10 @@ def _signed_generation_evidence(service, compiled, *, fault: str):
     }
 
 
-def _build_registry_providers() -> ControlRegistryProviders:
+def _build_registry_providers(
+    *,
+    catalog_run_profile: str | None = None,
+) -> ControlRegistryProviders:
     source_profile = SimpleNamespace(
         profile_id="fixture_profile",
         display_name="Fixture Profile",
@@ -1176,6 +1419,7 @@ def _build_registry_providers() -> ControlRegistryProviders:
             list_all=lambda: [binding_profile],
         ),
         model_profiles=SimpleNamespace(list_all=lambda: [model_profile]),
+        catalog_run_profile=catalog_run_profile,
     )
 
 
@@ -1385,6 +1629,10 @@ def test_control_service_preserves_real_catalog_ownership(
     from types import SimpleNamespace
 
     from polisyos.core.contracts.control import DataNeed, DataResolveRequest
+    from polisyos.data_forge.domains.catalog.registry import (
+        CatalogSourceRegistryEntry,
+        CatalogSourceRegistrySpec,
+    )
     from polisyos.data_forge.read_api import catalog as catalog_api
     from polisyos.fabric.retrieval.service import RetrievalService
 
@@ -1423,6 +1671,24 @@ def test_control_service_preserves_real_catalog_ownership(
         graph_root=tmp_path / "canonical_catalog",
     )
     canonical.close()
+    source_registry = CatalogSourceRegistrySpec(
+        sources=(
+            CatalogSourceRegistryEntry(
+                source_id="static_csv",
+                family="controlled_test_fixture",
+                wave="T",
+                endpoint="file://controlled-test-fixture",
+                connector_id="static_csv",
+                execution_tier="fetchable",
+                run_lane="catalog",
+            ),
+        )
+    )
+    monkeypatch.setattr(
+        catalog_api,
+        "load_catalog_source_registry",
+        lambda: source_registry,
+    )
     hint_dir = tmp_path / "empty_curated_hints"
     hint_dir.mkdir()
     monkeypatch.setenv("POLISYOS_CURATED_DIR", str(hint_dir))
@@ -1473,14 +1739,25 @@ def test_control_service_preserves_real_catalog_ownership(
         assert service._retrieval.artifact_store is service._artifact_store
     # The concrete catalog resolves the declared metric; this test exercises
     # service construction/lifetime, not the separate fetch-to-N9 falsifier.
-    response = service._retrieval.resolve(
+    response = service.data_resolve(
         DataResolveRequest(
             data_needs=[DataNeed(metric="recorded_owner_metric")],
             mode="fastlane",
             allow_explore_fallback=False,
+            catalog_run_profile="prod_full",
         )
     )
     assert response.fetch_plans
+    with pytest.raises(RuntimeHTTPError) as unselected_profile:
+        service.data_resolve(
+            DataResolveRequest(
+                data_needs=[DataNeed(metric="recorded_owner_metric")],
+                mode="fastlane",
+                allow_explore_fallback=False,
+            )
+        )
+    assert unselected_profile.value.status_code == 422
+    assert unselected_profile.value.code == "catalog_run_profile_unresolved"
     closed: list[bool] = []
     close = selected.close
 
@@ -1791,6 +2068,7 @@ async def _run_controlled_simulate_only_job_fixture(
     tmp_path,
     *,
     proposal_source_persistence_failure: bool = False,
+    fail_second_sibling: bool = False,
 ) -> SimpleNamespace:
     """Run a synthetic owner-bound N4 candidate through a served N5 request.
 
@@ -1818,11 +2096,15 @@ async def _run_controlled_simulate_only_job_fixture(
         cycle_job_design_problem_ref,
         cycle_job_profile_selection_ref,
     )
+    from polisyos.runtime.quality.design_axes.coupling_composition import (
+        derive_recursive_design_graph,
+    )
     from polisyos.runtime.quality.design_generation import (
         N4CandidateScenarioProposalCandidate,
         N4CandidateScenarioProposalRun,
     )
     from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleError,
         JointSimulationPort,
         load_joint_simulation_result,
     )
@@ -1832,6 +2114,9 @@ async def _run_controlled_simulate_only_job_fixture(
     )
     from polisyos.runtime.quality.joint_simulation_horizon import (
         JointSimulationHorizonController,
+    )
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        RecursiveLeafContextOwner,
     )
     from tests._helpers.controlled_candidate_profile import (
         _configured_procurement_profile,
@@ -2017,20 +2302,14 @@ async def _run_controlled_simulate_only_job_fixture(
         }
     )
     probe_profile_fields = profile.model_dump(mode="json", exclude={"content_hash"})
-    probe_profile_fields["profile_selection_ref"] = cycle_job_profile_selection_ref(
-        probe_problem
-    )
+    probe_profile_fields["profile_selection_ref"] = cycle_job_profile_selection_ref(probe_problem)
     probe_profile = CandidateSimulationScenarioProfile.model_validate(
         {
             **probe_profile_fields,
-            "content_hash": generation_cycle_service.gy_content_hash(
-                probe_profile_fields
-            ),
+            "content_hash": generation_cycle_service.gy_content_hash(probe_profile_fields),
         }
     )
-    probe_declaration_fields = model_declaration.model_dump(
-        mode="json", exclude={"content_hash"}
-    )
+    probe_declaration_fields = model_declaration.model_dump(mode="json", exclude={"content_hash"})
     probe_declaration_fields.update(
         {
             "profile_config_ref": candidate_simulation_profile_ref(probe_profile),
@@ -2041,9 +2320,7 @@ async def _run_controlled_simulate_only_job_fixture(
     probe_declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
         {
             **probe_declaration_fields,
-            "content_hash": generation_cycle_service.gy_content_hash(
-                probe_declaration_fields
-            ),
+            "content_hash": generation_cycle_service.gy_content_hash(probe_declaration_fields),
         }
     )
     probe_owner = ConfiguredCandidateSimulationContextAdmissionOwner(
@@ -2073,6 +2350,7 @@ async def _run_controlled_simulate_only_job_fixture(
     recorded_n4_client = n4_contract.RecordedGenerationReplayClient(controlled_recording)
     source_persistence_failures: list[str] = []
     if proposal_source_persistence_failure:
+
         def refuse_n4_source_persist(repository, *, source_record):
             source_persistence_failures.append(type(source_record).__name__)
             raise OSError("controlled_fixture_source_persistence_failure")
@@ -2118,9 +2396,27 @@ async def _run_controlled_simulate_only_job_fixture(
 
     def record_resolve(owner, ref, *, problem, verified_nl_job_scope=None):
         assert owner._store is service._artifact_store
-        assert verified_nl_job_scope is not None
         assert get_current_access_scope_or_none() is None
+        assert verified_nl_job_scope is not None
         verified_scope_observations.append(verified_nl_job_scope)
+        if fail_second_sibling:
+            for changed_scope in (
+                verified_nl_job_scope.model_copy(update={"tenant_id": "foreign-tenant"}),
+                verified_nl_job_scope.model_copy(
+                    update={"attempt": verified_nl_job_scope.attempt + 1}
+                ),
+                verified_nl_job_scope.model_copy(update={"actor_subject": "foreign-actor"}),
+            ):
+                with pytest.raises(
+                    CycleSubstrateContextOwnerError,
+                    match="cycle_substrate_context_job_verified_scope_mismatch",
+                ):
+                    original_resolve(
+                        owner,
+                        ref,
+                        problem=problem,
+                        verified_nl_job_scope=changed_scope,
+                    )
         artifact = original_resolve(
             owner,
             ref,
@@ -2154,9 +2450,7 @@ async def _run_controlled_simulate_only_job_fixture(
         async def run_with_fixture_generation(*args, **run_kwargs):
             contexts = run_kwargs["cycle_substrate_contexts_by_node"]
             handoffs = run_kwargs["candidate_simulation_handoffs_by_node"]
-            currentness_resolvers = run_kwargs[
-                "candidate_simulation_currentness_resolvers_by_node"
-            ]
+            currentness_resolvers = run_kwargs["candidate_simulation_currentness_resolvers_by_node"]
             assert contexts is not None and len(contexts) == 1
             assert handoffs is not None and len(handoffs) == 1
             assert currentness_resolvers is not None and len(currentness_resolvers) == 1
@@ -2185,8 +2479,67 @@ async def _run_controlled_simulate_only_job_fixture(
                 cycle_substrate_context=resolved_context,
                 candidate_simulation_handoff=handoff,
             )
-            run_kwargs["n4_generation_ports_by_node"] = {node_ref: generator}
-            compiled = await original_run(*args, **run_kwargs)
+            run_args = list(args)
+            if fail_second_sibling:
+                graph = run_args[0]
+                root_ref = graph.root_design_ref
+                first_ref = f"{root_ref}#successful-sibling"
+                second_ref = f"{root_ref}#failed-sibling"
+                root_problem = run_kwargs["problems_by_node"][root_ref]
+                child_graph = derive_recursive_design_graph(
+                    design_ref=root_ref,
+                    module_refs=(first_ref, second_ref),
+                    parent_child_edges=(
+                        (root_ref, first_ref),
+                        (root_ref, second_ref),
+                    ),
+                    rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+                )
+                run_args[0] = child_graph
+                run_kwargs["problems_by_node"] = {
+                    root_ref: root_problem,
+                    first_ref: root_problem,
+                    second_ref: root_problem,
+                }
+                contexts.clear()
+                contexts.update({first_ref: resolved_context, second_ref: resolved_context})
+                handoffs.clear()
+                handoffs.update({first_ref: handoff, second_ref: handoff})
+                currentness_resolvers.clear()
+                intents = run_kwargs["execution_intents_by_node"]
+                intents.clear()
+                intents.update({first_ref: "simulate_only", second_ref: "simulate_only"})
+                run_kwargs["leaf_context_owner"] = RecursiveLeafContextOwner(
+                    store=service._artifact_store,
+                    context_owner=CycleSubstrateContextArtifactOwner(
+                        store=service._artifact_store,
+                        control_store=service._control_store,
+                    ),
+                    admission_owner=source_owner,
+                    verified_nl_job_scope=verified_scope_observations[0],
+                )
+
+                class _FailingSiblingN4Port(N4GenerationPort):
+                    async def __call__(self, problem_for_cycle, *, cycle_index):
+                        del problem_for_cycle, cycle_index
+                        raise GenerationCycleError(
+                            "controlled_second_sibling_failure",
+                            "later child failed after its earlier sibling completed",
+                        )
+
+                failed_generator = _FailingSiblingN4Port(
+                    model_id=str(recording["model_id"]),
+                    repo_root=kwargs["repo_root"],
+                    cycle_substrate_context=resolved_context,
+                    candidate_simulation_handoff=handoff,
+                )
+                run_kwargs["n4_generation_ports_by_node"] = {
+                    first_ref: generator,
+                    second_ref: failed_generator,
+                }
+            else:
+                run_kwargs["n4_generation_ports_by_node"] = {node_ref: generator}
+            compiled = await original_run(*run_args, **run_kwargs)
             compiled_runs.append(compiled)
             return compiled
 
@@ -2198,6 +2551,32 @@ async def _run_controlled_simulate_only_job_fixture(
         "build_default_recursive_generation_cycle_controller",
         build_fixture_recursive_controller,
     )
+
+    if fail_second_sibling:
+        original_compile = generation_cycle_service.compile_and_run_recursive_generation_cycle
+
+        async def compile_with_sibling_budget(**kwargs):
+            budget = kwargs["recursive_budget"]
+            kwargs["recursive_budget"] = budget.model_copy(update={"max_depth": 1, "max_nodes": 3})
+            resolution = kwargs["recursive_budget_resolution"]
+            if resolution is not None:
+                kwargs["recursive_budget_resolution"] = resolution.model_copy(
+                    update={
+                        "recursive_budget": resolution.recursive_budget.model_copy(
+                            update={"max_depth": 1, "max_nodes": 3}
+                        ),
+                        "requested_candidate_children": 2,
+                        "effective_candidate_children": 2,
+                        "child_budget_profile": "candidate-lever-exploration-at-most-2.v1",
+                    }
+                )
+            return await original_compile(**kwargs)
+
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "compile_and_run_recursive_generation_cycle",
+            compile_with_sibling_budget,
+        )
 
     service_transferred = False
     try:
@@ -2283,9 +2662,7 @@ async def _run_controlled_simulate_only_job_fixture(
             assert terminal.manifest.status == "error"
             assert terminal.manifest.outputs == []
             assert terminal.manifest.control_job_id == completed.job_id
-            with pytest.raises(
-                ValueError, match="control_job_core_run_terminal_binding_mismatch"
-            ):
+            with pytest.raises(ValueError, match="control_job_core_run_terminal_binding_mismatch"):
                 load_completed_control_job_core_run_source(
                     store=service._artifact_store,
                     core_runs_root=service._core_runs_root,
@@ -2319,8 +2696,9 @@ async def _run_controlled_simulate_only_job_fixture(
         assert progress["core_run_id"] == started_context.run_manifest.run_id
         assert progress["core_run_attempt"] == leased.attempt
         assert progress["core_manifest_artifact_ref"]["artifact_id"] == progress["manifest_ref"]
-        assert progress["compiled_recursive_generation_cycle_artifact_ref"]["artifact_id"] == (
-            progress["compiled_recursive_generation_cycle_ref"]
+        assert (
+            progress["compiled_recursive_generation_cycle_artifact_ref"]["artifact_id"]
+            == (progress["compiled_recursive_generation_cycle_ref"])
         )
         from dataclasses import replace
 
@@ -2368,16 +2746,19 @@ async def _run_controlled_simulate_only_job_fixture(
         assert progress["cycle_substrate_context_job_ref"]
         assert len(compiler_calls) == 1
         assert compiler_calls[0]["nl_request"] == problem.nl_provenance.raw_request
-        assert len(admission_observations) == len(owner_replays) >= 2
+        # Child-owner replay now independently re-admits the exact profile
+        # after resolving its issued job scope, so admission count may exceed
+        # artifact replay count by the number of routed children.
+        assert len(admission_observations) >= len(owner_replays) >= 2
         admitted_offer = admission_observations[0][1]
         assert type(source_owner) is ConfiguredCandidateSimulationContextAdmissionOwner
         assert source_owner.store is service._artifact_store
         assert all(
-            type(offer) is CandidateSimulationContextOffer
-            for _, offer in admission_observations
+            type(offer) is CandidateSimulationContextOffer for _, offer in admission_observations
         )
         assert all(
-            call["problem"] is problem
+            type(call["problem"]) is type(problem)
+            and cycle_job_design_problem_ref(call["problem"]) == problem_ref
             and call["job_id"] == launch.job_id
             and call["run_id"] == str(job.run_id)
             and call["tenant_id"] == "tenant-fixture"
@@ -2393,18 +2774,14 @@ async def _run_controlled_simulate_only_job_fixture(
         assert len(owner_refs) == 1
         assert len(owner_replay_refs) == len(owner_replays)
         assert all(
-            artifact_ref_identity_key(ref)
-            == artifact_ref_identity_key(owner_refs[0])
+            artifact_ref_identity_key(ref) == artifact_ref_identity_key(owner_refs[0])
             for ref in owner_replay_refs
         )
         assert len(context_persist_attempts) == 4
         assert context_persist_attempts[-1][1] is problem
         assert context_persist_attempts[-1][2] is verified_scope_observations[0]
         assert len(verified_scope_observations) == len(owner_replays) + 1
-        assert all(
-            scope is verified_scope_observations[0]
-            for scope in verified_scope_observations
-        )
+        assert all(scope is verified_scope_observations[0] for scope in verified_scope_observations)
         assert verified_scope_observations[0]._was_issued_by_verified_nl_execution_owner
         assert verified_scope_observations[0].job_id == launch.job_id
         assert verified_scope_observations[0].run_id == str(job.run_id)
@@ -2444,7 +2821,9 @@ async def _run_controlled_simulate_only_job_fixture(
         assert context_artifact.context.world_model_record.simulation_model_ref.calibrated is False
         assert n5_port_observations
         assert len(n4_organ_runs) == 1
-        assert len(n4_port_attempts) == 1
+        # The served simulate-only route runs a persisted root N4 source before
+        # the ordinary N4 proposal leaf. Keep both real N4 calls in the count.
+        assert len(n4_port_attempts) == 2
         assert n4_port_attempts[0][0] is problem
         proposal_run = n4_organ_runs[0]
         assert type(proposal_run) is N4CandidateScenarioProposalRun
@@ -2469,8 +2848,7 @@ async def _run_controlled_simulate_only_job_fixture(
             assert observed.input_record.context_job_ref == owner_refs[0]
             assert observed.input_record.profile_config_ref == admitted_offer.profile_config_ref
             assert (
-                observed.input_record.model_declaration_ref
-                == admitted_offer.model_declaration_ref
+                observed.input_record.model_declaration_ref == admitted_offer.model_declaration_ref
             )
             assert observed.input_record.ncm_ref == admitted_offer.ncm_ref
             assert observed.input_record.materialization.operator_kind == profile.rule.operator_kind
@@ -2535,10 +2913,8 @@ async def _run_controlled_simulate_only_job_fixture(
         assert selected_v1_source.problem == problem
         assert selected_v1_source.proposal.design_problem_ref == proposal_problem_ref
         assert selected_v1_source.cycle_problem_ref == problem_ref
-        assert selected_v1_source.k_ref_limitation_code == (
-            "full_credal_reference_not_established"
-        )
-        assert selected_v1_source.l2_confidence_vintage is None
+        assert selected_v1_source.k_ref_limitation_code == ("historical_l2_confidence_withheld")
+        assert selected_v1_source.l2_confidence_vintage is not None
         assert selected_v1_source.l2_confidence_forwarded is False
         assert selected_v1_source.credal_reference_payload is None
         assert selected_v2_source.model_declaration == model_declaration
@@ -2570,12 +2946,9 @@ async def _run_controlled_simulate_only_job_fixture(
         assert context_world.simulation_model_ref.calibrated is False
         assert str(input_record.ncm_ref.artifact_id) in context_world.simulation_model_ref.ncm_refs
         problem_slot_ids = {
-            lever.target_slot
-            for lever in problem.candidate_lever_space.candidate_levers
+            lever.target_slot for lever in problem.candidate_lever_space.candidate_levers
         }
-        context_slot_ids = {
-            binding.slot_id for binding in context_world.policy_slot_map
-        }
+        context_slot_ids = {binding.slot_id for binding in context_world.policy_slot_map}
         assert problem_slot_ids <= context_slot_ids
         assert any(
             item.get("declaration_content_hash") == model_declaration.content_hash
@@ -2585,7 +2958,7 @@ async def _run_controlled_simulate_only_job_fixture(
         from polisyos.ir.analytics.ncm import load_ncm_spec_selected_view
 
         selected_ncm = load_ncm_spec_selected_view(
-            service._artifact_store,
+            _ensure_ir_artifact_store(service._artifact_store),
             input_record.ncm_ref,
             expected_tenant_id="tenant-fixture",
             expected_cell_id="cell-fixture",
@@ -2606,8 +2979,7 @@ async def _run_controlled_simulate_only_job_fixture(
         }
         assert outcome_equation.equation_params["intercept"] == (
             model_declaration.outcome_baseline
-            - model_declaration.outcome_per_target_unit
-            * model_declaration.target_baseline
+            - model_declaration.outcome_per_target_unit * model_declaration.target_baseline
         )
         assert input_record.outcome_variable == model_declaration.outcome_variable
         assert input_record.outcome_variable == problem.outcome_of_interest.target_variable
@@ -2670,6 +3042,7 @@ async def _run_controlled_simulate_only_job_fixture(
             compiled_payload=service._artifact_store.get_bytes(compiled_artifact_ref),
             compiled_ref=str(compiled_ref),
             cycle_substrate_context_job_ref=progress["cycle_substrate_context_job_ref"],
+            n5_port_observations=tuple(n5_port_observations),
         )
         service_transferred = True
         return fixture
@@ -2705,7 +3078,210 @@ async def test_served_simulate_only_replays_source_bound_n4_candidate_into_joint
     fixture does not establish production profile, S8, N9, or publication authority.
     """
     fixture = await _run_controlled_simulate_only_job_fixture(monkeypatch, tmp_path)
+    assert fixture.n5_port_observations
+    assert fixture.n5_port_observations[0].observation.simulation_result_ref is not None
     fixture.service.close()
+
+
+@pytest.mark.skipif(TestClient is None, reason="fastapi is not installed")
+@pytest.mark.asyncio
+async def test_fresh_run_details_get_projects_the_persisted_candidate_simulation(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    """A fresh authorized GET exposes the exact candidate result already persisted by CAS."""
+    from polisyos.runtime.http import dev_identity_middleware
+
+    fixture = await _run_controlled_simulate_only_job_fixture(monkeypatch, tmp_path)
+    core_run_id = str(fixture.job.progress["core_run_id"])
+    monkeypatch.setattr(
+        dev_identity_middleware,
+        "build_fixture_identity_claims",
+        _fixture_claims,
+    )
+    app = create_runtime_api_app(
+        cas_root=tmp_path / ".polisyos",
+        core_runs_root=tmp_path / ".polisyos" / "runs",
+        allow_fixture_identity=True,
+    )
+    try:
+        with TestClient(app) as client:
+            response = client.get(f"/api/v1/runs/{core_run_id}")
+            assert response.status_code == 200, response.text
+            run = response.json()["run"]
+            compiled_refs = [
+                ref
+                for ref in run["root_artifacts"]
+                if ref["kind"] == "runtime.compiled_recursive_generation_cycle"
+            ]
+            assert len(compiled_refs) == 1
+            projection = run.get("candidate_simulation")
+            assert projection is not None, (
+                "fresh RunDetails GET dropped its persisted candidate result"
+            )
+            assert projection["artifact_status"] == "resolved"
+            assert projection["run_id"] == core_run_id
+            assert projection["source_ref"] == compiled_refs[0]
+            assert (
+                projection["source_content_hash"]
+                == json.loads(fixture.compiled_payload)["content_hash"]
+            )
+            assert projection["acquisition_history"] == []
+            assert projection["acquisition_history_limitation_code"] == (
+                "acquisition_action_history_integrity_not_established"
+            )
+            assert projection["n5_observations"], projection
+            n5_observation = projection["n5_observations"][0]
+            assert n5_observation["status"] == "joint_simulated"
+            assert n5_observation["simulation_result_ref"]["kind"] == (
+                "polisyos.runtime.joint_simulation_result"
+            )
+            assert (
+                n5_observation["world_model_record_content_hash"]
+                == n5_observation["k_world_ref_before"]
+            )
+
+            store = fixture.service._artifact_store
+            from polisyos.core.artifacts.ids import ArtifactID
+            from polisyos.core.artifacts.manifest import ArtifactRef
+
+            compiled_manifest = store.get_manifest(ArtifactRef.model_validate(compiled_refs[0]))
+            assert compiled_manifest.tenant_context is not None
+            assert compiled_manifest.tenant_context.tenant_id == "tenant-fixture"
+            assert compiled_manifest.tenant_context.cell_id == "cell-fixture"
+            n5_ref = ArtifactRef.model_validate(n5_observation["simulation_result_ref"])
+            n5_manifest = store.get_manifest(n5_ref)
+            assert n5_manifest.tenant_context is not None
+            assert n5_manifest.tenant_context.tenant_id == "tenant-fixture"
+            assert n5_manifest.tenant_context.cell_id == "cell-fixture"
+
+            n5_blob_path, _n5_manifest_path = store._paths(
+                ArtifactID.model_validate(n5_ref.artifact_id)
+            )
+            n5_blob_path.write_bytes(b"corrupt")
+            corrupt_response = client.get(f"/api/v1/runs/{core_run_id}")
+        assert corrupt_response.status_code == 200, corrupt_response.text
+        corrupt_projection = corrupt_response.json()["run"]["candidate_simulation"]
+        assert corrupt_projection["artifact_status"] == "resolved"
+        assert corrupt_projection["limitation_code"] == ("n5_result_reference_not_established")
+        assert corrupt_projection["n5_observations"] == []
+    finally:
+        fixture.service.close()
+
+
+@pytest.mark.skipif(TestClient is None, reason="fastapi is not installed")
+@pytest.mark.asyncio
+async def test_fresh_run_details_get_keeps_n5_and_failed_sibling_checkpoint(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    """Serve a persisted N5 result beside the exact V3 sibling failure checkpoint."""
+    from polisyos.runtime.http import dev_identity_middleware
+
+    fixture = await _run_controlled_simulate_only_job_fixture(
+        monkeypatch,
+        tmp_path,
+        fail_second_sibling=True,
+    )
+    core_run_id = str(fixture.job.progress["core_run_id"])
+    compiled_payload = json.loads(fixture.compiled_payload)
+    recursive_payload = compiled_payload["recursive_run"]
+    successful_node = next(
+        node
+        for node in recursive_payload["nodes"]
+        if node["node_ref"].endswith("#successful-sibling")
+    )
+    failed_node = next(
+        node for node in recursive_payload["nodes"] if node["node_ref"].endswith("#failed-sibling")
+    )
+    assert failed_node["failure"]["error_code"] == "controlled_second_sibling_failure"
+    successful_cycle = successful_node["cycle_run"]
+    assert successful_cycle["schema_version"] == "policyos.runtime.generation_cycle_controller.v5"
+    successful_simulation = successful_cycle["cycles"][0]["simulation"]
+    assert successful_simulation["candidate_simulation_n4_source_ref"]["kind"] == (
+        "runtime.quality.n4_candidate_scenario_source"
+    )
+    assert successful_simulation["candidate_simulation_context_job_ref"]["kind"] == (
+        "runtime.quality.cycle_substrate_context_job"
+    )
+    assert successful_simulation["candidate_simulation_n5_input_ref"]["kind"] == (
+        "runtime.quality.candidate_simulation_n5_input"
+    )
+    assert successful_simulation["candidate_simulation_profile_config_ref"].startswith(
+        "runtime-config:candidate-simulation/"
+    )
+    assert successful_simulation["candidate_simulation_profile_selection_ref"].startswith("sha256:")
+    from polisyos.runtime.quality.generation_cycle import (
+        validate_generation_cycle_run_history,
+    )
+
+    missing_lineage = json.loads(json.dumps(successful_cycle))
+    del missing_lineage["cycles"][0]["simulation"]["candidate_simulation_context_job_ref"]
+    assert validate_generation_cycle_run_history(missing_lineage)
+
+    monkeypatch.setattr(
+        dev_identity_middleware,
+        "build_fixture_identity_claims",
+        _fixture_claims,
+    )
+    app = create_runtime_api_app(
+        cas_root=tmp_path / ".polisyos",
+        core_runs_root=tmp_path / ".polisyos" / "runs",
+        allow_fixture_identity=True,
+    )
+    try:
+        with TestClient(app) as client:
+            response = client.get(f"/api/v1/runs/{core_run_id}")
+            assert response.status_code == 200, response.text
+            run = response.json()["run"]
+            projection = run.get("candidate_simulation")
+            assert projection is not None, "fresh GET dropped the persisted V3 checkpoint"
+            assert projection["artifact_status"] == "resolved"
+            assert projection["source_content_hash"] == compiled_payload["content_hash"]
+            assert projection["limitation_code"] is None
+            assert len(projection["n5_observations"]) == 1
+            observation = projection["n5_observations"][0]
+            source_n5_ref = successful_node["cycle_run"]["cycles"][0]["simulation"][
+                "simulation_result_ref"
+            ]
+            assert observation["node_ref"] == successful_node["node_ref"]
+            assert observation["status"] == "joint_simulated"
+            assert observation["simulation_result_ref"] == source_n5_ref
+
+            checkpoint = projection["recursive_cycle_checkpoint"]
+            assert checkpoint["schema_version"] == "policyos.runtime.recursive_cycle_checkpoint.v2"
+            assert checkpoint["completed_design_refs"] == [successful_node["node_ref"]]
+            assert len(checkpoint["failed_branches"]) == 1
+            failure = checkpoint["failed_branches"][0]
+            assert failure == {
+                "failed_branch_ref": failed_node["node_ref"],
+                "origin_node_ref": failed_node["failure"]["origin_node_ref"],
+                "stage": "leaf_generation",
+                "exception_type": "GenerationCycleError",
+                "error_code": "controlled_second_sibling_failure",
+                "error_message": (
+                    "controlled_second_sibling_failure: "
+                    "later child failed after its earlier sibling completed"
+                ),
+            }
+
+            from polisyos.core.artifacts.ids import ArtifactID
+            from polisyos.core.artifacts.manifest import ArtifactRef
+
+            n5_ref = ArtifactRef.model_validate(source_n5_ref)
+            n5_blob_path, _n5_manifest_path = fixture.service._artifact_store._paths(
+                ArtifactID.model_validate(n5_ref.artifact_id)
+            )
+            n5_blob_path.write_bytes(b"corrupt")
+            corrupt_response = client.get(f"/api/v1/runs/{core_run_id}")
+        assert corrupt_response.status_code == 200, corrupt_response.text
+        corrupt_projection = corrupt_response.json()["run"]["candidate_simulation"]
+        assert corrupt_projection["artifact_status"] == "resolved"
+        assert corrupt_projection["limitation_code"] == ("n5_result_reference_not_established")
+        assert corrupt_projection["n5_observations"] == []
+        assert corrupt_projection["recursive_cycle_checkpoint"]["failed_branches"] == [failure]
+    finally:
+        fixture.service.close()
 
 
 @pytest.mark.asyncio

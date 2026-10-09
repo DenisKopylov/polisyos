@@ -1,0 +1,19 @@
+id = "2026-10-09-e02-s3-native-statistical-bounds"
+title = "Preserve source-reported statistical bounds beside identification sets"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "ValueOuterSet can preserve optional native statistical endpoints without widening or changing its identification bounds, comparison semantics, or promotion decision."
+evidence = [
+  "tests/unit/core/contracts/test_value_outer_set.py",
+]
+compatibility = "The fields are optional. Existing payloads without them retain the prior canonical payload shape and hash. Existing point identification remains a zero-width identification set."
+change_class = "internal"
+surface_classification = "public_stable: polisyos.core.contracts.ValueOuterSet additive optional fields"
+migration = "No migration is required for payloads that do not carry native statistical endpoints."
+api = "Adds paired statistical_lower/statistical_upper fields for source-reported endpoints; they are content-addressed only when present and do not affect identification-set comparisons or promotion."
+limitations = "These endpoints alone do not bind a source report, estimand, measurement unit, rule, or verifier, and do not confer authority. The generation-cycle producer must persist and expose a source-bound uncertainty artifact and the consumer must recompute its subject/unit relation before the full B31 producer-to-consumer criterion is met."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/core/contracts/README.md"]
+runbook_docs = []

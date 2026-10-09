@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.missing_data import assess_administrative_missingness
 from polisyos.ir.analytics.administrative_missingness import (
@@ -84,7 +85,7 @@ def test_survey_quality_certificate_round_trips_via_store(tmp_path) -> None:
     )
 
     store = FileSystemCAS(tmp_path / "cas")
-    ref = persist_survey_quality_certificate(store, certificate)
-    loaded = load_survey_quality_certificate(store, ref)
+    ref = persist_survey_quality_certificate(_ensure_ir_artifact_store(store), certificate)
+    loaded = load_survey_quality_certificate(_ensure_ir_artifact_store(store), ref)
 
     assert loaded == certificate

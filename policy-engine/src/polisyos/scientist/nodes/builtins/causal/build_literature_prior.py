@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts import build_skip_blocker_record
@@ -277,12 +278,16 @@ class BuildLiteraturePriorNode:
                 )
             )
 
-        prior_ref = persist_literature_causal_prior(ctx.store, prior, inputs=input_refs)
+        prior_ref = persist_literature_causal_prior(
+            _ensure_ir_artifact_store(ctx.store), prior, inputs=input_refs
+        )
         graph_inputs = [
             *input_refs,
             InputRef(artifact_id=str(prior_ref.artifact_id), role="literature_prior"),
         ]
-        graph_ref = persist_causal_graph_model(ctx.store, graph, inputs=graph_inputs)
+        graph_ref = persist_causal_graph_model(
+            _ensure_ir_artifact_store(ctx.store), graph, inputs=graph_inputs
+        )
 
         new_state = branch_state(
             state,

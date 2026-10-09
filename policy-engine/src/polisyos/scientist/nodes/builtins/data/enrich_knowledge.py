@@ -25,16 +25,24 @@ from polisyos.scholar.freshness import (
 )
 from polisyos.scholar.freshness_store import FreshnessStateStore
 from polisyos.scholar.types import KnowledgeBundlePayloadV1
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.idempotency import NodeResultCache, compute_idempotency_key
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_KNOWLEDGE_BUNDLE_REF,
     INPUT_RESEARCH_INTENT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.idempotency import (
+    NodeResultCache,
+    compute_idempotency_key,
+)
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_enrich_knowledge@1.1.0"),
@@ -108,7 +116,7 @@ class EnrichKnowledgeNode:
 
         try:
             intent_ref = ResearchIntentRef.model_validate(intent_ref_raw.model_dump())
-            payload = from_canonical_bytes(ctx.store.get_bytes(intent_ref.artifact_id))
+            payload = from_canonical_bytes(ctx.store.get_bytes(intent_ref))
             if not isinstance(payload, dict):
                 raise ValueError("research_intent_ref must point to JSON object payload")
             intent = ResearchIntent.model_validate(payload)
@@ -395,7 +403,7 @@ class EnrichKnowledgeNode:
         ctx: ExecutionContext,
         bundle_ref: KnowledgeBundleRef,
     ) -> KnowledgeBundlePayloadV1:
-        payload = from_canonical_bytes(ctx.store.get_bytes(bundle_ref.artifact_id))
+        payload = from_canonical_bytes(ctx.store.get_bytes(bundle_ref))
         if not isinstance(payload, dict):
             raise ValueError("knowledge_bundle_ref must point to JSON object payload")
         return KnowledgeBundlePayloadV1.model_validate(payload)

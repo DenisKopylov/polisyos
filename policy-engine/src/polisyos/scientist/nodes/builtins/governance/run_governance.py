@@ -8,6 +8,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
@@ -616,7 +617,7 @@ def _policy_summary_from_state(
     if trinity_ref is None:
         return None
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
+        payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref))
     except _GOVERNANCE_HELPER_ERRORS as exc:
         emit_degraded_path(
             component="scientist.run_governance",
@@ -647,7 +648,7 @@ def _simulation_results_from_state(
     if metrics_ref is None:
         return None
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(metrics_ref.artifact_id))
+        payload = from_canonical_bytes(ctx.store.get_bytes(metrics_ref))
         metrics = Metrics.model_validate(payload)
     except _GOVERNANCE_HELPER_ERRORS as exc:
         emit_degraded_path(
@@ -710,7 +711,7 @@ def _transport_summary_from_state(
         return None
 
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(report_ref.artifact_id))
+        payload = from_canonical_bytes(ctx.store.get_bytes(report_ref))
     except _GOVERNANCE_HELPER_ERRORS as exc:
         emit_degraded_path(
             component="scientist.run_governance",
@@ -1076,7 +1077,7 @@ def _load_normative_arbitration_result(
         return None
     try:
         return load_normative_arbitration_result(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             NormativeArbitrationResultRef(artifact_id=ref.artifact_id),
         )
     except _GOVERNANCE_HELPER_ERRORS as exc:
@@ -1248,7 +1249,7 @@ def _extract_pii_scan_results(
     if snapshot_ref is None:
         return None
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(snapshot_ref.artifact_id))
+        payload = from_canonical_bytes(ctx.store.get_bytes(snapshot_ref))
         snapshot = DataSnapshot.model_validate(payload)
     except _GOVERNANCE_HELPER_ERRORS as exc:
         emit_degraded_path(

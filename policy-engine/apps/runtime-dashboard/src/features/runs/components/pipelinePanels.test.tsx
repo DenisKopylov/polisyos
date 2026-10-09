@@ -164,9 +164,14 @@ describe("pipeline surfaces", () => {
       attempts: [
         {
           attempt: 1,
+          costOriginCounts: { unknown: 1 },
+          costUsd: null,
           durationMs: 2_000,
+          estimatedCostUsd: 0,
           finishedAt: "2026-03-10T10:10:00Z",
           startedAt: "2026-03-10T10:09:00Z",
+          reportedCostUsd: 0,
+          settlementStatusCounts: { unknown: 1 },
           status: "ok",
           steps: [
             {
@@ -175,7 +180,23 @@ describe("pipeline surfaces", () => {
               agent: "planner",
               agentLabel: "Planner",
               completionTokens: 54,
-              costUsd: 0.12,
+              costUsd: null,
+              costUnknown: true,
+              costEvents: [
+                {
+                  amount: null,
+                  costOrigin: "unknown",
+                  costUsd: null,
+                  durability: "none",
+                  eventId: "llm-provider:unknown",
+                  model: "openai/gpt-5.4",
+                  originEventId: null,
+                  payloadDigest: "sha256:unknown",
+                  provider: "OpenAI",
+                  receipts: [],
+                  settlementStatus: "unknown",
+                },
+              ],
               details: { lane: "fastlane" },
               latencyMs: 180,
               model: "openai/gpt-5.4",
@@ -205,6 +226,9 @@ describe("pipeline surfaces", () => {
         verdict: "future-owner-grade",
       },
       hasPromptData: true,
+      costOriginCounts: { unknown: 1 },
+      costUsd: null,
+      estimatedCostUsd: 0,
       iterationLifecycle: {
         iteration: 2,
         state: "running",
@@ -272,6 +296,8 @@ describe("pipeline surfaces", () => {
         ],
       },
       source: "runtime",
+      reportedCostUsd: 0,
+      settlementStatusCounts: { unknown: 1 },
       totalAttempts: 1,
     });
 
@@ -288,6 +314,9 @@ describe("pipeline surfaces", () => {
     expect(screen.getByText("retrieval.materialize")).toBeInTheDocument();
     expect(screen.getByText("Promotion lane fallback")).toBeInTheDocument();
     expect(screen.getByText("Draft plan")).toBeInTheDocument();
+    expect(
+      screen.getByText("panels.agentPipeline.costUnknown"),
+    ).toBeInTheDocument();
     expect(screen.getByText(/Grounded in evidence/)).toBeInTheDocument();
     const ownerStatuses = screen.getAllByText("ok");
     expect(ownerStatuses).toHaveLength(2);
@@ -309,6 +338,7 @@ describe("pipeline surfaces", () => {
     expect(screen.getByText("Drafted a grounded plan")).toBeInTheDocument();
     expect(screen.getByText("Plan prompt")).toBeInTheDocument();
     expect(screen.getByText("Plan response")).toBeInTheDocument();
+    expect(screen.getByText("llm-provider:unknown")).toBeInTheDocument();
     expect(
       screen.getByText("panels.agentPipeline.rawDetails"),
     ).toBeInTheDocument();
@@ -317,6 +347,9 @@ describe("pipeline surfaces", () => {
   it("renders an empty agent pipeline state when attempts are unavailable", () => {
     normalizeAgentPipelineMock.mockReturnValue({
       attempts: [],
+      costOriginCounts: {},
+      costUsd: null,
+      estimatedCostUsd: null,
       evaluator: null,
       hasPromptData: false,
       iterationLifecycle: null,
@@ -327,6 +360,8 @@ describe("pipeline surfaces", () => {
       reproducibility: null,
       retrieval: null,
       source: null,
+      reportedCostUsd: null,
+      settlementStatusCounts: {},
       totalAttempts: 0,
     });
 

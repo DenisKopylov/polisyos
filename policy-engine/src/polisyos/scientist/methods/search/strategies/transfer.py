@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Any
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
 from polisyos.scientist.methods.search.strategies.types import Evaluation, EvaluationStatus
 
@@ -104,6 +105,7 @@ class TransferLearningManager:
                 kind="search.transfer.history",
                 media_type="application/json",
             ),
+            canon_spec=CanonSpec(forbid_floats=False),
         )
 
         # Index the run in vector memory
@@ -210,9 +212,7 @@ class TransferLearningManager:
 
         prepared: list[list[Evaluation]] = []
         for fp in similar_runs:
-            if target_fingerprint is not None and not self._binding_matches(
-                target_fingerprint, fp
-            ):
+            if target_fingerprint is not None and not self._binding_matches(target_fingerprint, fp):
                 continue
 
             rows = self._load_run_evaluations(fp)
@@ -432,18 +432,14 @@ class TransferLearningManager:
 
     def _read_history(self, ref: ArtifactRef) -> list[dict[str, Any]]:
         """Read one validated JSON history payload from its exact CAS ref."""
-        import json as _json
-
-        raw = self._store.get_bytes(ref.artifact_id)
+        raw = self._store.get_bytes(ref)
         try:
-            data = _json.loads(raw)
+            data = from_canonical_bytes(raw)
         except (TypeError, ValueError) as exc:
             raise ValueError(f"Malformed transfer history artifact {ref.artifact_id}") from exc
         if not isinstance(data, dict):
             raise ValueError(f"Transfer history artifact {ref.artifact_id} is not an object")
         evals = data.get("evaluations")
         if not isinstance(evals, list):
-            raise ValueError(
-                f"Transfer history artifact {ref.artifact_id} has no evaluations list"
-            )
+            raise ValueError(f"Transfer history artifact {ref.artifact_id} has no evaluations list")
         return list(evals)

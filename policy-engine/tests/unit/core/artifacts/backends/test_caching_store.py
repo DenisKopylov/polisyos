@@ -12,16 +12,22 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from polisyos.core.artifacts._integrity_ops import ArtifactIntegrityError
 from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.artifacts.backends.caching_store import CachingArtifactStore
+from polisyos.core.artifacts.ir_adapter import ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     ArtifactTenantContextInfo,
     InputRef,
     ProducerInfo,
 )
+from polisyos.core.artifacts.manifest import (
+    CanonInfo as CoreCanonInfo,
+)
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.ir.artifacts.io import get_json_artifact
 from polisyos.runtime.http.resilience import guard_runtime_cas
 
 _FAKE_ID = "sha256:" + "aa" * 32
@@ -32,6 +38,51 @@ def _make_ref(kind: str = "test") -> ArtifactRef:
 
 
 class TestCachingArtifactStore:
+    def test_cold_readthrough_loads_and_caches_exact_selected_raw_manifest(self, tmp_path: Path):
+        """A cold local cache reads the selected raw sidecar from its remote owner."""
+        exact_bytes = b'{"nested":{"value":1}}'
+        remote = FileSystemCAS(tmp_path / "remote-selected-profile")
+        local = FileSystemCAS(tmp_path / "local-selected-profile")
+        default_ref = remote.put_bytes(
+            exact_bytes,
+            ArtifactWriteOptions(
+                kind="cache.selected.default-kind",
+                media_type="application/json",
+                canon=CoreCanonInfo(max_depth=0),
+            ),
+        )
+        selected_ref = remote.put_bytes(
+            exact_bytes,
+            ArtifactWriteOptions(
+                kind="cache.selected.remote-kind",
+                media_type="application/json",
+                canon=CoreCanonInfo(max_depth=8),
+            ),
+        )
+        assert default_ref.artifact_id == selected_ref.artifact_id
+        assert selected_ref.manifest_profile_sha256 is not None
+        remote_manifest_bytes = remote.get_manifest_bytes(selected_ref)
+        assert local.has(selected_ref) is False
+
+        cached = CachingArtifactStore(remote=remote, local=local, write_through=False)
+        loaded = get_json_artifact(ensure_ir_artifact_store(cached), selected_ref)
+
+        assert loaded == {"nested": {"value": 1}}
+        assert local.has(selected_ref) is True
+        assert local.get_manifest_bytes(selected_ref) == remote_manifest_bytes
+        assert local.get_manifest(selected_ref).kind == "cache.selected.remote-kind"
+        assert local.get_manifest(selected_ref).canon.max_depth == 8
+
+        wrong_profile = ArtifactRef(
+            artifact_id=selected_ref.artifact_id,
+            kind=selected_ref.kind,
+            media_type=selected_ref.media_type,
+            manifest_profile_sha256="sha256:" + "f" * 64,
+        )
+        with pytest.raises((FileNotFoundError, ArtifactIntegrityError)):
+            get_json_artifact(ensure_ir_artifact_store(cached), wrong_profile)
+        assert local.has(wrong_profile) is False
+
     def test_get_bytes_local_hit(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """An admitted exact local view serves bytes without a remote blob read."""
         payload = b"cached"
@@ -121,10 +172,9 @@ class TestCachingArtifactStore:
         assert local.get_bytes(ref) == b"data"
         assert remote.get_bytes(ref) == b"data"
         assert store.get_manifest(ref).kind == "test"
-        assert (
-            ManifestLifecycle.profile_sha256(local.get_manifest(ref))
-            == ManifestLifecycle.profile_sha256(remote.get_manifest(ref))
-        )
+        assert ManifestLifecycle.profile_sha256(
+            local.get_manifest(ref)
+        ) == ManifestLifecycle.profile_sha256(remote.get_manifest(ref))
 
     def test_put_bytes_no_write_through(self):
         """write_through=False: only writes to local."""
@@ -395,9 +445,7 @@ class TestCachingArtifactStore:
             ),
         )
         assert local_ref.artifact_id == remote_ref.artifact_id
-        local_profile_sha256 = ManifestLifecycle.profile_sha256(
-            local.get_manifest(local_ref)
-        )
+        local_profile_sha256 = ManifestLifecycle.profile_sha256(local.get_manifest(local_ref))
         remote_profile_sha256 = ManifestLifecycle.profile_sha256(remote.get_manifest(remote_ref))
         assert local_profile_sha256 != remote_profile_sha256
         local_get_bytes = MagicMock(wraps=local.get_bytes)
@@ -413,10 +461,7 @@ class TestCachingArtifactStore:
         local_get_bytes.assert_not_called()
         local_has_view.assert_called_once_with(remote_ref.artifact_id, remote_profile_sha256)
         remote_get_bytes.assert_called_once()
-        assert (
-            remote_get_bytes.call_args.args[0].manifest_profile_sha256
-            == remote_profile_sha256
-        )
+        assert remote_get_bytes.call_args.args[0].manifest_profile_sha256 == remote_profile_sha256
 
     def test_selected_remote_view_uses_matching_local_view_when_defaults_diverge(
         self,
@@ -803,9 +848,7 @@ class TestCachingArtifactStore:
             remote,
             "get_manifest_bytes",
             lambda selected: (
-                owner_manifest_reader(selected)
-                if selected == pinned_ref
-                else moved_default_bytes
+                owner_manifest_reader(selected) if selected == pinned_ref else moved_default_bytes
             ),
         )
         signature_reader = MagicMock(wraps=remote.get_signature_bytes)

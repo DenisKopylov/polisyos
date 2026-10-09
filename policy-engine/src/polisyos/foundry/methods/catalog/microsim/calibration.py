@@ -8,6 +8,8 @@ from typing import Any, ClassVar
 
 import numpy as np
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+
 try:
     from scipy.optimize import BFGS, minimize
     from scipy.stats import chi2
@@ -1282,7 +1284,9 @@ class ReweightingCalibrationEstimator:
                 )
             )
             calibration_report_ref = (
-                persist_microsim_calibration_report(artifact_store, calibration_report)
+                persist_microsim_calibration_report(
+                    _ensure_ir_artifact_store(artifact_store), calibration_report
+                )
                 if artifact_store is not None and calibration_report is not None
                 else None
             )

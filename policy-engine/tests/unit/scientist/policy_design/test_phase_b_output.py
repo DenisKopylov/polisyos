@@ -7,6 +7,7 @@ from decimal import Decimal
 import pytest
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
@@ -430,7 +431,7 @@ def _phase3_passed(store: FileSystemCAS) -> Phase3CertificateStatus:
         PutOptions(kind="ir.welfare_multiplier_matrix", media_type="application/json"),
     )
     social_weight_ref = persist_social_weight_manifest(
-        store,
+        _ensure_ir_artifact_store(store),
         SocialWeightManifestArtifact(
             manifest_ref="swr://phase-b-output/test@1.0.0#weights",
             method_fqn="policy.welfare.state_dependent_inverse_social_weights@1.0.0",
@@ -441,7 +442,7 @@ def _phase3_passed(store: FileSystemCAS) -> Phase3CertificateStatus:
         ),
     )
     ge_ref = persist_ge_uncertainty_bundle(
-        store,
+        _ensure_ir_artifact_store(store),
         GEUncertaintyBundle(
             model_class="linearized_ge_io",
             representation=GEUncertaintyRepresentation.MULTIPLIER_INTERVALS,
@@ -458,7 +459,7 @@ def _phase3_passed(store: FileSystemCAS) -> Phase3CertificateStatus:
         ),
     )
     welfare_ref = persist_welfare_bundle(
-        store,
+        _ensure_ir_artifact_store(store),
         WelfareBundle(
             welfare_measure="net_social_welfare",
             model_class="linearized_ge_io",
@@ -474,7 +475,7 @@ def _phase3_passed(store: FileSystemCAS) -> Phase3CertificateStatus:
         ),
     )
     ambiguity_ref = persist_optimization_ambiguity_certificate(
-        store,
+        _ensure_ir_artifact_store(store),
         build_optimization_ambiguity_certificate(
             {"mode": "not_applicable"},
             mode="not_applicable",

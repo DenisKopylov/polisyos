@@ -1,0 +1,709 @@
+{
+  "$defs": {
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "title": "ArtifactID",
+      "type": "string"
+    },
+    "BoundsBundleRef": {
+      "additionalProperties": false,
+      "description": "Stable handle for persisted partial-identification outputs consumed by readiness checks and reporting.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.bounds_bundle",
+          "default": "ir.bounds_bundle",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "BoundsBundleRef",
+      "type": "object"
+    },
+    "CompilationStep": {
+      "additionalProperties": false,
+      "description": "Records the transition from EstimandAST \u2192 ExecutorGraph.",
+      "properties": {
+        "compiler_warnings": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Compiler Warnings",
+          "type": "array"
+        },
+        "estimand_shape": {
+          "title": "Estimand Shape",
+          "type": "string"
+        },
+        "estimation_strategy": {
+          "title": "Estimation Strategy",
+          "type": "string"
+        },
+        "n_executor_nodes": {
+          "title": "N Executor Nodes",
+          "type": "integer"
+        },
+        "nuisance_components": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Nuisance Components",
+          "type": "array"
+        }
+      },
+      "required": [
+        "estimand_shape",
+        "estimation_strategy",
+        "n_executor_nodes"
+      ],
+      "title": "CompilationStep",
+      "type": "object"
+    },
+    "DataProvenance": {
+      "additionalProperties": false,
+      "description": "Provenance record for a single data source used in estimation.",
+      "properties": {
+        "availability_status": {
+          "default": "available",
+          "title": "Availability Status",
+          "type": "string"
+        },
+        "dataset_ref": {
+          "title": "Dataset Ref",
+          "type": "string"
+        },
+        "domain": {
+          "default": "source",
+          "title": "Domain",
+          "type": "string"
+        },
+        "n_obs": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "N Obs"
+        },
+        "quality_score": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Quality Score",
+          "type": "number"
+        }
+      },
+      "required": [
+        "dataset_ref"
+      ],
+      "title": "DataProvenance",
+      "type": "object"
+    },
+    "DataReadinessReportRef": {
+      "additionalProperties": false,
+      "description": "Stable handle for persisted data-readiness reports emitted before execution is allowed to proceed.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.data_readiness_report",
+          "default": "ir.data_readiness_report",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "DataReadinessReportRef",
+      "type": "object"
+    },
+    "EstimationStep": {
+      "additionalProperties": false,
+      "description": "Records the execution of one MethodDagNode in the executor.",
+      "properties": {
+        "backend": {
+          "default": "",
+          "title": "Backend",
+          "type": "string"
+        },
+        "determinism_tier": {
+          "default": "",
+          "title": "Determinism Tier",
+          "type": "string"
+        },
+        "is_nuisance": {
+          "default": false,
+          "title": "Is Nuisance",
+          "type": "boolean"
+        },
+        "method_fqn": {
+          "title": "Method Fqn",
+          "type": "string"
+        },
+        "method_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Method Version"
+        },
+        "node_id": {
+          "title": "Node Id",
+          "type": "string"
+        },
+        "params_hash": {
+          "default": "",
+          "title": "Params Hash",
+          "type": "string"
+        },
+        "wall_time_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Wall Time Ms"
+        },
+        "warnings": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "node_id",
+        "method_fqn"
+      ],
+      "title": "EstimationStep",
+      "type": "object"
+    },
+    "KernelEstimatorSpecRef": {
+      "additionalProperties": false,
+      "description": "Stable handle for a persisted kernel-estimator lowering specification.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.kernel_estimator_spec",
+          "default": "ir.kernel_estimator_spec",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "KernelEstimatorSpecRef",
+      "type": "object"
+    },
+    "NegativeCertificateRef": {
+      "additionalProperties": false,
+      "description": "Stable handle for persisted negative-control certificates that can block unsafe execution.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.negative_certificate",
+          "default": "ir.negative_certificate",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "NegativeCertificateRef",
+      "type": "object"
+    },
+    "ProofBundleRef": {
+      "additionalProperties": false,
+      "description": "Stable handle for persisted identification or proof bundles reviewed by governance and auditors.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.proof_bundle",
+          "default": "ir.proof_bundle",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "ProofBundleRef",
+      "type": "object"
+    },
+    "ProofStep": {
+      "additionalProperties": false,
+      "description": "A single step in a do-calculus / identification proof.\n\nThis is the JSON-serializable IR counterpart of the internal\n``ProofStep`` frozen dataclass in ``id_engine.py``.",
+      "properties": {
+        "applicable_theorem": {
+          "default": "",
+          "title": "Applicable Theorem",
+          "type": "string"
+        },
+        "depends_on_steps": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Depends On Steps",
+          "type": "array"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "graph_state_after": {
+          "default": "",
+          "title": "Graph State After",
+          "type": "string"
+        },
+        "graph_state_before": {
+          "default": "",
+          "title": "Graph State Before",
+          "type": "string"
+        },
+        "graph_subset": {
+          "default": "",
+          "title": "Graph Subset",
+          "type": "string"
+        },
+        "input_expr_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Input Expr Ref"
+        },
+        "invalidation_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Invalidation Reason"
+        },
+        "local_status": {
+          "default": "unknown",
+          "enum": [
+            "valid",
+            "invalid",
+            "unknown"
+          ],
+          "title": "Local Status",
+          "type": "string"
+        },
+        "output_expr_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Output Expr Ref"
+        },
+        "rule_formal_name": {
+          "default": "",
+          "title": "Rule Formal Name",
+          "type": "string"
+        },
+        "rule_name": {
+          "title": "Rule Name",
+          "type": "string"
+        },
+        "step_id": {
+          "default": "",
+          "title": "Step Id",
+          "type": "string"
+        },
+        "theorem_family": {
+          "default": "",
+          "title": "Theorem Family",
+          "type": "string"
+        },
+        "variables_affected": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Variables Affected",
+          "type": "array"
+        },
+        "witness_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Witness Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "rule_name",
+        "description"
+      ],
+      "title": "ProofStep",
+      "type": "object"
+    },
+    "TwinNetworkResultRef": {
+      "additionalProperties": false,
+      "description": "Stable handle for persisted twin-network results used in counterfactual analysis.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.twin_network_result",
+          "default": "ir.twin_network_result",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "TwinNetworkResultRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Machine-readable audit trail for a causal identification and estimation run.\n\nStores the full proof of identification (proof_steps), the data sources\nused (data_provenance), diagnostic scores, and method configuration.\nIntended for reproducibility, explainability, and policy-level audit.",
+  "properties": {
+    "algorithm_version": {
+      "default": "",
+      "title": "Algorithm Version",
+      "type": "string"
+    },
+    "bounds_bundle_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/BoundsBundleRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "compilation_steps": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/CompilationStep"
+      },
+      "title": "Compilation Steps",
+      "type": "array"
+    },
+    "created_at": {
+      "default": "",
+      "title": "Created At",
+      "type": "string"
+    },
+    "data_provenance": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/DataProvenance"
+      },
+      "title": "Data Provenance",
+      "type": "array"
+    },
+    "data_readiness_report_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DataReadinessReportRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "diagnostic_dashboard": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Diagnostic Dashboard"
+    },
+    "diagnostic_scores": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Diagnostic Scores",
+      "type": "object"
+    },
+    "estimand_ast": {
+      "additionalProperties": true,
+      "title": "Estimand Ast",
+      "type": "object"
+    },
+    "estimand_fingerprint": {
+      "default": "",
+      "title": "Estimand Fingerprint",
+      "type": "string"
+    },
+    "estimation_steps": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/EstimationStep"
+      },
+      "title": "Estimation Steps",
+      "type": "array"
+    },
+    "graph_fingerprint": {
+      "default": "",
+      "title": "Graph Fingerprint",
+      "type": "string"
+    },
+    "identification_status": {
+      "default": "",
+      "title": "Identification Status",
+      "type": "string"
+    },
+    "kernel_estimator_spec_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/KernelEstimatorSpecRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "method_config": {
+      "additionalProperties": true,
+      "title": "Method Config",
+      "type": "object"
+    },
+    "negative_certificate_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NegativeCertificateRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "proof_bundle_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ProofBundleRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "proof_steps": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ProofStep"
+      },
+      "title": "Proof Steps",
+      "type": "array"
+    },
+    "quality_report": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Quality Report"
+    },
+    "query_str": {
+      "title": "Query Str",
+      "type": "string"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "twin_network_result_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TwinNetworkResultRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "run_id",
+    "query_str"
+  ],
+  "title": "EvidenceBundle",
+  "type": "object"
+}

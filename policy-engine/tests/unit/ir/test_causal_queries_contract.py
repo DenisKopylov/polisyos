@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.causal_queries import (
     CausalQuery,
@@ -114,8 +116,8 @@ def test_causal_query_result_artifact_roundtrip(tmp_path) -> None:
         computation_time_seconds=0.1,
     )
 
-    ref = persist_causal_query_result(store, result)
-    loaded = load_causal_query_result(store, ref)
+    ref = persist_causal_query_result(_ensure_ir_artifact_store(store), result)
+    loaded = load_causal_query_result(_ensure_ir_artifact_store(store), ref)
 
     assert isinstance(ref, CausalQueryResultRef)
     assert ref.kind == "ir.causal_query_result"

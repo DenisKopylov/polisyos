@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import canon as core_canon
+from polisyos.core.artifacts import resolve_manifest_by_profile
 from polisyos.pdc import (
     ApplicabilityResult,
     ArtifactEnvelope,
@@ -780,9 +781,9 @@ def _read_binding(
     store: core_artifacts.ArtifactStore, ref: object, path: str
 ) -> tuple[AdapterArtifactByteBinding, bytes, core_artifacts.ArtifactManifest]:
     typed = core_artifacts.ArtifactRef.model_validate(ref)
-    raw = store.get_bytes(typed.artifact_id)
+    raw = store.get_bytes(typed)
     digest = _byte_hash(raw)
-    manifest = core_artifacts.ArtifactManifest.model_validate(store.get_manifest(typed.artifact_id))
+    manifest = core_artifacts.ArtifactManifest.model_validate(store.get_manifest(typed))
     if (
         digest != str(typed.artifact_id)
         or manifest.artifact_id != typed.artifact_id
@@ -811,7 +812,7 @@ def _reference_closure(
     store: core_artifacts.ArtifactStore, value: object, path: str
 ) -> list[AdapterArtifactByteBinding]:
     bindings: list[AdapterArtifactByteBinding] = []
-    visited: set[str] = set()
+    visited: set[tuple[str, str | None]] = set()
 
     def visit(item: object, coordinate: str) -> None:
         if hasattr(item, "model_dump"):
@@ -819,20 +820,32 @@ def _reference_closure(
         if isinstance(item, dict) and "artifact_id" in item:
             binding, _, manifest = _read_binding(store, item, coordinate)
             bindings.append(binding)
-            identity = str(binding.artifact_ref.artifact_id)
+            identity = (
+                str(binding.artifact_ref.artifact_id),
+                binding.artifact_ref.manifest_profile_sha256,
+            )
             if identity in visited:
                 return
             visited.add(identity)
             for index, parent in enumerate(manifest.inputs):
-                parent_manifest = core_artifacts.ArtifactManifest.model_validate(
-                    store.get_manifest(parent.artifact_id)
+                if parent.manifest_profile_sha256 is None:
+                    parent_manifest = core_artifacts.ArtifactManifest.model_validate(
+                        store.get_manifest(parent.artifact_id)
+                    )
+                else:
+                    parent_manifest = resolve_manifest_by_profile(
+                        store,
+                        parent.artifact_id,
+                        parent.manifest_profile_sha256,
+                    )
+                parent_ref = core_artifacts.ArtifactRef(
+                    artifact_id=parent.artifact_id,
+                    kind=parent_manifest.kind,
+                    media_type=parent_manifest.media_type,
+                    manifest_profile_sha256=parent.manifest_profile_sha256,
                 )
                 visit(
-                    core_artifacts.ArtifactRef(
-                        artifact_id=parent.artifact_id,
-                        kind=parent_manifest.kind,
-                        media_type=parent_manifest.media_type,
-                    ),
+                    parent_ref,
                     f"{coordinate}.lineage[{index}]",
                 )
         elif isinstance(item, dict):

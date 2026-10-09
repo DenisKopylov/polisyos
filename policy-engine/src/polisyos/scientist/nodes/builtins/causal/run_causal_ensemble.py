@@ -10,6 +10,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -50,10 +51,6 @@ from polisyos.ir.registry.refs import (
 )
 from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.compute.runner import run_job
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENSEMBLE_ENVELOPE_REF,
@@ -62,6 +59,15 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_QUERY_RESULT_REF,
     ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 _METHOD_FQN = "causal.structural.gcm_query@1.0.0"
 _MAX_MEMBERS = 10
@@ -322,7 +328,7 @@ def _mean_bootstrap_stability(
         return 0.0
     try:
         report_ref = CausalDiscoveryReportRef.model_validate(discovery_report_ref.model_dump())
-        report = load_causal_discovery_report(ctx.store, report_ref)
+        report = load_causal_discovery_report(_ensure_ir_artifact_store(ctx.store), report_ref)
     except _CAUSAL_ENSEMBLE_RUNTIME_ERRORS:
         return 0.0
     if not report.bootstrap_stability:
@@ -343,11 +349,13 @@ def _load_graph_for_candidate(
 ) -> tuple[CausalGraphModel, ArtifactRef]:
     if candidate.graph_ref is not None:
         graph_ref = CausalGraphModelRef.model_validate(candidate.graph_ref.model_dump(mode="json"))
-        graph = load_causal_graph_model(ctx.store, graph_ref)
+        graph = load_causal_graph_model(_ensure_ir_artifact_store(ctx.store), graph_ref)
         return graph, ArtifactRef.model_validate(graph_ref.model_dump(mode="json"))
 
     graph_inputs = [InputRef(artifact_id=scm_ref.artifact_id, role=f"member_{member_index}.scm")]
-    persisted = persist_causal_graph_model(ctx.store, scm_spec.graph, inputs=graph_inputs)
+    persisted = persist_causal_graph_model(
+        _ensure_ir_artifact_store(ctx.store), scm_spec.graph, inputs=graph_inputs
+    )
     graph_ref = ArtifactRef.model_validate(persisted.model_dump(mode="json"))
     return scm_spec.graph, graph_ref
 
@@ -538,7 +546,7 @@ class RunCausalEnsembleNode:
         for idx, candidate in enumerate(candidates):
             if candidate.scm_inline is not None:
                 persisted_scm = persist_structural_causal_model_spec(
-                    ctx.store,
+                    _ensure_ir_artifact_store(ctx.store),
                     candidate.scm_inline,
                 )
                 scm_ref = ArtifactRef.model_validate(persisted_scm.model_dump(mode="json"))
@@ -547,7 +555,9 @@ class RunCausalEnsembleNode:
                 scm_spec_ref = StructuralCausalModelSpecRef.model_validate(
                     candidate.scm_ref.model_dump(mode="json")
                 )
-                scm_spec = load_structural_causal_model_spec(ctx.store, scm_spec_ref)
+                scm_spec = load_structural_causal_model_spec(
+                    _ensure_ir_artifact_store(ctx.store), scm_spec_ref
+                )
                 scm_ref = candidate.scm_ref
             else:
                 return NodeOutcome(
@@ -595,7 +605,9 @@ class RunCausalEnsembleNode:
                     query_result_ref = CausalQueryResultRef.model_validate(
                         candidate.query_result_ref.model_dump(mode="json")
                     )
-                    query_result = load_causal_query_result(ctx.store, query_result_ref)
+                    query_result = load_causal_query_result(
+                        _ensure_ir_artifact_store(ctx.store), query_result_ref
+                    )
                 except _CAUSAL_ENSEMBLE_RUNTIME_ERRORS as exc:
                     return NodeOutcome(
                         status="fail",
@@ -724,7 +736,7 @@ class RunCausalEnsembleNode:
                 for idx, item in enumerate(normalized_members)
             ]
             persisted_consensus = persist_causal_graph_model(
-                ctx.store,
+                _ensure_ir_artifact_store(ctx.store),
                 consensus_graph,
                 inputs=graph_inputs,
             )
@@ -746,7 +758,7 @@ class RunCausalEnsembleNode:
             edge_inclusion_frequency=edge_frequencies,
         )
         ensemble_ref = persist_causal_model_ensemble(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             ensemble,
             inputs=input_refs,
         )
@@ -775,7 +787,7 @@ class RunCausalEnsembleNode:
             }
         )
         envelope_ref = persist_uncertainty_envelope(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             envelope,
             inputs=[
                 InputRef(artifact_id=str(ensemble_ref.artifact_id), role="causal_ensemble_ref"),

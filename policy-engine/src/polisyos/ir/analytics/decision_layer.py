@@ -117,7 +117,7 @@ def load_optimization_ambiguity_certificate(
 ) -> OptimizationAmbiguityCertificate:
     """Load a persisted optimization ambiguity certificate."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return OptimizationAmbiguityCertificate.model_validate(payload)
 
 
@@ -147,7 +147,7 @@ def load_social_weight_manifest(
 ) -> SocialWeightManifestArtifact:
     """Load a persisted state-dependent social-weight manifest."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return SocialWeightManifestArtifact.model_validate(payload)
 
 
@@ -177,7 +177,7 @@ def load_fiscal_feedback_link(
 ) -> FiscalFeedbackLink:
     """Load a persisted fiscal-feedback linkage artifact."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return FiscalFeedbackLink.model_validate(payload)
 
 

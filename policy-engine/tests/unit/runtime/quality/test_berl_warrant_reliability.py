@@ -32,9 +32,7 @@ def test_warrant_requires_berl_refs_when_reliability_affects_trust_surface(
     result = validate_claim_argument_case_surfaces(case)
 
     assert result.status == "fail"
-    assert {
-        issue.code for issue in result.issues
-    } >= {"policy_design_warrant_berl_refs_missing"}
+    assert {issue.code for issue in result.issues} >= {"policy_design_warrant_berl_refs_missing"}
 
 
 def test_warrant_reliability_record_blocks_failed_berl_thresholds() -> None:
@@ -58,9 +56,9 @@ def test_warrant_reliability_record_blocks_failed_berl_thresholds() -> None:
     result = validate_claim_argument_case_surfaces(case)
 
     assert result.status == "fail"
-    assert {
-        issue.code for issue in result.issues
-    } >= {"policy_design_warrant_berl_threshold_failed"}
+    assert {issue.code for issue in result.issues} >= {
+        "policy_design_warrant_berl_threshold_failed"
+    }
 
 
 def test_warrant_reliability_ref_must_resolve_to_a_record() -> None:
@@ -73,9 +71,9 @@ def test_warrant_reliability_ref_must_resolve_to_a_record() -> None:
     result = validate_claim_argument_case_surfaces(case)
 
     assert result.status == "fail"
-    assert {
-        issue.code for issue in result.issues
-    } >= {"policy_design_warrant_berl_reliability_record_missing"}
+    assert {issue.code for issue in result.issues} >= {
+        "policy_design_warrant_berl_reliability_record_missing"
+    }
 
 
 def test_warrant_reliability_record_must_carry_bundle_thresholds_bounds_and_infidelity() -> None:
@@ -95,9 +93,7 @@ def test_warrant_reliability_record_must_carry_bundle_thresholds_bounds_and_infi
     result = validate_claim_argument_case_surfaces(case)
 
     assert result.status == "fail"
-    assert {
-        issue.code for issue in result.issues
-    } >= {
+    assert {issue.code for issue in result.issues} >= {
         "policy_design_warrant_berl_bundle_ref_missing",
         "policy_design_warrant_berl_threshold_decision_missing",
         "policy_design_warrant_berl_empirical_bounds_missing",
@@ -121,6 +117,48 @@ def test_berl_warrant_reliability_record_can_be_built_without_argument_refs() ->
     assert record["threshold_decision"]["status"] == "pass"
     assert record["empirical_bounds"]
     assert record["local_infidelity_diagnostics"]
+
+
+@pytest.mark.parametrize(
+    ("profile", "expected_violation"),
+    [
+        ("conditional_observational", "conditional_feature_law_unverified"),
+        ("future_profile", "feature_dependence_profile_unsupported"),
+        (
+            {"profile": "conditional_observational"},
+            "feature_dependence_profile_malformed",
+        ),
+    ],
+)
+def test_warrant_reliability_refuses_unadmitted_feature_dependence_profiles(
+    profile: object,
+    expected_violation: str,
+) -> None:
+    case = _claim_argument_case()
+    warrant = dict(case["warrants"][0])
+    warrant["explanation_trust_affects_acceptance"] = True
+    warrant["berl_reliability_refs"] = ["berl-reliability-conditional"]
+    case["warrants"] = [warrant]
+    bundle = _berl_bundle(upper_bound=0.03)
+    bundle["assumptions"]["feature_dependence_policy"]["primary"] = profile
+    bundle["methods"][0]["assumptions"] = {"feature_removal": profile}
+    bundle["audit"]["artifact_refs"] = ["cas://self-attested/conditional-law-verified"]
+    case["warrant_reliability_records"] = [
+        {
+            "reliability_id": "berl-reliability-conditional",
+            "claim_id": "rec_1",
+            "warrant_id": "warrant-rec-1",
+            "evidence_ref": sha("9"),
+            "explanation_bundle_ref": sha("a"),
+            "validation_thresholds": {"max_p95_infidelity_upper_bound": 0.1},
+            "explanation_bundle": bundle,
+        }
+    ]
+
+    result = validate_claim_argument_case_surfaces(case)
+
+    assert result.status == "fail"
+    assert any(expected_violation in issue.message for issue in result.issues)
 
 
 def _claim_argument_case() -> dict[str, object]:
@@ -201,16 +239,12 @@ def _claim_argument_case() -> dict[str, object]:
                 "independent_alternative_analyses": [
                     {
                         "alternative_id": "baseline-no-action",
-                        "conclusion": (
-                            "no action has lower fiscal risk but worse survival impact"
-                        ),
+                        "conclusion": ("no action has lower fiscal risk but worse survival impact"),
                         "evidence_refs": [sha("1")],
                     },
                     {
                         "alternative_id": "untargeted-subsidy",
-                        "conclusion": (
-                            "untargeted subsidy is rejected on distributional grounds"
-                        ),
+                        "conclusion": ("untargeted subsidy is rejected on distributional grounds"),
                         "evidence_refs": [sha("2")],
                     },
                 ],
@@ -284,7 +318,7 @@ def _berl_bundle(*, upper_bound: float) -> dict[str, object]:
                 "support_constraints": sha("c"),
             },
             "feature_dependence_policy": {
-                "primary": "conditional_observational",
+                "primary": "marginal_interventional",
                 "alternatives_tested": ["marginal_interventional"],
                 "causal_claim_made": False,
             },
@@ -297,11 +331,11 @@ def _berl_bundle(*, upper_bound: float) -> dict[str, object]:
         "redundancy": {"clusters": []},
         "methods": [
             {
-                "method_id": "kernel_shap_conditional",
+                "method_id": "kernel_shap",
                 "library": "berl-fixture",
                 "library_version": "1.0.0",
                 "params": {"coalition_samples": 64},
-                "assumptions": {"feature_removal": "conditional_observational"},
+                "assumptions": {"feature_removal": "marginal_interventional"},
                 "attributions": [{"feature": "employment_rate", "value": 0.18}],
                 "infidelity": {
                     "point_estimate": 0.01,
@@ -315,7 +349,7 @@ def _berl_bundle(*, upper_bound: float) -> dict[str, object]:
             }
         ],
         "disagreement": {
-            "methods_compared": ["kernel_shap_conditional"],
+            "methods_compared": ["kernel_shap"],
             "top_k": 1,
             "top_k_jaccard_median": 1.0,
             "kendall_tau_median": 1.0,

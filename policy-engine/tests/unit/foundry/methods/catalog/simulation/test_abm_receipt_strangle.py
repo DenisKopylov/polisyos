@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.foundry import SimulationResult
 from polisyos.foundry.methods.catalog.simulation.dynamics import (
@@ -216,8 +217,8 @@ def test_fully_populated_core_result_converts_and_persists_with_wire_equivalence
     )
     store = FileSystemCAS(tmp_path)
 
-    ref = persist_abm_result(store, result)
-    loaded = load_abm_result(store, ref)
+    ref = persist_abm_result(_ensure_ir_artifact_store(store), result)
+    loaded = load_abm_result(_ensure_ir_artifact_store(store), ref)
 
     assert SimulationResult not in ABMResult.__mro__
     assert loaded == result
@@ -246,8 +247,8 @@ def test_foundry_producer_persists_for_ir_result_consumer(tmp_path) -> None:
     )
     store = FileSystemCAS(tmp_path)
 
-    ref = persist_abm_result(store, result)
-    loaded = load_abm_result(store, ref)
+    ref = persist_abm_result(_ensure_ir_artifact_store(store), result)
+    loaded = load_abm_result(_ensure_ir_artifact_store(store), ref)
 
     assert not isinstance(result, SimulationResult)
     assert loaded == result

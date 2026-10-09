@@ -165,7 +165,7 @@ def load_abm_alignment_report(
     ref: ABMAlignmentReportRef,
 ) -> ABMAlignmentReport:
     """Load abm alignment report."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return ABMAlignmentReport.model_validate(payload)
 
 

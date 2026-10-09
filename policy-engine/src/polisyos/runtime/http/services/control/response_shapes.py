@@ -31,40 +31,157 @@ from polisyos.runtime.quality.source_truth import (
 )
 
 _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
+_COST_ORIGINS = frozenset({"reported", "estimated", "reuse", "unknown"})
+_SETTLEMENT_STATUSES = frozenset({"pending", "committed", "unknown", "unmanaged"})
+_SETTLEMENT_DURABILITIES = frozenset({"ledger", "memory", "none"})
 
 
-def _sum_call_events(events: list[dict[str, Any]]) -> dict[str, float]:
+def _money_discriminator(value: object, allowed: frozenset[str], default: str) -> str:
+    """Return a typed monetary discriminator or its fail-closed default."""
+    if isinstance(value, str) and value in allowed:
+        return value
+    return default
+
+
+def _finite_decimal(value: object, *, nonnegative: bool) -> Decimal | None:
+    try:
+        parsed = Decimal(str(value))
+    except (ValueError, ArithmeticError):
+        return None
+    if not parsed.is_finite() or (nonnegative and parsed < 0):
+        return None
+    return parsed
+
+
+def _sum_call_events(events: list[dict[str, Any]]) -> dict[str, Any]:
     prompt_tokens = 0.0
     completion_tokens = 0.0
     latency_ms = 0.0
     cost_usd = 0.0
+    cost_is_unknown = False
     estimated_cost_usd = 0.0
     cost_delta_usd = 0.0
+    cost_status_counts: dict[str, int] = {}
+    settlement_status_counts: dict[str, int] = {}
+    settlement_durability_counts: dict[str, int] = {}
     for event in events:
         prompt_tokens += float(event.get("prompt_tokens") or 0)
         completion_tokens += float(event.get("completion_tokens") or 0)
         latency_ms += float(event.get("latency_ms") or 0)
-        cost_usd += float(event.get("cost_usd") or 0.0)
-        estimated_cost_usd += float(event.get("estimated_cost_usd") or 0.0)
-        cost_delta_usd += float(event.get("cost_delta_usd") or 0.0)
+        cost_status = _money_discriminator(
+            event.get("cost_origin", event.get("cost_status", "unknown")),
+            _COST_ORIGINS,
+            "unknown",
+        )
+        cost_status_counts[cost_status] = cost_status_counts.get(cost_status, 0) + 1
+        settlement_status = _money_discriminator(
+            event.get("settlement_status", "unknown"), _SETTLEMENT_STATUSES, "unknown"
+        )
+        settlement_status_counts[settlement_status] = (
+            settlement_status_counts.get(settlement_status, 0) + 1
+        )
+        durability = _money_discriminator(
+            event.get("durability", event.get("settlement_durability", "none")),
+            _SETTLEMENT_DURABILITIES,
+            "none",
+        )
+        settlement_durability_counts[durability] = (
+            settlement_durability_counts.get(durability, 0) + 1
+        )
+        raw_cost = event.get("amount", event.get("cost_usd"))
+        if (
+            cost_status == "unknown"
+            or settlement_status in {"pending", "unknown"}
+            or raw_cost is None
+        ):
+            cost_is_unknown = True
+        else:
+            parsed_cost = _finite_decimal(raw_cost, nonnegative=True)
+            if parsed_cost is None:
+                cost_is_unknown = True
+            else:
+                cost_usd += float(parsed_cost)
+        estimated_cost = event.get("estimated_cost_usd")
+        if estimated_cost is not None:
+            parsed_estimate = _finite_decimal(estimated_cost, nonnegative=True)
+            if parsed_estimate is not None:
+                estimated_cost_usd += float(parsed_estimate)
+        cost_delta = event.get("cost_delta_usd")
+        if cost_delta is not None:
+            parsed_delta = _finite_decimal(cost_delta, nonnegative=False)
+            if parsed_delta is not None:
+                cost_delta_usd += float(parsed_delta)
     return {
         "prompt_tokens": prompt_tokens,
         "completion_tokens": completion_tokens,
         "latency_ms": latency_ms,
-        "cost_usd": cost_usd,
+        "cost_usd": None if cost_is_unknown else cost_usd,
+        "cost_status_counts": cost_status_counts,
+        "cost_origin_counts": cost_status_counts,
+        "settlement_status_counts": settlement_status_counts,
+        "settlement_durability_counts": settlement_durability_counts,
         "estimated_cost_usd": estimated_cost_usd,
-        "cost_delta_usd": cost_delta_usd,
+        "cost_delta_usd": None if cost_is_unknown else cost_delta_usd,
+    }
+
+
+def _project_call_event_cost(event: Mapping[str, Any]) -> dict[str, Any]:
+    """Project one observed call into a JSON-safe, status-preserving cost event."""
+
+    origin = _money_discriminator(
+        event.get("cost_origin", event.get("cost_status", "unknown")),
+        _COST_ORIGINS,
+        "unknown",
+    )
+    raw_amount = event.get("amount", event.get("cost_usd"))
+    amount: str | None = None
+    if raw_amount is not None:
+        parsed_amount = _finite_decimal(raw_amount, nonnegative=True)
+        if parsed_amount is not None:
+            amount = str(parsed_amount)
+        else:
+            origin = "unknown"
+    if origin == "unknown":
+        amount = None
+    settlement_status = _money_discriminator(
+        event.get("settlement_status", "unknown"), _SETTLEMENT_STATUSES, "unknown"
+    )
+    durability = _money_discriminator(
+        event.get("durability", event.get("settlement_durability", "none")),
+        _SETTLEMENT_DURABILITIES,
+        "none",
+    )
+    receipts = event.get("receipts", event.get("settlement_receipts", []))
+    if not isinstance(receipts, (tuple, list)):
+        receipts = []
+    return {
+        "event_id": event.get("event_id"),
+        "origin_event_id": event.get("origin_event_id"),
+        "cost_origin": origin,
+        "amount": amount,
+        "settlement_status": settlement_status,
+        "durability": durability,
+        "receipts": [str(item) for item in receipts],
+        "payload_digest": event.get("producer_payload_digest"),
+        "model": event.get("model"),
+        "provider": event.get("provider"),
     }
 
 
 def _delta_usage(
-    before: dict[str, float],
-    after: dict[str, float],
-) -> tuple[int, int, int, float]:
+    before: dict[str, Any],
+    after: dict[str, Any],
+) -> tuple[int, int, int, float | None]:
     prompt = max(0, int(after["prompt_tokens"] - before["prompt_tokens"]))
     completion = max(0, int(after["completion_tokens"] - before["completion_tokens"]))
     latency = max(0, int(after["latency_ms"] - before["latency_ms"]))
-    cost = max(0.0, float(after["cost_usd"] - before["cost_usd"]))
+    before_cost = before.get("cost_usd")
+    after_cost = after.get("cost_usd")
+    cost = (
+        max(0.0, float(after_cost - before_cost))
+        if before_cost is not None and after_cost is not None
+        else None
+    )
     return prompt, completion, latency, cost
 
 
@@ -73,7 +190,7 @@ def _build_scientist_v2_shadow_comparison(
     legacy_status: str,
     legacy_verdict: str | None,
     legacy_issue_count: int,
-    legacy_cost_usd: float,
+    legacy_cost_usd: float | None,
     legacy_prompt_tokens: int,
     legacy_completion_tokens: int,
     shadow_result: object | None,
@@ -103,7 +220,7 @@ def _build_scientist_v2_shadow_comparison(
         "shadow_issue_count": int(shadow_result_payload.get("issue_count") or 0),
         "issue_count_delta": int(shadow_result_payload.get("issue_count") or 0)
         - int(legacy_issue_count),
-        "legacy_cost_usd": float(legacy_cost_usd),
+        "legacy_cost_usd": (float(legacy_cost_usd) if legacy_cost_usd is not None else None),
         "shadow_final_score": float(shadow_metrics.get("final_score") or 0.0),
         "legacy_total_tokens": int(legacy_prompt_tokens) + int(legacy_completion_tokens),
         "shadow_citation_coverage": shadow_citation_coverage,

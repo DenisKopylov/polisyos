@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.estimand import (
     DistributionDomain,
@@ -85,8 +86,8 @@ def test_estimand_persistence_uses_normalized_cas_payload(tmp_path: Path) -> Non
     store = FileSystemCAS(tmp_path)
     left, right = _semantically_equivalent_estimands()
 
-    left_ref = persist_estimand_ast(store, left)
-    right_ref = persist_estimand_ast(store, right)
+    left_ref = persist_estimand_ast(_ensure_ir_artifact_store(store), left)
+    right_ref = persist_estimand_ast(_ensure_ir_artifact_store(store), right)
 
     assert left_ref.artifact_id == right_ref.artifact_id
 

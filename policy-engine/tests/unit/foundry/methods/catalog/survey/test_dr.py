@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.administrative_missingness import (
     AdministrativeMissingnessClass,
@@ -294,7 +296,7 @@ class TestDesignMissingnessDR:
 
         assert ref_payload is not None
         loaded = load_survey_quality_certificate(
-            store,
+            _ensure_ir_artifact_store(store),
             SurveyQualityCertificateRef.model_validate(ref_payload),
         )
         assert loaded.dataset_id == "demo-government-dataset"

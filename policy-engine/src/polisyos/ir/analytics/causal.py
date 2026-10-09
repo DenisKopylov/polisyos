@@ -383,7 +383,7 @@ def load_causal_effect_report(
     ref: CausalEffectReportRef,
 ) -> CausalEffectReport:
     """Load causal effect report."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return CausalEffectReport.model_validate(payload)
 
 
@@ -413,7 +413,7 @@ def load_proof_bundle(
     ref: ProofBundleRef,
 ) -> ProofBundle:
     """Load proof bundle."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return ProofBundle.model_validate(payload)
 
 
@@ -504,7 +504,7 @@ def load_data_readiness_report(
     ref: DataReadinessReportRef,
 ) -> DataReadinessReport:
     """Load data readiness report."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return DataReadinessReport.model_validate(payload)
 
 

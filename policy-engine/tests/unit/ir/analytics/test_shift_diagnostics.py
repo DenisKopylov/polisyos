@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.ml.protocols import PredictionResultConsumerInput
 from polisyos.ir.analytics.shift_diagnostics import (
@@ -17,7 +20,6 @@ from polisyos.ir.analytics.shift_diagnostics import (
     persist_shift_diagnostic_report,
     readiness_downgrade,
 )
-from pydantic import ValidationError
 
 
 def _component(
@@ -165,8 +167,8 @@ def test_shift_report_round_trips_through_artifact_store(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     report = _report()
 
-    ref = persist_shift_diagnostic_report(store, report)
-    restored = load_shift_diagnostic_report(store, ref)
+    ref = persist_shift_diagnostic_report(_ensure_ir_artifact_store(store), report)
+    restored = load_shift_diagnostic_report(_ensure_ir_artifact_store(store), ref)
 
     assert ref.kind == "ir.shift_diagnostic_report"
     assert restored.report_id == report.report_id

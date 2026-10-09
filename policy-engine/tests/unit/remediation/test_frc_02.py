@@ -14,6 +14,7 @@ from pathlib import Path
 import pytest
 
 from polisyos.core.artifacts import FileSystemCAS, PutOptions
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.ir.analytics.backtest import BacktestReport, load_backtest_report
 from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
 from polisyos.ir.registry.refs import BacktestReportRef
@@ -53,9 +54,7 @@ def _plan(
         ground_truth_outcomes={"metric": [1.1, 1.15]},
         target_metrics=["metric"],
         prediction_source=PredictionSource.PROVIDED,
-        predicted_outcomes={
-            "metric": [1.1, 1.15] if exact_predictions else [1.08, 1.13]
-        },
+        predicted_outcomes={"metric": [1.1, 1.15] if exact_predictions else [1.08, 1.13]},
         model_spec_ref=model_spec_ref,
         policy_spec_ref=policy_spec_ref,
     )
@@ -69,12 +68,8 @@ def _persisted_report(
     include_policy_ref: bool,
 ) -> tuple[BacktestReport, str | None, str | None]:
     store = FileSystemCAS(tmp_path / f"{runner_name}-cas")
-    model_spec_ref = (
-        _persist_spec_ref(store, spec_kind="model") if include_model_ref else None
-    )
-    policy_spec_ref = (
-        _persist_spec_ref(store, spec_kind="policy") if include_policy_ref else None
-    )
+    model_spec_ref = _persist_spec_ref(store, spec_kind="model") if include_model_ref else None
+    policy_spec_ref = _persist_spec_ref(store, spec_kind="policy") if include_policy_ref else None
     plan = _plan(
         tmp_path,
         model_spec_ref=model_spec_ref,
@@ -85,9 +80,7 @@ def _persisted_report(
     if runner_name == "orchestrator":
         report = BacktestOrchestrator(cas=store).run([plan])
         assert report.cas_artifact_id is not None
-        report_ref = BacktestReportRef.model_validate(
-            {"artifact_id": report.cas_artifact_id}
-        )
+        report_ref = BacktestReportRef.model_validate({"artifact_id": report.cas_artifact_id})
     else:
         bundle = BacktestPlanBundle(
             contract_target=ContractCompatibilityTarget(
@@ -102,12 +95,16 @@ def _persisted_report(
         assert result.backtest_report_ref is not None
         report_ref = result.backtest_report_ref
 
-    return load_backtest_report(store, report_ref), model_spec_ref, policy_spec_ref
+    return (
+        load_backtest_report(_ensure_ir_artifact_store(store), report_ref),
+        model_spec_ref,
+        policy_spec_ref,
+    )
 
 
 @pytest.mark.parametrize(
     "runner_name",
-    ("orchestrator", "matrix"),
+    [("orchestrator",), ("matrix",)],
     ids=("orchestrator", "matrix"),
 )
 def test_plan_model_policy_refs_survive_orchestrator_and_matrix_persisted_report_roundtrip(
@@ -129,12 +126,12 @@ def test_plan_model_policy_refs_survive_orchestrator_and_matrix_persisted_report
 
 @pytest.mark.parametrize(
     ("runner_name", "partial_ref"),
-    (
+    [
         ("orchestrator", "model"),
         ("orchestrator", "policy"),
         ("matrix", "model"),
         ("matrix", "policy"),
-    ),
+    ],
     ids=(
         "orchestrator-model-only",
         "orchestrator-policy-only",
@@ -168,7 +165,7 @@ def test_partial_plan_refs_fail_closed_after_persisted_report_roundtrip(
 
 @pytest.mark.parametrize(
     "runner_name",
-    ("orchestrator", "matrix"),
+    [("orchestrator",), ("matrix",)],
     ids=("orchestrator", "matrix"),
 )
 def test_no_plan_refs_preserve_existing_report_compatibility(
@@ -218,10 +215,8 @@ def test_different_plan_ref_pairs_fail_closed_in_persisted_report(
 
     report = BacktestOrchestrator(cas=store).run([first, second])
     assert report.cas_artifact_id is not None
-    report_ref = BacktestReportRef.model_validate(
-        {"artifact_id": report.cas_artifact_id}
-    )
-    persisted = load_backtest_report(store, report_ref)
+    report_ref = BacktestReportRef.model_validate({"artifact_id": report.cas_artifact_id})
+    persisted = load_backtest_report(_ensure_ir_artifact_store(store), report_ref)
 
     assert persisted.model_spec_ref is None
     assert persisted.policy_spec_ref is None

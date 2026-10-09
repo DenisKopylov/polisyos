@@ -781,7 +781,7 @@ def load_finite_state_abstraction_map(
     ref: FiniteStateAbstractionMapRef,
 ) -> FiniteStateAbstractionMap:
     """Load finite state abstraction map."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return FiniteStateAbstractionMap.model_validate(payload)
 
 
@@ -811,7 +811,7 @@ def load_abstraction_certificate(
     ref: AbstractionCertificateRef,
 ) -> AbstractionCertificate:
     """Load abstraction certificate."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return AbstractionCertificate.model_validate(payload)
 
 

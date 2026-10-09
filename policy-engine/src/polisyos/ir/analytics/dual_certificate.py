@@ -807,7 +807,7 @@ def load_dual_certificate_bundle(
 ) -> CertifiedBoundsCertificateBundle:
     """Load a persisted dual-certificate bundle."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return coerce_bounds_certificate_bundle(payload)
 
 

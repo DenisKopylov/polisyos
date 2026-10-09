@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 from unittest.mock import patch
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
 from polisyos.foundry.methods.catalog.causal.strategic import StrategicFallbackMode
@@ -318,13 +319,15 @@ def test_transportability_checker_applies_privacy_bounds_gate_and_persists_certi
 
     entries = checker.run(bundle)
     result = load_transportability_result(
-        store,
+        _ensure_ir_artifact_store(store),
         TransportabilityResultRef.model_validate(entries[0].result_ref.model_dump(mode="json")),
     )
     privacy_ref = PrivacyAwareTransportCertificateRef.model_validate(
         result.metadata["privacy_certificate_ref"]
     )
-    certificate = load_privacy_aware_transport_certificate(store, privacy_ref)
+    certificate = load_privacy_aware_transport_certificate(
+        _ensure_ir_artifact_store(store), privacy_ref
+    )
 
     assert entries[0].status == "partially_identified"
     assert result.status is TransportabilityStatus.PARTIALLY_IDENTIFIED

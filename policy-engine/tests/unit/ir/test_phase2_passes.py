@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts.ir_adapter import ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.artifacts import put_json_artifact
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
@@ -170,14 +172,14 @@ def test_cross_model_type_check_and_unused_artifact_analysis_cover_execution_out
 ) -> None:
     store = FileSystemCAS(tmp_path)
     upstream_ref = put_json_artifact(
-        store,
+        _ensure_ir_artifact_store(store),
         {"rows": 1},
         kind="test.upstream",
         schema_name="test.upstream",
         schema_version="1.0",
     )
     used_ref = put_json_artifact(
-        store,
+        _ensure_ir_artifact_store(store),
         {"rows": 2},
         kind="ir.bounds_bundle",
         schema_name="ir.bounds_bundle",
@@ -185,7 +187,7 @@ def test_cross_model_type_check_and_unused_artifact_analysis_cover_execution_out
         inputs=[{"artifact_id": upstream_ref["artifact_id"], "role": "upstream"}],
     )
     unused_ref = put_json_artifact(
-        store,
+        _ensure_ir_artifact_store(store),
         {"rows": 3},
         kind="ir.bounds_bundle",
         schema_name="ir.bounds_bundle",
@@ -224,7 +226,7 @@ def test_cross_model_type_check_and_unused_artifact_analysis_cover_execution_out
     )
     context = (
         PassContext()
-        .with_surface("artifact_store", store)
+        .with_surface("artifact_store", ensure_ir_artifact_store(store))
         .with_surface(
             "artifact_ids",
             [
@@ -251,7 +253,7 @@ def test_cross_model_type_check_and_unused_artifact_analysis_cover_execution_out
 
     bad_result = pipeline.run(
         PassContext()
-        .with_surface("artifact_store", store)
+        .with_surface("artifact_store", ensure_ir_artifact_store(store))
         .with_surface("causal_execution_bundle", bad_execution_bundle)
     )
     assert bad_result.require("cross_model_type_check").missing_ref_count == 1

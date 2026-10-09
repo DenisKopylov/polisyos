@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Protocol, cast
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from polisyos.core.contracts.control import CatalogRunProfile
     from polisyos.runtime.quality.capability_discovery import CapabilityDiscoveryProvider
     from polisyos.runtime.quality.capability_resolver import (
         CapabilityConformanceVerifier,
@@ -55,6 +56,11 @@ class ControlRegistryProviders:
     capability_discovery_providers: tuple[CapabilityDiscoveryProvider, ...] = ()
     capability_live_operation_registry: CapabilityLiveOperationRegistry | None = None
     capability_conformance_verifier: CapabilityConformanceVerifier | None = None
+    catalog_run_profile: CatalogRunProfile | None = None
+
+    def __post_init__(self) -> None:
+        """Validate an explicitly configured catalog scope without a default."""
+        _validate_catalog_run_profile(self.catalog_run_profile)
 
 
 ConnectorRegistryFactory = Callable[[], ConnectorRegistryLike]
@@ -74,6 +80,7 @@ def resolve_control_registry_providers(
     capability_discovery_providers: tuple[CapabilityDiscoveryProvider, ...] = (),
     capability_live_operation_registry: CapabilityLiveOperationRegistry | None = None,
     capability_conformance_verifier: CapabilityConformanceVerifier | None = None,
+    catalog_run_profile: CatalogRunProfile | None = None,
     connectors_factory: ConnectorRegistryFactory | None = None,
     source_profiles_factory: SourceProfileRegistryFactory | None = None,
     binding_profiles_factory: BindingProfileRegistryFactory | None = None,
@@ -81,6 +88,7 @@ def resolve_control_registry_providers(
     gy_catalog_graph_factory: GyCatalogGraphFactory | None = None,
 ) -> ControlRegistryProviders:
     """Resolve runtime control registries once at the bootstrap boundary."""
+    _validate_catalog_run_profile(catalog_run_profile)
 
     registry_factory_overridden = any(
         factory is not None
@@ -129,23 +137,17 @@ def resolve_control_registry_providers(
                 *resolved_discovery_providers,
                 GlobalCaseIndexCapabilityDiscoveryProvider(),
             )
-        if not any(
-            provider.resource_kind == "method" for provider in resolved_discovery_providers
-        ):
+        if not any(provider.resource_kind == "method" for provider in resolved_discovery_providers):
             resolved_discovery_providers = (
                 *resolved_discovery_providers,
                 _default_causal_method_capability_discovery_provider(),
             )
-        if not any(
-            provider.resource_kind == "agent" for provider in resolved_discovery_providers
-        ):
+        if not any(provider.resource_kind == "agent" for provider in resolved_discovery_providers):
             resolved_discovery_providers = (
                 *resolved_discovery_providers,
                 _default_scientist_capability_discovery_provider(),
             )
-        if not any(
-            provider.resource_kind == "source" for provider in resolved_discovery_providers
-        ):
+        if not any(provider.resource_kind == "source" for provider in resolved_discovery_providers):
             resolved_discovery_providers = (
                 *resolved_discovery_providers,
                 _default_source_capability_discovery_provider(
@@ -162,7 +164,19 @@ def resolve_control_registry_providers(
         capability_discovery_providers=resolved_discovery_providers,
         capability_live_operation_registry=capability_live_operation_registry,
         capability_conformance_verifier=capability_conformance_verifier,
+        catalog_run_profile=catalog_run_profile,
     )
+
+
+def _validate_catalog_run_profile(profile: object | None) -> None:
+    """Reject malformed configured profiles without selecting a fallback."""
+    if profile is None:
+        return
+    if not isinstance(profile, str):
+        raise ValueError("catalog_run_profile_invalid")
+    from polisyos.data_forge.domains.catalog.selection import validate_catalog_run_profile
+
+    validate_catalog_run_profile(profile)
 
 
 def _default_connectors() -> ConnectorRegistryLike:

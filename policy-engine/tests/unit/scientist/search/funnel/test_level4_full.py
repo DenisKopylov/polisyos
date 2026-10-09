@@ -41,3 +41,5 @@ def test_level4_full_emits_full_fidelity_stage_result() -> None:
     assert result.is_promising is True
     assert result.objective_value < 0.0
     assert result.uncertainty_envelope.uncertainties
+    assert result.compute_cost_usd is not None
+    assert result.compute_cost_origin == "estimated"

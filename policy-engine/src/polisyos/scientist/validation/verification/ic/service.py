@@ -11,6 +11,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.ic_verification import (
@@ -163,7 +164,7 @@ def _resolve_policy_input(
     store: ArtifactStore,
     request: ICVerificationRequest,
 ) -> tuple[PolicySpec, str]:
-    payload = from_canonical_bytes(store.get_bytes(request.input_ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(request.input_ref))
     if request.input_ref.kind == "ir.trinity_bundle":
         bundle = TrinityBundle.model_validate(payload)
         return bundle.policy_spec, str(request.input_ref.artifact_id)
@@ -184,7 +185,7 @@ def _resolve_semantics(
     if request.semantics_ref is not None:
         if store is None:
             raise ValueError("semantics_ref requires an ArtifactStore")
-        payload = get_json_artifact(store, request.semantics_ref.artifact_id)
+        payload = get_json_artifact(_ensure_ir_artifact_store(store), request.semantics_ref)
         return MechanismSemanticsSpec.model_validate(payload)
     if design.semantics is None:
         raise ValueError("mechanism_design.semantics is required for strict IC verification")
@@ -1873,12 +1874,12 @@ def _attach_mechanism_family_sidecars(
 
     inputs = _request_inputs(request)
     family_spec_ref = persist_mechanism_family_spec(
-        store,
+        _ensure_ir_artifact_store(store),
         evaluation.family_spec,
         inputs=inputs,
     )
     mechanism_certificate_ref = persist_mechanism_ic_certificate(
-        store,
+        _ensure_ir_artifact_store(store),
         evaluation.mechanism_certificate,
         inputs=inputs,
     )
@@ -1892,7 +1893,7 @@ def _attach_mechanism_family_sidecars(
     witness["mechanism_ic_certificate_ref"] = mechanism_certificate_ref.model_dump(mode="json")
     if evaluation.welfare_bound is not None:
         welfare_bound_ref = persist_mechanism_welfare_loss_bound(
-            store,
+            _ensure_ir_artifact_store(store),
             evaluation.welfare_bound,
             inputs=inputs,
         )
@@ -1924,12 +1925,12 @@ def _attach_mechanism_family_package_sidecars(
             continue
         mechanism_id = component.mechanism_certificate.mechanism_id
         family_spec_ref = persist_mechanism_family_spec(
-            store,
+            _ensure_ir_artifact_store(store),
             component.family_spec,
             inputs=inputs,
         )
         mechanism_certificate_ref = persist_mechanism_ic_certificate(
-            store,
+            _ensure_ir_artifact_store(store),
             component.mechanism_certificate,
             inputs=inputs,
         )
@@ -1943,7 +1944,7 @@ def _attach_mechanism_family_package_sidecars(
         )
         if component.welfare_bound is not None:
             welfare_bound_ref = persist_mechanism_welfare_loss_bound(
-                store,
+                _ensure_ir_artifact_store(store),
                 component.welfare_bound,
                 inputs=inputs,
             )
@@ -2083,7 +2084,7 @@ def persist_ic_report(
     inputs: list[Any] | None = None,
 ) -> ICVerificationReportRef:
     ref = put_json_artifact(
-        store,
+        _ensure_ir_artifact_store(store),
         report.model_dump(mode="json"),
         kind="scientist.ic_report",
         schema_name=_REPORT_SCHEMA_NAME,
@@ -2094,7 +2095,7 @@ def persist_ic_report(
 
 
 def load_ic_report(store: ArtifactStore, ref: ICVerificationReportRef) -> ICVerificationReport:
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(_ensure_ir_artifact_store(store), ref)
     return ICVerificationReport.model_validate(payload)
 
 
@@ -2105,7 +2106,7 @@ def persist_ic_certificate(
     inputs: list[Any] | None = None,
 ) -> ICVerificationCertificateRef:
     ref = put_json_artifact(
-        store,
+        _ensure_ir_artifact_store(store),
         certificate.model_dump(mode="json"),
         kind="scientist.ic_certificate",
         schema_name=_CERTIFICATE_SCHEMA_NAME,
@@ -2119,7 +2120,7 @@ def load_ic_certificate(
     store: ArtifactStore,
     ref: ICVerificationCertificateRef,
 ) -> IncentiveCompatibilityCertificate:
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(_ensure_ir_artifact_store(store), ref)
     return IncentiveCompatibilityCertificate.model_validate(payload)
 
 
@@ -2130,7 +2131,7 @@ def persist_ic_negative_certificate(
     inputs: list[Any] | None = None,
 ) -> ICNegativeCertificateRef:
     ref = put_json_artifact(
-        store,
+        _ensure_ir_artifact_store(store),
         certificate.model_dump(mode="json"),
         kind="scientist.ic_negative_certificate",
         schema_name=_NEGATIVE_SCHEMA_NAME,
@@ -2144,7 +2145,7 @@ def load_ic_negative_certificate(
     store: ArtifactStore,
     ref: ICNegativeCertificateRef,
 ) -> ICNegativeCertificate:
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(_ensure_ir_artifact_store(store), ref)
     return ICNegativeCertificate.model_validate(payload)
 
 

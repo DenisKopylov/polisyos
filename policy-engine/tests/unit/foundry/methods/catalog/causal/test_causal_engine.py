@@ -5,6 +5,7 @@ import dataclasses
 import numpy as np
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.causal_engine import (
     CausalEngine,
@@ -290,7 +291,9 @@ def _seed_phase1_gate_store(
             standard_error=0.1,
             overall_pass=True,
         )
-        certificate_refs[dataset_id] = persist_survey_quality_certificate(store, certificate)
+        certificate_refs[dataset_id] = persist_survey_quality_certificate(
+            _ensure_ir_artifact_store(store), certificate
+        )
 
     for regime, covariance in (
         ("panel", "driscoll_kraay"),
@@ -298,7 +301,7 @@ def _seed_phase1_gate_store(
         ("network_adjacent", "network_hac"),
     ):
         persist_dependence_structure(
-            store,
+            _ensure_ir_artifact_store(store),
             build_dependence_structure(
                 regime=regime,
                 class_label="shared",
@@ -309,14 +312,14 @@ def _seed_phase1_gate_store(
         )
 
     persist_microsim_calibration_report(
-        store,
+        _ensure_ir_artifact_store(store),
         build_microsim_calibration_report(
             compatibility_status="compatible",
             exact_feasible=True,
         ),
     )
     persist_mobility_report(
-        store,
+        _ensure_ir_artifact_store(store),
         MobilityReport(
             analysis_type="transition_matrix",
             status="ok",
@@ -1273,7 +1276,12 @@ class TestCausalEngineAudit:
         assert isinstance(bundle.identification_status, str)
         assert len(bundle.identification_status) > 0
         assert bundle.proof_bundle_ref is not None
-        assert load_proof_bundle(store, bundle.proof_bundle_ref).proof_status == "identified"
+        assert (
+            load_proof_bundle(
+                _ensure_ir_artifact_store(store), bundle.proof_bundle_ref
+            ).proof_status
+            == "identified"
+        )
 
     def test_audit_schema_report_in_diagnostics(self, tmp_path):
         from polisyos.foundry.methods.catalog.causal.schema_resolver import SchemaResolutionReport
@@ -1314,10 +1322,12 @@ class TestCausalEngineAudit:
         bundle = engine.audit(result, None, run_id="dp-audit")
 
         assert bundle.proof_bundle_ref is not None
-        proof = load_proof_bundle(store, bundle.proof_bundle_ref)
+        proof = load_proof_bundle(_ensure_ir_artifact_store(store), bundle.proof_bundle_ref)
         assert proof.dp_robustness_ref is not None
         assert proof.metadata["dp_effective_status"] == "identified"
-        loaded_cert = load_dp_robustness_certificate(store, proof.dp_robustness_ref)
+        loaded_cert = load_dp_robustness_certificate(
+            _ensure_ir_artifact_store(store), proof.dp_robustness_ref
+        )
         assert loaded_cert == certificate
 
     def test_audit_persists_intervention_query_and_certificate_refs(self, tmp_path):
@@ -1340,13 +1350,15 @@ class TestCausalEngineAudit:
         bundle = engine.audit(result, None, run_id="typed-audit", graph=graph)
 
         assert bundle.proof_bundle_ref is not None
-        proof = load_proof_bundle(store, bundle.proof_bundle_ref)
+        proof = load_proof_bundle(_ensure_ir_artifact_store(store), bundle.proof_bundle_ref)
         query_ref = InterventionQueryRef.model_validate(proof.metadata["intervention_query_ref"])
         certificate_ref = InterventionCertificateRef.model_validate(
             proof.metadata["intervention_certificate_ref"]
         )
-        assert load_intervention_query(store, query_ref) == query
-        loaded_certificate = load_intervention_certificate(store, certificate_ref)
+        assert load_intervention_query(_ensure_ir_artifact_store(store), query_ref) == query
+        loaded_certificate = load_intervention_certificate(
+            _ensure_ir_artifact_store(store), certificate_ref
+        )
         assert loaded_certificate.query == query
         assert proof.query_ref == str(query_ref.artifact_id)
 
@@ -1361,7 +1373,7 @@ class TestCausalEngineAudit:
         bundle = engine.audit(result, None, run_id="stage-2-2-audit", graph=graph)
 
         assert bundle.proof_bundle_ref is not None
-        proof = load_proof_bundle(store, bundle.proof_bundle_ref)
+        proof = load_proof_bundle(_ensure_ir_artifact_store(store), bundle.proof_bundle_ref)
         assert proof.proof_trace_ref is not None
         assert proof.witness_index_ref is not None
         assert proof.composability_certificate_ref is not None
@@ -1369,10 +1381,14 @@ class TestCausalEngineAudit:
         assert proof.composability_status == "reusable"
         assert proof.metadata["composability_status"] == "reusable"
 
-        trace_bundle = load_causal_evidence_bundle(store, proof.proof_trace_ref)
-        witness_index = load_proof_witness_index(store, proof.witness_index_ref)
+        trace_bundle = load_causal_evidence_bundle(
+            _ensure_ir_artifact_store(store), proof.proof_trace_ref
+        )
+        witness_index = load_proof_witness_index(
+            _ensure_ir_artifact_store(store), proof.witness_index_ref
+        )
         certificate = load_proof_composability_certificate(
-            store,
+            _ensure_ir_artifact_store(store),
             proof.composability_certificate_ref,
         )
         trace_step_ids = {step.step_id for step in trace_bundle.proof_steps}
@@ -1403,8 +1419,15 @@ class TestCausalEngineRun:
         assert isinstance(bundle, EvidenceBundle)
         assert bundle.proof_bundle_ref is not None
         assert bundle.data_readiness_report_ref is not None
-        assert load_proof_bundle(store, bundle.proof_bundle_ref).proof_status == "identified"
-        assert load_data_readiness_report(store, bundle.data_readiness_report_ref).decision in {
+        assert (
+            load_proof_bundle(
+                _ensure_ir_artifact_store(store), bundle.proof_bundle_ref
+            ).proof_status
+            == "identified"
+        )
+        assert load_data_readiness_report(
+            _ensure_ir_artifact_store(store), bundle.data_readiness_report_ref
+        ).decision in {
             "pass",
             "warn",
             "unknown",
@@ -1432,13 +1455,17 @@ class TestCausalEngineRun:
             assert cert.recovery_plan is not None
             assert bundle.proof_bundle_ref is not None
             assert bundle.negative_certificate_ref is not None
-            restored_cert = load_negative_certificate(store, bundle.negative_certificate_ref)
+            restored_cert = load_negative_certificate(
+                _ensure_ir_artifact_store(store), bundle.negative_certificate_ref
+            )
             assert restored_cert.blocking_type == cert.blocking_type
             if cert.bounds_bundle is None:
                 assert bundle.data_readiness_report_ref is not None
             else:
                 assert bundle.bounds_bundle_ref is not None
-                restored_bounds = load_bounds_bundle(store, bundle.bounds_bundle_ref)
+                restored_bounds = load_bounds_bundle(
+                    _ensure_ir_artifact_store(store), bundle.bounds_bundle_ref
+                )
                 assert restored_bounds.lower_bound == cert.bounds_bundle.lower_bound
 
     def test_run_returns_proximal_proof_bundle_without_negative_certificate(self, tmp_path):
@@ -1466,14 +1493,16 @@ class TestCausalEngineRun:
         assert bundle.proof_bundle_ref is not None
         assert bundle.data_readiness_report_ref is not None
 
-        proof_bundle = load_proof_bundle(store, bundle.proof_bundle_ref)
-        readiness = load_data_readiness_report(store, bundle.data_readiness_report_ref)
+        proof_bundle = load_proof_bundle(_ensure_ir_artifact_store(store), bundle.proof_bundle_ref)
+        readiness = load_data_readiness_report(
+            _ensure_ir_artifact_store(store), bundle.data_readiness_report_ref
+        )
 
         assert proof_bundle.metadata["method"] == "proximal_bridge"
         assert proof_bundle.metadata["proximal_certificate"]["query"]["treatment"] == ["A"]
         assert proof_bundle.proximal_certificate_ref is not None
         assert load_proximal_identification_certificate(
-            store, proof_bundle.proximal_certificate_ref
+            _ensure_ir_artifact_store(store), proof_bundle.proximal_certificate_ref
         ).query.treatment == ("A",)
         assert readiness.measurement_quality == "proxy_only"
 
@@ -1625,8 +1654,10 @@ class TestCausalEngineRun:
         assert bundle.proof_bundle_ref is not None
         assert bundle.data_readiness_report_ref is not None
 
-        proof_bundle = load_proof_bundle(store, bundle.proof_bundle_ref)
-        readiness = load_data_readiness_report(store, bundle.data_readiness_report_ref)
+        proof_bundle = load_proof_bundle(_ensure_ir_artifact_store(store), bundle.proof_bundle_ref)
+        readiness = load_data_readiness_report(
+            _ensure_ir_artifact_store(store), bundle.data_readiness_report_ref
+        )
         assert proof_bundle.metadata["method"] == "spatial_proximal_bridge"
         assert proof_bundle.theorem_family == "proximal_spatial_id_v1"
         assert proof_bundle.proximal_certificate_ref is not None
@@ -1644,12 +1675,12 @@ class TestCausalEngineRun:
         assert "bridge_ring_instability" in readiness.metrics
 
         restored_cert = load_proximal_identification_certificate(
-            store,
+            _ensure_ir_artifact_store(store),
             proof_bundle.proximal_certificate_ref,
         )
         assert restored_cert.metadata["method"] == "spatial_proximal_bridge"
         restored_bridge = load_bridge_plausibility_report(
-            store,
+            _ensure_ir_artifact_store(store),
             proof_bundle.bridge_plausibility_report_ref,
         )
         assert restored_bridge.buffer_exclusion_falsification is False
@@ -1722,8 +1753,10 @@ class TestCausalEngineRun:
         assert cert.blocking_type is BlockingType.COMPLETENESS_UNLIKELY
         assert bundle.proof_bundle_ref is not None
         assert bundle.bounds_bundle_ref is not None
-        proof_bundle = load_proof_bundle(store, bundle.proof_bundle_ref)
-        restored_bounds = load_bounds_bundle(store, bundle.bounds_bundle_ref)
+        proof_bundle = load_proof_bundle(_ensure_ir_artifact_store(store), bundle.proof_bundle_ref)
+        restored_bounds = load_bounds_bundle(
+            _ensure_ir_artifact_store(store), bundle.bounds_bundle_ref
+        )
         assert proof_bundle.proof_status == "oracle_needed"
         assert restored_bounds.metadata["source"] == "proximal_mediation_v1_fallback"
         assert restored_bounds.lower_bound < restored_bounds.upper_bound
@@ -1793,7 +1826,7 @@ class TestCausalEngineRun:
         assert report.status.value == "success"
         assert bundle.identification_status == "identified"
         assert bundle.proof_bundle_ref is not None
-        proof_bundle = load_proof_bundle(store, bundle.proof_bundle_ref)
+        proof_bundle = load_proof_bundle(_ensure_ir_artifact_store(store), bundle.proof_bundle_ref)
         assert proof_bundle.proof_status == "identified"
         assert report.metadata["bridge_plausibility_report"]["severity"] in {"green", "yellow"}
 
@@ -1826,11 +1859,15 @@ class TestCausalEngineRun:
 
         assert bundle.bounds_bundle_ref is not None
 
-        restored_bounds = load_bounds_bundle(store, bundle.bounds_bundle_ref)
+        restored_bounds = load_bounds_bundle(
+            _ensure_ir_artifact_store(store), bundle.bounds_bundle_ref
+        )
         assert restored_bounds.dual_certificate_ref is not None
         assert restored_bounds.sharpness_status == "sharp"
 
-        dual_cert = load_dual_certificate_bundle(store, restored_bounds.dual_certificate_ref)
+        dual_cert = load_dual_certificate_bundle(
+            _ensure_ir_artifact_store(store), restored_bounds.dual_certificate_ref
+        )
         validation = validate_dual_certificate_bundle(dual_cert)
         assert validation.ok, validation.errors
 
@@ -1885,7 +1922,9 @@ class TestCausalEngineRun:
         assert report is None
         assert cert is None
         assert bundle.data_readiness_report_ref is not None
-        readiness = load_data_readiness_report(store, bundle.data_readiness_report_ref)
+        readiness = load_data_readiness_report(
+            _ensure_ir_artifact_store(store), bundle.data_readiness_report_ref
+        )
         assert readiness.decision == "block"
         assert readiness.can_run_estimation is False
 
@@ -1986,17 +2025,19 @@ class TestCausalEngineRun:
         assert bundle.bounds_bundle_ref is not None
         assert bundle.data_readiness_report_ref is not None
 
-        readiness = load_data_readiness_report(store, bundle.data_readiness_report_ref)
+        readiness = load_data_readiness_report(
+            _ensure_ir_artifact_store(store), bundle.data_readiness_report_ref
+        )
         assert readiness.decision == "warn"
         assert readiness.can_run_estimation is False
         assert readiness.dp_distortion is not None
         assert readiness.dp_distortion["effective_status"] == "bounded"
 
-        proof = load_proof_bundle(store, bundle.proof_bundle_ref)
+        proof = load_proof_bundle(_ensure_ir_artifact_store(store), bundle.proof_bundle_ref)
         assert proof.metadata["dp_effective_status"] == "bounded"
         assert proof.dp_robustness_ref is not None
 
-        bounds = load_bounds_bundle(store, bundle.bounds_bundle_ref)
+        bounds = load_bounds_bundle(_ensure_ir_artifact_store(store), bundle.bounds_bundle_ref)
         assert bounds.lower_bound == -0.12
         assert bounds.upper_bound == -0.03
         assert bounds.metadata["dp_effective_status"] == "bounded"
@@ -2154,7 +2195,9 @@ class TestCausalEngineTemporal:
     def test_temporal_causal_effect_persists_bundle(self, tmp_path):
         store = FileSystemCAS(tmp_path / "cas")
         engine = CausalEngine(registry=None, artifact_store=store)
-        intervention_ref = persist_temporal_intervention_trajectory(store, self._intervention())
+        intervention_ref = persist_temporal_intervention_trajectory(
+            _ensure_ir_artifact_store(store), self._intervention()
+        )
 
         trajectory = engine.temporal_causal_effect(
             self._panel_data(),
@@ -2167,7 +2210,7 @@ class TestCausalEngineTemporal:
         bundle_ref = EffectTrajectoryBundleRef(
             artifact_id=trajectory.metadata["effect_bundle_artifact_id"]
         )
-        restored = load_effect_trajectory_bundle(store, bundle_ref)
+        restored = load_effect_trajectory_bundle(_ensure_ir_artifact_store(store), bundle_ref)
         assert restored.query_ref.kind == "ir.continuous_time_query"
         assert restored.trajectory_ref.kind == "ir.temporal_trajectory"
         assert restored.confidence_band_ref.kind == "ir.temporal_confidence_band"
@@ -2175,7 +2218,9 @@ class TestCausalEngineTemporal:
         assert restored.metadata["intervention_contract_status"] == "resolved_artifact"
         assert restored.continuous_time_degraded is False
         assert restored.metadata["proof_bundle_artifact_id"]
-        diagnostics_payload = get_json_artifact(store, restored.solver_diagnostics_ref.artifact_id)
+        diagnostics_payload = get_json_artifact(
+            _ensure_ir_artifact_store(store), restored.solver_diagnostics_ref.artifact_id
+        )
         assert diagnostics_payload["schema_name"] == "ir.temporal_solver_diagnostics"
         assert diagnostics_payload["schema_version"] == "1.1"
         assert (
@@ -2186,7 +2231,7 @@ class TestCausalEngineTemporal:
         assert diagnostics_payload["causal_equivalence_note"]
 
         proof_ref = ProofBundleRef.model_validate(restored.metadata["proof_bundle_ref"])
-        proof = load_proof_bundle(store, proof_ref)
+        proof = load_proof_bundle(_ensure_ir_artifact_store(store), proof_ref)
         assert proof.proof_status == "oracle_needed"
         assert proof.dynamic_semantics is not None
         assert (
@@ -2234,7 +2279,9 @@ class TestCausalEngineTemporal:
     def test_temporal_causal_effect_persists_validated_local_independence_proof(self, tmp_path):
         store = FileSystemCAS(tmp_path / "cas")
         engine = CausalEngine(registry=None, artifact_store=store)
-        intervention_ref = persist_temporal_intervention_trajectory(store, self._intervention())
+        intervention_ref = persist_temporal_intervention_trajectory(
+            _ensure_ir_artifact_store(store), self._intervention()
+        )
 
         trajectory = engine.temporal_causal_effect(
             self._panel_data(),
@@ -2255,7 +2302,7 @@ class TestCausalEngineTemporal:
         assert trajectory.effect_bundle is not None
         bundle = trajectory.effect_bundle
         proof_ref = ProofBundleRef.model_validate(bundle.metadata["proof_bundle_ref"])
-        proof = load_proof_bundle(store, proof_ref)
+        proof = load_proof_bundle(_ensure_ir_artifact_store(store), proof_ref)
         assert proof.proof_status == "identified"
         assert proof.dynamic_semantics is not None
         assert (
@@ -2265,7 +2312,7 @@ class TestCausalEngineTemporal:
             "ir.local_independence_weighting_certificate"
         )
         certificate = load_local_independence_weighting_certificate(
-            store,
+            _ensure_ir_artifact_store(store),
             LocalIndependenceWeightingCertificateRef.model_validate(
                 proof.metadata["local_independence_certificate_ref"]
             ),
@@ -2285,7 +2332,7 @@ class TestCausalEngineTemporal:
         store = FileSystemCAS(tmp_path / "cas")
         engine = CausalEngine(registry=None, artifact_store=store)
         intervention_ref = persist_temporal_intervention_trajectory(
-            store,
+            _ensure_ir_artifact_store(store),
             TemporalInterventionTrajectory(
                 time_points=(0.0, 1.0, 2.0, 3.0, 4.0),
                 values=(0.0, 0.0, 1.0, 1.0, 1.0),
@@ -2321,7 +2368,7 @@ class TestCausalEngineTemporal:
         bundle = trajectory.effect_bundle
         assert bundle.identification_certificate_ref is not None
         temporal_certificate = load_temporal_identification_certificate(
-            store,
+            _ensure_ir_artifact_store(store),
             bundle.identification_certificate_ref,
         )
         assert (
@@ -2340,7 +2387,9 @@ class TestCausalEngineTemporal:
     ):
         store = FileSystemCAS(tmp_path / "cas")
         engine = CausalEngine(registry=None, artifact_store=store)
-        intervention_ref = persist_temporal_intervention_trajectory(store, self._intervention())
+        intervention_ref = persist_temporal_intervention_trajectory(
+            _ensure_ir_artifact_store(store), self._intervention()
+        )
         certificate = self._identification_certificate()
         query = self._query(
             intervention_ref,
@@ -2426,8 +2475,12 @@ class TestCausalEngineTemporal:
         derived_ref = TemporalInterventionTrajectoryRef.model_validate(
             bundle.metadata["derived_schedule_ref"]
         )
-        restored_policy = load_dynamic_treatment_regime(store, policy_ref)
-        restored_schedule = load_temporal_intervention_trajectory(store, derived_ref)
+        restored_policy = load_dynamic_treatment_regime(
+            _ensure_ir_artifact_store(store), policy_ref
+        )
+        restored_schedule = load_temporal_intervention_trajectory(
+            _ensure_ir_artifact_store(store), derived_ref
+        )
 
         assert isinstance(restored_policy, DynamicTreatmentRegime)
         assert restored_policy.rule in {RegimeRule.THRESHOLD, RegimeRule.ALWAYS_TREAT}

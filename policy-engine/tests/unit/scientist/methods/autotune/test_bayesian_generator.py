@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from types import SimpleNamespace
 
 import pytest
 
@@ -122,6 +123,100 @@ def test_first_sobol_candidate_uses_native_search_space_protocol() -> None:
     expected_params = native_space.denormalize(expected_vector)
 
     assert {name: candidate[name] for name in expected_params} == expected_params
+
+
+def test_injected_optimizer_is_not_admitted_as_native_gp_profile() -> None:
+    class InjectedOptimizer:
+        _config = {"n_initial": 1}
+        _space = _native_space()
+        _model = None
+
+        @staticmethod
+        def _effective_training_corpus(evaluations):
+            return list(evaluations)
+
+    generator = BayesianCandidateGenerator(
+        search_space=AutotuneSearchSpace([{"name": "x", "lower": 0.0, "upper": 10.0}])
+    )
+    generator._optimizer = InjectedOptimizer()
+    generator._botorch_available = True
+
+    profile = generator._build_source_profile(
+        candidate=SimpleNamespace(source_strategy="injected_optimizer"),
+        evaluations=[],
+        context={"unit": "dimensionless"},
+    )
+
+    assert profile.profile_kind == "injected_optimizer"
+    assert profile.optimizer_fqn.endswith("InjectedOptimizer")
+    assert profile.gp_model_fqn is None
+    assert profile.warm_start_eligible is False
+
+
+def test_injected_optimizer_without_effective_corpus_keeps_training_unknown() -> None:
+    class InjectedOptimizerWithoutCorpus:
+        _config = {"n_initial": 1}
+        _space = _native_space()
+        _model = None
+
+    generator = BayesianCandidateGenerator(
+        search_space=AutotuneSearchSpace([{"name": "x", "lower": 0.0, "upper": 10.0}])
+    )
+    generator._optimizer = InjectedOptimizerWithoutCorpus()
+    generator._botorch_available = True
+
+    profile = generator._build_source_profile(
+        candidate=SimpleNamespace(source_strategy="injected_optimizer"),
+        evaluations=[object()],
+        context={"unit": "dimensionless"},
+    )
+
+    assert profile.training_corpus_fingerprint is None
+    assert profile.training_observation_count is None
+    assert profile.warm_start_eligible is False
+
+
+def test_source_profile_uses_canonical_effective_fit_profile() -> None:
+    generator = BayesianCandidateGenerator(
+        search_space=AutotuneSearchSpace([{"name": "x", "lower": 0.0, "upper": 10.0}])
+    )
+    seen: dict[str, object] = {}
+
+    def effective_fit_profile(**kwargs):
+        seen.update(kwargs)
+        return {
+            "profile_kind": "configured_native_gp",
+            "optimizer_fqn": (
+                "polisyos.scientist.methods.search.strategies.bayesian.BayesianOptimizer"
+            ),
+            "optimizer_config_fingerprint": "config/actual",
+            "proposal_source": kwargs["proposal_source"],
+            "search_space_fingerprint": generator._search_space._native.sobol_space_fingerprint(),
+            "input_transform_fingerprint": "Normalize[0,1]",
+            "input_transform_state_fingerprint": "transform/fit-state",
+            "outcome_transform_fingerprint": "Standardize[m=1]",
+            "outcome_transform_state_fingerprint": "outcome/fit-state",
+            "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+            "noise_model_state_fingerprint": "likelihood/fit-state",
+            "objective_fingerprint": kwargs["objective_fingerprint"],
+            "context_fingerprint": kwargs["context_fingerprint"],
+            "training_corpus_fingerprint": "corpus/actual-fit",
+            "training_observation_count": 3,
+            "gp_model_fqn": "botorch.models.gp_regression.SingleTaskGP",
+            "warm_start_eligible": True,
+        }
+
+    generator._optimizer.effective_fit_profile = effective_fit_profile
+    profile = generator._build_source_profile(
+        candidate=SimpleNamespace(source_strategy="bayesian_acquisition"),
+        evaluations=[],
+        context={"year": 2030},
+    )
+
+    assert profile.training_corpus_fingerprint == "corpus/actual-fit"
+    assert profile.warm_start_eligible is True
+    assert seen["context_fingerprint"] == generator._profile_fingerprint({"year": 2030})
+    assert seen["objective_fingerprint"] == generator._objective_profile_fingerprint()
 
 
 def test_search_iteration_history_preserves_origin_params_split_and_full_ids() -> None:
@@ -261,10 +356,7 @@ def test_history_without_score_is_not_a_successful_zero_observation() -> None:
 
     assert not any(evaluation.is_valid for evaluation in evaluations)
     assert all(
-        not (
-            evaluation.status is EvaluationStatus.SUCCESS
-            and evaluation.scalar_score == 0.0
-        )
+        not (evaluation.status is EvaluationStatus.SUCCESS and evaluation.scalar_score == 0.0)
         for evaluation in evaluations
     )
 

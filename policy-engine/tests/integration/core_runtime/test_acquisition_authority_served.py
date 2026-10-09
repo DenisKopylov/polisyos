@@ -48,16 +48,12 @@ def _within_fixture_owner(call, *args, **kwargs):
         return call(*args, **kwargs)
 
 
-
-
 def _safe_validation_error_fields(exception):
     """Keep only Pydantic location names and error type identifiers."""
     exception_type = type(exception)
-    if (
-        exception_type.__name__ != "ValidationError"
-        or exception_type.__module__.split(".", maxsplit=1)[0]
-        not in {"pydantic", "pydantic_core"}
-    ):
+    if exception_type.__name__ != "ValidationError" or exception_type.__module__.split(
+        ".", maxsplit=1
+    )[0] not in {"pydantic", "pydantic_core"}:
         return ()
     errors = getattr(exception, "errors", None)
     if not callable(errors):
@@ -80,9 +76,7 @@ def _safe_validation_error_fields(exception):
             or any(type(part) not in (str, int) for part in location)
         ):
             continue
-        safe_rows.append(
-            {"loc": tuple(location), "type": error_type}
-        )
+        safe_rows.append({"loc": tuple(location), "type": error_type})
     return tuple(safe_rows)
 
 
@@ -118,9 +112,7 @@ def _capture_semantic_epoch_finalizer_failure(call):
                     frame.f_lineno,
                     exception_type.__name__,
                 )
-                if isinstance(exception_type, type) and issubclass(
-                    exception_type, ValueError
-                ):
+                if isinstance(exception_type, type) and issubclass(exception_type, ValueError):
                     value_error_event_rows.append(row)
                 rows = by_exception.setdefault(id(exception), [])
                 if not rows or rows[-1] != row:
@@ -130,9 +122,7 @@ def _capture_semantic_epoch_finalizer_failure(call):
                         {
                             "exception_type": exception_type.__name__,
                             "frames": tuple(rows),
-                            "validation_error_fields": _safe_validation_error_fields(
-                                exception
-                            ),
+                            "validation_error_fields": _safe_validation_error_fields(exception),
                         }
                     )
         elif event == "return" and is_finalizer:
@@ -141,11 +131,15 @@ def _capture_semantic_epoch_finalizer_failure(call):
 
     sys.settrace(trace)
     try:
-        return call(), captured, {
-            "scope": "all_value_error_trace_events_inside_finalizer_call",
-            "identity": "trace_events_not_unique_exception_objects",
-            "events": tuple(value_error_event_rows),
-        }
+        return (
+            call(),
+            captured,
+            {
+                "scope": "all_value_error_trace_events_inside_finalizer_call",
+                "identity": "trace_events_not_unique_exception_objects",
+                "events": tuple(value_error_event_rows),
+            },
+        )
     finally:
         sys.settrace(prior_trace)
 
@@ -190,9 +184,7 @@ def _served_wdi_candidate_profile(*, tmp_path, store, problem):
     from tests.unit.runtime.quality import test_world_model_record as wmr_fixture
 
     snapshot_id = "served-wdi-controlled-candidate-base"
-    base_data_snapshot_ref = wmr_fixture._data_snapshot_ref(
-        store, snapshot_id=snapshot_id
-    )
+    base_data_snapshot_ref = wmr_fixture._data_snapshot_ref(store, snapshot_id=snapshot_id)
     substrate_registry = wmr_fixture._substrate_registry()
     substrate_registry_ref = persist_substrate_registry(store, substrate_registry)
     registry_bundle = build_default_registry_bundle(store)
@@ -223,14 +215,10 @@ def _served_wdi_candidate_profile(*, tmp_path, store, problem):
         required_substrate_families=("firm_fundamentals",),
         substrate_registry_artifact_ref=substrate_registry_ref,
     )
-    slot_units = {
-        binding.slot_id: binding.unit for binding in base_world.record.policy_slot_map
-    }
+    slot_units = {binding.slot_id: binding.unit for binding in base_world.record.policy_slot_map}
     target_baseline = float(base_world.bound_global_state.government_balance)
     outcome_baseline = float(base_world.bound_global_state.tax_rate)
-    selected_hashes = tuple(
-        entry.entry_content_hash for entry in substrate_registry.entries
-    )
+    selected_hashes = tuple(entry.entry_content_hash for entry in substrate_registry.entries)
     substrate_input_hash = gy_content_hash(
         {
             "purpose": "served-controlled-candidate-profile",
@@ -243,14 +231,10 @@ def _served_wdi_candidate_profile(*, tmp_path, store, problem):
         substrate_registry=substrate_registry,
         selected_registry_entry_hashes=selected_hashes,
         world_model_record=base_world.record,
-        intervention_substrate=load_l6_intervention_substrate(
-            Path(__file__).resolve().parents[3]
-        ),
+        intervention_substrate=load_l6_intervention_substrate(Path(__file__).resolve().parents[3]),
         candidate_levers=(),
         transport_context=None,
-        source_pack_content_hash=gy_content_hash(
-            "served-wdi-controlled-candidate-source-pack"
-        ),
+        source_pack_content_hash=gy_content_hash("served-wdi-controlled-candidate-source-pack"),
         substrate_input_content_hash=substrate_input_hash,
     )
     inputs = CandidateSimulationContextInputs(
@@ -311,9 +295,7 @@ def _served_wdi_candidate_profile(*, tmp_path, store, problem):
     )
     outcome_variable = problem.outcome_of_interest.target_variable
     declaration_fields = {
-        "schema_version": (
-            "policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"
-        ),
+        "schema_version": ("policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"),
         "profile_config_ref": candidate_simulation_profile_ref(profile),
         "profile_content_hash": profile.content_hash,
         "profile_selection_ref": profile.profile_selection_ref,
@@ -836,13 +818,9 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             job = control._control_store.get_job("job-natural-language")
             assert job is not None
             persisted_job_payload = canon.from_canonical_bytes(
-                _within_fixture_owner(
-                    control._artifact_store.get_bytes, job.payload_ref
-                )
+                _within_fixture_owner(control._artifact_store.get_bytes, job.payload_ref)
             )
-            assert persisted_job_payload["llm_models"] == [
-                str(served_n4_recording["model_id"])
-            ]
+            assert persisted_job_payload["llm_models"] == [str(served_n4_recording["model_id"])]
             store = control._artifact_store
             profile, model_declaration = _within_fixture_owner(
                 _served_wdi_candidate_profile,
@@ -1124,13 +1102,11 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 _dispatched_job_id,
                 semantic_epoch_finalizer_exceptions,
                 semantic_epoch_value_error_event_census,
-            ) = (
-                _capture_semantic_epoch_finalizer_failure(
-                    lambda: dispatch_one_control_job(
-                        store=control._control_store,  # noqa: SLF001
-                        handler=control._process_control_job,  # noqa: SLF001
-                        expected_job_id=job_id,
-                    )
+            ) = _capture_semantic_epoch_finalizer_failure(
+                lambda: dispatch_one_control_job(
+                    store=control._control_store,  # noqa: SLF001
+                    handler=control._process_control_job,  # noqa: SLF001
+                    expected_job_id=job_id,
                 )
             )
             completed_job = control._control_store.get_job(job_id)
@@ -1190,9 +1166,7 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                     "runtime_quality.acquisition_overlay_reentry_receipt",
                 )
             )
-            _within_fixture_owner(
-                cases[-1].bridge._validate_reentry, closure, growth, reentry
-            )
+            _within_fixture_owner(cases[-1].bridge._validate_reentry, closure, growth, reentry)
             cycle = reentry.new_cycle
             assert cycle.simulation.status == "joint_simulated", cycle.simulation
             assert cycle.simulation.candidate_id == cycle.selected_candidate_ref
@@ -1270,9 +1244,7 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 n5_input.profile.context_inputs.world_model_record.limitations.admissibility_blockers
             )
 
-            source_repository = GenerationSourceRepository(
-                control._artifact_store
-            )
+            source_repository = GenerationSourceRepository(control._artifact_store)
             source_record = _within_fixture_owner(
                 source_repository.load_candidate_scenario_source_for_n5,
                 n5_input.n4_source_ref,
@@ -1306,15 +1278,40 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert n5_input.original_candidate_id == source_record.candidate.candidate_id
             assert n5_input.original_candidate_hash == source_record.candidate_occurrence_hash
             assert source_record.candidate.candidate_id == (
-                "candidate_"
-                + source_record.semantic_identity_hash.removeprefix("sha256:")[:16]
+                "candidate_" + source_record.semantic_identity_hash.removeprefix("sha256:")[:16]
             )
-            assert candidate_scenario_semantic_identity_hash(
-                stable_subject_ref=source_record.stable_subject_ref,
-                proposal=source_record.proposal,
-                candidate=source_record.candidate,
-                profile=source_record.profile,
-            ) == source_record.semantic_identity_hash
+            assert (
+                candidate_scenario_semantic_identity_hash(
+                    stable_subject_ref=source_record.stable_subject_ref,
+                    proposal=source_record.proposal,
+                    candidate=source_record.candidate,
+                    profile=source_record.profile,
+                )
+                == source_record.semantic_identity_hash
+            )
+            source_job = control._control_store.get_job(closure.source_job_id)
+            assert source_job is not None
+            core_run_id = source_job.progress["core_run_id"]
+            history_response = client.get(f"/api/v1/runs/{core_run_id}")
+            assert history_response.status_code == 200, history_response.text
+            candidate_projection = history_response.json()["run"]["candidate_simulation"]
+            assert candidate_projection["acquisition_history_limitation_code"] is None
+            assert len(candidate_projection["acquisition_history"]) == 1
+            acquisition_history = candidate_projection["acquisition_history"][0]
+            assert (
+                acquisition_history["route_receipt_ref"]["artifact_id"]
+                == (result["terminal_receipt_ref"])
+            )
+            assert acquisition_history["reentry_receipt_ref"]["artifact_id"] == reentry_ref
+            assert acquisition_history["old_candidate_id"] == receipt.source_candidate_ref
+            assert acquisition_history["new_candidate_id"] == cycle.selected_candidate_ref
+            assert acquisition_history["new_candidate_source_ref"]["artifact_id"] == str(
+                n5_input.n4_source_ref.artifact_id
+            )
+            assert acquisition_history["origin_source_ref"] is None
+            assert acquisition_history["currentness_status"] == "not_established"
+            assert acquisition_history["authority_purpose"] == "candidate_observation_only"
+            assert acquisition_history["publication_authority"] is False
             n4_selected_ref = ArtifactRef.model_validate(
                 diagnostics["candidate_simulation_n4_source_selected_ref"]
             )
@@ -1325,10 +1322,13 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 control._artifact_store.get_manifest,
                 n5_input.n4_source_ref,
             )
-            assert input_ref_from_artifact_ref(
-                source_record.source_ref,
-                role="n4_source_v2",
-            ) in n4_manifest.inputs
+            assert (
+                input_ref_from_artifact_ref(
+                    source_record.source_ref,
+                    role="n4_source_v2",
+                )
+                in n4_manifest.inputs
+            )
             source_v2 = source_record.source_record
             assert (
                 source_v2.model_declaration.profile_selection_ref
@@ -1345,17 +1345,13 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             else:
                 assert type(context_job) is CycleSubstrateContextJobArtifactV2
                 assert context_job.schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA
-            assert type(context_job.problem.outcome_of_interest) is (
-                _QualifiedOutcomeOfInterestV3
-            )
+            assert type(context_job.problem.outcome_of_interest) is (_QualifiedOutcomeOfInterestV3)
             assert context_job.problem == source_record.problem
             assert context_job.design_problem_ref == source_record.cycle_problem_ref
             assert artifact_ref_identity_key(n5_input.context_job_ref) == (
                 artifact_ref_identity_key(source_record.context_job_ref)
             )
-            assert context_job_manifest.kind == (
-                "runtime.quality.cycle_substrate_context_job"
-            )
+            assert context_job_manifest.kind == ("runtime.quality.cycle_substrate_context_job")
             assert context_job_manifest.artifact_schema is not None
             assert context_job_manifest.artifact_schema.name == context_job.schema_version
             assert context_job_manifest.artifact_schema.version == (
@@ -1389,9 +1385,9 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 expected_declaration_ref=source_v2.model_declaration_ref,
             )
             assert selected_ncm_spec.model_dump(mode="json") == (
-                candidate_ncm_spec_from_declaration(
-                    source_v2.model_declaration
-                ).model_dump(mode="json")
+                candidate_ncm_spec_from_declaration(source_v2.model_declaration).model_dump(
+                    mode="json"
+                )
             )
             assert artifact_ref_identity_key(source_record.ncm_ref) == selected_ncm_identity
             assert artifact_ref_identity_key(n5_input.materialization.ncm_ref) == (
@@ -1399,9 +1395,7 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             )
             context_world = context_job.context.world_model_record
             assert source_record.world_model_record_hash == context_world.content_hash
-            assert n5_input.materialization.world_model_record_hash == (
-                context_world.content_hash
-            )
+            assert n5_input.materialization.world_model_record_hash == (context_world.content_hash)
             acquired_world = n5_input.profile.context_inputs.world_model_record
             assert acquired_world.authority_status == "limited"
             assert context_world.authority_status == acquired_world.authority_status
@@ -1409,19 +1403,15 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert context_world.simulation_model_ref.calibrated is False
             assert context_world.simulation_model_ref.calibration_ref is None
             assert (
-                context_world.simulation_model_ref.fidelity_level
-                == "declared_candidate_scenario"
+                context_world.simulation_model_ref.fidelity_level == "declared_candidate_scenario"
             )
             assert any(
-                item.get("declaration_content_hash")
-                == source_v2.model_declaration.content_hash
+                item.get("declaration_content_hash") == source_v2.model_declaration.content_hash
                 and item.get("status") == "candidate_only_not_empirically_grounded"
                 for item in context_world.simulation_model_ref.assumptions
             )
 
-            registry_admission_owner = (
-                cases[-1].bridge.cycle_substrate_context_admission_owner
-            )
+            registry_admission_owner = cases[-1].bridge.cycle_substrate_context_admission_owner
             assert type(registry_admission_owner) is (
                 ConfiguredCandidateSimulationContextAdmissionOwner
             )
@@ -1456,9 +1446,7 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 expected_context_world.model_dump(mode="json")
             )
             context_world_views = world_model_artifact_views(context_world)
-            expected_context_world_views = world_model_artifact_views(
-                expected_context_world
-            )
+            expected_context_world_views = world_model_artifact_views(expected_context_world)
             assert context_world_views.model_dump(mode="json") == (
                 expected_context_world_views.model_dump(mode="json")
             )
@@ -1491,12 +1479,8 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert len(selected_context_ncm_views) == 1
             assert selected_context_ncm_views[0] == selected_ncm_ref
             acquired_world = n5_input.profile.context_inputs.world_model_record
-            context_data_snapshot_ref = world_model_artifact_views(
-                context_world
-            ).data_snapshot_ref
-            data_snapshot_ref = world_model_artifact_views(
-                acquired_world
-            ).data_snapshot_ref
+            context_data_snapshot_ref = world_model_artifact_views(context_world).data_snapshot_ref
+            data_snapshot_ref = world_model_artifact_views(acquired_world).data_snapshot_ref
             assert artifact_ref_identity_key(data_snapshot_ref) == (
                 artifact_ref_identity_key(context_data_snapshot_ref)
             )
@@ -1532,9 +1516,7 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert len(selected_rows) == 1
             selected = selected_rows[0]
             acquired_world = n5_input.profile.context_inputs.world_model_record
-            data_snapshot_ref = world_model_artifact_views(
-                acquired_world
-            ).data_snapshot_ref
+            data_snapshot_ref = world_model_artifact_views(acquired_world).data_snapshot_ref
             assert str(data_snapshot_ref.artifact_id) == (
                 acquired_world.simulation_model_ref.data_snapshot_ref
             )
@@ -1574,10 +1556,13 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 )
             )
             assert bound_state_manifest.inputs == bound_state_snapshot.lineage_inputs
-            assert input_ref_from_artifact_ref(
-                data_snapshot_ref,
-                role="input.data_snapshot_ref",
-            ) in bound_state_snapshot.lineage_inputs
+            assert (
+                input_ref_from_artifact_ref(
+                    data_snapshot_ref,
+                    role="input.data_snapshot_ref",
+                )
+                in bound_state_snapshot.lineage_inputs
+            )
             bound_state = _within_fixture_owner(
                 load_state_snapshot,
                 control._artifact_store,
@@ -1610,12 +1595,14 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             ).item()
             assert selected_value_in_bound_dtype == typed_target_value.item()
             declaration = source_v2.model_declaration
-            assert declaration.target_baseline == expected_profile_baseline[
-                declaration.target_world_slot
-            ]
-            assert declaration.outcome_baseline == expected_profile_baseline[
-                declaration.outcome_variable
-            ]
+            assert (
+                declaration.target_baseline
+                == expected_profile_baseline[declaration.target_world_slot]
+            )
+            assert (
+                declaration.outcome_baseline
+                == expected_profile_baseline[declaration.outcome_variable]
+            )
 
             n5_result_ref = cycle.simulation.simulation_result_ref
             n5_result = _within_fixture_owner(
@@ -1633,9 +1620,7 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert n5_input.n5.engine_kind == "ncm_parallel_worlds"
             assert selected_result_decision.engine_kind == n5_input.n5.engine_kind
             assert n5_result.receipt.engine_kind == selected_result_decision.engine_kind
-            joint_atom_ids = (
-                n5_input.materialization.derived_n5_atom.intervention_id,
-            )
+            joint_atom_ids = (n5_input.materialization.derived_n5_atom.intervention_id,)
             joint_trajectories = tuple(
                 item
                 for item in n5_result.trajectories
@@ -1710,21 +1695,31 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             acquired_value_outcome = (
                 source_v2.model_declaration.outcome_baseline
                 + source_v2.model_declaration.outcome_per_target_unit
-                * (
-                    n5_input.materialization.value
-                    - source_v2.model_declaration.target_baseline
-                )
+                * (n5_input.materialization.value - source_v2.model_declaration.target_baseline)
             )
             unacquired_value_outcome = (
                 model_declaration.outcome_baseline
                 + model_declaration.outcome_per_target_unit
-                * (
-                    n5_input.materialization.value
-                    - model_declaration.target_baseline
-                )
+                * (n5_input.materialization.value - model_declaration.target_baseline)
             )
             assert computed_outcome == pytest.approx(acquired_value_outcome, abs=1e-9)
             assert computed_outcome != pytest.approx(unacquired_value_outcome, abs=1e-9)
+
+            from polisyos.core.artifacts.ids import ArtifactID
+
+            reentry_blob_path, _reentry_manifest_path = control._artifact_store._paths(
+                ArtifactID.model_validate(reentry_ref)
+            )
+            reentry_blob_path.write_bytes(reentry_blob_path.read_bytes() + b"corrupt")
+            corrupt_history_response = client.get(f"/api/v1/runs/{core_run_id}")
+            assert corrupt_history_response.status_code == 200, corrupt_history_response.text
+            corrupt_history_projection = corrupt_history_response.json()["run"][
+                "candidate_simulation"
+            ]
+            assert corrupt_history_projection["acquisition_history"] == []
+            assert corrupt_history_projection["acquisition_history_limitation_code"] == (
+                "acquisition_action_history_integrity_not_established"
+            )
 
     finally:
         port_patch.undo()

@@ -286,7 +286,7 @@ def load_kernel_estimator_spec(
 ) -> KernelEstimatorSpec:
     """Load a persisted ``KernelEstimatorSpec``."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return KernelEstimatorSpec.model_validate(payload)
 
 
@@ -316,7 +316,7 @@ def load_operator_effect_bundle(
 ) -> OperatorEffectBundle:
     """Load a persisted ``OperatorEffectBundle``."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return OperatorEffectBundle.model_validate(payload)
 
 

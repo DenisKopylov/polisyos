@@ -630,6 +630,22 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     ),
     "PlaceboResult": ("polisyos.ir.analytics.causal", "PlaceboResult"),
     "PolicyRecommendation": ("polisyos.ir.analytics.hte", "PolicyRecommendation"),
+    "PosteriorParameterSummary": (
+        "polisyos.ir.analytics.posterior_summary",
+        "PosteriorParameterSummary",
+    ),
+    "PosteriorPointRole": (
+        "polisyos.ir.analytics.posterior_summary",
+        "PosteriorPointRole",
+    ),
+    "PosteriorSummaryRef": (
+        "polisyos.ir.analytics.posterior_summary",
+        "PosteriorSummaryRef",
+    ),
+    "PosteriorSummaryV11": (
+        "polisyos.ir.analytics.posterior_summary",
+        "PosteriorSummaryV11",
+    ),
     "PropagationMethod": ("polisyos.ir.analytics.uncertainty", "PropagationMethod"),
     "QueryType": ("polisyos.ir.analytics.causal_queries", "QueryType"),
     "RefutationResult": ("polisyos.ir.analytics.causal", "RefutationResult"),

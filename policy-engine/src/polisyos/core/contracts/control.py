@@ -35,6 +35,14 @@ RunLaunchStatus = Literal["accepted", "rejected"]
 IngestStatus = Literal["completed", "partial", "failed"]
 ExecutionMode = Literal["batch_full", "batch_incremental", "streaming_windowed"]
 RetrievalMode = Literal["fastlane", "explorelane", "hybrid"]
+CatalogRunProfile = Literal[
+    "prod_full",
+    "prod_core_blocking",
+    "rest_backfill",
+    "catalog_refresh",
+    "preflight_core",
+    "observations_backfill",
+]
 CandidateLane = Literal["fastlane", "explorelane", "catalog"]
 PreviewStatus = Literal["ok", "insufficient_coverage", "error"]
 PromotionStatus = Literal["pending", "approved", "rejected"]
@@ -215,14 +223,11 @@ class DecisionValidityEventRequest(BaseModel):
                 )
             return self
         missing = [
-            field
-            for field in ("trigger_type", "status", "reason")
-            if getattr(self, field) is None
+            field for field in ("trigger_type", "status", "reason") if getattr(self, field) is None
         ]
         if missing:
             raise ValueError(
-                "legacy arm requires trigger_type, status, and reason: "
-                + ", ".join(missing)
+                "legacy arm requires trigger_type, status, and reason: " + ", ".join(missing)
             )
         return self
 
@@ -648,6 +653,7 @@ class DataResolveRequest(BaseModel):
     data_needs: list[DataNeed] = Field(..., min_length=1)
     mode: RetrievalMode = "hybrid"
     allow_explore_fallback: bool = True
+    catalog_run_profile: CatalogRunProfile | None = None
 
 
 class DataResolveResponse(BaseModel):
@@ -1330,8 +1336,7 @@ def require_production_approval_currentness_receipt(
     )
     if (
         exact_receipt._seal is not _PRODUCTION_APPROVAL_CURRENTNESS_RECEIPT_SEAL
-        or exact_receipt.schema_version
-        != _PRODUCTION_APPROVAL_CURRENTNESS_RECEIPT_SCHEMA_VERSION
+        or exact_receipt.schema_version != _PRODUCTION_APPROVAL_CURRENTNESS_RECEIPT_SCHEMA_VERSION
         or exact_receipt.packet_ref != packet_ref
         or exact_receipt.tenant_id != tenant_id
         or exact_receipt.run_id != run_id
@@ -1719,6 +1724,23 @@ class LexGraphStatsResponse(BaseModel):
     db_exists: bool = False
 
 
+LegalQueryGenerationBasisKind = Literal[
+    "legal_lex_entities_embedding",
+    "legal_lex_facts_embedding",
+    "legal_lex_provisions_embedding",
+]
+
+
+class LegalQueryGenerationIntentV1(BaseModel):
+    """Immutable selected embedding-generation inventory supplied for retrieval."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    basis_kind: LegalQueryGenerationBasisKind
+    generation_id: str
+    inventory_json: str
+
+
 class LexSearchRequest(BaseModel):
     """POST /api/v1/control/lex/search — search knowledge graph facts."""
 
@@ -1727,6 +1749,7 @@ class LexSearchRequest(BaseModel):
     query: str = Field(..., min_length=1, max_length=2000)
     top_k: int = Field(default=20, ge=1, le=100)
     output_dir: str = Field(..., min_length=1)
+    query_generation_intent: tuple[LegalQueryGenerationIntentV1, ...] | None = None
 
 
 class LexSearchResultItem(BaseModel):
@@ -1762,6 +1785,8 @@ class LexSearchResponse(BaseModel):
     query: str
     results: list[LexSearchResultItem] = Field(default_factory=list)
     total: int = 0
+    search_mode: Literal["text", "vector"] = "text"
+    vector_refusal_code: str | None = None
 
 
 __all__ = [
@@ -1830,6 +1855,8 @@ __all__ = [
     "IngestRequest",
     "IngestResponse",
     "IngestStatus",
+    "LegalQueryGenerationBasisKind",
+    "LegalQueryGenerationIntentV1",
     "LexGraphStatsResponse",
     "LexPipelineStageConfig",
     "LexPipelineState",

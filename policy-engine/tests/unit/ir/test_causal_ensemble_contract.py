@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.causal_ensemble import (
     CausalModelEnsemble,
@@ -9,7 +12,6 @@ from polisyos.ir.analytics.causal_ensemble import (
     persist_causal_model_ensemble,
 )
 from polisyos.ir.registry.refs import CausalModelEnsembleRef
-from pydantic import ValidationError
 
 
 def _member(idx: int, *, weight: float = 0.5) -> EnsembleMember:
@@ -59,8 +61,8 @@ def test_causal_ensemble_artifact_roundtrip_kind(tmp_path) -> None:
         edge_inclusion_frequency={"X→Y": 1.0},
     )
 
-    ref = persist_causal_model_ensemble(store, ensemble)
-    loaded = load_causal_model_ensemble(store, ref)
+    ref = persist_causal_model_ensemble(_ensure_ir_artifact_store(store), ensemble)
+    loaded = load_causal_model_ensemble(_ensure_ir_artifact_store(store), ref)
 
     assert isinstance(ref, CausalModelEnsembleRef)
     assert ref.kind == "ir.causal_model_ensemble"

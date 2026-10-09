@@ -90,8 +90,15 @@ class Phase4DynamicsGate:
         self,
         *,
         horizon: int,
-        regime_bundle: RegimeShiftForecastBundle | ForecastingUncertaintyBundle | Mapping[str, Any] | None = None,
-        regime_bundle_ref: RegimeShiftForecastBundleRef | ArtifactRefModel | Mapping[str, Any] | str | None = None,
+        regime_bundle: RegimeShiftForecastBundle
+        | ForecastingUncertaintyBundle
+        | Mapping[str, Any]
+        | None = None,
+        regime_bundle_ref: RegimeShiftForecastBundleRef
+        | ArtifactRefModel
+        | Mapping[str, Any]
+        | str
+        | None = None,
         artifact_store: ArtifactStore | None = None,
         metadata: Mapping[str, Any] | None = None,
     ) -> Phase4TemporalPolicyGateVerdict:
@@ -108,8 +115,15 @@ class Phase4DynamicsGate:
         self,
         *,
         horizon: int,
-        regime_bundle: RegimeShiftForecastBundle | ForecastingUncertaintyBundle | Mapping[str, Any] | None = None,
-        regime_bundle_ref: RegimeShiftForecastBundleRef | ArtifactRefModel | Mapping[str, Any] | str | None = None,
+        regime_bundle: RegimeShiftForecastBundle
+        | ForecastingUncertaintyBundle
+        | Mapping[str, Any]
+        | None = None,
+        regime_bundle_ref: RegimeShiftForecastBundleRef
+        | ArtifactRefModel
+        | Mapping[str, Any]
+        | str
+        | None = None,
         artifact_store: ArtifactStore | None = None,
         metadata: Mapping[str, Any] | None = None,
     ) -> Phase4TemporalPolicyGateVerdict:
@@ -128,8 +142,15 @@ class Phase4DynamicsGate:
 def validate_phase4_temporal_policy_query(
     *,
     horizon: int,
-    regime_bundle: RegimeShiftForecastBundle | ForecastingUncertaintyBundle | Mapping[str, Any] | None = None,
-    regime_bundle_ref: RegimeShiftForecastBundleRef | ArtifactRefModel | Mapping[str, Any] | str | None = None,
+    regime_bundle: RegimeShiftForecastBundle
+    | ForecastingUncertaintyBundle
+    | Mapping[str, Any]
+    | None = None,
+    regime_bundle_ref: RegimeShiftForecastBundleRef
+    | ArtifactRefModel
+    | Mapping[str, Any]
+    | str
+    | None = None,
     artifact_store: ArtifactStore | None = None,
     threshold_horizon: int = 12,
     metadata: Mapping[str, Any] | None = None,
@@ -146,13 +167,9 @@ def validate_phase4_temporal_policy_query(
             regime_bundle_ref,
             artifact_store=artifact_store,
         )
-        resolved_metadata["regime_shift_forecast_bundle_ref"] = _ref_artifact_id(
-            regime_bundle_ref
-        )
+        resolved_metadata["regime_shift_forecast_bundle_ref"] = _ref_artifact_id(regime_bundle_ref)
         if ref_resolution_error is not None:
-            resolved_metadata["regime_shift_forecast_bundle_ref_error"] = (
-                ref_resolution_error
-            )
+            resolved_metadata["regime_shift_forecast_bundle_ref_error"] = ref_resolution_error
     reasons: list[str] = []
     red_horizons: list[int] = []
     regime_status: str | None = None
@@ -208,9 +225,7 @@ class _ABMMetricsArtifactRef(ArtifactRefModel):
 class _ABMMetricObservationBundleArtifactRef(ArtifactRefModel):
     """Neutral typed reference to metric observations emitted by Foundry."""
 
-    kind: Literal["foundry.metric_observation_bundle"] = (
-        "foundry.metric_observation_bundle"
-    )
+    kind: Literal["foundry.metric_observation_bundle"] = "foundry.metric_observation_bundle"
     media_type: Literal["application/json"] = "application/json"
 
 
@@ -252,18 +267,14 @@ class _ABMFeedbackResultArtifactRef(ArtifactRefModel):
 class _ABMIdentifiabilityDiagnosticArtifactRef(ArtifactRefModel):
     """Neutral typed reference to a Foundry identifiability diagnostic."""
 
-    kind: Literal["foundry.identifiability_diagnostic"] = (
-        "foundry.identifiability_diagnostic"
-    )
+    kind: Literal["foundry.identifiability_diagnostic"] = "foundry.identifiability_diagnostic"
     media_type: Literal["application/json"] = "application/json"
 
 
 class _ABMAttractorAnalysisArtifactRef(ArtifactRefModel):
     """Neutral typed reference to a Foundry attractor-analysis result."""
 
-    kind: Literal["foundry.attractor_analysis_result"] = (
-        "foundry.attractor_analysis_result"
-    )
+    kind: Literal["foundry.attractor_analysis_result"] = "foundry.attractor_analysis_result"
     media_type: Literal["application/json"] = "application/json"
 
 
@@ -272,9 +283,7 @@ class ABMIdentifiabilityCertificate(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    status: Literal["certified", "diagnostic_attached", "not_available", "failed"] = (
-        "not_available"
-    )
+    status: Literal["certified", "diagnostic_attached", "not_available", "failed"] = "not_available"
     diagnostic_ref: _ABMIdentifiabilityDiagnosticArtifactRef | None = None
     identified: bool | None = None
     method: str = "aggregate_moment_identifiability"
@@ -489,7 +498,9 @@ def build_dynamic_microsim_validation_report(
             MicrosimCalibrationReportRef,
         ),
         comparison_dataset=getattr(diagnostic, "comparison_dataset", None),
-        horizons_reported=tuple(int(item) for item in getattr(diagnostic, "horizons_reported", ()) or ()),
+        horizons_reported=tuple(
+            int(item) for item in getattr(diagnostic, "horizons_reported", ()) or ()
+        ),
         warnings=warnings,
         blocking_reasons=tuple(blocking),
         diagnostics=dict(getattr(diagnostic, "diagnostics", {}) or {}),
@@ -552,9 +563,7 @@ class SpaceTimeCausalCertificate(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
-    certificate_type: Literal["space_time_causal_certificate"] = (
-        "space_time_causal_certificate"
-    )
+    certificate_type: Literal["space_time_causal_certificate"] = "space_time_causal_certificate"
     status: Literal["identified", "model_extrapolation", "blocked"]
     dscm_scope: str = "controlled_diffusion_reaction_st_dscm_v1"
     identification_certificate: dict[str, Any]
@@ -613,7 +622,9 @@ def build_space_time_causal_certificate(
     return SpaceTimeCausalCertificate(
         status=status,
         identification_certificate=payload,
-        assumptions={str(key): str(value) for key, value in dict(payload.get("assumptions", {})).items()},
+        assumptions={
+            str(key): str(value) for key, value in dict(payload.get("assumptions", {})).items()
+        },
         caveats=tuple(str(item) for item in payload.get("caveats", ()) or ()),
         metadata=dict(metadata or {}),
     )
@@ -638,7 +649,7 @@ def persist_abm_result(
 
 
 def load_abm_result(store: ArtifactStore, ref: ABMResultRef) -> ABMResult:
-    return ABMResult.model_validate(get_json_artifact(store, ref.artifact_id))
+    return ABMResult.model_validate(get_json_artifact(store, ref))
 
 
 def persist_dynamic_microsim_validation_report(
@@ -663,9 +674,7 @@ def load_dynamic_microsim_validation_report(
     store: ArtifactStore,
     ref: DynamicMicrosimValidationReportRef,
 ) -> DynamicMicrosimValidationReport:
-    return DynamicMicrosimValidationReport.model_validate(
-        get_json_artifact(store, ref.artifact_id)
-    )
+    return DynamicMicrosimValidationReport.model_validate(get_json_artifact(store, ref))
 
 
 def persist_temporal_graph_causal_certificate(
@@ -690,7 +699,7 @@ def load_temporal_graph_causal_certificate(
     store: ArtifactStore,
     ref: TemporalGraphCausalCertificateRef,
 ) -> TemporalGraphCausalCertificate:
-    return TemporalGraphCausalCertificate.model_validate(get_json_artifact(store, ref.artifact_id))
+    return TemporalGraphCausalCertificate.model_validate(get_json_artifact(store, ref))
 
 
 def persist_space_time_causal_certificate(
@@ -715,7 +724,7 @@ def load_space_time_causal_certificate(
     store: ArtifactStore,
     ref: SpaceTimeCausalCertificateRef,
 ) -> SpaceTimeCausalCertificate:
-    return SpaceTimeCausalCertificate.model_validate(get_json_artifact(store, ref.artifact_id))
+    return SpaceTimeCausalCertificate.model_validate(get_json_artifact(store, ref))
 
 
 def _coerce_forecast_bundle(

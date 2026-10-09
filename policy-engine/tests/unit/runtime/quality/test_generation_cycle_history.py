@@ -74,10 +74,7 @@ def test_source_free_package_replays_n6_v1_v2_v3_with_semantic_mutation(
     """Replay pinned histories from an actual wheel without checkout imports."""
 
     v1 = historical_generation_cycle_v1()["generation_cycle_run"]
-    v2_path = (
-        REPO_ROOT
-        / "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
-    )
+    v2_path = REPO_ROOT / "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
     v2_document = json.loads(v2_path.read_text(encoding="utf-8"))
     v2 = v2_document["generation_cycle_run"]
     v3 = [payload for _name, payload in _v3_history_fixtures()]
@@ -112,15 +109,12 @@ def test_source_free_package_replays_n6_v1_v2_v3_with_semantic_mutation(
         "wheel_build_command",
         "uv --offline build --wheel --out-dir <pytest-tmp>/wheelhouse",
     )
-    assert build_result.returncode == 0, (
-        build_result.stdout + "\n" + build_result.stderr
-    )
+    assert build_result.returncode == 0, build_result.stdout + "\n" + build_result.stderr
     wheels = tuple(sorted(wheelhouse.glob("*.whl")))
     assert len(wheels) == 1, f"expected one wheel, found {len(wheels)}"
     wheel_path = wheels[0]
     registry_member = (
-        "polisyos/foundry/methods/catalog/_resources/"
-        "method_catalog_dependency_digest_domains.toml"
+        "polisyos/foundry/methods/catalog/_resources/method_catalog_dependency_digest_domains.toml"
     )
     snapshot_member = "polisyos/foundry/methods/catalog/snapshot.py"
     canonical_registry = (
@@ -138,8 +132,7 @@ def test_source_free_package_replays_n6_v1_v2_v3_with_semantic_mutation(
         wheel_registry = archive.read(registry_member)
         assert wheel_registry == canonical_registry
         python_module_count = sum(
-            member.startswith("polisyos/") and member.endswith(".py")
-            for member in members
+            member.startswith("polisyos/") and member.endswith(".py") for member in members
         )
         assert python_module_count >= 1
         archive.extractall(site_packages)
@@ -147,15 +140,12 @@ def test_source_free_package_replays_n6_v1_v2_v3_with_semantic_mutation(
         wheel_sha256 = hashlib.file_digest(wheel_file, "sha256").hexdigest()
     record_property("built_wheel_sha256", wheel_sha256)
     record_property("wheel_python_module_count", python_module_count)
-    record_property(
-        "wheel_registry_sha256", hashlib.sha256(wheel_registry).hexdigest()
-    )
+    record_property("wheel_registry_sha256", hashlib.sha256(wheel_registry).hexdigest())
 
     unrelated_source = site_packages / "polisyos/lex/simulator/report.py"
     assert unrelated_source.is_file()
     unrelated_source.write_bytes(
-        unrelated_source.read_bytes()
-        + b"\n# unrelated edit must not stale old history\n"
+        unrelated_source.read_bytes() + b"\n# unrelated edit must not stale old history\n"
     )
     decoy_registry = (
         tmp_path
@@ -422,8 +412,7 @@ print(
             )
             assert negative.returncode != 0, relative_path
             expected_request = (
-                tmp_path
-                / "architecture/policy_design_case/layer3_gx_pinned_request.json"
+                tmp_path / "architecture/policy_design_case/layer3_gx_pinned_request.json"
             )
             assert "FileNotFoundError" in negative.stderr
             assert str(expected_request) in negative.stderr
@@ -483,18 +472,22 @@ def _tracked_n6_runs() -> tuple[int, list[tuple[str, str, dict[str, Any]]]]:
     pinned_document = historical_generation_cycle_v1()
     assert json.loads(pinned_raw) == pinned_document
     pinned_run = pinned_document["generation_cycle_run"]
-    rows.append((
-        f"git-blob:{GENERATION_CYCLE_V1_BLOB}",
-        "$/generation_cycle_run",
-        pinned_run,
-    ))
+    rows.append(
+        (
+            f"git-blob:{GENERATION_CYCLE_V1_BLOB}",
+            "$/generation_cycle_run",
+            pinned_run,
+        )
+    )
     for fixture_name, fixture in _v3_history_fixtures():
         fixture_path = Path(__file__).parent / "fixtures" / fixture_name
-        rows.append((
-            f"historical-fixture:{fixture_path.relative_to(REPO_ROOT.parent)}",
-            "$",
-            fixture,
-        ))
+        rows.append(
+            (
+                f"historical-fixture:{fixture_path.relative_to(REPO_ROOT.parent)}",
+                "$",
+                fixture,
+            )
+        )
     return len(paths), rows
 
 
@@ -549,10 +542,13 @@ def test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly(
         if payload["schema_version"] == "policyos.runtime.generation_cycle_controller.v3"
     }
     assert v3_identity_statuses == {"established", "not_established"}
-    assert sum(
-        path == f"git-blob:{GENERATION_CYCLE_V1_BLOB}"
-        for path, _pointer, _payload in occurrences
-    ) == 1
+    assert (
+        sum(
+            path == f"git-blob:{GENERATION_CYCLE_V1_BLOB}"
+            for path, _pointer, _payload in occurrences
+        )
+        == 1
+    )
 
     spec = canon.CanonSpec(forbid_floats=False)
     for path, pointer, payload in occurrences:
@@ -611,9 +607,7 @@ def test_v3_history_freeze_rejects_dotted_target_slot_while_markers_remain() -> 
     assert isinstance(forged, GenerationCycleRun)
     assert forged.schema_version == run.schema_version
     assert forged.strangle_receipt.status == run.strangle_receipt.status
-    with pytest.raises(
-        ValueError, match="generation_cycle_history_field_pattern_out_of_epoch"
-    ):
+    with pytest.raises(ValueError, match="generation_cycle_history_field_pattern_out_of_epoch"):
         generation._historical_generation_cycle_run_projection(forged)
 
 
@@ -652,13 +646,9 @@ def test_v3_history_accepts_nested_design_problem_v3_qualified_outcome() -> None
     run = GenerationCycleRun.model_validate(payload)
     projection = generation._historical_generation_cycle_run_projection(run)
     spec = canon.CanonSpec(forbid_floats=False)
-    assert canon.to_canonical_bytes(projection, spec) == canon.to_canonical_bytes(
-        payload, spec
-    )
+    assert canon.to_canonical_bytes(projection, spec) == canon.to_canonical_bytes(payload, spec)
     assert all(
-        cycle["revision_request"]["revised_problem"]["outcome_of_interest"][
-            "target_variable"
-        ]
+        cycle["revision_request"]["revised_problem"]["outcome_of_interest"]["target_variable"]
         == "government.balance"
         for cycle in projection["cycles"]
     )
@@ -713,9 +703,7 @@ def test_history_rejects_qualified_outcome_without_v3_nested_owner(
     assert isinstance(forged, GenerationCycleRun)
     assert forged.schema_version == run.schema_version
     assert forged.strangle_receipt.status == run.strangle_receipt.status
-    with pytest.raises(
-        ValueError, match="generation_cycle_history_field_pattern_out_of_epoch"
-    ):
+    with pytest.raises(ValueError, match="generation_cycle_history_field_pattern_out_of_epoch"):
         generation._historical_generation_cycle_run_projection(forged)
 
 
@@ -735,13 +723,9 @@ def test_v3_history_projects_n5_artifact_root_model_as_scalar_wire() -> None:
     wire = observation.model_dump(mode="json", exclude_unset=True)
     assert wire["simulation_result_ref"]["artifact_id"] == str(artifact_id)
 
-    projected = generation._historical_generation_cycle_field_tree(
-        observation, wire, version="v3"
-    )
+    projected = generation._historical_generation_cycle_field_tree(observation, wire, version="v3")
     spec = canon.CanonSpec(forbid_floats=False)
-    assert canon.to_canonical_bytes(projected, spec) == canon.to_canonical_bytes(
-        wire, spec
-    )
+    assert canon.to_canonical_bytes(projected, spec) == canon.to_canonical_bytes(wire, spec)
 
     malformed = copy.deepcopy(wire)
     malformed["simulation_result_ref"]["artifact_id"] = "sha256:broken"
@@ -752,9 +736,101 @@ def test_v3_history_projects_n5_artifact_root_model_as_scalar_wire() -> None:
     noncanonical["simulation_result_ref"]["artifact_id"] = "sha256:" + "A" * 64
     normalized = generation.SimulationPortObservation.model_validate(noncanonical)
     with pytest.raises(ValueError, match="generation_cycle_history_root_wire_mismatch"):
-        generation._historical_generation_cycle_field_tree(
-            normalized, noncanonical, version="v3"
-        )
+        generation._historical_generation_cycle_field_tree(normalized, noncanonical, version="v3")
+
+
+def test_v4_source_limited_history_keeps_its_frozen_wire() -> None:
+    """The new current schema does not rewrite the already-issued v4 projection."""
+
+    _fixture_name, v3_payload = _v3_history_fixtures()[0]
+    historic_v3 = GenerationCycleRun.model_validate(v3_payload)
+    run = historic_v3.model_copy(
+        update={
+            "schema_version": "policyos.runtime.generation_cycle_controller.v4",
+            "source_preservation_receipt": None,
+            "source_custody_limitation": generation.GenerationSourceCustodyLimitation(),
+        }
+    )
+    v4_payload = run.model_dump(mode="json")
+    projection = generation._historical_generation_cycle_run_projection(run)
+    spec = canon.CanonSpec(forbid_floats=False)
+    assert canon.to_canonical_bytes(projection, spec) == canon.to_canonical_bytes(v4_payload, spec)
+    assert validate_generation_cycle_run_history(v4_payload) == ()
+
+
+def test_current_n6_v5_roundtrips_bound_n5_lineage_and_rejects_removal() -> None:
+    """Current N6 history retains each typed N4/context/N5 lineage ref."""
+
+    from polisyos.runtime.quality.generation_cycle import GENERATION_CYCLE_SCHEMA_VERSION
+
+    _fixture_name, v3_payload = _v3_history_fixtures()[0]
+    historic = GenerationCycleRun.model_validate(v3_payload)
+    source_ref = ArtifactRef(
+        artifact_id=ArtifactID.from_sha256_hex("a" * 64),
+        kind="runtime.quality.n4_candidate_scenario_source",
+        media_type="application/json",
+    )
+    context_ref = ArtifactRef(
+        artifact_id=ArtifactID.from_sha256_hex("b" * 64),
+        kind="runtime.quality.cycle_substrate_context_job",
+        media_type="application/json",
+    )
+    n5_input_ref = ArtifactRef(
+        artifact_id=ArtifactID.from_sha256_hex("c" * 64),
+        kind="runtime.quality.candidate_simulation_n5_input",
+        media_type="application/json",
+    )
+    simulation = historic.cycles[0].simulation.model_copy(
+        update={
+            "candidate_simulation_n4_source_ref": source_ref,
+            "candidate_simulation_context_job_ref": context_ref,
+            "candidate_simulation_n5_input_ref": n5_input_ref,
+            "candidate_simulation_profile_config_ref": (
+                "runtime-config:candidate-simulation/fixture@sha256:" + "d" * 64
+            ),
+            "candidate_simulation_profile_selection_ref": "sha256:" + "e" * 64,
+        }
+    )
+    first_cycle = historic.cycles[0].model_copy(update={"simulation": simulation})
+    current = historic.model_copy(
+        update={
+            "schema_version": GENERATION_CYCLE_SCHEMA_VERSION,
+            "cycles": (first_cycle, *historic.cycles[1:]),
+            "source_preservation_receipt": None,
+            "source_custody_limitation": generation.GenerationSourceCustodyLimitation(),
+        }
+    )
+    persisted = GenerationCycleRun.model_validate(current.model_dump(mode="json")).model_dump(
+        mode="json"
+    )
+    assert persisted["schema_version"] == "policyos.runtime.generation_cycle_controller.v5"
+    simulation_wire = persisted["cycles"][0]["simulation"]
+    lineage_fields = (
+        "candidate_simulation_n4_source_ref",
+        "candidate_simulation_context_job_ref",
+        "candidate_simulation_n5_input_ref",
+        "candidate_simulation_profile_config_ref",
+        "candidate_simulation_profile_selection_ref",
+    )
+    assert all(simulation_wire[field] is not None for field in lineage_fields)
+    assert validate_generation_cycle_run_history(persisted) == ()
+
+    missing_binding = copy.deepcopy(persisted)
+    del missing_binding["cycles"][0]["simulation"]["candidate_simulation_context_job_ref"]
+    issues = validate_generation_cycle_run_history(missing_binding)
+    assert issues
+    assert issues[0]["code"] in {
+        "generation_cycle_historical_projection_invalid",
+        "generation_cycle_historical_projection_mismatch",
+    }
+
+    malformed_binding = copy.deepcopy(persisted)
+    malformed_binding["cycles"][0]["simulation"]["candidate_simulation_context_job_ref"]["kind"] = (
+        "foreign.context"
+    )
+    malformed_issues = validate_generation_cycle_run_history(malformed_binding)
+    assert malformed_issues
+    assert malformed_issues[0]["code"] == "generation_cycle_historical_projection_invalid"
 
 
 def test_v3_blocked_terminal_semantics_remain_enforced_in_history() -> None:
@@ -803,9 +879,10 @@ def test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph() -> N
     expected_model_counts = {"v1": 59, "v2": 60, "v3": 62}
     assert {version: len(models) for version, models in frozen.items()} == expected_model_counts
     for version, models in frozen.items():
-        assert sum(
-            len(shape["field_vocabulary"]) for shape in models.values()
-        ) == expected_field_counts[version]
+        assert (
+            sum(len(shape["field_vocabulary"]) for shape in models.values())
+            == expected_field_counts[version]
+        )
         assert all(
             not (set(shape["computed_fields"]) & set(shape["wire_fields"]))
             for shape in models.values()
@@ -819,9 +896,7 @@ def test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph() -> N
                 ]
                 assert len(literal_descriptors) == 1
                 frozen_values = {
-                    value
-                    for descriptor in literal_descriptors
-                    for value in descriptor["values"]
+                    value for descriptor in literal_descriptors for value in descriptor["values"]
                 }
                 assert frozen_values == set(legacy_values)
                 if field_name in shape.get("nullable_literal_fields", ()):
@@ -833,16 +908,18 @@ def test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph() -> N
     promotion_status = frozen["v2"][
         "polisyos.runtime.quality.generation_cycle.PromotionPortObservation"
     ]["field_vocabulary"]["status"]
-    assert promotion_status == [{
-        "kind": "literal",
-        "path": [],
-        "type": None,
-        "values": [
-            "certified_current_valid",
-            "not_promoted",
-            "promotion_pending_n9",
-        ],
-    }]
+    assert promotion_status == [
+        {
+            "kind": "literal",
+            "path": [],
+            "type": None,
+            "values": [
+                "certified_current_valid",
+                "not_promoted",
+                "promotion_pending_n9",
+            ],
+        }
+    ]
     strategies = frozen["v2"][
         "polisyos.runtime.quality.acquisition_planner.AcquisitionActionRecord"
     ]["field_vocabulary"]["eligible_strategies"]
@@ -857,7 +934,8 @@ def test_v1_projection_removal_probe_rejects_post_v1_field_with_markers_retained
 
     _tracked_file_count, occurrences = _tracked_n6_runs()
     _path, _pointer, payload = next(
-        row for row in occurrences
+        row
+        for row in occurrences
         if row[2]["schema_version"] == "policyos.runtime.generation_cycle_controller.v1"
     )
     mutated = copy.deepcopy(payload)
@@ -893,7 +971,8 @@ def test_v2_history_rejects_post_version_nested_fields_with_markers_retained(
 
     _tracked_file_count, occurrences = _tracked_n6_runs()
     _path, _pointer, original = next(
-        row for row in occurrences
+        row
+        for row in occurrences
         if row[2]["schema_version"] == "policyos.runtime.generation_cycle_controller.v2"
     )
     assert validate_generation_cycle_run_history(original) == ()
@@ -910,7 +989,8 @@ def test_v2_history_rejects_post_version_nested_fields_with_markers_retained(
 
 
 def test_history_replay_is_read_only_and_does_not_consult_current_source(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Source-only comment changes preserve history and do not mint currentness."""
 
@@ -930,9 +1010,7 @@ def test_history_replay_is_read_only_and_does_not_consult_current_source(
     assert currentness_before.status == "not_established"
     assert currentness_before.reason_code == "historical_deployment_identity_not_recorded"
 
-    def source_probe_must_not_run(
-        self: StrangleReceipt, repo_root: Path | None = None
-    ) -> None:
+    def source_probe_must_not_run(self: StrangleReceipt, repo_root: Path | None = None) -> None:
         del self, repo_root
         raise AssertionError("historical_replay_consulted_live_source")
 
@@ -964,21 +1042,15 @@ def test_history_replay_is_read_only_and_does_not_consult_current_source(
     history_mutant = os.environ.get("POLISYOS_R2_HISTORY_MUTANT")
     assert history_mutant in {None, "source-bound"}
 
-    def require_history_mode(
-        run: object, **kwargs: object
-    ) -> tuple[dict[str, Any], ...]:
+    def require_history_mode(run: object, **kwargs: object) -> tuple[dict[str, Any], ...]:
         assert kwargs.get("repo_root") is None
         assert kwargs.get("current_strangle_receipt") is None
         assert kwargs.get("require_currentness") is False
         return current_validator(run, **kwargs)
 
     with monkeypatch.context() as history_only:
-        history_only.setattr(
-            StrangleReceipt, "verify_current", source_probe_must_not_run
-        )
-        history_only.setattr(
-            generation, "_validate_generation_cycle_run", require_history_mode
-        )
+        history_only.setattr(StrangleReceipt, "verify_current", source_probe_must_not_run)
+        history_only.setattr(generation, "_validate_generation_cycle_run", require_history_mode)
         if history_mutant == "source-bound":
             history_only.setattr(
                 generation,
@@ -986,15 +1058,16 @@ def test_history_replay_is_read_only_and_does_not_consult_current_source(
                 consult_current_source_then_replay,
             )
         assert generation.validate_generation_cycle_run_history(payload) == ()
-        source.write_bytes(
-            b"def unrelated_report():\n    return 'unchanged'\n# harmless edit\n"
-        )
+        source.write_bytes(b"def unrelated_report():\n    return 'unchanged'\n# harmless edit\n")
         changed_receipt = StrangleReceipt.recompute(tmp_path)
         assert changed_receipt.status == source_receipt.status
         assert changed_receipt.source_content_hash != source_receipt.source_content_hash
-        assert changed_receipt.model_copy(
-            update={"source_content_hash": source_receipt.source_content_hash}
-        ) == source_receipt
+        assert (
+            changed_receipt.model_copy(
+                update={"source_content_hash": source_receipt.source_content_hash}
+            )
+            == source_receipt
+        )
         assert generation.validate_generation_cycle_run_history(payload) == ()
     after = canon.to_canonical_bytes(payload, canon.CanonSpec(forbid_floats=False))
     assert before == after
@@ -1021,7 +1094,8 @@ def test_v1_v2_history_rejects_current_only_literal_or_alias_values(
 
     _tracked_file_count, occurrences = _tracked_n6_runs()
     _path, _pointer, original = next(
-        row for row in occurrences
+        row
+        for row in occurrences
         if row[2]["schema_version"] == "policyos.runtime.generation_cycle_controller.v2"
     )
     candidate = copy.deepcopy(original)
@@ -1040,13 +1114,13 @@ def test_v1_v2_history_rejects_current_only_literal_or_alias_values(
     }
 
 
-
 def test_v2_nested_future_enum_strategy_is_rejected_by_historical_projection() -> None:
     """A typed acquisition enum cannot gain a value while old markers remain."""
 
     _tracked_file_count, occurrences = _tracked_n6_runs()
     _path, _pointer, original = next(
-        row for row in occurrences
+        row
+        for row in occurrences
         if row[2]["schema_version"] == "policyos.runtime.generation_cycle_controller.v2"
     )
     run = GenerationCycleRun.model_validate(original)
@@ -1072,9 +1146,7 @@ def test_v2_nested_future_enum_strategy_is_rejected_by_historical_projection() -
     mutated_payload = copy.deepcopy(raw_action)
     mutated_payload["eligible_strategies"].append("r2_future_strategy")
 
-    with pytest.raises(
-        ValueError, match="generation_cycle_history_vocabulary_out_of_epoch"
-    ):
+    with pytest.raises(ValueError, match="generation_cycle_history_vocabulary_out_of_epoch"):
         generation._historical_generation_cycle_field_tree(
             mutated_action, mutated_payload, version="v2"
         )
@@ -1083,9 +1155,7 @@ def test_v2_nested_future_enum_strategy_is_rejected_by_historical_projection() -
 def test_historical_vocabulary_guard_uses_reflected_mapping_and_sequence_paths() -> None:
     """Finite vocabularies remain correct below Mapping and Sequence containers."""
 
-    enum_owner = (
-        f"{AcquisitionStrategy.__module__}.{AcquisitionStrategy.__qualname__}"
-    )
+    enum_owner = f"{AcquisitionStrategy.__module__}.{AcquisitionStrategy.__qualname__}"
     future_strategy = str.__new__(AcquisitionStrategy, "r2_future_strategy")
     future_strategy._name_ = "R2_FUTURE_STRATEGY"
     future_strategy._value_ = "r2_future_strategy"
@@ -1111,28 +1181,21 @@ def test_historical_vocabulary_guard_uses_reflected_mapping_and_sequence_paths()
     )
     for annotation, expected_paths, accepted, rejected in cases:
         reflected = generation._historical_annotation_vocabularies(annotation)
-        assert {"/".join(path) for path, _kind, _owner, _values in reflected} == (
-            expected_paths
-        )
-        frozen = {
-            (path, kind, owner): set(values)
-            for path, kind, owner, values in reflected
-        }
+        assert {"/".join(path) for path, _kind, _owner, _values in reflected} == (expected_paths)
+        frozen = {(path, kind, owner): set(values) for path, kind, owner, values in reflected}
         assert frozen
-        assert generation._historical_value_matches_vocabulary(
-            annotation, accepted, frozen
-        )
-        assert not generation._historical_value_matches_vocabulary(
-            annotation, rejected, frozen
-        )
+        assert generation._historical_value_matches_vocabulary(annotation, accepted, frozen)
+        assert not generation._historical_value_matches_vocabulary(annotation, rejected, frozen)
     assert enum_owner in {owner for _path, _kind, owner, _values in reflected}
+
 
 def test_currentness_unknown_preserves_the_saved_historical_status() -> None:
     """Currentness is a separate observation and never rewrites saved history."""
 
     _tracked_file_count, occurrences = _tracked_n6_runs()
     _path, _pointer, original = next(
-        row for row in occurrences
+        row
+        for row in occurrences
         if row[2]["schema_version"] == "policyos.runtime.generation_cycle_controller.v2"
     )
     before = canon.to_canonical_bytes(original, canon.CanonSpec(forbid_floats=False))
@@ -1174,23 +1237,18 @@ def test_all_method_selection_receipts_in_n6_history_replay() -> None:
 
 
 @pytest.mark.parametrize("schema_suffix", [".v1", ".v2"])
-def test_source_comment_preserves_actual_v1_v2_history(
-    tmp_path: Path, schema_suffix: str
-) -> None:
+def test_source_comment_preserves_actual_v1_v2_history(tmp_path: Path, schema_suffix: str) -> None:
     """Comment edits alter neither census semantics nor source-free history."""
 
     _tracked_file_count, occurrences = _tracked_n6_runs()
     _path, _pointer, original = next(
-        row for row in occurrences
-        if row[2]["schema_version"].endswith(schema_suffix)
+        row for row in occurrences if row[2]["schema_version"].endswith(schema_suffix)
     )
     source = tmp_path / "src/polisyos/lex/simulator/report.py"
     source.parent.mkdir(parents=True, exist_ok=True)
     source.write_bytes(b"def unrelated_report():\n    return 'unchanged'\n")
 
-    before = canon.to_canonical_bytes(
-        original, canon.CanonSpec(forbid_floats=False)
-    )
+    before = canon.to_canonical_bytes(original, canon.CanonSpec(forbid_floats=False))
     census_before = generation.inspect_n6_source_census(tmp_path)
     assert census_before.source_verdict == "UNRUN"
     assert "n6_production_entrypoint_and_binding_denominator_not_established" in (
@@ -1216,9 +1274,7 @@ def test_source_comment_preserves_actual_v1_v2_history(
     assert current_after.status == "not_established"
     assert current_after.reason_code == "historical_deployment_identity_not_recorded"
     assert validate_generation_cycle_run_history(original) == ()
-    after = canon.to_canonical_bytes(
-        original, canon.CanonSpec(forbid_floats=False)
-    )
+    after = canon.to_canonical_bytes(original, canon.CanonSpec(forbid_floats=False))
     assert after == before
 
 
@@ -1256,8 +1312,7 @@ def test_currentness_uses_ledger_observation_without_source_replay(
     assert currentness.reason_code == "n6_census_issuer_not_appointed"
     assert validate_generation_cycle_run_history(payload) == ()
     assert "strangle_receipt_currentness_not_established" in {
-        str(issue.get("code"))
-        for issue in validate_generation_cycle_run(run)
+        str(issue.get("code")) for issue in validate_generation_cycle_run(run)
     }
 
     stale = run.model_copy(
@@ -1268,7 +1323,9 @@ def test_currentness_uses_ledger_observation_without_source_replay(
     assert stale_observation.reason_code == "generation_cycle_deployment_identity_mismatch"
 
 
-def test_source_census_records_observations_but_holds_production_verdict_unrun(tmp_path: Path) -> None:
+def test_source_census_records_observations_but_holds_production_verdict_unrun(
+    tmp_path: Path,
+) -> None:
     """Direct references are observed while source-root completeness stays unclaimed."""
 
     source = tmp_path / "src/polisyos/runtime/quality/cycle.py"
@@ -1326,9 +1383,7 @@ def test_source_census_records_observations_but_holds_production_verdict_unrun(t
     )
     unclassified_owner_call = generation.inspect_n6_source_census(tmp_path)
     assert unclassified_owner_call.source_verdict == "UNRUN"
-    assert "dynamic_attribute_dispatch" in (
-        unclassified_owner_call.unresolved_by_construction
-    )
+    assert "dynamic_attribute_dispatch" in (unclassified_owner_call.unresolved_by_construction)
 
     source.write_text(
         "from polisyos.runtime.quality.workspace.loop import WorkspaceLoop as CycleOwner\n"
@@ -1396,8 +1451,7 @@ def test_source_census_rebinding_falsifier_and_controls_keep_root_unrun(
         "    def run(self, owner):\n"
         "        return None\n"
         "\n"
-        "GenerationCycleController.run = unsafe_helper\n"
-        + markers
+        "GenerationCycleController.run = unsafe_helper\n" + markers
     )
     source.write_text(rebound, encoding="utf-8")
 
@@ -1406,9 +1460,7 @@ def test_source_census_rebinding_falsifier_and_controls_keep_root_unrun(
     assert falsifier.source_path_enumeration_complete is True
     assert falsifier.production_path_verdict == "UNRUN"
     assert falsifier.production_root_and_binding_denominator == "not_established"
-    assert falsifier.observed_direct_calls == (
-        "src/polisyos/runtime/quality/cycle.py:4",
-    )
+    assert falsifier.observed_direct_calls == ("src/polisyos/runtime/quality/cycle.py:4",)
     assert "n6_module_and_class_attribute_rebinding_not_reconciled" in (
         falsifier.unresolved_by_construction
     )
@@ -1428,8 +1480,7 @@ def test_source_census_rebinding_falsifier_and_controls_keep_root_unrun(
     safe_control = (
         "class GenerationCycleController:\n"
         "    def run(self, owner):\n"
-        "        return None\n"
-        + markers
+        "        return None\n" + markers
     )
     source.write_text(safe_control, encoding="utf-8")
     control = generation.inspect_n6_source_census(tmp_path)
@@ -1470,9 +1521,7 @@ def test_source_census_scan_time_directory_error_marks_denominator_incomplete(
     assert incomplete.source_verdict == "UNRUN"
     assert incomplete.source_path_enumeration_complete is False
     assert incomplete.source_path_count == 0
-    assert "source_denominator_enumeration_failed" in (
-        incomplete.unresolved_by_construction
-    )
+    assert "source_denominator_enumeration_failed" in (incomplete.unresolved_by_construction)
 
 
 def test_candidate_census_removal_stays_unrun_and_unrelated_control(tmp_path: Path) -> None:
@@ -1524,8 +1573,7 @@ def test_candidate_census_removal_stays_unrun_and_unrelated_control(tmp_path: Pa
     unrelated.write_text(
         "class UnrelatedFixture:\n"
         "    def run_fixture(self):\n        return None\n"
-        "def call_fixture(owner):\n    return owner.safe_fixture()\n"
-        + markers,
+        "def call_fixture(owner):\n    return owner.safe_fixture()\n" + markers,
         encoding="utf-8",
     )
     unrelated_control = generation.inspect_n6_source_census(tmp_path)

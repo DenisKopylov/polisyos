@@ -186,5 +186,5 @@ def persist_validation_report(
 def load_validation_report(store: ArtifactStore, ref: ValidationReportRef) -> ValidationReport:
     """Load a persisted validation report."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return ValidationReport.model_validate(payload)

@@ -386,6 +386,7 @@ class MultiSourceSelectionDiagram(BaseModel):
                 return spec.to_selection_diagram(self.base_graph)
         raise KeyError(f"No domain with domain_id={domain_id!r} in MultiSourceSelectionDiagram")
 
+
 class StratificationVariable(BaseModel):
     """Stratification variable public type."""
 
@@ -668,9 +669,7 @@ class TransportabilityResult(BaseModel):
                 "transport_status": self.status.value,
                 "transport_mode": self.transport_mode.value,
                 "bounds_method": bounds.method.value,
-                "value_estimand_binding_content_hash": (
-                    projection_binding.content_hash
-                ),
+                "value_estimand_binding_content_hash": (projection_binding.content_hash),
                 "value_estimand_binding_native_contract_id": (
                     projection_binding.native_contract_id
                 ),
@@ -770,7 +769,7 @@ def load_transportability_result(
     ref: TransportabilityResultRef,
 ) -> TransportabilityResult:
     """Load transportability result."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return TransportabilityResult.model_validate(payload)
 
 

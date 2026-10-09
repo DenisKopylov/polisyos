@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import content_hash
+from polisyos.ir.analytics.posterior_summary import PosteriorPointRole, PosteriorSummaryRef
 
 
 class JobSpec(BaseModel):
@@ -77,6 +78,9 @@ class JobResult(BaseModel):
     simulation_results_ref: ArtifactRef | None = None
     method_result_ref: ArtifactRef | None = None
     method_evidence_ref: ArtifactRef | None = None
+    posterior_summary_refs: dict[PosteriorPointRole, PosteriorSummaryRef] = Field(
+        default_factory=dict
+    )
     final_state: Any | None = None
     issues: list[dict[str, Any]] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)

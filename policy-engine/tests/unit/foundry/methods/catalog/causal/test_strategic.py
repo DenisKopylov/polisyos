@@ -7,6 +7,7 @@ from types import ModuleType, SimpleNamespace
 import numpy as np
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.dtr import QLearningDTR
 from polisyos.foundry.methods.catalog.causal.policy_learning import OptimalPolicyLearner
@@ -883,7 +884,7 @@ def test_mean_field_runtime_persists_loadable_certificate_with_numerics_evidence
 
     assert bundle.mfg_equilibrium_ref is not None
     loaded_certificate = load_mean_field_equilibrium_certificate(
-        store,
+        _ensure_ir_artifact_store(store),
         bundle.mfg_equilibrium_ref,
     )
     assert loaded_certificate.provenance is not None
@@ -892,11 +893,11 @@ def test_mean_field_runtime_persists_loadable_certificate_with_numerics_evidence
     assert loaded_certificate.equilibrium_solution.solver_residual_ref is not None
     assert loaded_certificate.equilibrium_solution.mass_conservation_ref is not None
     solver_report = load_mean_field_solver_residual_report(
-        store,
+        _ensure_ir_artifact_store(store),
         loaded_certificate.equilibrium_solution.solver_residual_ref,
     )
     mass_report = load_mean_field_mass_conservation_report(
-        store,
+        _ensure_ir_artifact_store(store),
         loaded_certificate.equilibrium_solution.mass_conservation_ref,
     )
     assert solver_report.within_tolerance is True
@@ -1061,7 +1062,7 @@ def test_persist_strategic_solve_artifacts_auto_persists_exact_decomposition_art
     assert bundle.decomposition_certificate_ref is not None
     assert bundle.anchor_equilibrium_ref is not None
     certificate = load_strategic_decomposition_certificate(
-        store,
+        _ensure_ir_artifact_store(store),
         bundle.decomposition_certificate_ref,
     )
     assert certificate.decomposition_status.value == "exact"
@@ -1092,11 +1093,11 @@ def test_persist_strategic_solve_artifacts_auto_persists_bounded_component_artif
     assert bundle.causal_component_bounds_ref is not None
     assert bundle.strategic_component_bounds_ref is not None
     causal_bounds = load_strategic_component_bounds_summary(
-        store,
+        _ensure_ir_artifact_store(store),
         bundle.causal_component_bounds_ref,
     )
     strategic_bounds = load_strategic_component_bounds_summary(
-        store,
+        _ensure_ir_artifact_store(store),
         bundle.strategic_component_bounds_ref,
     )
     assert causal_bounds.lower_bound == pytest.approx(2.0)

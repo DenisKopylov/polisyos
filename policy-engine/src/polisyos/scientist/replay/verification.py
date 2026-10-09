@@ -194,7 +194,7 @@ def load_replay_verification_report(
     ref: ArtifactRef,
 ) -> ReplayVerificationReport:
     """Load replay verification report."""
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return ReplayVerificationReport.model_validate(payload)
 
 

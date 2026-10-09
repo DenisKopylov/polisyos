@@ -13,17 +13,25 @@ from polisyos.core.contracts.execution_plan import (
     ExecutionPlan,
     MethodCatalogSnapshot,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
-from polisyos.scientist.orchestration.llm.cycle import persist_preflight_report, preflight_execution_plan
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_EXECUTION_PLAN_REF,
     ARTIFACT_METHOD_CATALOG_SNAPSHOT_REF,
     ARTIFACT_PREFLIGHT_REPORT_REF,
     INPUT_EXECUTION_PLAN_REF,
+)
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
+from polisyos.scientist.orchestration.llm.cycle import (
+    persist_preflight_report,
+    preflight_execution_plan,
 )
 
 _METADATA = ComponentMetadata(
@@ -89,8 +97,8 @@ class RunPreflightNode:
             return NodeOutcome(status="fail", state=state, error=error)
 
         try:
-            plan_payload = from_canonical_bytes(ctx.store.get_bytes(plan_ref.artifact_id))
-            snapshot_payload = from_canonical_bytes(ctx.store.get_bytes(snapshot_ref.artifact_id))
+            plan_payload = from_canonical_bytes(ctx.store.get_bytes(plan_ref))
+            snapshot_payload = from_canonical_bytes(ctx.store.get_bytes(snapshot_ref))
             plan = ExecutionPlan.model_validate(plan_payload)
             snapshot = MethodCatalogSnapshot.model_validate(snapshot_payload)
         except _PREFLIGHT_INPUT_LOAD_ERRORS as exc:

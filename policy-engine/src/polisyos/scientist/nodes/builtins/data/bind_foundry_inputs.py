@@ -144,9 +144,7 @@ class BindFoundryInputsNode:
                 if selection is not None:
                     selected_contract_key = selection.contract_key
                     selected_method_fqn = selection.method_fqn
-                    selected_contract_ref = intake.method_contract_refs[
-                        selection.contract_key
-                    ]
+                    selected_contract_ref = intake.method_contract_refs[selection.contract_key]
                 intake_snapshot_ref = intake.data_snapshot_ref
             except _BINDING_VALIDATION_ERRORS as exc:
                 error = NodeError(
@@ -173,8 +171,7 @@ class BindFoundryInputsNode:
             error = NodeError(
                 code=node_errors.ERROR_INVALID_STATE,
                 message=(
-                    "ukraine_foundry_method_selection requires a verified "
-                    "ukraine_foundry_intake"
+                    "ukraine_foundry_method_selection requires a verified ukraine_foundry_intake"
                 ),
             )
             return NodeOutcome(status="fail", state=state, error=error)
@@ -322,9 +319,7 @@ def _resolve_ukraine_method_selection(
     contract = intake.method_contracts.get(selection.contract_key)
     contract_ref = intake.method_contract_refs.get(selection.contract_key)
     if contract is None or contract_ref is None:
-        raise ValueError(
-            f"unknown Ukraine Foundry contract key: {selection.contract_key}"
-        )
+        raise ValueError(f"unknown Ukraine Foundry contract key: {selection.contract_key}")
     contract_id = getattr(contract, "contract_id", None)
     if not isinstance(contract_id, str) or not contract_id:
         raise ValueError(
@@ -373,7 +368,7 @@ def _check_model_spec_consistency(
     if trinity_ref is None:
         return None
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
+        payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref))
         trinity = TrinityBundle.model_validate(payload)
     except _BINDING_LOAD_ERRORS:
         logger.debug(

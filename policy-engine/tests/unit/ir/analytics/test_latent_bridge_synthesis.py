@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentReviewerState,
@@ -536,10 +537,10 @@ def test_latent_bridge_hypothesis_round_trip_through_store(tmp_path) -> None:
         evidence=_admissible_measurement_evidence(),
         policy=_accept_policy(),
     )
-    ref = persist_latent_bridge_hypothesis(store, hypothesis)
+    ref = persist_latent_bridge_hypothesis(_ensure_ir_artifact_store(store), hypothesis)
     assert isinstance(ref, LatentBridgeHypothesisRef)
     assert ref.kind == "ir.latent_bridge_hypothesis"
-    loaded = load_latent_bridge_hypothesis(store, ref)
+    loaded = load_latent_bridge_hypothesis(_ensure_ir_artifact_store(store), ref)
     assert loaded == hypothesis
 
 
@@ -597,7 +598,9 @@ def test_verify_fragment_alignment_emits_auto_latent_bridge_when_policy_enabled(
     snapshot = certificate.metadata["latent_bridge_status_snapshot"]
     assert snapshot["status"] == "proposed"
     assert snapshot["metadata"]["opaque_label_required"] is True
-    loaded = load_latent_bridge_hypothesis(store, certificate.latent_bridge_hypothesis_ref)
+    loaded = load_latent_bridge_hypothesis(
+        _ensure_ir_artifact_store(store), certificate.latent_bridge_hypothesis_ref
+    )
     assert loaded.bridge_id.startswith("latent::bridge::")
     assert loaded.promotion_evidence is None
     assert loaded.promotion_verdict is None
@@ -667,7 +670,7 @@ def test_explicit_typed_latent_bridge_ref_is_canonical(tmp_path) -> None:
         "civic_trust_index",
     )
     hypothesis = persist_latent_bridge_hypothesis(
-        store,
+        _ensure_ir_artifact_store(store),
         synthesize_latent_bridge(
             pair_key=pair_key,
             evidence=_admissible_measurement_evidence(),
@@ -695,7 +698,9 @@ def test_explicit_typed_latent_bridge_ref_is_canonical(tmp_path) -> None:
     assert provenance["governed_content_hash"] == str(
         certificate.latent_bridge_hypothesis_ref.artifact_id
     )
-    governed = load_latent_bridge_hypothesis(store, certificate.latent_bridge_hypothesis_ref)
+    governed = load_latent_bridge_hypothesis(
+        _ensure_ir_artifact_store(store), certificate.latent_bridge_hypothesis_ref
+    )
     assert governed.metadata["latent_governance"]["promotion_allowed"] is False
 
 

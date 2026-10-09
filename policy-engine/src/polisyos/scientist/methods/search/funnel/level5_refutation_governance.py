@@ -275,10 +275,12 @@ class Level5RefutationGovernanceStage(FunnelStage):
             platform_meta=platform_meta,
         )
         duration = (datetime.now(UTC) - start).total_seconds()
+        cost_usd = max(self._estimated_cost_usd, duration * self._cost_per_second_usd)
         side_information = _build_actionable_side_information(
             candidate=candidate,
             prior_result=prior_result,
             duration_seconds=duration,
+            compute_cost_usd=cost_usd,
             selection=selection,
             hidden_holdout=hidden_holdout,
             stress_report=stress_report,
@@ -333,10 +335,8 @@ class Level5RefutationGovernanceStage(FunnelStage):
             actual_score=getattr(prior_result, "actual_score", objective_value),
             uncertainty_envelope=envelope,
             failure_cards=failure_cards,
-            compute_actual_usd=max(
-                self._estimated_cost_usd,
-                duration * self._cost_per_second_usd,
-            ),
+            compute_cost_usd=cost_usd,
+            compute_cost_origin="estimated",
             fidelity_level=self.fidelity_level,
             audit_refs=audit_refs,
             actionable_side_information_ref=side_information_ref,
@@ -462,6 +462,7 @@ def _build_actionable_side_information(
     candidate: dict[str, Any],
     prior_result: FunnelStageResult | None,
     duration_seconds: float,
+    compute_cost_usd: float,
     selection: BenchmarkEvaluation | None,
     hidden_holdout: BenchmarkEvaluation | None,
     stress_report: StressTestReport | None,
@@ -523,8 +524,14 @@ def _build_actionable_side_information(
     if causal_report is not None and causal_report.status is not EstimationStatus.SUCCESS:
         identifiability_blockers.append(causal_report.status_reason or causal_report.status.value)
     compute_budget_explanation = {}
+    prior_cost_evidence: dict[str, Any] | None = None
     if prior_result is not None:
-        compute_budget_explanation["level4_usd"] = float(prior_result.compute_actual_usd)
+        prior_cost_evidence = {
+            "amount_usd": prior_result.compute_cost_usd,
+            "origin": prior_result.compute_cost_origin,
+        }
+        if prior_result.compute_cost_usd is not None:
+            compute_budget_explanation["level4_cost_usd"] = float(prior_result.compute_cost_usd)
     compute_budget_explanation["level5_wall_seconds"] = float(duration_seconds)
     if holdout_delta is not None:
         compute_budget_explanation["hidden_holdout_delta"] = float(holdout_delta)
@@ -557,6 +564,11 @@ def _build_actionable_side_information(
             "hidden_holdout_present": hidden_holdout is not None,
             "stress_report_id": None if stress_report is None else stress_report.report_id,
             "governance_verdict": None if governance_report is None else governance_report.verdict,
+            "level4_cost_evidence": prior_cost_evidence,
+            "level5_cost_evidence": {
+                "amount_usd": compute_cost_usd,
+                "origin": "estimated",
+            },
         },
     )
 

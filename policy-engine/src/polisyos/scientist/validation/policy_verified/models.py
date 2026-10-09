@@ -233,7 +233,7 @@ def load_policy_request_frame(
     store: FileSystemCAS, ref: PolicyRequestFrameRef
 ) -> PolicyRequestFrame:
     """Load policy request frame."""
-    return PolicyRequestFrame.model_validate(from_canonical_bytes(store.get_bytes(ref.artifact_id)))
+    return PolicyRequestFrame.model_validate(from_canonical_bytes(store.get_bytes(ref)))
 
 
 def persist_legal_candidate_pack(
@@ -258,7 +258,7 @@ def load_legal_candidate_pack(
     store: FileSystemCAS, ref: LegalCandidatePackRef
 ) -> LegalCandidatePack:
     """Load legal candidate pack."""
-    return LegalCandidatePack.model_validate(from_canonical_bytes(store.get_bytes(ref.artifact_id)))
+    return LegalCandidatePack.model_validate(from_canonical_bytes(store.get_bytes(ref)))
 
 
 def persist_legal_source_pack(
@@ -281,7 +281,7 @@ def persist_legal_source_pack(
 
 def load_legal_source_pack(store: FileSystemCAS, ref: LegalSourcePackRef) -> LegalSourcePack:
     """Load legal source pack."""
-    return LegalSourcePack.model_validate(from_canonical_bytes(store.get_bytes(ref.artifact_id)))
+    return LegalSourcePack.model_validate(from_canonical_bytes(store.get_bytes(ref)))
 
 
 def persist_source_verification_report(
@@ -307,9 +307,7 @@ def load_source_verification_report(
     ref: SourceVerificationReportRef,
 ) -> SourceVerificationReport:
     """Load source verification report."""
-    return SourceVerificationReport.model_validate(
-        from_canonical_bytes(store.get_bytes(ref.artifact_id))
-    )
+    return SourceVerificationReport.model_validate(from_canonical_bytes(store.get_bytes(ref)))
 
 
 def persist_policy_option_set(
@@ -332,7 +330,7 @@ def persist_policy_option_set(
 
 def load_policy_option_set(store: FileSystemCAS, ref: PolicyOptionSetRef) -> PolicyOptionSet:
     """Load policy option set."""
-    return PolicyOptionSet.model_validate(from_canonical_bytes(store.get_bytes(ref.artifact_id)))
+    return PolicyOptionSet.model_validate(from_canonical_bytes(store.get_bytes(ref)))
 
 
 def persist_verified_policy_report(
@@ -358,9 +356,7 @@ def load_verified_policy_report(
     ref: VerifiedPolicyReportRef,
 ) -> VerifiedPolicyReport:
     """Load verified policy report."""
-    return VerifiedPolicyReport.model_validate(
-        from_canonical_bytes(store.get_bytes(ref.artifact_id))
-    )
+    return VerifiedPolicyReport.model_validate(from_canonical_bytes(store.get_bytes(ref)))
 
 
 __all__ = [

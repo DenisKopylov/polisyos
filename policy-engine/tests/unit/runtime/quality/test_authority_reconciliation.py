@@ -15,6 +15,7 @@ from polisyos.core.artifacts.manifest import (
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes, to_canonical_bytes
 from polisyos.runtime.http.services.control.artifacts import (
+    AUTHORITY_ENVELOPE_ARTIFACT_KIND,
     write_authority_artifact,
     write_runtime_authority_artifact,
 )
@@ -143,6 +144,97 @@ def test_runtime_authority_writer_appends_durable_event_and_reconciles(tmp_path)
     assert report.status == "pass"
     assert report.cas_ref == str(result.cas_ref.artifact_id)
     assert report.durable_event_id == records[0].event.event_id
+
+
+def test_runtime_authority_writer_preserves_selected_envelope_profile_and_lineage(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    artifact_store, event_log = _stores(tmp_path)
+    source_payload = {"source": "profiled-runtime-input"}
+    artifact_store.put_json(
+        source_payload,
+        PutOptions(
+            kind="runtime.input",
+            media_type="application/json",
+            schema=SchemaInfo(name="runtime.input", version="legacy-default"),
+        ),
+    )
+    source_ref = artifact_store.put_json(
+        source_payload,
+        PutOptions(
+            kind="runtime.input",
+            media_type="application/json",
+            schema=SchemaInfo(name="runtime.input", version="selected-profile"),
+        ),
+    )
+    assert source_ref.manifest_profile_sha256 is not None
+    source_input = InputRef(
+        artifact_id=source_ref.artifact_id,
+        role="policy_grounding_input",
+        manifest_profile_sha256=source_ref.manifest_profile_sha256,
+    )
+    opts = replace(
+        _opts(str(source_ref.artifact_id)),
+        inputs=[source_input],
+    )
+    payload = {"status": "pass", "claims": [{"claim_id": "claim-profiled-envelope"}]}
+    context = _runtime_context(str(source_ref.artifact_id))
+    original_put_json = artifact_store.put_json
+    envelope_puts: list[object] = []
+    sibling_refs: list[object] = []
+
+    def _put_with_sibling_view(obj, write_options, canon_spec=None):
+        if write_options.kind == AUTHORITY_ENVELOPE_ARTIFACT_KIND and not sibling_refs:
+            sibling_options = replace(
+                write_options,
+                schema=SchemaInfo(
+                    name=write_options.schema.name,
+                    version=f"{write_options.schema.version}.sibling",
+                ),
+            )
+            sibling_refs.append(original_put_json(obj, sibling_options, canon_spec))
+        ref = original_put_json(obj, write_options, canon_spec)
+        if write_options.kind == AUTHORITY_ENVELOPE_ARTIFACT_KIND:
+            envelope_puts.append(ref)
+        return ref
+
+    monkeypatch.setattr(artifact_store, "put_json", _put_with_sibling_view)
+
+    first = write_runtime_authority_artifact(
+        artifact_store,
+        event_log,
+        payload,
+        opts,
+        **context,
+    )
+
+    assert first.authority_envelope_ref.manifest_profile_sha256 is not None
+    assert len(envelope_puts) == len(sibling_refs) == 1
+    assert first.authority_envelope_ref == envelope_puts[0]
+    assert sibling_refs[0].artifact_id == first.authority_envelope_ref.artifact_id
+    assert sibling_refs[0].manifest_profile_sha256 is None
+    envelope_manifest = artifact_store.get_manifest(first.authority_envelope_ref)
+    assert envelope_manifest.inputs == [source_input]
+    payload_manifest = artifact_store.get_manifest(first.cas_ref)
+    assert payload_manifest.inputs == [source_input]
+    assert payload_manifest.authority is not None
+    assert (
+        payload_manifest.authority.authority_envelope_manifest_profile_sha256
+        == first.authority_envelope_ref.manifest_profile_sha256
+    )
+
+    assert artifact_store.verify(first.authority_envelope_ref).ok
+
+    reused = write_runtime_authority_artifact(
+        artifact_store,
+        event_log,
+        payload,
+        opts,
+        **context,
+    )
+
+    assert reused.authority_envelope_ref == first.authority_envelope_ref
 
 
 def test_runtime_authority_writer_links_cas_writer_attestation(tmp_path) -> None:
@@ -564,17 +656,11 @@ def test_exact_event_identity_reconciliation_is_page_position_independent(tmp_pa
     changed_artifact_ref = "sha256:" + "e" * 64
     changed_artifacts = replace(
         target,
-        event=target.event.model_copy(
-            update={"artifact_refs": (changed_artifact_ref,)}
-        ),
+        event=target.event.model_copy(update={"artifact_refs": (changed_artifact_ref,)}),
     )
-    linked_event_bytes = to_canonical_bytes(
-        changed_artifacts.event.model_dump(mode="json")
-    )
+    linked_event_bytes = to_canonical_bytes(changed_artifacts.event.model_dump(mode="json"))
     authority_manifest = artifact_store.get_manifest(result.cas_ref.artifact_id)
-    linked_id = ArtifactID.model_validate(
-        authority_manifest.authority.diagnostic_event_ref
-    )
+    linked_id = ArtifactID.model_validate(authority_manifest.authority.diagnostic_event_ref)
 
     class ChangedArtifactRefsStore:
         def has(self, artifact_id):

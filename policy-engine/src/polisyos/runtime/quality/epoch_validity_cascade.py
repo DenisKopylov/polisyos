@@ -126,17 +126,13 @@ def _promotion_owner_query_v2_pre_001b_raw_value(value: object) -> object:
         if value.manifest_profile_sha256 is not None:
             raise ValueError("pre_001b_selected_artifact_view_unrepresentable")
         return {
-            field.alias or name: _promotion_owner_query_v2_pre_001b_raw_value(
-                getattr(value, name)
-            )
+            field.alias or name: _promotion_owner_query_v2_pre_001b_raw_value(getattr(value, name))
             for name, field in value.__class__.model_fields.items()
             if name != "manifest_profile_sha256"
         }
     if isinstance(value, BaseModel):
         return {
-            field.alias or name: _promotion_owner_query_v2_pre_001b_raw_value(
-                getattr(value, name)
-            )
+            field.alias or name: _promotion_owner_query_v2_pre_001b_raw_value(getattr(value, name))
             for name, field in value.__class__.model_fields.items()
         }
     if isinstance(value, tuple | list):
@@ -1034,8 +1030,7 @@ class FileSemanticEpochTransitionHistoryAdapter:
     ) -> SemanticEpochProductionReceipt:
         if (
             receipt_ref.kind != "epoch.production_receipt"
-            or receipt_ref.media_type
-            != "application/vnd.polisyos.epoch-production-receipt+json"
+            or receipt_ref.media_type != "application/vnd.polisyos.epoch-production-receipt+json"
         ):
             raise ValueError("epoch transition receipt artifact profile mismatch")
         try:
@@ -1065,9 +1060,7 @@ class FileSemanticEpochTransitionHistoryAdapter:
         )
         expected_inputs = self._sorted_inputs(
             tuple(
-                artifacts.input_ref_from_artifact_ref(
-                    ref, role="epoch_production_input"
-                )
+                artifacts.input_ref_from_artifact_ref(ref, role="epoch_production_input")
                 for ref in (
                     receipt.prepared_epoch_ref,
                     receipt.admitted_boundary_evidence_ref,
@@ -1110,9 +1103,7 @@ class FileSemanticEpochTransitionHistoryAdapter:
         ):
             raise ValueError("epoch transition semantic manifest CAS readback failed")
         try:
-            manifest = SemanticEpochManifest.model_validate(
-                canon.from_canonical_bytes(records[0])
-            )
+            manifest = SemanticEpochManifest.model_validate(canon.from_canonical_bytes(records[0]))
         except (TypeError, ValueError) as exc:
             raise ValueError("epoch transition semantic manifest CAS readback failed") from exc
         expected_raw = core_contracts.chronology._frame_record(
@@ -1154,8 +1145,7 @@ class FileSemanticEpochTransitionHistoryAdapter:
             or history.authority_purpose != authority_purpose
             or history.head_refs != (current.epoch_ref,)
             or history.history_snapshot_ref.kind != "epoch.scope_history"
-            or history.history_snapshot_ref.media_type
-            != "application/vnd.polisyos.epoch+json"
+            or history.history_snapshot_ref.media_type != "application/vnd.polisyos.epoch+json"
             or not report.ok
             or manifest.artifact_id != history.history_snapshot_ref.artifact_id
             or manifest.kind != history.history_snapshot_ref.kind
@@ -1334,12 +1324,15 @@ class EpochValidityTransitionProducer:
             execution = _seal_completed_epoch_transition_execution(
                 previous_epoch_manifest_ref=previous_epoch_ref,
                 current_epoch_production_receipt_ref=current_epoch_receipt_ref,
-                transition=transition, dependencies=dependencies,
-                adjudications=adjudications, signed=signed,
+                transition=transition,
+                dependencies=dependencies,
+                adjudications=adjudications,
+                signed=signed,
             )
             origin_ref = self._origins._admit_completed_execution(execution)
             self._origins.resolve_admitted_origin(
-                origin_ref=origin_ref, transition_artifact_ref=record.artifact_ref,
+                origin_ref=origin_ref,
+                transition_artifact_ref=record.artifact_ref,
                 signed_artifact_evidence_ref=signed.evidence_record_ref,
                 signing_profile_ref=record.signing_profile_ref,
                 authority_purpose=authority_purpose,
@@ -1770,8 +1763,7 @@ class ArtifactPromotionCandidateDenominatorOwner:
         """Return whether this owner instance issued the exact sealed ref."""
 
         return (
-            artifacts.artifact_ref_identity_key(denominator_ref)
-            in self._admitted_denominator_refs
+            artifacts.artifact_ref_identity_key(denominator_ref) in self._admitted_denominator_refs
         )
 
     def _load_snapshot(self, ref: ArtifactRef) -> GenerationOwnerSnapshotStatement:
@@ -1852,18 +1844,15 @@ class ArtifactPromotionCandidateDenominatorOwner:
                     status="not_established",
                     code="promotion_candidate_inventory_unavailable",
                 )
-            if (
-                not isinstance(manifest, artifacts.ArtifactManifest)
-                or not isinstance(entry_ref, (ArtifactID, ArtifactRef))
+            if not isinstance(manifest, artifacts.ArtifactManifest) or not isinstance(
+                entry_ref, (ArtifactID, ArtifactRef)
             ):
                 return PromotionOwnerQueryContextNonReceipt(
                     status="not_established",
                     code="promotion_candidate_inventory_unavailable",
                 )
             entry_artifact_id = (
-                entry_ref.artifact_id
-                if isinstance(entry_ref, ArtifactRef)
-                else entry_ref
+                entry_ref.artifact_id if isinstance(entry_ref, ArtifactRef) else entry_ref
             )
             if manifest.artifact_id != entry_artifact_id:
                 return PromotionOwnerQueryContextNonReceipt(
@@ -1871,10 +1860,7 @@ class ArtifactPromotionCandidateDenominatorOwner:
                     code="promotion_candidate_inventory_unavailable",
                 )
             if isinstance(entry_ref, ArtifactRef):
-                if (
-                    entry_ref.kind != manifest.kind
-                    or entry_ref.media_type != manifest.media_type
-                ):
+                if entry_ref.kind != manifest.kind or entry_ref.media_type != manifest.media_type:
                     return PromotionOwnerQueryContextNonReceipt(
                         status="not_established",
                         code="promotion_candidate_inventory_unavailable",
@@ -2072,14 +2058,10 @@ class ArtifactPromotionOwnerQueryContextRepository:
                 raise ValueError("promotion_owner_query_context_byte_mismatch")
             projection = _promotion_owner_query_context_projection(
                 design_problem_binding_ref=statement.design_problem_binding_ref,
-                design_problem_binding_content_hash=(
-                    statement.design_problem_binding_content_hash
-                ),
+                design_problem_binding_content_hash=(statement.design_problem_binding_content_hash),
                 authority_purpose=statement.authority_purpose,
                 candidate_denominator_ref=statement.candidate_denominator_ref,
-                candidate_denominator_content_hash=(
-                    statement.candidate_denominator_content_hash
-                ),
+                candidate_denominator_content_hash=(statement.candidate_denominator_content_hash),
                 ordered_candidate_contexts=statement.ordered_candidate_contexts,
             )
             historical_algorithm: str | None = None
@@ -2314,10 +2296,10 @@ class ArtifactPromotionOwnerQueryContextRepository:
         ref = statement.design_problem_binding_ref
         if ref.kind != "runtime.design_problem" or ref.media_type != "application/json":
             raise ValueError("promotion_design_problem_profile_mismatch")
-        raw = self._artifacts.get_bytes(ref.artifact_id)
-        manifest = self._artifacts.get_manifest(ref.artifact_id)
+        raw = self._artifacts.get_bytes(ref)
+        manifest = self._artifacts.get_manifest(ref)
         if (
-            not self._artifacts.verify(ref.artifact_id).ok
+            not self._artifacts.verify(ref).ok
             or _raw_hash(raw) != str(ref.artifact_id)
             or manifest.kind != ref.kind
             or manifest.media_type != ref.media_type
@@ -2331,10 +2313,10 @@ class ArtifactPromotionOwnerQueryContextRepository:
             raise ValueError("promotion_design_problem_content_mismatch")
 
     def _verify_provenance(self, ref: ArtifactRef) -> None:
-        raw = self._artifacts.get_bytes(ref.artifact_id)
-        manifest = self._artifacts.get_manifest(ref.artifact_id)
+        raw = self._artifacts.get_bytes(ref)
+        manifest = self._artifacts.get_manifest(ref)
         if (
-            not self._artifacts.verify(ref.artifact_id).ok
+            not self._artifacts.verify(ref).ok
             or _raw_hash(raw) != str(ref.artifact_id)
             or manifest.artifact_id != ref.artifact_id
             or manifest.kind != ref.kind
@@ -2373,8 +2355,8 @@ class ArtifactPromotionOwnerQueryContextRepository:
         ref = evidence.query_artifact_ref
         if ref.kind != profile.kind or ref.media_type != profile.media_type:
             raise ValueError("promotion_query_family_substitution")
-        raw = self._artifacts.get_bytes(ref.artifact_id)
-        manifest = self._artifacts.get_manifest(ref.artifact_id)
+        raw = self._artifacts.get_bytes(ref)
+        manifest = self._artifacts.get_manifest(ref)
         observed_payload = canon.from_canonical_bytes(raw)
         if not isinstance(observed_payload, dict):
             raise ValueError("promotion_query_context_binding_mismatch")
@@ -2410,7 +2392,7 @@ class ArtifactPromotionOwnerQueryContextRepository:
         if expected_native_query_context_ref is None:
             raise ValueError("promotion_query_context_binding_mismatch")
         if (
-            not self._artifacts.verify(ref.artifact_id).ok
+            not self._artifacts.verify(ref).ok
             or _raw_hash(raw) != str(ref.artifact_id)
             or manifest.kind != profile.kind
             or manifest.media_type != profile.media_type
@@ -2947,9 +2929,7 @@ class ArtifactEpochValidityN9EvidenceResolver:
             )
             if isinstance(aggregate, PromotionOwnerQueryContextNonReceipt):
                 raise ValueError("epoch_validity_aggregate_unresolved")
-            problem_raw = self._store.get_bytes(
-                aggregate.statement.design_problem_binding_ref.artifact_id
-            )
+            problem_raw = self._store.get_bytes(aggregate.statement.design_problem_binding_ref)
             problem = DesignProblem.model_validate(canon.from_canonical_bytes(problem_raw))
             if gy_content_hash(problem.model_dump(mode="json")) != expected_problem_content_hash:
                 raise ValueError("epoch_validity_design_problem_binding_mismatch")

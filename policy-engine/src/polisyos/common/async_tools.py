@@ -9,17 +9,46 @@ import contextvars
 import functools
 import os
 import threading
-from typing import TYPE_CHECKING
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
 
 _EXECUTOR_LOCK = threading.Lock()
 _RUN_CORO_SYNC_EXECUTOR: concurrent.futures.ThreadPoolExecutor | None = None
+_SHARED_EXECUTOR_PROFILE: SharedExecutorProfile | None = None
+_SHARED_EXECUTOR_SHUTDOWN = False
 _DEFAULT_TIMEOUT_SECONDS = max(
     0.1,
     float(os.getenv("POLISYOS_RUN_CORO_SYNC_TIMEOUT_SECONDS", "30").strip() or "30"),
 )
+
+
+class SharedExecutorConfigurationError(ValueError):
+    """Refuse conflicting process-wide shared executor configuration."""
+
+
+@dataclass(frozen=True, slots=True)
+class SharedExecutorProfile:
+    """Candidate-only process capacity profile for the canonical shared executor."""
+
+    capacity: int
+    revision: str
+    source: Literal["runtime_config", "legacy_host_fallback"] = "runtime_config"
+    authority: Literal["candidate"] = "candidate"
+
+    def __post_init__(self) -> None:
+        """Validate the declared capacity and preserve candidate-only status."""
+        if type(self.capacity) is not int or self.capacity < 1:
+            raise SharedExecutorConfigurationError("shared_executor_capacity_must_be_positive")
+        if type(self.revision) is not str or not self.revision.strip():
+            raise SharedExecutorConfigurationError("shared_executor_revision_required")
+        object.__setattr__(self, "revision", self.revision.strip())
+        if self.source not in {"runtime_config", "legacy_host_fallback"}:
+            raise SharedExecutorConfigurationError("shared_executor_source_invalid")
+        if self.authority != "candidate":
+            raise SharedExecutorConfigurationError("shared_executor_authority_must_be_candidate")
 
 
 class SharedExecutorReentrancyError(RuntimeError):
@@ -115,6 +144,27 @@ class _SharedExecutor(concurrent.futures.ThreadPoolExecutor):
         self._outstanding_jobs = 0
         self._admission_closed = False
 
+    def is_current_worker(self) -> bool:
+        """Return whether the current thread is a physical worker of this pool."""
+        return bool(getattr(self._worker_context, "physical_worker", False))
+
+    def run_sync[T](self, fn: Callable[..., T], /, *args: object, **kwargs: object) -> T:
+        """Run synchronously, inlining physical workers and bounding external callbacks."""
+        if self.is_current_worker():
+            return fn(*args, **kwargs)
+
+        # Late Future callbacks execute on their registering thread. Let this
+        # synchronous bridge queue a bounded worker while preserving the direct
+        # submit() reentrancy refusal for arbitrary callback code.
+        was_active = getattr(self._worker_context, "active", False)
+        if was_active:
+            self._worker_context.active = False
+        try:
+            future = self.submit(fn, *args, **kwargs)
+        finally:
+            self._worker_context.active = was_active
+        return future.result()
+
     def submit[T](
         self, fn: Callable[..., T], /, *args: object, **kwargs: object
     ) -> concurrent.futures.Future[T]:
@@ -142,13 +192,16 @@ class _SharedExecutor(concurrent.futures.ThreadPoolExecutor):
 
         def run() -> None:
             previous = getattr(self._worker_context, "active", False)
+            previous_physical_worker = getattr(self._worker_context, "physical_worker", False)
             self._worker_context.active = True
+            self._worker_context.physical_worker = True
             with self._admission_lock:
                 self._physical_workers += 1
             try:
                 context.run(invoke)
             finally:
                 self._worker_context.active = previous
+                self._worker_context.physical_worker = previous_physical_worker
                 with self._admission_lock:
                     self._physical_workers -= 1
                 future._finish_work()
@@ -169,25 +222,74 @@ class _SharedExecutor(concurrent.futures.ThreadPoolExecutor):
 
 
 def _get_shared_executor() -> concurrent.futures.ThreadPoolExecutor:
-    global _RUN_CORO_SYNC_EXECUTOR
+    global _RUN_CORO_SYNC_EXECUTOR, _SHARED_EXECUTOR_PROFILE
+    if _SHARED_EXECUTOR_SHUTDOWN:
+        raise RuntimeError("shared executor is shut down")
     if _RUN_CORO_SYNC_EXECUTOR is not None:
         return _RUN_CORO_SYNC_EXECUTOR
     with _EXECUTOR_LOCK:
+        if _SHARED_EXECUTOR_SHUTDOWN:
+            raise RuntimeError("shared executor is shut down")
         if _RUN_CORO_SYNC_EXECUTOR is None:
-            max_workers = max(4, min(32, (os.cpu_count() or 1)))
+            if _SHARED_EXECUTOR_PROFILE is None:
+                _SHARED_EXECUTOR_PROFILE = resolve_shared_executor_profile()
             _RUN_CORO_SYNC_EXECUTOR = _SharedExecutor(
-                max_workers=max_workers,
+                max_workers=_SHARED_EXECUTOR_PROFILE.capacity,
                 thread_name_prefix="polisyos-run-coro-sync",
             )
     return _RUN_CORO_SYNC_EXECUTOR
 
 
+def resolve_shared_executor_profile(
+    *, capacity: int | None = None, revision: str | None = None
+) -> SharedExecutorProfile:
+    """Resolve explicit process capacity or the legacy candidate-only fallback."""
+    if capacity is None and revision is None:
+        return SharedExecutorProfile(
+            capacity=max(4, min(32, os.cpu_count() or 1)),
+            revision="legacy-host-derived-v1",
+            source="legacy_host_fallback",
+        )
+    if capacity is None or revision is None:
+        raise SharedExecutorConfigurationError(
+            "shared_executor_profile_requires_capacity_and_revision"
+        )
+    return SharedExecutorProfile(capacity=capacity, revision=revision)
+
+
+def configure_shared_executor_profile(profile: SharedExecutorProfile) -> SharedExecutorProfile:
+    """Set the one process-wide worker profile, refusing later conflicts."""
+    global _SHARED_EXECUTOR_PROFILE
+    if type(profile) is not SharedExecutorProfile:
+        raise SharedExecutorConfigurationError("shared_executor_profile_must_be_typed")
+    with _EXECUTOR_LOCK:
+        if _SHARED_EXECUTOR_SHUTDOWN:
+            raise SharedExecutorConfigurationError("shared_executor_is_shut_down")
+        current = _SHARED_EXECUTOR_PROFILE
+        if current is not None and current != profile:
+            raise SharedExecutorConfigurationError("shared_executor_profile_conflict")
+        if _RUN_CORO_SYNC_EXECUTOR is not None and (
+            _RUN_CORO_SYNC_EXECUTOR._max_workers != profile.capacity
+        ):
+            raise SharedExecutorConfigurationError("shared_executor_capacity_already_in_use")
+        _SHARED_EXECUTOR_PROFILE = profile
+    return profile
+
+
+def get_shared_executor_profile() -> SharedExecutorProfile:
+    """Return the active profile or an unpinned legacy fallback preview."""
+    with _EXECUTOR_LOCK:
+        if _SHARED_EXECUTOR_PROFILE is None:
+            return resolve_shared_executor_profile()
+        return _SHARED_EXECUTOR_PROFILE
+
+
 def shutdown_run_coro_sync_executor() -> None:
-    """Shutdown the shared executor used by `run_coro_sync`."""
-    global _RUN_CORO_SYNC_EXECUTOR
+    """Shut down the process executor permanently without reopening capacity."""
+    global _SHARED_EXECUTOR_SHUTDOWN
     with _EXECUTOR_LOCK:
         executor = _RUN_CORO_SYNC_EXECUTOR
-        _RUN_CORO_SYNC_EXECUTOR = None
+        _SHARED_EXECUTOR_SHUTDOWN = True
     if executor is not None:
         executor.shutdown(wait=False, cancel_futures=True)
 
@@ -198,6 +300,20 @@ atexit.register(shutdown_run_coro_sync_executor)
 def get_shared_executor() -> concurrent.futures.ThreadPoolExecutor:
     """Return the callback-owning executor used for sync-over-async bridges."""
     return _get_shared_executor()
+
+
+def is_current_shared_executor_worker() -> bool:
+    """Return whether the current thread is a physical process-executor worker."""
+    executor = _RUN_CORO_SYNC_EXECUTOR
+    return isinstance(executor, _SharedExecutor) and executor.is_current_worker()
+
+
+def run_shared_executor_sync[T](func: Callable[..., T], /, *args: object, **kwargs: object) -> T:
+    """Run sync work on the process executor, inline only on its physical workers."""
+    executor = _get_shared_executor()
+    if isinstance(executor, _SharedExecutor):
+        return executor.run_sync(func, *args, **kwargs)
+    return executor.submit(func, *args, **kwargs).result()
 
 
 def _normalize_timeout(timeout_seconds: float | None) -> float:

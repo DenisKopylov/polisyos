@@ -13,6 +13,21 @@ def register_default_schema_rules() -> None:
     """Register built-in IR schema compatibility declarations."""
 
     register_schema_version(
+        "ir.causal_evidence_bundle",
+        "1.0",
+        compatibility=CompatibilityMode.NONE,
+        writable_versions=("1.1",),
+        notes=("Strict EvidenceBundle 1.0 readers do not accept the Twin result reference field.",),
+    )
+    register_schema_version(
+        "ir.causal_evidence_bundle",
+        "1.1",
+        compatibility=CompatibilityMode.BACKWARD,
+        readable_versions=("1.0",),
+        additive_optional_fields=("twin_network_result_ref",),
+        notes=("Current readers accept strict legacy 1.0 and typed Twin-result 1.1 payloads.",),
+    )
+    register_schema_version(
         "structural_causal_model_spec",
         "1.0",
         compatibility=CompatibilityMode.NONE,

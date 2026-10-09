@@ -55,7 +55,7 @@ from polisyos.runtime.quality.event_log import (
 )
 
 NORMATIVE_APPLICABILITY_REPORT_KIND = "lex.normative_applicability_report"
-AUTHORITY_ENVELOPE_ARTIFACT_KIND = "runtime_quality.evidence_authority_envelope"
+AUTHORITY_ENVELOPE_ARTIFACT_KIND = core_artifacts.AUTHORITY_ENVELOPE_ARTIFACT_KIND
 TRUST_BOUNDARY_ATTESTATION_ARTIFACT_KIND = "runtime_quality.trust_boundary_attestation"
 
 
@@ -389,7 +389,7 @@ def write_authority_artifact(
             tenant_id=tenant_id,
             cell_id=cell_id,
             same_input_closure=closure,
-            authority_envelope_ref=str(authority_envelope_ref.artifact_id),
+            authority_envelope_ref=authority_envelope_ref,
             diagnostic_event_ref=str(diagnostic_event_ref.artifact_id),
             manifest_ref=manifest_ref,
             payload_sha256=payload_sha256,
@@ -579,7 +579,7 @@ def write_runtime_authority_artifact(
         opts,
         **authority_fields,
     )
-    event_payload = from_canonical_bytes(store.get_bytes(result.diagnostic_event_ref.artifact_id))
+    event_payload = from_canonical_bytes(store.get_bytes(result.diagnostic_event_ref))
     event = DiagnosticEvent.model_validate(event_payload)
     event_log.append(
         event,
@@ -614,12 +614,10 @@ def _existing_authority_result(
     manifest_producer = manifest.producer
     try:
         verification = store.verify(artifact_id)
-        envelope_id = core_artifacts.ArtifactID.model_validate(
-            authority.authority_envelope_ref
-        )
-        envelope_verification = store.verify(envelope_id)
+        envelope_ref = core_artifacts.resolve_authority_envelope_ref(store, authority)
+        envelope_verification = store.verify(envelope_ref)
         envelope = EvidenceAuthorityEnvelope.model_validate(
-            from_canonical_bytes(store.get_bytes(envelope_id))
+            from_canonical_bytes(store.get_bytes(envelope_ref))
         )
         diagnostic_event_id = core_artifacts.ArtifactID.model_validate(
             authority.diagnostic_event_ref
@@ -630,9 +628,7 @@ def _existing_authority_result(
         )
         if envelope.attestation_ref != expected_context.attestation_ref:
             raise ValueError("existing authority identity mismatch")
-        attestation_id = core_artifacts.ArtifactID.model_validate(
-            expected_context.attestation_ref
-        )
+        attestation_id = core_artifacts.ArtifactID.model_validate(expected_context.attestation_ref)
         attestation_verification = store.verify(attestation_id)
         attestation_manifest = store.get_manifest(attestation_id)
         attestation_payload = from_canonical_bytes(store.get_bytes(attestation_id))
@@ -649,9 +645,7 @@ def _existing_authority_result(
         expected_context.tenant_id,
         expected_context.cell_id,
     )
-    expected_closure = _same_input_closure_summary(
-        expected_context.same_input_closure
-    )
+    expected_closure = _same_input_closure_summary(expected_context.same_input_closure)
     expected_event_id = expected_context.event_id or _stable_event_id(
         evidence_id=expected_context.evidence_id,
         cas_ref=cas_ref_value,
@@ -702,8 +696,7 @@ def _existing_authority_result(
         or envelope.provenance_kind != expected_context.provenance_kind
         or envelope.owner != expected_context.owner
         or envelope.reader_contract != expected_context.reader_contract
-        or envelope.reader_contract_version
-        != expected_context.reader_contract_version
+        or envelope.reader_contract_version != expected_context.reader_contract_version
         or envelope.tenant_id != expected_context.tenant_id
         or envelope.cell_id != expected_context.cell_id
         or envelope.run_id != expected_context.run_id
@@ -711,10 +704,8 @@ def _existing_authority_result(
         or envelope.trace_id != expected_context.trace_id
         or envelope.span_id != expected_context.span_id
         or envelope.parent_span_id != expected_context.parent_span_id
-        or envelope.requested_execution_profile
-        != expected_context.requested_execution_profile
-        or envelope.effective_execution_profile
-        != expected_context.effective_execution_profile
+        or envelope.requested_execution_profile != expected_context.requested_execution_profile
+        or envelope.effective_execution_profile != expected_context.effective_execution_profile
         or envelope.phase != expected_context.phase
         or envelope.generated_at != expected_context.generated_at
         or envelope.as_of_time != expected_context.as_of_time
@@ -725,10 +716,8 @@ def _existing_authority_result(
         or envelope.validation_status != expected_context.validation_status
         or envelope.blocking_status != expected_context.blocking_status
         or envelope.governance != expected_context.governance
-        or envelope.degradation_ledger_ref
-        != expected_context.degradation_ledger_ref
-        or envelope.schema_compatibility_ref
-        != expected_context.schema_compatibility_ref
+        or envelope.degradation_ledger_ref != expected_context.degradation_ledger_ref
+        or envelope.schema_compatibility_ref != expected_context.schema_compatibility_ref
         or envelope.semantic_binding_ref != expected_context.semantic_binding_ref
         or envelope.attestation_ref != expected_context.attestation_ref
         or attestation_manifest.kind != TRUST_BOUNDARY_ATTESTATION_ARTIFACT_KIND
@@ -756,8 +745,7 @@ def _existing_authority_result(
         or diagnostic_event.cell_id != (expected_context.cell_id or "")
         or diagnostic_event.producer_component != str(producer.component)
         or diagnostic_event.producer_version != producer.version
-        or diagnostic_event.execution_profile
-        != expected_context.effective_execution_profile
+        or diagnostic_event.execution_profile != expected_context.effective_execution_profile
         or diagnostic_event.phase != expected_context.phase
         or diagnostic_event.state_before != expected_context.state_before
         or diagnostic_event.state_after != expected_context.state_after
@@ -765,18 +753,14 @@ def _existing_authority_result(
         or diagnostic_event.artifact_refs != (cas_ref_value,)
         or diagnostic_event.input_refs != expected_context.input_refs
         or diagnostic_event.blocking_status != expected_context.blocking_status
-        or diagnostic_event.redaction_policy_ref
-        != expected_context.redaction_policy_ref
+        or diagnostic_event.redaction_policy_ref != expected_context.redaction_policy_ref
     ):
         raise ValueError("existing authority identity mismatch")
     return AuthorityArtifactWriteResult(
         cas_ref=_make_artifact_ref(cas_ref_value, kind=opts.kind),
         payload_sha256=payload_sha256,
         manifest_ref=authority.manifest_ref,
-        authority_envelope_ref=_make_artifact_ref(
-            authority.authority_envelope_ref,
-            kind=AUTHORITY_ENVELOPE_ARTIFACT_KIND,
-        ),
+        authority_envelope_ref=envelope_ref,
         diagnostic_event_ref=_make_artifact_ref(
             authority.diagnostic_event_ref,
             kind=DIAGNOSTIC_EVENT_ARTIFACT_KIND,
@@ -858,10 +842,7 @@ def _identity_context_from_fields(
         redaction_policy_ref=values.get("redaction_policy_ref"),
         event_id=values.get("event_id"),
         event_source=str(values.get("event_source") or "polisyos.runtime.cas"),
-        event_type=str(
-            values.get("event_type")
-            or "polisyos.runtime.diagnostic.cas_write.v1"
-        ),
+        event_type=str(values.get("event_type") or "polisyos.runtime.diagnostic.cas_write.v1"),
         event_subject=values.get("event_subject"),
         state_before=values.get("state_before"),
         state_after=values.get("state_after", "persisted"),
@@ -995,7 +976,7 @@ def _authority_payload_write_options(
     tenant_id: str,
     cell_id: str | None,
     same_input_closure: SameInputClosure,
-    authority_envelope_ref: str,
+    authority_envelope_ref: ArtifactRef,
     diagnostic_event_ref: str,
     manifest_ref: str,
     payload_sha256: str,
@@ -1009,7 +990,10 @@ def _authority_payload_write_options(
         cell_id=cell_id,
         same_input_closure=same_input_closure,
         authority=ArtifactAuthorityInfo(
-            authority_envelope_ref=authority_envelope_ref,
+            authority_envelope_ref=str(authority_envelope_ref.artifact_id),
+            authority_envelope_manifest_profile_sha256=(
+                authority_envelope_ref.manifest_profile_sha256
+            ),
             diagnostic_event_ref=diagnostic_event_ref,
             manifest_ref=manifest_ref,
             payload_sha256=payload_sha256,
@@ -1113,12 +1097,13 @@ def _assert_authority_manifest_linkage(
     manifest_ref: str,
     payload_sha256: str,
 ) -> None:
-    manifest = store.get_manifest(cas_ref.artifact_id)
+    manifest = store.get_manifest(cas_ref)
     authority = manifest.authority
     if authority is None:
         raise ValueError(f"authority manifest linkage missing for {cas_ref.artifact_id}")
     expected = ArtifactAuthorityInfo(
         authority_envelope_ref=str(authority_envelope_ref.artifact_id),
+        authority_envelope_manifest_profile_sha256=(authority_envelope_ref.manifest_profile_sha256),
         diagnostic_event_ref=str(diagnostic_event_ref.artifact_id),
         manifest_ref=manifest_ref,
         payload_sha256=payload_sha256,

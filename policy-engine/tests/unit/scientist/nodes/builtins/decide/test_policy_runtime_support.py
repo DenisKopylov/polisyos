@@ -67,6 +67,7 @@ from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     PRODUCTION_POLICY_EVALUATION_BACKEND_ID,
     PolicyRuntimeEvaluationSafetyError,
     ProductionPolicyEvaluationBackend,
+    build_policy_simulation_results,
     load_effective_latent_discovery_bundle_for_state,
     resolve_effective_latent_discovery_bundle_for_state,
 )
@@ -75,6 +76,30 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
+
+
+@pytest.mark.parametrize(("fidelity", "requested_draw_count"), [("medium", 64), ("full", 500)])
+def test_policy_runtime_keeps_requested_draws_separate_from_unobserved_execution_counts(
+    fidelity: str,
+    requested_draw_count: int,
+) -> None:
+    evaluation = PolicyEvaluationVector(candidate_id="candidate_work_count")
+
+    results = build_policy_simulation_results(
+        evaluation,
+        fidelity=fidelity,
+        uncertainty=None,
+    )
+
+    bootstrap = results["bootstrap"]
+    assert bootstrap.get("requested_draw_count") == requested_draw_count
+    assert bootstrap.get("requested_draw_source") == "fidelity_default"
+    assert bootstrap.get("draw_execution_status") == "not_instrumented"
+    assert bootstrap.get("attempted_draw_count") is None
+    assert bootstrap.get("successful_draw_count") is None
+    assert bootstrap.get("failed_draw_count") is None
+    assert bootstrap.get("unattempted_draw_count") is None
+    assert "draws" not in bootstrap
 
 
 def _query() -> CausalQuery:

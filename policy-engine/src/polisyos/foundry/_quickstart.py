@@ -45,8 +45,8 @@ from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.model_layer.model_spec import ModelSpec
-from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.model_layer.types import SelectorOperator
+from polisyos.ir.trinity import TrinityBundle
 
 
 @dataclass(frozen=True, slots=True)
@@ -177,11 +177,9 @@ def prepare_trivial_feedback_config(
 ) -> FeedbackConfigRef:
     """Persist a minimal feedback config that endogenizes the income-tax rate."""
 
-    exec_plan = ExecPlan.model_validate(
-        from_canonical_bytes(store.get_bytes(exec_plan_ref.artifact_id))
-    )
+    exec_plan = ExecPlan.model_validate(from_canonical_bytes(store.get_bytes(exec_plan_ref)))
     program_graph = ProgramGraph.model_validate(
-        from_canonical_bytes(store.get_bytes(exec_plan.program_ref.artifact_id))
+        from_canonical_bytes(store.get_bytes(exec_plan.program_ref))
     )
     income_tax_node = next(
         (node.node_id for node in program_graph.nodes if node.mechanism_type == "income_tax"),
@@ -246,9 +244,7 @@ def prepare_trivial_multiplicity_config(
     """Persist the quickstart feedback config with multiplicity discovery enabled."""
 
     feedback_ref = prepare_trivial_feedback_config(store, exec_plan_ref=exec_plan_ref)
-    config = FeedbackConfig.model_validate(
-        from_canonical_bytes(store.get_bytes(feedback_ref.artifact_id))
-    )
+    config = FeedbackConfig.model_validate(from_canonical_bytes(store.get_bytes(feedback_ref)))
     multiplicity_config = config.model_copy(
         update={
             "solver": config.solver.model_copy(

@@ -15,21 +15,21 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.core.contracts.execution_plan import (
     IterationState,
 )
+from polisyos.scientist.governance.report import GovernanceReport
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_EVALUATOR_REPORT_REF,
+    ARTIFACT_ITERATION_STATE_REF,
+    REPORT_GOVERNANCE_REPORT_REF,
+)
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.iteration_state_machine import transition
 from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
-from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.orchestration.llm.cycle import (
     evaluate_iteration,
     persist_evaluator_report,
     persist_iteration_state,
-)
-from polisyos.scientist.nodes.builtins.state_keys import (
-    ARTIFACT_EVALUATOR_REPORT_REF,
-    ARTIFACT_ITERATION_STATE_REF,
-    REPORT_GOVERNANCE_REPORT_REF,
 )
 
 logger = get_logger(__name__)
@@ -101,7 +101,7 @@ class RunEvaluatorNode:
         governance_ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
         if governance_ref is not None:
             try:
-                payload = from_canonical_bytes(ctx.store.get_bytes(governance_ref.artifact_id))
+                payload = from_canonical_bytes(ctx.store.get_bytes(governance_ref))
                 governance = GovernanceReport.model_validate(payload)
                 governance_verdict = str(governance.verdict or "NEEDS_REVISION").upper()
                 governance_issues = list(governance.issues)

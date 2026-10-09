@@ -4,6 +4,9 @@ from threading import Barrier, Thread
 
 import pytest
 
+from polisyos.scientist.methods.search.funnel.level5_refutation_governance import (
+    Level5RefutationGovernanceStage,
+)
 from polisyos.scientist.methods.search.funnel.level6_promotion import Level6PromotionStage
 
 
@@ -67,3 +70,13 @@ def test_prepared_payload_is_read_only_interpretation_without_callback_effects()
     assert result.terminal_action == "complete"
     assert writes == []
     assert result.feedback["promotion_result_read_only"] is True
+
+
+def test_duration_and_configuration_costs_remain_estimates_at_l5_and_l6():
+    l5_result = Level5RefutationGovernanceStage().evaluate({}, {})
+    l6_result = Level6PromotionStage().evaluate({}, {})
+
+    assert l5_result.compute_cost_usd is not None
+    assert l5_result.compute_cost_origin == "estimated"
+    assert l6_result.compute_cost_usd is not None
+    assert l6_result.compute_cost_origin == "estimated"

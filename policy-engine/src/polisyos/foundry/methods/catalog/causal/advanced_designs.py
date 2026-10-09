@@ -20,6 +20,7 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.foundry.methods.catalog.causal.ci_backends import BootstrapExecutionCounter
 from polisyos.foundry.methods.catalog.causal.nuisance_layer import (
     CrossFitNuisanceOutputs,
     bootstrap_mean_interval,
@@ -661,6 +662,14 @@ class DRLearnerEstimator:
             ParameterSpec(name="overlap_trim", default=0.02),
             ParameterSpec(name="outcome_scaling", default="raw+standardized"),
             ParameterSpec(name="bootstrap_draws", default=100),
+            ParameterSpec(
+                name="capture_execution_work",
+                default=False,
+                description=(
+                    "Include measured bootstrap replicate counts in the result; "
+                    "does not change the estimator or interval."
+                ),
+            ),
             ParameterSpec(name="random_seed", default=None),
             ParameterSpec(name="random_seed_manifest", default=()),
             ParameterSpec(name="feature_importance_mode", default="permutation"),
@@ -689,6 +698,9 @@ class DRLearnerEstimator:
 
     @staticmethod
     def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+        capture_execution_work = params.get("capture_execution_work", False)
+        if not isinstance(capture_execution_work, bool):
+            raise TypeError("capture_execution_work must be a bool")
         X = np.asarray(state["X"], dtype=float)
         T = np.asarray(state["treatment"], dtype=float)
         Y = np.asarray(state["outcome"], dtype=float)
@@ -735,8 +747,13 @@ class DRLearnerEstimator:
         effective_params.setdefault("outcome_scaling", "raw+standardized")
         effective_params.setdefault("bootstrap_draws", 100)
         effective_params.setdefault("feature_importance_mode", "permutation")
+        bootstrap_work_counter: BootstrapExecutionCounter | None = None
         try:
             config = build_nuisance_config(effective_params)
+            if capture_execution_work:
+                bootstrap_work_counter = BootstrapExecutionCounter(
+                    requested_draw_count=config.bootstrap_draws
+                )
             nuisance = _resolve_nuisance_outputs(X, T, Y, params=effective_params)
             pseudo = _truncate_pseudo_outcome(
                 nuisance.aipw_scores(Y, T),
@@ -758,6 +775,7 @@ class DRLearnerEstimator:
                 pseudo[nuisance.trim_mask],
                 seed=config.random_seed + 71,
                 draws=config.bootstrap_draws,
+                work_counter=bootstrap_work_counter,
             )
             feature_importance_payload = _suppress_importances_if_homogeneous(
                 cate_pred,
@@ -792,6 +810,15 @@ class DRLearnerEstimator:
                         "bootstrap_draws": config.bootstrap_draws,
                         "feature_importance_mode": config.feature_importance_mode,
                     },
+                    **(
+                        {
+                            "bootstrap_execution": bootstrap_work_counter.snapshot().model_dump(
+                                mode="json"
+                            )
+                        }
+                        if bootstrap_work_counter is not None
+                        else {}
+                    ),
                     "heterogeneity_signal": float(np.std(cate_pred, ddof=1))
                     if cate_pred.size > 1
                     else 0.0,
@@ -809,6 +836,15 @@ class DRLearnerEstimator:
                     "n_obs": n,
                     "nuisance_diagnostics": {},
                     "nuisance_config": {},
+                    **(
+                        {
+                            "bootstrap_execution": bootstrap_work_counter.snapshot().model_dump(
+                                mode="json"
+                            )
+                        }
+                        if bootstrap_work_counter is not None
+                        else {}
+                    ),
                     "heterogeneity_signal": 0.0,
                     "failed": True,
                     "fail_reason": f"DRLearner custom backend: {exc}",
@@ -854,6 +890,14 @@ class RLearnerEstimator:
             ParameterSpec(name="overlap_trim", default=0.02),
             ParameterSpec(name="outcome_scaling", default="raw+standardized"),
             ParameterSpec(name="bootstrap_draws", default=100),
+            ParameterSpec(
+                name="capture_execution_work",
+                default=False,
+                description=(
+                    "Include measured bootstrap replicate counts in the result; "
+                    "does not change the estimator or interval."
+                ),
+            ),
             ParameterSpec(name="random_seed", default=None),
             ParameterSpec(name="random_seed_manifest", default=()),
             ParameterSpec(name="feature_importance_mode", default="permutation"),
@@ -882,6 +926,9 @@ class RLearnerEstimator:
 
     @staticmethod
     def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+        capture_execution_work = params.get("capture_execution_work", False)
+        if not isinstance(capture_execution_work, bool):
+            raise TypeError("capture_execution_work must be a bool")
         X = np.asarray(state["X"], dtype=float)
         T = np.asarray(state["treatment"], dtype=float)
         Y = np.asarray(state["outcome"], dtype=float)
@@ -918,6 +965,11 @@ class RLearnerEstimator:
         effective_params.setdefault("bootstrap_draws", 100)
         effective_params.setdefault("feature_importance_mode", "permutation")
         config = build_nuisance_config(effective_params)
+        bootstrap_work_counter = (
+            BootstrapExecutionCounter(requested_draw_count=config.bootstrap_draws)
+            if capture_execution_work
+            else None
+        )
         nuisance = _resolve_nuisance_outputs(X, T, Y, params=effective_params)
         m_hat = 0.5 * (nuisance.mu1 + nuisance.mu0)
         y_residual = Y - m_hat
@@ -929,6 +981,7 @@ class RLearnerEstimator:
             cate_pred[nuisance.trim_mask],
             seed=config.random_seed + 89,
             draws=config.bootstrap_draws,
+            work_counter=bootstrap_work_counter,
         )
         feature_importance_payload = _suppress_importances_if_homogeneous(
             cate_pred,
@@ -966,6 +1019,15 @@ class RLearnerEstimator:
                     "bootstrap_draws": config.bootstrap_draws,
                     "feature_importance_mode": config.feature_importance_mode,
                 },
+                **(
+                    {
+                        "bootstrap_execution": bootstrap_work_counter.snapshot().model_dump(
+                            mode="json"
+                        )
+                    }
+                    if bootstrap_work_counter is not None
+                    else {}
+                ),
                 "heterogeneity_signal": float(np.std(cate_pred, ddof=1))
                 if cate_pred.size > 1
                 else 0.0,

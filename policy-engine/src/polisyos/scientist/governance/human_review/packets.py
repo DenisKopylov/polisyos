@@ -20,9 +20,7 @@ from polisyos.scientist.governance.human_review.models import (
 )
 
 HUMAN_REVIEW_PACKET_KIND = "scientist.human_review_packet"
-HUMAN_REVIEW_PACKET_SCHEMA_NAME = (
-    "polisyos.scientist.governance.human_review.HumanReviewPacket"
-)
+HUMAN_REVIEW_PACKET_SCHEMA_NAME = "polisyos.scientist.governance.human_review.HumanReviewPacket"
 HUMAN_REVIEW_PACKET_SCHEMA_VERSION = "1.0"
 
 __all__ = [
@@ -160,7 +158,7 @@ def persist_review_packet(
 def load_review_packet(store: FileSystemCAS, ref: ArtifactRef) -> HumanReviewPacket:
     """Load a persisted human-review packet from CAS."""
 
-    return HumanReviewPacket.model_validate(from_canonical_bytes(store.get_bytes(ref.artifact_id)))
+    return HumanReviewPacket.model_validate(from_canonical_bytes(store.get_bytes(ref)))
 
 
 def review_packet_summary(packet: HumanReviewPacket) -> dict[str, Any]:

@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.forecasting_uncertainty import (
     FanChartSpec,
@@ -169,9 +170,9 @@ def test_forecasting_uncertainty_bundle_cas_roundtrip(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     bundle = _sample_bundle()
 
-    ref_1 = persist_forecasting_uncertainty_bundle(store, bundle)
-    ref_2 = persist_forecasting_uncertainty_bundle(store, bundle)
-    loaded = load_forecasting_uncertainty_bundle(store, ref_1)
+    ref_1 = persist_forecasting_uncertainty_bundle(_ensure_ir_artifact_store(store), bundle)
+    ref_2 = persist_forecasting_uncertainty_bundle(_ensure_ir_artifact_store(store), bundle)
+    loaded = load_forecasting_uncertainty_bundle(_ensure_ir_artifact_store(store), ref_1)
 
     assert ref_1.kind == "ir.forecasting_uncertainty_bundle"
     assert ref_1.artifact_id == ref_2.artifact_id
@@ -223,8 +224,8 @@ def test_forecasting_uncertainty_bundle_v2_cas_roundtrip(tmp_path) -> None:
     )
     bundle = ForecastingUncertaintyBundleV2.model_validate(payload)
 
-    ref = persist_forecasting_uncertainty_bundle(store, bundle)
-    loaded = load_forecasting_uncertainty_bundle(store, ref)
+    ref = persist_forecasting_uncertainty_bundle(_ensure_ir_artifact_store(store), bundle)
+    loaded = load_forecasting_uncertainty_bundle(_ensure_ir_artifact_store(store), ref)
 
     assert ref.kind == "ir.forecasting_uncertainty_bundle"
     assert isinstance(loaded, ForecastingUncertaintyBundleV2)

@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass, fields
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from polisyos.berl.contracts.validation_rules import ValidationThresholds
 
 _REQUIRES_BERL_KEYS = (
     "requires_explanation_reliability",
@@ -277,8 +280,7 @@ def _normalize_reliability_record(
             row.get("empirical_bounds") or row.get("empirical_reliability_bounds")
         ),
         "local_infidelity_diagnostics": _explicit_sequence(
-            row.get("local_infidelity_diagnostics")
-            or row.get("infidelity_diagnostics")
+            row.get("local_infidelity_diagnostics") or row.get("infidelity_diagnostics")
         ),
     }
     issues: list[WarrantReliabilityIssue] = []
@@ -378,16 +380,15 @@ def _validate_bundle_record(
     evidence_ref: str | None,
 ) -> tuple[dict[str, Any], tuple[WarrantReliabilityIssue, ...]]:
     try:
-        from polisyos.berl import (
-            ExplanationBundle,
-            ValidationThresholds,
-            validate_explanation_bundle,
+        from polisyos.berl import ValidationThresholds
+        from polisyos.berl.contracts.validation_rules import (
+            validate_persisted_explanation_bundle_payload,
         )
 
-        bundle = ExplanationBundle.model_validate(bundle_payload)
-        validation = validate_explanation_bundle(
-            bundle,
-            thresholds=_validation_thresholds(ValidationThresholds, thresholds),
+        active_thresholds = _validation_thresholds(ValidationThresholds, thresholds)
+        bundle, validation = validate_persisted_explanation_bundle_payload(
+            bundle_payload,
+            thresholds=active_thresholds,
         )
     except (ImportError, TypeError, ValueError) as exc:
         return (
@@ -397,6 +398,28 @@ def _validate_bundle_record(
                     code="policy_design_warrant_berl_bundle_invalid",
                     field="warrant_reliability_records.explanation_bundle",
                     message="BERL explanation bundle could not be validated.",
+                    evidence_ref=evidence_ref,
+                ),
+            ),
+        )
+
+    if bundle is None:
+        violations = validation.violations or ("explanation_bundle_invalid",)
+        return (
+            {
+                "threshold_decision": {
+                    "status": "fail",
+                    "display_policy": validation.display_policy,
+                    "violations": list(violations),
+                    "warnings": list(validation.warnings),
+                }
+            },
+            (
+                WarrantReliabilityIssue(
+                    code="policy_design_warrant_berl_bundle_invalid",
+                    field="warrant_reliability_records.explanation_bundle",
+                    message="BERL explanation bundle could not be validated: "
+                    + ", ".join(violations),
                     evidence_ref=evidence_ref,
                 ),
             ),
@@ -446,9 +469,9 @@ def _validate_bundle_record(
 
 
 def _validation_thresholds(
-    thresholds_cls: type[object],
+    thresholds_cls: type[ValidationThresholds],
     thresholds: Mapping[str, Any],
-) -> object | None:
+) -> ValidationThresholds | None:
     if not thresholds:
         return None
     allowed = {field.name for field in fields(thresholds_cls)}

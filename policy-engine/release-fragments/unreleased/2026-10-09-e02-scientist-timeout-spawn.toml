@@ -1,0 +1,30 @@
+id = "2026-10-09-e02-scientist-timeout-spawn"
+title = "Use a typed spawned worker for bounded macOS node execution"
+type = "changed"
+component = "scientist-engine"
+owner = "team-polisyos"
+summary = "macOS timed synchronous execution uses a spawned worker for the admitted canonical parameter resolver and returns a typed refusal for unsupported nodes or contexts."
+evidence = ["tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py", "tests/unit/scientist/orchestration/engine/test_retry.py"]
+compatibility = "Darwin callers that previously supplied arbitrary custom nodes or contexts to timed synchronous execution now receive node.timeout_worker_unsupported before node entry; no thread fallback is used. Linux retains the owned fork supervisor."
+change_class = "internal"
+surface_classification = "internal: Scientist orchestration timeout worker"
+migration = "For custom nodes, omit the timeout only when unbounded execution is acceptable, or add a canonical task and strict context profile before admitting the node to spawn workers."
+api = "The existing retry API is unchanged. The spawned profile admits only the canonical ResolveParametersNode and its strict local filesystem-CAS/run/tenant context."
+limitations = "The supported node set is intentionally narrow. The shared revocation gate covers named context-owned writes and does not sandbox arbitrary Python effects or raw filesystem access. Custom node support, generic store support, and a universal bounded-timeout guarantee remain out of scope."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "darwin-custom-node-timeout-refusal"
+change_class = "internal"
+impact = "Darwin timed synchronous calls for unsupported custom nodes or contexts refuse before invoking node code."
+surface = "internal: Scientist orchestration timeout worker"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Use the admitted canonical parameter resolver profile, omit a timeout only when unbounded execution is acceptable, or add a strict typed worker profile for another node."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]
+runbook_docs = []

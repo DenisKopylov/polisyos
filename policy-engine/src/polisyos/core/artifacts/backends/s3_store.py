@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib
+import re
 import threading
 from typing import TYPE_CHECKING, Any, cast
 
@@ -218,8 +219,14 @@ class S3ArtifactStore:
     def _load_manifest(
         self,
         artifact_id: ArtifactID | ArtifactRef | str,
+        *,
+        manifest_profile_sha256: str | None = None,
     ) -> tuple[bytes, ArtifactManifest]:
         aid, profile_sha256, ref = artifact_reference_parts(artifact_id)
+        if manifest_profile_sha256 is not None:
+            if profile_sha256 is not None and profile_sha256 != manifest_profile_sha256:
+                raise ValueError("conflicting manifest profile selectors")
+            profile_sha256 = manifest_profile_sha256
         cache_suffix = self._manifest_cache_suffix(profile_sha256)
         cached = self._cache_read(aid, cache_suffix)
         if cached is not None:
@@ -254,6 +261,21 @@ class S3ArtifactStore:
     def get_manifest(self, artifact_id: ArtifactID | ArtifactRef | str) -> ArtifactManifest:
         """Load and validate the default or explicitly selected manifest view."""
         _raw, manifest = self._load_manifest(artifact_id)
+        return manifest
+
+    def get_manifest_by_profile(
+        self,
+        artifact_id: ArtifactID | str,
+        manifest_profile_sha256: str,
+    ) -> ArtifactManifest:
+        """Resolve an exact selected manifest sidecar without assuming its kind."""
+        aid = ArtifactID.model_validate(artifact_id)
+        if re.fullmatch(r"sha256:[0-9a-f]{64}", manifest_profile_sha256) is None:
+            raise ValueError("manifest_profile_sha256 must be sha256:<64 lowercase hex>")
+        _raw, manifest = self._load_manifest(
+            aid,
+            manifest_profile_sha256=manifest_profile_sha256,
+        )
         return manifest
 
     @staticmethod
@@ -318,10 +340,12 @@ class S3ArtifactStore:
         else:
             persisted_default = cast(
                 "bytes",
-                self._s3().get_object(
+                self._s3()
+                .get_object(
                     Bucket=self._bucket,
                     Key=self._manifest_key(aid),
-                )["Body"].read(),
+                )["Body"]
+                .read(),
             )
         default_manifest = ArtifactManifest.model_validate_json(persisted_default)
         validate_manifest_identity(aid, default_manifest)

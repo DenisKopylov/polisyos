@@ -1,0 +1,262 @@
+{
+  "$defs": {
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "title": "ArtifactID",
+      "type": "string"
+    },
+    "ArtifactRefModel": {
+      "additionalProperties": false,
+      "description": "Provide the common mapping-compatible base contract for artifact refs.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "kind",
+        "media_type"
+      ],
+      "title": "ArtifactRefModel",
+      "type": "object"
+    },
+    "PosteriorParameterSummary": {
+      "additionalProperties": false,
+      "description": "Retain one scalar parameter's exact draws and separate functionals.",
+      "properties": {
+        "draws": {
+          "items": {
+            "type": "number"
+          },
+          "minItems": 1,
+          "title": "Draws",
+          "type": "array"
+        },
+        "equal_tail_interval": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Equal Tail Interval",
+          "type": "array"
+        },
+        "posterior_mean": {
+          "title": "Posterior Mean",
+          "type": "number"
+        },
+        "posterior_median": {
+          "title": "Posterior Median",
+          "type": "number"
+        },
+        "selected_point": {
+          "title": "Selected Point",
+          "type": "number"
+        },
+        "source_coordinate": {
+          "default": [],
+          "items": {
+            "type": "integer"
+          },
+          "title": "Source Coordinate",
+          "type": "array"
+        },
+        "source_parameter": {
+          "minLength": 1,
+          "title": "Source Parameter",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_parameter",
+        "draws",
+        "posterior_mean",
+        "posterior_median",
+        "equal_tail_interval",
+        "selected_point"
+      ],
+      "title": "PosteriorParameterSummary",
+      "type": "object"
+    },
+    "PosteriorPointRole": {
+      "description": "Name the posterior point functional selected by a consumer.",
+      "enum": [
+        "posterior_mean",
+        "posterior_median"
+      ],
+      "title": "PosteriorPointRole",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Store versioned posterior functionals without envelope coercion.",
+  "properties": {
+    "chain_count": {
+      "minimum": 1,
+      "title": "Chain Count",
+      "type": "integer"
+    },
+    "credible_mass": {
+      "exclusiveMaximum": 1.0,
+      "exclusiveMinimum": 0.0,
+      "title": "Credible Mass",
+      "type": "number"
+    },
+    "draw_order": {
+      "items": {
+        "type": "integer"
+      },
+      "minItems": 1,
+      "title": "Draw Order",
+      "type": "array"
+    },
+    "draws_per_chain": {
+      "minimum": 1,
+      "title": "Draws Per Chain",
+      "type": "integer"
+    },
+    "gate_eligible": {
+      "const": false,
+      "default": false,
+      "title": "Gate Eligible",
+      "type": "boolean"
+    },
+    "parameter_order": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Parameter Order",
+      "type": "array"
+    },
+    "parameters": {
+      "additionalProperties": {
+        "$ref": "#/$defs/PosteriorParameterSummary"
+      },
+      "title": "Parameters",
+      "type": "object"
+    },
+    "point_role": {
+      "$ref": "#/$defs/PosteriorPointRole"
+    },
+    "profile_id": {
+      "const": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+      "default": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+      "title": "Profile Id",
+      "type": "string"
+    },
+    "profile_version": {
+      "const": "1.1",
+      "default": "1.1",
+      "title": "Profile Version",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.1",
+      "default": "1.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_draws_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "Source Draws Hash",
+      "type": "string"
+    },
+    "source_draws_payload": {
+      "additionalProperties": true,
+      "title": "Source Draws Payload",
+      "type": "object"
+    },
+    "source_draws_ref": {
+      "minLength": 1,
+      "title": "Source Draws Ref",
+      "type": "string"
+    },
+    "source_method_evidence_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ArtifactRefModel"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "source_weights": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "number"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Weights"
+    },
+    "unit_binding_status": {
+      "const": "not_established",
+      "default": "not_established",
+      "title": "Unit Binding Status",
+      "type": "string"
+    },
+    "unit_bindings": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Unit Bindings",
+      "type": "object"
+    },
+    "weight_status": {
+      "const": "not_supplied_by_source",
+      "default": "not_supplied_by_source",
+      "title": "Weight Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "point_role",
+    "credible_mass",
+    "source_draws_ref",
+    "source_draws_hash",
+    "source_draws_payload",
+    "chain_count",
+    "draws_per_chain",
+    "draw_order",
+    "parameter_order",
+    "parameters"
+  ],
+  "title": "PosteriorSummaryV11",
+  "type": "object"
+}

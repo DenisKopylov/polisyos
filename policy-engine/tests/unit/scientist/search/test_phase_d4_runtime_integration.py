@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
@@ -24,13 +25,13 @@ from polisyos.ir.analytics.strategic import (
 )
 from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
 from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
     _run_and_register_phase_d4_challenge_suites,
 )
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF
-from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def _build_ctx(tmp_path, *, run_id: str) -> ExecutionContext:
@@ -51,7 +52,7 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(tmp_path
         ),
     )
     strategic_closure_ref = persist_strategic_closure_summary(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         StrategicClosureSummary(
             fallback_mode=StrategicFallbackMode.EXACT_EQUILIBRIUM,
             equilibrium_concept=StrategicEquilibriumConcept.STACKELBERG,
@@ -61,21 +62,21 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(tmp_path
         ),
     )
     equilibrium_set_ref = persist_equilibrium_set_summary(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         EquilibriumSetSummary(
             equilibrium_profiles=(),
             equilibrium_count=0,
         ),
     )
     selected_equilibrium_ref = persist_equilibrium_selection_summary(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         EquilibriumSelectionSummary(
             selected_equilibrium={"leader": "A", "follower": "X"},
             equilibrium_selection_dependence="follower_best_response_tie_breaking",
         ),
     )
     post_adaptation_policy_value_ref = persist_post_adaptation_policy_value_summary(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         PostAdaptationPolicyValueSummary(
             fallback_mode=StrategicFallbackMode.EXACT_EQUILIBRIUM,
             baseline_policy_value=1.0,
@@ -83,7 +84,7 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(tmp_path
         ),
     )
     strategic_bundle_ref = persist_strategic_response_bundle(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         StrategicResponseBundle(
             causal_component_ref=ArtifactRefModel.model_validate(
                 candidate_ref.model_dump(mode="json")

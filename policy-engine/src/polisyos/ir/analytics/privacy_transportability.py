@@ -845,7 +845,7 @@ def load_privacy_aware_transport_certificate(
 ) -> PrivacyAwareTransportCertificate:
     """Load a persisted privacy-aware transport certificate."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return PrivacyAwareTransportCertificate.model_validate(payload)
 
 

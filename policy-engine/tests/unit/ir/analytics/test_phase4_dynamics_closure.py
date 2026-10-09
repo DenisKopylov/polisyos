@@ -7,6 +7,7 @@ import pytest
 from pydantic import ValidationError
 
 import polisyos.foundry.methods.catalog.simulation.dynamics as simulation_dynamics
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import (
     AttractorAnalysisResult,
@@ -211,8 +212,8 @@ def test_phase4_abm_result_is_an_independent_strict_ir_round_trip(tmp_path) -> N
     result = ABMResult.model_validate(payload)
     wire_payload = result.model_dump(mode="json")
     store = FileSystemCAS(tmp_path)
-    ref = persist_abm_result(store, result)
-    loaded = load_abm_result(store, ref)
+    ref = persist_abm_result(_ensure_ir_artifact_store(store), result)
+    loaded = load_abm_result(_ensure_ir_artifact_store(store), ref)
 
     assert SimulationResult not in ABMResult.__mro__
     assert loaded == result
@@ -232,8 +233,7 @@ def test_phase4_abm_result_is_an_independent_strict_ir_round_trip(tmp_path) -> N
     assert loaded.bifurcation_report is not None
     assert loaded.bifurcation_report.attractor_analysis_ref is not None
     assert (
-        loaded.bifurcation_report.attractor_analysis_ref.kind
-        == "foundry.attractor_analysis_result"
+        loaded.bifurcation_report.attractor_analysis_ref.kind == "foundry.attractor_analysis_result"
     )
     assert loaded.trace_slice_ref is not None
     assert loaded.trace_slice_ref.media_type == "application/jsonl"
@@ -330,7 +330,7 @@ def test_phase4_abm_attachment_helpers_persist_exact_fields(tmp_path) -> None:
         simulation_result_ref=sim_ref,
         diagnostic_ref=diagnostic_ref,
     )
-    ident_abm = load_abm_result(store, ident_abm_ref)
+    ident_abm = load_abm_result(_ensure_ir_artifact_store(store), ident_abm_ref)
     assert not isinstance(
         ident_abm.identifiability_diagnostic_ref,
         IdentifiabilityDiagnosticRef,
@@ -361,7 +361,7 @@ def test_phase4_abm_attachment_helpers_persist_exact_fields(tmp_path) -> None:
             artifact_id=attractor_ref_payload.artifact_id
         ),
     )
-    bifurcation_abm = load_abm_result(store, bifurcation_abm_ref)
+    bifurcation_abm = load_abm_result(_ensure_ir_artifact_store(store), bifurcation_abm_ref)
     assert bifurcation_abm.bifurcation_report is not None
     assert bifurcation_abm.bifurcation_report.attractor_analysis_ref is not None
 
@@ -382,8 +382,8 @@ def test_dynamic_microsim_validation_report_roundtrip_and_calibration_integratio
     with pytest.raises(DynamicMicrosimValidationError):
         enforce_dynamic_microsim_validation_report(report)
 
-    ref = persist_dynamic_microsim_validation_report(store, report)
-    loaded = load_dynamic_microsim_validation_report(store, ref)
+    ref = persist_dynamic_microsim_validation_report(_ensure_ir_artifact_store(store), report)
+    loaded = load_dynamic_microsim_validation_report(_ensure_ir_artifact_store(store), ref)
     assert loaded == report
 
     calibration = build_microsim_calibration_report(
@@ -412,8 +412,13 @@ def test_phase4_causal_certificates_roundtrip(tmp_path) -> None:
         },
     )
     assert isinstance(temporal, TemporalGraphCausalCertificate)
-    temporal_ref = persist_temporal_graph_causal_certificate(store, temporal)
-    assert load_temporal_graph_causal_certificate(store, temporal_ref) == temporal
+    temporal_ref = persist_temporal_graph_causal_certificate(
+        _ensure_ir_artifact_store(store), temporal
+    )
+    assert (
+        load_temporal_graph_causal_certificate(_ensure_ir_artifact_store(store), temporal_ref)
+        == temporal
+    )
 
     space_time = build_space_time_causal_certificate(
         {
@@ -423,8 +428,11 @@ def test_phase4_causal_certificates_roundtrip(tmp_path) -> None:
         }
     )
     assert isinstance(space_time, SpaceTimeCausalCertificate)
-    space_ref = persist_space_time_causal_certificate(store, space_time)
-    assert load_space_time_causal_certificate(store, space_ref) == space_time
+    space_ref = persist_space_time_causal_certificate(_ensure_ir_artifact_store(store), space_time)
+    assert (
+        load_space_time_causal_certificate(_ensure_ir_artifact_store(store), space_ref)
+        == space_time
+    )
 
 
 def test_phase4_exact_public_symbols_and_fields_are_registered() -> None:

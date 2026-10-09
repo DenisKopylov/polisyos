@@ -112,12 +112,16 @@ Run commands from the repository root `policy-engine/`.
 `async_tools.py` returns a `concurrent.futures.Future` compatible proxy. A job
 retains its logical reservation while its worker wrapper or synchronous done
 callbacks run, even after `result()` becomes available. Physical workers are
-counted separately. Nested submissions from that executor's worker or callback
-context receive `SharedExecutorReentrancyError` when capacity is fully reserved
-or occupied. Ordinary external callers can queue work. Late callbacks execute
-in their registering thread and carry the same reentry guard; existing callbacks
-retain registration order and execute in the completing thread. Callback
-exceptions follow the standard Future logging behavior.
+counted separately. Direct nested submissions from that executor's worker or
+callback context receive `SharedExecutorReentrancyError` when capacity is fully
+reserved or occupied. Ordinary external callers can queue work. Late callbacks
+execute in their registering thread and retain the direct-submission reentry
+guard; callbacks retain registration order and execute in the completing
+thread. The synchronous dispatch bridge inlines only on a physical
+shared-executor worker. A late callback using that bridge queues its dispatch
+through the same bounded pool, and the submission captures the callback
+thread's current context. Callback exceptions follow the standard Future
+logging behavior.
 
 Every submission captures its own current context. Queue cancellation prevents
 unstarted work and notifies Future waiters; running callables and arbitrary
@@ -129,6 +133,14 @@ default; combining `unbounded=True` with a float timeout is invalid.
 
 These helpers own execution/callback lifecycle, not tenant authority or external
 effect rollback. Callers retain their current publication and permission checks.
+
+Runtime composition may pin this same process-wide owner with the typed
+`process_worker_capacity` and `process_worker_profile_revision` settings. The
+Scientist `MethodBackend` submits its synchronous method dispatch through that
+owner; nested dispatch from one of its workers runs inline. An omitted profile
+keeps the legacy CPU-derived candidate fallback, and an explicit revision does
+not establish deployment authority. The cap applies within one Python process;
+separate processes do not share worker slots.
 
 ## Operability Links
 
@@ -151,4 +163,4 @@ public-surface refresh, and compatibility note.
 - [Core / Common / Runtime Audit Remediation Plan](../../../docs/plans/active/CORE_COMMON_RUNTIME_AUDIT_REMEDIATION_PLAN.md)
 - [Common migrations](migrations/README.md)
 
-- Last updated: 2026-05-06
+- Last updated: 2026-10-09

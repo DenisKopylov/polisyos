@@ -307,6 +307,29 @@ not a new source resolver authority.
 uv run pytest tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py
 ```
 
+## Bounded Node Timeout Workers
+
+On macOS, a timed synchronous node uses a spawned process only when its node is
+the canonical `ResolveParametersNode` and its execution context can be encoded
+by the strict filesystem-CAS, run, and tenant wire. The child reconstructs that
+exact context and receives an absolute monotonic deadline plus the parent's
+revocable attempt authority. The parent owns timeout reporting and process-group
+cleanup. A delayed canonical-node control proves that CAS output can be written
+while authority is live and that the same write is refused after parent
+revocation. This covers the named context-owned write boundary; it is not a
+sandbox for arbitrary Python effects or raw filesystem access.
+
+Other custom nodes and contexts are refused before node entry with
+`node.timeout_worker_unsupported`; macOS does not fall back to a thread that
+cannot be physically stopped. This narrows the former arbitrary-node timed
+behavior. Callers that accept unbounded execution may omit the timeout. A
+bounded custom node needs its own admitted canonical task and strict context
+profile before it can join the spawn allowlist. Linux continues to use the
+existing owned fork supervisor. Platforms without one of the supported process
+methods refuse bounded execution rather than claiming a thread is a killable
+worker. These profiles do not establish a generic timeout capability for all
+nodes or stores.
+
 ## Last Updated
 
-- Last updated: 2026-10-07
+- Last updated: 2026-10-09

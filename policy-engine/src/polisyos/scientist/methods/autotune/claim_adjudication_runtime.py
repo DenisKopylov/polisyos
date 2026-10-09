@@ -181,18 +181,18 @@ class ClaimAdjudicationRuntime:
         if self._evaluation_receipt_ref is None:
             raise ValueError("claim_adjudication_evaluator_receipt_missing")
         self._verifier.replay_champion(str(self._evaluation_receipt_ref.artifact_id))
-        candidate_manifest = self._store.get_manifest(pointer.candidate_ref.artifact_id)
+        candidate_manifest = self._store.get_manifest(pointer.candidate_ref)
         if candidate_manifest.kind != "scientist.autotune.claim_adjudication.candidate":
             raise ValueError("claim_adjudication_candidate_kind_mismatch")
         config = ClaimAdjudicationSearchConfig.model_validate(
-            from_canonical_bytes(self._store.get_bytes(pointer.candidate_ref.artifact_id))
+            from_canonical_bytes(self._store.get_bytes(pointer.candidate_ref))
         )
         if config.loop_id != pointer.loop_id:
             raise ValueError("claim_adjudication_candidate_loop_mismatch")
         if config.search_space_version != pointer.search_space_version:
             raise ValueError("claim_adjudication_search_space_mismatch")
 
-        evaluation_manifest = self._store.get_manifest(pointer.evaluation_ref.artifact_id)
+        evaluation_manifest = self._store.get_manifest(pointer.evaluation_ref)
         if (
             evaluation_manifest.producer is None
             or _component(evaluation_manifest.producer.component) != _EVALUATION_PRODUCER
@@ -204,7 +204,7 @@ class ClaimAdjudicationRuntime:
         if candidate_lineage != [str(pointer.candidate_ref.artifact_id)]:
             raise ValueError("claim_adjudication_evaluation_lineage_mismatch")
         evaluation = BenchmarkEvaluation.model_validate(
-            from_canonical_bytes(self._store.get_bytes(pointer.evaluation_ref.artifact_id))
+            from_canonical_bytes(self._store.get_bytes(pointer.evaluation_ref))
         )
         if evaluation.loop_id != pointer.loop_id:
             raise ValueError("claim_adjudication_evaluation_loop_mismatch")
@@ -243,7 +243,7 @@ class ClaimAdjudicationRuntime:
         )
 
     def _load_input(self, raw_input_ref: ArtifactRef) -> ClaimAdjudicationInputBatch:
-        manifest = self._store.get_manifest(raw_input_ref.artifact_id)
+        manifest = self._store.get_manifest(raw_input_ref)
         if manifest.kind != _INPUT_KIND:
             raise ValueError("claim_adjudication_input_kind_mismatch")
         if manifest.artifact_schema is None or manifest.artifact_schema.name != _INPUT_SCHEMA:
@@ -251,7 +251,7 @@ class ClaimAdjudicationRuntime:
         if manifest.producer is None or _component(manifest.producer.component) != _INPUT_PRODUCER:
             raise ValueError("claim_adjudication_input_producer_mismatch")
         batch = ClaimAdjudicationInputBatch.model_validate(
-            from_canonical_bytes(self._store.get_bytes(raw_input_ref.artifact_id))
+            from_canonical_bytes(self._store.get_bytes(raw_input_ref))
         )
         lineage = {item.role: str(item.artifact_id) for item in manifest.inputs}
         if len(lineage) != len(manifest.inputs):

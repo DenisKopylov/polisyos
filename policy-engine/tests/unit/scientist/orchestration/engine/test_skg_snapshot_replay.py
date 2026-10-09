@@ -10,13 +10,15 @@ import asyncio
 import hashlib
 import json
 import logging
+import multiprocessing as mp
 import os
 import stat
 import subprocess
 import sys
+import time as _time
 from dataclasses import replace
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 import duckdb
 import pytest
@@ -30,6 +32,7 @@ from polisyos.core.artifacts import (
     FileSystemCAS,
     artifact_manifest_profile_sha256,
 )
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.components import ComponentId
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -47,12 +50,15 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
+from polisyos.scientist.orchestration.engine import retry as retry_module
 from polisyos.scientist.orchestration.engine import skg_snapshot
 from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.errors import NodeTimeoutError
 from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
+from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_sync
 from polisyos.scientist.orchestration.engine.skg_snapshot import (
     SNAPSHOT_INPUT_KEY,
     RetainedSKGSnapshotError,
@@ -63,6 +69,7 @@ from polisyos.scientist.orchestration.engine.skg_snapshot import (
 )
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
+from tests._helpers.b61_timeout_worker import run_delayed_timeout_task_after_release
 
 if TYPE_CHECKING:
     from polisyos.data_forge.read_api.academic import PreparedSKGRead
@@ -383,7 +390,7 @@ def _workflow_fixture(
     run = RunContext.start(store, registry_bundle.bundle_ref, run_id="R_retained_skg")
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("retained-skg"))
     graph_ref = persist_causal_graph_model(
-        store,
+        _ensure_ir_artifact_store(store),
         CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
     )
     state = ExperimentState(
@@ -436,7 +443,9 @@ def _execute_workflow(
 
 @pytest.mark.parametrize("mode", ["sync", "timed", "async"])
 def test_real_workflow_selector_replays_saved_source_with_current_live_replacement(
-    tmp_path: Path, mode: Literal["sync", "timed", "async"]
+    tmp_path: Path,
+    mode: Literal["sync", "timed", "async"],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
         source, store, run, ctx, state, ref = _workflow_fixture(tmp_path)
@@ -444,10 +453,36 @@ def test_real_workflow_selector_replays_saved_source_with_current_live_replaceme
         replay_state = state.model_copy(update={"inputs": {SNAPSHOT_INPUT_KEY: ref}})
         registry = NodeRegistry()
         registry.register(ResolveParametersNode())
+        process_contexts: list[str | None] = []
+        worker_groups: list[tuple[int | None, int | None]] = []
+        get_context = mp.get_context
+        get_owned_group = retry_module._owned_process_group_id
+
+        def record_process_context(method: str | None = None):
+            process_contexts.append(method)
+            return get_context(method)
+
+        def record_owned_group(process, group_ready, **kwargs):
+            group_id = get_owned_group(process, group_ready, **kwargs)
+            worker_groups.append((process.pid, group_id))
+            return group_id
+
+        monkeypatch.setattr(mp, "get_context", record_process_context)
+        monkeypatch.setattr(retry_module, "_owned_process_group_id", record_owned_group)
         result = _execute_workflow(mode, ctx, registry, replay_state)
-        assert result.report.status == "ok"
+        if mode in {"timed", "async"} and sys.platform == "darwin":
+            assert "spawn" in process_contexts
+            assert "fork" not in process_contexts
+            assert len(worker_groups) == 1
+            worker_pid, group_id = worker_groups[0]
+            assert worker_pid is not None
+            assert group_id == worker_pid
+            assert not retry_module._owned_process_group_is_alive(group_id)
+            assert all(child.pid != worker_pid for child in mp.active_children())
+        assert result.report.status == "ok", result.report.model_dump_json(indent=2)
         bundle = load_context_adaptive_parameter_bundle(
-            store, result.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+            _ensure_ir_artifact_store(store),
+            result.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF],
         )
         assert float(bundle.parameters["fiscal_multiplier"].value) == 1.25
         assert state.params["skg_db_path"] == str(source)
@@ -472,6 +507,191 @@ def test_real_workflow_selector_replays_saved_source_with_current_live_replaceme
             live.close()
 
 
+def test_spawn_timeout_reaps_worker_and_reports_unresolved_group_truthfully(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        _, _, _, ctx, state, _ = _workflow_fixture(tmp_path)
+        worker_groups: list[tuple[int | None, int | None, bool]] = []
+        get_owned_group = retry_module._owned_process_group_id
+
+        def record_owned_group(process, group_ready, **kwargs):
+            group_id = get_owned_group(process, group_ready, **kwargs)
+            worker_groups.append((process.pid, group_id, group_ready.is_set()))
+            return group_id
+
+        monkeypatch.setattr(retry_module, "_timeout_worker_start_method", lambda: "spawn")
+        monkeypatch.setattr(retry_module, "_owned_process_group_id", record_owned_group)
+        original_state = state.model_dump(mode="python", by_alias=True, exclude_none=False)
+
+        with pytest.raises(NodeTimeoutError) as timeout:
+            execute_with_retry_sync(
+                ResolveParametersNode(),
+                ctx,
+                state,
+                retry_policy=RetryPolicy(),
+                timeout_s=0.001,
+                alias="resolve",
+            )
+
+        assert len(worker_groups) == 1
+        worker_pid, group_id, group_ready = worker_groups[0]
+        assert worker_pid is not None
+        assert all(child.pid != worker_pid for child in mp.active_children())
+        if group_id is not None:
+            assert group_ready
+            assert group_id == worker_pid
+            assert not retry_module._owned_process_group_is_alive(group_id)
+            assert timeout.value.details["execution_state"] == "owned_processes_reaped"
+            assert timeout.value.details["cleanup_complete"] is True
+        else:
+            assert not group_ready
+            assert timeout.value.details["execution_state"] == "external_outcome_unknown"
+            assert timeout.value.details["cleanup_complete"] is False
+        assert state.model_dump(mode="python", by_alias=True, exclude_none=False) == original_state
+
+
+@pytest.mark.parametrize("revoke_before_release", [False, True])
+def test_spawn_timeout_worker_cannot_write_cas_after_parent_revocation(
+    tmp_path: Path,
+    revoke_before_release: bool,
+) -> None:
+    """A delayed canonical node can write only while its shared owner stays active."""
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        _, store, _, ctx, state, _ = _workflow_fixture(tmp_path)
+        task = retry_module._build_spawn_timeout_task(
+            ResolveParametersNode(),
+            ctx,
+            state,
+            alias="resolve-late-write-probe",
+        )
+        baseline_files = {
+            path.relative_to(store.root) for path in store.root.rglob("*") if path.is_file()
+        }
+
+    process_context = mp.get_context("spawn")
+    authority_active = process_context.Value("b", True, lock=False)
+    started = process_context.Event()
+    release = process_context.Event()
+    result_receiver, result_sender = process_context.Pipe(duplex=False)
+    deadline_monotonic = _time.monotonic() + 30.0
+    process = process_context.Process(
+        target=run_delayed_timeout_task_after_release,
+        args=(
+            task,
+            authority_active,
+            deadline_monotonic,
+            started,
+            release,
+            result_sender,
+        ),
+    )
+    process.start()
+    result_sender.close()
+    try:
+        assert started.wait(timeout=10.0)
+        if revoke_before_release:
+            authority_active.value = False
+        release.set()
+        process.join(timeout=20.0)
+        if process.is_alive():
+            process.terminate()
+            process.join(timeout=5.0)
+        assert not process.is_alive(), "typed timeout probe worker did not stop"
+        assert result_receiver.poll(timeout=5.0), "typed timeout worker returned no outcome"
+        status, _payload = result_receiver.recv()
+    finally:
+        release.set()
+        if process.is_alive():
+            process.terminate()
+            process.join(timeout=5.0)
+        result_receiver.close()
+
+    final_files = {path.relative_to(store.root) for path in store.root.rglob("*") if path.is_file()}
+    if revoke_before_release:
+        assert final_files == baseline_files
+    else:
+        assert status == "ok"
+        assert final_files > baseline_files
+
+
+@pytest.mark.parametrize("unsupported_input", ["node", "context"])
+def test_spawn_timeout_refuses_unsupported_inputs_without_process_or_thread_fallback(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    unsupported_input: Literal["node", "context"],
+) -> None:
+    from polisyos.scientist.orchestration.engine import retry as retry_module
+
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        _, store, _, ctx, state, _ = _workflow_fixture(tmp_path)
+        marker = tmp_path / "unsupported-node-entered.txt"
+
+        class UnsupportedNode:
+            def execute(self, _ctx: ExecutionContext, passed_state: ExperimentState) -> NodeOutcome:
+                marker.write_text("node body ran", encoding="utf-8")
+                return NodeOutcome(status="ok", state=passed_state)
+
+        node: object = UnsupportedNode()
+        worker_ctx = ctx
+        expected_reason = "timeout_worker_canonical_node_required"
+        if unsupported_input == "context":
+            node = ResolveParametersNode()
+            worker_ctx = replace(ctx, tracer=object())
+            expected_reason = "timeout_worker_optional_context_port_unsupported"
+
+        baseline_store_entries = {path.relative_to(store.root) for path in store.root.rglob("*")}
+        process_starts: list[bool] = []
+        thread_attempts: list[bool] = []
+        original_get_context = mp.get_context
+
+        class SpawnContextSpy:
+            def __init__(self, target: Any) -> None:
+                self._target = target
+
+            def __getattr__(self, name: str) -> object:
+                if name == "Process":
+                    return self._make_process
+                return getattr(self._target, name)
+
+            def _make_process(self, *args: object, **kwargs: object) -> object:
+                process_starts.append(True)
+                return self._target.Process(*args, **kwargs)
+
+        def get_context(method: str | None = None) -> object:
+            context = original_get_context(method)
+            return SpawnContextSpy(context) if method == "spawn" else context
+
+        def reject_thread_fallback(*_args: object, **_kwargs: object) -> object:
+            thread_attempts.append(True)
+            raise AssertionError("unsupported timeout input must not fall back to a thread")
+
+        monkeypatch.setattr(retry_module, "_timeout_worker_start_method", lambda: "spawn")
+        monkeypatch.setattr(retry_module.mp, "get_context", get_context)
+        monkeypatch.setattr(retry_module, "_submit_thread_attempt", reject_thread_fallback)
+
+        with pytest.raises(NodeTimeoutError) as refusal:
+            execute_with_retry_sync(
+                node,
+                worker_ctx,
+                state,
+                retry_policy=RetryPolicy(),
+                timeout_s=30.0,
+                alias="unsupported-timeout-input",
+            )
+
+        assert refusal.value.code == "node.timeout_worker_unsupported"
+        assert refusal.value.details["reason"] == expected_reason
+        assert process_starts == []
+        assert thread_attempts == []
+        assert not marker.exists()
+        assert {path.relative_to(store.root) for path in store.root.rglob("*")} == (
+            baseline_store_entries
+        )
+        assert state.params["skg_db_path"] != ""
+
+
 def test_workflow_selected_snapshot_supplies_missing_required_source_path(tmp_path: Path) -> None:
     with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
         source, store, run, ctx, state, ref = _workflow_fixture(tmp_path)
@@ -490,7 +710,8 @@ def test_workflow_selected_snapshot_supplies_missing_required_source_path(tmp_pa
         result = WorkflowExecutor(ctx, registry).execute(workflow, replay_state)
         assert result.report.status == "ok"
         bundle = load_context_adaptive_parameter_bundle(
-            store, result.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+            _ensure_ir_artifact_store(store),
+            result.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF],
         )
         assert float(bundle.parameters["fiscal_multiplier"].value) == 1.25
         assert "skg_db_path" not in replay_state.params

@@ -35,6 +35,10 @@ store contract, schema metadata и helpers, через которые `analytics
   The Core-to-IR writer adapter accepts typed options or a `Mapping` and projects the
   complete declared Core write-option set, including tenant context, same-input closure,
   authority, and warnings; malformed values and unknown fields fail before persistence.
+  IR artifact-ref normalization validates against the shared strict ref model. Unknown
+  mapping keys, model fields (including excluded fields), and declared structural fields
+  fail before a selected manifest or payload read; supported scalar IDs remain ID-only
+  selectors and do not stand in for a selected-view ref.
   Core-only `float_hex`, `bytes_hex`, and `array_digest` tags remain unsupported by IR,
   even though Core and IR currently use the same canon name/version. A complete profile
   is a decoding input, not proof of an IR producer or authority. Raw Core writes and

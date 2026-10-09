@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ir_adapter import ensure_ir_artifact_store
 from polisyos.core.artifacts.protocol import ArtifactStore as CoreArtifactStore
 from polisyos.core.registry import build_default_registry_bundle
@@ -144,9 +145,9 @@ def replay_fragment_composition_case(
     fragment_refs: list[str] = []
     for fragment in fragments:
         graph = fragment_graphs[fragment.fragment_id]
-        graph_ref = persist_causal_graph_model(ir_store, graph)
+        graph_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ir_store), graph)
         persisted_fragment = fragment.model_copy(update={"graph_ref": str(graph_ref.artifact_id)})
-        fragment_ref = persist_scm_fragment(ir_store, persisted_fragment)
+        fragment_ref = persist_scm_fragment(_ensure_ir_artifact_store(ir_store), persisted_fragment)
         fragment_refs.append(str(fragment_ref.artifact_id))
 
     artifacts_index: dict[str, Any] = {}
@@ -160,9 +161,11 @@ def replay_fragment_composition_case(
             stitch_pairs=direct_stitch_pairs,
             artifact_store=ir_store,
         )
-        artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF] = persist_alignment_report(ir_store, report)
+        artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF] = persist_alignment_report(
+            _ensure_ir_artifact_store(ir_store), report
+        )
         artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF] = persist_interface_mapping(
-            ir_store, mapping
+            _ensure_ir_artifact_store(ir_store), mapping
         )
 
     state = ExperimentState(
@@ -195,7 +198,7 @@ def replay_fragment_composition_case(
     )
 
     certificate = load_composition_certificate(
-        ir_store,
+        _ensure_ir_artifact_store(ir_store),
         CompositionCertificateRef.model_validate(
             normalize_artifact_ref(
                 outcome.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF]
@@ -203,13 +206,13 @@ def replay_fragment_composition_case(
         ),
     )
     alignment_report = load_alignment_report(
-        ir_store,
+        _ensure_ir_artifact_store(ir_store),
         AlignmentReportRef.model_validate(
             normalize_artifact_ref(outcome.state.artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF])
         ),
     )
     interface_mapping = load_interface_mapping(
-        ir_store,
+        _ensure_ir_artifact_store(ir_store),
         InterfaceMappingRef.model_validate(
             normalize_artifact_ref(outcome.state.artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF])
         ),
@@ -226,7 +229,7 @@ def replay_fragment_composition_case(
     composed_graph_signature = None
     if persisted_artifacts["composed_graph"]:
         composed_graph = load_causal_graph_model(
-            ir_store,
+            _ensure_ir_artifact_store(ir_store),
             CausalGraphModelRef.model_validate(
                 normalize_artifact_ref(
                     outcome.state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF]
@@ -236,7 +239,7 @@ def replay_fragment_composition_case(
         composed_graph_signature = _graph_signature(composed_graph)
     if persisted_artifacts["interface_mapping"]:
         load_interface_mapping(
-            ir_store,
+            _ensure_ir_artifact_store(ir_store),
             InterfaceMappingRef.model_validate(
                 normalize_artifact_ref(
                     outcome.state.artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF]

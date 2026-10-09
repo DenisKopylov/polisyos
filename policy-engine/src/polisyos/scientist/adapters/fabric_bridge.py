@@ -111,7 +111,7 @@ class DefaultFabricPort:
                 minimum runtime execution tier.
             ValueError: If the request does not identify a dataset.
         """
-        payload = from_canonical_bytes(store.get_bytes(request_ref.artifact_id))
+        payload = from_canonical_bytes(store.get_bytes(request_ref))
         query_request = _parse_query_request(payload)
 
         dataset_id = _resolve_dataset_id(query_request)

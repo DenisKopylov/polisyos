@@ -2070,7 +2070,7 @@ def load_estimand_ast(
     ref: EstimandASTRef,
 ) -> EstimandAST:
     """Load and validate a persisted estimand AST."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return EstimandAST.model_validate(payload)
 
 

@@ -1,0 +1,46 @@
+{
+  "$defs": {
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "title": "ArtifactID",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Reference a v1.1 posterior summary artifact.",
+  "properties": {
+    "artifact_id": {
+      "$ref": "#/$defs/ArtifactID"
+    },
+    "kind": {
+      "const": "ir.posterior_summary",
+      "default": "ir.posterior_summary",
+      "title": "Kind",
+      "type": "string"
+    },
+    "manifest_profile_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Manifest Profile Sha256"
+    },
+    "media_type": {
+      "const": "application/json",
+      "default": "application/json",
+      "title": "Media Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "artifact_id"
+  ],
+  "title": "PosteriorSummaryRef",
+  "type": "object"
+}

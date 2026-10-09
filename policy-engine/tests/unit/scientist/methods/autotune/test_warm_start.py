@@ -93,13 +93,21 @@ class _MemoryArtifactStore:
     def __init__(self) -> None:
         self._payloads: dict[str, bytes] = {}
 
-    def put_json(self, payload: dict[str, object], _options: object) -> SimpleNamespace:
+    def put_json(
+        self,
+        payload: dict[str, object],
+        _options: object,
+        *,
+        canon_spec: object | None = None,
+    ) -> SimpleNamespace:
+        del canon_spec
         artifact_id = _artifact_id("1")
         self._payloads[artifact_id] = json.dumps(payload).encode("utf-8")
         return SimpleNamespace(artifact_id=artifact_id)
 
     def get_bytes(self, artifact_id: object) -> bytes:
-        return self._payloads[str(artifact_id)]
+        payload_id = getattr(artifact_id, "artifact_id", artifact_id)
+        return self._payloads[str(payload_id)]
 
 
 class _MemoryVectorIndex:
@@ -175,10 +183,7 @@ class TestWarmStartBridge:
         assert len(benchmarks) == 2
         candidate_refs = {str(benchmark.candidate_ref.artifact_id) for benchmark in benchmarks}
         assert candidate_refs == {candidate_id, second_candidate_id}
-        assert all(
-            ref != f"sha256:{'0' * 64}"
-            for ref in candidate_refs
-        )
+        assert all(ref != f"sha256:{'0' * 64}" for ref in candidate_refs)
         benchmark = benchmarks[0]
         assert benchmark.loop_id == "loop1"
         assert str(benchmark.candidate_ref.artifact_id) == candidate_id
@@ -348,6 +353,7 @@ class TestTransferLearningManagerWarmStart:
             "origin": "simulator-v2",
             "tenant_id": "tenant-b",
         }
+        managers = []
         for field, value in mismatches.items():
             source_metadata = {
                 "space_hash": target.space_hash,
@@ -365,10 +371,18 @@ class TestTransferLearningManagerWarmStart:
             class Index:
                 dim = 1
 
+                def __init__(self, metadata):
+                    self.metadata = metadata
+
                 def query(self, embedding, top_k):
                     del embedding, top_k
-                    return [("old1", 0.01, source_metadata)]
+                    return [("old1", 0.01, self.metadata)]
 
             manager = object.__new__(TransferLearningManager)
-            manager._index = Index()
+            manager._index = Index(source_metadata)
+            managers.append((field, manager))
+
+        # Query after the loop so each index must retain its own cohort metadata.
+        # A method that closes over ``source_metadata`` would see only the last row.
+        for field, manager in managers:
             assert manager.find_similar_runs(target) == [], field

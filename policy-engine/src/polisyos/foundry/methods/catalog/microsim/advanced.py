@@ -8,6 +8,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.calibration.identifiability import (
     IdentifiabilityReport,
@@ -2302,7 +2303,7 @@ class DynamicMicrosimEstimator:
             if report is not None:
                 if resolved_report_ref is None and artifact_store is not None:
                     resolved_report_ref = persist_dynamic_microsim_validation_report(
-                        artifact_store,
+                        _ensure_ir_artifact_store(artifact_store),
                         report,
                     )
                 result = result.model_copy(
@@ -2320,7 +2321,9 @@ class DynamicMicrosimEstimator:
                 if hasattr(resolved_report_ref, "model_dump")
                 else resolved_report_ref
             )
-            report = load_dynamic_microsim_validation_report(artifact_store, typed_report_ref)
+            report = load_dynamic_microsim_validation_report(
+                _ensure_ir_artifact_store(artifact_store), typed_report_ref
+            )
             enforce_dynamic_microsim_validation_report(report)
             resolved_report_ref = typed_report_ref
             resolved_report_from_ref = True
@@ -2342,7 +2345,7 @@ class DynamicMicrosimEstimator:
             enforce_dynamic_microsim_validation_report(report)
             if artifact_store is not None:
                 resolved_report_ref = persist_dynamic_microsim_validation_report(
-                    artifact_store,
+                    _ensure_ir_artifact_store(artifact_store),
                     report,
                 )
             result = result.model_copy(

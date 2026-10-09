@@ -12,7 +12,12 @@ from typing import get_type_hints
 
 import pytest
 
-from polisyos.common.async_tools import get_shared_executor, run_blocking_async, run_coro_sync
+from polisyos.common.async_tools import (
+    get_shared_executor,
+    run_blocking_async,
+    run_coro_sync,
+    run_shared_executor_sync,
+)
 
 
 def test_function_type_parameters_resolve_without_module_typevar() -> None:
@@ -112,6 +117,245 @@ def test_run_blocking_async_preserves_inner_timeout_message() -> None:
         asyncio.run(_exercise())
 
 
+def test_shared_executor_uses_one_explicit_candidate_profile(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.common import async_tools
+
+    monkeypatch.setattr(async_tools, "_RUN_CORO_SYNC_EXECUTOR", None)
+    monkeypatch.setattr(async_tools, "_SHARED_EXECUTOR_PROFILE", None, raising=False)
+    profile = async_tools.SharedExecutorProfile(capacity=2, revision="r4-test-profile-v1")
+    async_tools.configure_shared_executor_profile(profile)
+
+    executor = async_tools.get_shared_executor()
+    try:
+        assert executor._max_workers == 2
+        assert async_tools.get_shared_executor_profile() == profile
+        assert profile.authority == "candidate"
+    finally:
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+def test_shared_executor_rejects_a_conflicting_second_profile(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.common import async_tools
+
+    monkeypatch.setattr(async_tools, "_RUN_CORO_SYNC_EXECUTOR", None)
+    monkeypatch.setattr(async_tools, "_SHARED_EXECUTOR_PROFILE", None, raising=False)
+    first = async_tools.SharedExecutorProfile(capacity=1, revision="profile-a")
+    second = async_tools.SharedExecutorProfile(capacity=2, revision="profile-b")
+
+    async_tools.configure_shared_executor_profile(first)
+    executor = async_tools.get_shared_executor()
+    try:
+        with pytest.raises(async_tools.SharedExecutorConfigurationError, match="profile_conflict"):
+            async_tools.configure_shared_executor_profile(second)
+
+        assert async_tools.get_shared_executor_profile() == first
+        assert async_tools.get_shared_executor() is executor
+        assert executor._max_workers == 1
+    finally:
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+def test_legacy_shared_executor_profile_is_candidate_only_and_host_derived(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.common import async_tools
+
+    monkeypatch.setattr(async_tools.os, "cpu_count", lambda: 8)
+    profile = async_tools.resolve_shared_executor_profile()
+
+    assert profile.capacity == 8
+    assert profile.revision == "legacy-host-derived-v1"
+    assert profile.source == "legacy_host_fallback"
+    assert profile.authority == "candidate"
+
+
+def test_reading_fallback_profile_does_not_pin_it_before_runtime_configuration(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.common import async_tools
+
+    monkeypatch.setattr(async_tools, "_RUN_CORO_SYNC_EXECUTOR", None)
+    monkeypatch.setattr(async_tools, "_SHARED_EXECUTOR_PROFILE", None, raising=False)
+    monkeypatch.setattr(async_tools.os, "cpu_count", lambda: 8)
+
+    fallback = async_tools.get_shared_executor_profile()
+    explicit = async_tools.SharedExecutorProfile(capacity=2, revision="runtime-config-v1")
+    async_tools.configure_shared_executor_profile(explicit)
+
+    assert fallback.source == "legacy_host_fallback"
+    assert async_tools.get_shared_executor_profile() == explicit
+
+
+@pytest.mark.parametrize("capacity", [0, -1, 1.5, True])
+def test_shared_executor_profile_requires_a_positive_integer_capacity(capacity: object) -> None:
+    from polisyos.common import async_tools
+
+    with pytest.raises(async_tools.SharedExecutorConfigurationError, match="capacity"):
+        async_tools.SharedExecutorProfile(
+            capacity=capacity,  # type: ignore[arg-type]
+            revision="invalid-capacity-test",
+        )
+
+
+def test_nested_sync_method_dispatch_runs_inline_on_the_current_shared_worker(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.common import async_tools
+
+    monkeypatch.setattr(async_tools, "_RUN_CORO_SYNC_EXECUTOR", None)
+    monkeypatch.setattr(async_tools, "_SHARED_EXECUTOR_PROFILE", None, raising=False)
+    profile = async_tools.SharedExecutorProfile(capacity=1, revision="inline-r4-test")
+    async_tools.configure_shared_executor_profile(profile)
+    executor = async_tools.get_shared_executor()
+    try:
+        assert not async_tools.is_current_shared_executor_worker()
+
+        def _nested_identity() -> tuple[int, int]:
+            assert async_tools.is_current_shared_executor_worker()
+            outer_thread = threading.get_ident()
+            inner_thread = async_tools.run_shared_executor_sync(threading.get_ident)
+            return outer_thread, inner_thread
+
+        outer_and_inner = executor.submit(_nested_identity)
+
+        outer_thread, inner_thread = outer_and_inner.result(timeout=2)
+        assert inner_thread == outer_thread
+    finally:
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+@pytest.mark.parametrize("capacity", [1, 2])
+def test_late_callback_sync_dispatch_obeys_physical_worker_capacity_and_context(
+    monkeypatch: pytest.MonkeyPatch,
+    capacity: int,
+) -> None:
+    """Late callbacks use bounded workers, while true workers may still inline."""
+    from polisyos.common import async_tools
+
+    monkeypatch.setattr(async_tools, "_RUN_CORO_SYNC_EXECUTOR", None)
+    monkeypatch.setattr(async_tools, "_SHARED_EXECUTOR_PROFILE", None, raising=False)
+    monkeypatch.setattr(async_tools, "_SHARED_EXECUTOR_SHUTDOWN", False, raising=False)
+    async_tools.configure_shared_executor_profile(
+        async_tools.SharedExecutorProfile(
+            capacity=capacity, revision=f"late-callback-capacity-{capacity}"
+        )
+    )
+    executor = get_shared_executor()
+    completed = executor.submit(lambda: "already-complete")
+    assert completed.result(timeout=2) == "already-complete"
+
+    owner_scope: ContextVar[str | None] = ContextVar(
+        f"late_callback_owner_{capacity}", default=None
+    )
+    callbacks_ready = threading.Barrier(3)
+    dispatch_release = threading.Event()
+    dispatch_condition = threading.Condition()
+    active_dispatches = 0
+    peak_dispatches = 0
+    dispatches_started = 0
+    callback_worker_flags: list[bool] = []
+    dispatch_worker_flags: list[bool] = []
+    results: list[str | None] = []
+    errors: list[BaseException] = []
+
+    def dispatch() -> str | None:
+        nonlocal active_dispatches, peak_dispatches, dispatches_started
+        with dispatch_condition:
+            active_dispatches += 1
+            dispatches_started += 1
+            peak_dispatches = max(peak_dispatches, active_dispatches)
+            dispatch_worker_flags.append(async_tools.is_current_shared_executor_worker())
+            dispatch_condition.notify_all()
+        try:
+            if not dispatch_release.wait(timeout=3):
+                raise TimeoutError("test dispatch release was not signalled")
+            return owner_scope.get()
+        finally:
+            with dispatch_condition:
+                active_dispatches -= 1
+                dispatch_condition.notify_all()
+
+    def callback(future: concurrent.futures.Future[str]) -> None:
+        try:
+            assert future.result() == "already-complete"
+            callback_worker_flags.append(async_tools.is_current_shared_executor_worker())
+            callbacks_ready.wait(timeout=3)
+            results.append(run_shared_executor_sync(dispatch))
+        except BaseException as exc:
+            errors.append(exc)
+
+    def register_late_callback(owner: str) -> None:
+        token = owner_scope.set(owner)
+        try:
+            completed.add_done_callback(callback)
+        finally:
+            owner_scope.reset(token)
+
+    registrars = [
+        threading.Thread(target=register_late_callback, args=(f"tenant-{index}",))
+        for index in range(2)
+    ]
+    try:
+        for registrar in registrars:
+            registrar.start()
+        callbacks_ready.wait(timeout=3)
+        # Keep active dispatches blocked. At capacity 1, two starts expose the
+        # late-callback inline bypass; at capacity 2, both physical workers fit.
+        with dispatch_condition:
+            assert dispatch_condition.wait_for(lambda: dispatches_started >= capacity, timeout=2)
+            dispatch_condition.wait_for(lambda: dispatches_started > capacity, timeout=0.2)
+            observed_peak_while_blocked = peak_dispatches
+        dispatch_release.set()
+        for registrar in registrars:
+            registrar.join(timeout=3)
+
+        assert all(not registrar.is_alive() for registrar in registrars)
+        assert dispatches_started == 2
+        assert observed_peak_while_blocked == capacity
+        assert peak_dispatches <= capacity
+        assert callback_worker_flags == [False, False]
+        assert dispatch_worker_flags == [True, True]
+        assert sorted(results) == ["tenant-0", "tenant-1"]
+        assert errors == []
+    finally:
+        dispatch_release.set()
+        for registrar in registrars:
+            if registrar.ident is not None:
+                registrar.join(timeout=3)
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+def test_shutdown_does_not_reopen_a_second_physical_executor_while_old_work_runs(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.common import async_tools
+
+    monkeypatch.setattr(async_tools, "_RUN_CORO_SYNC_EXECUTOR", None)
+    monkeypatch.setattr(async_tools, "_SHARED_EXECUTOR_PROFILE", None, raising=False)
+    monkeypatch.setattr(async_tools, "_SHARED_EXECUTOR_SHUTDOWN", False, raising=False)
+    async_tools.configure_shared_executor_profile(
+        async_tools.SharedExecutorProfile(capacity=1, revision="shutdown-r4-test")
+    )
+    executor = async_tools.get_shared_executor()
+    started = threading.Event()
+    release = threading.Event()
+    running = executor.submit(lambda: (started.set(), release.wait(timeout=3))[1])
+    assert started.wait(timeout=2)
+
+    try:
+        async_tools.shutdown_run_coro_sync_executor()
+        assert async_tools._RUN_CORO_SYNC_EXECUTOR is executor
+        with pytest.raises(RuntimeError, match="shared executor is shut down"):
+            async_tools.get_shared_executor()
+    finally:
+        release.set()
+        assert running.result(timeout=2)
+
+
 def test_run_blocking_async_reuses_shared_executor_soak_smoke() -> None:
     async def _exercise() -> set[int]:
         executor_ids: set[int] = set()
@@ -145,6 +389,8 @@ def capacity_executor(
     from polisyos.common import async_tools
 
     monkeypatch.setattr(async_tools, "_RUN_CORO_SYNC_EXECUTOR", None)
+    monkeypatch.setattr(async_tools, "_SHARED_EXECUTOR_PROFILE", None)
+    monkeypatch.setattr(async_tools, "_SHARED_EXECUTOR_SHUTDOWN", False)
     monkeypatch.setattr(async_tools.os, "cpu_count", lambda: 4)
     executor = get_shared_executor()
     try:

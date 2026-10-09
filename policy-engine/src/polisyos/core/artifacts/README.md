@@ -29,8 +29,16 @@ environment fingerprints.
 - manifests/refs: `ArtifactManifest`, `ArtifactRef`, `InputRef`, `SchemaInfo`
 - selected-view profile: `artifact_manifest_profile_projection` and
   `artifact_manifest_profile_sha256` delegate to the existing versioned CAS lifecycle
-  projection and digest. Cross-layer consumers import these from the artifacts facade;
-  they do not copy the projection algorithm or import its private lifecycle owner.
+  projection and digest. `resolve_manifest_by_profile` rehydrates and content-binds the
+  selected sidecar using its artifact ID and exact profile digest. Cross-layer consumers
+  import these from the artifacts facade; they do not copy the projection algorithm or
+  import its private lifecycle owner. A profile selects a manifest view; it does not
+  attest producer authority or currentness.
+- authority-envelope links persist the selected envelope manifest profile and resolve
+  through `resolve_authority_envelope_ref`, which checks the fixed envelope kind, media
+  type, and schema before returning a typed view. Historical profileless links explicitly
+  use the default manifest view; consumers pass the resolved ref to CAS read and verify
+  calls instead of reconstructing a ref from the artifact ID.
 - local publication durability: `ensure_directory_durable`, `fsync_directory`, and
   `AtomicFileDurabilityError` expose the existing filesystem helpers through this
   facade. Cross-layer consumers reuse these exports rather than importing the
@@ -73,7 +81,7 @@ Workflow consumers carry their original deadline through the adapter. Native
 async backends retain their own scheduling policy; this option does not preempt
 already-entered filesystem calls or roll back a completed publication.
 
-- Last updated: 2026-10-06
+- Last updated: 2026-10-09
 - The package still serves as the CAS source of truth for audit exports, runtime lineage, and registry bundles.
 - The tree now explicitly includes `protocol.py` and the `environment_parts.py` facade alongside the capture/comparison helpers.
 
@@ -132,15 +140,20 @@ These type refinements preserve the existing admission guards and runtime behavi
 Transfer intake hashes incoming blobs without buffering their payloads and retains bounded
 manifest/signature bytes. The common archive/directory/exact-view admission holds artifact
 and input leases before private staging, and reapplies that invariant before durable intent.
-A scoped importer requires the manifest's declared tenant and cell to equal the explicit
-write owner, including exact `None` cell identity. Already claimed bytes admit only an
-already owned, byte-identical manifest/profile/signature view as a true no-op: no private
-stage, claim or owner-generation update. Mixed packages stage only their unclaimed subset.
-Unbound or foreign imports into a scoped owner refuse. This implements the bounded
-fail-closed recommendation in the E02 B closure decision; it does not ratify a public
-cross-tenant transfer policy. Legacy unbound-to-scoped import consumers need a matching
-bound source manifest. Ordinary producer writes may retain an unspecified context; an
-explicit foreign bound context refuses before put/resume intent.
+For a scoped import, a present manifest `tenant_context` must match the active owner's
+tenant and cell, with `None` cell identity compared exactly. If the artifact has no current
+tenant claim and the manifest context is absent, the receiver can make a first local owner
+claim through the durable CAS transaction; the original manifest bytes remain unchanged
+and its producer context remains absent. This records receiver-local custody only: it does
+not establish producer/source ownership or permission to transfer. Already claimed bytes
+admit only an already-owned, byte-identical manifest/profile/signature view as a true no-op,
+with no private stage, claim or owner-generation update. Foreign bound contexts and
+non-identical views of claimed artifacts refuse before staging or publication. Mixed
+packages stage only their unclaimed subset. This describes the current filesystem CAS
+boundary; whether strict bound context is required for every first claim is an unresolved
+G-level authority decision, and this behavior does not ratify a public cross-tenant transfer
+policy. Ordinary producer writes may retain an unspecified context; an explicit foreign
+bound context refuses before put/resume intent.
 
 An unscoped non-authority cache remains a separate consumer and may retain exact bound
 metadata without emitting scoped claims. Write-through caching now publishes at the

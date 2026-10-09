@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Literal
 
 import numpy as np
 
@@ -31,6 +31,14 @@ from polisyos.ir.analytics.structural_causal_model import (
     SCMTrainingRows,
     StructuralCausalModelSpec,
 )
+
+
+class _SelectedGCMGraphRefusal(ValueError):
+    """Keep the ValueError boundary while exposing a typed graph-refusal reason."""
+
+    reason_code: ClassVar[Literal["graph_not_declared_static_dag"]] = (
+        "graph_not_declared_static_dag"
+    )
 
 
 def _load_dowhy_gcm_dependencies() -> Any:
@@ -446,7 +454,9 @@ def _fit_gcm_specs(
     if payload.graph.graph_type is not GraphType.DAG or set(payload.column_names) != set(
         payload.graph.nodes
     ):
-        raise ValueError("selected GCM profile requires a fully observed declared static DAG")
+        raise _SelectedGCMGraphRefusal(
+            "selected GCM profile requires a fully observed declared static DAG"
+        )
     if payload.literature_priors:
         raise ValueError("selected GCM profile does not support literature-prior mechanism fitting")
     parents = _parents_by_node(payload.graph)
@@ -505,7 +515,9 @@ def validate_persisted_gcm_spec(scm_spec: StructuralCausalModelSpec, store: Any)
         response=provenance.worker_response,
         state=state,
         store=store,
-        source_ref=artifacts.ArtifactRef.model_validate(training.source_ref.model_dump(mode="json")),
+        source_ref=artifacts.ArtifactRef.model_validate(
+            training.source_ref.model_dump(mode="json")
+        ),
     )
     expected = _gcm_spec_from_worker(
         state,

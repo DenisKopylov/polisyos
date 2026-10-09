@@ -8,6 +8,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -26,10 +27,6 @@ from polisyos.ir.analytics.simulation_proof_bridge import (
     SimulationProofBridgeArtifacts,
     build_simulation_proof_bridge_artifacts,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
     build_runtime_abstraction_metadata,
@@ -72,6 +69,15 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_REGISTRY_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
 logger = get_logger(__name__)
@@ -327,9 +333,7 @@ class RunSimulationNode:
             artifacts.append(result.simulation_result_ref)
 
             try:
-                payload = from_canonical_bytes(
-                    ctx.store.get_bytes(result.simulation_result_ref.artifact_id)
-                )
+                payload = from_canonical_bytes(ctx.store.get_bytes(result.simulation_result_ref))
                 if isinstance(payload, dict):
                     simulation_payload = dict(payload)
                 sim_result = SimulationResult.model_validate(payload)
@@ -417,7 +421,9 @@ class RunSimulationNode:
                     code=node_errors.ERROR_SIMULATION_PROOF_BRIDGE_FAILED,
                     message="Simulation proof bridge failed after Foundry execute",
                     details={
-                        "simulation_result_ref": result.simulation_result_ref.model_dump(mode="json"),
+                        "simulation_result_ref": result.simulation_result_ref.model_dump(
+                            mode="json"
+                        ),
                         "reason": str(exc),
                     },
                 )
@@ -551,7 +557,7 @@ def _materialize_simulation_proof_bridge(
     )
     causal_query = state.params.get("causal_query")
     return build_simulation_proof_bridge_artifacts(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         run_id=state.run_id,
         simulation_result_ref=simulation_result_ref,
         metrics_ref=metrics_ref,
@@ -600,9 +606,7 @@ def _attach_simulation_proof_bridge(
         output.evidence_bundle_ref
     )
     state.artifacts_index[ARTIFACT_PROOF_BUNDLE_REF] = _to_core_ref(output.proof_bundle_ref)
-    state.artifacts_index[ARTIFACT_PROOF_WITNESS_INDEX_REF] = _to_core_ref(
-        output.witness_index_ref
-    )
+    state.artifacts_index[ARTIFACT_PROOF_WITNESS_INDEX_REF] = _to_core_ref(output.witness_index_ref)
     state.artifacts_index[ARTIFACT_PROOF_COMPOSABILITY_CERTIFICATE_REF] = _to_core_ref(
         output.composability_certificate_ref
     )

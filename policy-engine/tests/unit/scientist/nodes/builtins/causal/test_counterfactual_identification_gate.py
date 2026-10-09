@@ -3,6 +3,8 @@ from __future__ import annotations
 from unittest.mock import patch
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.ir.observation.causal_readiness import (
     CausalReadinessBundle,
     CounterfactualCheckEntry,
@@ -20,7 +22,7 @@ def test_counterfactual_gate_passes_when_all_queries_identified(
     minimal_state,
 ) -> None:
     bundle_ref = persist_causal_readiness_bundle(
-        execution_context.store,
+        _ensure_ir_artifact_store(execution_context.store),
         CausalReadinessBundle(
             counterfactual_results=[
                 CounterfactualCheckEntry(
@@ -47,7 +49,7 @@ def test_counterfactual_gate_blocks_when_query_not_identified(
     minimal_state,
 ) -> None:
     bundle_ref = persist_causal_readiness_bundle(
-        execution_context.store,
+        _ensure_ir_artifact_store(execution_context.store),
         CausalReadinessBundle(
             counterfactual_results=[
                 CounterfactualCheckEntry(

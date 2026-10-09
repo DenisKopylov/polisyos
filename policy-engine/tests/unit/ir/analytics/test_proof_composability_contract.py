@@ -3,6 +3,8 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
 from polisyos.ir.analytics.causal import (
@@ -111,7 +113,7 @@ def test_proof_composability_artifacts_round_trip_and_attach_to_bundle(tmp_path)
         step_to_witness_ids={"s1": ("w_backdoor",)},
         proof_support_projection_hash="proj-backdoor",
     )
-    witness_ref = persist_proof_witness_index(store, witness_index)
+    witness_ref = persist_proof_witness_index(_ensure_ir_artifact_store(store), witness_index)
     certificate = build_proof_composability_certificate(
         source_fragment_id="fragment_a",
         checked_query="P(Y|do(X))",
@@ -123,16 +125,20 @@ def test_proof_composability_artifacts_round_trip_and_attach_to_bundle(tmp_path)
         projection_preservation_passed=True,
         proof_support_projection_hash="proj-backdoor",
     )
-    certificate_ref = persist_proof_composability_certificate(store, certificate)
-    loaded_index = load_proof_witness_index(store, witness_ref)
-    loaded_certificate = load_proof_composability_certificate(store, certificate_ref)
+    certificate_ref = persist_proof_composability_certificate(
+        _ensure_ir_artifact_store(store), certificate
+    )
+    loaded_index = load_proof_witness_index(_ensure_ir_artifact_store(store), witness_ref)
+    loaded_certificate = load_proof_composability_certificate(
+        _ensure_ir_artifact_store(store), certificate_ref
+    )
     attached_bundle = attach_proof_composability_to_proof_bundle(
         _proof_bundle(),
         certificate_ref,
         loaded_certificate,
     )
-    proof_ref = persist_proof_bundle(store, attached_bundle)
-    loaded_bundle = load_proof_bundle(store, proof_ref)
+    proof_ref = persist_proof_bundle(_ensure_ir_artifact_store(store), attached_bundle)
+    loaded_bundle = load_proof_bundle(_ensure_ir_artifact_store(store), proof_ref)
 
     assert loaded_index == witness_index
     assert loaded_certificate.status is ProofComposabilityStatus.REUSABLE

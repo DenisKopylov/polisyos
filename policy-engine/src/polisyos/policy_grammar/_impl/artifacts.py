@@ -53,7 +53,7 @@ def load_universal_policy_design_case(
     artifact_ref: ArtifactRef,
 ) -> UniversalPolicyDesignCase:
     """Load and validate a persisted universal policy design case artifact."""
-    payload = json.loads(store.get_bytes(artifact_ref.artifact_id))
+    payload = json.loads(store.get_bytes(artifact_ref))
     case = UniversalPolicyDesignCase.model_validate(payload)
     return case.model_copy(update={"persisted_artifact_ref": artifact_ref})
 

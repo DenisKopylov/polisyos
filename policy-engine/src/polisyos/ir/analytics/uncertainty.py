@@ -4,16 +4,28 @@ from __future__ import annotations
 
 import inspect
 import math
+import re
 from dataclasses import dataclass
 from enum import Enum
 from statistics import NormalDist
 from typing import TYPE_CHECKING, Annotated, Any, ClassVar, Literal
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.common import serialization
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import (
+    ArtifactID,
+    ArtifactStore,
+    InputRef,
+    get_json_artifact,
+    normalize_artifact_ref,
+    put_json_artifact,
+)
+from polisyos.ir.artifacts.contracts import (
+    _is_string_root_model,
+    _normalize_scalar_artifact_id,
+)
 from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
 from polisyos.ir.registry.refs import ArtifactRefModel, UncertaintyEnvelopeRef
 
@@ -102,9 +114,7 @@ class OutputContractDeclaration:
         normalized = frozenset(self.capabilities)
         if not all(isinstance(item, OutputContractCapability) for item in normalized):
             raise TypeError("output_contract_declaration_capability_invalid")
-        owns_value_projection = (
-            OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION in normalized
-        )
+        owns_value_projection = OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION in normalized
         if owns_value_projection != isinstance(
             self.value_uncertainty_projection_kind,
             ValueUncertaintyProjectionKind,
@@ -127,13 +137,9 @@ class NativeValueEstimandBinding(BaseModel):
     schema_version: Literal["polisyos.ir.native_value_estimand_binding.v1"] = (
         "polisyos.ir.native_value_estimand_binding.v1"
     )
-    authority_scope: Literal["contract_only_nonproduction"] = (
-        "contract_only_nonproduction"
-    )
+    authority_scope: Literal["contract_only_nonproduction"] = "contract_only_nonproduction"
     production_value_eligible: Literal[False] = False
-    binding_kind: Literal["contract_projection_request"] = (
-        "contract_projection_request"
-    )
+    binding_kind: Literal["contract_projection_request"] = "contract_projection_request"
     native_contract_id: str = Field(min_length=1)
     producer_method_fqn: str = Field(min_length=1)
     projection_input_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
@@ -187,19 +193,12 @@ class NativeValueEstimandBinding(BaseModel):
                 getattr(estimand, "treatment_or_exposure", None)
             ),
             "covariates_or_conditioning": tuple(
-                str(item)
-                for item in getattr(estimand, "covariates_or_conditioning", ())
+                str(item) for item in getattr(estimand, "covariates_or_conditioning", ())
             ),
-            "adjustment_set": _optional_estimand_tuple(
-                getattr(estimand, "adjustment_set", None)
-            ),
+            "adjustment_set": _optional_estimand_tuple(getattr(estimand, "adjustment_set", None)),
             "population": str(getattr(estimand, "population", "") or ""),
-            "sample_filter": _optional_estimand_text(
-                getattr(estimand, "sample_filter", None)
-            ),
-            "time_horizon": _optional_estimand_text(
-                getattr(estimand, "time_horizon", None)
-            ),
+            "sample_filter": _optional_estimand_text(getattr(estimand, "sample_filter", None)),
+            "time_horizon": _optional_estimand_text(getattr(estimand, "time_horizon", None)),
             "prediction_origin": _optional_estimand_text(
                 getattr(estimand, "prediction_origin", None)
             ),
@@ -256,9 +255,7 @@ def value_uncertainty_output_contract(
 
     return OutputContractDeclaration(
         contract_id=contract_id,
-        capabilities=frozenset(
-            {OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION}
-        ),
+        capabilities=frozenset({OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION}),
         value_uncertainty_projection_kind=projection_kind,
     )
 
@@ -274,8 +271,7 @@ def supports_value_uncertainty_projection_contract(owner: type[object]) -> bool:
     except (TypeError, ValueError):
         return False
     return all(
-        name in parameters
-        and parameters[name].kind is inspect.Parameter.KEYWORD_ONLY
+        name in parameters and parameters[name].kind is inspect.Parameter.KEYWORD_ONLY
         for name in ("estimand", "projection_binding")
     )
 
@@ -2138,8 +2134,507 @@ def load_uncertainty_envelope(
     ref: UncertaintyEnvelopeRef,
 ) -> UncertaintyEnvelope:
     """Load an uncertainty envelope from artifact storage."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return UncertaintyEnvelope.model_validate(payload)
+
+
+@dataclass(frozen=True, slots=True)
+class PersistedUncertaintyAdmission:
+    """Carry a resolved persisted envelope only when its evidence is admitted."""
+
+    envelope: UncertaintyEnvelope | None
+    limitation_codes: tuple[str, ...] = ()
+
+    @property
+    def admitted(self) -> bool:
+        """Return whether the persisted envelope has an admitted evidence chain."""
+        return self.envelope is not None and not self.limitation_codes
+
+
+_SIMULATION_UNCERTAINTY_READ_ERRORS = (
+    AttributeError,
+    KeyError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValidationError,
+    ValueError,
+)
+_SHA256_HEX = re.compile(r"^[0-9a-f]{64}$")
+_PROPAGATION_COMPONENT = "scientist.node_propagate_uncertainty@1.0.0"
+
+
+def load_simulation_result_uncertainty_admission(
+    store: ArtifactStore,
+    simulation_result_ref: Any,
+    metric_id: str,
+) -> PersistedUncertaintyAdmission:
+    """Resolve and conservatively admit one propagated metric envelope.
+
+    The reader binds the selected metric to the persisted simulation-result
+    map, its per-metric propagation diagnostic, and the CAS content identities.
+    It recomputes the available draw-count/sample consistency checks. The
+    current propagation producer does not persist successful draw-to-input
+    identity rows or a linked trusted verifier receipt, so even a complete
+    producer-declared denominator remains limited and is never returned as an
+    admitted numeric envelope.
+
+    Args:
+        store: Artifact store holding the persisted simulation artifacts.
+        simulation_result_ref: Content-addressed ref for the SimulationResult.
+        metric_id: Exact metric subject requested by the consumer.
+
+    Returns:
+        PersistedUncertaintyAdmission: An admitted envelope or typed limits
+        explaining why the reader cannot use the result.
+    """
+    limitations: list[str] = []
+    try:
+        simulation_reference = _normalized_artifact_reference(store, simulation_result_ref)
+        if simulation_reference.get("kind") != "foundry.simulation_result":
+            return PersistedUncertaintyAdmission(None, ("simulation_result_kind_mismatch",))
+        simulation_manifest = store.get_manifest(simulation_reference)
+        _check_persisted_artifact_identity(
+            simulation_manifest,
+            simulation_reference,
+            expected_kind="foundry.simulation_result",
+            expected_schema="polisyos.core.SimulationResult",
+            expected_version=None,
+            prefix="simulation_result",
+            limitations=limitations,
+        )
+        simulation_payload = get_json_artifact(
+            store,
+            simulation_reference,
+        )
+        if not isinstance(simulation_payload, dict):
+            return PersistedUncertaintyAdmission(None, ("simulation_result_payload_invalid",))
+        payload_version = simulation_payload.get("schema_version")
+        schema = getattr(simulation_manifest, "artifact_schema", None)
+        if (
+            not isinstance(payload_version, str)
+            or getattr(schema, "version", None) != payload_version
+        ):
+            limitations.append("simulation_result_schema_version_mismatch")
+        _check_producer_identity(
+            simulation_manifest,
+            prefix="simulation_result",
+            limitations=limitations,
+        )
+
+        envelopes = simulation_payload.get("uncertainty_envelopes")
+        if not isinstance(envelopes, dict):
+            return PersistedUncertaintyAdmission(
+                None,
+                tuple(dict.fromkeys([*limitations, "simulation_uncertainty_map_missing"])),
+            )
+        envelope_raw = envelopes.get(metric_id)
+        if not isinstance(envelope_raw, dict):
+            return PersistedUncertaintyAdmission(
+                None,
+                tuple(dict.fromkeys([*limitations, "metric_envelope_ref_missing"])),
+            )
+        envelope_reference = normalize_artifact_ref(envelope_raw)
+        if envelope_reference.get("kind") != "ir.uncertainty_envelope":
+            limitations.append("metric_envelope_kind_mismatch")
+        envelope_manifest = store.get_manifest(envelope_reference)
+        _check_persisted_artifact_identity(
+            envelope_manifest,
+            envelope_reference,
+            expected_kind="ir.uncertainty_envelope",
+            expected_schema="ir.uncertainty_envelope",
+            expected_version="1.1",
+            prefix="metric_envelope",
+            limitations=limitations,
+        )
+        _check_producer_identity(
+            envelope_manifest,
+            prefix="metric_envelope",
+            limitations=limitations,
+        )
+        envelope = UncertaintyEnvelope.model_validate(
+            get_json_artifact(
+                store,
+                envelope_reference,
+            )
+        )
+
+        report_raw = simulation_payload.get("propagation_report_ref")
+        if not isinstance(report_raw, dict):
+            return PersistedUncertaintyAdmission(
+                None,
+                tuple(dict.fromkeys([*limitations, "propagation_report_ref_missing"])),
+            )
+        report_reference = normalize_artifact_ref(report_raw)
+        if report_reference.get("kind") != "foundry.propagation_report":
+            limitations.append("propagation_report_kind_mismatch")
+        report_manifest = store.get_manifest(report_reference)
+        _check_persisted_artifact_identity(
+            report_manifest,
+            report_reference,
+            expected_kind="foundry.propagation_report",
+            expected_schema="polisyos.foundry.PropagationReport",
+            expected_version="1.1",
+            prefix="propagation_report",
+            limitations=limitations,
+        )
+        _check_producer_identity(
+            report_manifest,
+            prefix="propagation_report",
+            limitations=limitations,
+        )
+        _check_simulation_result_lineage(
+            simulation_manifest,
+            metric_id=metric_id,
+            envelope_reference=envelope_reference,
+            report_reference=report_reference,
+            limitations=limitations,
+        )
+        _check_report_lineage(
+            report_manifest,
+            metric_id=metric_id,
+            envelope_reference=envelope_reference,
+            limitations=limitations,
+        )
+        _check_metric_envelope_subject(
+            envelope,
+            metric_id=metric_id,
+            limitations=limitations,
+        )
+        report_payload = get_json_artifact(
+            store,
+            report_reference,
+        )
+        if not isinstance(report_payload, dict):
+            return PersistedUncertaintyAdmission(
+                None,
+                tuple(dict.fromkeys([*limitations, "propagation_report_payload_invalid"])),
+            )
+        _check_propagation_report(
+            report_payload,
+            envelope,
+            metric_id=metric_id,
+            limitations=limitations,
+        )
+    except _SIMULATION_UNCERTAINTY_READ_ERRORS as exc:
+        limitations.append(f"persisted_uncertainty_read_failed:{type(exc).__name__}")
+
+    # Producer counts and labels can be internally consistent without proving
+    # successful draw identities. There is no current persisted verifier
+    # receipt linked to this envelope/report chain, so this consumer has no
+    # admitted route to a finite normative value.
+    limitations.append("draw_success_ledger_missing")
+    limitations.append("draw_basis_verifier_missing")
+    return PersistedUncertaintyAdmission(
+        None,
+        tuple(dict.fromkeys(limitations)),
+    )
+
+
+def _normalized_artifact_reference(store: ArtifactStore, ref: Any) -> dict[str, str]:
+    """Normalize a typed ref or resolve an ID through its stored manifest."""
+    if isinstance(ref, (str, ArtifactID)) or _is_string_root_model(ref):
+        artifact_id = _normalize_scalar_artifact_id(ref)
+        manifest = store.get_manifest(artifact_id)
+        return {
+            "artifact_id": str(artifact_id),
+            "kind": str(getattr(manifest, "kind", "")),
+            "media_type": str(getattr(manifest, "media_type", "")),
+        }
+    return normalize_artifact_ref(ref)
+
+
+def _check_persisted_artifact_identity(
+    manifest: Any,
+    reference: dict[str, str],
+    *,
+    expected_kind: str,
+    expected_schema: str,
+    expected_version: str | None,
+    prefix: str,
+    limitations: list[str],
+) -> None:
+    """Reconcile a ref, CAS manifest, and pinned schema identity."""
+    manifest_id = str(getattr(manifest, "artifact_id", ""))
+    manifest_kind = str(getattr(manifest, "kind", ""))
+    manifest_media = str(getattr(manifest, "media_type", ""))
+    if manifest_id != reference.get("artifact_id"):
+        limitations.append(f"{prefix}_content_binding_mismatch")
+    if (
+        manifest_kind != expected_kind
+        or reference.get("kind") != manifest_kind
+        or reference.get("media_type") != manifest_media
+        or manifest_media != "application/json"
+    ):
+        limitations.append(f"{prefix}_manifest_identity_mismatch")
+    artifact_schema = getattr(manifest, "artifact_schema", None)
+    if getattr(artifact_schema, "name", None) != expected_schema:
+        limitations.append(f"{prefix}_schema_name_mismatch")
+    if (
+        expected_version is not None
+        and getattr(artifact_schema, "version", None) != expected_version
+    ):
+        limitations.append(f"{prefix}_schema_version_mismatch")
+
+
+def _check_producer_identity(manifest: Any, *, prefix: str, limitations: list[str]) -> None:
+    """Record producer identity gaps without treating labels as verification."""
+    producer = getattr(manifest, "producer", None)
+    if producer is None:
+        limitations.append(f"{prefix}_producer_provenance_missing")
+        return
+    component = str(getattr(producer, "component", ""))
+    version = str(getattr(producer, "version", ""))
+    if component != _PROPAGATION_COMPONENT or version != "1.0.0":
+        limitations.append(f"{prefix}_producer_provenance_mismatch")
+
+
+def _manifest_inputs(manifest: Any) -> list[tuple[str, str, str | None]]:
+    """Return persisted input role/content/view identities from one CAS manifest."""
+    inputs = getattr(manifest, "inputs", ())
+    if not isinstance(inputs, (list, tuple)):
+        return []
+    result: list[tuple[str, str, str | None]] = []
+    for item in inputs:
+        role = getattr(item, "role", None)
+        artifact_id = getattr(item, "artifact_id", None)
+        profile = getattr(item, "manifest_profile_sha256", None)
+        if isinstance(role, str) and artifact_id is not None:
+            result.append((role, str(artifact_id), profile))
+    return result
+
+
+def _artifact_reference_identity(reference: dict[str, str]) -> tuple[str, str | None]:
+    """Return artifact ID and selected manifest profile from a normalized ref."""
+    return reference["artifact_id"], reference.get("manifest_profile_sha256")
+
+
+def _check_simulation_result_lineage(
+    manifest: Any,
+    *,
+    metric_id: str,
+    envelope_reference: dict[str, str],
+    report_reference: dict[str, str],
+    limitations: list[str],
+) -> None:
+    inputs = _manifest_inputs(manifest)
+    expected = {
+        f"metric_envelope.{metric_id}": _artifact_reference_identity(envelope_reference),
+        "propagation_report": _artifact_reference_identity(report_reference),
+    }
+    for role, selected_identity in expected.items():
+        matching = [
+            (artifact_id, profile)
+            for selected_role, artifact_id, profile in inputs
+            if selected_role == role
+        ]
+        if matching != [selected_identity]:
+            limitations.append(f"simulation_result_lineage_mismatch:{role}")
+    if len([role for role, _, _ in inputs if role == "base_simulation_result"]) != 1:
+        limitations.append("simulation_result_base_lineage_missing")
+    if len([role for role, _, _ in inputs if role == "propagation_config"]) != 1:
+        limitations.append("simulation_result_config_lineage_missing")
+
+
+def _check_report_lineage(
+    manifest: Any,
+    *,
+    metric_id: str,
+    envelope_reference: dict[str, str],
+    limitations: list[str],
+) -> None:
+    inputs = _manifest_inputs(manifest)
+    role = f"metric_envelope.{metric_id}"
+    if [
+        (artifact_id, profile) for input_role, artifact_id, profile in inputs if input_role == role
+    ] != [_artifact_reference_identity(envelope_reference)]:
+        limitations.append("propagation_report_envelope_lineage_missing")
+    if not any(input_role.startswith("input_envelope.") for input_role, _, _ in inputs):
+        limitations.append("propagation_report_input_envelope_lineage_missing")
+
+
+def _check_metric_envelope_subject(
+    envelope: UncertaintyEnvelope,
+    *,
+    metric_id: str,
+    limitations: list[str],
+) -> None:
+    provenance = envelope.composition_provenance
+    history = () if provenance is None else provenance.operator_history
+    if not history or history[-1].map_name != metric_id:
+        limitations.append("uncertainty_metric_subject_unbound")
+    if not envelope.gate_eligible:
+        limitations.append("uncertainty_envelope_not_gate_eligible")
+    if (
+        envelope.is_heuristic_ci
+        or envelope.interval_semantics is not IntervalSemantics.CONFIDENCE_INTERVAL
+    ):
+        limitations.append("uncertainty_interval_not_confidence_interval")
+    if envelope.confidence_level is None:
+        limitations.append("uncertainty_confidence_level_missing")
+    if envelope.metadata.get("candidate_only") is True:
+        limitations.append("uncertainty_envelope_candidate_only")
+
+
+def _check_propagation_report(
+    report: dict[str, Any],
+    envelope: UncertaintyEnvelope,
+    *,
+    metric_id: str,
+    limitations: list[str],
+) -> None:
+    if report.get("schema_version") != "1.1":
+        limitations.append("propagation_report_payload_version_mismatch")
+    diagnostics = report.get("diagnostics")
+    if not isinstance(diagnostics, list):
+        limitations.append("propagation_report_diagnostics_missing")
+        return
+    matching = [
+        item
+        for item in diagnostics
+        if isinstance(item, dict) and item.get("metric_id") == metric_id
+    ]
+    if len(matching) != 1:
+        limitations.append("propagation_metric_diagnostic_unbound")
+        return
+    metric_diagnostic = matching[0].get("diagnostics")
+    if not isinstance(metric_diagnostic, dict):
+        limitations.append("propagation_metric_diagnostic_invalid")
+        return
+    if metric_id in (report.get("missing_output_metric_ids") or []):
+        limitations.append("propagation_metric_output_missing")
+    if metric_id in (report.get("incomplete_output_metric_ids") or []):
+        limitations.append("propagation_metric_output_incomplete")
+    if metric_diagnostic.get("output_coverage_complete") is not True:
+        limitations.append("propagation_metric_output_coverage_incomplete")
+
+    provenance = report.get("draw_outcome_provenance")
+    if not isinstance(provenance, dict) or provenance.get("schema_version") != "1.0":
+        limitations.append("propagation_draw_ledger_missing_or_malformed")
+        return
+    requested = _nonnegative_int(provenance.get("requested_draw_count"))
+    attempted = _nonnegative_int(provenance.get("attempted_draw_count"))
+    successful = _nonnegative_int(provenance.get("successful_draw_count"))
+    unattempted = _nonnegative_int(provenance.get("unattempted_draw_count"))
+    failure_records = provenance.get("failure_records")
+    if (
+        requested is None
+        or attempted is None
+        or successful is None
+        or unattempted is None
+        or not isinstance(failure_records, list)
+    ):
+        limitations.append("propagation_draw_ledger_malformed")
+        return
+
+    failure_indexes: set[int] = set()
+    metric_failure_indexes: set[int] = set()
+    for record in failure_records:
+        if not isinstance(record, dict):
+            limitations.append("propagation_draw_failure_record_malformed")
+            continue
+        draw_index = _nonnegative_int(record.get("draw_index"))
+        digest = record.get("sampled_input_sha256")
+        outcomes = record.get("output_outcomes")
+        if (
+            draw_index is None
+            or draw_index >= attempted
+            or not isinstance(digest, str)
+            or _SHA256_HEX.fullmatch(digest) is None
+            or not isinstance(outcomes, list)
+            or draw_index in failure_indexes
+        ):
+            limitations.append("propagation_draw_failure_record_malformed")
+            continue
+        failure_indexes.add(draw_index)
+        for output in outcomes:
+            if isinstance(output, dict) and output.get("output_metric_id") == metric_id:
+                metric_failure_indexes.add(draw_index)
+    recomputed_global_successes = attempted - len(failure_indexes)
+    recomputed_metric_successes = attempted - len(metric_failure_indexes)
+    if (
+        requested <= 0
+        or attempted > requested
+        or unattempted != requested - attempted
+        or successful != recomputed_global_successes
+    ):
+        limitations.append("propagation_draw_denominator_mismatch")
+    if provenance.get("outcome_denominator_complete") is not (attempted == requested):
+        limitations.append("propagation_draw_denominator_status_mismatch")
+
+    metric_samples = _posterior_samples(envelope)
+    sample_count = None if metric_samples is None else len(metric_samples)
+    diagnostic_attempted = _nonnegative_int(metric_diagnostic.get("n_samples"))
+    diagnostic_valid = _nonnegative_int(metric_diagnostic.get("n_valid"))
+    diagnostic_failed = _nonnegative_int(metric_diagnostic.get("n_failed"))
+    if (
+        diagnostic_attempted != attempted
+        or diagnostic_valid != recomputed_metric_successes
+        or diagnostic_failed != len(metric_failure_indexes)
+        or sample_count != diagnostic_valid
+        or envelope.sample_size != diagnostic_valid
+    ):
+        limitations.append("propagation_draw_to_envelope_count_mismatch")
+    if metric_failure_indexes:
+        limitations.append("propagation_metric_has_failed_draws")
+    if metric_samples is None:
+        limitations.append("propagation_successful_draw_values_missing")
+    elif diagnostic_valid is not None and diagnostic_valid > 0:
+        point = float(np.mean(np.asarray(metric_samples, dtype=np.float64)))
+        if not math.isclose(point, envelope.point_estimate, rel_tol=1e-6, abs_tol=1e-8):
+            limitations.append("propagation_draw_point_summary_mismatch")
+        if envelope.confidence_level is not None:
+            alpha = 1.0 - envelope.confidence_level
+            bounds = np.percentile(
+                np.asarray(metric_samples, dtype=np.float64),
+                [100.0 * alpha / 2.0, 100.0 * (1.0 - alpha / 2.0)],
+            )
+            if not (
+                math.isclose(
+                    float(bounds[0]), envelope.confidence_interval[0], rel_tol=1e-6, abs_tol=1e-8
+                )
+                and math.isclose(
+                    float(bounds[1]), envelope.confidence_interval[1], rel_tol=1e-6, abs_tol=1e-8
+                )
+            ):
+                limitations.append("propagation_draw_interval_summary_mismatch")
+
+    recipe = provenance.get("sampling_recipe")
+    if not isinstance(recipe, dict):
+        limitations.append("propagation_sampling_recipe_missing")
+        return
+    input_names = recipe.get("input_param_names")
+    input_digests = recipe.get("input_envelope_sha256")
+    if (
+        not isinstance(input_names, list)
+        or not all(isinstance(name, str) for name in input_names)
+        or not isinstance(input_digests, dict)
+        or set(input_names) != set(input_digests)
+        or not all(
+            isinstance(digest, str) and _SHA256_HEX.fullmatch(digest) is not None
+            for digest in input_digests.values()
+        )
+    ):
+        limitations.append("propagation_sampling_input_identity_malformed")
+    else:
+        limitations.append("propagation_sampling_input_content_not_recomputed")
+    if recipe.get("sample_axis") != "draw":
+        limitations.append("propagation_draw_axis_unresolved")
+    if provenance.get("implementation_identity_status") != "verified":
+        limitations.append("propagation_implementation_identity_not_established")
+
+
+def _nonnegative_int(value: Any) -> int | None:
+    if type(value) is not int or value < 0:
+        return None
+    return value
+
+
+def _posterior_samples(envelope: UncertaintyEnvelope) -> tuple[float, ...] | None:
+    payload = envelope.distribution_payload
+    if isinstance(payload, PosteriorSamplesCarrier) and payload.sample_axis == "draw":
+        return payload.samples
+    return None
 
 
 __all__ = [
@@ -2161,6 +2656,7 @@ __all__ = [
     "OutputContractCapability",
     "OutputContractDeclaration",
     "ParametricFitCarrier",
+    "PersistedUncertaintyAdmission",
     "PosteriorSamplesCarrier",
     "PropagationMethod",
     "PullBackNotRepresentableError",
@@ -2183,6 +2679,7 @@ __all__ = [
     "compress_envelope",
     "envelope_meets_trust_policy",
     "join_envelopes",
+    "load_simulation_result_uncertainty_admission",
     "load_uncertainty_envelope",
     "persist_uncertainty_envelope",
     "pull_back_envelope",

@@ -9,6 +9,7 @@ from unittest.mock import MagicMock
 import pytest
 from pydantic import BaseModel
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.validation.phase2_closure import PHASE2_CLOSURE_ENV_VAR
@@ -769,12 +770,8 @@ def test_pareto_registry_keeps_missing_axis_typed_unassessed(tmp_path) -> None:
         update={
             "candidate_id": "complete",
             "primary": {
-                "policy_value": template.primary["policy_value"].model_copy(
-                    update={"value": 1.0}
-                ),
-                "employment": template.primary["employment"].model_copy(
-                    update={"value": 1.0}
-                ),
+                "policy_value": template.primary["policy_value"].model_copy(update={"value": 1.0}),
+                "employment": template.primary["employment"].model_copy(update={"value": 1.0}),
             },
         }
     )
@@ -798,8 +795,8 @@ def test_pareto_registry_keeps_missing_axis_typed_unassessed(tmp_path) -> None:
                     "policy_value": source.primary["policy_value"].model_copy(
                         update={"value": float(index)}
                     ),
-                    },
-                }
+                },
+            }
         )
         registry.update("loop", candidate_hash=candidate_hash, evaluation=unassessed)
 
@@ -810,9 +807,7 @@ def test_pareto_registry_keeps_missing_axis_typed_unassessed(tmp_path) -> None:
 
     no_axis_registry = ParetoRegistry(root=tmp_path / "no-axis")
     no_axis_registry.update("empty", candidate_hash=empty_axes_hash, evaluation=no_primary)
-    no_axis_assessment = no_axis_registry.get_snapshot("empty").view_assessments[
-        "global_feasible"
-    ]
+    no_axis_assessment = no_axis_registry.get_snapshot("empty").view_assessments["global_feasible"]
 
     snapshot = registry.get_snapshot("loop")
     view = snapshot.view_assessments["global_feasible"]
@@ -823,9 +818,7 @@ def test_pareto_registry_keeps_missing_axis_typed_unassessed(tmp_path) -> None:
     assert view.status == "partial"
     assert view.input_count == 8
     assert view.assessed_count == 1
-    assert set(view.unassessed_candidate_hashes) == (
-        set(missing_hashes) | {empty_axes_hash}
-    )
+    assert set(view.unassessed_candidate_hashes) == (set(missing_hashes) | {empty_axes_hash})
     assert view.missing_coordinate_ids_by_candidate_hash
     assert complete_hash in snapshot.frontiers["global_feasible"]
     assert projection.assessment == view
@@ -901,9 +894,9 @@ def test_pareto_registry_declared_basis_omissions_stay_unassessed_and_finite_con
             objective_basis_by_view={"global_feasible": declared_basis},
         )
 
-    missing_assessment = missing_registry.get_snapshot(
-        "missing-basis-axis"
-    ).view_assessments["global_feasible"]
+    missing_assessment = missing_registry.get_snapshot("missing-basis-axis").view_assessments[
+        "global_feasible"
+    ]
     missing_voi = missing_registry.to_voi_snapshot("missing-basis-axis")
 
     assert missing_assessment.basis_scope == declared_basis
@@ -911,8 +904,7 @@ def test_pareto_registry_declared_basis_omissions_stay_unassessed_and_finite_con
     assert missing_assessment.coverage_status == "no_usable_inputs"
     assert set(missing_assessment.unassessed_candidate_hashes) == set(missing_hashes)
     missing_coordinate_sets = [
-        missing_assessment.missing_coordinate_ids_by_candidate_hash[item]
-        for item in missing_hashes
+        missing_assessment.missing_coordinate_ids_by_candidate_hash[item] for item in missing_hashes
     ]
     assert all(len(coordinates) == 1 for coordinates in missing_coordinate_sets)
     assert len({coordinates[0] for coordinates in missing_coordinate_sets}) == 1
@@ -2067,7 +2059,9 @@ def test_ref_only_data_readiness_warn_caps_readiness(tmp_path) -> None:
         measurement_quality="unknown",
         fallback_data_available=True,
     )
-    readiness_ref = persist_data_readiness_report(store, readiness_report)
+    readiness_ref = persist_data_readiness_report(
+        _ensure_ir_artifact_store(store), readiness_report
+    )
 
     bundle = coordinator.build_input_bundle(
         candidate=candidate,

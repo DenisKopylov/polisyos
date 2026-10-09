@@ -228,8 +228,8 @@ class ProductionAcquisitionAuthorityProvider:
         if slot is not None:
             try:
                 for ref in slot.decision_information_refs:
-                    payload = self._store.get_bytes(ref.artifact_id)
-                    manifest = self._store.get_manifest(ref.artifact_id)
+                    payload = self._store.get_bytes(ref)
+                    manifest = self._store.get_manifest(ref)
                     if (
                         str(ref.artifact_id) != f"sha256:{canon.content_hash(payload)}"
                         or manifest.kind != ref.kind

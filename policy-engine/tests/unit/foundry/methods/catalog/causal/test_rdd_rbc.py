@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.foundry.methods.catalog.causal import rdd
 from polisyos.foundry.methods.catalog.causal.protocols import RDDObservationalData
 from polisyos.ir.analytics.causal import EstimationStatus
@@ -145,8 +146,12 @@ def test_registered_rbc_survives_cas_and_fresh_typed_reader(tmp_path: Path) -> N
             method_class=method, signature=method.signature, state=data, params=_params(), seed=73
         )
         report = result.output["report"]
-        artifact = persist_causal_effect_report(FileSystemCAS(tmp_path), report)
-        loaded = load_causal_effect_report(FileSystemCAS(tmp_path), artifact)
+        artifact = persist_causal_effect_report(
+            _ensure_ir_artifact_store(FileSystemCAS(tmp_path)), report
+        )
+        loaded = load_causal_effect_report(
+            _ensure_ir_artifact_store(FileSystemCAS(tmp_path)), artifact
+        )
         assert loaded is not report
         assert loaded.status is EstimationStatus.SUCCESS
         assert loaded.point_estimate == report.point_estimate

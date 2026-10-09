@@ -4,6 +4,8 @@ import logging
 from dataclasses import replace
 
 import jax.numpy as jnp
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
@@ -19,8 +21,6 @@ from polisyos.core.run.context import RunContext
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute.executor import put_state_snapshot
 from polisyos.ir.analytics.distributional import CohortDimension, load_distributional_report
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.simulate.run_distributional_analysis import (
     RunDistributionalAnalysisNode,
 )
@@ -29,6 +29,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_SIMULATION_RESULT_REF,
     INPUT_DATA_SNAPSHOT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def test_distributional_analysis_node_generates_report(tmp_path) -> None:
@@ -101,7 +103,7 @@ def test_distributional_analysis_node_generates_report(tmp_path) -> None:
     assert ARTIFACT_DISTRIBUTIONAL_REPORT_REF in outcome.state.artifacts_index
 
     report_ref = outcome.state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_REPORT_REF]
-    report = load_distributional_report(store, report_ref)
+    report = load_distributional_report(_ensure_ir_artifact_store(store), report_ref)
 
     assert report.get_breakdown(CohortDimension.INCOME_QUINTILE) is not None
     assert len(report.breakdowns) >= 1

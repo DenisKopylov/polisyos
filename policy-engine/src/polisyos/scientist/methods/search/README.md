@@ -79,7 +79,7 @@ uv run pytest tests/unit/scientist/search/test_controller_api.py tests/unit/scie
 
 ## Last Updated
 
-- Last updated: 2026-05-05
+- Last updated: 2026-10-09
 
 ## Configured uncertainty observation intake
 
@@ -95,3 +95,14 @@ No observation supersedes another: producer provenance, current scientific
 refinement law and publication authority are not supplied by CAS identity.
 B161 lowering remains held until the actual producer-owned refinement contract
 is admitted. L3/L4 forward native producer observation refs without minting them.
+
+## Monetary evidence and VOI
+
+Funnel stage costs carry an explicit `reported`, `estimated`, or `unknown` origin.
+Configuration and duration-based values remain estimates; unknown stage cost is
+nullable and does not become zero. VOI keeps unknown observations for audit but
+does not train its cost model from them or from legacy untyped amounts. It prefers
+eligible reported-cost history, then uses estimated history only with the explicit
+`estimated_history_heuristic` basis, and otherwise uses configured stage cost as an
+estimate. These cost signals do not establish native evaluator work counts or
+scientific price calibration.

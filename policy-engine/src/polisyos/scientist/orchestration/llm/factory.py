@@ -86,8 +86,7 @@ class GatewayLLMConfig:
     def from_env(cls) -> GatewayLLMConfig | None:
         _load_gateway_dotenv()
         base_url = (
-            os.getenv("POLISYOS_LLM_GATEWAY_BASE_URL", "").strip()
-            or "https://proxy.gonka.gg/v1"
+            os.getenv("POLISYOS_LLM_GATEWAY_BASE_URL", "").strip() or "https://proxy.gonka.gg/v1"
         )
         api_key = os.getenv("POLISYOS_LLM_GATEWAY_API_KEY", "").strip()
         if not api_key:
@@ -157,6 +156,9 @@ def create_traced_gateway_client(
     config: GatewayLLMConfig | None = None,
     tracer: Any | None = None,
     metrics: Any | None = None,
+    cache_reuse_authorizer: Any | None = None,
+    producer_settlement_store: Any | None = None,
+    producer_budget_key: str = "run",
 ) -> TracedLLMClient | None:
     """Create traced LLM client from env-backed gateway config."""
     if _as_bool(os.getenv("POLISYOS_LLM_SIMULATION_MODE"), default=False):
@@ -179,6 +181,8 @@ def create_traced_gateway_client(
             prompt_sanitizer=None,
             tracer=tracer,
             metrics=metrics,
+            producer_settlement_store=producer_settlement_store,
+            producer_budget_key=producer_budget_key,
         )
     cfg = config or GatewayLLMConfig.from_env()
     if cfg is None:
@@ -237,7 +241,9 @@ def create_traced_gateway_client(
             model=model_name,
             ttl_s=cfg.cache_ttl_s,
             inflight_timeout_s=cfg.timeout_s,
+            reuse_authorizer=cache_reuse_authorizer,
         )
+    cache_reuse_owner = getattr(raw_client, "_cache_reuse_owner", None)
     prompt_sanitizer = PromptSanitizer() if cfg.enable_prompt_sanitizer else None
     return TracedLLMClient(
         raw_client,
@@ -253,6 +259,9 @@ def create_traced_gateway_client(
         prompt_sanitizer=prompt_sanitizer,
         tracer=tracer,
         metrics=metrics,
+        cache_reuse_owner=cache_reuse_owner,
+        producer_settlement_store=producer_settlement_store,
+        producer_budget_key=producer_budget_key,
     )
 
 

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.sensitivity import (
     EValueResult,
@@ -36,8 +38,8 @@ def test_sensitivity_result_persist_roundtrip(tmp_path) -> None:
         is_robust=True,
     )
 
-    ref = persist_sensitivity_result(store, result)
-    loaded = load_sensitivity_result(store, ref)
+    ref = persist_sensitivity_result(_ensure_ir_artifact_store(store), result)
+    loaded = load_sensitivity_result(_ensure_ir_artifact_store(store), ref)
 
     assert ref.kind == "ir.sensitivity_result"
     assert loaded == result

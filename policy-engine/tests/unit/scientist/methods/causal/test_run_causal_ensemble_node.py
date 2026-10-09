@@ -3,6 +3,8 @@ from __future__ import annotations
 import logging
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -22,8 +24,6 @@ from polisyos.ir.analytics.structural_causal_model import (
 )
 from polisyos.ir.registry.refs import CausalGraphModelRef
 from polisyos.scientist.compute.job_spec import JobKey, JobResult
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.causal.run_causal_ensemble import RunCausalEnsembleNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENSEMBLE_ENVELOPE_REF,
@@ -31,6 +31,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def _build_ctx(tmp_path, *, run_id: str) -> ExecutionContext:
@@ -136,7 +138,7 @@ def test_run_causal_ensemble_node_persists_ensemble_and_dual_writes_envelope(
         discovery_method="pc",
     )
     scm_ref = persist_structural_causal_model_spec(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         _build_scm(graph=graph, coefficient_scale=1.2),
     )
 
@@ -183,7 +185,7 @@ def test_run_causal_ensemble_node_persists_ensemble_and_dual_writes_envelope(
     )
 
     ensemble_ref = artifacts[ARTIFACT_CAUSAL_ENSEMBLE_REF]
-    ensemble = load_causal_model_ensemble(ctx.store, ensemble_ref)
+    ensemble = load_causal_model_ensemble(_ensure_ir_artifact_store(ctx.store), ensemble_ref)
     assert len(ensemble.members) == 1
     assert ensemble.members[0].discovery_method == "pc"
     assert outcome.state.params["causal_ensemble_member_count"] == 1
@@ -201,7 +203,7 @@ def test_run_causal_ensemble_node_applies_budget_cap_10(
         discovery_method="ges",
     )
     scm_ref = persist_structural_causal_model_spec(
-        ctx.store,
+        _ensure_ir_artifact_store(ctx.store),
         _build_scm(graph=base_graph, coefficient_scale=1.0),
     )
 
@@ -240,7 +242,8 @@ def test_run_causal_ensemble_node_applies_budget_cap_10(
     outcome = RunCausalEnsembleNode().execute(ctx, state)
     assert outcome.status == "ok"
     ensemble = load_causal_model_ensemble(
-        ctx.store, outcome.state.artifacts_index[ARTIFACT_CAUSAL_ENSEMBLE_REF]
+        _ensure_ir_artifact_store(ctx.store),
+        outcome.state.artifacts_index[ARTIFACT_CAUSAL_ENSEMBLE_REF],
     )
     assert len(ensemble.members) == 10
     assert "deterministic cap applied" in str(
@@ -273,15 +276,15 @@ def test_run_causal_ensemble_node_builds_consensus_graph_from_three_members(
     )
     scm_refs = [
         persist_structural_causal_model_spec(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             _build_scm(graph=graph_a, coefficient_scale=0.8),
         ),
         persist_structural_causal_model_spec(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             _build_scm(graph=graph_b, coefficient_scale=1.1),
         ),
         persist_structural_causal_model_spec(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             _build_scm(graph=graph_c, coefficient_scale=1.4),
         ),
     ]
@@ -320,7 +323,8 @@ def test_run_causal_ensemble_node_builds_consensus_graph_from_three_members(
     assert outcome.status == "ok"
 
     ensemble = load_causal_model_ensemble(
-        ctx.store, outcome.state.artifacts_index[ARTIFACT_CAUSAL_ENSEMBLE_REF]
+        _ensure_ir_artifact_store(ctx.store),
+        outcome.state.artifacts_index[ARTIFACT_CAUSAL_ENSEMBLE_REF],
     )
     assert len(ensemble.members) == 3
     assert ensemble.consensus_graph_ref is not None
@@ -335,6 +339,6 @@ def test_run_causal_ensemble_node_builds_consensus_graph_from_three_members(
             "media_type": "application/json",
         }
     )
-    consensus_graph = load_causal_graph_model(ctx.store, consensus_ref)
+    consensus_graph = load_causal_graph_model(_ensure_ir_artifact_store(ctx.store), consensus_ref)
     consensus_edges = {(edge.src, edge.dst) for edge in consensus_graph.edges}
     assert consensus_edges == {("X", "M"), ("M", "Y"), ("X", "Y")}

@@ -258,9 +258,7 @@ def build_review_effectiveness_report(
             thresholds=thresholds,
         )
     telemetry = dict(calibration_report.get("review_effectiveness_telemetry") or {})
-    quality_signals = [
-        dict(signal) for signal in calibration_report.get("quality_signals", [])
-    ]
+    quality_signals = [dict(signal) for signal in calibration_report.get("quality_signals", [])]
     advisory_notes = _advisory_notes(
         quality_signals=quality_signals,
         observation_gap_decision_ids=observation_gap_decision_ids,
@@ -290,8 +288,7 @@ def build_review_effectiveness_report(
                 "build_review_effectiveness_report"
             ),
             "runtime_measurement_consumer": (
-                "polisyos.runtime.quality.human_review."
-                "build_human_review_calibration_report"
+                "polisyos.runtime.quality.human_review.build_human_review_calibration_report"
             ),
             "surface": "review_effectiveness_public_export",
             "capability_state": "implemented_advisory",
@@ -364,7 +361,7 @@ def load_review_effectiveness_report(
     """
 
     return ReviewEffectivenessReport.model_validate(
-        canon.from_canonical_bytes(store.get_bytes(ref.artifact_id))
+        canon.from_canonical_bytes(store.get_bytes(ref))
     )
 
 
@@ -376,9 +373,7 @@ def _event_from_voi_decision(decision: VOIDecisionRecord) -> dict[str, Any]:
         "flow": _text(metadata.get("review_flow") or metadata.get("flow"))
         or ("override" if outcome == "override" else "escalation"),
         "outcome": outcome,
-        "expected_outcome": _review_outcome(
-            {"outcome": metadata.get("expected_outcome")}
-        ),
+        "expected_outcome": _review_outcome({"outcome": metadata.get("expected_outcome")}),
         "reviewer_identity": _text(
             metadata.get("reviewer_identity")
             or metadata.get("reviewer_id")
@@ -468,9 +463,7 @@ def _advisory_notes(
 
 def _review_time_distribution(events: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     values = sorted(
-        seconds
-        for event in events
-        if (seconds := _time_spent_seconds(event)) is not None
+        seconds for event in events if (seconds := _time_spent_seconds(event)) is not None
     )
     if not values:
         return {

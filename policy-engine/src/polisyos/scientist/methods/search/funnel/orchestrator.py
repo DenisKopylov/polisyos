@@ -13,12 +13,18 @@ from uuid import uuid4
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.scientist.methods.search.funnel.types import (
+    FunnelCostOrigin,
     FunnelEvaluationStatus,
+    FunnelExecutedWorkPacket,
     FunnelStage,
     FunnelStageResult,
+    FunnelWorkPacketStatus,
     TypedFailureCard,
     UncertaintyEnvelope,
+    _validate_funnel_cost,
+    _validate_funnel_work_packet,
 )
 from polisyos.scientist.methods.search.lessons import (
     LessonRegistry,
@@ -217,12 +223,22 @@ class FunnelTraceStep:
     objective_value: float
     is_promising: bool
     duration_seconds: float
-    compute_actual_usd: float
+    compute_cost_usd: float | None
+    compute_cost_origin: FunnelCostOrigin
+    executed_work_packet_ref: ArtifactRef | None = None
+    executed_work_packet_status: FunnelWorkPacketStatus = "unavailable"
     routing_decision: str | None = None
     voi_action: str | None = None
     voi_priority: float | None = None
     failure_count: int = 0
     blocker_count: int = 0
+
+    def __post_init__(self) -> None:
+        _validate_funnel_cost(self.compute_cost_usd, self.compute_cost_origin)
+        _validate_funnel_work_packet(
+            self.executed_work_packet_ref,
+            self.executed_work_packet_status,
+        )
 
 
 @dataclass(slots=True)
@@ -269,7 +285,8 @@ class FunnelOutcome:
     final_result: FunnelStageResult | None
     failure_cards: list[TypedFailureCard]
     uncertainty_envelope: UncertaintyEnvelope
-    compute_actual_usd: float
+    compute_cost_usd: float | None
+    compute_cost_origin: FunnelCostOrigin
     degradation_mode: DegradationMode
     final_action: RoutingAction
     completed: bool
@@ -284,6 +301,25 @@ class FunnelOutcome:
     current_uncertainty_envelope: UncertaintyEnvelope | None = None
     uncertainty_observation_refs: list[ArtifactRef] = field(default_factory=list)
     uncertainty_intake_failures: list[str] = field(default_factory=list)
+
+    def __post_init__(self) -> None:
+        _validate_funnel_cost(self.compute_cost_usd, self.compute_cost_origin)
+
+
+def _aggregate_funnel_cost(
+    trace: Iterable[FunnelTraceStep],
+) -> tuple[float | None, FunnelCostOrigin]:
+    """Aggregate stage costs without turning an unknown stage into zero."""
+    steps = list(trace)
+    if not steps or any(
+        step.compute_cost_usd is None or step.compute_cost_origin == "unknown" for step in steps
+    ):
+        return None, "unknown"
+    total = sum(step.compute_cost_usd or 0.0 for step in steps)
+    origin: FunnelCostOrigin = (
+        "reported" if all(step.compute_cost_origin == "reported" for step in steps) else "estimated"
+    )
+    return total, origin
 
 
 class FunnelOrchestrator:
@@ -432,6 +468,7 @@ class FunnelOrchestrator:
                 resolved_ticket.candidate,
                 self._build_stage_context(resolved_ticket),
             )
+            self._admit_executed_work_packet(resolved_ticket, result, next_level)
             resolved_ticket.stage_results[next_level] = result
             resolved_ticket.current_level = next_level
             resolved_ticket.next_level = self._level_after(next_level)
@@ -445,7 +482,10 @@ class FunnelOrchestrator:
                 objective_value=result.objective_value,
                 is_promising=result.is_promising,
                 duration_seconds=result.duration_seconds,
-                compute_actual_usd=result.compute_actual_usd,
+                compute_cost_usd=result.compute_cost_usd,
+                compute_cost_origin=result.compute_cost_origin,
+                executed_work_packet_ref=result.executed_work_packet_ref,
+                executed_work_packet_status=result.executed_work_packet_status,
                 routing_decision=routing_decision,
                 failure_count=len(result.failure_cards),
                 blocker_count=sum(1 for card in result.failure_cards if card.is_blocker),
@@ -506,7 +546,10 @@ class FunnelOrchestrator:
                     uncertainty_envelope=result.uncertainty_envelope,
                     cheap_signal=result.cheap_signal,
                     failure_cards=result.failure_cards,
-                    compute_actual_usd=result.compute_actual_usd,
+                    compute_cost_usd=result.compute_cost_usd,
+                    compute_cost_origin=result.compute_cost_origin,
+                    executed_work_packet_ref=result.executed_work_packet_ref,
+                    executed_work_packet_status=result.executed_work_packet_status,
                     fidelity_level=result.fidelity_level,
                     audit_refs=list(result.audit_refs),
                     uncertainty_observation_ref=result.uncertainty_observation_ref,
@@ -633,6 +676,7 @@ class FunnelOrchestrator:
                     outcome_stage_results[level] = final_result
                     break
 
+        aggregate_cost_usd, aggregate_cost_origin = _aggregate_funnel_cost(resolved_ticket.trace)
         return FunnelOutcome(
             ticket_id=resolved_ticket.ticket_id,
             candidate_hash=resolved_ticket.candidate_hash,
@@ -641,7 +685,8 @@ class FunnelOrchestrator:
             final_result=final_result,
             failure_cards=failure_cards,
             uncertainty_envelope=uncertainty_envelope,
-            compute_actual_usd=sum(step.compute_actual_usd for step in resolved_ticket.trace),
+            compute_cost_usd=aggregate_cost_usd,
+            compute_cost_origin=aggregate_cost_origin,
             degradation_mode=resolved_ticket.degradation_mode,
             final_action=resolved_ticket.final_action,
             completed=resolved_ticket.is_terminal,
@@ -977,6 +1022,23 @@ class FunnelOrchestrator:
             run_id=str(context.get("source_run_id") or context.get("run_id") or ticket.ticket_id),
         )
         context["_funnel_ticket_id"] = ticket.ticket_id
+        input_transfer_context = ticket.context.get("transfer_context")
+        input_transfer_run_id = (
+            input_transfer_context.get("run_id")
+            if isinstance(input_transfer_context, Mapping)
+            else getattr(input_transfer_context, "run_id", None)
+        )
+        source_run_id = (
+            ticket.context.get("source_run_id")
+            or ticket.context.get("run_id")
+            or input_transfer_run_id
+        )
+        context["policy_runtime_work_identity"] = {
+            "run_id": str(source_run_id) if source_run_id else None,
+            "ticket_id": ticket.ticket_id,
+            "candidate_hash": ticket.candidate_hash,
+            "candidate_ref": context.get("policy_candidate_ref"),
+        }
         context["transfer_context"] = transfer_context
         context["funnel_degradation_mode"] = ticket.degradation_mode
         for level, result in ticket.stage_results.items():
@@ -986,6 +1048,107 @@ class FunnelOrchestrator:
         if self._correlation_tracker is not None:
             context["correlation_metrics"] = self._correlation_tracker.compute_metrics()
         return context
+
+    def _admit_executed_work_packet(
+        self,
+        ticket: FunnelTicket,
+        result: FunnelStageResult,
+        stage_level: int,
+    ) -> None:
+        """Fresh-read and bind a native work packet before projecting its reference."""
+        ref = result.executed_work_packet_ref
+        if ref is None:
+            return
+        store = ticket.context.get("store")
+        if store is None or not all(hasattr(store, name) for name in ("get_bytes", "get_manifest")):
+            self._reject_work_packet(result, "artifact_store_unavailable")
+            return
+
+        transfer_context = ticket.context.get("transfer_context")
+        transfer_run_id = (
+            transfer_context.get("run_id")
+            if isinstance(transfer_context, Mapping)
+            else getattr(transfer_context, "run_id", None)
+        )
+        expected_run_id = (
+            ticket.context.get("source_run_id") or ticket.context.get("run_id") or transfer_run_id
+        )
+        expected_candidate_ref = ticket.context.get("policy_candidate_ref")
+        expected_candidate = ticket.context.get("policy_candidate_schema")
+        try:
+            packet = FunnelExecutedWorkPacket.model_validate(
+                from_canonical_bytes(store.get_bytes(ref))
+            )
+            packet_manifest = store.get_manifest(ref)
+            result_manifest = store.get_manifest(packet.source_result_ref)
+            actual_candidate_bytes = store.get_bytes(packet.candidate_ref)
+            candidate_payload = from_canonical_bytes(actual_candidate_bytes)
+            expected_candidate_bytes = (
+                to_canonical_bytes(expected_candidate, CanonSpec(forbid_floats=False))
+                if expected_candidate is not None
+                else None
+            )
+            source_result_payload = from_canonical_bytes(store.get_bytes(packet.source_result_ref))
+            packet_inputs = {item.role: str(item.artifact_id) for item in packet_manifest.inputs}
+            result_candidate_inputs = {
+                str(item.artifact_id) for item in result_manifest.inputs if item.role == "candidate"
+            }
+            bootstrap = result.simulation_results.get("bootstrap", {})
+            requested_draw_count = (
+                bootstrap.get("requested_draw_count") if isinstance(bootstrap, Mapping) else None
+            )
+            if isinstance(requested_draw_count, bool) or not isinstance(requested_draw_count, int):
+                requested_draw_count = None
+            if (
+                ref.kind != "scientist.search.funnel_native_work_packet"
+                or packet_manifest.kind != "scientist.search.funnel_native_work_packet"
+                or packet_manifest.artifact_schema is None
+                or packet_manifest.artifact_schema.name
+                != "polisyos.scientist.search.FunnelExecutedWorkPacket"
+                or packet_manifest.artifact_schema.version != packet.schema_version
+                or len(packet_manifest.inputs) != 2
+                or packet.run_id != str(expected_run_id or "")
+                or packet.ticket_id != ticket.ticket_id
+                or packet.candidate_hash != ticket.candidate_hash
+                or packet.stage_level != stage_level
+                or packet.stage_name != result.stage_name
+                or packet.fidelity != result.feedback.get("policy_runtime_fidelity")
+                or packet.candidate_ref != expected_candidate_ref
+                or expected_candidate_bytes is None
+                or actual_candidate_bytes != expected_candidate_bytes
+                or packet.source_result_ref.kind != "scientist.policy_evaluation_vector"
+                or result_manifest.kind != "scientist.policy_evaluation_vector"
+                or not isinstance(candidate_payload, Mapping)
+                or not isinstance(source_result_payload, Mapping)
+                or candidate_payload.get("candidate_id")
+                != source_result_payload.get("candidate_id")
+                or packet_inputs
+                != {
+                    "candidate": str(packet.candidate_ref.artifact_id),
+                    "source_result": str(packet.source_result_ref.artifact_id),
+                }
+                or len(result_manifest.inputs) != 1
+                or str(packet.candidate_ref.artifact_id) not in result_candidate_inputs
+                or packet.requested_draw_count != requested_draw_count
+                or packet.input_signature
+                != (
+                    str(ticket.context.get("pinned_input_signature"))
+                    if ticket.context.get("pinned_input_signature")
+                    else None
+                )
+                or packet.backend_kind != result.feedback.get("policy_runtime_backend_kind")
+            ):
+                self._reject_work_packet(result, "work_packet_binding_mismatch")
+                return
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+            self._reject_work_packet(result, "work_packet_unreadable_or_invalid")
+
+    @staticmethod
+    def _reject_work_packet(result: FunnelStageResult, reason: str) -> None:
+        result.executed_work_packet_status = "rejected"
+        result.feedback = dict(result.feedback)
+        result.feedback["policy_runtime_work_packet_status"] = "rejected"
+        result.feedback["policy_runtime_work_packet_rejection_reason"] = reason
 
     def _routing_mode(self, context: Mapping[str, Any] | None = None) -> DegradationMode:
         if self._correlation_tracker is None:
@@ -1145,7 +1308,10 @@ class FunnelOrchestrator:
             uncertainty_envelope=stage_result.uncertainty_envelope,
             cheap_signal=stage_result.cheap_signal,
             failure_cards=list(stage_result.failure_cards),
-            compute_actual_usd=stage_result.compute_actual_usd,
+            compute_cost_usd=stage_result.compute_cost_usd,
+            compute_cost_origin=stage_result.compute_cost_origin,
+            executed_work_packet_ref=stage_result.executed_work_packet_ref,
+            executed_work_packet_status=stage_result.executed_work_packet_status,
             fidelity_level=stage_result.fidelity_level,
             audit_refs=list(stage_result.audit_refs),
             actionable_side_information_ref=stage_result.actionable_side_information_ref,
@@ -1227,13 +1393,20 @@ class FunnelOrchestrator:
             actual_objective_value=result.objective_value,
             actual_promising=result.is_promising,
             duration_seconds=result.duration_seconds,
-            compute_cost_usd=result.compute_actual_usd,
+            compute_cost_usd=result.compute_cost_usd,
+            compute_cost_origin=result.compute_cost_origin,
             timeout_occurred=timeout_occurred,
             disagreement=disagreement,
             metadata={
                 "ticket_id": ticket.ticket_id,
                 "stage_name": result.stage_name,
                 "fidelity_level": result.fidelity_level,
+                "executed_work_packet_status": result.executed_work_packet_status,
+                "executed_work_packet_ref": (
+                    None
+                    if result.executed_work_packet_ref is None
+                    else result.executed_work_packet_ref.model_dump(mode="json")
+                ),
             },
         )
 

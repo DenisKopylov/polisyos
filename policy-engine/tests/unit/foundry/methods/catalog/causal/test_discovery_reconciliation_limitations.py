@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 from polisyos.core.artifacts import PutOptions, SchemaInfo
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import CanonSpec
 from polisyos.foundry.methods.catalog.causal import discovery_pipeline as pipeline_module
@@ -63,7 +64,9 @@ def _persisted_report(tmp_path, state: UnifiedDiscoveryData) -> DiscoveryPipelin
     )
     assert not job.issues and job.method_result_ref is not None, job.issues
     assert job.final_state["report"] is job.final_state["discovery_pipeline_report"]
-    payload = get_json_artifact(FileSystemCAS(store.root), job.method_result_ref.artifact_id)
+    payload = get_json_artifact(
+        _ensure_ir_artifact_store(FileSystemCAS(store.root)), job.method_result_ref.artifact_id
+    )
     report = DiscoveryPipelineReport.model_validate(payload["discovery_pipeline_report"])
     assert payload["report"] == payload["discovery_pipeline_report"]
     assert report.n_algorithms_run == 1

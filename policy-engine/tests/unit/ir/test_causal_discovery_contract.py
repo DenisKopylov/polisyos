@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.causal_discovery import (
     AlgebraicCalibrationMode,
@@ -319,8 +321,8 @@ def test_causal_discovery_report_artifact_roundtrip(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     report = _minimal_report()
 
-    ref = persist_causal_discovery_report(store, report)
-    loaded = load_causal_discovery_report(store, ref)
+    ref = persist_causal_discovery_report(_ensure_ir_artifact_store(store), report)
+    loaded = load_causal_discovery_report(_ensure_ir_artifact_store(store), ref)
 
     assert isinstance(ref, CausalDiscoveryReportRef)
     assert ref.kind == "ir.causal_discovery_report"
@@ -331,9 +333,9 @@ def test_causal_discovery_report_persists_algebraic_previews_via_refs(tmp_path) 
     store = FileSystemCAS(tmp_path)
     report = _report_with_algebraic_constraints()
 
-    ref = persist_causal_discovery_report(store, report)
-    persisted_payload = get_json_artifact(store, ref.artifact_id)
-    loaded = load_causal_discovery_report(store, ref)
+    ref = persist_causal_discovery_report(_ensure_ir_artifact_store(store), report)
+    persisted_payload = get_json_artifact(_ensure_ir_artifact_store(store), ref.artifact_id)
+    loaded = load_causal_discovery_report(_ensure_ir_artifact_store(store), ref)
 
     algebraic = persisted_payload["algebraic_constraints"]
     assert algebraic["implied_constraints_ref"]["kind"] == "ir.algebraic_implied_constraints"
@@ -351,8 +353,8 @@ def test_causal_discovery_report_roundtrips_latent_governance_bundle(tmp_path) -
     store = FileSystemCAS(tmp_path)
     report = _report_with_latent_discovery()
 
-    ref = persist_causal_discovery_report(store, report)
-    loaded = load_causal_discovery_report(store, ref)
+    ref = persist_causal_discovery_report(_ensure_ir_artifact_store(store), report)
+    loaded = load_causal_discovery_report(_ensure_ir_artifact_store(store), ref)
 
     assert loaded.latent_discovery is not None
     assert loaded.latent_discovery == report.latent_discovery
@@ -367,8 +369,8 @@ def test_causal_discovery_report_roundtrips_promoted_latent_governance_bundle(
     store = FileSystemCAS(tmp_path)
     report = _report_with_promoted_latent_discovery()
 
-    ref = persist_causal_discovery_report(store, report)
-    loaded = load_causal_discovery_report(store, ref)
+    ref = persist_causal_discovery_report(_ensure_ir_artifact_store(store), report)
+    loaded = load_causal_discovery_report(_ensure_ir_artifact_store(store), ref)
 
     assert loaded.latent_discovery is not None
     assert loaded.latent_discovery == report.latent_discovery

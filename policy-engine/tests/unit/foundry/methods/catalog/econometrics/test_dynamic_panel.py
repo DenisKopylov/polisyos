@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.dependence_structure import load_dependence_structure
 
@@ -168,7 +170,7 @@ def test_dynamic_panel_persists_shared_dependence_ref(isolated_registry, tmp_pat
     )["result"]
 
     assert result.dependence_ref is not None
-    loaded = load_dependence_structure(store, result.dependence_ref)
+    loaded = load_dependence_structure(_ensure_ir_artifact_store(store), result.dependence_ref)
     diagnostic = result.cross_sectional_dependence_diagnostic
     assert diagnostic is not None
     assert loaded.regime == "panel"

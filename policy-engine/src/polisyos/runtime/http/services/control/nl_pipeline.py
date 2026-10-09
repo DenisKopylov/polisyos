@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextvars
 import hashlib
 import json
 import os
@@ -10,6 +11,7 @@ import threading
 from collections.abc import Awaitable, Callable, Mapping
 from copy import deepcopy
 from datetime import UTC, datetime
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, cast
 
@@ -60,7 +62,7 @@ from polisyos.runtime.http.services.control.production_data import (
 from polisyos.runtime.http.services.control.response_shapes import (
     _build_scientist_v2_shadow_comparison,
     _canonicalize_numeric_payload,
-    _delta_usage,
+    _project_call_event_cost,
     _sum_call_events,
 )
 from polisyos.runtime.quality.attestation import (
@@ -97,9 +99,28 @@ from .._control_contracts import (
 )
 
 logger = get_logger(__name__)
+_CURRENT_NL_STEP_ID: contextvars.ContextVar[str | None] = contextvars.ContextVar(
+    "polisyos_current_nl_step_id", default=None
+)
+
+
+def _cost_number(value: object) -> float | None:
+    """Return a finite nonnegative cost, preserving absent or malformed values."""
+
+    if value is None or isinstance(value, bool):
+        return None
+    try:
+        parsed = Decimal(str(value))
+    except (InvalidOperation, ValueError):
+        return None
+    if not parsed.is_finite() or parsed < 0:
+        return None
+    return float(parsed)
+
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 
 
 class NaturalLanguagePipelineRefusalError(RuntimeError):
@@ -282,6 +303,9 @@ async def build_design_problem_from_nl_request(
     context: Mapping[str, Any],
     model_name: str,
     trusted_source_context: Mapping[str, Any | None] | None = None,
+    run_id: str | None = None,
+    producer_settlement_store: BudgetMiddleware | None = None,
+    call_observer: Callable[[dict[str, Any]], None] | None = None,
     gateway_client: _DesignProblemGatewayClient | None = None,
     span_support_client: _SpanSupportVerifierClient | None = None,
 ) -> DesignProblem:
@@ -291,6 +315,11 @@ async def build_design_problem_from_nl_request(
         nl_request: Raw natural-language policy-design request.
         context: Runtime control context captured with the request.
         model_name: Gateway model id requested for the structured extraction.
+        run_id: Owning NL run id, when this producer call belongs to an admitted run.
+        producer_settlement_store: Optional durable producer-event ledger owned by
+            the runtime. It is used only when ``run_id`` is present.
+        call_observer: Optional callback for each traced provider response. The
+            callback receives status-preserving usage and settlement data.
         gateway_client: Optional prebuilt gateway client, used by tests and by
             runtime callers that already constructed a traced client.
         span_support_client: Optional GY-K span-support verifier client for
@@ -312,7 +341,13 @@ async def build_design_problem_from_nl_request(
     owns_client = gateway_client is None
     client = gateway_client
     if client is None:
-        client = create_traced_gateway_client(model_name=model_name)
+        client = create_traced_gateway_client(
+            model_name=model_name,
+            run_id=run_id,
+            call_observer=call_observer,
+            producer_settlement_store=(producer_settlement_store if run_id is not None else None),
+            producer_budget_key=(f"nl-run:{run_id}" if run_id is not None else "run"),
+        )
     if client is None:
         raise DesignProblemAuthorityError(
             "design_problem_gateway_missing",
@@ -1553,7 +1588,7 @@ def _build_run_performance_summary(variants: list[Mapping[str, Any]]) -> dict[st
     variant_rows: list[dict[str, Any]] = []
     llm_latency_ms = 0
     total_tokens = 0
-    total_cost_usd = 0.0
+    total_cost_usd: float | None = 0.0
 
     for variant in variants:
         status = str(variant.get("status") or "unknown")
@@ -1561,7 +1596,11 @@ def _build_run_performance_summary(variants: list[Mapping[str, Any]]) -> dict[st
         latency_ms = int(variant.get("latency_ms") or 0)
         llm_latency_ms += latency_ms
         total_tokens += int(variant.get("total_tokens") or 0)
-        total_cost_usd += float(variant.get("cost_usd") or 0.0)
+        variant_cost = _cost_number(variant.get("cost_usd"))
+        if variant_cost is None:
+            total_cost_usd = None
+        elif total_cost_usd is not None:
+            total_cost_usd += variant_cost
 
         steps = variant.get("steps")
         if isinstance(steps, list):
@@ -1591,7 +1630,7 @@ def _build_run_performance_summary(variants: list[Mapping[str, Any]]) -> dict[st
                 "latency_ms": latency_ms,
                 "steps_completed": len(steps) if isinstance(steps, list) else 0,
                 "total_tokens": int(variant.get("total_tokens") or 0),
-                "cost_usd": float(variant.get("cost_usd") or 0.0),
+                "cost_usd": (variant_cost),
             }
         )
 
@@ -1632,7 +1671,7 @@ def _build_run_performance_summary(variants: list[Mapping[str, Any]]) -> dict[st
         "llm": {
             "latency_ms": llm_latency_ms,
             "total_tokens": total_tokens,
-            "cost_usd": round(total_cost_usd, 8),
+            "cost_usd": round(total_cost_usd, 8) if total_cost_usd is not None else None,
         },
         "steps_by_action": steps_by_action,
         "retrieval_phase_durations": retrieval_phase_durations,
@@ -1673,6 +1712,29 @@ def _artifact_id_from_ref_payload(value: object) -> str | None:
         return None
     artifact_id_text = str(artifact_id)
     return artifact_id_text or None
+
+
+def _artifact_ref_from_ref_payload(
+    value: object,
+    *,
+    artifact_id: str,
+    kind: str,
+    media_type: str = "application/json",
+) -> ArtifactRef:
+    """Preserve a selected artifact profile or construct the declared legacy ref."""
+    from polisyos.core.artifacts.manifest import ArtifactRef as RuntimeArtifactRef
+
+    if isinstance(value, RuntimeArtifactRef):
+        ref = value
+    elif isinstance(value, Mapping) and any(
+        field in value for field in ("kind", "media_type", "manifest_profile_sha256")
+    ):
+        ref = RuntimeArtifactRef.model_validate(value)
+    else:
+        ref = _make_artifact_ref(artifact_id, kind=kind, media_type=media_type)
+    if str(ref.artifact_id) != artifact_id or ref.kind != kind or ref.media_type != media_type:
+        raise ValueError("artifact_ref_does_not_match_expected_selection")
+    return ref
 
 
 def _foundry_method_report_ref_from_state_payload(value: Mapping[str, Any]) -> str | None:
@@ -2009,6 +2071,7 @@ class NaturalLanguageRunMixin:
             scientist_workflow_progress: dict[str, Any] = {"events": []}
             runtime_quality_refs: dict[str, str] = {}
             runtime_quality_evidence: dict[str, Any] = {}
+            runtime_quality_cost_events: list[dict[str, Any]] = []
             runtime_quality_diagnostic_events: list[dict[str, Any]] = []
             diagnostic_event_log_ref: str | None = None
 
@@ -3685,7 +3748,7 @@ class NaturalLanguageRunMixin:
                 runtime_event_ref = str(result.diagnostic_event_ref.artifact_id)
                 authority_envelope_ref = str(result.authority_envelope_ref.artifact_id)
                 authority_envelope = from_canonical_bytes(
-                    store.get_bytes(result.authority_envelope_ref.artifact_id)
+                    store.get_bytes(result.authority_envelope_ref)
                 )
                 event_summary = {
                     "event_name": f"{report_key}.persisted",
@@ -3926,6 +3989,10 @@ class NaturalLanguageRunMixin:
                 if not models_to_run:
                     return None, None
                 model_name = models_to_run[0]
+
+                def _observe_design_problem_call(event: dict[str, Any]) -> None:
+                    runtime_quality_cost_events.append(_project_call_event_cost(event))
+
                 design_problem = await build_design_problem_from_nl_request(
                     nl_request=nl_request,
                     context={
@@ -3935,6 +4002,9 @@ class NaturalLanguageRunMixin:
                         "job_id": _runtime_quality_job_id(),
                     },
                     model_name=model_name,
+                    run_id=run_id,
+                    producer_settlement_store=getattr(self, "_llm_producer_settlement_store", None),
+                    call_observer=_observe_design_problem_call,
                 )
                 payload = design_problem.model_dump(mode="json")
                 (
@@ -4975,6 +5045,10 @@ class NaturalLanguageRunMixin:
                 variant_started_at = _now_ms()
                 variant_started_iso = datetime.now(UTC).replace(microsecond=0).isoformat()
                 call_events: list[dict[str, Any]] = []
+
+                def _observe_llm_call(event: dict[str, Any]) -> None:
+                    call_events.append({**event, "pipeline_step_id": _CURRENT_NL_STEP_ID.get()})
+
                 variant_label = model_name or "mock"
                 variant_id = _normalize_model_variant_id(variant_label, variant_index)
                 notes: list[str] = []
@@ -4992,9 +5066,13 @@ class NaturalLanguageRunMixin:
                         model_name=model_name,
                         run_id=run_id,
                         model_variant_id=variant_id,
-                        call_observer=call_events.append,
+                        call_observer=_observe_llm_call,
                         tracer=self._tracer,
                         metrics=self._metrics,
+                        producer_settlement_store=getattr(
+                            self, "_llm_producer_settlement_store", None
+                        ),
+                        producer_budget_key=f"nl-run:{run_id}",
                     )
                     if llm_client is None:
                         if allow_mock_fallback:
@@ -5137,9 +5215,11 @@ class NaturalLanguageRunMixin:
                     status: str = "ok",
                     details: dict[str, Any] | None = None,
                 ) -> object:
-                    before = _sum_call_events(call_events)
+                    step_id = f"{action}:{len(steps) + 1}"
+                    step_token = _CURRENT_NL_STEP_ID.set(step_id)
                     started = _now_ms()
                     running_step = {
+                        "step_id": step_id,
                         "agent": agent,
                         "action": action,
                         "status": "running",
@@ -5156,13 +5236,32 @@ class NaturalLanguageRunMixin:
                     try:
                         result = await coro
                     except Exception as exc:
+                        _CURRENT_NL_STEP_ID.reset(step_token)
                         failure_payload = _exception_failure_payload(exc)
                         failed_details = {**dict(details or {}), "error": str(exc)}
                         if failure_payload is not None:
                             failed_details["failure"] = failure_payload
+                        step_events = [
+                            _project_call_event_cost(event)
+                            for event in call_events
+                            if event.get("pipeline_step_id") == step_id
+                        ]
+                        step_usage = _sum_call_events(
+                            [
+                                event
+                                for event in call_events
+                                if event.get("pipeline_step_id") == step_id
+                            ]
+                        )
                         failed_step = {
                             **running_step,
                             "status": "failed",
+                            "cost_usd": (
+                                round(float(step_usage["cost_usd"]), 8)
+                                if step_usage["cost_usd"] is not None
+                                else None
+                            ),
+                            "cost_events": step_events,
                             "details": failed_details,
                         }
                         steps.append(failed_step)
@@ -5173,12 +5272,21 @@ class NaturalLanguageRunMixin:
                             step=failed_step,
                         )
                         raise
-                    after = _sum_call_events(call_events)
+                    finally:
+                        if _CURRENT_NL_STEP_ID.get() == step_id:
+                            _CURRENT_NL_STEP_ID.reset(step_token)
                     finished = _now_ms()
-                    prompt_tokens, completion_tokens, llm_latency_ms, delta_cost = _delta_usage(
-                        before,
-                        after,
-                    )
+                    step_call_events = [
+                        event for event in call_events if event.get("pipeline_step_id") == step_id
+                    ]
+                    step_usage = _sum_call_events(step_call_events)
+                    step_cost = step_usage["cost_usd"]
+                    step_cost_events = [
+                        _project_call_event_cost(event) for event in step_call_events
+                    ]
+                    prompt_tokens = int(step_usage["prompt_tokens"])
+                    completion_tokens = int(step_usage["completion_tokens"])
+                    llm_latency_ms = int(step_usage["latency_ms"])
                     total_tokens = prompt_tokens + completion_tokens
                     step_latency = max(0, finished - started)
                     step_entry = {
@@ -5192,7 +5300,10 @@ class NaturalLanguageRunMixin:
                         "provider": provider,
                         "model_variant_id": variant_id,
                         "latency_ms": llm_latency_ms or step_latency,
-                        "cost_usd": round(delta_cost, 8),
+                        "cost_usd": round(float(step_cost), 8) if step_cost is not None else None,
+                        "cost_events": step_cost_events,
+                        "cost_origin_counts": step_usage["cost_origin_counts"],
+                        "settlement_status_counts": step_usage["settlement_status_counts"],
                         "token_usage": {
                             "prompt_tokens": prompt_tokens,
                             "completion_tokens": completion_tokens,
@@ -5547,11 +5658,16 @@ class NaturalLanguageRunMixin:
                         data_needs=data_needs or [DataNeed(metric="generic.policy.context")],
                         mode="hybrid",
                         allow_explore_fallback=True,
+                        catalog_run_profile=self._catalog_run_profile,
                     )
                     resolve_outcome = await _capture_step(
                         agent="source_resolver",
                         action="resolve_fast_lane",
-                        coro=run_blocking_async(retrieval.resolve, resolve_request),
+                        coro=run_blocking_async(
+                            retrieval.resolve,
+                            resolve_request,
+                            run_profile=self._catalog_run_profile,
+                        ),
                         summary="Resolved data needs into fetch plans",
                         details={"data_needs": len(data_needs)},
                     )
@@ -5909,13 +6025,15 @@ class NaturalLanguageRunMixin:
 
                             usage_snapshot = _sum_call_events(call_events)
                             budget_remaining_ratio = None
-                            if per_model_budget_usd is not None and float(per_model_budget_usd) > 0:
+                            snapshot_cost = _cost_number(usage_snapshot["cost_usd"])
+                            if (
+                                per_model_budget_usd is not None
+                                and float(per_model_budget_usd) > 0
+                                and snapshot_cost is not None
+                            ):
                                 budget_remaining_ratio = max(
                                     0.0,
-                                    (
-                                        float(per_model_budget_usd)
-                                        - float(usage_snapshot["cost_usd"])
-                                    )
+                                    (float(per_model_budget_usd) - snapshot_cost)
                                     / float(per_model_budget_usd),
                                 )
                             retrieval_quality = (
@@ -6054,7 +6172,9 @@ class NaturalLanguageRunMixin:
                                 legacy_status="completed",
                                 legacy_verdict=verdict,
                                 legacy_issue_count=int(issue_count),
-                                legacy_cost_usd=float(_sum_call_events(call_events)["cost_usd"]),
+                                legacy_cost_usd=_cost_number(
+                                    _sum_call_events(call_events)["cost_usd"]
+                                ),
                                 legacy_prompt_tokens=int(
                                     _sum_call_events(call_events)["prompt_tokens"]
                                 ),
@@ -6098,6 +6218,7 @@ class NaturalLanguageRunMixin:
                 ) as exc:  # pragma: no cover - defensive pipeline hardening
                     logger.exception("NL variant failed for model '%s': %s", model_name, exc)
                     failure_payload = _exception_failure_payload(exc)
+                    failure_usage = _sum_call_events(call_events)
                     return {
                         "model_variant_id": variant_id,
                         "model": model_name,
@@ -6114,10 +6235,18 @@ class NaturalLanguageRunMixin:
                             + _sum_call_events(call_events)["completion_tokens"]
                         ),
                         "latency_ms": max(0, _now_ms() - variant_started_at),
-                        "cost_usd": round(_sum_call_events(call_events)["cost_usd"], 8),
-                        "cost_reconciliation_delta_usd": round(
-                            _sum_call_events(call_events)["cost_delta_usd"],
-                            8,
+                        "cost_usd": (
+                            round(float(failure_usage["cost_usd"]), 8)
+                            if failure_usage["cost_usd"] is not None
+                            else None
+                        ),
+                        "cost_events": [_project_call_event_cost(event) for event in call_events],
+                        "cost_origin_counts": failure_usage["cost_origin_counts"],
+                        "settlement_status_counts": failure_usage["settlement_status_counts"],
+                        "cost_reconciliation_delta_usd": (
+                            round(float(failure_usage["cost_delta_usd"]), 8)
+                            if failure_usage["cost_delta_usd"] is not None
+                            else None
                         ),
                         "started_at": variant_started_iso,
                         "finished_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
@@ -6179,11 +6308,22 @@ class NaturalLanguageRunMixin:
                         notes.append(schema_note)
 
                 usage = _sum_call_events(call_events)
-                variant_cost = round(float(usage["cost_usd"]), 8)
+                variant_cost_value = _cost_number(usage["cost_usd"])
+                variant_cost = (
+                    round(variant_cost_value, 8) if variant_cost_value is not None else None
+                )
                 status = "completed"
-                if per_model_budget_usd is not None and variant_cost > float(per_model_budget_usd):
-                    status = "budget_exceeded"
-                    notes.append("per_model_budget_exceeded")
+                budget_status = "not_configured"
+                if per_model_budget_usd is not None:
+                    if variant_cost is None:
+                        budget_status = "unknown"
+                        notes.append("per_model_budget_cost_unknown")
+                    elif variant_cost > float(per_model_budget_usd):
+                        budget_status = "exceeded"
+                        status = "budget_exceeded"
+                        notes.append("per_model_budget_exceeded")
+                    else:
+                        budget_status = "within_limit"
                 if llm_client is None and model_name:
                     status = "fallback_mock"
 
@@ -6250,10 +6390,13 @@ class NaturalLanguageRunMixin:
                         "total_tokens": int(usage["prompt_tokens"] + usage["completion_tokens"]),
                         "latency_ms": max(0, _now_ms() - variant_started_at),
                         "cost_usd": variant_cost,
-                        "cost_reconciliation_delta_usd": round(
-                            float(usage["cost_delta_usd"]),
-                            8,
-                        ),
+                        "cost_events": [_project_call_event_cost(event) for event in call_events],
+                        "cost_origin_counts": usage["cost_origin_counts"],
+                        "settlement_status_counts": usage["settlement_status_counts"],
+                        "budget_status": budget_status,
+                        "cost_reconciliation_delta_usd": round(float(usage["cost_delta_usd"]), 8)
+                        if usage["cost_delta_usd"] is not None
+                        else None,
                         "trinity_bundle_ref": trinity_ref_str,
                         "final_policy_claims_ref": final_policy_claims_ref_str,
                         "final_policy_claims": final_policy_claims_report,
@@ -6328,9 +6471,14 @@ class NaturalLanguageRunMixin:
                     "total_tokens": int(usage["prompt_tokens"] + usage["completion_tokens"]),
                     "latency_ms": max(0, _now_ms() - variant_started_at),
                     "cost_usd": variant_cost,
-                    "cost_reconciliation_delta_usd": round(
-                        float(usage["cost_delta_usd"]),
-                        8,
+                    "cost_events": [_project_call_event_cost(event) for event in call_events],
+                    "cost_origin_counts": usage["cost_origin_counts"],
+                    "settlement_status_counts": usage["settlement_status_counts"],
+                    "budget_status": budget_status,
+                    "cost_reconciliation_delta_usd": (
+                        round(float(usage["cost_delta_usd"]), 8)
+                        if usage["cost_delta_usd"] is not None
+                        else None
                     ),
                     "trinity_bundle_ref": trinity_ref_str,
                     "final_policy_claims_ref": final_policy_claims_ref_str,
@@ -6430,21 +6578,32 @@ class NaturalLanguageRunMixin:
             else:
                 run_budget_spent = 0.0
                 run_budget_stop = False
+                run_budget_uncertain = False
                 sem = asyncio.Semaphore(max(1, min(max_parallel_models, len(models_to_run))))
                 budget_lock = asyncio.Lock()
 
                 async def _run_with_limits(idx: int, model_name: str) -> dict[str, Any]:
-                    nonlocal run_budget_spent, run_budget_stop
+                    nonlocal run_budget_spent, run_budget_stop, run_budget_uncertain
                     async with sem:
                         async with budget_lock:
                             if run_budget_stop:
+                                stop_status = (
+                                    "skipped_budget_unknown"
+                                    if run_budget_uncertain
+                                    else "skipped_budget_guard"
+                                )
+                                stop_reason = (
+                                    "run_budget_cost_unknown"
+                                    if run_budget_uncertain
+                                    else "run_budget_guard_prevented_start"
+                                )
                                 return {
                                     "model_variant_id": _normalize_model_variant_id(
                                         model_name, idx
                                     ),
                                     "model": model_name,
                                     "provider": "gateway",
-                                    "status": "skipped_budget_guard",
+                                    "status": stop_status,
                                     "verdict": None,
                                     "issue_count": 0,
                                     "prompt_tokens": 0,
@@ -6452,20 +6611,29 @@ class NaturalLanguageRunMixin:
                                     "total_tokens": 0,
                                     "latency_ms": 0,
                                     "cost_usd": 0.0,
+                                    "cost_events": [],
+                                    "cost_origin_counts": {},
+                                    "settlement_status_counts": {},
                                     "started_at": None,
                                     "finished_at": None,
                                     "steps": [],
-                                    "notes": ["run_budget_guard_prevented_start"],
+                                    "notes": [stop_reason],
                                     "schema_healing": [],
                                     "schema_healing_count": 0,
                                     "_bundle": None,
                                 }
                         variant = await _run_variant(model_name, idx)
                         async with budget_lock:
-                            run_budget_spent += float(variant.get("cost_usd") or 0.0)
+                            variant_cost = _cost_number(variant.get("cost_usd"))
+                            if variant_cost is None:
+                                run_budget_uncertain = True
+                            else:
+                                run_budget_spent += variant_cost
                             if run_budget_usd is not None and run_budget_spent >= float(
                                 run_budget_usd
                             ):
+                                run_budget_stop = True
+                            if run_budget_usd is not None and run_budget_uncertain:
                                 run_budget_stop = True
                         return variant
 
@@ -6487,7 +6655,10 @@ class NaturalLanguageRunMixin:
                     "status": item.get("status"),
                     "verdict": item.get("verdict"),
                     "steps_completed": len(item.get("steps") or []),
-                    "cost_usd": float(item.get("cost_usd") or 0.0),
+                    "cost_usd": _cost_number(item.get("cost_usd")),
+                    "cost_events": list(item.get("cost_events") or []),
+                    "cost_origin_counts": dict(item.get("cost_origin_counts") or {}),
+                    "settlement_status_counts": dict(item.get("settlement_status_counts") or {}),
                     "total_tokens": int(item.get("total_tokens") or 0),
                     "schema_healing_count": int(item.get("schema_healing_count") or 0),
                 }
@@ -6552,7 +6723,12 @@ class NaturalLanguageRunMixin:
                     "verdict": selected_variant.get("verdict"),
                     "selected_for_workflow": True,
                     "steps_completed": len(selected_variant.get("steps") or []),
-                    "cost_usd": float(selected_variant.get("cost_usd") or 0.0),
+                    "cost_usd": _cost_number(selected_variant.get("cost_usd")),
+                    "cost_events": list(selected_variant.get("cost_events") or []),
+                    "cost_origin_counts": dict(selected_variant.get("cost_origin_counts") or {}),
+                    "settlement_status_counts": dict(
+                        selected_variant.get("settlement_status_counts") or {}
+                    ),
                     "total_tokens": int(selected_variant.get("total_tokens") or 0),
                     "schema_healing_count": int(selected_variant.get("schema_healing_count") or 0),
                 }
@@ -7190,6 +7366,9 @@ class NaturalLanguageRunMixin:
                 domain_hint=domain_hint,
                 execution_profile=execution_profile,
             )
+            runtime_quality_cost_usage = _sum_call_events(runtime_quality_cost_events)
+            run_cost_components = [_cost_number(item.get("cost_usd")) for item in variants]
+            run_cost_components.append(_cost_number(runtime_quality_cost_usage["cost_usd"]))
             state_payload = _canonicalize_numeric_payload(
                 {
                     "run_id": run_id,
@@ -7220,14 +7399,27 @@ class NaturalLanguageRunMixin:
                         "llm_completion_tokens": int(
                             selected_variant.get("completion_tokens") or 0
                         ),
-                        "llm_cost_usd": float(selected_variant.get("cost_usd") or 0.0),
-                        "llm_cost_reconciliation_delta_usd": float(
-                            selected_variant.get("cost_reconciliation_delta_usd") or 0.0
+                        "llm_cost_usd": _cost_number(selected_variant.get("cost_usd")),
+                        "llm_cost_origin_counts": dict(
+                            selected_variant.get("cost_origin_counts") or {}
                         ),
-                        "run_cost_usd": round(
-                            sum(float(item.get("cost_usd") or 0.0) for item in variants),
-                            8,
+                        "llm_settlement_status_counts": dict(
+                            selected_variant.get("settlement_status_counts") or {}
                         ),
+                        "llm_cost_reconciliation_delta_usd": (
+                            float(selected_variant["cost_reconciliation_delta_usd"])
+                            if selected_variant.get("cost_reconciliation_delta_usd") is not None
+                            else None
+                        ),
+                        "run_cost_usd": (
+                            round(
+                                sum(value for value in run_cost_components if value is not None),
+                                8,
+                            )
+                            if all(value is not None for value in run_cost_components)
+                            else None
+                        ),
+                        "nl_preflight_cost_events": list(runtime_quality_cost_events),
                         "run_performance_summary": _build_run_performance_summary(variants),
                         "metric_taxonomy_evidence": dict(metric_taxonomy_evidence),
                         "metric_taxonomy_diagnostics": list(metric_taxonomy_diagnostics),
@@ -7399,7 +7591,8 @@ class NaturalLanguageRunMixin:
             scientist_progress_bridge.start()
             try:
                 final_state = run_experiment(
-                    state_payload, store=self._artifact_store,
+                    state_payload,
+                    store=self._artifact_store,
                     epoch_certificate_issuance_owner=self._epoch_certificate_issuance_owner,
                 )
             except Exception as exc:
@@ -7428,13 +7621,13 @@ class NaturalLanguageRunMixin:
                 )
                 workflow_report_id = _artifact_id_from_ref_payload(workflow_report_ref)
                 if workflow_report_id:
+                    workflow_report_artifact_ref = _artifact_ref_from_ref_payload(
+                        workflow_report_ref,
+                        artifact_id=workflow_report_id,
+                        kind="scientist.workflow_report",
+                    )
                     workflow_report = from_canonical_bytes(
-                        self._artifact_store.get_bytes(
-                            _make_artifact_ref(
-                                workflow_report_id,
-                                kind="scientist.workflow_report",
-                            ).artifact_id
-                        )
+                        self._artifact_store.get_bytes(workflow_report_artifact_ref)
                     )
                     if isinstance(workflow_report, Mapping):
                         workflow_status = str(workflow_report.get("status") or "")
@@ -8475,7 +8668,7 @@ class NaturalLanguageRunMixin:
                                     )
                                 ),
                                 "latency_ms": float(variant.get("latency_ms") or 0.0),
-                                "cost_usd": float(variant.get("cost_usd") or 0.0),
+                                "cost_usd": _cost_number(variant.get("cost_usd")),
                                 "selected_variant_quality": 1.0
                                 if variant is selected_variant
                                 and policy_grounding_matrix.get("status") == "pass"

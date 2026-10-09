@@ -884,7 +884,7 @@ def load_intervention_cost_manifold(
     ref: InterventionCostManifoldRef,
 ) -> InterventionCostManifold:
     """Load a persisted manifold."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return InterventionCostManifold.model_validate(payload)
 
 
@@ -914,7 +914,7 @@ def load_optimal_recourse_query(
     ref: OptimalRecourseInterventionQueryRef,
 ) -> OptimalRecourseInterventionQuery:
     """Load a persisted optimal-recourse query."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return OptimalRecourseInterventionQuery.model_validate(payload)
 
 
@@ -944,7 +944,7 @@ def load_recourse_proof_bundle(
     ref: RecourseProofBundleRef,
 ) -> RecourseProofBundle:
     """Load a persisted recourse proof bundle."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return RecourseProofBundle.model_validate(payload)
 
 
@@ -974,7 +974,7 @@ def load_feasibility_certificate(
     ref: RecourseFeasibilityCertificateRef,
 ) -> RecourseFeasibilityCertificate:
     """Load a persisted feasibility certificate."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return RecourseFeasibilityCertificate.model_validate(payload)
 
 
@@ -1004,7 +1004,7 @@ def load_recourse_bundle(
     ref: OptimalRecourseInterventionBundleRef,
 ) -> OptimalRecourseInterventionBundle:
     """Load a persisted optimal-recourse planning bundle."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return OptimalRecourseInterventionBundle.model_validate(payload)
 
 

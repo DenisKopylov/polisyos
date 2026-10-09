@@ -236,7 +236,7 @@ def persist_backtest_report(
 
 def load_backtest_report(store: ArtifactStore, ref: BacktestReportRef) -> BacktestReport:
     """Load backtest report."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return BacktestReport.model_validate(payload)
 
 

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pandas as pd
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.fairness_audit_report import (
     load_fairness_audit_report,
@@ -287,8 +289,8 @@ def test_fairness_audit_report_persists_roundtrip(tmp_path) -> None:
     )
     store = FileSystemCAS(tmp_path)
 
-    ref = persist_fairness_audit_report(store, result.report)
-    loaded = load_fairness_audit_report(store, ref)
+    ref = persist_fairness_audit_report(_ensure_ir_artifact_store(store), result.report)
+    loaded = load_fairness_audit_report(_ensure_ir_artifact_store(store), ref)
 
     assert ref.kind == "scientist.fairness_audit_report"
     assert loaded == result.report

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -17,8 +18,6 @@ from polisyos.core.contracts.foundry import (
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.ir.analytics.metric_validation_report import load_metric_validation_report
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.simulate.run_metric_validation import RunMetricValidationNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_METRIC_OBSERVATION_BUNDLE_REF,
@@ -26,6 +25,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_METRICS_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.validation.metrics import persist_metric_observation_bundle
 
 
@@ -115,7 +116,7 @@ def test_run_metric_validation_node_persists_report_and_updates_simulation_resul
 
     assert outcome.status == "ok"
     metric_validation_ref = outcome.state.artifacts_index[ARTIFACT_METRIC_VALIDATION_REPORT_REF]
-    report = load_metric_validation_report(store, metric_validation_ref)
+    report = load_metric_validation_report(_ensure_ir_artifact_store(store), metric_validation_ref)
     assert report.dataset_id == "holdout_v1"
     assert {comparison.metric_id for comparison in report.comparisons} == {"roc_auc", "accuracy"}
 

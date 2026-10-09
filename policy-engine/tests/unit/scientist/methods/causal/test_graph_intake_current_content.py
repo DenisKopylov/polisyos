@@ -8,6 +8,7 @@ import logging
 import pytest
 
 from polisyos.core.artifacts import ArtifactRef, PutOptions, SchemaInfo
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import CanonSpec
 from polisyos.core.registry import build_default_registry_bundle
@@ -96,7 +97,9 @@ def state_for(job):
 def fresh(ctx, outcome):
     assert outcome.status == "ok", outcome.error
     ref = outcome.state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF]
-    return ref, load_causal_graph_model(FileSystemCAS(ctx.store.root), ref)
+    return ref, load_causal_graph_model(
+        _ensure_ir_artifact_store(FileSystemCAS(ctx.store.root)), ref
+    )
 
 
 def relations(value):
@@ -123,7 +126,7 @@ def scored_mgraph():
 def test_mgraph_producer_and_node_refuse_without_retyping_or_publishing(context):
     """The actual missingness reader survives refusal of static reconciliation."""
     source_graph = scored_mgraph()
-    original = persist_causal_graph_model(context.store, source_graph)
+    original = persist_causal_graph_model(_ensure_ir_artifact_store(context.store), source_graph)
     job, _ = produce(context, source_graph)
     direct = ReconcileCausalGraphNode().execute(
         context,
@@ -136,7 +139,9 @@ def test_mgraph_producer_and_node_refuse_without_retyping_or_publishing(context)
     assert direct.status == "fail" and not direct.artifacts, direct
     assert "Unsupported graph reconciliation profile" in direct.error.message
     assert ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF not in direct.state.artifacts_index
-    reopened = load_causal_graph_model(FileSystemCAS(context.store.root), original)
+    reopened = load_causal_graph_model(
+        _ensure_ir_artifact_store(FileSystemCAS(context.store.root)), original
+    )
     assert reopened == source_graph
     assert relations(reopened) == {
         ("X", "Y", "tail", "arrow", None),
@@ -166,7 +171,7 @@ def test_same_admg_shape_has_real_producer_node_and_fresh_reader(context):
 def test_retagged_mgraph_refuses_all_current_intakes_without_publication(context, encoding):
     """A genuine typed contract cannot be hidden by changing only its type tag."""
     original_graph = scored_mgraph()
-    original = persist_causal_graph_model(context.store, original_graph)
+    original = persist_causal_graph_model(_ensure_ir_artifact_store(context.store), original_graph)
     value = original_graph.model_dump(mode="json")
     value["graph_type"] = "admg"
     if encoding == "json":
@@ -187,7 +192,7 @@ def test_retagged_mgraph_refuses_all_current_intakes_without_publication(context
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    selected = persist_causal_graph_model(context.store, source_graph)
+    selected = persist_causal_graph_model(_ensure_ir_artifact_store(context.store), source_graph)
     states = [
         ExperimentState(run_id="graph-content", params={"data_causal_graph": value}),
         ExperimentState(
@@ -213,10 +218,17 @@ def test_retagged_mgraph_refuses_all_current_intakes_without_publication(context
         assert outcome.state.artifacts_index.get(
             ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF
         ) == state.artifacts_index.get(ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF)
-    reopened = load_causal_graph_model(FileSystemCAS(context.store.root), original)
+    reopened = load_causal_graph_model(
+        _ensure_ir_artifact_store(FileSystemCAS(context.store.root)), original
+    )
     assert reopened == original_graph
     assert extract_mgraph_metadata(reopened) == extract_mgraph_metadata(original_graph)
-    assert load_causal_graph_model(FileSystemCAS(context.store.root), selected) == source_graph
+    assert (
+        load_causal_graph_model(
+            _ensure_ir_artifact_store(FileSystemCAS(context.store.root)), selected
+        )
+        == source_graph
+    )
 
 
 @pytest.mark.parametrize("payload", [None, False, "not-json", {"unrecognized": True}, {}])
@@ -293,7 +305,7 @@ def test_supplied_mgraph_result_and_selected_cache_apply_same_profile_boundary(c
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    original = persist_causal_graph_model(context.store, source_graph)
+    original = persist_causal_graph_model(_ensure_ir_artifact_store(context.store), source_graph)
     for key, ref in (
         (ARTIFACT_CAUSAL_METHOD_RESULT_REF, supplied),
         (ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF, original),
@@ -303,7 +315,9 @@ def test_supplied_mgraph_result_and_selected_cache_apply_same_profile_boundary(c
         )
         assert outcome.status == "fail" and not outcome.artifacts
         assert "Unsupported graph reconciliation profile" in outcome.error.message
-    reopened = load_causal_graph_model(FileSystemCAS(context.store.root), original)
+    reopened = load_causal_graph_model(
+        _ensure_ir_artifact_store(FileSystemCAS(context.store.root)), original
+    )
     assert reopened == source_graph
     assert extract_mgraph_metadata(reopened) == extract_mgraph_metadata(source_graph)
 
@@ -566,7 +580,7 @@ def composition_query_state(ctx):
         ("b", ("E", "Y"), ("E", "Y"), "in"),
     ]:
         source_graph = graph({"src": edge[0], "dst": edge[1]}, nodes=nodes)
-        graph_ref = persist_causal_graph_model(ctx.store, source_graph)
+        graph_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), source_graph)
         fragment = SCMFragment(
             fragment_id=name,
             graph_ref=str(graph_ref.artifact_id),
@@ -577,7 +591,7 @@ def composition_query_state(ctx):
             variable_definitions={"E": "Employment rate"},
             variable_units={"E": "percent"},
         )
-        refs.append(persist_scm_fragment(ctx.store, fragment))
+        refs.append(persist_scm_fragment(_ensure_ir_artifact_store(ctx.store), fragment))
     initial = ReconcileCausalGraphNode().execute(
         ctx,
         ExperimentState(
@@ -611,7 +625,7 @@ def test_query_only_replay_recomputes_operational_cache(context):
     first = ReconcileCausalGraphNode().execute(context, state)
     assert first.status == "ok", first.error
     ref = first.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF]
-    certificate = load_composition_certificate(context.store, ref)
+    certificate = load_composition_certificate(_ensure_ir_artifact_store(context.store), ref)
     assert certificate.checked_queries and set(certificate.checked_queries.values()) == {
         "preserved"
     }
@@ -627,12 +641,13 @@ def test_query_only_replay_recomputes_operational_cache(context):
     )
     changed = first.state.model_copy(deep=True)
     changed.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF] = persist_composition_certificate(
-        context.store, corrupted
+        _ensure_ir_artifact_store(context.store), corrupted
     )
     replay = ReconcileCausalGraphNode().execute(context, changed)
     assert replay.status == "ok", replay.error
     restored = load_composition_certificate(
-        context.store, replay.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF]
+        _ensure_ir_artifact_store(context.store),
+        replay.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF],
     )
     assert restored.checked_queries == certificate.checked_queries
     assert (
@@ -651,7 +666,8 @@ def test_query_only_replay_reconciles_current_alignment_result(context):
 
     state = composition_query_state(context)
     report = load_alignment_report(
-        context.store, state.artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF]
+        _ensure_ir_artifact_store(context.store),
+        state.artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF],
     )
     incompatible = report.model_copy(
         update={
@@ -660,7 +676,7 @@ def test_query_only_replay_reconciles_current_alignment_result(context):
         }
     )
     state.artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF] = persist_alignment_report(
-        context.store, incompatible
+        _ensure_ir_artifact_store(context.store), incompatible
     )
     result = ReconcileCausalGraphNode().execute(context, state)
     assert result.status == "fail" and not result.artifacts
@@ -687,10 +703,11 @@ def test_query_only_replay_reconciles_complete_certificate_projection(context, u
 
     state = composition_query_state(context)
     certificate = load_composition_certificate(
-        context.store, state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF]
+        _ensure_ir_artifact_store(context.store),
+        state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF],
     )
     state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF] = persist_composition_certificate(
-        context.store, certificate.model_copy(update=update)
+        _ensure_ir_artifact_store(context.store), certificate.model_copy(update=update)
     )
     result = ReconcileCausalGraphNode().execute(context, state)
     assert result.status == "fail" and not result.artifacts
@@ -725,13 +742,14 @@ def test_query_only_replay_reconciles_persisted_failure_card_body(context):
 
     state = composition_query_state(context)
     certificate = load_composition_certificate(
-        context.store, state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF]
+        _ensure_ir_artifact_store(context.store),
+        state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF],
     )
     altered = persist_composition_failure_card_bundle(
         context.store, CompositionFailureCardBundle(cards=[], metadata={"forged": True})
     )
     state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF] = persist_composition_certificate(
-        context.store,
+        _ensure_ir_artifact_store(context.store),
         certificate.model_copy(update={"failure_card_bundle_ref": str(altered.artifact_id)}),
     )
     result = ReconcileCausalGraphNode().execute(context, state)

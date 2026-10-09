@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Mapping
 from datetime import UTC, datetime
+from decimal import Decimal, InvalidOperation
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -34,6 +36,8 @@ IdentificationMode = observation.IdentificationMode
 
 SourceKind = Literal["core_run"]
 NodeStatus = Literal["ok", "skip", "fail", "unknown"]
+AgentPipelineCostOrigin = Literal["reported", "estimated", "reuse", "unknown"]
+AgentPipelineSettlementStatus = Literal["pending", "committed", "unknown", "unmanaged"]
 PreviewMode = Literal["json", "text", "binary"]
 VerificationStatus = Literal["verified", "pending", "disputed", "untraced"]
 LineageFreshness = Literal["current", "stale", "unknown"]
@@ -852,9 +856,7 @@ class EngineeringCapabilityAbsenceView(BaseModel):
 
     absence_class: Literal["engineering"] = "engineering"
     title: Literal["Engineering capability not wired"] = "Engineering capability not wired"
-    capability: Literal["epoch_inheritance_recompute_status"] = (
-        "epoch_inheritance_recompute_status"
-    )
+    capability: Literal["epoch_inheritance_recompute_status"] = "epoch_inheritance_recompute_status"
     missing_labels: tuple[Literal["producer_missing"], Literal["bridge_missing"]] = (
         "producer_missing",
         "bridge_missing",
@@ -862,9 +864,9 @@ class EngineeringCapabilityAbsenceView(BaseModel):
     candidate_owner_module: Literal["polisyos.runtime.quality.derived_observations"] = (
         "polisyos.runtime.quality.derived_observations"
     )
-    candidate_owner_path: Literal[
+    candidate_owner_path: Literal["src/polisyos/runtime/quality/derived_observations.py"] = (
         "src/polisyos/runtime/quality/derived_observations.py"
-    ] = "src/polisyos/runtime/quality/derived_observations.py"
+    )
     missing_output: str = Field(min_length=1)
     consequence: str = Field(min_length=1)
     closure_condition: str = Field(min_length=1)
@@ -905,10 +907,13 @@ class EpochStalenessProjectionView(BaseModel):
     temporal_scope: TemporalScope
     requested_query_context_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     owner_as_of: datetime | None = None
-    owner_time_reason: Literal[
-        "owner_time_not_established",
-        "epoch_scope_unresolved",
-    ] | None = None
+    owner_time_reason: (
+        Literal[
+            "owner_time_not_established",
+            "epoch_scope_unresolved",
+        ]
+        | None
+    ) = None
     observed_at: datetime
     status: EpochProjectionStatus
     current_epoch_ref: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
@@ -940,8 +945,7 @@ class EpochStalenessProjectionView(BaseModel):
         if self.status == "current" and (
             self.current_epoch_ref is None
             or self.institutional_absences
-            or self.predicate_provenance
-            not in {"recomputed", "independently_reconciled"}
+            or self.predicate_provenance not in {"recomputed", "independently_reconciled"}
         ):
             raise ValueError("current epoch requires reconciled owner evidence")
         if self.projection_semantic_hash != epoch_staleness_semantic_hash(self):
@@ -1895,6 +1899,381 @@ class RunOperatorDiagnostic(BaseModel):
     projection_labels: list[RunOperatorProjectionStateLabel] = Field(default_factory=list)
 
 
+class RunCandidateSimulationN5Observation(BaseModel):
+    """One typed N5 observation projected from a persisted recursive run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    node_ref: str = Field(min_length=1)
+    design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    design_problem_basis_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    cycle_index: int | None = Field(default=None, ge=0)
+    candidate_id: str | None = Field(default=None, min_length=1)
+    atom_ids: tuple[str, ...] = ()
+    selected_outcomes: tuple[str, ...] = ()
+    status: Literal["joint_simulated", "simulation_pending_n5", "simulation_blocked"]
+    simulation_ref: str | None = None
+    simulation_result_ref: ArtifactRef | None = None
+    n4_source_ref: ArtifactRef | None = None
+    context_job_ref: ArtifactRef | None = None
+    n5_input_ref: ArtifactRef | None = None
+    profile_config_ref: str | None = Field(default=None, min_length=1)
+    profile_selection_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    lineage_status: Literal["resolved", "not_established"] | None = None
+    lineage_limitation_code: str | None = Field(default=None, min_length=1)
+    currentness_status: Literal["not_established"] = "not_established"
+    world_model_record_content_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    k_world_ref_before: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    k_world_ref_after: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    authority_blockers: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def _verify_n4_n5_lineage_projection(self) -> RunCandidateSimulationN5Observation:
+        refs = (self.n4_source_ref, self.context_job_ref, self.n5_input_ref)
+        if any(ref is not None for ref in refs):
+            source, context, n5_input = refs
+            if (
+                source is None
+                or source.kind
+                not in {
+                    "runtime.generation_source_handoff",
+                    "runtime.quality.n4_candidate_scenario_source",
+                }
+                or source.media_type != "application/json"
+                or context is None
+                or context.kind != "runtime.quality.cycle_substrate_context_job"
+                or context.media_type != "application/json"
+                or n5_input is None
+                or n5_input.kind != "runtime.quality.candidate_simulation_n5_input"
+                or n5_input.media_type != "application/json"
+                or self.profile_config_ref is None
+                or self.profile_selection_ref is None
+                or self.lineage_status is None
+            ):
+                raise ValueError("run_n5_lineage_projection_incomplete")
+        if self.lineage_status == "resolved" and self.lineage_limitation_code is not None:
+            raise ValueError("run_n5_lineage_resolved_with_limitation")
+        if self.lineage_status == "not_established" and self.lineage_limitation_code is None:
+            raise ValueError("run_n5_lineage_limitation_missing")
+        return self
+
+
+class RunRecursiveCycleBranchFailure(BaseModel):
+    """Exact producer failure carried by a bounded partial recursive run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    failed_branch_ref: str = Field(min_length=1)
+    origin_node_ref: str = Field(min_length=1)
+    stage: str = Field(min_length=1)
+    exception_type: str = Field(min_length=1)
+    error_code: str | None = Field(default=None, min_length=1)
+    error_message: str
+
+
+class RunRecursiveCycleCheckpoint(BaseModel):
+    """Read-only checkpoint from an incomplete persisted recursive traversal."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal[
+        "policyos.runtime.recursive_cycle_checkpoint.v1",
+        "policyos.runtime.recursive_cycle_checkpoint.v2",
+    ] = "policyos.runtime.recursive_cycle_checkpoint.v1"
+    status: Literal["partial"] = "partial"
+    publication_authority: Literal[False] = False
+    budget_stop_node_ref: str | None = Field(default=None, min_length=1)
+    pending_frontier: tuple[str, ...] = ()
+    completed_design_refs: tuple[str, ...] = ()
+    root_n9_status: Literal["not_run"] = "not_run"
+    leaf_terminal_kinds: dict[str, str] = Field(default_factory=dict)
+    failed_branches: tuple[RunRecursiveCycleBranchFailure, ...] = ()
+
+    @model_validator(mode="after")
+    def _verify_checkpoint_shape(self) -> RunRecursiveCycleCheckpoint:
+        if self.schema_version.endswith(".v1"):
+            if self.budget_stop_node_ref is None or self.failed_branches:
+                raise ValueError("recursive_cycle_budget_checkpoint_shape_invalid")
+        elif self.budget_stop_node_ref is not None or not self.failed_branches:
+            raise ValueError("recursive_cycle_failure_checkpoint_shape_invalid")
+        return self
+
+
+class RunCandidateSimulationChildProfileBinding(BaseModel):
+    """Historical child profile/context binding with currentness left unestablished."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    node_ref: str = Field(min_length=1)
+    design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    root_n4_source_ref: ArtifactRef
+    context_job_ref: ArtifactRef
+    context_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    profile_id: str = Field(min_length=1)
+    profile_config_ref: str = Field(min_length=1)
+    profile_selection_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    model_declaration_ref: ArtifactRef | None = None
+    ncm_ref: ArtifactRef | None = None
+    job_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    tenant_id: str = Field(min_length=1)
+    cell_id: str = Field(min_length=1)
+    historical_binding_status: Literal["resolved", "not_established"]
+    limitation_code: str | None = Field(default=None, min_length=1)
+    currentness_status: Literal["not_established"] = "not_established"
+
+    @model_validator(mode="after")
+    def _verify_profile_binding_refs(self) -> RunCandidateSimulationChildProfileBinding:
+        expected_node_ref = "design-problem://" + self.design_problem_ref.removeprefix("sha256:")
+        if (
+            self.node_ref != expected_node_ref
+            or self.root_n4_source_ref.kind != "runtime.generation_source_handoff"
+            or self.root_n4_source_ref.media_type != "application/json"
+            or self.context_job_ref.kind != "runtime.quality.cycle_substrate_context_job"
+            or self.context_job_ref.media_type != "application/json"
+            or (self.historical_binding_status == "resolved" and self.limitation_code is not None)
+            or (
+                self.historical_binding_status == "not_established" and self.limitation_code is None
+            )
+        ):
+            raise ValueError("run_candidate_simulation_child_profile_binding_invalid")
+        return self
+
+
+class RunCandidateSimulationAcquisitionHistoryEntry(BaseModel):
+    """Persisted acquisition action facts projected as candidate history only."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    route_receipt_ref: ArtifactRef
+    reentry_receipt_ref: ArtifactRef | None = None
+    route_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    action_generation: int = Field(ge=1)
+    terminal_outcome: Literal["reentry_completed", "quarantined_no_growth"]
+    old_candidate_id: str | None = Field(default=None, min_length=1)
+    new_candidate_id: str | None = Field(default=None, min_length=1)
+    new_candidate_source_ref: ArtifactRef | None = None
+    origin_source_ref: ArtifactRef | None = None
+    currentness_status: Literal["not_established"] = "not_established"
+    authority_purpose: Literal["candidate_observation_only"] = "candidate_observation_only"
+    publication_authority: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _verify_history_refs(self) -> RunCandidateSimulationAcquisitionHistoryEntry:
+        if (
+            self.route_receipt_ref.kind != "runtime_quality.acquisition_route_loop_receipt"
+            or self.route_receipt_ref.media_type != "application/json"
+            or (
+                self.reentry_receipt_ref is not None
+                and (
+                    self.reentry_receipt_ref.kind
+                    != "runtime_quality.acquisition_overlay_reentry_receipt"
+                    or self.reentry_receipt_ref.media_type != "application/json"
+                )
+            )
+            or (
+                self.new_candidate_source_ref is not None
+                and (
+                    self.new_candidate_source_ref.kind
+                    != "runtime.quality.n4_candidate_scenario_source"
+                    or self.new_candidate_source_ref.media_type != "application/json"
+                )
+            )
+            or (
+                self.origin_source_ref is not None
+                and (
+                    self.origin_source_ref.kind != "runtime.quality.n4_candidate_scenario_source"
+                    or self.origin_source_ref.media_type != "application/json"
+                )
+            )
+        ):
+            raise ValueError("candidate_acquisition_history_ref_invalid")
+        reentry_fields = (
+            self.reentry_receipt_ref,
+            self.old_candidate_id,
+            self.new_candidate_id,
+            self.new_candidate_source_ref,
+        )
+        if self.terminal_outcome == "reentry_completed" and any(
+            value is None for value in reentry_fields
+        ):
+            raise ValueError("candidate_acquisition_reentry_binding_incomplete")
+        if self.terminal_outcome == "quarantined_no_growth" and any(
+            value is not None for value in reentry_fields
+        ):
+            raise ValueError("candidate_acquisition_quarantine_claims_reentry")
+        return self
+
+
+class RunCandidateSimulationProjection(BaseModel):
+    """Source-bound candidate observations exposed for display, never authority."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal["policyos.runtime.run_candidate_simulation_projection.v1"] = (
+        "policyos.runtime.run_candidate_simulation_projection.v1"
+    )
+    run_id: str = Field(min_length=1)
+    artifact_status: Literal["resolved", "not_established"]
+    authority_purpose: Literal["candidate_observation_only"] = "candidate_observation_only"
+    publication_authority: Literal[False] = False
+    source_ref: ArtifactRef | None = None
+    source_content_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    n4_recursive_source_ref: ArtifactRef | None = None
+    n4_recursive_source_content_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    n4_recursive_source_status: Literal["resolved", "not_established"] | None = None
+    n4_recursive_source_limitation_code: str | None = Field(default=None, min_length=1)
+    n4_recursive_source_result_status: (
+        Literal[
+            "generated",
+            "generation_unavailable",
+            "preflight_rejected",
+        ]
+        | None
+    ) = None
+    n4_recursive_source_currentness_status: Literal["not_established"] = "not_established"
+    n4_recursive_source_context_job_ref: ArtifactRef | None = None
+    n4_recursive_source_profile_config_ref: str | None = Field(default=None, min_length=1)
+    n4_recursive_source_profile_selection_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    n4_child_profile_status: (
+        Literal[
+            "not_attempted",
+            "resolved",
+            "not_established",
+        ]
+        | None
+    ) = None
+    n4_child_profile_limitation_code: str | None = Field(default=None, min_length=1)
+    n4_child_profile_bindings: tuple[RunCandidateSimulationChildProfileBinding, ...] = ()
+    limitation_code: (
+        Literal[
+            "compiled_cycle_artifact_ambiguous",
+            "compiled_cycle_artifact_ref_invalid",
+            "compiled_cycle_artifact_integrity_not_established",
+            "compiled_cycle_artifact_content_invalid",
+            "n5_observation_not_emitted",
+            "n5_result_reference_not_established",
+        ]
+        | None
+    ) = None
+    n5_observations: tuple[RunCandidateSimulationN5Observation, ...] = ()
+    recursive_cycle_checkpoint: RunRecursiveCycleCheckpoint | None = None
+    acquisition_history: tuple[RunCandidateSimulationAcquisitionHistoryEntry, ...] = ()
+    acquisition_history_limitation_code: (
+        Literal[
+            "acquisition_n4_source_not_established",
+            "acquisition_action_history_not_observed",
+            "acquisition_action_history_incomplete",
+            "acquisition_action_history_integrity_not_established",
+            "acquisition_reentry_source_not_established",
+        ]
+        | None
+    ) = None
+
+    @model_validator(mode="after")
+    def _verify_candidate_projection_source(self) -> RunCandidateSimulationProjection:
+        if self.artifact_status == "resolved":
+            if (
+                self.source_ref is None
+                or self.source_ref.kind != "runtime.compiled_recursive_generation_cycle"
+                or self.source_content_hash is None
+                or self.limitation_code
+                in {
+                    "compiled_cycle_artifact_ambiguous",
+                    "compiled_cycle_artifact_ref_invalid",
+                    "compiled_cycle_artifact_integrity_not_established",
+                    "compiled_cycle_artifact_content_invalid",
+                }
+            ):
+                raise ValueError("candidate_projection_resolved_source_missing")
+            if self.n4_recursive_source_status == "resolved" and (
+                self.n4_recursive_source_ref is None
+                or self.n4_recursive_source_content_hash is None
+                or self.n4_recursive_source_result_status is None
+                or self.n4_recursive_source_context_job_ref is None
+                or self.n4_recursive_source_profile_config_ref is None
+                or self.n4_recursive_source_profile_selection_ref is None
+                or self.n4_recursive_source_limitation_code is not None
+            ):
+                raise ValueError("candidate_projection_n4_source_resolved_binding_missing")
+            if self.n4_recursive_source_status == "not_established" and (
+                self.n4_recursive_source_content_hash is not None
+                or self.n4_recursive_source_limitation_code is None
+            ):
+                raise ValueError("candidate_projection_n4_source_refusal_not_fail_closed")
+            if self.n4_child_profile_status == "resolved" and (
+                self.n4_child_profile_limitation_code is not None
+                or not self.n4_child_profile_bindings
+                or any(
+                    row.historical_binding_status != "resolved"
+                    for row in self.n4_child_profile_bindings
+                )
+            ):
+                raise ValueError("candidate_projection_child_profile_resolved_with_limitation")
+            if self.n4_child_profile_status == "not_established" and (
+                self.n4_child_profile_limitation_code is None
+            ):
+                raise ValueError("candidate_projection_child_profile_limitation_missing")
+            if self.n4_child_profile_status in {None, "not_attempted"} and (
+                self.n4_child_profile_limitation_code is not None
+            ):
+                raise ValueError("candidate_projection_unexpected_child_profile_limitation")
+            if (
+                self.limitation_code == "n5_result_reference_not_established"
+                and self.n5_observations
+            ):
+                raise ValueError("candidate_projection_unverified_n5_observation_present")
+            if self.limitation_code == "n5_observation_not_emitted" and self.n5_observations:
+                raise ValueError("candidate_projection_empty_n5_observation_mismatch")
+            if self.acquisition_history and self.acquisition_history_limitation_code is not None:
+                raise ValueError("candidate_projection_acquisition_history_mixed_refusal")
+            return self
+        if (
+            self.source_content_hash is not None
+            or self.n4_recursive_source_content_hash is not None
+            or self.n4_recursive_source_status is not None
+            or self.n4_child_profile_status is not None
+            or self.n4_child_profile_bindings
+            or self.n5_observations
+            or self.recursive_cycle_checkpoint is not None
+            or self.acquisition_history
+            or self.acquisition_history_limitation_code is not None
+            or self.limitation_code
+            not in {
+                "compiled_cycle_artifact_ambiguous",
+                "compiled_cycle_artifact_ref_invalid",
+                "compiled_cycle_artifact_integrity_not_established",
+                "compiled_cycle_artifact_content_invalid",
+            }
+        ):
+            raise ValueError("candidate_projection_refusal_not_fail_closed")
+        return self
+
+
 class RunDetails(RunRecordV1):
     """Run details public type."""
 
@@ -1911,6 +2290,7 @@ class RunDetails(RunRecordV1):
     decision_superseded_by_ref: ArtifactRef | None = None
     operator_diagnostic: RunOperatorDiagnostic | None = None
     policy_design_case_projection: PolicyDesignCaseProjection | None = None
+    candidate_simulation: RunCandidateSimulationProjection | None = None
 
 
 class RunTimelineEvent(BaseModel):
@@ -2052,6 +2432,122 @@ class RunErrorView(BaseModel):
     details: dict[str, Any] = Field(default_factory=dict)
 
 
+class AgentPipelineCostEvent(BaseModel):
+    """One persisted provider settlement or authenticated reuse event."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    event_id: str = Field(min_length=1)
+    origin_event_id: str | None = Field(default=None, min_length=1)
+    cost_origin: AgentPipelineCostOrigin
+    amount: Decimal | None = Field(default=None, ge=0)
+    cost_usd: float | None = Field(default=None, ge=0.0)
+    settlement_status: AgentPipelineSettlementStatus
+    durability: Literal["ledger", "memory", "none"] | None = None
+    receipts: tuple[str, ...] = ()
+    payload_digest: str | None = Field(default=None, min_length=1)
+    model: str | None = None
+    provider: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _derive_compatibility_cost(cls, value: object) -> object:
+        if not isinstance(value, Mapping):
+            return value
+        normalized = dict(value)
+        if "amount" not in normalized:
+            normalized["amount"] = normalized.get("cost_usd")
+        if "cost_usd" not in normalized:
+            raw_amount = normalized.get("amount")
+            if raw_amount is not None:
+                try:
+                    normalized["cost_usd"] = float(Decimal(str(raw_amount)))
+                except (InvalidOperation, ValueError, TypeError, OverflowError):
+                    normalized["cost_usd"] = None
+        return normalized
+
+    @model_validator(mode="after")
+    def _verify_cost_event_semantics(self) -> AgentPipelineCostEvent:
+        if self.amount is not None and (not self.amount.is_finite() or self.amount < 0):
+            raise ValueError("producer_cost_amount_must_be_finite_and_nonnegative")
+        if (
+            self.amount is not None
+            and self.cost_usd is not None
+            and (Decimal(str(self.cost_usd)) != self.amount)
+        ):
+            raise ValueError("producer_cost_compatibility_projection_mismatch")
+        if self.cost_origin == "unknown" and (self.amount is not None or self.cost_usd is not None):
+            raise ValueError("unknown_cost_origin_cannot_carry_amount")
+        if self.cost_origin in {"reported", "estimated"} and (
+            self.amount is None or self.cost_usd is None
+        ):
+            raise ValueError("known_cost_origin_requires_amount")
+        if self.cost_origin == "reuse" and (
+            self.amount != Decimal(0) or self.cost_usd != 0.0 or self.origin_event_id is None
+        ):
+            raise ValueError("reuse_cost_requires_exact_zero_and_origin_event")
+        if self.settlement_status == "committed" and (
+            self.durability is None or self.durability == "none" or self.amount is None
+        ):
+            raise ValueError("committed_cost_event_lacks_durable_known_outcome")
+        return self
+
+
+def _agent_pipeline_cost_projection(
+    events: list[AgentPipelineCostEvent],
+) -> dict[str, Any]:
+    """Derive aggregate amounts and origin counts from the complete event rows."""
+    cost_origin_counts: dict[str, int] = {}
+    settlement_status_counts: dict[str, int] = {}
+    reported_cost_usd = 0.0
+    estimated_cost_usd = 0.0
+    cost_is_unknown = False
+    total_cost_usd = 0.0
+    for event in events:
+        cost_origin_counts[event.cost_origin] = cost_origin_counts.get(event.cost_origin, 0) + 1
+        settlement_status_counts[event.settlement_status] = (
+            settlement_status_counts.get(event.settlement_status, 0) + 1
+        )
+        if event.cost_origin == "reported" and event.cost_usd is not None:
+            reported_cost_usd += event.cost_usd
+        if event.cost_origin == "estimated" and event.cost_usd is not None:
+            estimated_cost_usd += event.cost_usd
+        if (
+            event.cost_origin == "unknown"
+            or event.settlement_status in {"pending", "unknown"}
+            or event.cost_usd is None
+        ):
+            cost_is_unknown = True
+        elif event.cost_origin in {"reported", "estimated", "reuse"}:
+            total_cost_usd += event.cost_usd
+    origins = set(cost_origin_counts)
+    return {
+        "cost_usd": None if cost_is_unknown else total_cost_usd,
+        "reported_cost_usd": reported_cost_usd,
+        "estimated_cost_usd": estimated_cost_usd,
+        "cost_origin": next(iter(origins)) if len(origins) == 1 else None,
+        "cost_origin_counts": cost_origin_counts,
+        "settlement_status_counts": settlement_status_counts,
+        "settlement_event_ids": tuple(event.event_id for event in events),
+    }
+
+
+def _cost_events_from_pipeline_steps(steps: object) -> list[AgentPipelineCostEvent]:
+    """Read already validated per-call events from step payloads."""
+    events: list[AgentPipelineCostEvent] = []
+    if not isinstance(steps, (list, tuple)):
+        return events
+    for raw_step in steps:
+        if isinstance(raw_step, AgentPipelineStep):
+            events.extend(raw_step.cost_events)
+            continue
+        if isinstance(raw_step, Mapping):
+            raw_events = raw_step.get("cost_events")
+            if isinstance(raw_events, (list, tuple)):
+                events.extend(AgentPipelineCostEvent.model_validate(row) for row in raw_events)
+    return events
+
+
 class AgentPipelineStep(BaseModel):
     """Agent pipeline step public type."""
 
@@ -2071,7 +2567,27 @@ class AgentPipelineStep(BaseModel):
     model_variant_id: str | None = None
     latency_ms: int | None = Field(default=None, ge=0)
     cost_usd: float | None = Field(default=None, ge=0.0)
+    reported_cost_usd: float | None = Field(default=None, ge=0.0)
+    estimated_cost_usd: float | None = Field(default=None, ge=0.0)
+    cost_origin: AgentPipelineCostOrigin | None = None
+    cost_origin_counts: dict[AgentPipelineCostOrigin, int] = Field(default_factory=dict)
+    settlement_status_counts: dict[AgentPipelineSettlementStatus, int] = Field(default_factory=dict)
+    settlement_event_ids: tuple[str, ...] = ()
+    cost_events: list[AgentPipelineCostEvent] = Field(default_factory=list)
     token_usage: dict[str, int] = Field(default_factory=dict)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _derive_cost_summary_from_events(cls, value: object) -> object:
+        if not isinstance(value, Mapping):
+            return value
+        raw_events = value.get("cost_events")
+        if not isinstance(raw_events, (list, tuple)) or not raw_events:
+            return value
+        events = [AgentPipelineCostEvent.model_validate(row) for row in raw_events]
+        normalized = dict(value)
+        normalized.update(_agent_pipeline_cost_projection(events))
+        return normalized
 
 
 class AgentPipelineAttempt(BaseModel):
@@ -2085,8 +2601,27 @@ class AgentPipelineAttempt(BaseModel):
     started_at: datetime | None = None
     finished_at: datetime | None = None
     duration_ms: int | None = Field(default=None, ge=0)
+    cost_usd: float | None = Field(default=None, ge=0.0)
+    reported_cost_usd: float | None = Field(default=None, ge=0.0)
+    estimated_cost_usd: float | None = Field(default=None, ge=0.0)
+    cost_origin_counts: dict[AgentPipelineCostOrigin, int] = Field(default_factory=dict)
+    settlement_status_counts: dict[AgentPipelineSettlementStatus, int] = Field(default_factory=dict)
     steps: list[AgentPipelineStep] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _derive_cost_summary_from_steps(cls, value: object) -> object:
+        if not isinstance(value, Mapping):
+            return value
+        events = _cost_events_from_pipeline_steps(value.get("steps"))
+        if not events:
+            return value
+        normalized = dict(value)
+        normalized.update(_agent_pipeline_cost_projection(events))
+        normalized.pop("cost_origin", None)
+        normalized.pop("settlement_event_ids", None)
+        return normalized
 
 
 class RetrievalPhaseTelemetry(BaseModel):
@@ -2289,6 +2824,11 @@ class AgentPipelineView(BaseModel):
     run_id: str
     source_kind: SourceKind
     total_attempts: int = Field(default=0, ge=0)
+    cost_usd: float | None = Field(default=None, ge=0.0)
+    reported_cost_usd: float | None = Field(default=None, ge=0.0)
+    estimated_cost_usd: float | None = Field(default=None, ge=0.0)
+    cost_origin_counts: dict[AgentPipelineCostOrigin, int] = Field(default_factory=dict)
+    settlement_status_counts: dict[AgentPipelineSettlementStatus, int] = Field(default_factory=dict)
     latest_verdict: str | None = None
     attempts: list[AgentPipelineAttempt] = Field(default_factory=list)
     decision_packet_ref: ArtifactRef | None = None
@@ -2303,6 +2843,27 @@ class AgentPipelineView(BaseModel):
     performance_summary: dict[str, Any] | None = None
     source: str | None = None
     notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _derive_cost_summary_from_attempts(cls, value: object) -> object:
+        if not isinstance(value, Mapping):
+            return value
+        events: list[AgentPipelineCostEvent] = []
+        raw_attempts = value.get("attempts")
+        if isinstance(raw_attempts, (list, tuple)):
+            for raw_attempt in raw_attempts:
+                if isinstance(raw_attempt, AgentPipelineAttempt):
+                    events.extend(event for step in raw_attempt.steps for event in step.cost_events)
+                elif isinstance(raw_attempt, Mapping):
+                    events.extend(_cost_events_from_pipeline_steps(raw_attempt.get("steps")))
+        if not events:
+            return value
+        normalized = dict(value)
+        normalized.update(_agent_pipeline_cost_projection(events))
+        normalized.pop("cost_origin", None)
+        normalized.pop("settlement_event_ids", None)
+        return normalized
 
 
 class RunWorkflowNodeView(BaseModel):
@@ -2920,6 +3481,7 @@ class FeedbackActionResponse(BaseModel):
 
 __all__ = [
     "AgentPipelineAttempt",
+    "AgentPipelineCostEvent",
     "AgentPipelineResponse",
     "AgentPipelineStep",
     "AgentPipelineView",
@@ -3037,6 +3599,10 @@ __all__ = [
     "ReproducibilityView",
     "RetrievalPhaseTelemetry",
     "RetrievalTelemetryView",
+    "RunCandidateSimulationAcquisitionHistoryEntry",
+    "RunCandidateSimulationChildProfileBinding",
+    "RunCandidateSimulationN5Observation",
+    "RunCandidateSimulationProjection",
     "RunCompareResponse",
     "RunCompareView",
     "RunDetails",
@@ -3059,6 +3625,8 @@ __all__ = [
     "RunOperatorProjectionStateLabel",
     "RunQuantitiesResponse",
     "RunRecordV1",
+    "RunRecursiveCycleBranchFailure",
+    "RunRecursiveCycleCheckpoint",
     "RunSummary",
     "RunTimelineEvent",
     "RunTimelineResponse",

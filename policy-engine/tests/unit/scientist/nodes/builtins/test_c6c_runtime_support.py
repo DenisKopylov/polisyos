@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from decimal import Decimal
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.foundry import (
     LoweredIR,
@@ -24,14 +25,14 @@ from polisyos.ir.analytics.abstraction import (
 from polisyos.ir.governance.policy_spec import InterventionSpec, ParameterSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ObjectiveSpec, ProblemDomain, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
-from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperator
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
     build_policy_parameter_override_bundle,
     build_runtime_abstraction_metadata,
 )
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_ABSTRACTION_CERTIFICATE_REF
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.policy_design.schema import (
     ParameterScheduleEntry,
     PolicyCandidateSchema,
@@ -174,7 +175,7 @@ def test_build_runtime_abstraction_metadata_includes_continuous_error_bound_spec
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.runtime"))
 
     abstraction_map_ref = persist_finite_state_abstraction_map(
-        store,
+        _ensure_ir_artifact_store(store),
         FiniteStateAbstractionMap(
             variable_maps=(
                 VariableStateAbstraction(
@@ -186,7 +187,7 @@ def test_build_runtime_abstraction_metadata_includes_continuous_error_bound_spec
         ),
     )
     certificate_ref = persist_abstraction_certificate(
-        store,
+        _ensure_ir_artifact_store(store),
         AbstractionCertificate(
             micro_graph_ref={
                 "artifact_id": "sha256:" + "a" * 64,

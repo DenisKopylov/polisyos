@@ -265,9 +265,7 @@ class EvaluationSafetyReplayMaterial:
 class EvaluationSafetyCurrentStateResolver(Protocol):
     """Resolve the current raw replay material for one immediate consumer call."""
 
-    def resolve(
-        self, context: EvaluationExecutionContext
-    ) -> EvaluationSafetyReplayMaterial | None:
+    def resolve(self, context: EvaluationExecutionContext) -> EvaluationSafetyReplayMaterial | None:
         """Return the current explicit authority material for ``context``."""
 
 
@@ -328,9 +326,7 @@ class EvaluationSafetyPersistenceService:
                 "pass" if intake.mode_resolution.status == "accepted" else "blocked"
             ),
             blocking_status=(
-                "non_blocking"
-                if intake.mode_resolution.status == "accepted"
-                else "blocking"
+                "non_blocking" if intake.mode_resolution.status == "accepted" else "blocking"
             ),
         )
         intake_ref = self._verified_eval_ref(
@@ -413,13 +409,9 @@ class EvaluationSafetyPersistenceService:
                 payload=admitted_pack.model_dump(mode="json"),
                 context=context,
                 input_refs=(request_ref,),
-                validation_status=(
-                    "pass" if admitted_pack.status == "admitted" else "blocked"
-                ),
+                validation_status=("pass" if admitted_pack.status == "admitted" else "blocked"),
                 blocking_status=(
-                    "non_blocking"
-                    if admitted_pack.status == "admitted"
-                    else "blocking"
+                    "non_blocking" if admitted_pack.status == "admitted" else "blocking"
                 ),
             )
             pack_admission_ref = self._verified_eval_ref(
@@ -466,8 +458,12 @@ class EvaluationSafetyPersistenceService:
             classification = None
             if source is not None:
                 classification_offer_ref, classification = self._classify_promotion_source(
-                    source=source, sources=promotion_sources, intake=intake,
-                    core=core, context=context, evaluated_at=evaluated_at,
+                    source=source,
+                    sources=promotion_sources,
+                    intake=intake,
+                    core=core,
+                    context=context,
+                    evaluated_at=evaluated_at,
                 )
                 if classification is None:
                     reasons.append("canonical_promotion_replay_not_established")
@@ -559,8 +555,13 @@ class EvaluationSafetyPersistenceService:
         )
 
     def _read_promotion_source_json(
-        self, artifact_ref: str | ArtifactRef, *, kind: str, schema_name: str,
-        inputs_read: list[str], read_attempts: list[str]
+        self,
+        artifact_ref: str | ArtifactRef,
+        *,
+        kind: str,
+        schema_name: str,
+        inputs_read: list[str],
+        read_attempts: list[str],
     ) -> object:
         selected_ref = (
             artifact_ref
@@ -568,9 +569,7 @@ class EvaluationSafetyPersistenceService:
             else ArtifactID.model_validate(artifact_ref)
         )
         artifact_id = (
-            selected_ref.artifact_id
-            if isinstance(selected_ref, ArtifactRef)
-            else selected_ref
+            selected_ref.artifact_id if isinstance(selected_ref, ArtifactRef) else selected_ref
         )
         selected_id = str(artifact_id)
         read_attempts.append(f"cas_manifest:{selected_id}")
@@ -606,9 +605,7 @@ class EvaluationSafetyPersistenceService:
             raise ValueError("promotion_source_artifact_binding_mismatch")
         if schema_version == "1.1":
             selector = (
-                payload.get("target_world_scope_profile_id")
-                if isinstance(payload, dict)
-                else None
+                payload.get("target_world_scope_profile_id") if isinstance(payload, dict) else None
             )
             if (
                 kind != "runtime.control_job_payload.natural_language_run"
@@ -660,9 +657,11 @@ class EvaluationSafetyPersistenceService:
                 if job is None or job.payload_ref is None:
                     raise ValueError("promotion_source_job_not_completed")
                 payload = self._read_promotion_source_json(
-                    job.payload_ref, kind="runtime.control_job_payload.natural_language_run",
+                    job.payload_ref,
+                    kind="runtime.control_job_payload.natural_language_run",
                     schema_name="polisyos.runtime.ControlJobPayload",
-                    inputs_read=inputs_read, read_attempts=read_attempts,
+                    inputs_read=inputs_read,
+                    read_attempts=read_attempts,
                 )
                 if not isinstance(payload, dict) or (
                     payload.get("tenant_id") != context.tenant_id
@@ -679,33 +678,31 @@ class EvaluationSafetyPersistenceService:
                     cell_id=context.cell_id,
                     read_attempts=read_attempts,
                 )
-                inputs_read.extend((
-                    f"terminal_trace:{terminal.trace_path}",
-                    f"cas_manifest:{terminal.manifest_ref.artifact_id}",
-                    f"cas_bytes:{terminal.manifest_ref.artifact_id}",
-                ))
+                inputs_read.extend(
+                    (
+                        f"terminal_trace:{terminal.trace_path}",
+                        f"cas_manifest:{terminal.manifest_ref.artifact_id}",
+                        f"cas_bytes:{terminal.manifest_ref.artifact_id}",
+                    )
+                )
                 if (
                     terminal.manifest.status != "ok"
                     or terminal.tenant_id != context.tenant_id
                     or terminal.cell_id != context.cell_id
-                    or str(terminal.manifest_ref.artifact_id)
-                    != job.progress.get("manifest_ref")
+                    or str(terminal.manifest_ref.artifact_id) != job.progress.get("manifest_ref")
                 ):
                     raise ValueError("promotion_source_terminal_scope_mismatch")
                 compiled_refs = tuple(
-                    ref for ref in terminal.manifest.outputs
+                    ref
+                    for ref in terminal.manifest.outputs
                     if ref.kind == "runtime.compiled_recursive_generation_cycle"
                 )
                 try:
                     selected_compiled_ref = ArtifactRef.model_validate(
-                        job.progress.get(
-                            "compiled_recursive_generation_cycle_artifact_ref"
-                        )
+                        job.progress.get("compiled_recursive_generation_cycle_artifact_ref")
                     )
                 except (TypeError, ValueError) as exc:
-                    raise ValueError(
-                        "promotion_source_compiled_selection_not_established"
-                    ) from exc
+                    raise ValueError("promotion_source_compiled_selection_not_established") from exc
                 if (
                     len(compiled_refs) != 1
                     or artifact_ref_identity_key(compiled_refs[0])
@@ -721,7 +718,8 @@ class EvaluationSafetyPersistenceService:
                         compiled_artifact_ref,
                         kind="runtime.compiled_recursive_generation_cycle",
                         schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
-                        inputs_read=inputs_read, read_attempts=read_attempts,
+                        inputs_read=inputs_read,
+                        read_attempts=read_attempts,
                     )
                 )
                 for node in compiled.recursive_run.leaf_nodes:
@@ -751,11 +749,12 @@ class EvaluationSafetyPersistenceService:
                             for source_ref in cycle.source_handoff_refs:
                                 read_attempts.append(f"generation_source_owner:{source_ref}")
                                 handoff = repository.load(source_ref, run_id=cycle.run_id)
-                                inputs_read.extend((
-                                    f"cas_manifest:{source_ref}", f"cas_bytes:{source_ref}"
-                                ))
+                                inputs_read.extend(
+                                    (f"cas_manifest:{source_ref}", f"cas_bytes:{source_ref}")
+                                )
                                 identity = (
-                                    node.design_problem_ref, candidate.candidate_id,
+                                    node.design_problem_ref,
+                                    candidate.candidate_id,
                                     candidate.content_hash,
                                 )
                                 if identity in handoff.identities():
@@ -791,10 +790,15 @@ class EvaluationSafetyPersistenceService:
                             != intake.world_model_record_ref.content_hash
                         ):
                             raise ValueError("promotion_source_value_world_mismatch")
-                        matches.append(_PromotionReplaySource(
-                            compiled_ref=compiled_ref, candidate=owner.candidate_summary,
-                            problem=problem, value=value, n9_source=n9_source,
-                        ))
+                        matches.append(
+                            _PromotionReplaySource(
+                                compiled_ref=compiled_ref,
+                                candidate=owner.candidate_summary,
+                                problem=problem,
+                                value=value,
+                                n9_source=n9_source,
+                            )
+                        )
             except (OSError, KeyError, TypeError, ValueError) as exc:
                 # A member that cannot be read is ambiguous, never silently a zero.
                 reasons.append(f"promotion_source_unresolved:{source_run_id}:{type(exc).__name__}")
@@ -802,10 +806,16 @@ class EvaluationSafetyPersistenceService:
         if reasons:
             return None, inputs_read, read_attempts, reasons
         if len(matches) != 1:
-            return None, inputs_read, read_attempts, [
-                "promotion_source_candidate_absent" if not matches
-                else "promotion_source_candidate_ambiguous"
-            ]
+            return (
+                None,
+                inputs_read,
+                read_attempts,
+                [
+                    "promotion_source_candidate_absent"
+                    if not matches
+                    else "promotion_source_candidate_ambiguous"
+                ],
+            )
         return matches[0], inputs_read, read_attempts, []
 
     def _persist_replay_binding(
@@ -817,8 +827,11 @@ class EvaluationSafetyPersistenceService:
             canon_spec=canon.CanonSpec(forbid_floats=False),
         )
         return EvalSafetyArtifactRef(
-            artifact_id=str(written.artifact_id), artifact_type=kind,
-            content_hash=semantic_hash, schema_ref=f"{kind}.v1", version="1.0",
+            artifact_id=str(written.artifact_id),
+            artifact_type=kind,
+            content_hash=semantic_hash,
+            schema_ref=f"{kind}.v1",
+            version="1.0",
             uri=f"cas://sha256/{str(written.artifact_id).removeprefix('sha256:')}",
         )
 
@@ -850,19 +863,23 @@ class EvaluationSafetyPersistenceService:
             if owner.open_world_gate is None or owner.epoch_validity_projection is None:
                 return None, None
             receipt_ref = self._persist_replay_binding(
-                receipt, kind="runtime.eval_safety.canonical_promotion_replay",
+                receipt,
+                kind="runtime.eval_safety.canonical_promotion_replay",
                 semantic_hash=gy_content_hash(receipt.model_dump(mode="json")),
             )
             input_ref = self._persist_replay_binding(
-                owner, kind="runtime.eval_safety.canonical_promotion_input_replay",
+                owner,
+                kind="runtime.eval_safety.canonical_promotion_input_replay",
                 semantic_hash=owner.projection_hash,
             )
             problem_ref = self._persist_replay_binding(
-                owner.design_problem_binding, kind="runtime.eval_safety.design_problem_replay",
+                owner.design_problem_binding,
+                kind="runtime.eval_safety.design_problem_replay",
                 semantic_hash=gy_content_hash(owner.design_problem_binding.model_dump(mode="json")),
             )
             value_ref = self._persist_replay_binding(
-                source.value, kind="runtime.eval_safety.value_replay",
+                source.value,
+                kind="runtime.eval_safety.value_replay",
                 semantic_hash=source.value.value_ref,
             )
             open_world_ref = near_miss_resolver_basis_reference(
@@ -870,7 +887,7 @@ class EvaluationSafetyPersistenceService:
             )
             epoch_ref = near_miss_resolver_basis_reference(
                 owner.epoch_validity_projection.gate_receipt_ref,
-                record="epoch_validity_gate_receipt"
+                record="epoch_validity_gate_receipt",
             )
             offer_values = {
                 "promotion_receipt_ref": receipt_ref,
@@ -887,24 +904,35 @@ class EvaluationSafetyPersistenceService:
             }
             offer = EvalSafetyNearMissClassificationOffer.build(**offer_values)
             written = self._write(
-                key="classification_offer", payload=offer.model_dump(mode="json"),
-                context=context, input_refs=(receipt_ref, input_ref, problem_ref, value_ref),
-                validation_status="pass", blocking_status="non_blocking",
+                key="classification_offer",
+                payload=offer.model_dump(mode="json"),
+                context=context,
+                input_refs=(receipt_ref, input_ref, problem_ref, value_ref),
+                validation_status="pass",
+                blocking_status="non_blocking",
             )
             offer_ref = self._verified_eval_ref(
-                written.cas_ref.artifact_id, key="classification_offer",
-                semantic_hash=offer.content_hash, expected_context=written.identity_context,
+                written.cas_ref.artifact_id,
+                key="classification_offer",
+                semantic_hash=offer.content_hash,
+                expected_context=written.identity_context,
             )
             classification = verify_near_miss_classification(
-                offer=offer, offer_ref=offer_ref, validation_basis_ref=input_ref,
-                canonical_promotion_input_ref=input_ref, design_problem_binding_ref=problem_ref,
-                value_receipt_ref=value_ref, candidate_ref=intake.candidate_ref,
+                offer=offer,
+                offer_ref=offer_ref,
+                validation_basis_ref=input_ref,
+                canonical_promotion_input_ref=input_ref,
+                design_problem_binding_ref=problem_ref,
+                value_receipt_ref=value_ref,
+                candidate_ref=intake.candidate_ref,
                 world_model_record_ref=intake.world_model_record_ref,
                 promotion_rule_version=receipt.schema_version,
                 current_open_world_resolver_basis_ref=open_world_ref,
                 current_epoch_resolver_basis_ref=epoch_ref,
-                n9_source=source.n9_source, candidate_summary=source.candidate,
-                design_problem=source.problem, value_receipt=source.value,
+                n9_source=source.n9_source,
+                candidate_summary=source.candidate,
+                design_problem=source.problem,
+                value_receipt=source.value,
                 open_world_resolver=sources.promotion_runtime.resolver,
                 epoch_validity_resolver=sources.promotion_runtime.epoch_n9_evidence_resolver,
                 promotion_evidence_resolver=sources.promotion_evidence_resolver,
@@ -1007,9 +1035,7 @@ class EvaluationSafetyPersistenceService:
             context=context,
             input_refs=(core.intake_ref, *((core.request_ref,) if core.request_ref else ())),
             validation_status="pass" if event.safety.status == "passed" else "blocked",
-            blocking_status=(
-                "non_blocking" if event.safety.status == "passed" else "blocking"
-            ),
+            blocking_status=("non_blocking" if event.safety.status == "passed" else "blocking"),
         )
         decision_ref = self._verified_eval_ref(
             written.cas_ref.artifact_id,
@@ -1052,9 +1078,7 @@ class EvaluationSafetyPersistenceService:
             ):
                 raise ValueError("eval_safety_revision_predecessor_unresolved")
             inputs = (revision.certificate_ref,) + (
-                (revision.predecessor_ref,)
-                if revision.predecessor_ref is not None
-                else ()
+                (revision.predecessor_ref,) if revision.predecessor_ref is not None else ()
             )
             written = self._write(
                 key="certificate_revision",
@@ -1062,9 +1086,7 @@ class EvaluationSafetyPersistenceService:
                 context=context,
                 input_refs=inputs,
                 validation_status="pass",
-                blocking_status=(
-                    "blocking" if revision.action == "revoke" else "non_blocking"
-                ),
+                blocking_status=("blocking" if revision.action == "revoke" else "non_blocking"),
             )
             revision_ref = self._verified_eval_ref(
                 written.cas_ref.artifact_id,
@@ -1087,9 +1109,7 @@ class EvaluationSafetyPersistenceService:
     ) -> EvaluationSafetyDecisionReduction:
         """Reduce the complete exact decision-kind/schema CAS denominator."""
 
-        evidence_by_ref: dict[
-            tuple[str, str], list[EvaluationSafetyDecisionEvidence]
-        ] = {}
+        evidence_by_ref: dict[tuple[str, str], list[EvaluationSafetyDecisionEvidence]] = {}
         for row in evidence:
             rows = evidence_by_ref.setdefault(
                 (row.decision_ref.artifact_id, row.decision_ref.content_hash), []
@@ -1150,10 +1170,8 @@ class EvaluationSafetyPersistenceService:
                     classification=owner_row.classification,
                 )
                 if (
-                    rebuilt.model_dump(mode="json")
-                    != owner_row.decision.model_dump(mode="json")
-                    or rebuilt.model_dump(mode="json")
-                    != decision.model_dump(mode="json")
+                    rebuilt.model_dump(mode="json") != owner_row.decision.model_dump(mode="json")
+                    or rebuilt.model_dump(mode="json") != decision.model_dump(mode="json")
                     or owner_row.decision_ref != selected_ref
                 ):
                     raise ValueError("eval_safety_owner_recomposition_mismatch")
@@ -1192,9 +1210,7 @@ class EvaluationSafetyPersistenceService:
             for decision_id, rows in by_id.items()
             if len({row.content_hash for _, row in rows}) > 1
         }
-        conflicting_refs = tuple(
-            ref for decision_id in conflicts for ref, _ in by_id[decision_id]
-        )
+        conflicting_refs = tuple(ref for decision_id in conflicts for ref, _ in by_id[decision_id])
         denominator = {
             decision_id: rows[0][1]
             for decision_id, rows in by_id.items()
@@ -1203,8 +1219,7 @@ class EvaluationSafetyPersistenceService:
         blocked = {
             decision_id: event
             for decision_id, event in denominator.items()
-            if event.safety.attempt_class == "non_simulation"
-            and event.safety.status == "blocked"
+            if event.safety.attempt_class == "non_simulation" and event.safety.status == "blocked"
         }
         unclassified = tuple(
             sorted(
@@ -1410,9 +1425,7 @@ class EvaluationSafetyPersistenceService:
             surface: EvalSafetySurfaceDisposition(
                 surface=surface,
                 purpose=(
-                    "dashboard_display"
-                    if surface == "dashboard"
-                    else "runtime_closeout_authority"
+                    "dashboard_display" if surface == "dashboard" else "runtime_closeout_authority"
                 ),
                 status="allow",
                 authority_result="informational_projection_only",
@@ -1428,9 +1441,7 @@ class EvaluationSafetyPersistenceService:
             surfaces=surfaces,
         )
         projection = EvalSafetyMetricsProjection(
-            attempt_disposition=(
-                "blocked" if reduction.unsafe_attempt_blocked_count else "passed"
-            ),
+            attempt_disposition=("blocked" if reduction.unsafe_attempt_blocked_count else "passed"),
             selected_decision_artifact_refs=reduction.selected_refs,
             reconciled_decision_artifact_refs=reduction.reconciled_refs,
             unreconciled_decision_artifact_refs=reduction.unreconciled_refs,
@@ -1439,9 +1450,7 @@ class EvaluationSafetyPersistenceService:
             unsafe_attempt_blocked_count=reduction.unsafe_attempt_blocked_count,
             near_miss_count=reduction.near_miss_count,
             near_miss_classification_status=reduction.near_miss_classification_status,
-            unclassified_blocked_decision_ids=(
-                reduction.unclassified_blocked_decision_ids
-            ),
+            unclassified_blocked_decision_ids=(reduction.unclassified_blocked_decision_ids),
             reconciliation_status=reduction.reconciliation_status,
             generated_at=generated_at,
             source_event_refs=reduction.source_event_refs,
@@ -1480,16 +1489,17 @@ class EvaluationSafetyPersistenceService:
         if authority is None:
             return False
         try:
-            envelope_id = core_artifacts.ArtifactID.model_validate(
-                authority.authority_envelope_ref
+            envelope_ref = core_artifacts.resolve_authority_envelope_ref(
+                self._artifact_store,
+                authority,
             )
-            verification = self._artifact_store.verify(envelope_id)
+            verification = self._artifact_store.verify(envelope_ref)
             if not verification.ok:
                 return False
             envelope = EvidenceAuthorityEnvelope.model_validate(
-                canon.from_canonical_bytes(self._artifact_store.get_bytes(envelope_id))
+                canon.from_canonical_bytes(self._artifact_store.get_bytes(envelope_ref))
             )
-        except (TypeError, ValueError):
+        except (FileNotFoundError, TypeError, ValueError):
             return False
         return bool(
             envelope.artifact_ref == str(artifact_id)
@@ -1507,9 +1517,7 @@ class EvaluationSafetyPersistenceService:
             and envelope.runtime_event_ref == authority.diagnostic_event_ref
         )
 
-    def _read_model[
-        ModelT: BaseModel
-    ](
+    def _read_model[ModelT: BaseModel](
         self,
         artifact_ref: EvalSafetyArtifactRef,
         *,
@@ -1587,9 +1595,7 @@ class EvaluationSafetyPersistenceService:
             evidence_class=identity.evidence_class,
             authority_role=identity.authority_role,
             provenance_kind=(
-                "runtime_projection"
-                if key == "metrics_projection"
-                else "runtime_emitted"
+                "runtime_projection" if key == "metrics_projection" else "runtime_emitted"
             ),
             owner="team-runtime",
             reader_contract=identity.reader_contract,
@@ -1748,9 +1754,7 @@ class EvaluationSafetyAdmissionVerifier:
                 appointment_resolver=self._appointment_resolver,
                 verifier_registry=self._verifier_registry,
                 revision_nodes=revision_nodes,
-                decision_evaluated_at=self._decision_evaluated_at(
-                    certificate.decision_ref
-                ),
+                decision_evaluated_at=self._decision_evaluated_at(certificate.decision_ref),
                 revalidated_at=verified_at,
             )
             if material.request_ref is None:
@@ -1772,9 +1776,7 @@ class EvaluationSafetyAdmissionVerifier:
                 verified_at=verified_at,
                 blocker="polisyos.eval_safety.authority_replay_not_established@1.0.0",
             )
-        owner = self._persistence_service.reconcile_persisted_attempt(
-            material=material
-        )
+        owner = self._persistence_service.reconcile_persisted_attempt(material=material)
         if owner is None:
             return _blocked_consumer_receipt(
                 context=context,

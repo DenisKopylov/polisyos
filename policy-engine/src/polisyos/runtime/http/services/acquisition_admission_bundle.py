@@ -232,9 +232,7 @@ class AcquisitionAdmissionBundleProducer:
             expected_run_id=self.write_context.run_id,
             expected_job_id=self.write_context.job_id,
         )
-        read_back = canon.from_canonical_bytes(
-            self.artifact_store.get_bytes(result.cas_ref.artifact_id)
-        )
+        read_back = canon.from_canonical_bytes(self.artifact_store.get_bytes(result.cas_ref))
         try:
             persisted_bundle = AgentActionAdmissionBundle.model_validate(read_back)
         except (TypeError, ValueError) as exc:  # pragma: no cover - writer/readback invariant

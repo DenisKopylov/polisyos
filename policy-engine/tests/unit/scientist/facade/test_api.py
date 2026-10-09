@@ -203,6 +203,23 @@ class TestRunExperiment:
         assert kwargs["epoch_certificate_issuance_owner"] is epoch_certificate_issuance_owner
         assert "epoch_certificate_issuance_owner" not in result
 
+    @patch("polisyos.scientist.orchestration.workflows.builder.run_selected_workflow")
+    @patch("polisyos.scientist.api._resolve_observability")
+    def test_forwards_explicit_foundry_port(self, mock_obs, mock_run):
+        tracer, _span = _mock_tracer()
+        mock_obs.return_value = (tracer, _mock_metrics())
+        mock_run.return_value = MagicMock(
+            state=ExperimentState(run_id="R_foundry_port"),
+            report=MagicMock(status="ok"),
+        )
+        foundry = object()
+
+        from polisyos.scientist.api import run_experiment
+
+        run_experiment({"run_id": "R_foundry_port"}, foundry=foundry)
+
+        assert mock_run.call_args.kwargs["foundry"] is foundry
+
 
 # ---------------------------------------------------------------------------
 # Tests for _estimate_run_cost_usd

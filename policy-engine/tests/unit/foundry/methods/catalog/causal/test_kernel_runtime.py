@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
@@ -174,9 +175,7 @@ def test_kernel_compile_execute_and_audit_persists_typed_refusal(tmp_path) -> No
         if node.method_fqn == "causal.kernel.refusal"
     ]
     assert len(refusal_outputs) == 1
-    assert refusal_outputs[0]["result"] == {
-        "blocking_reasons": ["operator_certificate_missing"]
-    }
+    assert refusal_outputs[0]["result"] == {"blocking_reasons": ["operator_certificate_missing"]}
 
     bundle = engine.audit(
         None,
@@ -195,7 +194,9 @@ def test_kernel_compile_execute_and_audit_persists_typed_refusal(tmp_path) -> No
     )
 
     assert bundle.kernel_estimator_spec_ref is not None
-    refused_spec = load_kernel_estimator_spec(store, bundle.kernel_estimator_spec_ref)
+    refused_spec = load_kernel_estimator_spec(
+        _ensure_ir_artifact_store(store), bundle.kernel_estimator_spec_ref
+    )
     assert refused_spec.lowering_disposition.value == "proof_only"
     assert refused_spec.blocking_reasons == ("operator_certificate_missing",)
     assert bundle.method_config["kernel_lowering_disposition"] == "proof_only"

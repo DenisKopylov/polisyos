@@ -330,8 +330,8 @@ def load_structural_causal_model_spec(
     ref: StructuralCausalModelSpecRef,
 ) -> StructuralCausalModelSpec:
     """Load structural causal model spec."""
-    payload = get_json_artifact(store, ref.artifact_id)
-    manifest = store.get_manifest(ref.artifact_id)
+    payload = get_json_artifact(store, ref)
+    manifest = store.get_manifest(ref)
     schema = getattr(manifest, "artifact_schema", None)
     if schema is None or schema.version not in {"1.0", "1.1"}:
         raise ValueError("SCM artifact requires a supported CAS schema manifest")

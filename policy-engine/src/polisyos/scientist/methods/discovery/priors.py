@@ -260,7 +260,7 @@ def load_graph_prior_bundle(
     ref: GraphPriorBundleRef,
 ) -> GraphPriorBundle:
     """Load graph prior bundle."""
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return GraphPriorBundle.model_validate(payload)
 
 
@@ -292,7 +292,7 @@ def load_prior_knowledge_bundle(
     ref: PriorKnowledgeBundleRef,
 ) -> PriorKnowledgeBundle:
     """Load prior knowledge bundle."""
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return PriorKnowledgeBundle.model_validate(payload)
 
 

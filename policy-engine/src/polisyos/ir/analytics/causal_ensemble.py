@@ -140,7 +140,7 @@ def load_causal_model_ensemble(
     ref: CausalModelEnsembleRef,
 ) -> CausalModelEnsemble:
     """Load causal model ensemble."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return CausalModelEnsemble.model_validate(payload)
 
 

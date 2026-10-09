@@ -5,6 +5,7 @@ from decimal import Decimal
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -116,12 +117,8 @@ def test_policy_output_ref_deduplication_keeps_distinct_selected_views() -> None
         kind="scientist.side_information",
         media_type="application/json",
     )
-    selected_a = default_ref.model_copy(
-        update={"manifest_profile_sha256": "sha256:" + "b" * 64}
-    )
-    selected_b = default_ref.model_copy(
-        update={"manifest_profile_sha256": "sha256:" + "c" * 64}
-    )
+    selected_a = default_ref.model_copy(update={"manifest_profile_sha256": "sha256:" + "b" * 64})
+    selected_b = default_ref.model_copy(update={"manifest_profile_sha256": "sha256:" + "c" * 64})
 
     assert _dedupe_artifact_refs([default_ref, selected_a, selected_b, selected_a]) == [
         default_ref,
@@ -342,7 +339,7 @@ def _phase3_ready_refs(cas_store) -> tuple[ArtifactRef, ArtifactRef]:
         PutOptions(kind="ir.welfare_multiplier_matrix", media_type="application/json"),
     )
     social_weight_ref = persist_social_weight_manifest(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         SocialWeightManifestArtifact(
             manifest_ref="swr://policy.welfare/test@1.0.0#phase3",
             method_fqn="policy.welfare.state_dependent_inverse_social_weights@1.0.0",
@@ -358,7 +355,7 @@ def _phase3_ready_refs(cas_store) -> tuple[ArtifactRef, ArtifactRef]:
         ),
     )
     ge_ref = persist_ge_uncertainty_bundle(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         GEUncertaintyBundle(
             model_class="linearized_ge_io",
             representation=GEUncertaintyRepresentation.MULTIPLIER_INTERVALS,
@@ -375,7 +372,7 @@ def _phase3_ready_refs(cas_store) -> tuple[ArtifactRef, ArtifactRef]:
         ),
     )
     welfare_ref = persist_welfare_bundle(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         WelfareBundle(
             welfare_measure="net_social_welfare",
             model_class="linearized_ge_io",
@@ -391,7 +388,7 @@ def _phase3_ready_refs(cas_store) -> tuple[ArtifactRef, ArtifactRef]:
         ),
     )
     ambiguity_ref = persist_optimization_ambiguity_certificate(
-        cas_store,
+        _ensure_ir_artifact_store(cas_store),
         build_optimization_ambiguity_certificate(
             {"mode": "not_applicable", "note": "deterministic path"},
             mode="not_applicable",
@@ -737,7 +734,8 @@ def test_build_policy_output_bundle_propagates_actionable_side_information(
         ),
         failure_cards=[],
         uncertainty_envelope=UncertaintyEnvelope.deterministic(),
-        compute_actual_usd=0.5,
+        compute_cost_usd=0.5,
+        compute_cost_origin="estimated",
         degradation_mode="normal",
         final_action="complete",
         completed=True,

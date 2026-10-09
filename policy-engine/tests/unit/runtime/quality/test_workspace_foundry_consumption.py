@@ -94,6 +94,60 @@ def _rewrite_artifact(store, ref, mutate, *, inputs=None):
     )
 
 
+def test_foundry_input_resolution_uses_selected_profile_to_recover_kind(tmp_path):
+    """A selected lineage edge can recover its own kind when defaults differ."""
+    from types import SimpleNamespace
+
+    from polisyos.core.artifacts import InputRef
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+
+    store = FileSystemCAS(tmp_path / "selected-input-kind")
+    source_bytes = b'{"source":"same-content"}'
+    default_ref = store.put_bytes(
+        source_bytes,
+        ArtifactWriteOptions(
+            kind="test.foundry.default-kind",
+            media_type="application/json",
+        ),
+    )
+    selected_ref = store.put_bytes(
+        source_bytes,
+        ArtifactWriteOptions(
+            kind="test.foundry.selected-kind",
+            media_type="application/json",
+        ),
+    )
+    assert default_ref.artifact_id == selected_ref.artifact_id
+    assert selected_ref.manifest_profile_sha256 is not None
+    result_ref = store.put_bytes(
+        b'{"result":true}',
+        ArtifactWriteOptions(
+            kind="test.foundry.method-result",
+            media_type="application/json",
+            inputs=[
+                InputRef(
+                    artifact_id=selected_ref.artifact_id,
+                    role="input:observations",
+                    manifest_profile_sha256=selected_ref.manifest_profile_sha256,
+                )
+            ],
+        ),
+    )
+    result_manifest = store.get_manifest(result_ref)
+
+    resolved = constraint_owner._verified_method_input_refs(
+        store,
+        result_manifest,
+        SimpleNamespace(inputs={}, artifacts_index={}),
+        None,
+    )
+
+    assert resolved["observations"].kind == "test.foundry.selected-kind"
+    assert resolved["observations"].manifest_profile_sha256 == selected_ref.manifest_profile_sha256
+    assert store.get_bytes(resolved["observations"]) == source_bytes
+
+
 def test_foundry_consumer_replays_actual_method_owner_and_preserves_raw_byte_custody(
     recorded_panel_owner,
 ):
@@ -622,9 +676,7 @@ def test_real_method_report_is_reconciled_before_constraint_consumption_without_
     # Compare the complete owner's declared wire representation. Its native
     # tuple fields become JSON arrays; nulls and every substantive field remain.
     assert report == from_canonical_bytes(
-        to_canonical_bytes(
-            report_calls[-1][1], CanonSpec(forbid_floats=False, exclude_none=False)
-        )
+        to_canonical_bytes(report_calls[-1][1], CanonSpec(forbid_floats=False, exclude_none=False))
     )
     assert {row["method_id"] for row in report["candidate_methods"]} == {binding.receipt.method_fqn}
     payload = from_canonical_bytes(store.get_bytes(emitted.artifact_id))
@@ -824,7 +876,9 @@ def _staged_method_case(recorded_panel_owner, tmp_path):
     paths = _ukraine_intake_manifests(root)
     manifest = BuildRunManifest.model_validate_json(paths["d2"].read_bytes())
     selected = next(
-        row for row in manifest.outputs if Path(row.path).name == "panel_observational_contract.json"
+        row
+        for row in manifest.outputs
+        if Path(row.path).name == "panel_observational_contract.json"
     )
     # The controlled stage consumes this same real recorded-owner cassette.
     # This is fixture setup before production, never recapture after a mutant.
@@ -844,18 +898,27 @@ def _staged_method_case(recorded_panel_owner, tmp_path):
         "ukraine_intake_receipt": intake.receipt_ref,
     }
     actual = MethodBackend().run(
-        cas_root=store.root, method_fqn=bound.receipt.method_fqn, method_version=None,
+        cas_root=store.root,
+        method_fqn=bound.receipt.method_fqn,
+        method_version=None,
         input_state=materialize_method_contract(
-            contract_target=bound.contract_target, contract_payload=bound.contract_payload,
+            contract_target=bound.contract_target,
+            contract_payload=bound.contract_payload,
         ),
-        method_params={"n_placebo_runs": 0}, seed=17, input_refs=refs,
+        method_params={"n_placebo_runs": 0},
+        seed=17,
+        input_refs=refs,
     )
     state = ExperimentState(
-        run_id="c3-staged-readback", observational_data_ref=bound.observational_data_ref,
+        run_id="c3-staged-readback",
+        observational_data_ref=bound.observational_data_ref,
         causal_method_fqn=bound.receipt.method_fqn,
-        causal_method_params={"n_placebo_runs": 0}, params={"random_seed": 17},
+        causal_method_params={"n_placebo_runs": 0},
+        params={"random_seed": 17},
         inputs={
-            "ukraine_selected_foundry_method_contract_ref": refs["ukraine_selected_method_contract"],
+            "ukraine_selected_foundry_method_contract_ref": refs[
+                "ukraine_selected_method_contract"
+            ],
             "ukraine_foundry_method_input_bundle_ref": refs["ukraine_method_input_bundle"],
         },
         artifacts_index={
@@ -877,12 +940,15 @@ def _staged_consumer(store, root, paths):
     kwargs = {"store": store}
     if "staged_input_source" in inspect.signature(owner.FoundryMethodOutputConsumer).parameters:
         kwargs["staged_input_source"] = owner.StagedFoundryInputSource(
-            allowed_root=root, stage_manifests=tuple(sorted(paths.items())),
+            allowed_root=root,
+            stage_manifests=tuple(sorted(paths.items())),
         )
     return owner.FoundryMethodOutputConsumer(**kwargs)
 
 
-def test_staged_intake_real_owner_is_consumed_without_weakening_measurement(recorded_panel_owner, tmp_path):
+def test_staged_intake_real_owner_is_consumed_without_weakening_measurement(
+    recorded_panel_owner, tmp_path
+):
     store, bound, state, root, paths = _staged_method_case(recorded_panel_owner, tmp_path)
     consumer = _staged_consumer(store, root, paths)
     result = _consume_case(store, bound, state, consumer=consumer)
@@ -891,10 +957,14 @@ def test_staged_intake_real_owner_is_consumed_without_weakening_measurement(reco
     assert result.authority_boundary.decision_grade == "descriptive_only"
     assert "causal_identification" in result.authority_boundary.may_not_use_for
     ref = consumer.persist_consumption(store=store, consumption=result)
-    assert ref.content_hash == "sha256:" + hashlib.sha256(store.get_bytes(ref.artifact_id)).hexdigest()
+    assert (
+        ref.content_hash == "sha256:" + hashlib.sha256(store.get_bytes(ref.artifact_id)).hexdigest()
+    )
 
 
-def test_workspace_phase2_transports_verified_staged_input_owner_refs(recorded_panel_owner, tmp_path, monkeypatch):
+def test_workspace_phase2_transports_verified_staged_input_owner_refs(
+    recorded_panel_owner, tmp_path, monkeypatch
+):
     import inspect
 
     from polisyos.foundry import InputContractMethodSelection
@@ -907,8 +977,10 @@ def test_workspace_phase2_transports_verified_staged_input_owner_refs(recorded_p
     kwargs = {"artifact_store": store}
     if "staged_foundry_inputs" in inspect.signature(loop_owner.WorkspaceLoop).parameters:
         kwargs["staged_foundry_inputs"] = owner.StagedFoundryInputBinding(
-            source=owner.StagedFoundryInputSource(**source_fields), state=offered,
+            source=owner.StagedFoundryInputSource(**source_fields),
+            state=offered,
         )
+
     # Reuse the actual fixture owner's measured recipe; this is not a fake DTO
     # or a canonical production run. Current source validation still replays it.
     def recorded_owner(**arguments):
@@ -933,23 +1005,33 @@ def test_workspace_phase2_transports_verified_staged_input_owner_refs(recorded_p
         }
     )
     monkeypatch.setattr(
-        loop_owner, "_phase2_value_method_selection",
+        loop_owner,
+        "_phase2_value_method_selection",
         lambda *args, **arguments: selected.model_dump(mode="json"),
     )
     problem = _design_problem(runtime_hints={"causal_method_fqn": bound.receipt.method_fqn})
     loop = loop_owner.WorkspaceLoop(**kwargs)
     state = loop._phase2_state(
-        workspace_id="c3-staged-transport", intent=problem.to_workspace_intent(), design_problem=problem,
+        workspace_id="c3-staged-transport",
+        intent=problem.to_workspace_intent(),
+        design_problem=problem,
     )
-    for key in ("ukraine_foundry_method_input_bundle_ref", "ukraine_selected_foundry_method_contract_ref"):
+    for key in (
+        "ukraine_foundry_method_input_bundle_ref",
+        "ukraine_selected_foundry_method_contract_ref",
+    ):
         assert state.inputs.get(key) == offered.inputs[key]
     key = "ukraine_foundry_intake_receipt_ref"
     assert state.artifacts_index.get(key) == offered.artifacts_index[key]
     assert state.observational_data_ref == bound.observational_data_ref
 
 
-@pytest.mark.parametrize("mutation", ["source_output", "source_status", "bundle_body", "intake_lineage"])
-def test_staged_intake_owner_readback_refuses_decisive_mutation(recorded_panel_owner, tmp_path, mutation, monkeypatch):
+@pytest.mark.parametrize(
+    "mutation", ["source_output", "source_status", "bundle_body", "intake_lineage"]
+)
+def test_staged_intake_owner_readback_refuses_decisive_mutation(
+    recorded_panel_owner, tmp_path, mutation, monkeypatch
+):
     import json
     from pathlib import Path
 
@@ -972,19 +1054,28 @@ def test_staged_intake_owner_readback_refuses_decisive_mutation(recorded_panel_o
         # so the deciding difference is the independently replayed owner body.
         old = state.inputs["ukraine_foundry_method_input_bundle_ref"]
         changed = _rewrite_artifact(
-            store, old, lambda payload: payload["contracts"].pop(next(iter(payload["contracts"]))),
+            store,
+            old,
+            lambda payload: payload["contracts"].pop(next(iter(payload["contracts"]))),
         )
         state.inputs["ukraine_foundry_method_input_bundle_ref"] = changed
         result_ref = state.artifacts_index["causal_method_result_ref"]
         result_manifest = store.get_manifest(result_ref.artifact_id)
         changed_result = _rewrite_artifact(
-            store, result_ref, lambda payload: None,
-            inputs=[InputRef(artifact_id=changed.artifact_id, role=item.role)
-                    if item.artifact_id == old.artifact_id else item for item in result_manifest.inputs],
+            store,
+            result_ref,
+            lambda payload: None,
+            inputs=[
+                InputRef(artifact_id=changed.artifact_id, role=item.role)
+                if item.artifact_id == old.artifact_id
+                else item
+                for item in result_manifest.inputs
+            ],
         )
         state.artifacts_index["causal_method_result_ref"] = changed_result
         state.artifacts_index["causal_method_evidence_ref"] = _rewrite_artifact(
-            store, state.artifacts_index["causal_method_evidence_ref"],
+            store,
+            state.artifacts_index["causal_method_evidence_ref"],
             lambda payload: payload.update({"result_ref": str(changed_result.artifact_id)}),
             inputs=[InputRef(artifact_id=changed_result.artifact_id, role="method_result")],
         )
@@ -1005,7 +1096,9 @@ def test_staged_intake_owner_readback_refuses_decisive_mutation(recorded_panel_o
         _consume_case(store, bound, state, consumer=consumer)
 
 
-def _assert_workspace_context_reaches_actual_causal_safety_refusal(recorded_panel_owner, state=None):
+def _assert_workspace_context_reaches_actual_causal_safety_refusal(
+    recorded_panel_owner, state=None
+):
     """A refusal-only port witness; this constructs no admitted authority."""
     import inspect
     from datetime import UTC, datetime
@@ -1028,39 +1121,63 @@ def _assert_workspace_context_reaches_actual_causal_safety_refusal(recorded_pane
 
     def fixture_ref(kind):
         return ArtifactRef(
-            artifact_id="polisyos.test.c3." + kind, artifact_type=kind,
-            content_hash="sha256:" + "1" * 64, schema_ref="polisyos.test." + kind + ".v1",
-            uri="test://c3/" + kind, version="1.0",
+            artifact_id="polisyos.test.c3." + kind,
+            artifact_type=kind,
+            content_hash="sha256:" + "1" * 64,
+            schema_ref="polisyos.test." + kind + ".v1",
+            uri="test://c3/" + kind,
+            version="1.0",
         )
 
     if state is None:
         state = ExperimentState(
-            run_id="c3-refusal-context", observational_data_ref=bound.observational_data_ref,
+            run_id="c3-refusal-context",
+            observational_data_ref=bound.observational_data_ref,
             causal_method_fqn=bound.receipt.method_fqn,
         )
     from polisyos.core import artifacts
 
-    actual_refs = tuple(ArtifactRef(
-        artifact_id=str(ref.artifact_id), artifact_type="observations",
-        content_hash=str(ref.artifact_id), schema_ref="polisyos.test.observations.v1",
-        uri="cas://" + str(ref.artifact_id), version="1.0",
-    ) for ref in (artifacts.ArtifactRef.model_validate(raw) for raw in (
-        state.observational_data_ref,
-        state.inputs.get("ukraine_selected_foundry_method_contract_ref"),
-        state.inputs.get("ukraine_foundry_method_input_bundle_ref"),
-        state.artifacts_index.get("ukraine_foundry_intake_receipt_ref"),
-    ) if raw is not None))
+    actual_refs = tuple(
+        ArtifactRef(
+            artifact_id=str(ref.artifact_id),
+            artifact_type="observations",
+            content_hash=str(ref.artifact_id),
+            schema_ref="polisyos.test.observations.v1",
+            uri="cas://" + str(ref.artifact_id),
+            version="1.0",
+        )
+        for ref in (
+            artifacts.ArtifactRef.model_validate(raw)
+            for raw in (
+                state.observational_data_ref,
+                state.inputs.get("ukraine_selected_foundry_method_contract_ref"),
+                state.inputs.get("ukraine_foundry_method_input_bundle_ref"),
+                state.artifacts_index.get("ukraine_foundry_intake_receipt_ref"),
+            )
+            if raw is not None
+        )
+    )
     context = EvaluationExecutionContext(
-        intake_ref=fixture_ref("intake"), evaluator_owner_id=node.spec.metadata.component_id,
-        design_problem_ref="sha256:" + "2" * 64, evaluation_mode="field_pilot",
-        candidate_ref=fixture_ref("candidate"), world_model_record_ref=fixture_ref("world_model"),
-        target_population_scope_ref=fixture_ref("population"), rule_version="polisyos.test.c3.v1",
+        intake_ref=fixture_ref("intake"),
+        evaluator_owner_id=node.spec.metadata.component_id,
+        design_problem_ref="sha256:" + "2" * 64,
+        evaluation_mode="field_pilot",
+        candidate_ref=fixture_ref("candidate"),
+        world_model_record_ref=fixture_ref("world_model"),
+        target_population_scope_ref=fixture_ref("population"),
+        rule_version="polisyos.test.c3.v1",
         intended_start_at=datetime(2026, 9, 9, tzinfo=UTC),
         evaluation_input_refs=actual_refs,
-        evaluation_input_provenance=tuple(EvaluationInputProvenance(
-            input_ref=ref, input_class="real_world", predicate_provenance="recomputed",
-        ) for ref in actual_refs),
-        eval_safety_certificate_ref=None, eval_safety_revision_head_ref=None,
+        evaluation_input_provenance=tuple(
+            EvaluationInputProvenance(
+                input_ref=ref,
+                input_class="real_world",
+                predicate_provenance="recomputed",
+            )
+            for ref in actual_refs
+        ),
+        eval_safety_certificate_ref=None,
+        eval_safety_revision_head_ref=None,
     )
 
     class RefusingVerifier:
@@ -1070,10 +1187,13 @@ def _assert_workspace_context_reaches_actual_causal_safety_refusal(recorded_pane
             self.calls += 1
             assert supplied == context
             return EvalSafetyConsumerAdmissionReceipt(
-                status="blocked", intake_ref=supplied.intake_ref, certificate_ref=None,
+                status="blocked",
+                intake_ref=supplied.intake_ref,
+                certificate_ref=None,
                 current_revision_head_ref=None,
                 execution_context_hash=evaluation_execution_context_hash(supplied),
-                challenge=challenge, blocker_codes=("polisyos.eval_safety.verifier_unappointed@1.0.0",),
+                challenge=challenge,
+                blocker_codes=("polisyos.eval_safety.verifier_unappointed@1.0.0",),
                 verified_at=datetime(2026, 9, 9, tzinfo=UTC),
             )
 
@@ -1086,7 +1206,9 @@ def _assert_workspace_context_reaches_actual_causal_safety_refusal(recorded_pane
     outcome = node.execute(actual_context, state)
     assert outcome.status == "fail"
     assert verifier.calls == 1
-    assert outcome.error.details["blocker_codes"] == ["polisyos.eval_safety.verifier_unappointed@1.0.0"]
+    assert outcome.error.details["blocker_codes"] == [
+        "polisyos.eval_safety.verifier_unappointed@1.0.0"
+    ]
 
 
 def test_workspace_context_reaches_actual_causal_safety_refusal(recorded_panel_owner):
@@ -1099,14 +1221,20 @@ def test_validated_staged_refs_reach_actual_causal_safety_refusal(recorded_panel
 
     _, _, state, _, _ = _staged_method_case(recorded_panel_owner, tmp_path)
     validated = _validated_node_state(state)
-    assert all(isinstance(ref, artifacts.ArtifactRef) for mapping in (
-        validated.inputs, validated.artifacts_index,
-    ) for ref in mapping.values())
+    assert all(
+        isinstance(ref, artifacts.ArtifactRef)
+        for mapping in (
+            validated.inputs,
+            validated.artifacts_index,
+        )
+        for ref in mapping.values()
+    )
     _assert_workspace_context_reaches_actual_causal_safety_refusal(recorded_panel_owner, validated)
 
 
 def test_staged_result_lineage_cannot_hide_supplied_intake_by_removing_state_slots(
-    recorded_panel_owner, tmp_path,
+    recorded_panel_owner,
+    tmp_path,
 ):
     import json
 
@@ -1123,11 +1251,22 @@ def test_staged_result_lineage_cannot_hide_supplied_intake_by_removing_state_slo
         _consume_case(store, bound, state, consumer=FoundryMethodOutputConsumer(store=store))
 
 
-@pytest.mark.parametrize("mutation", [
-    "source_object", "root_type", "manifest_container", "row_type",
-    "stage_type", "stage_empty", "path_type", "duplicate_stage",
-])
-def test_staged_intake_malformed_transport_is_typed_refusal(recorded_panel_owner, tmp_path, mutation):
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "source_object",
+        "root_type",
+        "manifest_container",
+        "row_type",
+        "stage_type",
+        "stage_empty",
+        "path_type",
+        "duplicate_stage",
+    ],
+)
+def test_staged_intake_malformed_transport_is_typed_refusal(
+    recorded_panel_owner, tmp_path, mutation
+):
     from polisyos.runtime.quality.workspace import foundry_consumption as owner
 
     store, bound, state, root, paths = _staged_method_case(recorded_panel_owner, tmp_path)
@@ -1155,15 +1294,26 @@ def test_staged_intake_malformed_transport_is_typed_refusal(recorded_panel_owner
         _consume_case(store, bound, state, consumer=consumer)
 
 
-@pytest.mark.parametrize("remaining_slot", [
-    "ukraine_selected_foundry_method_contract_ref",
-    "ukraine_foundry_method_input_bundle_ref",
-    "ukraine_foundry_intake_receipt_ref",
-])
-def test_staged_manifest_presence_requires_complete_intake(recorded_panel_owner, tmp_path, remaining_slot):
+@pytest.mark.parametrize(
+    "remaining_slot",
+    [
+        "ukraine_selected_foundry_method_contract_ref",
+        "ukraine_foundry_method_input_bundle_ref",
+        "ukraine_foundry_intake_receipt_ref",
+    ],
+)
+def test_staged_manifest_presence_requires_complete_intake(
+    recorded_panel_owner, tmp_path, remaining_slot
+):
     store, bound, state, _, _ = _staged_method_case(recorded_panel_owner, tmp_path)
     for mapping, slots in (
-        (state.inputs, ("ukraine_selected_foundry_method_contract_ref", "ukraine_foundry_method_input_bundle_ref")),
+        (
+            state.inputs,
+            (
+                "ukraine_selected_foundry_method_contract_ref",
+                "ukraine_foundry_method_input_bundle_ref",
+            ),
+        ),
         (state.artifacts_index, ("ukraine_foundry_intake_receipt_ref",)),
     ):
         for slot in slots:

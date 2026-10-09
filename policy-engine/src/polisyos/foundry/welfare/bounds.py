@@ -57,9 +57,7 @@ def load_observed_range_bundle(
     ref: ArtifactRef | ObservedRangeBundleRef,
 ) -> ObservedRangeBundle:
     """Load an observed/calibrated range bundle."""
-    return ObservedRangeBundle.model_validate(
-        from_canonical_bytes(store.get_bytes(ref.artifact_id))
-    )
+    return ObservedRangeBundle.model_validate(from_canonical_bytes(store.get_bytes(ref)))
 
 
 def persist_welfare_bound_report(
@@ -89,7 +87,7 @@ def load_welfare_bound_report(
     ref: ArtifactRef | WelfareBoundReportRef,
 ) -> WelfareBoundReport:
     """Load a persisted welfare-bound report."""
-    return WelfareBoundReport.model_validate(from_canonical_bytes(store.get_bytes(ref.artifact_id)))
+    return WelfareBoundReport.model_validate(from_canonical_bytes(store.get_bytes(ref)))
 
 
 def safe_compute_mechanism_welfare_bound_report(

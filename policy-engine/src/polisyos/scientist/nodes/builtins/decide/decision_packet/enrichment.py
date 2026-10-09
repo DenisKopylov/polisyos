@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from datetime import UTC, datetime
 from typing import Any
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.canon import from_canonical_bytes
@@ -60,11 +62,15 @@ from polisyos.ir.analytics.strategic import (
     load_strategic_response_bundle,
     load_strategic_scm,
 )
-from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
+from polisyos.ir.analytics.uncertainty import (
+    load_simulation_result_uncertainty_admission,
+    load_uncertainty_envelope,
+)
 from polisyos.ir.analytics.welfare import (
     load_channel_decomposition_artifact,
     load_welfare_bundle,
 )
+from polisyos.ir.artifacts import normalize_artifact_ref
 from polisyos.ir.registry.refs import (
     ABMAlignmentReportRef,
     AbstractionCertificateRef,
@@ -366,7 +372,7 @@ def _build_web_evidence_section(
     if ref is None:
         return None
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+        payload = from_canonical_bytes(ctx.store.get_bytes(ref))
         bundle = WebEvidenceBundle.model_validate(payload)
     except _DECISION_PACKET_LOAD_ERRORS as exc:
         _record_decision_packet_section_degraded(
@@ -563,7 +569,7 @@ def _build_policy_summary(
         return "N/A", 0
 
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
+        payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref))
     except _DECISION_PACKET_LOAD_ERRORS as exc:
         _decision_packet_degraded(
             operation="load_policy_summary_trinity_bundle",
@@ -636,7 +642,7 @@ def _build_causal_section(
     if ensemble_ref is not None:
         try:
             ensemble = load_causal_model_ensemble(
-                ctx.store,
+                _ensure_ir_artifact_store(ctx.store),
                 CausalModelEnsembleRef(artifact_id=ensemble_ref.artifact_id),
             )
             payload["ensemble_member_count"] = len(ensemble.members)
@@ -662,7 +668,7 @@ def _build_causal_section(
 
     if report_ref is not None:
         try:
-            report_obj = from_canonical_bytes(ctx.store.get_bytes(report_ref.artifact_id))
+            report_obj = from_canonical_bytes(ctx.store.get_bytes(report_ref))
             report = CausalEffectReport.model_validate(report_obj)
             refutation_results = [
                 item.model_dump(mode="json") for item in report.refutation_results
@@ -705,7 +711,7 @@ def _build_causal_section(
     if evidence_ref is not None:
         try:
             evidence_bundle = load_causal_evidence_bundle(
-                ctx.store,
+                _ensure_ir_artifact_store(ctx.store),
                 EvidenceBundleRef.model_validate(evidence_ref.model_dump()),
             )
             payload["proof_bundle_ref"] = (
@@ -720,7 +726,7 @@ def _build_causal_section(
             )
             if evidence_bundle.kernel_estimator_spec_ref is not None:
                 kernel_spec = load_kernel_estimator_spec(
-                    ctx.store,
+                    _ensure_ir_artifact_store(ctx.store),
                     KernelEstimatorSpecRef.model_validate(
                         evidence_bundle.kernel_estimator_spec_ref.model_dump(mode="json")
                     ),
@@ -749,7 +755,7 @@ def _build_causal_section(
 
     if bounds_ref is not None:
         try:
-            bounds_bundle = load_bounds_bundle(ctx.store, bounds_ref)
+            bounds_bundle = load_bounds_bundle(_ensure_ir_artifact_store(ctx.store), bounds_ref)
             payload["bounds_interval"] = (
                 None
                 if bounds_bundle.lower_bound is None or bounds_bundle.upper_bound is None
@@ -869,7 +875,7 @@ def _build_strategic_section(
     if strategic_scm_ref is not None:
         try:
             strategic_scm = load_strategic_scm(
-                ctx.store,
+                _ensure_ir_artifact_store(ctx.store),
                 StrategicSCMRef(artifact_id=strategic_scm_ref.artifact_id),
             )
             payload["equilibrium_concept"] = (
@@ -902,7 +908,7 @@ def _build_strategic_section(
     if bundle_ref is not None:
         try:
             bundle = load_strategic_response_bundle(
-                ctx.store,
+                _ensure_ir_artifact_store(ctx.store),
                 StrategicResponseBundleRef(artifact_id=bundle_ref.artifact_id),
             )
             payload.update(
@@ -954,7 +960,7 @@ def _build_strategic_section(
             if bundle.mfg_equilibrium_ref is not None:
                 try:
                     mfg_certificate = load_mean_field_equilibrium_certificate(
-                        ctx.store,
+                        _ensure_ir_artifact_store(ctx.store),
                         bundle.mfg_equilibrium_ref,
                     )
                     payload.update(
@@ -1009,7 +1015,7 @@ def _build_strategic_section(
                     ):
                         try:
                             numerics_config = load_mean_field_macro_simulation_config(
-                                ctx.store,
+                                _ensure_ir_artifact_store(ctx.store),
                                 mfg_certificate.provenance.numerics_config_ref,
                             )
                             payload.update(
@@ -1040,7 +1046,7 @@ def _build_strategic_section(
                     ):
                         try:
                             perturbation_spec = load_mean_field_perturbation_spec(
-                                ctx.store,
+                                _ensure_ir_artifact_store(ctx.store),
                                 mfg_certificate.intervention_spec_ref,
                             )
                             payload.update(
@@ -1083,7 +1089,7 @@ def _build_strategic_section(
             if bundle.performative_shift_ref is not None:
                 try:
                     shift_summary = load_performative_shift_summary(
-                        ctx.store,
+                        _ensure_ir_artifact_store(ctx.store),
                         bundle.performative_shift_ref,
                     )
                     if shift_summary.performative_shift is not None:
@@ -1102,7 +1108,7 @@ def _build_strategic_section(
                     )
             try:
                 value_summary = load_post_adaptation_policy_value_summary(
-                    ctx.store,
+                    _ensure_ir_artifact_store(ctx.store),
                     bundle.post_adaptation_policy_value_ref,
                 )
                 payload["post_adaptation_policy_value"] = value_summary.point_value
@@ -1125,7 +1131,7 @@ def _build_strategic_section(
             if bundle.decomposition_failure_card_ref is not None:
                 try:
                     failure_card = load_strategic_decomposition_failure_card(
-                        ctx.store,
+                        _ensure_ir_artifact_store(ctx.store),
                         bundle.decomposition_failure_card_ref,
                     )
                     payload["decomposition_failure_code"] = failure_card.failure_code
@@ -1262,7 +1268,7 @@ def _build_abm_alignment_section(
     payload: dict[str, object] = {"report_ref": str(report_ref.artifact_id)}
     try:
         report = load_abm_alignment_report(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             ABMAlignmentReportRef(artifact_id=report_ref.artifact_id),
         )
         status_counts: dict[str, int] = {}
@@ -1315,7 +1321,7 @@ def _build_abstraction_section(
         payload["abstraction_map_ref"] = str(map_ref.artifact_id)
     try:
         certificate = load_abstraction_certificate(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             AbstractionCertificateRef(artifact_id=certificate_ref.artifact_id),
         )
         payload.update(
@@ -1354,7 +1360,7 @@ def _build_hte_section(
     payload: dict[str, object] = {"result_ref": str(hte_ref.artifact_id)}
     try:
         result = load_hte_result(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             HTEResultRef(artifact_id=hte_ref.artifact_id),
         )
         payload.update(
@@ -1402,7 +1408,7 @@ def _build_targeting_section(
     payload: dict[str, object] = {"recommendation_ref": str(recommendation_ref.artifact_id)}
     try:
         recommendation = load_policy_recommendation(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             PolicyRecommendationRef(artifact_id=recommendation_ref.artifact_id),
         )
         payload.update(
@@ -1447,7 +1453,7 @@ def _build_backtest_section(
     payload: dict[str, object] = {"report_ref": str(backtest_ref.artifact_id)}
     try:
         report = load_backtest_report(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             BacktestReportRef(artifact_id=backtest_ref.artifact_id),
         )
         payload.update(
@@ -1616,7 +1622,7 @@ def _build_distributional_section(
     if report_ref is not None:
         try:
             report = load_distributional_report(
-                ctx.store,
+                _ensure_ir_artifact_store(ctx.store),
                 DistributionalReportRef(artifact_id=report_ref.artifact_id),
             )
             payload.update(
@@ -1672,7 +1678,7 @@ def _build_distributional_section(
     if bundle_ref is not None:
         try:
             bundle = load_distributional_effect_bundle(
-                ctx.store,
+                _ensure_ir_artifact_store(ctx.store),
                 DistributionalEffectBundleRef.model_validate(bundle_ref.model_dump()),
             )
             proof_kernel = bundle.metadata.get("proof_kernel")
@@ -1729,7 +1735,7 @@ def _build_distributional_section(
             if bundle.ordinal_poverty_ref is not None:
                 try:
                     ordinal_report = load_ordinal_poverty_report(
-                        ctx.store, bundle.ordinal_poverty_ref
+                        _ensure_ir_artifact_store(ctx.store), bundle.ordinal_poverty_ref
                     )
                     payload.update(
                         {
@@ -1772,7 +1778,7 @@ def _build_welfare_section(
         if sim_result_ref is not None:
             try:
                 sim_result = SimulationResult.model_validate(
-                    from_canonical_bytes(ctx.store.get_bytes(sim_result_ref.artifact_id))
+                    from_canonical_bytes(ctx.store.get_bytes(sim_result_ref))
                 )
                 if sim_result.welfare_bundle_ref is not None:
                     bundle_ref = sim_result.welfare_bundle_ref
@@ -1793,7 +1799,7 @@ def _build_welfare_section(
     }
     try:
         welfare = load_welfare_bundle(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             WelfareBundleRef.model_validate(bundle_ref.model_dump()),
         )
         payload.update(
@@ -1874,7 +1880,7 @@ def _build_welfare_section(
         if welfare.channel_decomposition_ref is not None:
             try:
                 channel = load_channel_decomposition_artifact(
-                    ctx.store,
+                    _ensure_ir_artifact_store(ctx.store),
                     welfare.channel_decomposition_ref,
                 )
                 payload["channel_decomposition_artifact"] = {
@@ -1989,7 +1995,7 @@ def _build_econometrics_section(
 
     if result_ref is not None:
         try:
-            result_obj = from_canonical_bytes(ctx.store.get_bytes(result_ref.artifact_id))
+            result_obj = from_canonical_bytes(ctx.store.get_bytes(result_ref))
             if isinstance(result_obj, dict):
                 payload["result"] = result_obj.get("result", result_obj)
                 if "envelope" in result_obj:
@@ -2010,7 +2016,7 @@ def _build_econometrics_section(
     if envelope_ref is not None:
         try:
             envelope = load_uncertainty_envelope(
-                ctx.store,
+                _ensure_ir_artifact_store(ctx.store),
                 UncertaintyEnvelopeRef(artifact_id=envelope_ref.artifact_id),
             )
             payload["envelope_summary"] = {
@@ -2046,7 +2052,7 @@ def _load_normative_arbitration(
         return None
     try:
         return load_normative_arbitration_result(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             NormativeArbitrationResultRef(artifact_id=ref.artifact_id),
         )
     except _DECISION_PACKET_LOAD_ERRORS as exc:
@@ -2074,7 +2080,7 @@ def _build_aux_artifact_section(
         return None
     payload: dict[str, object] = {"ref": str(ref.artifact_id)}
     try:
-        artifact_obj = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+        artifact_obj = from_canonical_bytes(ctx.store.get_bytes(ref))
         if isinstance(artifact_obj, dict):
             payload["content"] = artifact_obj
         else:
@@ -2101,7 +2107,7 @@ def _build_sensitivity_section(
     canonical_ref = artifacts_index.get(ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF)
     if canonical_ref is not None:
         try:
-            artifact_obj = from_canonical_bytes(ctx.store.get_bytes(canonical_ref.artifact_id))
+            artifact_obj = from_canonical_bytes(ctx.store.get_bytes(canonical_ref))
             return {
                 "ref": str(canonical_ref.artifact_id),
                 "sensitivity_analysis_bundle_ref": str(canonical_ref.artifact_id),
@@ -2123,7 +2129,7 @@ def _build_sensitivity_section(
     payload: dict[str, object] = {"ref": str(ref.artifact_id)}
     try:
         result = load_sensitivity_result(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             CausalSensitivityResultRef.model_validate(ref.model_dump(mode="json")),
         )
     except _DECISION_PACKET_LOAD_ERRORS as exc:
@@ -2136,7 +2142,7 @@ def _build_sensitivity_section(
             artifact_key=ARTIFACT_SENSITIVITY_RESULT_REF,
         )
         try:
-            artifact_obj = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+            artifact_obj = from_canonical_bytes(ctx.store.get_bytes(ref))
             if isinstance(artifact_obj, dict):
                 payload["content"] = artifact_obj
         except _DECISION_PACKET_LOAD_ERRORS as fallback_exc:
@@ -2160,7 +2166,7 @@ def _build_sensitivity_section(
             source_ref=str(ref.artifact_id),
         )
         bundle_ref = persist_sensitivity_analysis_bundle(
-            ctx.store,
+            _ensure_ir_artifact_store(ctx.store),
             bundle,
             inputs=[InputRef(artifact_id=ref.artifact_id, role="legacy_sensitivity_result")],
         )
@@ -2713,7 +2719,7 @@ def _build_uncertainty_section(
     data_snapshot_ref = state_inputs.get(INPUT_DATA_SNAPSHOT_REF)
     if data_snapshot_ref is not None:
         try:
-            payload = from_canonical_bytes(ctx.store.get_bytes(data_snapshot_ref.artifact_id))
+            payload = from_canonical_bytes(ctx.store.get_bytes(data_snapshot_ref))
             snapshot = DataSnapshot.model_validate(payload)
             if snapshot.uncertainty_envelope_ref is not None:
                 envelope_refs.add(str(snapshot.uncertainty_envelope_ref.artifact_id))
@@ -2731,9 +2737,11 @@ def _build_uncertainty_section(
             )
 
     simulation_result_ref = state_artifacts.get(ARTIFACT_SIMULATION_RESULT_REF)
+    simulation_result_selector_ref: dict[str, str] | None = None
     if simulation_result_ref is not None:
         try:
-            payload = from_canonical_bytes(ctx.store.get_bytes(simulation_result_ref.artifact_id))
+            simulation_result_selector_ref = normalize_artifact_ref(simulation_result_ref)
+            payload = from_canonical_bytes(ctx.store.get_bytes(simulation_result_ref))
             sim_result = SimulationResult.model_validate(payload)
             if sim_result.uncertainty_envelopes:
                 for metric_id, ref in sim_result.uncertainty_envelopes.items():
@@ -2762,6 +2770,10 @@ def _build_uncertainty_section(
         "envelope_refs": sorted(envelope_refs),
         "legacy_bounds_refs": sorted(legacy_bounds_refs),
         "output_envelope_refs": output_envelope_refs,
+        "simulation_result_ref": (
+            str(simulation_result_ref.artifact_id) if simulation_result_ref is not None else None
+        ),
+        "simulation_result_selector_ref": simulation_result_selector_ref,
         "causal_envelope_ref": str(causal_env_ref.artifact_id)
         if causal_env_ref is not None
         else None,
@@ -2786,22 +2798,41 @@ def _build_uncertainty_bounds(
         return None
 
     bounds: dict[str, float] = {}
+    if "simulation_result_selector_ref" in uncertainty_section:
+        simulation_result_selector = uncertainty_section.get("simulation_result_selector_ref")
+    else:
+        # Legacy section payloads carry only an ID and therefore select the default view.
+        simulation_result_selector = uncertainty_section.get("simulation_result_ref")
     for metric_id, ref_str in output_refs.items():
         if not isinstance(metric_id, str) or not isinstance(ref_str, str):
             continue
-        try:
-            ref = UncertaintyEnvelopeRef(artifact_id=ArtifactID.model_validate(ref_str))
-            env = load_uncertainty_envelope(ctx.store, ref)
-        except _DECISION_PACKET_LOAD_ERRORS as exc:
+        if not isinstance(simulation_result_selector, (str, Mapping)):
+            limitation_codes = ("simulation_result_ref_missing",)
+            admission = None
+        else:
+            admission = load_simulation_result_uncertainty_admission(
+                _ensure_ir_artifact_store(ctx.store),
+                simulation_result_selector,
+                metric_id,
+            )
+            limitation_codes = admission.limitation_codes
+        if admission is None or not admission.admitted or admission.envelope is None:
+            limitations = ",".join(limitation_codes) or "admission_not_established"
+            warnings = uncertainty_section.get("warnings")
+            if isinstance(warnings, list):
+                warning = f"uncertainty_output_admission_limited:{metric_id}:{limitations}"
+                if warning not in warnings:
+                    warnings.append(warning)
             _record_decision_packet_section_degraded(
                 packet_payload,
-                operation="load_uncertainty_output_envelope",
-                reason="uncertainty_output_envelope_load_failed",
-                exc=exc,
+                operation="admit_uncertainty_output_envelope",
+                reason="uncertainty_output_admission_limited",
+                exc=ValueError(limitations),
                 artifact_id=ref_str,
                 artifact_key=f"uncertainty.output_envelope_refs.{metric_id}",
             )
             continue
+        env = admission.envelope
         bounds[f"{metric_id}_lower"] = float(env.confidence_interval[0])
         bounds[f"{metric_id}_upper"] = float(env.confidence_interval[1])
         bounds[f"{metric_id}_point"] = float(env.point_estimate)
@@ -2812,7 +2843,7 @@ def _build_uncertainty_bounds(
     if isinstance(causal_ref, str):
         try:
             ref = UncertaintyEnvelopeRef(artifact_id=ArtifactID.model_validate(causal_ref))
-            env = load_uncertainty_envelope(ctx.store, ref)
+            env = load_uncertainty_envelope(_ensure_ir_artifact_store(ctx.store), ref)
             bounds["causal_effect_lower"] = float(env.confidence_interval[0])
             bounds["causal_effect_upper"] = float(env.confidence_interval[1])
             bounds["causal_effect_point"] = float(env.point_estimate)
@@ -2832,7 +2863,7 @@ def _build_uncertainty_bounds(
     if isinstance(econometric_ref, str):
         try:
             ref = UncertaintyEnvelopeRef(artifact_id=ArtifactID.model_validate(econometric_ref))
-            env = load_uncertainty_envelope(ctx.store, ref)
+            env = load_uncertainty_envelope(_ensure_ir_artifact_store(ctx.store), ref)
             bounds["econometric_effect_lower"] = float(env.confidence_interval[0])
             bounds["econometric_effect_upper"] = float(env.confidence_interval[1])
             bounds["econometric_effect_point"] = float(env.point_estimate)

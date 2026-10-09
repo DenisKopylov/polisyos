@@ -181,7 +181,7 @@ class ProductionCG2CalibrationSource:
         self, *, ref: artifacts.ArtifactRef, request: SourceGroundingRequest
     ) -> ProductionGroundingSourceResolution:
         """Recompute source and exact request before returning any audit projection."""
-        manifest = self._store.get_manifest(ref.artifact_id)
+        manifest = self._store.get_manifest(ref)
         if (
             manifest.kind != _KIND
             or manifest.artifact_schema is None
@@ -190,7 +190,7 @@ class ProductionCG2CalibrationSource:
         ):
             raise ValueError("production_grounding_source_schema_mismatch")
         persisted = ProductionGroundingSourceResolution.model_validate_json(
-            self._store.get_bytes(ref.artifact_id)
+            self._store.get_bytes(ref)
         )
         current = self._recompute(request)
         if _bytes(persisted.model_dump(mode="json")) != _bytes(current.model_dump(mode="json")):

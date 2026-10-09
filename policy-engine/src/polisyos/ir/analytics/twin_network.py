@@ -259,8 +259,8 @@ def load_twin_network_result(
     ref: TwinNetworkResultRef,
 ) -> TwinNetworkResult:
     """Load a TwinNetworkResult from the artifact store."""
-    payload = get_json_artifact(store, ref.artifact_id)
-    manifest = store.get_manifest(ref.artifact_id)
+    payload = get_json_artifact(store, ref)
+    manifest = store.get_manifest(ref)
     schema = getattr(manifest, "artifact_schema", None)
     if schema is None or schema.version not in {"1.0", "1.1"}:
         raise ValueError("twin result requires a supported CAS schema manifest")

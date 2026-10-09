@@ -105,9 +105,7 @@ def _identity_current_test_run(
         reason_code="n6_currentness_established",
         unresolved_by_construction=(),
     )
-    monkeypatch.setattr(
-        n6, "observe_n6_deployment_currentness", lambda **_kwargs: currentness
-    )
+    monkeypatch.setattr(n6, "observe_n6_deployment_currentness", lambda **_kwargs: currentness)
     return run.model_copy(
         update={
             "strangle_receipt": receipt,
@@ -240,9 +238,7 @@ async def _owner_source_harness(
     )
     case_id = run.cycles[0].revision_request.revised_problem.design_problem_id
     candidate_ids = tuple(
-        candidate_id
-        for ids in run.fronts.candidate_ids_by_front().values()
-        for candidate_id in ids
+        candidate_id for ids in run.fronts.candidate_ids_by_front().values() for candidate_id in ids
     )
     assert candidate_ids
     selected = candidate_ids[0]
@@ -386,9 +382,7 @@ async def test_actual_blocked_n6_source_is_persisted_as_blocked_s8_disposition(
 
     assert disposition.authorization_status == "blocked"
     assert disposition.ranked_recommendations == ()
-    assert disposition.decision_request.reason_codes == (
-        "p20_normative_generation_source_blocked",
-    )
+    assert disposition.decision_request.reason_codes == ("p20_normative_generation_source_blocked",)
     assert disposition.candidate_fronts == harness["candidate_fronts"]
     assert disposition.compiled_membership_status == "not_established"
     assert disposition.evidence == harness["evidence"]
@@ -495,9 +489,12 @@ async def test_n6_currentness_admission_is_frozen_and_candidate_work_remains_ava
         unresolved_by_construction=(),
     )
     historical = owner.replay_generation_disposition(disposition_ref)
-    assert canon.to_canonical_bytes(
-        historical.model_dump(mode="json"), canon.CanonSpec(forbid_floats=False)
-    ) == expected_history
+    assert (
+        canon.to_canonical_bytes(
+            historical.model_dump(mode="json"), canon.CanonSpec(forbid_floats=False)
+        )
+        == expected_history
+    )
     projection = owner.project_generation_disposition(disposition_ref, evaluated_at=NOW)
     assert projection.authorization_status == "blocked"
     assert projection.ranked_recommendations == ()
@@ -598,7 +595,7 @@ async def test_v2_reader_rejects_current_observation_with_unresolved_census(
 
 
 @pytest.mark.asyncio
-async def test_identity_current_v4_source_limited_run_is_refused_by_direct_s8_owner(
+async def test_identity_current_v5_source_limited_run_is_refused_by_direct_s8_owner(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     harness = await _owner_source_harness(
@@ -609,19 +606,17 @@ async def test_identity_current_v4_source_limited_run_is_refused_by_direct_s8_ow
         monkeypatch=monkeypatch,
     )
     run = harness["run"]
-    assert run.schema_version == "policyos.runtime.generation_cycle_controller.v4"
+    assert run.schema_version == "policyos.runtime.generation_cycle_controller.v5"
     assert run.source_custody_limitation is not None
     assert run.source_custody_limitation.reason_code == "source_store_unavailable"
     observations = _track_currentness_observations(monkeypatch)
     assert n6.currentness_for_generation_cycle_run(run).status == "current"
     observations.clear()
 
-    # Removal probe: deleting the strict custody issue while retaining the v4
+    # Removal probe: deleting the strict custody issue while retaining the v5
     # limitation marker would let this otherwise admissible signed S8 bundle
     # through.  The consumer must therefore reject on the source-custody issue.
-    with pytest.raises(
-        s8.P20NormativeChoiceError, match="p20_normative_generation_source_invalid"
-    ):
+    with pytest.raises(s8.P20NormativeChoiceError, match="p20_normative_generation_source_invalid"):
         harness["owner"].produce_generation_disposition(
             binding=harness["binding"],
             evidence=harness["evidence"],
@@ -740,8 +735,7 @@ async def test_historical_v1_identity_and_custody_limits_block_s8_with_exact_rep
                 issues=tuple(
                     issue
                     for issue in inspected.issues
-                    if issue.get("code")
-                    != "strangle_receipt_currentness_not_established"
+                    if issue.get("code") != "strangle_receipt_currentness_not_established"
                 ),
                 currentness=inspected.currentness,
             )
@@ -771,10 +765,7 @@ async def test_historical_v1_identity_and_custody_limits_block_s8_with_exact_rep
         ) -> n6.GenerationCycleRunInspection:
             inspected = original_inspector(checked_run, **kwargs)
             return n6.GenerationCycleRunInspection(
-                issues=tuple(
-                    {**issue, "census_verdict": "PASS"}
-                    for issue in inspected.issues
-                ),
+                issues=tuple({**issue, "census_verdict": "PASS"} for issue in inspected.issues),
                 currentness=inspected.currentness,
             )
 

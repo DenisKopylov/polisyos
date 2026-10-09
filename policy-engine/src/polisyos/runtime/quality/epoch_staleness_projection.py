@@ -164,9 +164,7 @@ class EpochInheritanceRecomputeProjectionReader:
             )
             try:
                 transition = EpochValidityTransitionArtifact.model_validate_json(
-                    self._artifact_store.get_bytes(
-                        receipt.transition_artifact_ref.artifact_id
-                    )
+                    self._artifact_store.get_bytes(receipt.transition_artifact_ref)
                 )
             except (OSError, TypeError, ValueError) as exc:
                 raise DerivationRefusalError(
@@ -765,9 +763,7 @@ def compile_epoch_staleness_projection(
         lineage=lineage,
         open_world_risk=_open_world_risk_view(open_world_risk),
         institutional_absences=absences,
-        engineering_absences=(
-            () if recompute_reader is not None else (_engineering_absence(),)
-        ),
+        engineering_absences=(() if recompute_reader is not None else (_engineering_absence(),)),
         limitations=tuple(dict.fromkeys(limitations)),
         predicate_provenance=denominator.predicate_provenance,
         fixture_only=fixture_only,

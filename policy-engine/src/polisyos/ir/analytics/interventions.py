@@ -1268,7 +1268,7 @@ def load_intervention_query(
 ) -> InterventionQuery:
     """Load a persisted intervention query."""
 
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return InterventionQuery.model_validate(payload)
 
 
@@ -1298,7 +1298,7 @@ def load_intervention_certificate(
     ref: InterventionCertificateRef,
 ) -> InterventionCertificate:
     """Load a persisted intervention certificate."""
-    payload = get_json_artifact(store, ref.artifact_id)
+    payload = get_json_artifact(store, ref)
     return InterventionCertificate.model_validate(payload)
 
 

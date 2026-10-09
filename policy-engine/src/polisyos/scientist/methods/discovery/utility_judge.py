@@ -34,7 +34,9 @@ from polisyos.scientist.methods.search.artifact_minimality import (
     artifact_functions_field,
 )
 
-DOWNSTREAM_UTILITY_REPORT_SCHEMA_NAME = "polisyos.scientist.methods.discovery.DownstreamUtilityReport"
+DOWNSTREAM_UTILITY_REPORT_SCHEMA_NAME = (
+    "polisyos.scientist.methods.discovery.DownstreamUtilityReport"
+)
 
 
 class UtilityJudgeConfig(BaseModel):
@@ -287,7 +289,7 @@ def load_downstream_utility_report(
     ref: DownstreamUtilityReportRef,
 ) -> DownstreamUtilityReport:
     """Load downstream utility report."""
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return DownstreamUtilityReport.model_validate(payload)
 
 

@@ -140,8 +140,7 @@ async def test_terminal_blocked_n6_refuses_public_n9_projection_before_receipt_p
     assert blocked_run.terminal_status == "blocked"
     assert blocked_run.promotion_port.receipts == ()
     assert blocked_run.promotion_port.reason == (
-        "generation_cycle_blocked_before_n9:"
-        "voi_safety_cap_reached_without_scheduler_stop"
+        "generation_cycle_blocked_before_n9:voi_safety_cap_reached_without_scheduler_stop"
     )
 
     def receipt_parser_must_not_run(cls, payload):
@@ -189,9 +188,7 @@ def test_persisted_historical_n6_cannot_supply_current_n9_receipt(
 
     _tracked_json_file_count, occurrences = _tracked_n6_runs()
     matching_runs = tuple(
-        row
-        for row in occurrences
-        if row[2].get("schema_version") == schema_version
+        row for row in occurrences if row[2].get("schema_version") == schema_version
     )
     assert matching_runs, f"no persisted N6 run for historical schema {schema_version}"
     path, pointer, payload = matching_runs[0]
@@ -711,8 +708,7 @@ async def test_public_export_carries_scope_limitation_without_numeric_risk(
     assert run.promotion_port.status == "not_promoted"
     assert run.promotion_port.receipts == ()
     assert run.promotion_port.reason == (
-        "generation_cycle_blocked_before_n9:"
-        "voi_safety_cap_reached_without_scheduler_stop"
+        "generation_cycle_blocked_before_n9:voi_safety_cap_reached_without_scheduler_stop"
     )
 
     currentness = currentness_for_generation_cycle_run(run)
@@ -1575,7 +1571,7 @@ def test_public_projection_reuses_public_revision_state_silent_upgrade_firewall(
 
 
 @pytest.mark.asyncio
-async def test_identity_current_v4_source_limited_run_is_refused_by_public_pre_n9_projection(
+async def test_identity_current_v5_source_limited_run_is_refused_by_public_pre_n9_projection(
     tmp_path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
@@ -1592,7 +1588,7 @@ async def test_identity_current_v4_source_limited_run_is_refused_by_public_pre_n
         monkeypatch=monkeypatch,
     )
     run = harness["run"]
-    assert run.schema_version == "policyos.runtime.generation_cycle_controller.v4"
+    assert run.schema_version == "policyos.runtime.generation_cycle_controller.v5"
     assert run.source_custody_limitation is not None
     assert run.source_custody_limitation.reason_code == "source_store_unavailable"
     observations = _track_currentness_observations(monkeypatch)

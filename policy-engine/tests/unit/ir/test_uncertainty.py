@@ -1,9 +1,17 @@
 from __future__ import annotations
 
 import math
+from types import SimpleNamespace
 
 import pytest
+from pydantic import ValidationError
+
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts.ids import ArtifactID as CoreArtifactID
+from polisyos.core.artifacts.manifest import CanonInfo as CoreCanonInfo
+from polisyos.core.artifacts.manifest import SchemaInfo as CoreSchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.ir.analytics.uncertainty import (
     CertificateKind,
     ComposedFlavour,
@@ -23,6 +31,7 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyCompatibilityError,
     UncertaintyEnvelope,
     UncertaintySource,
+    _normalized_artifact_reference,
     combine_envelopes,
     compress_envelope,
     envelope_meets_trust_policy,
@@ -33,7 +42,8 @@ from polisyos.ir.analytics.uncertainty import (
     push_forward_envelope,
 )
 from polisyos.ir.kernel.trust import TrustPolicySpec
-from pydantic import ValidationError
+from polisyos.ir.model_layer.canon import CanonSpec, to_canonical_bytes
+from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
 
 
 def test_uncertainty_envelope_basic_creation() -> None:
@@ -107,13 +117,92 @@ def test_uncertainty_envelope_cas_roundtrip(tmp_path) -> None:
         metadata={"trust_policy_id": "strict"},
     )
 
-    ref_1 = persist_uncertainty_envelope(store, env)
-    ref_2 = persist_uncertainty_envelope(store, env)
-    loaded = load_uncertainty_envelope(store, ref_1)
+    ref_1 = persist_uncertainty_envelope(_ensure_ir_artifact_store(store), env)
+    ref_2 = persist_uncertainty_envelope(_ensure_ir_artifact_store(store), env)
+    loaded = load_uncertainty_envelope(_ensure_ir_artifact_store(store), ref_1)
 
     assert ref_1.kind == "ir.uncertainty_envelope"
     assert ref_1.artifact_id == ref_2.artifact_id
     assert loaded == env
+
+
+def test_uncertainty_loader_preserves_selected_manifest_profile(tmp_path) -> None:
+    root = tmp_path / "cas"
+    producer = FileSystemCAS(root)
+    env = UncertaintyEnvelope(
+        point_estimate=42.0,
+        confidence_interval=(40.0, 44.0),
+        source=UncertaintySource.TRUST,
+        confidence_level=None,
+        interval_semantics=IntervalSemantics.DETERMINISTIC_BOUNDS,
+    )
+    kind = "ir.uncertainty_envelope"
+    raw = to_canonical_bytes(
+        env.model_dump(mode="python", round_trip=True),
+        CanonSpec(forbid_floats=False),
+    )
+    default_ref = producer.put_bytes(
+        raw,
+        ArtifactWriteOptions(
+            kind=kind,
+            media_type="application/json",
+            schema=CoreSchemaInfo(name=kind, version="1.1"),
+            canon=CoreCanonInfo(forbid_floats=True),
+        ),
+    )
+    selected_ref = producer.put_bytes(
+        raw,
+        ArtifactWriteOptions(
+            kind=kind,
+            media_type="application/json",
+            schema=CoreSchemaInfo(name=kind, version="1.1"),
+            canon=CoreCanonInfo(forbid_floats=False),
+        ),
+    )
+    assert selected_ref.artifact_id == default_ref.artifact_id
+    assert selected_ref.manifest_profile_sha256 is not None
+
+    typed_ref = UncertaintyEnvelopeRef.model_validate(selected_ref.model_dump(mode="json"))
+    fresh_reader = _ensure_ir_artifact_store(FileSystemCAS(root))
+
+    assert load_uncertainty_envelope(fresh_reader, typed_ref) == env
+
+
+def test_uncertainty_reference_accepts_core_scalar_id_and_rejects_arbitrary_root() -> None:
+    class ManifestReader:
+        def __init__(self) -> None:
+            self.reads: list[object] = []
+
+        def get_manifest(self, artifact_id: object) -> SimpleNamespace:
+            self.reads.append(artifact_id)
+            return SimpleNamespace(
+                kind="foundry.simulation_result",
+                media_type="application/json",
+            )
+
+    artifact_id = "sha256:" + "a" * 64
+    store = ManifestReader()
+
+    normalized = _normalized_artifact_reference(store, CoreArtifactID(artifact_id))
+
+    assert normalized == {
+        "artifact_id": artifact_id,
+        "kind": "foundry.simulation_result",
+        "media_type": "application/json",
+    }
+    assert len(store.reads) == 1
+
+    class RootOnlySelector:
+        @property
+        def root(self) -> str:
+            return artifact_id
+
+        def __str__(self) -> str:
+            return self.root
+
+    with pytest.raises((TypeError, ValueError)):
+        _normalized_artifact_reference(store, RootOnlySelector())
+    assert len(store.reads) == 1
 
 
 def test_numeric_policy_canonicalizes_bounded_floats() -> None:
@@ -202,8 +291,8 @@ def test_distribution_carriers_validate_and_roundtrip(tmp_path) -> None:
         )
     )
 
-    ref = persist_uncertainty_envelope(store, env)
-    loaded = load_uncertainty_envelope(store, ref)
+    ref = persist_uncertainty_envelope(_ensure_ir_artifact_store(store), env)
+    loaded = load_uncertainty_envelope(_ensure_ir_artifact_store(store), ref)
 
     assert loaded.distribution_payload == env.distribution_payload
     assert quantiles.quantiles["0.95"] == pytest.approx(0.9)

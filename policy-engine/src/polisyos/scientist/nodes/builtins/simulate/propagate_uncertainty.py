@@ -10,9 +10,10 @@ from typing import Any, Protocol, cast
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import Metrics, SimulationResult, SimulationResultRef
@@ -25,16 +26,18 @@ from polisyos.ir.analytics.uncertainty import (
     load_uncertainty_envelope,
     persist_uncertainty_envelope,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
+from polisyos.ir.artifacts import get_json_artifact
+from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_PROPAGATION_REPORT_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
     INPUT_CALIBRATION_REPORT_REF,
     INPUT_DATA_SNAPSHOT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 logger = get_logger(__name__)
 
@@ -161,9 +164,7 @@ class PropagateUncertaintyNode:
                 for item in results
             ]
         missing_output_metric_ids = [
-            item.metric_id
-            for item in results
-            if _has_missing_output(item)
+            item.metric_id for item in results if _has_missing_output(item)
         ]
         incomplete_output_metric_ids = [
             item.metric_id
@@ -177,7 +178,7 @@ class PropagateUncertaintyNode:
         envelope_refs: dict[str, ArtifactRef] = {}
         artifacts: list[ArtifactRef] = []
         for item in results:
-            ref = persist_uncertainty_envelope(ctx.store, item.envelope)
+            ref = persist_uncertainty_envelope(_ensure_ir_artifact_store(ctx.store), item.envelope)
             envelope_refs[item.metric_id] = ref
             artifacts.append(ref)
 
@@ -201,26 +202,12 @@ class PropagateUncertaintyNode:
             }
         )
         update_inputs = [
-            InputRef(
-                artifact_id=str(sim_result_ref.artifact_id),
-                role="base_simulation_result",
-            ),
-            InputRef(
-                artifact_id=str(report_ref.artifact_id),
-                role="propagation_report",
-            ),
-            InputRef(
-                artifact_id=str(config_ref.artifact_id),
-                role="propagation_config",
-            ),
+            _input_ref(sim_result_ref, role="base_simulation_result"),
+            _input_ref(report_ref, role="propagation_report"),
+            _input_ref(config_ref, role="propagation_config"),
         ]
         for metric_id, ref in envelope_refs.items():
-            update_inputs.append(
-                InputRef(
-                    artifact_id=str(ref.artifact_id),
-                    role=f"metric_envelope.{metric_id}",
-                )
-            )
+            update_inputs.append(_input_ref(ref, role=f"metric_envelope.{metric_id}"))
 
         updated_ref_payload = ctx.store.put_json(
             updated_sim,
@@ -231,7 +218,9 @@ class PropagateUncertaintyNode:
                 inputs=update_inputs,
             ),
         )
-        updated_ref = SimulationResultRef(artifact_id=updated_ref_payload.artifact_id)
+        updated_ref = SimulationResultRef.model_validate(
+            updated_ref_payload.model_dump(mode="python")
+        )
 
         new_state = branch_state(state, write_paths=("artifacts_index",)).state
         new_state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF] = updated_ref
@@ -257,8 +246,17 @@ class PropagateUncertaintyNode:
 
 
 def _load_model(ctx: ExecutionContext, ref: ArtifactRef, model_cls):
-    payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+    payload = get_json_artifact(_ensure_ir_artifact_store(ctx.store), ref)
     return model_cls.model_validate(payload)
+
+
+def _input_ref(ref: ArtifactRef | ArtifactRefModel, *, role: str) -> InputRef:
+    """Build one producer lineage edge without discarding its selected manifest view."""
+    return InputRef(
+        artifact_id=ref.artifact_id,
+        role=role,
+        manifest_profile_sha256=ref.manifest_profile_sha256,
+    )
 
 
 def _extract_numeric_metrics(metrics: Metrics) -> dict[str, float]:
@@ -292,7 +290,7 @@ def _collect_input_envelopes(
             snapshot = _load_model(ctx, data_snapshot_ref, DataSnapshot)
             if snapshot.uncertainty_envelope_ref is not None:
                 snapshot_env = load_uncertainty_envelope(
-                    ctx.store,
+                    _ensure_ir_artifact_store(ctx.store),
                     snapshot.uncertainty_envelope_ref,
                 )
                 name = snapshot_env.metadata.get("param_name")
@@ -310,7 +308,9 @@ def _collect_input_envelopes(
                     envelopes[str(name)] = env
             elif report.uncertainty_envelope_refs:
                 for name, ref in report.uncertainty_envelope_refs.items():
-                    envelopes[str(name)] = load_uncertainty_envelope(ctx.store, ref)
+                    envelopes[str(name)] = load_uncertainty_envelope(
+                        _ensure_ir_artifact_store(ctx.store), ref
+                    )
         except _PROPAGATION_LOAD_ERRORS:
             logger.debug("Failed to load calibration uncertainty envelopes", exc_info=True)
 
@@ -473,8 +473,7 @@ def _persist_report(
     )
     shared_provenance = results[0].diagnostics.get("draw_outcome_provenance") if results else None
     if shared_provenance is not None and not all(
-        item.diagnostics.get("draw_outcome_provenance") is shared_provenance
-        for item in results
+        item.diagnostics.get("draw_outcome_provenance") is shared_provenance for item in results
     ):
         shared_provenance = None
 

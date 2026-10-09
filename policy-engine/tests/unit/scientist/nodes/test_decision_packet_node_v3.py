@@ -2,7 +2,14 @@ from __future__ import annotations
 
 import logging
 
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    SchemaInfo,
+)
+from polisyos.core.artifacts.manifest import (
+    InputRef as CoreInputRef,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.compiler.report import CompileReport, put_compile_report, put_link_report
@@ -550,7 +557,7 @@ def test_build_decision_packet_includes_metric_validation_projection(tmp_path) -
         canon_spec=CanonSpec(forbid_floats=False),
     )
     metric_validation_ref = persist_metric_validation_report(
-        store,
+        _ensure_ir_artifact_store(store),
         MetricValidationReport(
             report_id="mvr_packet",
             dataset_id="holdout_v1",
@@ -948,7 +955,7 @@ def test_build_decision_packet_includes_tradeoff_certificate_and_normative_valid
         PutOptions(kind="scientist.governance_report", media_type="application/json"),
     )
     normative_ref = persist_normative_arbitration_result(
-        store,
+        _ensure_ir_artifact_store(store),
         NormativeArbitrationResult(
             model_completeness=NormativeModelCompleteness.PARTIAL,
             option_matrix=[
@@ -1186,7 +1193,7 @@ def test_build_decision_packet_accepts_complete_serious_contract(tmp_path) -> No
         PutOptions(kind="scientist.governance_report", media_type="application/json"),
     )
     normative_ref = persist_normative_arbitration_result(
-        store,
+        _ensure_ir_artifact_store(store),
         NormativeArbitrationResult(
             model_completeness=NormativeModelCompleteness.PARTIAL,
             option_matrix=[
@@ -1224,7 +1231,7 @@ def test_build_decision_packet_accepts_complete_serious_contract(tmp_path) -> No
         ),
     )
     transport_ref = persist_transportability_result(
-        store,
+        _ensure_ir_artifact_store(store),
         TransportabilityResult(
             query="P*(Y|do(X))",
             status=TransportabilityStatus.IDENTIFIED,
@@ -1289,7 +1296,7 @@ def test_build_decision_packet_accepts_complete_serious_contract(tmp_path) -> No
     assert payload["feedback_loop"]["monitoring_contract_ref"] is not None
 
 
-def test_build_decision_packet_node_accepts_float_uncertainty_bounds(tmp_path) -> None:
+def test_build_decision_packet_node_accepts_float_uncertainty_bounds(tmp_path, monkeypatch) -> None:
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
     run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_packet_unc")
@@ -1333,7 +1340,7 @@ def test_build_decision_packet_node_accepts_float_uncertainty_bounds(tmp_path) -
         PutOptions(kind="foundry.exec_plan", media_type="application/json"),
     )
     env_ref = persist_uncertainty_envelope(
-        store,
+        _ensure_ir_artifact_store(store),
         UncertaintyEnvelope(
             point_estimate=12.0,
             confidence_interval=(10.0, 15.0),
@@ -1344,14 +1351,41 @@ def test_build_decision_packet_node_accepts_float_uncertainty_bounds(tmp_path) -
             interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
         ),
     )
-    sim_result_ref = store.put_json(
-        SimulationResult(
-            exec_plan_ref=ExecPlanRef(artifact_id=exec_plan_ref.artifact_id),
-            metrics_ref=MetricsRef(artifact_id=metrics_ref.artifact_id),
-            uncertainty_envelopes={"step_latency_ms": env_ref},
-        ),
+    simulation_payload = SimulationResult(
+        exec_plan_ref=ExecPlanRef(artifact_id=exec_plan_ref.artifact_id),
+        metrics_ref=MetricsRef(artifact_id=metrics_ref.artifact_id),
+        uncertainty_envelopes={"step_latency_ms": env_ref},
+    )
+    default_sim_result_ref = store.put_json(
+        simulation_payload,
         PutOptions(kind="foundry.simulation_result", media_type="application/json"),
     )
+    sim_result_ref = store.put_json(
+        simulation_payload,
+        PutOptions(
+            kind="foundry.simulation_result",
+            media_type="application/json",
+            inputs=[
+                CoreInputRef(
+                    artifact_id="sha256:" + "d" * 64,
+                    role="selected_view_witness",
+                )
+            ],
+        ),
+    )
+    assert sim_result_ref.artifact_id == default_sim_result_ref.artifact_id
+    assert sim_result_ref.manifest_profile_sha256 is not None
+
+    observed_simulation_reads: list[object] = []
+    get_bytes = store.get_bytes
+
+    def record_simulation_read(selector: object) -> bytes:
+        selector_id = getattr(selector, "artifact_id", selector)
+        if str(selector_id) == str(sim_result_ref.artifact_id):
+            observed_simulation_reads.append(selector)
+        return get_bytes(selector)
+
+    monkeypatch.setattr(store, "get_bytes", record_simulation_read)
 
     state = ExperimentState(
         run_id="R_packet_unc",
@@ -1371,9 +1405,26 @@ def test_build_decision_packet_node_accepts_float_uncertainty_bounds(tmp_path) -
     payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
     bounds = payload["uncertainty_bounds"]
 
-    assert isinstance(bounds, dict)
-    assert bounds["step_latency_ms_lower"] == 10.0
-    assert bounds["step_latency_ms_upper"] == 15.0
+    assert bounds is None
+    assert payload["uncertainty"]["simulation_result_ref"] == str(sim_result_ref.artifact_id)
+    assert payload["uncertainty"]["simulation_result_selector_ref"] == {
+        "artifact_id": str(sim_result_ref.artifact_id),
+        "kind": sim_result_ref.kind,
+        "media_type": sim_result_ref.media_type,
+        "manifest_profile_sha256": sim_result_ref.manifest_profile_sha256,
+    }
+    assert observed_simulation_reads
+    assert all(
+        getattr(selector, "manifest_profile_sha256", None) == sim_result_ref.manifest_profile_sha256
+        for selector in observed_simulation_reads
+    )
+    uncertainty_warnings = payload["uncertainty"]["warnings"]
+    assert any(
+        warning.startswith("uncertainty_output_admission_limited:step_latency_ms:")
+        for warning in uncertainty_warnings
+    )
+    degraded_reasons = {item["reason"] for item in payload["degraded_paths"]}
+    assert "uncertainty_output_admission_limited" in degraded_reasons
 
 
 def test_build_decision_packet_records_degraded_paths_for_invalid_uncertainty_output_envelope(
@@ -1464,9 +1515,9 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_uncertainty_ou
     degraded_reasons = {item["reason"] for item in payload["degraded_paths"]}
 
     assert payload["uncertainty_bounds"] is None
-    assert "uncertainty_output_envelope_load_failed" in degraded_reasons
+    assert "uncertainty_output_admission_limited" in degraded_reasons
     assert any(
-        note.startswith("uncertainty_output_envelope_load_failed:") for note in payload["notes"]
+        note.startswith("uncertainty_output_admission_limited:") for note in payload["notes"]
     )
 
 
@@ -1499,7 +1550,7 @@ def test_build_decision_packet_includes_causal_section(tmp_path) -> None:
         PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
     )
     report_ref = persist_causal_effect_report(
-        store,
+        _ensure_ir_artifact_store(store),
         CausalEffectReport(
             method=CausalMethod.SYNTHETIC_CONTROL,
             status=EstimationStatus.SUCCESS,
@@ -1536,7 +1587,7 @@ def test_build_decision_packet_includes_causal_section(tmp_path) -> None:
         ),
     )
     envelope_ref = persist_uncertainty_envelope(
-        store,
+        _ensure_ir_artifact_store(store),
         UncertaintyEnvelope(
             point_estimate=2.5,
             confidence_interval=(1.0, 4.0),
@@ -1634,7 +1685,7 @@ def test_build_decision_packet_surfaces_dp_status_from_readiness_and_bounds(tmp_
         ),
     )
     bounds_ref = persist_bounds_bundle(
-        store,
+        _ensure_ir_artifact_store(store),
         BoundsBundle(
             estimand_type="ate",
             point_identified=False,
@@ -1718,7 +1769,7 @@ def test_build_decision_packet_includes_abm_alignment_section(tmp_path) -> None:
         PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
     )
     abm_ref = persist_abm_alignment_report(
-        store,
+        _ensure_ir_artifact_store(store),
         ABMAlignmentReport(
             mappings=[
                 MacroMicroMapping(
@@ -1745,7 +1796,7 @@ def test_build_decision_packet_includes_abm_alignment_section(tmp_path) -> None:
         ),
     )
     abstraction_map_ref = persist_finite_state_abstraction_map(
-        store,
+        _ensure_ir_artifact_store(store),
         FiniteStateAbstractionMap(
             variable_maps=(
                 VariableStateAbstraction(
@@ -1757,7 +1808,7 @@ def test_build_decision_packet_includes_abm_alignment_section(tmp_path) -> None:
         ),
     )
     abstraction_certificate_ref = persist_abstraction_certificate(
-        store,
+        _ensure_ir_artifact_store(store),
         AbstractionCertificate(
             micro_graph_ref={
                 "artifact_id": _artifact_id("a"),
@@ -1850,7 +1901,7 @@ def test_build_decision_packet_includes_approximate_abstraction_metadata(tmp_pat
         PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
     )
     abstraction_map_ref = persist_finite_state_abstraction_map(
-        store,
+        _ensure_ir_artifact_store(store),
         FiniteStateAbstractionMap(
             variable_maps=(
                 VariableStateAbstraction(
@@ -1862,7 +1913,7 @@ def test_build_decision_packet_includes_approximate_abstraction_metadata(tmp_pat
         ),
     )
     abstraction_certificate_ref = persist_abstraction_certificate(
-        store,
+        _ensure_ir_artifact_store(store),
         AbstractionCertificate(
             micro_graph_ref={
                 "artifact_id": _artifact_id("c"),
@@ -1958,7 +2009,7 @@ def test_build_decision_packet_includes_hte_and_backtest_sections(tmp_path) -> N
     )
 
     hte_ref = persist_hte_result(
-        store,
+        _ensure_ir_artifact_store(store),
         HTEResult(
             method=CausalMethod.CAUSAL_FOREST,
             ate=0.2,
@@ -1973,7 +2024,7 @@ def test_build_decision_packet_includes_hte_and_backtest_sections(tmp_path) -> N
         ),
     )
     recommendation_ref = persist_policy_recommendation(
-        store,
+        _ensure_ir_artifact_store(store),
         PolicyRecommendation(
             budget_constraint=10.0,
             targeting_rules=[
@@ -1994,7 +2045,7 @@ def test_build_decision_packet_includes_hte_and_backtest_sections(tmp_path) -> N
         ),
     )
     backtest_ref = persist_backtest_report(
-        store,
+        _ensure_ir_artifact_store(store),
         BacktestReport(
             report_id="BT_1",
             scenarios=[BacktestScenario(scenario_id="s1", scenario_label="s1")],
@@ -2167,7 +2218,7 @@ def test_build_decision_packet_includes_sensitivity_section(tmp_path) -> None:
         PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
     )
     sensitivity_ref = persist_sensitivity_result(
-        store,
+        _ensure_ir_artifact_store(store),
         SensitivityResult(
             e_value=1.8,
             e_value_ci_lower=1.3,
@@ -2354,7 +2405,7 @@ def test_build_decision_packet_includes_transportability_summary(tmp_path) -> No
     )
 
     report_ref = persist_causal_effect_report(
-        store,
+        _ensure_ir_artifact_store(store),
         CausalEffectReport(
             method=CausalMethod.DOWHY_BACKDOOR,
             status=EstimationStatus.SUCCESS,
@@ -2436,7 +2487,7 @@ def test_build_decision_packet_includes_ensemble_summary(tmp_path) -> None:
         PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
     )
     ensemble_ref = persist_causal_model_ensemble(
-        store,
+        _ensure_ir_artifact_store(store),
         CausalModelEnsemble(
             members=[
                 EnsembleMember(
@@ -2513,7 +2564,7 @@ def test_build_decision_packet_uses_dual_written_ensemble_envelope_for_causal_po
     )
 
     ensemble_ref = persist_causal_model_ensemble(
-        store,
+        _ensure_ir_artifact_store(store),
         CausalModelEnsemble(
             members=[
                 EnsembleMember(
@@ -2528,7 +2579,7 @@ def test_build_decision_packet_uses_dual_written_ensemble_envelope_for_causal_po
         ),
     )
     ensemble_envelope_ref = persist_uncertainty_envelope(
-        store,
+        _ensure_ir_artifact_store(store),
         UncertaintyEnvelope(
             point_estimate=3.14,
             confidence_interval=(2.5, 3.8),
@@ -2588,7 +2639,7 @@ def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) ->
         PutOptions(kind="scientist.policy_candidate_schema", media_type="application/json"),
     )
     leader_table_ref = persist_strategic_payoff_table(
-        store,
+        _ensure_ir_artifact_store(store),
         FiniteStrategicPayoffTable(
             agent="leader",
             strategic_agents=("leader", "follower"),
@@ -2602,7 +2653,7 @@ def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) ->
         ),
     )
     follower_table_ref = persist_strategic_payoff_table(
-        store,
+        _ensure_ir_artifact_store(store),
         FiniteStrategicPayoffTable(
             agent="follower",
             strategic_agents=("leader", "follower"),
@@ -2616,7 +2667,7 @@ def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) ->
         ),
     )
     strategic_scm_ref = persist_strategic_scm(
-        store,
+        _ensure_ir_artifact_store(store),
         StrategicSCM(
             base_graph_ref=ArtifactRefModel.model_validate(base_graph_ref.model_dump(mode="json")),
             strategic_agents=("leader", "follower"),
@@ -2631,7 +2682,7 @@ def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) ->
         ),
     )
     strategic_closure_ref = persist_strategic_closure_summary(
-        store,
+        _ensure_ir_artifact_store(store),
         StrategicClosureSummary(
             fallback_mode=StrategicFallbackMode.EXACT_EQUILIBRIUM,
             equilibrium_concept=StrategicEquilibriumConcept.STACKELBERG,
@@ -2641,7 +2692,7 @@ def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) ->
         ),
     )
     equilibrium_set_ref = persist_equilibrium_set_summary(
-        store,
+        _ensure_ir_artifact_store(store),
         EquilibriumSetSummary(
             equilibrium_profiles=(
                 {"leader": "A", "follower": "X"},
@@ -2652,14 +2703,14 @@ def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) ->
         ),
     )
     selected_equilibrium_ref = persist_equilibrium_selection_summary(
-        store,
+        _ensure_ir_artifact_store(store),
         EquilibriumSelectionSummary(
             selected_equilibrium={"leader": "A", "follower": "X"},
             equilibrium_selection_dependence="follower_best_response_tie_breaking",
         ),
     )
     post_value_ref = persist_post_adaptation_policy_value_summary(
-        store,
+        _ensure_ir_artifact_store(store),
         PostAdaptationPolicyValueSummary(
             fallback_mode=StrategicFallbackMode.EXACT_EQUILIBRIUM,
             baseline_policy_value=1.0,
@@ -2667,7 +2718,7 @@ def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) ->
         ),
     )
     performative_shift_ref = persist_performative_shift_summary(
-        store,
+        _ensure_ir_artifact_store(store),
         PerformativeShiftSummary(
             performative_shift=0.3,
             baseline_policy_value=1.0,
@@ -2683,7 +2734,7 @@ def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) ->
         ),
     )
     mfg_perturbation_ref = persist_mean_field_perturbation_spec(
-        store,
+        _ensure_ir_artifact_store(store),
         compile_intervention_spec_to_mean_field_perturbation(
             InterventionSpec(type="stochastic", distribution="benefit_assignment_kernel"),
             source_intervention_ref=ArtifactRefModel(
@@ -2697,7 +2748,7 @@ def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) ->
         ),
     )
     mfg_numerics_ref = persist_mean_field_macro_simulation_config(
-        store,
+        _ensure_ir_artifact_store(store),
         MeanFieldMacroSimulationConfig(
             population_measure_snapshot_ref=ArtifactRefModel(
                 artifact_id=policy_rule_ref.artifact_id,
@@ -2723,7 +2774,7 @@ def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) ->
         ),
     )
     mfg_equilibrium_ref = persist_mean_field_equilibrium_certificate(
-        store,
+        _ensure_ir_artifact_store(store),
         MeanFieldEquilibriumCertificate(
             intervention_kind="distributional",
             baseline_policy_ref=ArtifactRefModel.model_validate(
@@ -2772,7 +2823,7 @@ def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) ->
         ),
     )
     strategic_bundle_ref = persist_strategic_response_bundle(
-        store,
+        _ensure_ir_artifact_store(store),
         StrategicResponseBundle(
             causal_component_ref=ArtifactRefModel.model_validate(
                 policy_rule_ref.model_dump(mode="json")
@@ -2877,7 +2928,7 @@ def test_build_decision_packet_includes_blocked_decomposition_failure_card(tmp_p
         PutOptions(kind="scientist.policy_candidate_schema", media_type="application/json"),
     )
     leader_table_ref = persist_strategic_payoff_table(
-        store,
+        _ensure_ir_artifact_store(store),
         FiniteStrategicPayoffTable(
             agent="leader",
             strategic_agents=("leader", "follower"),
@@ -2886,7 +2937,7 @@ def test_build_decision_packet_includes_blocked_decomposition_failure_card(tmp_p
         ),
     )
     follower_table_ref = persist_strategic_payoff_table(
-        store,
+        _ensure_ir_artifact_store(store),
         FiniteStrategicPayoffTable(
             agent="follower",
             strategic_agents=("leader", "follower"),
@@ -2895,7 +2946,7 @@ def test_build_decision_packet_includes_blocked_decomposition_failure_card(tmp_p
         ),
     )
     strategic_scm_ref = persist_strategic_scm(
-        store,
+        _ensure_ir_artifact_store(store),
         StrategicSCM(
             base_graph_ref=ArtifactRefModel.model_validate(base_graph_ref.model_dump(mode="json")),
             strategic_agents=("leader", "follower"),
@@ -2910,7 +2961,7 @@ def test_build_decision_packet_includes_blocked_decomposition_failure_card(tmp_p
         ),
     )
     strategic_closure_ref = persist_strategic_closure_summary(
-        store,
+        _ensure_ir_artifact_store(store),
         StrategicClosureSummary(
             fallback_mode=StrategicFallbackMode.EXACT_EQUILIBRIUM,
             equilibrium_concept=StrategicEquilibriumConcept.STACKELBERG,
@@ -2920,21 +2971,21 @@ def test_build_decision_packet_includes_blocked_decomposition_failure_card(tmp_p
         ),
     )
     equilibrium_set_ref = persist_equilibrium_set_summary(
-        store,
+        _ensure_ir_artifact_store(store),
         EquilibriumSetSummary(
             equilibrium_profiles=({"leader": "A", "follower": "X"},),
             equilibrium_count=1,
         ),
     )
     selected_equilibrium_ref = persist_equilibrium_selection_summary(
-        store,
+        _ensure_ir_artifact_store(store),
         EquilibriumSelectionSummary(
             selected_equilibrium={"leader": "A", "follower": "X"},
             equilibrium_selection_dependence="deterministic",
         ),
     )
     post_value_ref = persist_post_adaptation_policy_value_summary(
-        store,
+        _ensure_ir_artifact_store(store),
         PostAdaptationPolicyValueSummary(
             fallback_mode=StrategicFallbackMode.EXACT_EQUILIBRIUM,
             baseline_policy_value=1.0,
@@ -2942,7 +2993,7 @@ def test_build_decision_packet_includes_blocked_decomposition_failure_card(tmp_p
         ),
     )
     failure_card_ref = persist_strategic_decomposition_failure_card(
-        store,
+        _ensure_ir_artifact_store(store),
         StrategicDecompositionFailureCard(
             failure_code="decomposition_cross_world_anchor_undefined",
             message=(
@@ -2954,7 +3005,7 @@ def test_build_decision_packet_includes_blocked_decomposition_failure_card(tmp_p
         ),
     )
     strategic_bundle_ref = persist_strategic_response_bundle(
-        store,
+        _ensure_ir_artifact_store(store),
         StrategicResponseBundle(
             causal_component_ref=ArtifactRefModel.model_validate(
                 policy_rule_ref.model_dump(mode="json")
@@ -3030,7 +3081,7 @@ def test_build_decision_packet_falls_back_to_blocked_strategic_summary_without_b
         PutOptions(kind="scientist.policy_candidate_schema", media_type="application/json"),
     )
     leader_table_ref = persist_strategic_payoff_table(
-        store,
+        _ensure_ir_artifact_store(store),
         FiniteStrategicPayoffTable(
             agent="leader",
             strategic_agents=("leader", "follower"),
@@ -3039,7 +3090,7 @@ def test_build_decision_packet_falls_back_to_blocked_strategic_summary_without_b
         ),
     )
     follower_table_ref = persist_strategic_payoff_table(
-        store,
+        _ensure_ir_artifact_store(store),
         FiniteStrategicPayoffTable(
             agent="follower",
             strategic_agents=("leader", "follower"),
@@ -3048,7 +3099,7 @@ def test_build_decision_packet_falls_back_to_blocked_strategic_summary_without_b
         ),
     )
     strategic_scm_ref = persist_strategic_scm(
-        store,
+        _ensure_ir_artifact_store(store),
         StrategicSCM(
             base_graph_ref=ArtifactRefModel.model_validate(base_graph_ref.model_dump(mode="json")),
             strategic_agents=("leader", "follower"),

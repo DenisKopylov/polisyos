@@ -9,7 +9,10 @@ import { useLaunchRun } from "@/api/hooks/useLaunchRun";
 import { useLexSearch } from "@/api/hooks/useLexSearch";
 import { useLexTrigger } from "@/api/hooks/useLexTrigger";
 import { usePreviewFetchPlan } from "@/api/hooks/usePreviewFetchPlan";
-import { useResolveDataNeeds } from "@/api/hooks/useResolveDataNeeds";
+import {
+  useResolveDataNeeds,
+  type DataResolveRequest,
+} from "@/api/hooks/useResolveDataNeeds";
 import { queryKeys } from "@/api/queryKeys";
 import { useCreateHumanDecision } from "@/features/runs/api/useHumanDecisions";
 import { createQueryHookHarness } from "@/test/queryHook";
@@ -267,6 +270,60 @@ describe("mutation hooks", () => {
     }
   });
 
+  it("preserves an explicit catalog profile and leaves an unset profile absent in the POST body", async () => {
+    const response = {
+      candidates: [],
+      fetch_plans: [],
+      meta: createMeta(),
+      mode: "hybrid",
+      warnings: [],
+    };
+    const postSpy = mockRuntimePostSuccess(response);
+    const { wrapper } = createQueryHookHarness();
+    const view = renderHook(() => useResolveDataNeeds(), { wrapper });
+    const request: DataResolveRequest = {
+      allow_explore_fallback: true,
+      data_needs: [
+        {
+          geography: null,
+          granularity: "annual",
+          metric: "inflation",
+          purpose: "data_intelligence_ui",
+          quality_min: 0.6,
+          time_end: null,
+          time_start: null,
+        },
+      ],
+      mode: "hybrid",
+    };
+    const selectedProfile: DataResolveRequest["catalog_run_profile"] =
+      "prod_core_blocking";
+    // @ts-expect-error The generated request contract excludes unknown profiles.
+    const unsupportedProfile: DataResolveRequest["catalog_run_profile"] =
+      "prod_unbounded";
+    void unsupportedProfile;
+
+    await act(async () => {
+      await view.result.current.mutateAsync({
+        ...request,
+        catalog_run_profile: selectedProfile,
+      });
+    });
+    await act(async () => {
+      await view.result.current.mutateAsync(request);
+    });
+
+    expect(postSpy).toHaveBeenNthCalledWith(1, "/api/v1/control/data/resolve", {
+      body: {
+        ...request,
+        catalog_run_profile: "prod_core_blocking",
+      },
+    });
+    expect(postSpy).toHaveBeenNthCalledWith(2, "/api/v1/control/data/resolve", {
+      body: request,
+    });
+  });
+
   it("posts lex and preview mutations without cache side effects", async () => {
     const { wrapper } = createQueryHookHarness();
     const scenarios = [
@@ -278,7 +335,9 @@ describe("mutation hooks", () => {
           meta: createMeta(),
           query: "transport law",
           results: [],
+          search_mode: "text",
           total: 0,
+          vector_refusal_code: null,
         },
       },
       {

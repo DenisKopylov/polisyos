@@ -490,7 +490,7 @@ def _collect_contract_warnings(
     link_report_ref = state.reports_index.get(REPORT_LINK_REPORT_REF)
     if link_report_ref is not None:
         try:
-            payload = from_canonical_bytes(ctx.store.get_bytes(link_report_ref.artifact_id))
+            payload = from_canonical_bytes(ctx.store.get_bytes(link_report_ref))
         except _DECISION_PACKET_LOAD_ERRORS:
             payload = None
         if isinstance(payload, dict):
@@ -506,7 +506,7 @@ def _collect_contract_warnings(
     compile_report_ref = state.reports_index.get(REPORT_COMPILE_REPORT_REF)
     if compile_report_ref is not None:
         try:
-            payload = from_canonical_bytes(ctx.store.get_bytes(compile_report_ref.artifact_id))
+            payload = from_canonical_bytes(ctx.store.get_bytes(compile_report_ref))
         except _DECISION_PACKET_LOAD_ERRORS:
             payload = None
         if isinstance(payload, dict):
@@ -541,7 +541,7 @@ def _load_resolved_fidelity_level(
     if lowered_ir_ref is None:
         return None
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(lowered_ir_ref.artifact_id))
+        payload = from_canonical_bytes(ctx.store.get_bytes(lowered_ir_ref))
     except _DECISION_PACKET_LOAD_ERRORS:
         return None
     if not isinstance(payload, dict):

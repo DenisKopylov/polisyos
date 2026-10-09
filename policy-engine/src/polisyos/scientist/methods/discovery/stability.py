@@ -37,7 +37,9 @@ from polisyos.scientist.methods.search.artifact_minimality import (
     artifact_functions_field,
 )
 
-BOOTSTRAP_STABILITY_REPORT_SCHEMA_NAME = "polisyos.scientist.methods.discovery.BootstrapStabilityReport"
+BOOTSTRAP_STABILITY_REPORT_SCHEMA_NAME = (
+    "polisyos.scientist.methods.discovery.BootstrapStabilityReport"
+)
 
 
 class BootstrapMode(str, Enum):
@@ -261,7 +263,7 @@ def load_bootstrap_stability_report(
     ref: BootstrapStabilityReportRef,
 ) -> BootstrapStabilityReport:
     """Load bootstrap stability report."""
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return BootstrapStabilityReport.model_validate(payload)
 
 

@@ -7,6 +7,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -75,7 +76,7 @@ def _persist_advanced_dependence_ref(
             **dict(metadata or {}),
         },
     )
-    return persist_dependence_structure(artifact_store, structure)
+    return persist_dependence_structure(_ensure_ir_artifact_store(artifact_store), structure)
 
 
 def _payload(state: Any) -> dict[str, Any]:

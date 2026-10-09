@@ -47,6 +47,52 @@ diagnostics into uncertainty envelopes or post-fit evidence.
 | `diagnose_identifiability()`   | Produces parameter-level identifiability diagnostics.                                     |
 | `envelopes_from_calibration()` | Converts calibration outputs into uncertainty-envelope artifacts.                         |
 
+## Source-bound posterior candidate
+
+`uncertainty_adapter.persist_posterior_summary_from_method_evidence()` accepts Bayesian MCMC
+method-evidence only after resolving the producer-issued `method_result_ref` and matching its
+exact manifest edge and persisted draw payload reference/hash. It persists the v1.1 summary with
+the selected method-evidence manifest profile as lineage. `load_persisted_posterior_summary()`
+reopens the CAS artifact and recomputes the named point functional and equal-tail interval from the
+retained draws. The summary is candidate-only (`gate_eligible=False`), has no established unit
+binding, and is not a calibration report or a causal-effect input. Its actual source → CAS → fresh
+reader → Monte Carlo consumer path is covered by
+[`tests/integration/foundry/uncertainty/test_posterior_summary_persistence.py`](../../../../tests/integration/foundry/uncertainty/test_posterior_summary_persistence.py).
+
+`MethodBackend.run()` invokes this creator after writing method result and evidence when native
+draw evidence is present and matches the persisted result. `JobResult.posterior_summary_refs`
+exposes both existing point roles (`posterior_mean`, `posterior_median`) as typed candidate refs;
+the consumer still selects the ref and matching role explicitly and supplies its evaluator. No
+workflow default, unit binding, calibration authority, or causal-effect authority is implied.
+
+The existing `summarize_bayesian_calibration_posterior()` route now attaches the existing
+`PosteriorSamplesCarrier` to each envelope whose mean remains representable inside the credible
+interval. It uses exact numeric canonicalization and marks these caller-input-only envelopes
+gate-ineligible. A fresh CAS reader and the legacy Monte Carlo consumer are exercised for a
+representable single-parameter case. When the posterior mean falls outside its equal-tail interval
+(for example, 99 zeros and 100), the helper preserves the mean and interval, retains the samples in
+a typed candidate context, omits the incompatible envelope, and reports
+`point_outside_credible_interval`; it does not clamp the interval or substitute the median.
+
+Pass `candidate_store` to `summarize_bayesian_calibration_posterior()` to persist the full caller
+summary through its existing producer path; the returned summary carries `persisted_candidate_ref`.
+The artifact keeps the mean, linear interval, representable envelopes, exact draw carriers, original
+input shapes, positional row matrix, and any typed envelope limitations under a caller-input-only
+status. The fresh reader recomputes the legacy summary before returning the typed candidate; a stale
+point or interval is refused. `consume_persisted_bayesian_calibration_candidate()` sends
+representable envelopes through the existing Monte Carlo consumer. An off-interval parameter
+returns a typed limitation without evaluation, while multi-parameter caller rows reach the ordinary
+consumer and are refused when no source-bound joint law exists. These paths are candidate-only and
+do not create method-evidence binding or calibration/causal admission.
+
+The context also preserves the original input shapes and positional row matrix when column lengths
+match. `row_relation_status` remains `not_established`: equal length and input order do not prove a
+shared joint law. The current Monte Carlo consumer therefore refuses a multi-parameter carrier
+set without an existing shared sample identity. Neither this caller-mapped context nor the typed
+carrier creates source authority or multi-parameter law admission. The candidate artifact is a
+caller-input record; the separate v1.1 HMC path remains source-method-evidence-bound but explicitly
+candidate-only and is not default-dispatched.
+
 ## Depends On / Depended On By
 
 - Depends on: `polisyos.foundry.contracts`, compile/execute runtime state,

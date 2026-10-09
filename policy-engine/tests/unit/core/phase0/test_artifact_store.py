@@ -4,7 +4,9 @@ import hashlib
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
+
 from polisyos.core.artifacts import ArtifactIntegrityError as FacadeArtifactIntegrityError
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import ArtifactIntegrityError, FileSystemCAS, PutOptions
 from polisyos.ir.artifacts import ArtifactID as IrArtifactID
@@ -91,7 +93,7 @@ def test_manifest_written_and_parses(store: FileSystemCAS):
 
 def test_filesystem_cas_accepts_ir_artifact_id_roundtrip(store: FileSystemCAS) -> None:
     ref = put_json_artifact(
-        store,
+        _ensure_ir_artifact_store(store),
         {"source": "ir", "ok": True},
         kind="ir.test_payload",
         schema_name="tests.IRPayload",
@@ -103,7 +105,10 @@ def test_filesystem_cas_accepts_ir_artifact_id_roundtrip(store: FileSystemCAS) -
 
     assert manifest.kind == "ir.test_payload"
     assert str(manifest.artifact_id) == ref["artifact_id"]
-    assert get_json_artifact(store, ir_artifact_id) == {"source": "ir", "ok": True}
+    assert get_json_artifact(_ensure_ir_artifact_store(store), ir_artifact_id) == {
+        "source": "ir",
+        "ok": True,
+    }
 
 
 def test_corruption_detection(store: FileSystemCAS):

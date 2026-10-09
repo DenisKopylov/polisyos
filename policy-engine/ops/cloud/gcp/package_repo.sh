@@ -38,17 +38,42 @@ include_paths = [
 ]
 manifest = tomllib.loads((product_root / "hatch.toml").read_text())
 force_include = manifest["build"]["targets"]["wheel"]["force-include"]
-for source in force_include:
+
+
+def force_include_source_path(source: str) -> Path:
     relative_source = Path(source)
-    source_path = product_root / relative_source
     if (
         relative_source.is_absolute()
+        or not relative_source.parts
         or ".." in relative_source.parts
-        or not source_path.resolve().is_relative_to(product_root.resolve())
-        or not source_path.is_file()
-        or source_path.is_symlink()
     ):
         raise SystemExit(f"Invalid Hatch wheel force-include source: {source}")
+    source_path = product_root / relative_source
+    component = product_root
+    for part in relative_source.parts:
+        component = component / part
+        if component.is_symlink():
+            raise SystemExit(f"Invalid Hatch wheel force-include source: {source}")
+    if not source_path.resolve().is_relative_to(product_root.resolve()):
+        raise SystemExit(f"Invalid Hatch wheel force-include source: {source}")
+    if not source_path.is_file() and not source_path.is_dir():
+        raise SystemExit(f"Invalid Hatch wheel force-include source: {source}")
+    if source_path.is_dir():
+        def fail_walk(error: OSError) -> None:
+            raise error
+
+        for directory, dirnames, filenames in os.walk(
+            source_path, followlinks=False, onerror=fail_walk
+        ):
+            for name in [*dirnames, *filenames]:
+                member = Path(directory) / name
+                if member.is_symlink() or (not member.is_file() and not member.is_dir()):
+                    raise SystemExit(f"Invalid Hatch wheel force-include source: {source}")
+    return source_path
+
+
+for source in force_include:
+    source_path = force_include_source_path(source)
     include_paths.append(str(source_path.relative_to(workspace_root)))
 include_paths = list(dict.fromkeys(include_paths))
 skip_parts = {"__pycache__", ".git"}

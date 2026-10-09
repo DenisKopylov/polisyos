@@ -1,0 +1,55 @@
+{
+  "schema": "policyos.e02.l01.source_delta.v1",
+  "own_base": {
+    "commit": "5bcc319d1c2c08d7abba82fe87b818e502caea78",
+    "tree": "af5951a104438a915ae995f293ab56fcdaa4426c"
+  },
+  "prior_G": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "current_G": {
+    "commit": "dee58973f7673299070b7c7374f419b0adb8175c",
+    "tree": "4caee698bd9a6c61277a1608bb38376b669f0372"
+  },
+  "prior_dependency_denominator": "../restart-20261008-bindings/source.json@621e9e7aec1af78da72b0c4b47a8cb8b79daa5fd#/source_refs",
+  "changed_nominated_dependencies": [],
+  "unchanged_nominated_refs": 27,
+  "new_inspected_refs": [
+    {
+      "commit": "dee58973f7673299070b7c7374f419b0adb8175c",
+      "path": "policy-engine/src/polisyos/pdc/_impl/gy_waist.py",
+      "blob": "def61a737aa88f06cc3a9856df3c9c3b8b6f9bdc"
+    },
+    {
+      "commit": "dee58973f7673299070b7c7374f419b0adb8175c",
+      "path": "policy-engine/src/polisyos/runtime/quality/grounding_calibration.py",
+      "blob": "5a07a0df1e75989c9aa59e7042eb06bac2bc3738"
+    },
+    {
+      "commit": "dee58973f7673299070b7c7374f419b0adb8175c",
+      "path": "policy-engine/architecture/policy_design_case/corr/grounding-2026-09-08/frame.json",
+      "blob": "2f844bc3fec18485c06d7e0240e8ac1789625ee7"
+    },
+    {
+      "commit": "dee58973f7673299070b7c7374f419b0adb8175c",
+      "path": "policy-engine/architecture/policy_design_case/corr/grounding-2026-09-08/suite.json",
+      "blob": "f6f7779a018294c2425818243587aa39fb1e9491"
+    },
+    {
+      "commit": "dee58973f7673299070b7c7374f419b0adb8175c",
+      "path": "policy-engine/architecture/policy_design_case/layer3_g0_capability_data_inventory.json",
+      "blob": "5631c5f60efb949baf543770f706e6eadbaaa3a1"
+    },
+    {
+      "commit": "dee58973f7673299070b7c7374f419b0adb8175c",
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json",
+      "blob": "1705340a9f6bf75e60ae0f2b0777a97a1b957d7d"
+    },
+    {
+      "commit": "dee58973f7673299070b7c7374f419b0adb8175c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_ingestion.json",
+      "blob": "138a7aa983d7065e774930524f3f732efe2ed96a"
+    }
+  ],
+  "mode": "read_only_inputs",
+  "baseline_pack": "not used for this delta; no old check/17doc replay",
+  "product_code_acceptance": "G separately selects source; no L01 product changes or authentic execution"
+}

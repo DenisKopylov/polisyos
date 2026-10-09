@@ -1,0 +1,39 @@
+{
+  "schema": "policyos.e02.l01.minimum-binding.v1",
+  "execution_role": "L01",
+  "G_snapshot": {
+    "commit": "dee58973f7673299070b7c7374f419b0adb8175c",
+    "tree": "4caee698bd9a6c61277a1608bb38376b669f0372"
+  },
+  "private_values": "opaque aliases; local ignored only",
+  "authentic_execution": "UNRUN; L02",
+  "formal_G_closure": "not_adjudicated",
+  "historical_finding_outcomes": "unchanged",
+  "task": "Legal nonvector/source profile and I4 vector boundary",
+  "original_unit": "C",
+  "criterion_ids": [
+    "LA-040"
+  ],
+  "prior_packet": "../../restart-20261008-bindings/packets/C-legal.json@621e9e7aec1af78da72b0c4b47a8cb8b79daa5fd",
+  "minimum_nonvector_tuple": {
+    "source_alias": "L01_CONFIGURED_LEX_DB_01",
+    "version_alias": "L01_LEX_VERSION_01",
+    "manifest_alias": "L01_ROOT_MANIFEST_20261008",
+    "purpose": "snapshot-backed structured/text constraint retrieval",
+    "product_contract": "production_data defaults→nl_pipeline params→resolve_transport→LegalConstraintBridge; independent HTTP route calls lexical text_search",
+    "profile_scope": "root research default; admitted/effective vector request profile not_established"
+  },
+  "new_metadata_reconciliation": "Existing C5 presence receipt and prior L01 metadata agree on named locator, size and mtime. Prior L01 lacks inode/device; this is receipt/stat reconciliation, not DB content identity. No repeated stat/hash or rows.",
+  "source_assertion": "C5 describes full entity/fact/provision tables ordered by ID, a snapshot rather than a legally-current subset. This remains custodian assertion.",
+  "vector_boundary": "No selected persisted generation/membership/model/query-encoder/request-profile tuple is established by those records. Text hit or DB existence cannot supply vector readiness.",
+  "minimum_next_supplier_consumer": "C12 supplies persisted generation/member/model/query-profile binding; C10 supplies same-profile request adapter/context; L02 fresh request→typed profile/encoded query→reader and target/decoy/refusal.",
+  "predicates": {
+    "configured source/version and C5 full-row scope": "owner_supplied",
+    "existing named locator/stat agreement and G code": "recomputed",
+    "current membership, vector/model/encoder identity, lawful current source, authentic reader": "not_established"
+  },
+  "original_criterion_scope": "LA-040 still binds incremental content, membership/withdrawal, projection rule and immutable model/tokenizer/weight identity; no replacement criterion.",
+  "held_transition": "Vector positive/current legal-source authority; independent structured/text scope remains available to L02 with declared snapshot limits.",
+  "private_binding": "policy-engine/_build/e02-L01-custody-version-20261008/agents/legal/private.json",
+  "falsifier": "Equal locator/size/mtime and a text hit can coexist with different vectors or query model/profile."
+}

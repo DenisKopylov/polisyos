@@ -1,0 +1,87 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "custody-version-20261008-b194",
+  "closure_ids": [
+    "B194"
+  ],
+  "bundle_ids": [
+    "UQP-03"
+  ],
+  "slice_base_sha": "5bcc319d1c2c08d7abba82fe87b818e502caea78",
+  "implementation_commits": [
+    "c3f3b71ebf2e2f9b3f8a4cc38f6f4239ce880002",
+    "1e23d9ef80eab758391c11579caa8820004ed57b",
+    "9f6841f877566a70aa559fc490c382a437f5619c"
+  ],
+  "candidate_tree_sha": "ebe6d6f2dd6ae27b2e3085616658060c3c4c1b78",
+  "branch": "codex/e02-L01-custody-20261008",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/custody-version-20261008/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/custody-version-20261008/evidence/L6-content-domain.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/custody-version-20261008/packets/B194.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/custody-version-20261008/packets/B56.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/custody-version-20261008/packets/I3.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/custody-version-20261008/packets/L6.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/custody-version-20261008/packets/Legal.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/custody-version-20261008/source-delta.json"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "No authentic consumer command run in L01; use the exact next consumer/input in the task packet",
+      "target_sha": "dee58973f7673299070b7c7374f419b0adb8175c",
+      "environment": "L01 local read_only_inputs; L02 authentic, cloud portable",
+      "input_closure": {
+        "bundle_alias": "B194_SIMCAL_BUNDLE_01",
+        "version_alias": "B194_SIM_VERSION_01",
+        "time_alias": "B194_SIM_TIME_01",
+        "profile_alias": "B194_ROOT_PROFILE_01",
+        "model_contract_alias": "B194_NETWORK_CONTRACT_01",
+        "calibration_index_alias": "B194_CAL_OUTPUT_INDEX_01",
+        "purpose": "selected model/calibration metadata only"
+      },
+      "outcome": "UNRUN",
+      "output": "../packets/B194.json (resolved and unavailable fields, predicate labels and concrete supplier)"
+    }
+  ],
+  "property": {
+    "statement": "Source/time/version-qualified minimal B194 facts, with each declared assertion distinct from a controlled reconciliation and an unavailable admission predicate. No product code or finding verdict update.",
+    "runtime_path": [
+      "Existing nominated config/owner record",
+      "Exact metadata/content/stat relation",
+      "Persisted nonsecret Git packet and private local alias receipt",
+      "Named next supplier/consumer in packet; authentic L02 or portable cloud witness remains UNRUN"
+    ],
+    "proxy_divergence": "A ready calibration index and matching member size can coexist with an evaluator dropping an input subdomain.",
+    "negative_controls": [
+      "Packet names its concrete discriminator; it is not an executed consumer/removal probe in this slice.",
+      "Retain unknown release/currentness/evaluator/workload fields; no inferred authority from hash/profile/path presence."
+    ]
+  },
+  "predicate_basis": "not_established",
+  "capability_state_or_finding_state": "Factual packet delivered to scoped resolved/unavailable fields; authentic verification_missing; historical finding outcome unchanged",
+  "limitations_and_next_owner": [
+    "Use ../packets/B194.json at the immutable facts candidate for exact fields and next consumer.",
+    "Owner-supplied assertion is not independently verified source authority/currentness; no new issuer, release manifest or capacity default.",
+    "Private locators/digests stay local; remote Git packet cannot resolve them.",
+    "G separately accepts source/composition/findings; closure_ids are traceability, not closure verdicts."
+  ],
+  "execution_role": "L01",
+  "packet_ref": {
+    "commit": "9f6841f877566a70aa559fc490c382a437f5619c",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/custody-version-20261008/packets/B194.json",
+    "blob": "45583f312b3042598dd1ff08dc83dfb9b7de579d"
+  },
+  "G_snapshot": {
+    "commit": "dee58973f7673299070b7c7374f419b0adb8175c",
+    "tree": "4caee698bd9a6c61277a1608bb38376b669f0372"
+  },
+  "finding_outcome_update": "none",
+  "formal_G_closure": "not_adjudicated",
+  "source_acceptance": "nonauthor bounded factual/disclosure GO for8facts; G intake remains separate",
+  "independent_review": "../evidence/independent-reviews.md",
+  "supported_profile_limits": "Local metadata/cached-content/stat-receipt reconciliation only; no authentic tests, old probes or production payload census",
+  "reference_base_qualification": "Index-directory was an attempted resolution base, not owner-declared; nonresolution under it is not artifact absence."
+}

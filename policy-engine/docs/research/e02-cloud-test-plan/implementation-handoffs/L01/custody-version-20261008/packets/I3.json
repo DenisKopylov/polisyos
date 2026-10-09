@@ -1,0 +1,47 @@
+{
+  "schema": "policyos.e02.l01.minimum-binding.v1",
+  "execution_role": "L01",
+  "source_scope": "../source-delta.json",
+  "private_locators_and_digests": "local ignored only; no disclosure admission",
+  "authentic_execution": "UNRUN; L02",
+  "formal_G_closure": "not_adjudicated",
+  "historical_finding_outcomes": "unchanged; no verdict update",
+  "task": "I3 named readiness/source tuple",
+  "original_unit": "C",
+  "criterion_ids": [
+    "B79",
+    "B80",
+    "B83"
+  ],
+  "prior_packet": "../../restart-20261008-bindings/packets/C-i3.json@621e9e7aec1af78da72b0c4b47a8cb8b79daa5fd",
+  "minimum_metadata_tuple": {
+    "catalog_alias": "L01_I3_DATASET_CATALOG_01",
+    "version_alias": "L01_I3_DATASET_CATALOG_VERSION_01",
+    "catalog_publication_profile": "prod_full (owner-supplied; not connector execution profile)",
+    "root_default_profile": "research (owner-supplied)",
+    "publication_time": "2026-03-31T06:59:32.752266+00:00",
+    "consumer_ready": false,
+    "currentness": "not_established"
+  },
+  "new_deciding_metadata": {
+    "readiness_ref_inside_declared_snapshot_root": true,
+    "snapshot_root_matches_nominated_bundle_root": false,
+    "exact_readiness_ref_resolved": false,
+    "relocated_ref": "not derivable from the declared roots; no basename/path substitution",
+    "configuration_source_base": "not established"
+  },
+  "needed_I3_tuple": "One source-owned dataset/run/cursor/resolved-content/event-version/replay/verifier binding; neither prod_full nor runtime default86400 supplies it.",
+  "next_supplier_consumer": {
+    "B_connector_cursor_owner": "source-confirmed dataset/run/cursor/content and verifier→C04→L02",
+    "B_source_contract_owner": "source-owned event/version and replay scope→C04→L02"
+  },
+  "predicates": {
+    "publication profile/time/readiness/consumer_ready": "owner_supplied",
+    "exact nominated metadata/root relationship": "recomputed",
+    "live source/cursor/event/replay/currentness/verifier": "not_established"
+  },
+  "held_transition": "Verified cursor promotion/durable event checkpoint for this source tuple; scoped unresolved reference, no global data absence.",
+  "independent_work": "C04 bounded unsupported/replay and cloud mechanical contracts continue.",
+  "private_binding": "policy-engine/_build/e02-L01-custody-version-20261008/agents/i3/private.json",
+  "falsifier": "A publish snapshot can declare prod_full while consumer_ready=false and its readiness locator names a different snapshot root."
+}

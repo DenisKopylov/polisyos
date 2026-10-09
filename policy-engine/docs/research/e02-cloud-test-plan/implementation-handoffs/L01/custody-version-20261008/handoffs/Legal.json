@@ -1,0 +1,121 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "custody-version-20261008-legal",
+  "closure_ids": [
+    "LA-040"
+  ],
+  "bundle_ids": [
+    "EMB-03"
+  ],
+  "slice_base_sha": "5bcc319d1c2c08d7abba82fe87b818e502caea78",
+  "implementation_commits": [
+    "c3f3b71ebf2e2f9b3f8a4cc38f6f4239ce880002",
+    "1e23d9ef80eab758391c11579caa8820004ed57b",
+    "9f6841f877566a70aa559fc490c382a437f5619c"
+  ],
+  "candidate_tree_sha": "ebe6d6f2dd6ae27b2e3085616658060c3c4c1b78",
+  "branch": "codex/e02-L01-custody-20261008",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/custody-version-20261008/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/custody-version-20261008/evidence/L6-content-domain.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/custody-version-20261008/packets/B194.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/custody-version-20261008/packets/B56.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/custody-version-20261008/packets/I3.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/custody-version-20261008/packets/L6.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/custody-version-20261008/packets/Legal.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/custody-version-20261008/source-delta.json"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "Read C5 owner presence receipt at its exact Git object and compare the one named DB locator/size/mtime with retained L01 stat receipt",
+      "target_sha": "9f6841f877566a70aa559fc490c382a437f5619c",
+      "environment": "local Python/Git metadata-only; no DB bytes or fresh stat",
+      "input_closure": "C5 2a702c26c047ccafde68523afcd7fc356f2edfb9 + prior L01 agents/legal/private.json; opaque L01_CONFIGURED_LEX_DB_01",
+      "outcome": "PASS",
+      "output": "../evidence/Legal-stat-reconciliation.json; source refs below are separate owner objects, not current G tree"
+    },
+    {
+      "command": "No authentic consumer command run in L01; use the exact next consumer/input in the task packet",
+      "target_sha": "dee58973f7673299070b7c7374f419b0adb8175c",
+      "environment": "L01 local read_only_inputs; L02 authentic, cloud portable",
+      "input_closure": {
+        "source_alias": "L01_CONFIGURED_LEX_DB_01",
+        "version_alias": "L01_LEX_VERSION_01",
+        "manifest_alias": "L01_ROOT_MANIFEST_20261008",
+        "purpose": "snapshot-backed structured/text constraint retrieval",
+        "product_contract": "production_data defaults→nl_pipeline params→resolve_transport→LegalConstraintBridge; independent HTTP route calls lexical text_search",
+        "profile_scope": "root research default; admitted/effective vector request profile not_established"
+      },
+      "outcome": "UNRUN",
+      "output": "../packets/Legal.json (resolved and unavailable fields, predicate labels and concrete supplier)"
+    }
+  ],
+  "property": {
+    "statement": "Source/time/version-qualified minimal Legal facts, with each declared assertion distinct from a controlled reconciliation and an unavailable admission predicate. No product code or finding verdict update.",
+    "runtime_path": [
+      "Existing nominated config/owner record",
+      "Exact metadata/content/stat relation",
+      "Persisted nonsecret Git packet and private local alias receipt",
+      "Named next supplier/consumer in packet; authentic L02 or portable cloud witness remains UNRUN"
+    ],
+    "proxy_divergence": "Equal locator/size/mtime and a text hit can coexist with different vectors or query model/profile.",
+    "negative_controls": [
+      "Packet names its concrete discriminator; it is not an executed consumer/removal probe in this slice.",
+      "Retain unknown release/currentness/evaluator/workload fields; no inferred authority from hash/profile/path presence."
+    ]
+  },
+  "predicate_basis": "not_established",
+  "capability_state_or_finding_state": "Factual packet delivered to scoped resolved/unavailable fields; authentic verification_missing; historical finding outcome unchanged",
+  "limitations_and_next_owner": [
+    "Use ../packets/Legal.json at the immutable facts candidate for exact fields and next consumer.",
+    "Owner-supplied assertion is not independently verified source authority/currentness; no new issuer, release manifest or capacity default.",
+    "Private locators/digests stay local; remote Git packet cannot resolve them.",
+    "G separately accepts source/composition/findings; closure_ids are traceability, not closure verdicts."
+  ],
+  "execution_role": "L01",
+  "packet_ref": {
+    "commit": "9f6841f877566a70aa559fc490c382a437f5619c",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/custody-version-20261008/packets/Legal.json",
+    "blob": "c37b45e802dc0dca46f2285e32a3b694a723cc56"
+  },
+  "G_snapshot": {
+    "commit": "dee58973f7673299070b7c7374f419b0adb8175c",
+    "tree": "4caee698bd9a6c61277a1608bb38376b669f0372"
+  },
+  "finding_outcome_update": "none",
+  "formal_G_closure": "not_adjudicated",
+  "source_acceptance": "nonauthor bounded factual/disclosure GO for8facts; G intake remains separate",
+  "independent_review": "../evidence/independent-reviews.md",
+  "supported_profile_limits": "Local metadata/cached-content/stat-receipt reconciliation only; no authentic tests, old probes or production payload census",
+  "separate_owner_source_refs": [
+    {
+      "commit": "2a702c26c047ccafde68523afcd7fc356f2edfb9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/C5-owner-inputs-20261007.json",
+      "blob": "5549b337ecaf567c222f970977f636ed386b2aed",
+      "in_current_G_same_blob": false,
+      "current_G_path_present": false,
+      "current_G_blob": null
+    },
+    {
+      "commit": "2a702c26c047ccafde68523afcd7fc356f2edfb9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/legal-paired-input-presence.json",
+      "blob": "05cac81158a8e6024bb70b94c1dd65054d2bb2a2",
+      "in_current_G_same_blob": false,
+      "current_G_path_present": false,
+      "current_G_blob": null
+    },
+    {
+      "commit": "980d91b36452307d683283ddcf1e89a653af3ce2",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c5-v1.json",
+      "blob": "98c39eb77e4397bc9a6e95d8e0a210100fa96e5f",
+      "in_current_G_same_blob": false,
+      "current_G_path_present": false,
+      "current_G_blob": null
+    }
+  ],
+  "owner_ref_availability": "Both exact C5 commits were fetched successfully from origin; all three nominated owner paths/blobs are absent from this pinned G tree.",
+  "time_role_qualification": "../evidence/time-role-qualification.json; must accompany packet/deciding output"
+}

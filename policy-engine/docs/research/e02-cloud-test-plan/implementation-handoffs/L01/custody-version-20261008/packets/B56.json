@@ -1,0 +1,41 @@
+{
+  "schema": "policyos.e02.l01.minimum-binding.v1",
+  "execution_role": "L01",
+  "G_snapshot": {
+    "commit": "dee58973f7673299070b7c7374f419b0adb8175c",
+    "tree": "4caee698bd9a6c61277a1608bb38376b669f0372"
+  },
+  "private_values": "opaque aliases; local ignored only",
+  "authentic_execution": "UNRUN; L02",
+  "formal_G_closure": "not_adjudicated",
+  "historical_finding_outcomes": "unchanged",
+  "task": "B56 owner-named configured workload",
+  "original_unit": "F",
+  "criterion_ids": [
+    "B56"
+  ],
+  "prior_packet": "../../restart-20261008-bindings/packets/F-b56.json@621e9e7aec1af78da72b0c4b47a8cb8b79daa5fd",
+  "new_supplier_record": {
+    "commit": "dee58973f7673299070b7c7374f419b0adb8175c",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/parallel-20261008-c08/B56-runtime-workload-packet.json",
+    "blob": "9a75155bc01a7df015ae5df789d84ff83b6f7a6a"
+  },
+  "selected_record_state": "actual_shared_workload_input_unavailable / not_established",
+  "minimum_tuple": {
+    "named_workload": "not_established",
+    "profile": "not_established",
+    "shared_permit_cap_unit": "not_established",
+    "complete_competing_job_model_fold_repeat_seed_roster": "not_established",
+    "Runtime_recipe": "not_established"
+  },
+  "smallest_next_artifact": "One configured portable synthetic workload/profile binding is sufficient if it names the selected shared Runtime permit, complete roster and exact recipe through that permit. Production population is not required for mechanical admission.",
+  "minimum_next_supplier_consumer": "C01 binds existing permit/API/cap/unit and every roster entry; C08/F names workload/models/folds/repeats/seeds and recipe; cloud executes portable admission witness, L02 only if protected/local authentic inputs are selected.",
+  "fixture_limit": "The C08 packet explicitly disqualifies its test-created pool fixture as the Runtime workload denominator; it is not a named selected Runtime permit. No old capacity-default or 15/60 arithmetic replay.",
+  "predicates": {
+    "C08 input-unavailable statement and owner assignments": "owner_supplied",
+    "exact current-G supplier record identity/scope": "recomputed",
+    "actual selected shared workload/profile/cap/roster/recipe": "not_established"
+  },
+  "held_transition": "Actual shared Runtime workload witness; generic dispatch and portable contracts remain independent.",
+  "falsifier": "Per-test pools can each obey a cap while competing Runtime jobs do not share any one permit."
+}

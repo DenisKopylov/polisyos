@@ -1,0 +1,53 @@
+{
+  "schema": "policyos.e02.l01.custody_version_delivery.v1",
+  "own_slice_base": "5bcc319d1c2c08d7abba82fe87b818e502caea78",
+  "facts_commits": [
+    "c3f3b71ebf2e2f9b3f8a4cc38f6f4239ce880002",
+    "1e23d9ef80eab758391c11579caa8820004ed57b",
+    "9f6841f877566a70aa559fc490c382a437f5619c"
+  ],
+  "facts_candidate": {
+    "commit": "9f6841f877566a70aa559fc490c382a437f5619c",
+    "tree": "ebe6d6f2dd6ae27b2e3085616658060c3c4c1b78"
+  },
+  "G_snapshot": {
+    "commit": "dee58973f7673299070b7c7374f419b0adb8175c",
+    "tree": "4caee698bd9a6c61277a1608bb38376b669f0372"
+  },
+  "task_handoffs": {
+    "L6": "handoffs/L6.json",
+    "I3": "handoffs/I3.json",
+    "Legal": "handoffs/Legal.json",
+    "B194": "handoffs/B194.json",
+    "B56": "handoffs/B56.json"
+  },
+  "new_outputs": [
+    "evidence/L6-content-domain.json",
+    "evidence/Legal-stat-reconciliation.json",
+    "evidence/time-role-qualification.json"
+  ],
+  "first_task_publication": "c3f3b71ebf2e2f9b3f8a4cc38f6f4239ce880002 published and remote-read-back before remaining packet delivery; its two prior pointers were subsequently corrected append-only",
+  "checks": {
+    "L6_cached_GY_domain": "PASS; three exact alias-bound matches",
+    "Legal_receipt_stat_reconciliation": "PASS; not content identity",
+    "I3": "named readiness/root mismatch and source tuple not_established",
+    "B194": "named metadata ref/base unresolved; actual evaluator/law/draw not_established",
+    "B56": "C08 explicitly unavailable; portable synthetic allowed through C01 selected permit",
+    "authentic_consumers": "UNRUN; L02",
+    "old_checks_hashes_17docs": "not repeated"
+  },
+  "source_acceptance": "Independent bounded factual/disclosure GO; G code/composition/finding acceptance separate",
+  "finding_outcomes": "No update; historical findings retained, formal G closure not_adjudicated",
+  "scope_limits": "Cached/control metadata only, declared assertions preserved, no global data absence or blanket all-of gate",
+  "remaining_L6_input": "One existing source-owned matching release/replacement ref with custodian/currentness; human question pending",
+  "remaining_owner_actions": {
+    "I3": "B connector/cursor and source-contract owners supply one exact source-bound tuple to C04/L02",
+    "Legal": "C12 persisted generation/profile/model/query identity; C10 same-profile serving adapter; L02 fresh reader",
+    "B194": "C09 actual evaluator/law/ordered attempts; C08 required model dimensions only; C10/C11 served binding",
+    "B56": "C01 shared permit/cap/unit, C08/F named complete roster/recipe; cloud mechanical witness can use portable synthetic inputs"
+  },
+  "semantic_scope_retained": "LA032 original layout/source→state; LA036 original requested/effective/fallback; B201/B202 E decisions not reopened",
+  "publication": "own L01 topic only; final exact remote HEAD/tree/changed-byte readback retained local",
+  "final_readback_receipt": "policy-engine/_build/e02-L01-custody-version-20261008/final-remote-readback.json",
+  "time_role_qualification": "evidence/time-role-qualification.json; mandatory overlay for controls observer and prior Legal stat time"
+}

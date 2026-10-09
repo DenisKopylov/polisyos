@@ -330,6 +330,10 @@ def test_run_benchmark_writes_report_and_metrics(tmp_path) -> None:
     payload = json.loads(outcome.report_path.read_text(encoding="utf-8"))
     assert payload["kind"] == "lex_benchmark"
     assert payload["sections"]["search"]["cases"]
+    assert all(
+        case["vector_refusal_code"] == "query_encoder_assets_unavailable"
+        for case in payload["sections"]["search"]["cases"]
+    )
     assert (
         payload["sections"]["quality_capabilities"]["sections"]["entity_resolution"][
             "entities_total"
@@ -365,10 +369,7 @@ def test_run_benchmark_writes_report_and_metrics(tmp_path) -> None:
         == 2
     )
     assert (
-        payload["sections"]["quality_capabilities"]["sections"]["consistency"][
-            "issues_total"
-        ]
-        == 5
+        payload["sections"]["quality_capabilities"]["sections"]["consistency"]["issues_total"] == 5
     )
 
 
@@ -382,9 +383,7 @@ def test_data_forge_pipeline_consumes_real_lex_benchmark_runner(tmp_path) -> Non
         stages=frozenset({"benchmark"}),
     )
 
-    stats = asyncio.run(
-        run_batch_pipeline(config, benchmark_runner=run_legal_benchmark)
-    )
+    stats = asyncio.run(run_batch_pipeline(config, benchmark_runner=run_legal_benchmark))
 
     assert stats.benchmark_passed is True
     assert stats.benchmark_failed_checks == []

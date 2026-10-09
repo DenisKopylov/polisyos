@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-import contextlib
 import csv
 import gzip
 import hashlib
@@ -12,134 +11,155 @@ import json
 import math
 import os
 import re
-import time
 import zipfile
-from collections import OrderedDict, defaultdict, deque
-from dataclasses import dataclass, replace
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
+from functools import lru_cache
 from importlib import import_module
 from itertools import islice
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol, SupportsFloat, SupportsIndex, cast
 from urllib.parse import urlparse
 
 import aiohttp
 import duckdb
 import pandas as pd
 
-from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
 from polisyos.data_forge.domains.catalog._resources import catalog_default_resource_path
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
-    CatalogTransportDataset,
     CoreSourcesIngestStats,
-    ObservationFetchKey,
-    ObservationFetchPayload,
     ObservationInsertStats,
-    ObservationPlan,
     ObservationShard,
-    ObservationShardResult,
-    ObservationWriteItem,
-    SupportSketch,
-    WriterFlushState,
-    _ObservationRuntimeMetrics,
     _SourceBudgetWindow,
 )
-from polisyos.data_forge.domains.catalog.batch.checkpoints import load_json, write_json
+from polisyos.data_forge.domains.catalog.batch.checkpoints import write_json
+from polisyos.data_forge.domains.catalog.batch.material_inputs import (
+    _material_file_snapshot,
+    _material_yaml_snapshot,
+    _MaterialFileSnapshot,
+)
 from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
     country_scope_members,
     iso2_to_iso3,
-    iso2_to_numeric,
-    normalize_country_code,
 )
-from polisyos.data_forge.domains.catalog.knowledge.proxy_penalties import metric_proxy_alignments
-from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
-    AlignmentMethod,
-    VariableAlignment,
-    align_semantic,
-    calibrate_alignment_confidence,
-    load_seed_alignments,
-)
-from polisyos.data_forge.kernel.pipeline.manifests import write_raw_manifest, write_stage_manifest
+from polisyos.data_forge.kernel.pipeline.manifests import write_raw_manifest
 from polisyos.data_forge.read_api.academic import CANONICAL_VARIABLES
-from polisyos.fabric.connectors.base import (
-    AsyncFetchLease,
-    ConnectionConfig,
-    DatasetCapabilitySnapshot,
-    FetchRequest,
-)
-from polisyos.fabric.connectors.profiles.models import SourceExecutionPolicy
-from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
-from polisyos.fabric.connectors.profiles.resolver import (
-    resolve_connection_config,
-    resolve_execution_policy,
-)
-from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
-from polisyos.fabric.connectors.sources.sdmx_source import SDMXSourceConnector
-from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
-from polisyos.fabric.connectors.sources.unpd import UNPDConnector
-from polisyos.fabric.connectors.sources.who import WHOConnector
-from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+from polisyos.ir.connectors import FetchRequest
 
 if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable, Iterable, Iterator, Mapping
+
     from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
-    from polisyos.data_forge.domains.catalog.batch.core_sources.api import _execute_source_fetch
-    from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (
-        _as_float,
-        _as_int,
-        _country_to_numeric,
-        _extract_year,
-        _filters_to_tuple,
-        _load_json_dict,
-        _normalize_country_code,
-        _normalize_observation_row,
-        _shard_countries,
-        _to_iso3,
+    from polisyos.data_forge.domains.catalog.batch.core_sources.writers import (
+        _ConnectorSessionCache,
     )
     from polisyos.data_forge.domains.catalog.batch.core_sources.writers import (
-        _WVSObservationAccumulator,
+        _WVSObservationAccumulator as _WVSObservationAccumulatorType,
     )
+    from polisyos.fabric.connectors.profiles.models import SourceExecutionPolicy
+    from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
+    from polisyos.fabric.connectors.sources.sdmx_source import SDMXSourceConnector
+    from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
+    from polisyos.ir.connectors import FetchResult
+
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    resolve_core_sources_compatibility_binding,
+)
 
 logger = get_logger(__name__)
 
-__OWNER_BOUND_PROXIES: dict[str, Any] = {}
+__OWNER_BOUND_PROXIES: dict[str, object] = {}
 
 
-def __resolve_implementation_dependency(name: str, owner: str) -> Any:
+def __resolve_implementation_dependency(name: str, owner: str) -> object:
     """Resolve a split-module dependency without facade-global injection."""
+    has_context_override, context_override = resolve_core_sources_compatibility_binding(
+        f"{__package__}.{owner}", name
+    )
+    if has_context_override:
+        return cast("object", context_override)
     override = globals().get(name)
     if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
         return override
     module = import_module(f"{__package__}.{owner}")
-    return getattr(module, name)
+    return cast("object", getattr(module, name))
 
 
-def __make_implementation_proxy(name: str, owner: str) -> Any:
+def __make_implementation_proxy[**P, R](name: str, owner: str) -> Callable[P, R]:
     """Create a lazy, owner-bound compatibility callable for a split module."""
 
-    def __proxy(*args: Any, **kwargs: Any) -> Any:
-        return __resolve_implementation_dependency(name, owner)(*args, **kwargs)
+    def __proxy(*args: P.args, **kwargs: P.kwargs) -> R:
+        implementation = __resolve_implementation_dependency(name, owner)
+        if not callable(implementation):
+            raise TypeError(f"Core-sources dependency is not callable: {owner}.{name}")
+        return cast("Callable[P, R]", implementation)(*args, **kwargs)
 
-    return __proxy
+    __OWNER_BOUND_PROXIES[name] = __proxy
+    return cast("Callable[P, R]", globals().setdefault(name, __proxy))
 
 
-for __dependency_name, __dependency_owner in (
-    ("_WVSObservationAccumulator", "writers"),
-    ("_as_float", "transformers"),
-    ("_as_int", "transformers"),
-    ("_country_to_numeric", "transformers"),
-    ("_execute_source_fetch", "api"),
-    ("_extract_year", "transformers"),
-    ("_filters_to_tuple", "transformers"),
-    ("_load_json_dict", "transformers"),
-    ("_normalize_country_code", "transformers"),
-    ("_normalize_observation_row", "transformers"),
-    ("_shard_countries", "transformers"),
-    ("_to_iso3", "transformers"),
-):
-    __proxy = __make_implementation_proxy(__dependency_name, __dependency_owner)
-    __OWNER_BOUND_PROXIES[__dependency_name] = __proxy
-    globals().setdefault(__dependency_name, __proxy)
+class _RecordResult(Protocol):
+    def __call__(
+        self, *, source: str, request_count: int, bytes_transferred: int
+    ) -> Awaitable[None]: ...
+
+
+class _BudgetWaitObserver(Protocol):
+    def __call__(self, *, source: str, sleep_seconds: float) -> Awaitable[None]: ...
+
+
+class _SourceFetch(Protocol):
+    def __call__(
+        self,
+        connector: object,
+        handle: object,
+        request: FetchRequest,
+        *,
+        source: str,
+        policy: SourceExecutionPolicy,
+        budget_windows: dict[str, _SourceBudgetWindow],
+        state_lock: asyncio.Lock,
+        record_result: _RecordResult | None = None,
+        budget_wait_observer: _BudgetWaitObserver | None = None,
+    ) -> Awaitable[FetchResult[object]]: ...
+
+
+class _ShardCountries(Protocol):
+    def __call__(
+        self, shard: ObservationShard, *, config: DatasetBatchConfig
+    ) -> tuple[str, ...]: ...
+
+
+_WVSObservationAccumulator: Callable[[], _WVSObservationAccumulatorType] = (
+    __make_implementation_proxy("_WVSObservationAccumulator", "writers")
+)
+_as_float: Callable[[object], float | None] = __make_implementation_proxy(
+    "_as_float", "transformers"
+)
+_as_int: Callable[[object], int | None] = __make_implementation_proxy("_as_int", "transformers")
+_country_to_numeric: Callable[[str], str] = __make_implementation_proxy(
+    "_country_to_numeric", "transformers"
+)
+_execute_source_fetch: _SourceFetch = __make_implementation_proxy("_execute_source_fetch", "api")
+_extract_year: Callable[[object], int | None] = __make_implementation_proxy(
+    "_extract_year", "transformers"
+)
+_filters_to_tuple: Callable[[dict[str, list[str]]], tuple[tuple[str, tuple[str, ...]], ...]] = (
+    __make_implementation_proxy("_filters_to_tuple", "transformers")
+)
+_load_json_dict: Callable[[object], dict[str, object]] = __make_implementation_proxy(
+    "_load_json_dict", "transformers"
+)
+_normalize_country_code: Callable[[object], str] = __make_implementation_proxy(
+    "_normalize_country_code", "transformers"
+)
+_normalize_observation_row: Callable[
+    [dict[str, Any]], tuple[str, int | None, int | None, int | None, float, str] | None
+] = __make_implementation_proxy("_normalize_observation_row", "transformers")
+_shard_countries: _ShardCountries = __make_implementation_proxy("_shard_countries", "transformers")
+_to_iso3: Callable[[str], str] = __make_implementation_proxy("_to_iso3", "transformers")
+# DuckDB accepts native integer literals; its 1.4 stubs omit that overload.
+_integer_sql_constant = cast("Callable[[int], duckdb.Expression]", duckdb.ConstantExpression)
 
 _TRANSPORT_SOURCES = frozenset(
     {
@@ -165,7 +185,7 @@ _LEGACY_WVS_INDICATORS_STATIC: dict[str, str] = {
     "A165": "social_trust",
     "A173": "cultural_cluster",
 }
-_CANONICAL_ROOTS = tuple(sorted(CANONICAL_VARIABLES.keys()))
+_CANONICAL_ROOTS = tuple(sorted(cast("Mapping[str, object]", CANONICAL_VARIABLES)))
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
 _WVS_SPECIAL_AGGREGATIONS_STATIC: dict[str, str] = {"A165": "weighted_share_response_1"}
 _WVS_WEIGHT_FIELDS: tuple[str, ...] = ("S017", "S018")
@@ -275,30 +295,27 @@ def _wvs_registry_path() -> Path:
     return catalog_default_resource_path("wvs_indicator_registry.yaml")
 
 
-_wvs_registry_cache: dict[str, dict] | None = None
+def _load_wvs_registry() -> dict[str, dict[str, Any]]:
+    """Load current WVS policy through the shared file-content snapshot."""
+    snapshot = _material_file_snapshot(_wvs_registry_path())
+    return _load_wvs_registry_snapshot(snapshot)
 
 
-def _load_wvs_registry() -> dict[str, dict]:
-    """Load WVS indicator registry YAML. Returns ``{code: spec}``."""
-    global _wvs_registry_cache
-    if _wvs_registry_cache is not None:
-        return _wvs_registry_cache
-    path = _wvs_registry_path()
-    if not path.exists():
-        _wvs_registry_cache = {}
-        return _wvs_registry_cache
+@lru_cache(maxsize=1)
+def _load_wvs_registry_snapshot(snapshot: _MaterialFileSnapshot) -> dict[str, dict[str, Any]]:
+    if snapshot.raw is None:
+        return {}
     try:
-        import yaml
-
-        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        data = _material_yaml_snapshot(snapshot)
         indicators = data.get("indicators", {}) if isinstance(data, dict) else {}
-        _wvs_registry_cache = {
-            str(k).strip().upper(): v for k, v in indicators.items() if isinstance(v, dict)
-        }
+        return {str(k).strip().upper(): v for k, v in indicators.items() if isinstance(v, dict)}
     except Exception:
         logger.warning("Failed to load WVS indicator registry")
-        _wvs_registry_cache = {}
-    return _wvs_registry_cache
+        return {}
+
+
+# Retain the old explicit reset hook while the parsed cache keys on current bytes.
+_load_wvs_registry.cache_clear = _load_wvs_registry_snapshot.cache_clear
 
 
 def _wvs_legacy_indicators() -> dict[str, str]:
@@ -316,18 +333,22 @@ def _wvs_legacy_indicators() -> dict[str, str]:
     return result if result else dict(_LEGACY_WVS_INDICATORS_STATIC)
 
 
-def _wvs_aggregation_method(indicator: str) -> str:
-    """Return aggregation method for a WVS indicator from registry."""
-    registry = _load_wvs_registry()
+def _wvs_aggregation_method(
+    indicator: str, *, registry: dict[str, dict[str, Any]] | None = None
+) -> str:
+    """Return aggregation method from a current or operation-bound registry."""
+    if registry is None:
+        registry = _load_wvs_registry()
     spec = registry.get(indicator.upper(), {})
     if spec:
         return str(spec.get("aggregation", "weighted_mean"))
     return _WVS_SPECIAL_AGGREGATIONS_STATIC.get(indicator, "weighted_mean")
 
 
-def _wvs_response_type(indicator: str) -> str:
-    """Return response_type for a WVS indicator from registry."""
-    registry = _load_wvs_registry()
+def _wvs_response_type(indicator: str, *, registry: dict[str, dict[str, Any]] | None = None) -> str:
+    """Return response type from a current or operation-bound registry."""
+    if registry is None:
+        registry = _load_wvs_registry()
     spec = registry.get(indicator.upper(), {})
     return str(spec.get("response_type", "continuous"))
 
@@ -364,49 +385,65 @@ def _load_wvs_bulk_duckdb(
     # Build DuckDB query selecting only needed columns
     # Columns: COUNTRY_ALPHA, S020 (survey_year), S002VS (wave), S017 (weight), + indicators
     select_cols = ["COUNTRY_ALPHA", "S020", "S002VS", "S017", "S018", *indicators]
-    # Quote columns that might clash with reserved words
-    quoted_cols = [f'"{c}"' for c in select_cols]
-
     con = duckdb.connect(":memory:")
     try:
-        country_placeholders = ", ".join("?" for _ in sorted(target_countries))
-        query = (
-            f"SELECT {', '.join(quoted_cols)} "
-            "FROM read_csv("
-            "?, header=true, delim=',', quote='\"', escape='\"', all_varchar=true, "
-            "strict_mode=false, ignore_errors=true, null_padding=true, max_line_size=2000000"
-            ") "
-            f'WHERE "COUNTRY_ALPHA" IN ({country_placeholders}) '
-            'AND try_cast("S020" AS INTEGER) BETWEEN ? AND ?'
+        relation = con.read_csv(
+            str(csv_path),
+            header=True,
+            delimiter=",",
+            quotechar='"',
+            escapechar='"',
+            all_varchar=True,
+            strict_mode=False,
+            ignore_errors=True,
+            null_padding=True,
+            max_line_size=2_000_000,
         )
         start_year, end_year = year_window
-        rows = con.execute(
-            query,
-            [str(csv_path), *sorted(target_countries), int(start_year), int(end_year)],
-        ).fetchall()
+        countries = duckdb.ColumnExpression("COUNTRY_ALPHA").isin(
+            *(duckdb.ConstantExpression(country) for country in sorted(target_countries))
+        )
+        survey_year_expression = duckdb.SQLExpression('try_cast("S020" AS INTEGER)')
+        rows = (
+            relation.filter(
+                countries
+                & (survey_year_expression >= _integer_sql_constant(int(start_year)))
+                & (survey_year_expression <= _integer_sql_constant(int(end_year)))
+            )
+            .project(*(duckdb.ColumnExpression(column) for column in select_cols))
+            .fetchall()
+        )
     except Exception as exc:
         logger.warning("DuckDB CSV read failed, falling back to per-indicator reader: {}", exc)
         con.close()
         # Fallback to single-indicator reader
-        result = {}
+        fallback_result: dict[str, list[dict[str, Any]]] = {}
         for ind in indicators:
             try:
-                result[ind] = _load_wvs_bulk_rows(
+                fallback_result[ind] = _load_wvs_bulk_rows(
                     ind,
                     country_scope=country_scope,
                     year_window=year_window,
                 )
             except Exception:
-                result[ind] = []
-        return result
+                fallback_result[ind] = []
+        return fallback_result
 
     con.close()
 
     # Column index mapping
     col_idx = {name: i for i, name in enumerate(select_cols)}
 
+    # Resolve policy once per operation, before the row-by-indicator hot loop.
+    registry = _load_wvs_registry()
+    response_types = {
+        indicator: _wvs_response_type(indicator, registry=registry) for indicator in indicators
+    }
+
     # Aggregate per indicator
-    aggregates: dict[str, dict[tuple, _WVSObservationAccumulator]] = {ind: {} for ind in indicators}
+    aggregates: dict[str, dict[tuple[str, int, int | None], _WVSObservationAccumulatorType]] = {
+        ind: {} for ind in indicators
+    }
 
     for row in rows:
         country_iso3 = str(row[col_idx["COUNTRY_ALPHA"]] or "").strip().upper()
@@ -457,7 +494,9 @@ def _load_wvs_bulk_duckdb(
 
         for ind in indicators:
             raw_val = row[col_idx[ind]]
-            value = _normalize_wvs_response_value_typed(ind, raw_val)
+            value = _normalize_wvs_response_value_typed(
+                ind, raw_val, response_type=response_types[ind]
+            )
             if value is None:
                 continue
             bucket = aggregates[ind].setdefault(key, _WVSObservationAccumulator())
@@ -470,7 +509,7 @@ def _load_wvs_bulk_duckdb(
     # Build result rows
     result: dict[str, list[dict[str, Any]]] = {}
     for ind in indicators:
-        agg_method = _wvs_aggregation_method(ind)
+        agg_method = _wvs_aggregation_method(ind, registry=registry)
         ind_rows: list[dict[str, Any]] = []
         for (country_code, survey_year, wave), bucket in sorted(aggregates[ind].items()):
             if bucket.sample_size <= 0 or bucket.weighted_total <= 0:
@@ -493,9 +532,13 @@ def _load_wvs_bulk_duckdb(
     return result
 
 
-def _normalize_wvs_response_value_typed(indicator: str, raw_value: Any) -> float | None:
+def _normalize_wvs_response_value_typed(
+    indicator: str, raw_value: object, *, response_type: str | None = None
+) -> float | None:
     """Normalize a WVS response value using response_type from registry."""
     if raw_value is None:
+        return None
+    if not isinstance(raw_value, (str, bytes, bytearray, SupportsFloat, SupportsIndex)):
         return None
     try:
         value = float(raw_value)
@@ -505,7 +548,8 @@ def _normalize_wvs_response_value_typed(indicator: str, raw_value: Any) -> float
     if value < 0:
         return None
 
-    response_type = _wvs_response_type(indicator)
+    if response_type is None:
+        response_type = _wvs_response_type(indicator)
 
     if response_type == "binary_12":
         iv = int(value)
@@ -554,7 +598,7 @@ def _merge_observation_stats(
         stats.record_source_observations(source, inserted.written)
 
 
-def _iter_chunked_values(values: Any, chunk_size: int) -> Any:
+def _iter_chunked_values[T](values: Iterable[T], chunk_size: int) -> Iterator[list[T]]:
     iterator = iter(values)
     while True:
         chunk = list(islice(iterator, max(int(chunk_size), 1)))
@@ -565,21 +609,26 @@ def _iter_chunked_values(values: Any, chunk_size: int) -> Any:
 
 def _existing_observation_ids(
     con: duckdb.DuckDBPyConnection,
-    observation_ids: Any,
+    observation_ids: Iterable[str],
 ) -> set[str]:
     matches: set[str] = set()
     chunk_size = 512
     for chunk in _iter_chunked_values(observation_ids, chunk_size):
-        placeholders = ", ".join("?" for _ in chunk)
-        rows = con.execute(
-            f"SELECT observation_id FROM ds_observations WHERE observation_id IN ({placeholders})",
-            list(chunk),
-        ).fetchall()
+        rows = (
+            con.table("ds_observations")
+            .filter(
+                duckdb.ColumnExpression("observation_id").isin(
+                    *(duckdb.ConstantExpression(value) for value in chunk)
+                )
+            )
+            .project("observation_id")
+            .fetchall()
+        )
         matches.update(str(row[0]) for row in rows if row and row[0])
     return matches
 
 
-def _records_from_payload(payload: Any) -> list[dict[str, Any]]:
+def _records_from_payload(payload: object) -> list[dict[str, Any]]:
     if payload is None:
         return []
     if hasattr(payload, "to_dict"):
@@ -599,7 +648,7 @@ def _records_from_payload(payload: Any) -> list[dict[str, Any]]:
     return []
 
 
-def _safe_path_token(value: Any) -> str:
+def _safe_path_token(value: object) -> str:
     text = re.sub(r"[^A-Za-z0-9._-]+", "_", str(value or "").strip())
     text = text.strip("._")
     return text or "unknown"
@@ -683,7 +732,7 @@ def _bulk_equivalence_manifest_path(
     )
 
 
-def _bulk_parse_numeric(value: Any) -> float | None:
+def _bulk_parse_numeric(value: object) -> float | None:
     if value is None:
         return None
     if isinstance(value, (int, float)):
@@ -705,7 +754,9 @@ def _bulk_parse_numeric(value: Any) -> float | None:
     return parsed
 
 
-def _iter_batches(records: Any, *, size: int = 50_000) -> Any:
+def _iter_batches(
+    records: Iterable[object], *, size: int = 50_000
+) -> Iterator[list[dict[str, Any]]]:
     batch: list[dict[str, Any]] = []
     for row in records:
         if not isinstance(row, dict):
@@ -720,7 +771,7 @@ def _iter_batches(records: Any, *, size: int = 50_000) -> Any:
 
 def _write_bulk_records_to_parquet(
     *,
-    records: Any,
+    records: Iterable[object],
     normalized_path: Path,
     table_name: str,
 ) -> int:
@@ -729,7 +780,7 @@ def _write_bulk_records_to_parquet(
     wal_path = Path(f"{temp_db_path}.wal")
     row_count = 0
     created = False
-    table_ident = _quote_identifier(table_name)
+    table_identifier = _quote_identifier(table_name)
     with duckdb.connect(str(temp_db_path)) as con:
         for batch in _iter_batches(records):
             frame = pd.DataFrame.from_records(batch)
@@ -738,15 +789,15 @@ def _write_bulk_records_to_parquet(
             con.register("bulk_batch_df", frame)
             try:
                 if not created:
-                    con.execute(f"CREATE TABLE {table_ident} AS SELECT * FROM bulk_batch_df")
+                    con.table("bulk_batch_df").create(table_identifier)
                     created = True
                 else:
-                    con.execute(f"INSERT INTO {table_ident} SELECT * FROM bulk_batch_df")
+                    con.table("bulk_batch_df").insert_into(table_identifier)
             finally:
                 con.unregister("bulk_batch_df")
             row_count += len(frame.index)
         if created:
-            con.execute(f"COPY {table_ident} TO ? (FORMAT PARQUET)", [str(normalized_path)])
+            con.table(table_identifier).write_parquet(str(normalized_path))
     temp_db_path.unlink(missing_ok=True)
     wal_path.unlink(missing_ok=True)
     return row_count
@@ -776,7 +827,7 @@ def _bulk_source_columns(source: str, path: Path) -> tuple[list[str], dict[str, 
 async def _record_bulk_download_result(
     *,
     source: str,
-    record_result: Any | None,
+    record_result: _RecordResult | None,
     request_count: int,
     bytes_downloaded: int,
 ) -> None:
@@ -799,11 +850,13 @@ async def _http_get_text(
     request_headers = {"Accept": "text/plain, text/html, */*"}
     if headers:
         request_headers.update(headers)
-    async with aiohttp.ClientSession(timeout=timeout, headers=request_headers) as session:
-        async with session.get(url, params=params) as resp:
-            if resp.status >= 400:
-                raise RuntimeError(f"HTTP {resp.status} for {url}")
-            return await resp.text(), dict(resp.headers)
+    async with (
+        aiohttp.ClientSession(timeout=timeout, headers=request_headers) as session,
+        session.get(url, params=params) as resp,
+    ):
+        if resp.status >= 400:
+            raise RuntimeError(f"HTTP {resp.status} for {url}")
+        return await resp.text(), dict(resp.headers)
 
 
 async def _http_download_to_path(
@@ -824,26 +877,28 @@ async def _http_download_to_path(
         }
     timeout = aiohttp.ClientTimeout(total=900)
     path.parent.mkdir(parents=True, exist_ok=True)
-    async with aiohttp.ClientSession(timeout=timeout, headers=headers or {}) as session:
-        async with session.get(url) as resp:
-            if resp.status >= 400:
-                raise RuntimeError(f"HTTP {resp.status} for {url}")
-            bytes_downloaded = 0
-            with open(path, "wb") as fh:
-                async for chunk in resp.content.iter_chunked(1024 * 1024):
-                    if not chunk:
-                        continue
-                    fh.write(chunk)
-                    bytes_downloaded += len(chunk)
-            return {
-                "path": path,
-                "url": url,
-                "request_count": 1,
-                "bytes_downloaded": bytes_downloaded,
-                "payload_bytes": int(path.stat().st_size),
-                "etag": str(resp.headers.get("ETag") or ""),
-                "last_modified": str(resp.headers.get("Last-Modified") or ""),
-            }
+    async with (
+        aiohttp.ClientSession(timeout=timeout, headers=headers or {}) as session,
+        session.get(url) as resp,
+    ):
+        if resp.status >= 400:
+            raise RuntimeError(f"HTTP {resp.status} for {url}")
+        bytes_downloaded = 0
+        with open(path, "wb") as fh:
+            async for chunk in resp.content.iter_chunked(1024 * 1024):
+                if not chunk:
+                    continue
+                fh.write(chunk)
+                bytes_downloaded += len(chunk)
+        return {
+            "path": path,
+            "url": url,
+            "request_count": 1,
+            "bytes_downloaded": bytes_downloaded,
+            "payload_bytes": int(path.stat().st_size),
+            "etag": str(resp.headers.get("ETag") or ""),
+            "last_modified": str(resp.headers.get("Last-Modified") or ""),
+        }
 
 
 async def _resolve_eurostat_bulk_download(
@@ -871,7 +926,7 @@ async def _resolve_eurostat_bulk_download(
     raise RuntimeError(f"Eurostat bulk TSV URL not found for {shard.plan.request_dataset_id}")
 
 
-def _iter_eurostat_bulk_records(tsv_path: Path) -> Any:
+def _iter_eurostat_bulk_records(tsv_path: Path) -> Iterator[dict[str, Any]]:
     with open(tsv_path, encoding="utf-8", newline="") as fh:
         reader = csv.reader(fh, delimiter="\t")
         header = next(reader, [])
@@ -905,7 +960,7 @@ def _iter_eurostat_bulk_records(tsv_path: Path) -> Any:
                 }
 
 
-def _iter_ilo_bulk_records(gzip_path: Path) -> Any:
+def _iter_ilo_bulk_records(gzip_path: Path) -> Iterator[dict[str, Any]]:
     with gzip.open(gzip_path, "rt", encoding="utf-8", newline="") as fh:
         reader = csv.DictReader(fh)
         for row in reader:
@@ -959,7 +1014,7 @@ def _uis_archive_priority(dataset_id: str, archive_url: str) -> tuple[int, str]:
     return preferred.get(name, 10), name
 
 
-def _iter_uis_bulk_records(zip_path: Path, *, dataset_id: str) -> Any:
+def _iter_uis_bulk_records(zip_path: Path, *, dataset_id: str) -> Iterator[dict[str, Any]]:
     dataset_token = str(dataset_id or "").strip().upper()
     with zipfile.ZipFile(zip_path, "r") as archive:
         members = sorted(
@@ -1033,7 +1088,7 @@ async def _materialize_eurostat_bulk_dataset(
     *,
     shard: ObservationShard,
     config: DatasetBatchConfig,
-    record_result: Any | None,
+    record_result: _RecordResult | None,
 ) -> dict[str, Any]:
     normalized_path = _bulk_normalized_path(config, shard=shard)
     dataset_version = _bulk_dataset_version_token(shard)
@@ -1045,7 +1100,7 @@ async def _materialize_eurostat_bulk_dataset(
     await _record_bulk_download_result(
         source=shard.plan.source,
         record_result=record_result,
-        request_count=int(download["request_count"]) + (0 if inventory_path.exists() else 0),
+        request_count=int(download["request_count"]),
         bytes_downloaded=int(download["bytes_downloaded"]),
     )
     if not normalized_path.exists():
@@ -1077,7 +1132,7 @@ async def _materialize_ilo_bulk_dataset(
     *,
     shard: ObservationShard,
     config: DatasetBatchConfig,
-    record_result: Any | None,
+    record_result: _RecordResult | None,
 ) -> dict[str, Any]:
     normalized_path = _bulk_normalized_path(config, shard=shard)
     dataset_version = _bulk_dataset_version_token(shard)
@@ -1122,7 +1177,7 @@ async def _materialize_uis_bulk_dataset(
     *,
     shard: ObservationShard,
     config: DatasetBatchConfig,
-    record_result: Any | None,
+    record_result: _RecordResult | None,
 ) -> dict[str, Any]:
     normalized_path = _bulk_normalized_path(config, shard=shard)
     dataset_version = _bulk_dataset_version_token(shard)
@@ -1195,7 +1250,7 @@ async def _ensure_remote_bulk_materialized(
     *,
     shard: ObservationShard,
     config: DatasetBatchConfig,
-    record_result: Any | None,
+    record_result: _RecordResult | None,
 ) -> dict[str, Any]:
     normalized_path = _bulk_normalized_path(config, shard=shard)
     async with _bulk_materialization_lock(normalized_path):
@@ -1231,7 +1286,8 @@ def _bulk_year_expression(source: str, lower_map: dict[str, str]) -> tuple[str, 
         return "NULL", None
     quoted = _quote_identifier(column)
     return (
-        f"coalesce(try_cast(regexp_extract(cast({quoted} AS VARCHAR), '(19|20)\\\\d{{2}}') AS INTEGER), try_cast({quoted} AS INTEGER))",
+        f"coalesce(try_cast(regexp_extract(cast({quoted} AS VARCHAR), "
+        f"'(19|20)\\\\d{{2}}') AS INTEGER), try_cast({quoted} AS INTEGER))",
         column,
     )
 
@@ -1252,7 +1308,10 @@ def _bulk_country_values(source: str, country_codes: tuple[str, ...]) -> list[st
         return normalized
     if source == "ilo":
         return [
-            __resolve_implementation_dependency("_to_iso3", "transformers")(code)
+            cast(
+                "Callable[[str], str]",
+                __resolve_implementation_dependency("_to_iso3", "transformers"),
+            )(code)
             for code in normalized
         ]
     return normalized
@@ -1329,21 +1388,14 @@ def _bulk_series_sample(
         f"coalesce(cast({_quote_identifier(column)} AS VARCHAR), '')" for column in series_columns
     )
     with duckdb.connect() as con:
-        total_row = con.execute(
-            f"SELECT count(*) FROM (SELECT DISTINCT {select_clause} FROM read_parquet(?))",
-            [str(normalized_path)],
-        ).fetchone()
+        series = con.read_parquet(str(normalized_path)).project(select_clause).distinct()
+        total_row = series.aggregate("count(*)").fetchone()
         total_series = int(total_row[0] or 0) if total_row else 0
         if total_series <= 0:
             return 0, []
         sample_size = min(total_series, max(20, math.ceil(total_series * 0.01)))
         sample_size = min(sample_size, 200)
-        frame = con.execute(
-            f"SELECT DISTINCT {select_clause} "
-            "FROM read_parquet(?) "
-            f"ORDER BY hash({hash_expr}) LIMIT ?",
-            [str(normalized_path), int(sample_size)],
-        ).df()
+        frame = series.order("hash(" + hash_expr + ")").limit(sample_size).df()
     return total_series, _records_from_payload(frame)
 
 
@@ -1461,8 +1513,8 @@ async def _fetch_bulk_equivalence_api_rows(
     policy: SourceExecutionPolicy,
     budget_windows: dict[str, _SourceBudgetWindow],
     state_lock: asyncio.Lock,
-    record_result: Any | None,
-    budget_wait_observer: Any | None,
+    record_result: _RecordResult | None,
+    budget_wait_observer: _BudgetWaitObserver | None,
 ) -> list[dict[str, Any]]:
     filters = {
         str(key): [str(value)]
@@ -1476,6 +1528,7 @@ async def _fetch_bulk_equivalence_api_rows(
         date_end=datetime(int(year_bounds[1]), 12, 31, tzinfo=UTC),
         page_size=200,
     )
+    connector: EurostatConnector | SDMXSourceConnector | UNESCOUISConnector
     if source == "eurostat":
         connector, handle = await cache.get_eurostat()
     elif source == "ilo":
@@ -1536,8 +1589,8 @@ async def _ensure_bulk_equivalence_manifest(
     policy: SourceExecutionPolicy,
     budget_windows: dict[str, _SourceBudgetWindow],
     state_lock: asyncio.Lock,
-    record_result: Any | None,
-    budget_wait_observer: Any | None,
+    record_result: _RecordResult | None,
+    budget_wait_observer: _BudgetWaitObserver | None,
 ) -> None:
     if config.is_sampled_run or config.preflight_only or config.run_profile == "preflight_core":
         return
@@ -1676,8 +1729,8 @@ async def _fetch_remote_bulk_rows(
     policy: SourceExecutionPolicy,
     budget_windows: dict[str, _SourceBudgetWindow],
     state_lock: asyncio.Lock,
-    record_result: Any | None = None,
-    budget_wait_observer: Any | None = None,
+    record_result: _RecordResult | None = None,
+    budget_wait_observer: _BudgetWaitObserver | None = None,
 ) -> list[dict[str, Any]]:
     materialized = await _ensure_remote_bulk_materialized(
         shard=shard,
@@ -1715,7 +1768,10 @@ def _load_wvs_bulk_rows(
     year_window: tuple[int, int] | None = None,
 ) -> list[dict[str, Any]]:
     indicator = str(raw_variable or "").strip().upper()
-    csv_path = _wvs_bulk_csv_path()
+    csv_path = cast(
+        "Callable[[], Path]",
+        __resolve_implementation_dependency("_wvs_bulk_csv_path", "loaders"),
+    )()
     if not indicator:
         return []
     if not csv_path.exists():
@@ -1726,7 +1782,7 @@ def _load_wvs_bulk_rows(
         for country in country_scope_members(country_scope)
         if iso2_to_iso3(country)
     }
-    aggregates: dict[tuple[str, int, int | None], _WVSObservationAccumulator] = {}
+    aggregates: dict[tuple[str, int, int | None], _WVSObservationAccumulatorType] = {}
 
     with open(csv_path, encoding="utf-8-sig", newline="") as fh:
         reader = csv.DictReader(fh)
@@ -1781,7 +1837,7 @@ def _load_wvs_bulk_rows(
     return rows
 
 
-def _normalize_wvs_response_value(indicator: str, raw_value: Any) -> float | None:
+def _normalize_wvs_response_value(indicator: str, raw_value: object) -> float | None:
     value = _as_float(raw_value)
     if value is None:
         return None
@@ -1810,10 +1866,13 @@ async def _fetch_who_observations(
     start_year: int,
     end_year: int,
 ) -> list[dict[str, Any]]:
-    iso3 = __resolve_implementation_dependency("_to_iso3", "transformers")(country_code)
+    iso3 = cast(
+        "Callable[[str], str]", __resolve_implementation_dependency("_to_iso3", "transformers")
+    )(country_code)
     url = f"https://ghoapi.azureedge.net/api/{indicator_id}"
     params = {
-        "$filter": f"SpatialDim eq '{iso3}' and TimeDim ge {int(start_year)} and TimeDim le {int(end_year)}",
+        "$filter": f"SpatialDim eq '{iso3}' and TimeDim ge {int(start_year)} "
+        f"and TimeDim le {int(end_year)}",
     }
     payload = await _http_get_json(url, params=params)
     return _records_from_payload(payload)
@@ -1848,7 +1907,9 @@ async def _fetch_uis_observations(
     url = "https://api.uis.unesco.org/api/public/data/indicators"
     params = {
         "indicator": indicator_id,
-        "geoUnit": __resolve_implementation_dependency("_to_iso3", "transformers")(country_code),
+        "geoUnit": cast(
+            "Callable[[str], str]", __resolve_implementation_dependency("_to_iso3", "transformers")
+        )(country_code),
         "start": int(start_year),
         "end": int(end_year),
     }
@@ -1861,13 +1922,15 @@ async def _http_get_json(
     *,
     params: dict[str, Any] | None = None,
     headers: dict[str, str] | None = None,
-) -> Any:
+) -> object:
     timeout = aiohttp.ClientTimeout(total=60)
     request_headers = {"Accept": "application/json"}
     if headers:
         request_headers.update(headers)
-    async with aiohttp.ClientSession(timeout=timeout, headers=request_headers) as session:
-        async with session.get(url, params=params) as resp:
-            if resp.status >= 400:
-                raise RuntimeError(f"HTTP {resp.status} for {url}")
-            return await resp.json(content_type=None)
+    async with (
+        aiohttp.ClientSession(timeout=timeout, headers=request_headers) as session,
+        session.get(url, params=params) as resp,
+    ):
+        if resp.status >= 400:
+            raise RuntimeError(f"HTTP {resp.status} for {url}")
+        return await resp.json(content_type=None)

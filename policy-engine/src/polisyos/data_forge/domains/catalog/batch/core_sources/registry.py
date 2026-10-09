@@ -83,7 +83,31 @@ from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 if TYPE_CHECKING:
     from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
 
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    resolve_core_sources_compatibility_binding,
+)
+
 logger = get_logger(__name__)
+
+# These are the database relations the catalog core-source producer reads to
+# construct its transport plan and the relations it writes for downstream
+# catalog consumers. Keep this inventory beside the producer's table schema
+# and plan loader so receipt consumers bind the same persisted boundary.
+_CORE_SOURCE_RECEIPT_TABLES: dict[str, tuple[str, ...]] = {
+    "inputs": ("ds_datasets", "ds_distributions"),
+    "outputs": (
+        "ds_registry_datasets",
+        "ds_variable_alignments",
+        "ds_alignment_audit",
+        "ds_observations",
+    ),
+}
+
+
+def _core_source_receipt_tables() -> dict[str, tuple[str, ...]]:
+    """Return the catalog core producer's canonical persisted table boundary."""
+    return {role: tuple(names) for role, names in _CORE_SOURCE_RECEIPT_TABLES.items()}
+
 
 _TRANSPORT_SOURCES = frozenset(
     {
@@ -208,6 +232,11 @@ __OWNER_BOUND_PROXIES: dict[str, Any] = {}
 
 def __resolve_implementation_dependency(name: str, owner: str) -> Any:
     """Resolve a split-module dependency without facade-global injection."""
+    has_context_override, context_override = resolve_core_sources_compatibility_binding(
+        f"{__package__}.{owner}", name
+    )
+    if has_context_override:
+        return context_override
     override = globals().get(name)
     if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
         return override
@@ -250,8 +279,6 @@ for __dependency_name, __dependency_owner in (
     __proxy = __make_implementation_proxy(__dependency_name, __dependency_owner)
     __OWNER_BOUND_PROXIES[__dependency_name] = __proxy
     globals().setdefault(__dependency_name, __proxy)
-
-
 
 
 def _ensure_registry_tables(con: duckdb.DuckDBPyConnection) -> None:
@@ -373,7 +400,8 @@ def _ensure_observation_index_compatibility(con: duckdb.DuckDBPyConnection) -> N
             "ON ds_observations(dataset_id, raw_variable, country_code, year)"
         )
         logger.warning(
-            "Dropped legacy UNIQUE idx_obs_dedup to preserve condition-aware and multi-canonical observations"
+            "Dropped legacy UNIQUE idx_obs_dedup to preserve condition-aware "
+            "and multi-canonical observations"
         )
         break
 
@@ -434,25 +462,40 @@ def _load_catalog_transport_datasets(
     }
 
     placeholders = ", ".join("?" for _ in source_filter)
+    source_dataset_expr = _dataset_expr("source_dataset_id", "''")
+    last_updated_expr = _dataset_expr(
+        "last_updated", _dataset_expr("updated_at", "CURRENT_DATE::VARCHAR")
+    )
+    coverage_start_expr = _dataset_expr(
+        "coverage_time_start", _dataset_expr("temporal_start", "''")
+    )
+    coverage_end_expr = _dataset_expr("coverage_time_end", _dataset_expr("temporal_end", "''"))
+    source_locator_expr = _distribution_expr("source_locator", "''")
+    # The interpolated SQL fragments come from the fixed schema mapping above;
+    # source values remain bound parameters in the query execution below.
     query = f"""
         SELECT
             d.id,
             d.source,
             d.title,
             COALESCE(d.description, ''),
-            COALESCE(NULLIF({_dataset_expr("source_dataset_id", "''")}, ''), NULLIF(d.dataset_id, ''), d.id),
+            COALESCE(
+                NULLIF({source_dataset_expr}, ''),
+                NULLIF(d.dataset_id, ''),
+                d.id
+            ),
             COALESCE({_dataset_expr("update_frequency", "''")}, ''),
-            COALESCE({_dataset_expr("last_updated", _dataset_expr("updated_at", "CURRENT_DATE::VARCHAR"))}::VARCHAR, CURRENT_DATE::VARCHAR),
+            COALESCE({last_updated_expr}::VARCHAR, CURRENT_DATE::VARCHAR),
             json_object(
                 'countries', COALESCE({_dataset_expr("coverage_countries", "[]")}, []),
                 'regions', COALESCE({_dataset_expr("coverage_regions", "[]")}, []),
                 'time_range',
                     CASE
-                        WHEN COALESCE({_dataset_expr("coverage_time_start", _dataset_expr("temporal_start", "''"))}, '') != ''
-                             OR COALESCE({_dataset_expr("coverage_time_end", _dataset_expr("temporal_end", "''"))}, '') != ''
-                        THEN COALESCE({_dataset_expr("coverage_time_start", _dataset_expr("temporal_start", "''"))}, '')
+                        WHEN COALESCE({coverage_start_expr}, '') != ''
+                             OR COALESCE({coverage_end_expr}, '') != ''
+                        THEN COALESCE({coverage_start_expr}, '')
                              || ':'
-                             || COALESCE({_dataset_expr("coverage_time_end", _dataset_expr("temporal_end", "''"))}, '')
+                             || COALESCE({coverage_end_expr}, '')
                         ELSE ''
                     END,
                 'granularity', COALESCE({_dataset_expr("coverage_granularity", "''")}, 'annual')
@@ -460,7 +503,8 @@ def _load_catalog_transport_datasets(
             json_object(
                 'access_type', 'open',
                 'api_endpoint', COALESCE({_dataset_expr("access_api_endpoint", "''")}, ''),
-                'bulk_download_url', COALESCE({_dataset_expr("access_bulk_download_url", "''")}, ''),
+                'bulk_download_url',
+                    COALESCE({_dataset_expr("access_bulk_download_url", "''")}, ''),
                 'license', COALESCE({_dataset_expr("access_license", "d.license")}, d.license, ''),
                 'auth_required', COALESCE({_dataset_expr("access_auth_required", "FALSE")}, FALSE)
             ) AS access_json,
@@ -471,12 +515,15 @@ def _load_catalog_transport_datasets(
             COALESCE(d.polisyos_metrics, []),
             COALESCE({_distribution_expr("connector_type", "''")}, ''),
             COALESCE({_distribution_expr("profile_id", "''")}, ''),
-            COALESCE(NULLIF({_distribution_expr("source_locator", "''")}, ''), COALESCE(NULLIF({_dataset_expr("source_dataset_id", "''")}, ''), NULLIF(d.dataset_id, ''), d.id)),
+            COALESCE(
+                NULLIF({source_locator_expr}, ''),
+                COALESCE(NULLIF({source_dataset_expr}, ''), NULLIF(d.dataset_id, ''), d.id)
+            ),
             COALESCE(CAST({_distribution_expr("default_filters", "'{}'::JSON")} AS VARCHAR), '{{}}')
         FROM ds_datasets AS d
         {distribution_join}
         WHERE d.source IN ({placeholders})
-    """
+    """  # noqa: S608
     rows = con.execute(query, source_filter).fetchall()
     if not rows:
         return []
@@ -1004,7 +1051,7 @@ def _limit_observation_plans(
 
     # Collect canonical vars that are important for transport benchmark.
     # Prioritise plans that cover canonical vars not yet covered by other sources.
-    _TRANSPORT_BENCHMARK_VARS: frozenset[str] = frozenset(
+    transport_benchmark_vars: frozenset[str] = frozenset(
         {
             "gdp_per_capita",
             "unemployment_rate",
@@ -1033,7 +1080,7 @@ def _limit_observation_plans(
             key=lambda p: (
                 0
                 if (
-                    p.canonical_var in _TRANSPORT_BENCHMARK_VARS
+                    p.canonical_var in transport_benchmark_vars
                     and p.canonical_var not in covered_transport_vars
                 )
                 else 1,

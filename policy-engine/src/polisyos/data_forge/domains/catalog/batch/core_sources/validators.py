@@ -16,7 +16,9 @@ import time
 import zipfile
 from collections import OrderedDict, defaultdict, deque
 from dataclasses import dataclass, replace
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
+from datetime import time as datetime_time
+from decimal import Decimal
 from importlib import import_module
 from itertools import islice
 from pathlib import Path
@@ -59,6 +61,7 @@ from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
     calibrate_alignment_confidence,
     load_seed_alignments,
 )
+from polisyos.data_forge.kernel.io.generation_basis import build_generation_basis
 from polisyos.data_forge.kernel.pipeline.manifests import write_raw_manifest, write_stage_manifest
 from polisyos.data_forge.read_api.academic import CANONICAL_VARIABLES
 from polisyos.fabric.connectors.base import (
@@ -82,6 +85,9 @@ from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 
 if TYPE_CHECKING:
     from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
+    from polisyos.data_forge.domains.catalog.batch.core_sources.writers import (
+        _ConnectorSessionCache,
+    )
     from polisyos.data_forge.domains.catalog.batch.core_sources.api import (
         _execute_source_fetch,
         _is_explicit_unsupported_error,
@@ -107,6 +113,10 @@ if TYPE_CHECKING:
         _to_iso3,
     )
 
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    resolve_core_sources_compatibility_binding,
+)
+
 logger = get_logger(__name__)
 
 __OWNER_BOUND_PROXIES: dict[str, Any] = {}
@@ -114,6 +124,11 @@ __OWNER_BOUND_PROXIES: dict[str, Any] = {}
 
 def __resolve_implementation_dependency(name: str, owner: str) -> Any:
     """Resolve a split-module dependency without facade-global injection."""
+    has_context_override, context_override = resolve_core_sources_compatibility_binding(
+        f"{__package__}.{owner}", name
+    )
+    if has_context_override:
+        return context_override
     override = globals().get(name)
     if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
         return override
@@ -270,8 +285,6 @@ _ILO_INFERRED_DIMENSION_TOKENS: frozenset[str] = frozenset(
         "STU",
     }
 )
-
-
 
 
 def _migrate_legacy_support_cache(
@@ -461,7 +474,404 @@ def _load_observation_checkpoint_state(config: DatasetBatchConfig) -> dict[str, 
         "publishable_core_complete": bool(publishable_core_complete),
         "negative_cache_version": max(1, int(negative_cache_version or 1)),
         "planner_signature": str(planner_signature or ""),
+        "core_output_receipt": payload.get("core_output_receipt"),
     }
+
+
+def _build_core_output_receipt(
+    config: DatasetBatchConfig,
+    *,
+    con: duckdb.DuckDBPyConnection,
+    checkpoint_state: dict[str, Any],
+) -> dict[str, Any] | None:
+    """Recompute the selected core ledger and catalog database table basis."""
+    from polisyos.data_forge.domains.catalog.batch.core_sources.registry import (
+        _core_source_receipt_tables,
+        _observation_mode_phases,
+    )
+
+    raw_work_packages = checkpoint_state.get("work_packages")
+    completed = checkpoint_state.get("completed")
+    failed = checkpoint_state.get("failed")
+    deferred = checkpoint_state.get("deferred")
+    if not all(
+        isinstance(value, dict) for value in (raw_work_packages, completed, failed, deferred)
+    ):
+        return None
+
+    selected_phases = tuple(_observation_mode_phases(config))
+    all_phases = {"publishable_core", "long_tail_backfill"}
+    package_rows: list[dict[str, Any]] = []
+    for shard_id, payload in sorted(raw_work_packages.items()):
+        if not isinstance(payload, dict):
+            return None
+        phase = str(payload.get("phase") or "")
+        if phase not in all_phases:
+            return None
+        if str(payload.get("shard_id") or "") != str(shard_id):
+            return None
+        package_rows.append({"shard_id": str(shard_id), **payload})
+
+    ledger_rows: list[dict[str, Any]] = []
+    successful_ids: set[str] = set()
+    for package in package_rows:
+        shard_id = str(package["shard_id"])
+        ledger_entries = [
+            (status, ledger.get(shard_id))
+            for status, ledger in (
+                ("completed", completed),
+                ("failed", failed),
+                ("deferred", deferred),
+            )
+            if shard_id in ledger
+        ]
+        if len(ledger_entries) > 1:
+            return None
+        if ledger_entries:
+            ledger_name, raw_entry = ledger_entries[0]
+            if not isinstance(raw_entry, dict):
+                return None
+            entry_status = str(raw_entry.get("status") or "")
+            if ledger_name == "completed":
+                if entry_status not in {"complete_with_rows", "complete_empty"}:
+                    return None
+                successful_ids.add(shard_id)
+            elif entry_status != ledger_name:
+                return None
+            ledger_rows.append({"shard_id": shard_id, "ledger": ledger_name, "result": raw_entry})
+        else:
+            ledger_rows.append({"shard_id": shard_id, "ledger": "pending", "result": None})
+
+    if not package_rows:
+        return None
+
+    try:
+        table_roles = _core_source_receipt_tables()
+        required_tables = {name for names in table_roles.values() for name in names}
+        existing_tables = {
+            str(name)
+            for (name,) in con.execute(
+                "SELECT table_name FROM information_schema.tables "
+                "WHERE table_schema = 'main' AND table_type = 'BASE TABLE'"
+            ).fetchall()
+        }
+        if not required_tables or not required_tables.issubset(existing_tables):
+            return None
+        table_snapshots: list[dict[str, Any]] = []
+        for role, names in sorted(table_roles.items()):
+            for table_name in names:
+                escaped_table = table_name.replace('"', '""')
+                schema = [
+                    {
+                        "cid": int(row[0]),
+                        "name": str(row[1]),
+                        "type": str(row[2]),
+                        "not_null": bool(row[3]),
+                        "default": None if row[4] is None else str(row[4]),
+                        "primary_key": bool(row[5]),
+                    }
+                    for row in con.execute(f'PRAGMA table_info("{escaped_table}")').fetchall()
+                ]
+                if not schema:
+                    return None
+                key_columns = [column for column in schema if column["primary_key"]]
+                if not key_columns:
+                    return None
+                columns = [column["name"] for column in schema]
+                key_indexes = [int(column["cid"]) for column in key_columns]
+                order_by = ", ".join(
+                    '"' + column["name"].replace('"', '""') + '"' for column in key_columns
+                )
+                # These quoted identifiers come only from the registry owner inventory.
+                cursor = con.execute(
+                    f'SELECT * FROM main."{escaped_table}" ORDER BY {order_by}'  # noqa: S608
+                )
+                content_digest = hashlib.sha256()
+                membership_digest = hashlib.sha256()
+                row_count = 0
+                while rows := cursor.fetchmany(4096):
+                    for row in rows:
+                        encoded_values = [_encode_core_receipt_value(value) for value in row]
+                        if any(value is None for value in encoded_values):
+                            return None
+                        encoded_row = json.dumps(
+                            encoded_values,
+                            ensure_ascii=False,
+                            sort_keys=True,
+                            separators=(",", ":"),
+                        ).encode("utf-8")
+                        content_digest.update(encoded_row)
+                        content_digest.update(b"\n")
+                        encoded_key = json.dumps(
+                            [encoded_values[index] for index in key_indexes],
+                            ensure_ascii=False,
+                            sort_keys=True,
+                            separators=(",", ":"),
+                        ).encode("utf-8")
+                        membership_digest.update(encoded_key)
+                        membership_digest.update(b"\n")
+                        row_count += 1
+                table_snapshots.append(
+                    {
+                        "role": role,
+                        "name": table_name,
+                        "columns": columns,
+                        "schema": schema,
+                        "primary_key_columns": [column["name"] for column in key_columns],
+                        "row_count": row_count,
+                        "content_sha256": content_digest.hexdigest(),
+                        "membership_sha256": membership_digest.hexdigest(),
+                    }
+                )
+    except (duckdb.Error, OSError, TypeError, ValueError, KeyError, IndexError):
+        return None
+
+    checkpoint_payload = {
+        "run_signature": config.run_signature,
+        "selected_phases": list(selected_phases),
+        "planned_work_packages": package_rows,
+        "required_ledger": ledger_rows,
+    }
+    try:
+        basis = build_generation_basis(
+            basis_kind="catalog_core_ingest_output",
+            generator_rule_version="policyos.catalog.core_ingest_output.v1",
+            members=(
+                (
+                    "current_plan_and_ledger",
+                    json.dumps(
+                        checkpoint_payload,
+                        ensure_ascii=False,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    ).encode("utf-8"),
+                ),
+                (
+                    "persisted_catalog_tables",
+                    json.dumps(
+                        table_snapshots,
+                        ensure_ascii=False,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    ).encode("utf-8"),
+                ),
+            ),
+        )
+    except (TypeError, ValueError):
+        return None
+    core_shards = [
+        package for package in package_rows if package.get("phase") == "publishable_core"
+    ]
+    backfill_shards = [
+        package for package in package_rows if package.get("phase") == "long_tail_backfill"
+    ]
+    core_pending = sum(str(package["shard_id"]) not in successful_ids for package in core_shards)
+    backfill_pending = sum(
+        str(package["shard_id"]) not in successful_ids for package in backfill_shards
+    )
+    selected_pending = sum(
+        str(package["shard_id"]) not in successful_ids
+        for package in package_rows
+        if package.get("phase") in selected_phases
+    )
+    return {
+        "schema": "policyos.catalog.core_ingest_output_receipt.v1",
+        "basis": basis.to_dict(),
+        "basis_digest": basis.basis_digest,
+        "required_shards": len(package_rows),
+        "completed_shards": len(successful_ids),
+        "publishable_core_pending": int(core_pending),
+        "backfill_pending": int(backfill_pending),
+        "selected_pending": int(selected_pending),
+        "publishable_core_complete": bool(core_shards) and core_pending == 0,
+        "selected_work_complete": (
+            any(package.get("phase") in selected_phases for package in package_rows)
+            and selected_pending == 0
+        ),
+    }
+
+
+@dataclass(frozen=True)
+class _CurrentCoreOutputReceiptState:
+    """One recomputed view of the checkpoint, producer stage, and core outputs."""
+
+    expected: bool
+    current_receipt: dict[str, Any] | None
+    checkpoint_state: dict[str, Any]
+    core_stage_state: dict[str, Any]
+    stage_metadata: dict[str, Any]
+
+    @property
+    def is_current(self) -> bool:
+        """Return whether the checkpoint and stage both bind current database bytes."""
+        return bool(
+            self.current_receipt is not None
+            and self.checkpoint_state.get("core_output_receipt") == self.current_receipt
+            and self.stage_metadata.get("core_output_receipt") == self.current_receipt
+        )
+
+    @property
+    def reconciled_receipt(self) -> dict[str, Any] | None:
+        """Return the receipt only when the saved checkpoint and stage agree with it."""
+        return self.current_receipt if self.is_current else None
+
+    def basis_member(self) -> dict[str, object]:
+        """Return the recomputed receipt identity consumed by benchmark basis checks."""
+        return {
+            "expected": self.expected,
+            "recomputed_receipt_digest": (
+                self.current_receipt.get("basis_digest") if self.current_receipt else None
+            ),
+            "matches_checkpoint_and_stage": self.is_current,
+        }
+
+
+def _current_core_output_receipt_state(
+    config: DatasetBatchConfig,
+    *,
+    con: duckdb.DuckDBPyConnection | None = None,
+) -> _CurrentCoreOutputReceiptState:
+    """Reconcile one saved core receipt with its ledger and current database tables."""
+    checkpoint_state = load_json(config.observation_ingest_checkpoint_path, default={})
+    if not isinstance(checkpoint_state, dict):
+        checkpoint_state = {}
+    saved_stage_state = load_json(config.stage_state_path, default={})
+    if not isinstance(saved_stage_state, dict):
+        saved_stage_state = {}
+    raw_core_stage_state = saved_stage_state.get("core_sources_ingest")
+    core_stage_state = raw_core_stage_state if isinstance(raw_core_stage_state, dict) else {}
+    raw_metadata = core_stage_state.get("metadata")
+    stage_metadata = raw_metadata if isinstance(raw_metadata, dict) else {}
+    work_packages = checkpoint_state.get("work_packages")
+    stage_status = str(core_stage_state.get("status") or "").strip()
+    expected = bool(isinstance(work_packages, dict) and work_packages) or stage_status in {
+        "complete",
+        "warning",
+        "running",
+    }
+    current_receipt: dict[str, Any] | None = None
+    if expected:
+        try:
+            if con is None:
+                with duckdb.connect(str(config.db_path), read_only=True) as current_con:
+                    current_receipt = _build_core_output_receipt(
+                        config,
+                        con=current_con,
+                        checkpoint_state=checkpoint_state,
+                    )
+            else:
+                current_receipt = _build_core_output_receipt(
+                    config,
+                    con=con,
+                    checkpoint_state=checkpoint_state,
+                )
+        except (duckdb.Error, OSError):
+            current_receipt = None
+    return _CurrentCoreOutputReceiptState(
+        expected=expected,
+        current_receipt=current_receipt,
+        checkpoint_state=checkpoint_state,
+        core_stage_state=core_stage_state,
+        stage_metadata=stage_metadata,
+    )
+
+
+def _encode_core_receipt_value(value: object) -> object | None:
+    """Encode supported DuckDB scalar and nested values with stable type tags."""
+    if value is None:
+        return ["null", None]
+    if isinstance(value, bool):
+        return ["bool", value]
+    if isinstance(value, int):
+        return ["int", str(value)]
+    if isinstance(value, float):
+        return ["float64", value.hex()]
+    if isinstance(value, str):
+        return ["string", value]
+    if isinstance(value, bytes):
+        return ["bytes", value.hex()]
+    if isinstance(value, Decimal):
+        return ["decimal", str(value)]
+    if isinstance(value, datetime):
+        return ["datetime", value.isoformat()]
+    if isinstance(value, date):
+        return ["date", value.isoformat()]
+    if isinstance(value, datetime_time):
+        return ["time", value.isoformat()]
+    if isinstance(value, list):
+        encoded = [_encode_core_receipt_value(item) for item in value]
+        return None if any(item is None for item in encoded) else ["list", encoded]
+    if isinstance(value, tuple):
+        encoded = [_encode_core_receipt_value(item) for item in value]
+        return None if any(item is None for item in encoded) else ["tuple", encoded]
+    if isinstance(value, dict):
+        encoded_items = [
+            (_encode_core_receipt_value(key), _encode_core_receipt_value(item))
+            for key, item in value.items()
+        ]
+        if any(key is None or item is None for key, item in encoded_items):
+            return None
+        encoded_items.sort(
+            key=lambda pair: json.dumps(pair[0], sort_keys=True, separators=(",", ":"))
+        )
+        return ["map", encoded_items]
+    return None
+
+
+def _prepare_core_output_resume(config: DatasetBatchConfig) -> bool:
+    """Clear terminal shard claims unless their prior catalog outputs still match."""
+    reuse_allowed = config.resume and config.resume_mode != "off"
+    checkpoint_state = _load_observation_checkpoint_state(config)
+    saved_receipt = checkpoint_state.get("core_output_receipt")
+    if reuse_allowed and saved_receipt is not None:
+        try:
+            with duckdb.connect(str(config.db_path), read_only=True) as con:
+                current_receipt = _build_core_output_receipt(
+                    config,
+                    con=con,
+                    checkpoint_state=checkpoint_state,
+                )
+        except (duckdb.Error, OSError):
+            current_receipt = None
+        if current_receipt is not None and saved_receipt == current_receipt:
+            return False
+
+    work_packages = checkpoint_state["work_packages"]
+    selected_ids = {
+        str(shard_id) for shard_id, payload in work_packages.items() if isinstance(payload, dict)
+    }
+    completed = checkpoint_state["completed"]
+    failed = checkpoint_state["failed"]
+    deferred = checkpoint_state["deferred"]
+    if not selected_ids:
+        selected_ids = set(completed) | set(failed) | set(deferred)
+    changed = False
+    for shard_id in selected_ids:
+        changed = completed.pop(shard_id, None) is not None or changed
+        changed = failed.pop(shard_id, None) is not None or changed
+        changed = deferred.pop(shard_id, None) is not None or changed
+    _write_observation_checkpoint_state(
+        config,
+        completed=completed,
+        failed=failed,
+        deferred=deferred,
+        unsupported_signatures=checkpoint_state["unsupported_signatures"],
+        empty_signatures=checkpoint_state["empty_signatures"],
+        inflight_leases=checkpoint_state["inflight_leases"],
+        async_fetch_leases=checkpoint_state["async_fetch_leases"],
+        capability_snapshots=checkpoint_state["capability_snapshots"],
+        capability_failures=checkpoint_state["capability_failures"],
+        source_budgets=checkpoint_state["source_budgets"],
+        writer_state=checkpoint_state["writer_state"],
+        support_sketches={},
+        work_packages={},
+        planner_phase="support_sketch",
+        publishable_core_complete=False,
+        negative_cache_version=checkpoint_state["negative_cache_version"],
+        planner_signature="",
+        core_output_receipt=None,
+    )
+    return changed
 
 
 def _write_observation_checkpoint_state(
@@ -484,6 +894,7 @@ def _write_observation_checkpoint_state(
     publishable_core_complete: bool = False,
     negative_cache_version: int = 2,
     planner_signature: str = "",
+    core_output_receipt: dict[str, Any] | None = None,
 ) -> None:
     write_json(
         config.observation_ingest_checkpoint_path,
@@ -506,6 +917,7 @@ def _write_observation_checkpoint_state(
             "publishable_core_complete": bool(publishable_core_complete),
             "negative_cache_version": max(1, int(negative_cache_version)),
             "planner_signature": planner_signature,
+            "core_output_receipt": core_output_receipt,
         },
     )
 
@@ -1099,6 +1511,8 @@ def _write_core_ingest_stage_progress(
     config: DatasetBatchConfig,
     *,
     metadata: dict[str, Any],
+    status: str = "running",
+    input_fingerprint: str | None = None,
 ) -> None:
     state = load_json(config.stage_state_path, default={})
     if not isinstance(state, dict):
@@ -1107,12 +1521,16 @@ def _write_core_ingest_stage_progress(
     if not isinstance(current, dict):
         current = {}
     state["core_sources_ingest"] = {
-        "status": "running",
-        "input_fingerprint": str(current.get("input_fingerprint", "")),
+        "status": str(status),
+        "input_fingerprint": str(
+            current.get("input_fingerprint", "") if input_fingerprint is None else input_fingerprint
+        ),
         "outputs": [str(config.db_path)],
         "metadata": metadata,
     }
     write_json(config.stage_state_path, state)
+
+
 def _chunked_observation_requests(
     *,
     plan: ObservationPlan,
@@ -1127,13 +1545,15 @@ def _chunked_observation_requests(
         source=source, update_frequency=plan.update_frequency
     )
     requests: list[FetchRequest] = []
-    for window_start, window_end in _year_windows(window_start, window_end, window_years):
+    for request_start_year, request_end_year in _year_windows(
+        window_start, window_end, window_years
+    ):
         requests.append(
             FetchRequest(
                 dataset_id=plan.request_dataset_id,
                 filters=filters,
-                date_start=datetime(window_start, 1, 1, tzinfo=UTC),
-                date_end=datetime(window_end, 12, 31, tzinfo=UTC),
+                date_start=datetime(request_start_year, 1, 1, tzinfo=UTC),
+                date_end=datetime(request_end_year, 12, 31, tzinfo=UTC),
                 page_size=200,
             )
         )

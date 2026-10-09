@@ -18,6 +18,7 @@ extraction, graph assembly, quality reporting, and publish flow.
 - **Amendment quality layer** — `amendment_detector.py` и `amendment_metrics.py` измеряют target resolution и blocking amendment gaps.
 - **Temporal resolution** — `temporal_parser.py` и новый `temporal_resolver.py` строят document/fact temporal envelopes для version-aware downstream logic.
 - **Extraction quality filters** — `quality_filters.py` и `hallucination_detector.py` отсекают synthetic subjects, low-quality entities и suspicious SPO output.
+- **Content-bound Legal embeddings** — `embedding_projection.py` is the shared entity/fact/provision text projection. `embedder.py` reads one table snapshot, fingerprints the loaded encoder assets, and binds that identity plus each projected member into the selected generation. Incremental reuse requires the same member bytes and encoder identity.
 - **Operational outputs** — smoke, QC и publish команды формируют manifests и quality reports, а не только raw graph tables.
 
 ## Public API
@@ -36,7 +37,8 @@ Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
 
 ## Current State
 
-- Last updated: 2026-05-01
+- Last updated: 2026-10-09
 - Phase 4/8 cutover moved this runtime into Data Forge and retired the old Lex batch package.
 - Canonical CLI: `python -m polisyos.data_forge.domains.legal.batch`.
 - Cloud Lex manifest runner imports this Data Forge runtime directly.
+- Existing selected generations without a bound encoder identity are not reused or admitted for vector queries; rerun `embed-local` to publish a compatible generation.

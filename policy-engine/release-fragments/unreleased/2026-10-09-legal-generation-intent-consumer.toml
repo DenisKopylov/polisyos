@@ -1,0 +1,14 @@
+id = "2026-10-09-legal-generation-intent-consumer"
+title = "Bind Legal vector queries to selected generation intent"
+type = "fixed"
+component = "lex"
+owner = "team-polisyos"
+summary = "Legal embedding production records encoder asset identity and canonical projected members; threshold parsing preserves numeric scalar bounds including zero. The Lex request carries an immutable selected-generation snapshot into a fresh graph reader. Without a runtime-composed encoder provider, search preserves real text results and a typed vector refusal; with a provider, a native HTTP compatibility witness reaches the selected native HNSW generation."
+evidence = ["tests/unit/remediation/test_emb_03.py", "tests/unit/runtime/http/services/test_lex_pipeline.py", "tests/unit/lex/test_benchmark.py", "tests/unit/data_forge/legal_batch/test_embed_local.py"]
+compatibility = "LegalKnowledgeGraph keeps its existing constructor and text/structured search paths. Vector paths require a local query encoder and immutable request profile; missing, stale, unpaired, or mismatched intent raises a typed refusal. The Lex HTTP response carries search_mode and vector_refusal_code, and hybrid search preserves text results when vector admission is refused. Numeric threshold scalars such as 0.0 retain their literal value in between/in comparisons. Legacy flat files remain compatibility projections and do not authorize vector queries."
+change_class = "internal"
+surface_classification = "internal: Legal embedding generation and knowledge-store vector admission"
+migration_docs = ["src/polisyos/data_forge/domains/legal/batch/README.md", "src/polisyos/lex/knowledge/README.md"]
+limitations = "The runtime provider derives and rechecks loaded weights, configuration, and tokenizer assets but does not attest executable identity: replacing encode while retaining those assets can change behavior. Closing this bounded residual requires a trusted executable identity bound to the loaded model; no such code-provenance owner exists here. The real producer/native-HNSW/HTTP test is a compatibility witness only and establishes no production corpus, semantic quality, or legal authority claim."
+public_surface_inventory_reviewed = false
+generated_client_compatibility = "requires_regeneration"

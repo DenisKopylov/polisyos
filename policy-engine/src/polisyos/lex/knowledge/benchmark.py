@@ -15,6 +15,7 @@ from polisyos.core import artifacts as core_artifacts
 from polisyos.data_forge.read_api import legal as legal_read_api
 from polisyos.lex.api import assemble_norm_pack, evaluate_transport_constraints
 from polisyos.lex.knowledge.search import LegalKnowledgeGraph
+from polisyos.lex.knowledge.store import LegalQueryProfileError
 from polisyos.lex.types import NormPackBuildRequest
 
 
@@ -35,6 +36,7 @@ class LexBenchmarkConfig(Protocol):
 
     cas_root: Path | None
     fact_log_root: Path | None
+
 
 READINESS_THRESHOLDS: dict[str, float] = {
     "benchmark_search_top5_relevance_pct": 70.0,
@@ -229,7 +231,12 @@ def _search_case_results(
             ),
         )
     for token in [part.strip() for part in case.query.split() if len(part.strip()) >= 4]:
-        provisions = graph.search_provisions(token, top_k=5)
+        try:
+            provisions = graph.search_provisions(token, top_k=5)
+        except LegalQueryProfileError:
+            # Provision expansion is an optional vector assist; keep the already
+            # returned text results and expose the refusal in the benchmark row.
+            provisions = []
         for provision in provisions:
             fact_results = graph.hybrid_search(
                 provision.provision_text_preview,
@@ -260,6 +267,11 @@ def _run_search_benchmark(
                 "case_id": case.case_id,
                 "query": case.query,
                 "results_total": len(results),
+                "vector_refusal_code": (
+                    graph.query_profile_error.code
+                    if graph.query_profile_error is not None
+                    else None
+                ),
                 "matched": matched is not None,
                 "matched_fact_id": getattr(matched, "fact_id", "") if matched is not None else "",
                 "matched_action": getattr(matched, "action_canon", "")
@@ -446,9 +458,7 @@ def _run_normpack_benchmark(
     claim_set_records: list[dict[str, str]] = []
     for artifact_id in claim_set_ids:
         try:
-            payload = json.loads(
-                cas.get_bytes(core_artifacts.ArtifactID(artifact_id))
-            )
+            payload = json.loads(cas.get_bytes(core_artifacts.ArtifactID(artifact_id)))
         except Exception:
             continue
         claim_set_records.append(
@@ -935,9 +945,7 @@ def run_legal_benchmark(config: LexBenchmarkConfig) -> LexBenchmarkOutcome:
     cases = tuple(legal_read_api.legal_search_benchmark_cases())
     try:
         search_payload, search_metrics = _run_search_benchmark(graph, cases=cases)
-        constraint_payload, constraint_metrics = _run_constraints_benchmark(
-            graph, domains=domains
-        )
+        constraint_payload, constraint_metrics = _run_constraints_benchmark(graph, domains=domains)
         cross_graph_payload, cross_graph_metrics = _run_cross_graph_benchmark(
             graph,
             db_path=config.db_path,

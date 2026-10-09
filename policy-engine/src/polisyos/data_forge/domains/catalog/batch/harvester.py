@@ -8,6 +8,7 @@ import re
 import xml.etree.ElementTree as ET
 from datetime import UTC, datetime
 from functools import lru_cache
+from io import BytesIO
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -16,13 +17,18 @@ import aiohttp
 from polisyos.common.logger import get_logger
 from polisyos.data_forge.domains.catalog._resources import catalog_default_resource_path
 from polisyos.data_forge.domains.catalog.batch.checkpoints import (
-    hash_payload,
     load_json,
     write_json,
 )
 from polisyos.data_forge.domains.catalog.batch.ckan_curation import curate_ckan_package
+from polisyos.data_forge.domains.catalog.batch.material_inputs import (
+    _material_file_snapshot,
+    _material_yaml_snapshot,
+    _MaterialFileSnapshot,
+)
 from polisyos.data_forge.domains.catalog.batch.normalizer import map_to_polisyos_metrics
 from polisyos.data_forge.domains.catalog.metrics_map import load_metrics_map
+from polisyos.data_forge.kernel.io.hashing import sha256_file
 from polisyos.data_forge.kernel.pipeline.manifests import write_raw_manifest, write_stage_manifest
 
 if TYPE_CHECKING:
@@ -863,29 +869,44 @@ def _wvs_variable_catalog_path() -> Path:
     )
 
 
-@lru_cache(maxsize=1)
 def _load_wvs_indicator_registry() -> dict[str, dict[str, Any]]:
-    """Load the WVS indicator registry YAML.  Returns ``{code: spec}``."""
-    registry_path = _wvs_registry_path()
-    if not registry_path.exists():
+    """Load current WVS policy through the shared file-content snapshot."""
+    return _load_wvs_indicator_registry_snapshot(_material_file_snapshot(_wvs_registry_path()))
+
+
+@lru_cache(maxsize=1)
+def _load_wvs_indicator_registry_snapshot(
+    snapshot: _MaterialFileSnapshot,
+) -> dict[str, dict[str, Any]]:
+    if snapshot.raw is None:
         return {}
     try:
-        import yaml
-
-        data = yaml.safe_load(registry_path.read_text(encoding="utf-8"))
+        data = _material_yaml_snapshot(snapshot)
         indicators = data.get("indicators", {}) if isinstance(data, dict) else {}
         return {str(k).strip().upper(): v for k, v in indicators.items() if isinstance(v, dict)}
     except Exception:
         logger.warning(
-            "Failed to load WVS indicator registry from {}", registry_path, exc_info=True
+            "Failed to load WVS indicator registry from {}", snapshot.path, exc_info=True
         )
         return {}
 
 
-@lru_cache(maxsize=1)
 def _load_wvs_indicator_catalog_from_local_file() -> tuple[dict[str, Any], ...]:
-    # First try loading from registry YAML (auto-generated from codebook)
-    registry = _load_wvs_indicator_registry()
+    registry_snapshot = _material_file_snapshot(_wvs_registry_path())
+    fallback_selected = not _load_wvs_indicator_registry_snapshot(registry_snapshot)
+    return _load_wvs_indicator_catalog_snapshot(
+        registry_snapshot,
+        _material_file_snapshot(_wvs_variable_catalog_path(), selected=fallback_selected),
+    )
+
+
+@lru_cache(maxsize=1)
+def _load_wvs_indicator_catalog_snapshot(
+    registry_snapshot: _MaterialFileSnapshot,
+    variable_snapshot: _MaterialFileSnapshot,
+) -> tuple[dict[str, Any], ...]:
+    # Both snapshots participate, including optional absence and fallback selection.
+    registry = _load_wvs_indicator_registry_snapshot(registry_snapshot)
     if registry:
         catalog: list[dict[str, Any]] = []
         for variable, spec in registry.items():
@@ -910,8 +931,8 @@ def _load_wvs_indicator_catalog_from_local_file() -> tuple[dict[str, Any], ...]:
             return tuple(catalog)
 
     # Fallback: try Excel codebook (read ALL indicators, not just supported)
-    path = _wvs_variable_catalog_path()
-    if not path.exists():
+    path = variable_snapshot.path
+    if variable_snapshot.raw is None:
         return _WVS_STATIC_INDICATORS
 
     try:
@@ -921,7 +942,7 @@ def _load_wvs_indicator_catalog_from_local_file() -> tuple[dict[str, Any], ...]:
         return _WVS_STATIC_INDICATORS
 
     try:
-        workbook = load_workbook(path, read_only=True, data_only=True)
+        workbook = load_workbook(BytesIO(variable_snapshot.raw), read_only=True, data_only=True)
         worksheet = workbook[workbook.sheetnames[0]]
         header_index: dict[str, int] = {}
         rows = worksheet.iter_rows(values_only=True)
@@ -959,6 +980,13 @@ def _load_wvs_indicator_catalog_from_local_file() -> tuple[dict[str, Any], ...]:
         logger.warning("Failed to load local WVS indicator catalog from {}", path, exc_info=True)
 
     return _WVS_STATIC_INDICATORS
+
+
+# Retain cache-reset hooks for callers of the existing private readers.
+_load_wvs_indicator_registry.cache_clear = _load_wvs_indicator_registry_snapshot.cache_clear
+_load_wvs_indicator_catalog_from_local_file.cache_clear = (
+    _load_wvs_indicator_catalog_snapshot.cache_clear
+)
 
 
 def _read_jsonl(path: Path) -> list[dict]:
@@ -1063,23 +1091,53 @@ async def harvest_sources(config: DatasetBatchConfig) -> dict[str, list[dict]]:
     semaphore = asyncio.Semaphore(_HARVEST_MAX_PARALLELISM)
     completed_names: set[str] = set()
     pending_specs = list(specs)
+    source_outcomes: dict[str, dict[str, object]] = {}
 
     async def _record_success(spec: SourceSpec, rows: list[dict]) -> None:
-        payload_path = _current_snapshot_payload_path(config, spec.name)
+        try:
+            payload_path, manifest_path = _source_snapshot_artifacts(config, spec.name)
+            manifest = load_json(manifest_path, default=None)
+            if not payload_path.is_file() or not manifest_path.is_file():
+                raise ValueError("successful harvest has no payload manifest")
+            payload_digest = sha256_file(payload_path)
+            if (
+                not isinstance(manifest, dict)
+                or manifest.get("source") != spec.name
+                or Path(str(manifest.get("payload", ""))).resolve() != payload_path.resolve()
+                or manifest.get("sha256") != payload_digest
+            ):
+                raise ValueError("harvest manifest does not bind its payload")
+            with payload_path.open(encoding="utf-8") as payload_file:
+                payload_rows = sum(1 for line in payload_file if line.strip())
+            if int(manifest.get("count", -1)) != payload_rows:
+                raise ValueError("harvest manifest count differs from payload")
+        except (OSError, TypeError, ValueError, KeyError) as exc:
+            await _record_failure(spec, exc)
+            return
         async with state_lock:
             out[spec.name] = rows
             checkpoint[spec.name] = {
                 "status": "complete",
-                "records_fetched": len(rows),
+                "records_fetched": payload_rows,
                 "row_bytes": int(payload_path.stat().st_size) if payload_path.exists() else 0,
                 "cursor": None,
                 "offset": 0,
                 "page": 0,
                 "etag": None,
                 "last_modified": None,
-                "payload_hash": _payload_hash(payload_path) if payload_path.exists() else "",
+                "payload_hash": payload_digest,
+                "payload_path": str(payload_path.resolve()),
+                "manifest_path": str(manifest_path.resolve()),
                 "last_success_at": datetime.now(UTC).isoformat(),
                 "error": "",
+            }
+            source_outcomes[spec.name] = {
+                "status": "complete",
+                "payload_path": str(payload_path.resolve()),
+                "manifest_path": str(manifest_path.resolve()),
+                "payload_sha256": payload_digest,
+                "records_fetched": payload_rows,
+                "records_returned": len(rows),
             }
             completed_names.add(spec.name)
             write_json(config.harvest_checkpoint_path, checkpoint)
@@ -1099,6 +1157,10 @@ async def harvest_sources(config: DatasetBatchConfig) -> dict[str, list[dict]]:
                 "last_modified": None,
                 "payload_hash": "",
                 "last_success_at": "",
+                "error": str(exc)[:500],
+            }
+            source_outcomes[spec.name] = {
+                "status": "failed",
                 "error": str(exc)[:500],
             }
             completed_names.add(spec.name)
@@ -1147,18 +1209,37 @@ async def harvest_sources(config: DatasetBatchConfig) -> dict[str, list[dict]]:
         pending_specs = [spec for spec in pending_specs if spec.name not in ready_names]
 
     stage_manifest = config.manifests_dir / "harvest.json"
+    selected_sources = [spec.name for spec in specs]
+    successful_sources = [
+        name
+        for name in selected_sources
+        if source_outcomes.get(name, {}).get("status") == "complete"
+    ]
+    failed_sources = [name for name in selected_sources if name not in successful_sources]
     write_stage_manifest(
         manifest_path=stage_manifest,
         stage="harvest",
-        status="ok",
+        status="ok" if not failed_sources else "partial",
         metrics={
             "wave": config.wave or "ALL",
             "sources": len(specs),
             "records": sum(len(v) for v in out.values()),
+            "selected_sources": selected_sources,
+            "successful_sources": successful_sources,
+            "failed_sources": failed_sources,
+            "source_outcomes": source_outcomes,
         },
-        artifacts=[],
+        artifacts=[
+            str(source_outcomes[name]["payload_path"])
+            for name in selected_sources
+            if source_outcomes.get(name, {}).get("status") == "complete"
+        ],
         started_at=started_at,
     )
+    if failed_sources:
+        raise RuntimeError(
+            "harvest incomplete; failed selected sources: " + ", ".join(failed_sources)
+        )
     return out
 
 
@@ -1194,7 +1275,10 @@ async def harvest_one_source(
         )
         return _apply_limit(rows, _effective_dataset_limit(config))
 
-    if config.resume and latest_payload and latest_payload.exists():
+    retrying_failed_source = (
+        isinstance(existing_entry, dict) and str(existing_entry.get("status")) == "failed"
+    )
+    if config.resume and latest_payload and latest_payload.exists() and not retrying_failed_source:
         logger.info("Using cached raw snapshot for {}: {}", spec.name, latest_payload)
         rows = _read_jsonl(latest_payload)
         rows = _prioritize_rows_for_sampling(
@@ -1281,13 +1365,17 @@ def _current_snapshot_payload_path(config: DatasetBatchConfig, source_name: str)
     return _current_source_snapshot_dir(config, source_name) / "payload.jsonl"
 
 
-def _payload_hash(path: Path) -> str:
-    if not path.exists():
-        return ""
-    stat = path.stat()
-    return hash_payload(
-        {"path": str(path), "size": int(stat.st_size), "mtime_ns": int(stat.st_mtime_ns)}
-    )
+def _source_snapshot_artifacts(config: DatasetBatchConfig, source_name: str) -> tuple[Path, Path]:
+    """Return the current complete snapshot or latest reusable source snapshot."""
+    current_dir = _current_source_snapshot_dir(config, source_name)
+    current_payload = current_dir / "payload.jsonl"
+    current_manifest = current_dir / "manifest.json"
+    if current_payload.is_file() and current_manifest.is_file():
+        return current_payload, current_manifest
+    latest_dir = _latest_snapshot_dir(config.raw_dir / source_name)
+    if latest_dir is not None:
+        return latest_dir / "payload.jsonl", latest_dir / "manifest.json"
+    return current_payload, current_manifest
 
 
 def _flatten_text_values(value: Any) -> list[str]:

@@ -4,12 +4,22 @@ import types
 
 import duckdb
 import numpy as np
+
 from polisyos.data_forge.domains.legal.batch.embedder import build_local_embeddings_and_indexes
 
 
 class _FakeSentenceTransformer:
     def __init__(self, model_name: str, device: str | None = None) -> None:
         self._dim = 4
+        self.device = device or "cpu"
+        self.config = {"model_name": model_name, "dimension": self._dim}
+        self.tokenizer = _FakeTokenizer()
+
+    def state_dict(self) -> dict[str, np.ndarray]:
+        return {"encoder.weight": np.asarray([self._dim], dtype=np.float32)}
+
+    def modules(self) -> list[_FakeSentenceTransformer]:
+        return [self]
 
     def get_sentence_embedding_dimension(self) -> int:
         return self._dim
@@ -29,6 +39,18 @@ class _FakeSentenceTransformer:
                 vec = vec / np.linalg.norm(vec)
             rows.append(vec)
         return np.vstack(rows)
+
+
+class _FakeTokenizer:
+    def get_vocab(self) -> dict[str, int]:
+        return {"<unk>": 0, "legal": 1}
+
+    @property
+    def special_tokens_map(self) -> dict[str, str]:
+        return {"unk_token": "<unk>"}
+
+    def get_added_vocab(self) -> dict[str, int]:
+        return {}
 
 
 def _prepare_lex_db(db_path):

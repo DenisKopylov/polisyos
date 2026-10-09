@@ -228,6 +228,7 @@ class QueryMetrics:
     returned: int = 0
     top_score: float = 0.0
     mean_score: float = 0.0
+    vector_search_refusal: str | None = None
 
 
 def _normalize_text(value: str) -> str:
@@ -241,6 +242,49 @@ def _safe_year(value: str | None) -> int | None:
     if not match:
         return None
     return int(match.group(0))
+
+
+def _effective_encoder_device(encoder: object, *, requested: str) -> str | None:
+    """Return the loaded encoder's effective device in producer intent form."""
+    device = getattr(encoder, "device", None)
+    if device is None:
+        return None
+    device_type = getattr(device, "type", None)
+    device_index = getattr(device, "index", None)
+    if device_type is not None:
+        normalized_type = str(device_type).strip()
+        if not normalized_type:
+            return None
+        effective = normalized_type if device_index is None else f"{normalized_type}:{device_index}"
+        if requested == normalized_type and device_index in (None, 0):
+            return normalized_type
+        return effective
+    if not isinstance(device, str):
+        return None
+    normalized_device = device.strip()
+    if not normalized_device:
+        return None
+    if normalized_device in {"cuda:0", "mps:0"}:
+        return (
+            normalized_device
+            if requested == normalized_device
+            else normalized_device.split(":", maxsplit=1)[0]
+        )
+    return normalized_device
+
+
+def _effective_encoder_dimension(encoder: object) -> int | None:
+    """Return a positive declared output dimension from the loaded encoder."""
+    dimension_method = getattr(encoder, "get_sentence_embedding_dimension", None)
+    if not callable(dimension_method):
+        return None
+    try:
+        dimension = dimension_method()
+    except Exception:
+        return None
+    if isinstance(dimension, bool) or not isinstance(dimension, (int, np.integer)):
+        return None
+    return int(dimension) if int(dimension) > 0 else None
 
 
 class DatasetCatalogGraph:
@@ -263,18 +307,59 @@ class DatasetCatalogGraph:
         self._embedder = None
         self._embedding_disabled = False
         self._embedding_warning_logged = False
+        self._embedder_generation_intent: tuple[str, str] | None = None
+        self._query_generation_id: str | None = None
+        self._last_vector_search_refusal: str | None = None
         self._last_query_metrics: QueryMetrics | None = None
 
     def _get_query_embedding(self, query: str) -> np.ndarray | None:
+        self._query_generation_id = None
+        self._last_vector_search_refusal = None
         if self._embedding_disabled:
+            self._last_vector_search_refusal = "query_encoder_disabled"
             return None
-        if not self._store.has_vector_index():
+        generation = self._store._current_dataset_generation()
+        if generation is None:
+            self._last_vector_search_refusal = (
+                self._store.vector_index_refusal_reason or "selected_generation_unavailable"
+            )
             return None
+        if generation.inventory.get("embedding_model") != self._embedding_model_name:
+            self._last_vector_search_refusal = "query_embedding_model_mismatch"
+            return None
+        raw_device = generation.inventory.get("embedding_device")
+        if not isinstance(raw_device, str) or not raw_device.strip():
+            self._last_vector_search_refusal = "selected_generation_intent_unavailable"
+            return None
+        generation_device = raw_device.strip()
         try:
-            if self._embedder is None:
+            generation_intent = (self._embedding_model_name, generation_device)
+            if self._embedder is None or self._embedder_generation_intent != generation_intent:
                 from sentence_transformers import SentenceTransformer
 
-                self._embedder = SentenceTransformer(self._embedding_model_name)
+                self._embedder = SentenceTransformer(
+                    self._embedding_model_name,
+                    device=generation_device,
+                )
+                self._embedder_generation_intent = generation_intent
+            dimension = _effective_encoder_dimension(self._embedder)
+            device = _effective_encoder_device(self._embedder, requested=generation_device)
+            if dimension is None or device is None:
+                self._last_vector_search_refusal = "query_encoder_intent_unavailable"
+                return None
+            if not self._store._query_generation_matches_encoder(
+                generation=generation,
+                encoder=self._embedder,
+                embedding_model=self._embedding_model_name,
+                embedding_device=device,
+                embedding_dimension=dimension,
+            ):
+                self._last_vector_search_refusal = (
+                    self._store.vector_index_refusal_reason
+                    or "query_encoder_generation_intent_mismatch"
+                )
+                return None
+            self._query_generation_id = generation.generation_id
             vec = self._embedder.encode([query])[0].astype(np.float32)
             norm = np.linalg.norm(vec)
             if norm > 0:
@@ -282,6 +367,7 @@ class DatasetCatalogGraph:
             return vec
         except Exception as exc:
             self._embedding_disabled = True
+            self._last_vector_search_refusal = "query_encoder_execution_failed"
             if not self._embedding_warning_logged:
                 logger.warning(
                     "Failed to enable query embeddings; falling back to text-only search: {}", exc
@@ -471,6 +557,7 @@ class DatasetCatalogGraph:
         vector_score: float,
         final_score: float,
         explain: bool,
+        vector_search_refusal: str | None = None,
     ) -> DatasetSearchResult:
         if not explain:
             return item.model_copy(update={"similarity": final_score})
@@ -489,6 +576,8 @@ class DatasetCatalogGraph:
             "matched_terms": self._match_terms(item, query),
             "expansion_terms": self._expansion_terms(query),
         }
+        if vector_search_refusal is not None:
+            explanation["vector_search_refusal"] = vector_search_refusal
         return item.model_copy(
             update={"similarity": final_score, "search_explanation": explanation}
         )
@@ -511,6 +600,21 @@ class DatasetCatalogGraph:
 
         vector_ms = 0.0
         vec = self._get_query_embedding(query)
+        vector_results: list[DatasetSearchResult] = []
+        if vec is not None:
+            vector_start = time.perf_counter()
+            vector_results = self._store.search_by_vector(
+                vec,
+                top_k=candidate_k,
+                min_similarity=0.2,
+                expected_generation_id=self._query_generation_id,
+            )
+            vector_ms = (time.perf_counter() - vector_start) * 1000.0
+            if self._store.vector_index_refusal_reason is not None:
+                self._last_vector_search_refusal = self._store.vector_index_refusal_reason
+                vec = None
+                vector_results = []
+                vector_ms = 0.0
         if vec is None:
             filtered = [result for result in text_results if self._passes_filters(result, filters)]
             results = filtered[:top_k]
@@ -527,6 +631,7 @@ class DatasetCatalogGraph:
                 mean_score=float(sum(item.similarity for item in results) / len(results))
                 if results
                 else 0.0,
+                vector_search_refusal=self._last_vector_search_refusal,
             )
             return [
                 self._with_explanation(
@@ -540,13 +645,10 @@ class DatasetCatalogGraph:
                     + self._freshness_boost(item)
                     + self._tier_boost(item),
                     explain=explain,
+                    vector_search_refusal=self._last_vector_search_refusal,
                 )
                 for item in results
             ]
-
-        vector_start = time.perf_counter()
-        vector_results = self._store.search_by_vector(vec, top_k=candidate_k, min_similarity=0.2)
-        vector_ms = (time.perf_counter() - vector_start) * 1000.0
 
         scores: dict[str, float] = {}
         text_score_map: dict[str, float] = {}
@@ -605,6 +707,7 @@ class DatasetCatalogGraph:
             returned=len(out),
             top_score=float(out[0].similarity) if out else 0.0,
             mean_score=float(sum(item.similarity for item in out) / len(out)) if out else 0.0,
+            vector_search_refusal=None,
         )
         return out
 

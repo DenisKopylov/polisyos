@@ -2,12 +2,19 @@
 
 from __future__ import annotations
 
+import json
 import platform
-from dataclasses import dataclass, field
+from collections.abc import Mapping
+from dataclasses import dataclass, field, fields
 from pathlib import Path
+from typing import TYPE_CHECKING, cast
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 from polisyos.data_forge.domains.catalog._resources import catalog_default_resource_path
 from polisyos.data_forge.domains.catalog.batch.checkpoints import hash_payload
+from polisyos.data_forge.domains.catalog.batch.material_inputs import _material_file_snapshot
 from polisyos.data_forge.domains.catalog.batch.source_registry import (
     SourceRegistry,
     load_source_registry,
@@ -16,7 +23,10 @@ from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
     COUNTRY_SCOPES,
     country_scope_members,
 )
+from polisyos.data_forge.domains.catalog.registry import default_catalog_source_registry_path
+from polisyos.data_forge.domains.catalog.selection import validate_catalog_run_profile
 from polisyos.data_forge.kernel.io import ensure_dirs, snapshot_component_dir
+from polisyos.data_forge.kernel.io.generation_basis import build_generation_basis
 
 ALL_STAGES = frozenset(
     {
@@ -154,7 +164,7 @@ class DatasetBatchConfig:
         return self.manifests_dir / "telemetry.json"
 
     def load_registry(self) -> SourceRegistry:
-        path = self.registry_path or (Path(__file__).resolve().parent / "source_registry.yaml")
+        path = self.registry_path or self.default_registry_path
         return load_source_registry(path)
 
     @property
@@ -163,7 +173,7 @@ class DatasetBatchConfig:
 
     @property
     def default_registry_path(self) -> Path:
-        return Path(__file__).resolve().parent / "source_registry.yaml"
+        return default_catalog_source_registry_path()
 
     @property
     def default_metrics_map_path(self) -> Path:
@@ -198,30 +208,16 @@ class DatasetBatchConfig:
 
     @property
     def run_signature(self) -> str:
-        return hash_payload(
-            {
-                "snapshot_root": str(self.snapshot_root),
-                "stages": sorted(self.stages),
-                "wave": self.wave,
-                "run_profile": self.run_profile,
-                "promoted_sources": sorted(self.promoted_sources),
-                "country_scope": self.country_scope,
-                "active_countries": list(self.resolved_active_countries),
-                "active_year_window": list(self.resolved_year_window),
-                "observation_mode": self.observation_mode,
-                "resume_mode": self.resume_mode,
-                "preflight_sources": sorted(self.preflight_sources),
-                "preflight_only": self.preflight_only,
-                "defer_unsupported_observation_plans": self.defer_unsupported_observation_plans,
-            }
-        )
+        return hash_payload({"producer_config": _producer_config_snapshot(self)})
 
     @property
     def uses_custom_registry(self) -> bool:
         if self.registry_path is None:
             return False
         try:
-            return self.registry_path.resolve() != self.default_registry_path.resolve()
+            selected_path = self.registry_path.resolve()
+            legacy_path = (Path(__file__).resolve().parent / "source_registry.yaml").resolve()
+            return selected_path not in {self.default_registry_path.resolve(), legacy_path}
         except FileNotFoundError:
             return True
 
@@ -233,6 +229,7 @@ class DatasetBatchConfig:
         unknown = set(self.stages) - ALL_STAGES
         if unknown:
             raise ValueError(f"Unknown stages: {sorted(unknown)}")
+        validate_catalog_run_profile(self.run_profile)
         if self.metrics_map_path is None:
             self.metrics_map_path = self.default_metrics_map_path
         if not self.resolved_metrics_map_path.exists():
@@ -250,15 +247,6 @@ class DatasetBatchConfig:
                 raise ValueError(
                     "rest_backfill profile requires at least one enabled rolling-window source"
                 )
-        if self.run_profile not in {
-            "prod_full",
-            "prod_core_blocking",
-            "rest_backfill",
-            "catalog_refresh",
-            "preflight_core",
-            "observations_backfill",
-        }:
-            raise ValueError(f"Unsupported run_profile: {self.run_profile}")
         if self.observation_mode not in {"all", "core", "backfill"}:
             raise ValueError("observation_mode must be one of: all, core, backfill")
         if self.resume_mode not in {"smart", "force", "off"}:
@@ -274,3 +262,152 @@ class DatasetBatchConfig:
             self.manifests_dir,
             self.publish_manifest_path.parent,
         )
+
+
+def _producer_config_snapshot(config: DatasetBatchConfig) -> dict[str, object]:
+    """Return producer configuration and one content-bound material input basis.
+
+    ``resume`` and ``stages`` select orchestration behavior; they do not change
+    what an individual stage produces. All other config fields are included,
+    along with derived values that resolve platform- or policy-dependent
+    defaults before producers read them.
+    """
+    values = {
+        item.name: getattr(config, item.name)
+        for item in fields(config)
+        if item.name not in {"resume", "stages"}
+    }
+    values.update(
+        {
+            "resolved_embedding_device": config.resolved_embedding_device,
+            "resolved_active_countries": config.resolved_active_countries,
+            "resolved_year_window": config.resolved_year_window,
+            "resolved_metrics_map_path": config.resolved_metrics_map_path,
+            "resolved_registry_path": config.registry_path or config.default_registry_path,
+            "uses_custom_registry": config.uses_custom_registry,
+            "is_sampled_run": config.is_sampled_run,
+            "producer_material_input_basis": _producer_material_input_basis(config),
+        }
+    )
+    return {key: _signature_safe(value) for key, value in values.items()}
+
+
+def _producer_material_input_basis(config: DatasetBatchConfig) -> dict[str, object]:
+    """Bind canonical policy file bytes and covered live profile settings.
+
+    File members use the exact locators consumed by the canonical owners,
+    including both WVS readers and the conditional local metadata fallback.
+    Required absence refuses recomputation; optional absence is content-bound.
+    Profile settings have the explicit header/credential exclusions below.
+    """
+    from polisyos.data_forge.domains.catalog.batch import harvester
+    from polisyos.data_forge.domains.catalog.batch.core_sources import api as core_api
+    from polisyos.data_forge.domains.catalog.batch.core_sources import loaders
+    from polisyos.data_forge.domains.catalog.batch.core_sources.api import (
+        _legacy_serial_mode_enabled,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge import proxy_penalties
+
+    harvest_wvs_snapshot = _material_file_snapshot(harvester._wvs_registry_path())
+    wvs_fallback_selected = not harvester._load_wvs_indicator_registry_snapshot(
+        harvest_wvs_snapshot
+    )
+    # API resolves this canonical locator through its existing dependency map.
+    seed_alignments_path = cast(
+        "Callable[[], Path]", getattr(core_api, "_seed_alignments_path", None)
+    )()
+    paths = {
+        "source_registry": (config.registry_path or config.default_registry_path, True, True),
+        "metrics_map": (config.resolved_metrics_map_path, True, True),
+        "seed_variable_alignments": (seed_alignments_path, True, True),
+        "proxy_metric_alignments": (
+            proxy_penalties.default_proxy_metric_alignments_path(),
+            False,
+            True,
+        ),
+        "wvs_indicator_registry_core": (loaders._wvs_registry_path(), False, True),
+        "wvs_indicator_registry_harvest": (harvester._wvs_registry_path(), False, True),
+        "wvs_variable_catalog": (
+            harvester._wvs_variable_catalog_path(),
+            False,
+            wvs_fallback_selected,
+        ),
+    }
+    snapshots = {
+        role: (
+            harvest_wvs_snapshot
+            if role == "wvs_indicator_registry_harvest"
+            else _material_file_snapshot(path, required=required, selected=selected)
+        )
+        for role, (path, required, selected) in sorted(paths.items())
+    }
+    members = [snapshot.generation_member(role) for role, snapshot in snapshots.items()]
+    members.append(("resolved_profile_registry", _runtime_source_profile_payload()))
+    members.append(
+        (
+            "resolved_producer_runtime_policy",
+            json.dumps(
+                {"legacy_serial_mode_enabled": _legacy_serial_mode_enabled()},
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8"),
+        )
+    )
+    return build_generation_basis(
+        basis_kind="catalog_producer_material_inputs",
+        generator_rule_version="policyos.catalog.producer_material_inputs.v1",
+        members=members,
+    ).to_dict()
+
+
+def _runtime_source_profile_payload() -> bytes:
+    """Bind live profile settings and resolved contracts with declared exclusions.
+
+    Core ingest may select profile IDs from persisted catalog bindings as well
+    as source YAML. The complete registry is a conservative finite denominator.
+    Presentation-only profile edits also invalidate reuse. ALL header policy
+    (including non-secret content negotiation), credentials and environment
+    auth overlays are omitted. No header revision or classifier is established;
+    complete effective-policy currentness remains limited until the owner
+    supplies a non-secret revision or enforces explicit invalidation.
+    Only member digests are persisted.
+    """
+    from polisyos.fabric.connectors import resolve_connection_config
+    from polisyos.fabric.connectors.profiles import SourceProfileRegistry
+    from polisyos.fabric.connectors.profiles.resolver import resolve_execution_policy
+
+    profiles = [
+        profile.model_copy(deep=True) for profile in SourceProfileRegistry.get_instance().list_all()
+    ]
+    payload: list[dict[str, object]] = []
+    for profile in profiles:
+        connection = resolve_connection_config(profile)
+        payload.append(
+            {
+                "profile": profile.model_dump(mode="json", exclude={"headers"}),
+                "connection": {
+                    item.name: _signature_safe(getattr(connection, item.name))
+                    for item in fields(connection)
+                    if item.name not in {"headers", "auth_credentials"}
+                },
+                "execution_policy": resolve_execution_policy(profile).model_dump(mode="json"),
+            }
+        )
+    return json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode(
+        "utf-8"
+    )
+
+
+def _signature_safe(value: object) -> object:
+    if isinstance(value, Path):
+        return str(value.resolve())
+    if isinstance(value, Mapping):
+        return {str(key): _signature_safe(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_signature_safe(item) for item in value]
+    if isinstance(value, (set, frozenset)):
+        return sorted(
+            (_signature_safe(item) for item in value),
+            key=lambda item: json.dumps(item, ensure_ascii=False, sort_keys=True),
+        )
+    return value

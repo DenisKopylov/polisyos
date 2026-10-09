@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from ..registry import _catalog_source_module
+from ..source_modules import CatalogSourceModuleSpec
 from ._factory import source
 
 DATA_GOV_UA_BROAD_SOURCE = source(
@@ -211,6 +213,17 @@ OPEN_DATA_CATALOG_SOURCE_MODULES = (
     CHICAGO_OPENDATA_SOURCE,
     CHICAGO_OPENDATA_EXEC_SOURCE,
 )
+
+for _name, _value in tuple(globals().items()):
+    if isinstance(_value, CatalogSourceModuleSpec):
+        globals()[_name] = _catalog_source_module(_value.source_id)
+for _name, _value in tuple(globals().items()):
+    if (
+        isinstance(_value, tuple)
+        and _value
+        and all(isinstance(item, CatalogSourceModuleSpec) for item in _value)
+    ):
+        globals()[_name] = tuple(_catalog_source_module(item.source_id) for item in _value)
 
 __all__ = [
     "CHICAGO_OPENDATA_EXEC_SOURCE",

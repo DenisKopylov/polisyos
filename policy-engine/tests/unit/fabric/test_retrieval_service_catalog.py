@@ -43,6 +43,7 @@ class _BindingCatalog:
                 request_dataset_id="NY.GDP.MKTP.CD",
                 confidence=0.92,
                 execution_tier="fetchable",
+                source="worldbank",
                 title="GDP per capita",
             )
         ]
@@ -82,6 +83,7 @@ class _NoneProfileBindingCatalog:
             request_dataset_id = "NY.GDP.MKTP.CD"
             confidence = 0.92
             execution_tier = "fetchable"
+            source = "worldbank"
             title = "GDP per capita"
 
         return [_Binding()]
@@ -136,7 +138,9 @@ def test_catalog_resolution_uses_request_dataset_id(tmp_path) -> None:
     curated_dir = tmp_path / "curated"
     curated_dir.mkdir()
     service = RetrievalService(curated_dir=curated_dir, dataset_catalog=_BindingCatalog())
-    plans, candidates = service._resolve_via_catalog([DataNeed(metric="gdp")])
+    plans, candidates = service._resolve_via_catalog(
+        [DataNeed(metric="gdp")], run_profile="prod_full"
+    )
     assert len(plans) == 1
     assert plans[0].dataset_id == "NY.GDP.MKTP.CD"
     assert plans[0].connector_id == "worldbank.wdi"
@@ -148,7 +152,9 @@ def test_catalog_resolution_skips_unfetchable_targets(tmp_path) -> None:
     curated_dir = tmp_path / "curated"
     curated_dir.mkdir()
     service = RetrievalService(curated_dir=curated_dir, dataset_catalog=_TargetCatalog())
-    plans, candidates = service._resolve_via_catalog([DataNeed(metric="gdp")])
+    plans, candidates = service._resolve_via_catalog(
+        [DataNeed(metric="gdp")], run_profile="prod_full"
+    )
     assert plans == []
     assert candidates == []
 
@@ -161,7 +167,9 @@ def test_catalog_resolution_rejects_catalog_only_metric_bindings(tmp_path) -> No
         dataset_catalog=_CatalogOnlyBindingCatalog(),
     )
 
-    plans, candidates = service._resolve_via_catalog([DataNeed(metric="gdp")])
+    plans, candidates = service._resolve_via_catalog(
+        [DataNeed(metric="gdp")], run_profile="prod_full"
+    )
 
     assert plans == []
     assert candidates == []
@@ -173,7 +181,9 @@ def test_catalog_resolution_applies_rolling_window_defaults_for_rest_sources(tmp
     service = RetrievalService(
         curated_dir=curated_dir, dataset_catalog=_RollingWindowBindingCatalog()
     )
-    plans, candidates = service._resolve_via_catalog([DataNeed(metric="health_outcomes")])
+    plans, candidates = service._resolve_via_catalog(
+        [DataNeed(metric="health_outcomes")], run_profile="prod_full"
+    )
 
     assert len(plans) == 1
     assert len(candidates) == 1
@@ -191,7 +201,9 @@ def test_catalog_resolution_preserves_none_profile_id(tmp_path) -> None:
         curated_dir=curated_dir, dataset_catalog=_NoneProfileBindingCatalog()
     )
 
-    plans, candidates = service._resolve_via_catalog([DataNeed(metric="gdp")])
+    plans, candidates = service._resolve_via_catalog(
+        [DataNeed(metric="gdp")], run_profile="prod_full"
+    )
 
     assert len(plans) == 1
     assert len(candidates) == 1
@@ -569,6 +581,8 @@ def test_retrieval_service_discover_uses_injected_executor_explore_and_observabi
             )
 
     class _FakeExecutor:
+        artifact_store = None
+
         def preview(self, plan: FetchPlan, *, allow_fallback: bool = True):
             del plan, allow_fallback
             raise AssertionError("preview should not be called")

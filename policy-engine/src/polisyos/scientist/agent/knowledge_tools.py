@@ -208,9 +208,7 @@ class KnowledgeToolkit:
         """Read the deprecated lossy v1 claim view for audit tooling only."""
         if self._scholar_graph is None:
             return []
-        return self._scholar_graph.find_causal_evidence_v1_audit(
-            cause, effect, min_trust=min_trust
-        )
+        return self._scholar_graph.find_causal_evidence_v1_audit(cause, effect, min_trust=min_trust)
 
     def get_mechanism_evidence_v1_audit(
         self,
@@ -277,7 +275,7 @@ class KnowledgeToolkit:
         top_k: int = 10,
         min_similarity: float = 0.3,
     ) -> list[LegalProvisionResult]:
-        """Fallback retrieval of raw provisions for legal review."""
+        """Vector-search raw provisions, preserving typed refusal when unbound."""
         if self._legal_graph is None:
             return []
         return self._legal_graph.search_provisions(

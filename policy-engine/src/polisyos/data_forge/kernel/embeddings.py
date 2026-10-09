@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -9,6 +10,7 @@ import shutil
 import tempfile
 import uuid
 from collections.abc import Callable, Mapping, Sequence
+from contextlib import suppress
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal, cast
@@ -18,7 +20,9 @@ import numpy as np
 from polisyos.data_forge.kernel.io.atomic import atomic_commit_path, atomic_write_json
 from polisyos.data_forge.kernel.io.generation_basis import (
     GENERATION_BASIS_SCHEMA_VERSION,
+    GenerationIdentity,
     build_generation_basis,
+    generation_basis_matches_members,
 )
 from polisyos.data_forge.kernel.io.hashing import sha256_bytes, sha256_file
 from polisyos.data_forge.kernel.runtime import pause_between_batches
@@ -70,17 +74,43 @@ def build_embedding_index(
     if not rows:
         return 0, int(embedding_dimension)
 
-    import hnswlib
     from sentence_transformers import SentenceTransformer
+
+    model = SentenceTransformer(embedding_model, device=embedding_device)
+    return _build_embedding_index_with_encoder(
+        rows=rows,
+        embeddings_path=embeddings_path,
+        index_path=index_path,
+        encoder=model,
+        embedding_dimension=embedding_dimension,
+        embedding_batch_size=embedding_batch_size,
+        thermal_pause_seconds=thermal_pause_seconds,
+    )
+
+
+def _build_embedding_index_with_encoder(
+    *,
+    rows: Sequence[tuple[object, str]],
+    embeddings_path: Path,
+    index_path: Path,
+    encoder: object,
+    embedding_dimension: int,
+    embedding_batch_size: int,
+    thermal_pause_seconds: float,
+) -> tuple[int, int]:
+    """Encode and persist one matrix/index pair with an already-loaded encoder."""
+    import hnswlib
 
     ids = [row[0] for row in rows]
     texts = [row[1] for row in rows]
-    model = SentenceTransformer(embedding_model, device=embedding_device)
 
     chunks: list[np.ndarray] = []
     for start in range(0, len(texts), embedding_batch_size):
         stop = min(start + embedding_batch_size, len(texts))
-        encoded = model.encode(
+        encode = getattr(encoder, "encode", None)
+        if not callable(encode):
+            raise ValueError("encoder does not expose a callable encode method")
+        encoded = encode(
             texts[start:stop],
             batch_size=min(embedding_batch_size, stop - start),
             show_progress_bar=False,
@@ -116,6 +146,7 @@ def build_embedding_generation(
     thermal_pause_seconds: float = 0.0,
     basis_kind: str = "embedding",
     projection_rule_version: str = "policyos.embedding_projection.v1",
+    encoder: object | None = None,
     legacy_embeddings_path: Path | None = None,
     legacy_index_path: Path | None = None,
 ) -> tuple[int, int]:
@@ -125,17 +156,41 @@ def build_embedding_generation(
     Existing flat files are copied only as a compatibility projection and are
     never used when a selector is present.  A failed build cleans up only its
     own staging directory, leaving the previous selector and generation intact.
+    When ``encoder`` is supplied, this function derives its identity from that
+    same object and uses it to produce the generation vectors.
     """
     normalized_rows = _normalize_rows(rows)
+    encoder_identity: GenerationIdentity | None = None
+    if normalized_rows:
+        if encoder is None:
+            from sentence_transformers import SentenceTransformer
+
+            encoder = SentenceTransformer(embedding_model, device=embedding_device)
+        try:
+            encoder_identity = derive_encoder_identity(encoder)
+        except (
+            AttributeError,
+            ImportError,
+            OSError,
+            OverflowError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+        ):
+            # Keep candidate production available for compatible custom encoders.
+            # The explicit "unbound" rule identity cannot match a query encoder's
+            # content identity, so it cannot authorize vector reuse or admission.
+            encoder_identity = None
 
     def _stage(staging: Path) -> tuple[int, int]:
         if normalized_rows:
-            return build_embedding_index(
+            if encoder is None:
+                raise RuntimeError("non-empty generation has no loaded encoder")
+            return _build_embedding_index_with_encoder(
                 rows=normalized_rows,
                 embeddings_path=staging / "embeddings.npz",
                 index_path=staging / "index.hnsw",
-                embedding_model=embedding_model,
-                embedding_device=embedding_device,
+                encoder=encoder,
                 embedding_dimension=embedding_dimension,
                 embedding_batch_size=embedding_batch_size,
                 thermal_pause_seconds=thermal_pause_seconds,
@@ -153,6 +208,7 @@ def build_embedding_generation(
         index_dir=index_dir,
         embedding_model=embedding_model,
         embedding_device=embedding_device,
+        encoder_identity=encoder_identity,
         basis_kind=basis_kind,
         projection_rule_version=projection_rule_version,
         legacy_embeddings_path=legacy_embeddings_path,
@@ -171,6 +227,8 @@ def _build_embedding_generation_from_vectors(
     embedding_dimension: int,
     basis_kind: str,
     projection_rule_version: str,
+    encoder: object | None = None,
+    encoder_identity: GenerationIdentity | None = None,
     legacy_embeddings_path: Path | None = None,
     legacy_index_path: Path | None = None,
 ) -> tuple[int, int]:
@@ -181,6 +239,29 @@ def _build_embedding_generation_from_vectors(
     staging, inventory, basis, selector, and compatibility-file publication.
     """
     normalized_rows = _normalize_rows(rows)
+    if encoder is None:
+        if encoder_identity is not None:
+            raise ValueError("encoder identity requires the live encoder object")
+    else:
+        try:
+            derived_identity = derive_encoder_identity(encoder)
+        except (
+            AttributeError,
+            ImportError,
+            OSError,
+            OverflowError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+        ) as exc:
+            if encoder_identity is not None:
+                raise ValueError(
+                    "encoder identity cannot be verified against the live encoder"
+                ) from exc
+            derived_identity = None
+        if encoder_identity is not None and encoder_identity != derived_identity:
+            raise ValueError("encoder identity does not match the live encoder")
+        encoder_identity = derived_identity
     matrix = np.asarray(vectors, dtype=np.float32)
     if matrix.ndim != 2:
         raise ValueError("precomputed embedding vectors must be two-dimensional")
@@ -216,6 +297,7 @@ def _build_embedding_generation_from_vectors(
         index_dir=index_dir,
         embedding_model=embedding_model,
         embedding_device=embedding_device,
+        encoder_identity=encoder_identity,
         basis_kind=basis_kind,
         projection_rule_version=projection_rule_version,
         legacy_embeddings_path=legacy_embeddings_path,
@@ -230,6 +312,7 @@ def _publish_embedding_generation(
     index_dir: Path,
     embedding_model: str,
     embedding_device: str,
+    encoder_identity: GenerationIdentity | None,
     basis_kind: str,
     projection_rule_version: str,
     legacy_embeddings_path: Path | None,
@@ -263,6 +346,7 @@ def _publish_embedding_generation(
             embedding_model=embedding_model,
             embedding_device=embedding_device,
             embedding_dimension=actual_dimension,
+            encoder_identity=encoder_identity,
         )
         if normalized_rows:
             basis = build_generation_basis(
@@ -420,6 +504,7 @@ def embedding_generation_manifest(
 
     basis = reference.inventory.get("basis")
     basis_digest = basis.get("basis_digest") if isinstance(basis, dict) else ""
+    encoder_identity = _encoder_identity_from_basis(basis)
     metadata = {
         "generation_id": reference.generation_id,
         "status": reference.status,
@@ -429,6 +514,7 @@ def embedding_generation_manifest(
         "count": len(reference.ids),
         "embedding_dimension": reference.dimension,
         "embedding_model": str(reference.inventory.get("embedding_model") or ""),
+        "encoder_identity": encoder_identity,
     }
     return metadata, tuple(dict.fromkeys(artifact_paths))
 
@@ -453,11 +539,344 @@ def _generator_rule_version(
     embedding_model: str,
     embedding_device: str,
     embedding_dimension: int,
+    encoder_identity: GenerationIdentity | None = None,
 ) -> str:
+    encoder_content = (
+        encoder_identity.content_identity if encoder_identity is not None else "unbound"
+    )
     return (
         f"{projection_rule_version}|model={embedding_model}|device={embedding_device}"
-        f"|dimension={embedding_dimension}"
+        f"|dimension={embedding_dimension}|encoder={encoder_content}"
     )
+
+
+def legal_embedding_generator_rule_version(
+    *,
+    projection_rule_version: str,
+    embedding_model: str,
+    embedding_device: str,
+    embedding_dimension: int,
+    encoder_identity: GenerationIdentity,
+) -> str:
+    """Return the shared generation rule for a bound Legal encoder profile.
+
+    This public read-side helper delegates to the canonical kernel rule builder
+    so producer and consumer expectations use the same serialization.
+
+    Args:
+        projection_rule_version: The canonical Legal text projection version.
+        embedding_model: The effective model reference in the generation intent.
+        embedding_device: The effective device in the generation intent.
+        embedding_dimension: The expected vector dimension.
+        encoder_identity: Identity recomputed from the loaded encoder assets.
+
+    Returns:
+        The exact rule version persisted in the generation basis.
+    """
+    return _generator_rule_version(
+        projection_rule_version=projection_rule_version,
+        embedding_model=embedding_model,
+        embedding_device=embedding_device,
+        embedding_dimension=embedding_dimension,
+        encoder_identity=encoder_identity,
+    )
+
+
+def embedding_generation_matches_encoder(
+    generation: EmbeddingGenerationRef | None,
+    *,
+    encoder: object,
+    basis_kind: str,
+    projection_rule_version: str,
+    embedding_model: str,
+    embedding_device: str,
+    embedding_dimension: int,
+) -> bool:
+    """Check a selected generation against live encoder assets and intent.
+
+    The encoder identity is recomputed from the supplied live object. Legacy,
+    empty, unselected, malformed, or unsupported generations fail closed. This
+    is a compatibility check and does not attest executable ``encode``
+    behavior beyond the documented asset identity boundary.
+
+    Args:
+        generation: The selected generation resolved from the artifact store.
+        encoder: The live encoder expected to produce query vectors.
+        basis_kind: The expected domain generation-basis kind.
+        projection_rule_version: The expected text projection rule.
+        embedding_model: The effective configured model reference.
+        embedding_device: The effective configured encoder device.
+        embedding_dimension: The expected vector dimension.
+
+    Returns:
+        Whether the selected complete generation matches this profile.
+    """
+    if (
+        generation is None
+        or not generation.selected
+        or generation.status != "complete"
+        or generation.dimension != embedding_dimension
+    ):
+        return False
+    if generation.inventory.get("embedding_model") != embedding_model:
+        return False
+    basis = generation.inventory.get("basis")
+    if not isinstance(basis, Mapping) or basis.get("basis_kind") != basis_kind:
+        return False
+    try:
+        encoder_identity = derive_encoder_identity(encoder)
+    except (
+        AttributeError,
+        ImportError,
+        OSError,
+        OverflowError,
+        RuntimeError,
+        TypeError,
+        ValueError,
+    ):
+        return False
+    expected_rule = _generator_rule_version(
+        projection_rule_version=projection_rule_version,
+        embedding_model=embedding_model,
+        embedding_device=embedding_device,
+        embedding_dimension=embedding_dimension,
+        encoder_identity=encoder_identity,
+    )
+    return basis.get("generator_rule_version") == expected_rule
+
+
+def _encoder_identity_from_basis(basis: object) -> str | None:
+    """Project the encoder identity suffix from persisted generator metadata."""
+    if not isinstance(basis, Mapping):
+        return None
+    rule_version = basis.get("generator_rule_version")
+    marker = "|encoder="
+    if not isinstance(rule_version, str) or marker not in rule_version:
+        return None
+    return rule_version.rsplit(marker, 1)[1]
+
+
+def derive_encoder_identity(encoder: object) -> GenerationIdentity:
+    """Derive a candidate content identity from live encoder assets.
+
+    The digest covers a model's loaded state dictionary, module/configuration
+    and tokenizer material. It does not attest the executable behavior of an
+    arbitrary replacement for ``encode``; callers that use the identity for
+    admission must also obtain the encoder from their trusted local provider.
+
+    Args:
+        encoder: The loaded encoder whose assets produced the vectors.
+
+    Returns:
+        A typed SHA-256 identity derived from the encoder's loaded assets.
+
+    Raises:
+        ValueError: If the encoder does not expose complete, supported assets.
+    """
+    state_dict_method = getattr(encoder, "state_dict", None)
+    if not callable(state_dict_method):
+        raise ValueError("encoder does not expose a state dictionary")
+    state_dict = state_dict_method()
+    if not isinstance(state_dict, Mapping) or not state_dict:
+        raise ValueError("encoder state dictionary is empty or malformed")
+
+    digest = hashlib.sha256()
+    for raw_name, value in sorted(state_dict.items(), key=lambda item: str(item[0])):
+        name = str(raw_name)
+        raw, dtype, shape = _tensor_bytes(value)
+        _hash_frame(digest, name.encode("utf-8"))
+        _hash_frame(digest, dtype.encode("utf-8"))
+        _hash_frame(digest, _canonical_json(list(shape)))
+        _hash_frame(digest, raw)
+
+    modules_method = getattr(encoder, "modules", None)
+    modules = list(modules_method()) if callable(modules_method) else [encoder]
+    module_config: list[dict[str, object]] = []
+    tokenizers: list[tuple[str, object]] = []
+    for module_index, module in enumerate(modules):
+        module_config.append(
+            {
+                "class": f"{type(module).__module__}.{type(module).__qualname__}",
+                "config": _module_config(module),
+            }
+        )
+        tokenizer = getattr(module, "tokenizer", None)
+        if tokenizer is not None:
+            tokenizers.append((str(module_index), tokenizer))
+    direct_tokenizer = getattr(encoder, "tokenizer", None)
+    if direct_tokenizer is not None and all(
+        direct_tokenizer is not existing for _index, existing in tokenizers
+    ):
+        tokenizers.append(("direct", direct_tokenizer))
+    if not tokenizers:
+        raise ValueError("encoder does not expose its tokenizer assets")
+
+    tokenizer_material: list[dict[str, object]] = []
+    for name, tokenizer in tokenizers:
+        vocab_method = getattr(tokenizer, "get_vocab", None)
+        vocabulary = vocab_method() if callable(vocab_method) else None
+        if not isinstance(vocabulary, Mapping) or not vocabulary:
+            raise ValueError("encoder tokenizer vocabulary is unavailable")
+        backend = getattr(tokenizer, "backend_tokenizer", None)
+        backend_json = backend.to_str() if callable(getattr(backend, "to_str", None)) else None
+        sentencepiece = getattr(tokenizer, "sp_model", None)
+        sentencepiece_bytes = None
+        if callable(getattr(sentencepiece, "serialized_model_proto", None)):
+            sentencepiece_bytes = sentencepiece.serialized_model_proto().hex()
+        tokenizer_material.append(
+            {
+                "name": name,
+                "class": f"{type(tokenizer).__module__}.{type(tokenizer).__qualname__}",
+                "vocabulary": sorted(
+                    (str(token), int(index)) for token, index in vocabulary.items()
+                ),
+                "special_tokens": _jsonable(getattr(tokenizer, "special_tokens_map", {})),
+                "settings": _tokenizer_settings(tokenizer),
+                "added_vocabulary": _jsonable(getattr(tokenizer, "get_added_vocab", lambda: {})()),
+                "backend": backend_json,
+                "sentencepiece": sentencepiece_bytes,
+            }
+        )
+    _hash_frame(digest, _canonical_json(module_config))
+    _hash_frame(digest, _canonical_json(tokenizer_material))
+    return GenerationIdentity(content_identity=f"sha256:{digest.hexdigest()}")
+
+
+def _tensor_bytes(value: object) -> tuple[bytes, str, tuple[int, ...]]:
+    detach = getattr(value, "detach", None)
+    if callable(detach):
+        tensor = detach().cpu().contiguous()
+        dtype = str(getattr(tensor, "dtype", ""))
+        shape_value = getattr(tensor, "shape", ())
+        shape = tuple(int(item) for item in shape_value)
+        view = getattr(tensor, "view", None)
+        if callable(view):
+            with suppress(ImportError, TypeError, RuntimeError):
+                tensor = view(__import__("torch").uint8)
+        numpy_value = tensor.numpy()
+    else:
+        numpy_value = np.asarray(value)
+        dtype = str(numpy_value.dtype)
+        shape = tuple(int(item) for item in numpy_value.shape)
+    if not hasattr(numpy_value, "tobytes") or numpy_value.dtype.hasobject:
+        raise ValueError("encoder state dictionary contains an unsupported tensor")
+    return numpy_value.tobytes(order="C"), dtype, shape
+
+
+def _module_config(module: object) -> object:
+    module_config_method = getattr(module, "get_config_dict", None)
+    if callable(module_config_method):
+        config_value = module_config_method()
+    else:
+        config = getattr(module, "config", None)
+        to_dict = getattr(config, "to_dict", None)
+        config_value = to_dict() if callable(to_dict) else config
+    projection_fields = (
+        "pooling_mode_cls_token",
+        "pooling_mode_mean_tokens",
+        "pooling_mode_max_tokens",
+        "pooling_mode_mean_sqrt_len_tokens",
+        "pooling_mode_weightedmean_tokens",
+        "pooling_mode_lasttoken",
+        "max_seq_length",
+        "do_lower_case",
+        "normalize_embeddings",
+    )
+    return {
+        "config": _jsonable(config_value) if config_value is not None else {},
+        "projection": {
+            name: _jsonable(getattr(module, name))
+            for name in projection_fields
+            if hasattr(module, name)
+        },
+    }
+
+
+def _tokenizer_settings(tokenizer: object) -> dict[str, object]:
+    """Capture tokenizer behavior settings without binding cache locations."""
+    settings: dict[str, object] = {}
+    for name in (
+        "model_max_length",
+        "padding_side",
+        "truncation_side",
+        "clean_up_tokenization_spaces",
+        "model_input_names",
+        "do_lower_case",
+        "add_prefix_space",
+        "strip_accents",
+        "tokenize_chinese_chars",
+    ):
+        if hasattr(tokenizer, name):
+            settings[name] = _jsonable(getattr(tokenizer, name))
+    init_kwargs = getattr(tokenizer, "init_kwargs", None)
+    if isinstance(init_kwargs, Mapping):
+        settings["init_kwargs"] = {
+            str(key): _jsonable(value)
+            for key, value in init_kwargs.items()
+            if not str(key).endswith(("_file", "_path"))
+            and str(key) not in {"name_or_path", "_name_or_path"}
+        }
+    return settings
+
+
+def _jsonable(value: object) -> object:
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    if isinstance(value, Mapping):
+        return {str(key): _jsonable(item) for key, item in value.items()}
+    if isinstance(value, set):
+        return sorted((_jsonable(item) for item in value), key=repr)
+    if isinstance(value, (list, tuple)):
+        return [_jsonable(item) for item in value]
+    if hasattr(value, "item") and callable(value.item):
+        return _jsonable(value.item())
+    if isinstance(value, Path):
+        return str(value)
+    if isinstance(getattr(value, "content", None), str):
+        return {
+            "content": value.content,
+            "lstrip": bool(getattr(value, "lstrip", False)),
+            "rstrip": bool(getattr(value, "rstrip", False)),
+            "normalized": bool(getattr(value, "normalized", False)),
+            "special": bool(getattr(value, "special", False)),
+        }
+    raise ValueError(f"encoder configuration contains unsupported value: {type(value)!r}")
+
+
+def _hash_frame(digest: hashlib._Hash, raw: bytes) -> None:
+    digest.update(len(raw).to_bytes(8, "big"))
+    digest.update(raw)
+
+
+def hnsw_index_matches_vectors(index: object, matrix: np.ndarray) -> bool:
+    """Check that an HNSW index labels and stores the supplied vector matrix.
+
+    This is a compatibility check over the loaded native index. It does not
+    establish the provenance or authority of the vectors themselves.
+
+    Args:
+        index: A loaded HNSW index exposing count, label and item accessors.
+        matrix: The expected finite, two-dimensional vector matrix.
+
+    Returns:
+        Whether index labels cover every matrix row and stored vectors match.
+    """
+    try:
+        vectors = np.asarray(matrix, dtype=np.float32)
+    except (TypeError, ValueError, OverflowError):
+        return False
+    if vectors.ndim != 2 or not vectors.shape[0] or not np.isfinite(vectors).all():
+        return False
+    try:
+        if int(index.get_current_count()) != vectors.shape[0]:
+            return False
+        labels = tuple(int(value) for value in index.get_ids_list())
+        if set(labels) != set(range(vectors.shape[0])):
+            return False
+        stored = np.asarray(index.get_items(np.arange(vectors.shape[0])), dtype=np.float32)
+    except (AttributeError, RuntimeError, TypeError, ValueError):
+        return False
+    return stored.shape == vectors.shape and bool(np.allclose(stored, vectors, rtol=0.0, atol=1e-6))
 
 
 def _empty_generation_basis(*, basis_kind: str, generator_rule_version: str) -> dict[str, object]:
@@ -717,8 +1136,14 @@ __all__ = [
     "GENERATION_SELECTOR_FILENAME",
     "GENERATION_SELECTOR_SCHEMA_VERSION",
     "EmbeddingGenerationRef",
+    "GenerationIdentity",
     "build_embedding_generation",
     "build_embedding_index",
+    "derive_encoder_identity",
     "embedding_generation_manifest",
+    "embedding_generation_matches_encoder",
+    "generation_basis_matches_members",
+    "hnsw_index_matches_vectors",
+    "legal_embedding_generator_rule_version",
     "resolve_embedding_generation",
 ]

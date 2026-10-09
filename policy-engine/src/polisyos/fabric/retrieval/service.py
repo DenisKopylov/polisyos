@@ -11,11 +11,9 @@ from collections import OrderedDict
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.backends.config import ArtifactStoreConfig
-from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.contracts.control import (
     DataContext,
     DataNeed,
@@ -37,9 +35,15 @@ from .explore_lane import ExploreLaneDiscoverResult, ExploreLaneDiscovery, Explo
 from .providers import RetrievalProviders, resolve_retrieval_providers
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
 
+    from polisyos.core.artifacts import ArtifactStore, ArtifactStoreConfig
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
+    from polisyos.data_forge.domains.catalog import (
+        CatalogRunProfile,
+        CatalogSourceRegistryEntry,
+        CatalogSourceRegistrySpec,
+    )
     from polisyos.fabric.connectors.profiles import SourceProfileRegistry
     from polisyos.fabric.connectors.registry import ConnectorRegistry
 
@@ -143,6 +147,14 @@ def _coerce_filter_map(value: object) -> dict[str, list[str]]:
     return normalized
 
 
+def _catalog_selection_error(code: str, detail: str | None = None) -> RuntimeError:
+    """Construct the canonical error through the existing lazy read API."""
+    error_type = cast(
+        "Callable[[str, str | None], RuntimeError]", catalog_read_api.CatalogSelectionError
+    )
+    return error_type(code, detail)
+
+
 class RetrievalService:
     """High-level retrieval orchestrator for control API and NL pipeline."""
 
@@ -182,9 +194,7 @@ class RetrievalService:
         self._explore = explore or ExploreLaneDiscovery(
             providers=resolved,
         )
-        if executor is not None and (
-            cas_root is not None or artifact_store_config is not None
-        ):
+        if executor is not None and (cas_root is not None or artifact_store_config is not None):
             raise ValueError("retrieval_service_executor_store_configuration_conflict")
         if (
             executor is not None
@@ -209,7 +219,8 @@ class RetrievalService:
         self._index_size_bytes = 0
         self._docs_added_last_run = 0
         self._last_updated: datetime | None = None
-        self._catalog_source_policies: dict[str, Any] | None = None
+        self._catalog_source_registry: CatalogSourceRegistrySpec | None = None
+        self._catalog_source_selections: dict[str, frozenset[str]] = {}
         self._max_local_index_docs = max(1, max_local_index_docs)
         self._max_promotion_candidates = max(1, max_promotion_candidates)
         self._state_lock = threading.RLock()
@@ -219,29 +230,63 @@ class RetrievalService:
         """Return the exact artifact store owned by the fetch executor."""
         return self._artifact_store
 
-    def _source_policy(self, source_name: str) -> Any | None:
+    def _catalog_registry(self) -> CatalogSourceRegistrySpec:
+        """Refresh cached selection from the complete canonical effective registry."""
+        with self._state_lock:
+            load_registry = cast(
+                "Callable[[], CatalogSourceRegistrySpec]",
+                catalog_read_api.load_catalog_source_registry,
+            )
+            registry = load_registry()
+            cached_registry = self._catalog_source_registry
+            if cached_registry is None or cached_registry != registry:
+                cached_registry = registry
+                self._catalog_source_registry = cached_registry
+                self._catalog_source_selections.clear()
+            return cached_registry
+
+    def _source_policy(self, source_name: str) -> CatalogSourceRegistryEntry | None:
         normalized = (source_name or "").strip()
         if not normalized:
             return None
-        if self._catalog_source_policies is None:
-            try:
-                registry = catalog_read_api.load_catalog_source_registry()
-            except Exception:
-                logger.debug(
-                    "Failed to load dataset source registry for retrieval policy lookup",
-                    exc_info=True,
-                )
-                self._catalog_source_policies = {}
-            else:
-                self._catalog_source_policies = {spec.source_id: spec for spec in registry.sources}
-        return self._catalog_source_policies.get(normalized)
+        return self._catalog_registry().source_by_id(normalized)
+
+    def _selected_catalog_source_ids(self, run_profile: CatalogRunProfile | None) -> frozenset[str]:
+        if run_profile is None:
+            raise _catalog_selection_error("catalog_run_profile_unresolved")
+        with self._state_lock:
+            registry = self._catalog_registry()
+            cached = self._catalog_source_selections.get(run_profile)
+            if cached is not None:
+                return cached
+            selected = registry.enabled_sources(run_profile=run_profile)
+            selected_ids = frozenset(source.source_id for source in selected)
+            self._catalog_source_selections[run_profile] = selected_ids
+            return selected_ids
+
+    def _catalog_source_is_enabled(
+        self, source_name: str, *, run_profile: CatalogRunProfile | None
+    ) -> bool:
+        """Require registered, enabled sources selected by the caller's run profile."""
+        normalized = source_name.strip()
+        if not normalized:
+            raise _catalog_selection_error("catalog_source_identity_unresolved")
+        policy = self._source_policy(normalized)
+        if policy is None:
+            raise _catalog_selection_error(
+                "catalog_source_unregistered",
+                normalized,
+            )
+        if not policy.enabled:
+            return False
+        return normalized in self._selected_catalog_source_ids(run_profile)
 
     def _catalog_date_window(
         self,
         *,
         source_name: str,
         need: DataNeed,
-    ) -> tuple[str | None, str | None, Any | None]:
+    ) -> tuple[str | None, str | None, CatalogSourceRegistryEntry | None]:
         policy = self._source_policy(source_name)
         if need.time_start or need.time_end or policy is None:
             return need.time_start, need.time_end, policy
@@ -251,7 +296,12 @@ class RetrievalService:
         date_start = date_end - timedelta(days=int(policy.default_lookback_days))
         return date_start.isoformat(), date_end.isoformat(), policy
 
-    def resolve(self, request: DataResolveRequest) -> ResolveOutcome:
+    def resolve(
+        self,
+        request: DataResolveRequest,
+        *,
+        run_profile: CatalogRunProfile | None = None,
+    ) -> ResolveOutcome:
         started = time.perf_counter()
         warnings: list[str] = []
         candidates: list[MetricCandidate] = []
@@ -294,7 +344,10 @@ class RetrievalService:
 
             if unresolved and self._dataset_catalog is not None:
                 phase_start = time.perf_counter()
-                catalog_plans, catalog_candidates = self._resolve_via_catalog(unresolved)
+                catalog_plans, catalog_candidates = self._resolve_via_catalog(
+                    unresolved,
+                    run_profile=run_profile,
+                )
                 fetch_plans.extend(catalog_plans)
                 candidates.extend(catalog_candidates)
                 resolved_metrics = {plan.metric_id for plan in fetch_plans}
@@ -737,6 +790,8 @@ class RetrievalService:
     def _resolve_via_catalog(
         self,
         unresolved: list[DataNeed],
+        *,
+        run_profile: CatalogRunProfile | None = None,
     ) -> tuple[list[FetchPlan], list[MetricCandidate]]:
         """Try to resolve data needs via DatasetCatalogGraph."""
         plans: list[FetchPlan] = []
@@ -758,9 +813,7 @@ class RetrievalService:
                     )
                     bindings = []
                 for binding in bindings:
-                    execution_tier = str(
-                        getattr(binding, "execution_tier", "catalog") or "catalog"
-                    )
+                    execution_tier = str(getattr(binding, "execution_tier", "catalog") or "catalog")
                     if execution_tier not in _EXECUTABLE_CATALOG_TIERS:
                         continue
                     connector_id = str(getattr(binding, "connector_id", "") or "").strip()
@@ -768,6 +821,9 @@ class RetrievalService:
                         getattr(binding, "request_dataset_id", "") or ""
                     ).strip()
                     if not connector_id or not request_dataset_id:
+                        continue
+                    source_name = str(getattr(binding, "source", "") or "")
+                    if not self._catalog_source_is_enabled(source_name, run_profile=run_profile):
                         continue
                     resolved_rows.append(
                         {
@@ -784,7 +840,7 @@ class RetrievalService:
                             "confidence": _coerce_float(getattr(binding, "confidence", 0.0) or 0.0),
                             "catalog_title": str(getattr(binding, "title", "") or ""),
                             "execution_tier": execution_tier,
-                            "source": str(getattr(binding, "source", "") or ""),
+                            "source": source_name,
                         }
                     )
 
@@ -799,9 +855,7 @@ class RetrievalService:
                     logger.debug("Catalog lookup failed for metric %s", need.metric, exc_info=True)
                     continue
                 for result in results:
-                    execution_tier = str(
-                        getattr(result, "execution_tier", "catalog") or "catalog"
-                    )
+                    execution_tier = str(getattr(result, "execution_tier", "catalog") or "catalog")
                     if execution_tier not in _EXECUTABLE_CATALOG_TIERS:
                         continue
                     try:
@@ -820,6 +874,9 @@ class RetrievalService:
                         or not target.parser_supported
                     ):
                         continue
+                    source_name = str(getattr(result, "source", "") or "")
+                    if not self._catalog_source_is_enabled(source_name, run_profile=run_profile):
+                        continue
                     resolved_rows.append(
                         {
                             "catalog_dataset_id": target.catalog_dataset_id,
@@ -831,7 +888,7 @@ class RetrievalService:
                             "confidence": max(0.05, _coerce_float(result.similarity) * 0.8),
                             "catalog_title": result.title,
                             "execution_tier": execution_tier,
-                            "source": getattr(result, "source", ""),
+                            "source": source_name,
                         }
                     )
 

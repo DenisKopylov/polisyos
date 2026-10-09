@@ -1,19 +1,36 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from pathlib import Path
+from typing import Literal
 
 import pytest
 
+from polisyos.data_forge.domains.catalog import sources as source_views
+from polisyos.data_forge.domains.catalog.batch.source_registry import load_source_registry
+from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+    CatalogSelectionError,
+)
 from polisyos.data_forge.domains.catalog.registry import (
     CatalogSourceRegistryEntry,
     CatalogSourceRegistrySpec,
     catalog_source_modules_from_registry,
+    default_catalog_source_registry_path,
     load_catalog_source_registry,
+)
+from polisyos.data_forge.domains.catalog.selection import (
+    resolve_catalog_source_dependencies,
 )
 from polisyos.data_forge.domains.catalog.source_modules import (
     CORE_CATALOG_SOURCE_MODULES,
     CatalogSourceModuleSpec,
     select_catalog_source_modules,
+)
+from polisyos.data_forge.kernel.embeddings import EmbeddingGenerationRef
+from polisyos.data_forge.kernel.io.generation_basis import (
+    GenerationIdentity,
+    build_generation_basis,
+    generation_basis_matches_members,
 )
 from polisyos.data_forge.read_api import catalog as catalog_read_api
 from polisyos.fabric.retrieval.service import RetrievalService
@@ -80,9 +97,7 @@ def test_source_selection_distinguishes_none_default_from_explicit_empty() -> No
     )
 
     assert default_ids == expected_default_ids
-    assert {
-        item.source_id for item in registry.sources if not item.enabled
-    }.isdisjoint(default_ids)
+    assert {item.source_id for item in registry.sources if not item.enabled}.isdisjoint(default_ids)
     assert select_catalog_source_modules((), run_profile="prod_full") == ()
 
 
@@ -116,6 +131,23 @@ def test_source_selection_fails_closed_for_cyclic_seeds() -> None:
     _assert_typed_dependency_failure(
         lambda: select_catalog_source_modules(modules, run_profile="prod_full"),
         expected_code="dependency_cycle",
+    )
+
+
+def test_source_selection_rejects_duplicate_module_identities() -> None:
+    module = _module("source")
+
+    with pytest.raises(CatalogSelectionError, match="duplicate_source_identity"):
+        select_catalog_source_modules((module, module))
+
+
+def test_dependency_resolution_uses_registered_row_for_selected_identity() -> None:
+    registered = _module("dependent", seed_from="missing")
+    selected_copy = _module("dependent")
+
+    _assert_typed_dependency_failure(
+        lambda: resolve_catalog_source_dependencies((registered,), (selected_copy,)),
+        expected_code="dependency_missing",
     )
 
 
@@ -161,11 +193,59 @@ def test_registry_selection_fails_closed_for_cyclic_seeds() -> None:
     )
 
 
+def test_source_registry_and_module_selection_share_profile_and_wave_policy() -> None:
+    registry = load_catalog_source_registry()
+    modules = catalog_source_modules_from_registry(registry)
+    batch_registry = load_source_registry(default_catalog_source_registry_path())
+
+    for profile in (
+        "prod_full",
+        "prod_core_blocking",
+        "rest_backfill",
+        "catalog_refresh",
+        "preflight_core",
+        "observations_backfill",
+    ):
+        expected = tuple(
+            source.source_id for source in registry.enabled_sources(wave="C", run_profile=profile)
+        )
+
+        assert (
+            tuple(
+                source.source_id
+                for source in select_catalog_source_modules(
+                    modules,
+                    wave="C",
+                    run_profile=profile,
+                )
+            )
+            == expected
+        )
+        assert (
+            tuple(
+                source.name
+                for source in batch_registry.enabled_sources(wave="C", run_profile=profile)
+            )
+            == expected
+        )
+
+
+def test_canonical_selectors_hold_unknown_profiles_even_for_empty_inputs() -> None:
+    registry = CatalogSourceRegistrySpec(version=1, sources=())
+
+    _assert_typed_dependency_failure(
+        lambda: registry.enabled_sources(run_profile="future_profile"),
+        expected_code="unsupported_run_profile",
+    )
+    _assert_typed_dependency_failure(
+        lambda: select_catalog_source_modules((), run_profile="future_profile"),
+        expected_code="unsupported_run_profile",
+    )
+
+
 def test_registry_projection_preserves_rich_source_filters() -> None:
     registry = load_catalog_source_registry()
-    projection = {
-        item.source_id: item for item in catalog_source_modules_from_registry(registry)
-    }
+    projection = {item.source_id: item for item in catalog_source_modules_from_registry(registry)}
 
     ukraine_exec = projection["data_gov_ua_exec"].model_dump()
     assert ukraine_exec["format_allowlist"] == (
@@ -193,12 +273,327 @@ def test_registry_projection_preserves_rich_source_filters() -> None:
 def test_registry_projection_keeps_the_35_entry_order_and_equality_contract() -> None:
     registry = load_catalog_source_registry()
     modules = catalog_source_modules_from_registry(registry)
+    expected_by_id = {module.source_id: module for module in modules}
+    source_exports = {
+        module.source_id: module
+        for module in vars(source_views).values()
+        if isinstance(module, CatalogSourceModuleSpec)
+    }
 
     assert len(registry.sources) == 35
+    assert sum(source.enabled for source in registry.sources) == 32
+    assert sum(not source.enabled for source in registry.sources) == 3
+    assert sum(source.seed_from is not None for source in registry.sources) == 7
     assert tuple(entry.source_id for entry in registry.sources) == tuple(
         item.source_id for item in CORE_CATALOG_SOURCE_MODULES
     )
     assert modules == CORE_CATALOG_SOURCE_MODULES
+    assert tuple(item.source_id for item in source_views.ALL_CATALOG_SOURCE_MODULES) == tuple(
+        entry.source_id for entry in registry.sources
+    )
+    assert source_exports == {module.source_id: module for module in modules}
+    for family in (
+        source_views.core,
+        source_views.open_data,
+        source_views.sdmx,
+        source_views.specialized,
+    ):
+        family_members = {
+            getattr(family, name).source_id
+            for name in family.__all__
+            if isinstance(getattr(family, name), CatalogSourceModuleSpec)
+        }
+        expected_family_ids = tuple(
+            source.source_id for source in registry.sources if source.source_id in family_members
+        )
+        for export_name in family.__all__:
+            exported = getattr(family, export_name)
+            if isinstance(exported, CatalogSourceModuleSpec):
+                assert exported == expected_by_id[exported.source_id]
+            elif isinstance(exported, tuple) and all(
+                isinstance(item, CatalogSourceModuleSpec) for item in exported
+            ):
+                assert tuple(item.source_id for item in exported) == expected_family_ids
+                assert exported == tuple(
+                    expected_by_id[source_id] for source_id in expected_family_ids
+                )
+
+
+def test_custom_yaml_registry_drives_projection_and_seed_selection(tmp_path) -> None:
+    registry_path = tmp_path / "custom-source-registry.yaml"
+    registry_path.write_text(
+        """version: 1
+sources:
+  - name: base
+    family: fixture
+    wave: B
+    endpoint: https://example.invalid/base
+    connector_id: fixture.catalog
+    execution_tier: catalog
+    run_lane: catalog
+    publish_blocking: false
+    enabled: true
+  - name: dependent
+    family: fixture
+    wave: C
+    endpoint: https://example.invalid/dependent
+    connector_id: fixture.fetch
+    execution_tier: fetchable
+    run_lane: empirical
+    publish_blocking: true
+    history_policy: rolling_window
+    seed_from: base
+    format_allowlist: [CSV]
+    default_lookback_days: 14
+    enabled: true
+  - name: unrelated
+    family: fixture
+    wave: C
+    endpoint: https://example.invalid/unrelated
+    connector_id: fixture.fetch
+    execution_tier: fetchable
+    run_lane: empirical
+    publish_blocking: false
+    enabled: true
+""",
+        encoding="utf-8",
+    )
+
+    registry = load_catalog_source_registry(registry_path)
+    modules = catalog_source_modules_from_registry(registry)
+    dependent = modules[1]
+
+    assert dependent.format_allowlist == ("CSV",)
+    assert dependent.default_lookback_days == 14
+    unrelated = registry.source_by_id("unrelated")
+    assert unrelated is not None
+    assert not unrelated.included_in_run_profile("prod_core_blocking")
+    assert tuple(
+        module.source_id
+        for module in registry.enabled_sources(
+            wave="C",
+            run_profile="prod_core_blocking",
+        )
+    ) == ("base", "dependent")
+    assert tuple(
+        module.source_id
+        for module in select_catalog_source_modules(
+            modules,
+            wave="C",
+            run_profile="prod_core_blocking",
+        )
+    ) == ("base", "dependent")
+
+
+@pytest.mark.parametrize(
+    ("row", "error_fragment"),
+    [
+        ("family: fixture\n", "Field required"),
+        ("not-a-mapping\n", "mapping"),
+        (
+            'name: ""\n    family: fixture\n    wave: A\n'
+            "    endpoint: https://example.invalid\n    connector_id: fixture\n",
+            "string_pattern_mismatch",
+        ),
+        (
+            "name: fixture\n    family: fixture\n    wave: A\n    endpoint: https://example.invalid\n"
+            "    connector_id: fixture\n    enabled: 'false'\n",
+            "valid boolean",
+        ),
+        (
+            "name: fixture\n    family: fixture\n    wave: A\n    endpoint: 42\n"
+            "    connector_id: fixture\n",
+            "valid string",
+        ),
+        (
+            "name: fixture\n    family: fixture\n    wave: A\n    endpoint: https://example.invalid\n"
+            "    connector_id: fixture\n    format_denylist: PDF\n",
+            "valid tuple",
+        ),
+        (
+            "name: fixture\n    family: fixture\n    wave: A\n    endpoint: https://example.invalid\n"
+            "    connector_id: fixture\n    enabld: true\n",
+            "Extra inputs are not permitted",
+        ),
+        (
+            "name: fixture\n    source_id: other\n    family: fixture\n"
+            "    wave: A\n    endpoint: https://example.invalid\n    connector_id: fixture\n",
+            "repeats source identity",
+        ),
+    ],
+)
+def test_registry_parser_rejects_rows_that_would_be_silently_omitted_or_coerced(
+    tmp_path,
+    row: str,
+    error_fragment: str,
+) -> None:
+    registry_path = tmp_path / "invalid-source-registry.yaml"
+    registry_path.write_text(f"version: 1\nsources:\n  - {row}", encoding="utf-8")
+
+    for loader in (load_catalog_source_registry, load_source_registry):
+        with pytest.raises(ValueError, match=error_fragment):
+            loader(registry_path)
+
+
+def test_registry_parser_rejects_truthy_text_for_every_boolean_field(tmp_path) -> None:
+    boolean_fields = tuple(
+        name
+        for name, field in CatalogSourceRegistryEntry.model_fields.items()
+        if field.annotation is bool
+    )
+    assert boolean_fields
+
+    for field_name in boolean_fields:
+        registry_path = tmp_path / f"invalid-{field_name}-registry.yaml"
+        registry_path.write_text(
+            "version: 1\nsources:\n"
+            "  - name: source\n"
+            "    family: fixture\n"
+            "    wave: A\n"
+            "    endpoint: https://example.invalid/source\n"
+            f"    {field_name}: 'false'\n",
+            encoding="utf-8",
+        )
+        for loader in (load_catalog_source_registry, load_source_registry):
+            with pytest.raises(ValueError):
+                loader(registry_path)
+
+
+@pytest.mark.parametrize(
+    "registry_text",
+    [
+        "version: 1\nversion: 2\nsources: []\n",
+        "version: 1\nsources:\n"
+        "  - name: shadowed_source\n"
+        "    name: admitted_source\n"
+        "    family: fixture\n"
+        "    wave: A\n"
+        "    endpoint: https://example.invalid/source\n"
+        "    enabled: false\n"
+        "    enabled: true\n",
+        "version: 1\nsources:\n"
+        "  - <<: &defaults\n"
+        "      name: shadowed_source\n"
+        "      family: fixture\n"
+        "      wave: A\n"
+        "      endpoint: https://example.invalid/source\n"
+        "      enabled: false\n"
+        "    <<: *defaults\n"
+        "    name: admitted_source\n"
+        "    enabled: true\n",
+    ],
+)
+def test_registry_loaders_reject_duplicate_yaml_mapping_keys_before_admission(
+    tmp_path,
+    registry_text: str,
+) -> None:
+    registry_path = tmp_path / "duplicate-source-registry.yaml"
+    registry_path.write_text(registry_text, encoding="utf-8")
+
+    for loader in (load_catalog_source_registry, load_source_registry):
+        with pytest.raises(ValueError, match="duplicate YAML mapping key"):
+            loader(registry_path)
+
+
+def test_registry_model_and_projection_preserve_identity_invariants() -> None:
+    from pydantic import ValidationError
+
+    duplicate = CatalogSourceRegistryEntry(
+        source_id="source",
+        family="fixture",
+        wave="A",
+        endpoint="https://example.invalid/source",
+        connector_id="fixture.source",
+    )
+
+    with pytest.raises(ValidationError, match="duplicate source identity"):
+        CatalogSourceRegistrySpec(sources=(duplicate, duplicate))
+
+    omitted_connector_registry = load_catalog_source_registry()
+    projected = catalog_source_modules_from_registry(omitted_connector_registry)
+    assert len(projected) == len(omitted_connector_registry.sources)
+
+
+def test_registry_parser_preserves_execution_tier_dependent_defaults(tmp_path) -> None:
+    registry_path = tmp_path / "defaulted-source-registry.yaml"
+    registry_path.write_text(
+        "version: 1\nsources:\n"
+        "  - name: fetchable\n"
+        "    family: fixture\n"
+        "    wave: A\n"
+        "    endpoint: https://example.invalid/fetchable\n"
+        "    connector_id: fixture.fetch\n"
+        "    execution_tier: fetchable\n",
+        encoding="utf-8",
+    )
+
+    source = load_catalog_source_registry(registry_path).sources[0]
+
+    assert source.run_lane == "empirical"
+    assert source.publish_blocking is True
+
+
+def test_registry_parser_preserves_omitted_connector_default(tmp_path) -> None:
+    registry_path = tmp_path / "defaulted-connector-registry.yaml"
+    registry_path.write_text(
+        "version: 1\nsources:\n"
+        "  - name: catalog_only\n"
+        "    family: fixture\n"
+        "    wave: A\n"
+        "    endpoint: https://example.invalid/catalog\n",
+        encoding="utf-8",
+    )
+
+    source = load_catalog_source_registry(registry_path).sources[0]
+
+    assert source.connector_id == ""
+    with pytest.raises(CatalogSelectionError) as caught:
+        catalog_source_modules_from_registry(CatalogSourceRegistrySpec(sources=(source,)))
+    assert caught.value.code == "connector_identity_missing"
+    assert "source=catalog_only" in caught.value.detail
+    assert "CatalogSourceRegistryEntry.connector_id" in caught.value.detail
+    assert load_source_registry(registry_path).sources[0].connector_id == ""
+
+
+@pytest.mark.parametrize(
+    "policy_fields",
+    [
+        "    run_lane: enrichment\n    publish_blocking: true\n",
+        "    allow_manual_backfill: true\n",
+        "    default_lookback_days: 30\n",
+    ],
+)
+def test_registry_parser_preserves_cross_field_policy_constraints(
+    tmp_path,
+    policy_fields: str,
+) -> None:
+    registry_path = tmp_path / "invalid-policy-source-registry.yaml"
+    registry_path.write_text(
+        "version: 1\nsources:\n"
+        "  - name: source\n"
+        "    family: fixture\n"
+        "    wave: A\n"
+        "    endpoint: https://example.invalid/source\n"
+        "    connector_id: fixture.source\n" + policy_fields,
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError):
+        load_catalog_source_registry(registry_path)
+
+
+def test_registry_parser_keeps_positive_future_version_valid(tmp_path) -> None:
+    registry_path = tmp_path / "versioned-source-registry.yaml"
+    registry_path.write_text("version: 2\nsources: []\n", encoding="utf-8")
+
+    assert load_catalog_source_registry(registry_path).version == 2
+
+
+def test_registry_parser_preserves_implicit_version_one_default(tmp_path) -> None:
+    registry_path = tmp_path / "unversioned-source-registry.yaml"
+    registry_path.write_text("sources: []\n", encoding="utf-8")
+
+    assert load_catalog_source_registry(registry_path).version == 1
 
 
 def test_public_read_and_fabric_consumers_use_the_canonical_registry_projection(tmp_path) -> None:
@@ -222,3 +617,231 @@ def test_public_read_and_fabric_consumers_use_the_canonical_registry_projection(
         "ZIP",
     )
     assert policy.keyword_allowlist[:3] == ("demograph", "population", "birth")
+
+
+def test_warm_and_fresh_catalog_consumers_reconcile_same_id_source_policy(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    import os
+
+    from polisyos.core.contracts.control import DataNeed, DataResolveRequest
+    from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
+    from polisyos.data_forge.domains.catalog.knowledge.search import DatasetCatalogGraph
+    from polisyos.data_forge.domains.catalog.knowledge.types import (
+        DatasetRecord,
+        DistributionRecord,
+    )
+
+    registry_path = tmp_path / "registry.yaml"
+
+    def write_policy(blocking: bool) -> None:
+        registry_path.write_text(
+            "version: 1\nsources:\n"
+            "  - name: fixture_source\n"
+            "    family: fixture\n"
+            "    wave: A\n"
+            "    endpoint: https://example.test/source\n"
+            "    connector_id: fixture.fetch\n"
+            "    profile_id: fixture_profile\n"
+            "    enabled: true\n"
+            "    execution_tier: transport_ready\n"
+            "    run_lane: empirical\n"
+            f"    publish_blocking: {str(blocking).lower()}\n",
+            encoding="utf-8",
+        )
+
+    write_policy(True)
+    monkeypatch.setattr(
+        catalog_read_api,
+        "load_catalog_source_registry",
+        lambda: load_catalog_source_registry(registry_path),
+    )
+    monkeypatch.setenv("POLISYOS_RETRIEVAL_FASTLANE_ENABLED", "0")
+    db_path = tmp_path / "catalog.duckdb"
+    build_graph(
+        records=iter(
+            [
+                DatasetRecord(
+                    id="fixture_dataset",
+                    title="Fixture policy metric",
+                    source="fixture_source",
+                    dataset_id="fixture_request",
+                    source_dataset_id="fixture_request",
+                    execution_tier="transport_ready",
+                    polisyos_metrics=["fixture_metric"],
+                    preferred_distribution_id="fixture_distribution",
+                    distributions=[
+                        DistributionRecord(
+                            id="fixture_distribution",
+                            connector_type="fixture.fetch",
+                            profile_id="fixture_profile",
+                            source_locator="fixture_request",
+                            parser_supported=True,
+                            machine_readable=True,
+                        )
+                    ],
+                )
+            ]
+        ),
+        db_path=db_path,
+    )
+    catalog = DatasetCatalogGraph(db_path=db_path, index_dir=tmp_path / "index")
+    warm = RetrievalService(curated_dir=tmp_path / "curated", dataset_catalog=catalog)
+    request = DataResolveRequest(
+        data_needs=[DataNeed(metric="fixture_metric")],
+        mode="fastlane",
+    )
+
+    def plan_ids(service: RetrievalService) -> list[str]:
+        return [
+            plan.dataset_id
+            for plan in service.resolve(request, run_profile="prod_core_blocking").fetch_plans
+        ]
+
+    try:
+        assert plan_ids(warm) == ["fixture_request"]
+        previous_stat = registry_path.stat()
+        os.utime(
+            registry_path,
+            ns=(previous_stat.st_atime_ns, previous_stat.st_mtime_ns + 1_000_000),
+        )
+        assert plan_ids(warm) == ["fixture_request"]
+
+        # The same ID, version, endpoint and request/profile markers remain.
+        write_policy(False)
+        os.utime(registry_path, ns=(previous_stat.st_atime_ns, previous_stat.st_mtime_ns))
+        fresh = RetrievalService(curated_dir=tmp_path / "curated", dataset_catalog=catalog)
+        assert (
+            load_catalog_source_registry(registry_path).enabled_sources(
+                run_profile="prod_core_blocking"
+            )
+            == ()
+        )
+        assert plan_ids(warm) == []
+        assert plan_ids(fresh) == []
+
+        write_policy(True)
+        assert plan_ids(warm) == ["fixture_request"]
+        assert plan_ids(fresh) == ["fixture_request"]
+
+        registry_path.write_text("version: 1\nsources: invalid\n", encoding="utf-8")
+        with pytest.raises(ValueError):
+            plan_ids(warm)
+        with pytest.raises(ValueError):
+            plan_ids(fresh)
+    finally:
+        catalog.close()
+
+
+def _generation_ref(
+    *,
+    basis: object,
+    status: Literal["complete", "empty_generation", "legacy"] = "complete",
+    selected: bool = True,
+) -> EmbeddingGenerationRef:
+    path = Path("generation")
+    return EmbeddingGenerationRef(
+        generation_id="a" * 32,
+        status=status,
+        root_dir=path,
+        embeddings_path=path / "embeddings.npz",
+        index_path=path / "index.hnsw",
+        ids_path=path / "ids.json",
+        basis_path=path / "basis.json",
+        inventory_path=path / "inventory.json",
+        selector_path=path / "embedding_generation.json",
+        ids=("dataset-a", "dataset-b"),
+        dimension=2,
+        inventory={"basis": basis},
+        selected=selected,
+    )
+
+
+def test_embedding_generation_basis_matches_actual_current_members() -> None:
+    basis = build_generation_basis(
+        basis_kind="catalog_dataset_embedding",
+        generator_rule_version="policyos.catalog_dataset_embedding_projection.v1",
+        members=(("dataset-b", b"projected b"), ("dataset-a", b"projected a")),
+    )
+    reference = _generation_ref(basis=basis.to_dict())
+
+    assert generation_basis_matches_members(
+        reference,
+        basis_kind="catalog_dataset_embedding",
+        members=(("dataset-a", b"projected a"), ("dataset-b", b"projected b")),
+    )
+    assert not generation_basis_matches_members(
+        reference,
+        basis_kind="catalog_dataset_embedding",
+        members=(("dataset-a", b"changed projection"), ("dataset-b", b"projected b")),
+    )
+    assert not generation_basis_matches_members(
+        reference,
+        basis_kind="catalog_dataset_embedding",
+        members=(("dataset-a", b"projected a"),),
+    )
+
+
+@pytest.mark.parametrize(
+    ("status", "selected"),
+    [("legacy", False), ("complete", False), ("empty_generation", True)],
+)
+def test_embedding_generation_basis_rejects_nonselected_or_incomplete_ref(
+    status: Literal["complete", "empty_generation", "legacy"], selected: bool
+) -> None:
+    basis = build_generation_basis(
+        basis_kind="catalog_dataset_embedding",
+        generator_rule_version="policyos.catalog_dataset_embedding_projection.v1",
+        members=(("dataset-a", b"projected a"),),
+    )
+
+    assert not generation_basis_matches_members(
+        _generation_ref(basis=basis.to_dict(), status=status, selected=selected),
+        basis_kind="catalog_dataset_embedding",
+        members=(("dataset-a", b"projected a"),),
+    )
+
+
+@pytest.mark.parametrize(
+    "basis",
+    [
+        None,
+        {},
+        {"generator_rule_version": ""},
+        {"generator_rule_version": "policyos.rule.v1"},
+    ],
+)
+def test_embedding_generation_basis_rejects_missing_or_malformed_persisted_basis(
+    basis: object,
+) -> None:
+    assert not generation_basis_matches_members(
+        _generation_ref(basis=basis),
+        basis_kind="catalog_dataset_embedding",
+        members=(("dataset-a", b"projected a"),),
+    )
+
+
+@pytest.mark.parametrize("members", [(), (("dataset-a", b"a"), ("dataset-a", b"b"))])
+def test_embedding_generation_basis_rejects_empty_or_duplicate_members(
+    members: tuple[tuple[str, bytes], ...],
+) -> None:
+    basis = build_generation_basis(
+        basis_kind="catalog_dataset_embedding",
+        generator_rule_version="policyos.catalog_dataset_embedding_projection.v1",
+        members=(("dataset-a", b"projected a"),),
+    )
+
+    assert not generation_basis_matches_members(
+        _generation_ref(basis=basis.to_dict()),
+        basis_kind="catalog_dataset_embedding",
+        members=members,
+    )
+
+
+def test_generation_identity_is_content_bound_and_validated() -> None:
+    identity = GenerationIdentity.from_bytes(b"encoder-fingerprint")
+
+    assert identity.content_identity.startswith("sha256:")
+    assert len(identity.content_identity) == len("sha256:") + 64
+    with pytest.raises(ValueError, match="sha256 content identity"):
+        GenerationIdentity(content_identity="encoder-v1")

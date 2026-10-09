@@ -7,9 +7,15 @@ import json
 import re
 from typing import TYPE_CHECKING
 
+import duckdb
 import numpy as np
 
 from polisyos.common.logger import get_logger
+from polisyos.data_forge.domains.catalog.embedding_projection import (
+    CATALOG_DATASET_EMBEDDING_BASIS_KIND,
+    CATALOG_DATASET_EMBEDDING_PROJECTION_RULE_VERSION,
+    project_catalog_dataset_embedding,
+)
 from polisyos.data_forge.domains.catalog.knowledge.overlay import open_catalog_read_session
 from polisyos.data_forge.domains.catalog.knowledge.types import (
     CatalogContentIdentity,
@@ -24,7 +30,12 @@ from polisyos.data_forge.domains.catalog.knowledge.types import (
     MetricBindingMatch,
     ResolvedFetchTarget,
 )
-from polisyos.data_forge.kernel.embeddings import resolve_embedding_generation
+from polisyos.data_forge.read_api.catalog import (
+    EmbeddingGenerationRef,
+    embedding_generation_matches_encoder,
+    generation_basis_matches_members,
+    resolve_embedding_generation,
+)
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -143,24 +154,98 @@ class DatasetCatalogStore:
 
         self._dataset_index = None
         self._dataset_ids: list[str] | None = None
+        self._dataset_generation_id: str | None = None
         self._table_exists_cache: dict[str, bool] = {}
         self._table_columns_cache: dict[str, set[str]] = {}
-        self._index_files_available: bool | None = None
         self._index_warning_logged = False
+        self._vector_index_refusal_reason: str | None = None
+
+    @property
+    def vector_index_refusal_reason(self) -> str | None:
+        """Return the named reason the latest vector admission was refused."""
+        return self._vector_index_refusal_reason
 
     def has_vector_index(self) -> bool:
-        if self._index_files_available is None:
+        return self._current_dataset_generation() is not None
+
+    def _current_dataset_generation(self) -> EmbeddingGenerationRef | None:
+        """Resolve the selected generation only when it binds current dataset text."""
+        self._vector_index_refusal_reason = None
+        try:
             generation = resolve_embedding_generation(
                 self._index_dir,
                 legacy_embeddings_path=self._index_dir / "ds_dataset_embeddings.npz",
                 legacy_index_path=self._index_dir / "ds_dataset_index.hnsw",
             )
-            self._index_files_available = bool(
-                generation is not None
-                and generation.status != "empty_generation"
-                and generation.index_path is not None
+        except (OSError, TypeError, ValueError):
+            self._vector_index_refusal_reason = "selected_generation_invalid"
+            return None
+        if generation is None:
+            self._vector_index_refusal_reason = "selected_generation_unavailable"
+            return None
+        if not generation.selected:
+            self._vector_index_refusal_reason = (
+                "legacy_generation_requires_selected_complete_basis"
+                if generation.status == "legacy"
+                else "selected_generation_not_selected"
             )
-        return bool(self._index_files_available)
+            return None
+        if generation.status != "complete":
+            self._vector_index_refusal_reason = "selected_generation_not_complete"
+            return None
+        if generation.index_path is None:
+            self._vector_index_refusal_reason = "selected_generation_index_missing"
+            return None
+        try:
+            rows = self._con.execute(
+                "SELECT id, title, description, keywords, variables FROM ds_datasets ORDER BY id"
+            ).fetchall()
+            current_projection = [project_catalog_dataset_embedding(row) for row in rows]
+            current_ids = [identifier for identifier, _text in current_projection]
+            current_members = [
+                (identifier, text.encode("utf-8")) for identifier, text in current_projection
+            ]
+        except (duckdb.Error, AttributeError, TypeError, ValueError):
+            self._vector_index_refusal_reason = "catalog_material_projection_unavailable"
+            return None
+        if current_ids != list(generation.ids) or not generation_basis_matches_members(
+            generation,
+            basis_kind=CATALOG_DATASET_EMBEDDING_BASIS_KIND,
+            members=current_members,
+        ):
+            self._vector_index_refusal_reason = "catalog_material_basis_mismatch"
+            return None
+        return generation
+
+    def _query_generation_matches_encoder(
+        self,
+        *,
+        generation: EmbeddingGenerationRef,
+        encoder: object,
+        embedding_model: str,
+        embedding_device: str,
+        embedding_dimension: int,
+    ) -> bool:
+        """Recheck selected material and immutable encoder intent for one query."""
+        current_generation = self._current_dataset_generation()
+        if current_generation is None:
+            return False
+        if current_generation.generation_id != generation.generation_id:
+            self._vector_index_refusal_reason = "selected_generation_changed_during_query"
+            return False
+        if not embedding_generation_matches_encoder(
+            current_generation,
+            encoder=encoder,
+            basis_kind=CATALOG_DATASET_EMBEDDING_BASIS_KIND,
+            projection_rule_version=CATALOG_DATASET_EMBEDDING_PROJECTION_RULE_VERSION,
+            embedding_model=embedding_model,
+            embedding_device=embedding_device,
+            embedding_dimension=embedding_dimension,
+        ):
+            self._vector_index_refusal_reason = "query_encoder_generation_intent_mismatch"
+            return False
+        self._vector_index_refusal_reason = None
+        return True
 
     def _table_exists(self, table_name: str) -> bool:
         cached = self._table_exists_cache.get(table_name)
@@ -210,24 +295,31 @@ class DatasetCatalogStore:
         columns = [str(item[0]) for item in cursor.description]
         return [dict(zip(columns, row, strict=False)) for row in cursor.fetchall()]
 
-    def _load_dataset_index(self) -> None:
-        if self._dataset_index is not None:
-            return
-        npz_path = self._index_dir / "ds_dataset_embeddings.npz"
-        hnsw_path = self._index_dir / "ds_dataset_index.hnsw"
-        generation = resolve_embedding_generation(
-            self._index_dir,
-            legacy_embeddings_path=npz_path,
-            legacy_index_path=hnsw_path,
-        )
-        if (
-            generation is None
-            or generation.status == "empty_generation"
-            or generation.index_path is None
-        ):
+    def _load_dataset_index(self, *, expected_generation_id: str | None = None) -> None:
+        generation = self._current_dataset_generation()
+        if generation is None:
+            self._dataset_index = None
+            self._dataset_ids = None
+            self._dataset_generation_id = None
             if not self._index_warning_logged:
-                logger.warning("Dataset index files not found in {}", self._index_dir)
+                logger.warning(
+                    "No current selected dataset index is available in {}", self._index_dir
+                )
                 self._index_warning_logged = True
+            return
+        if (
+            expected_generation_id is not None
+            and generation.generation_id != expected_generation_id
+        ):
+            self._dataset_index = None
+            self._dataset_ids = None
+            self._dataset_generation_id = None
+            self._vector_index_refusal_reason = "selected_generation_changed_during_query"
+            return
+        if (
+            self._dataset_index is not None
+            and self._dataset_generation_id == generation.generation_id
+        ):
             return
         try:
             import hnswlib
@@ -241,9 +333,13 @@ class DatasetCatalogStore:
             logger.warning("Selected dataset index is unreadable: {}", exc)
             self._dataset_index = None
             self._dataset_ids = None
+            self._dataset_generation_id = None
+            self._vector_index_refusal_reason = "selected_generation_index_unreadable"
             return
         self._dataset_ids = ids
         self._dataset_index = idx
+        self._dataset_generation_id = generation.generation_id
+        self._vector_index_refusal_reason = None
 
     @staticmethod
     def _as_list(value: object) -> list[str]:
@@ -409,8 +505,9 @@ class DatasetCatalogStore:
         *,
         top_k: int = 10,
         min_similarity: float = 0.3,
+        expected_generation_id: str | None = None,
     ) -> list[DatasetSearchResult]:
-        self._load_dataset_index()
+        self._load_dataset_index(expected_generation_id=expected_generation_id)
         if self._dataset_index is None or self._dataset_ids is None:
             return []
 

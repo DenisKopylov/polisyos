@@ -2,32 +2,35 @@
 
 from __future__ import annotations
 
+from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Self
 
-from pydantic import Field
+from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from polisyos.data_forge.kernel._base import DataForgeModel
 
+from .selection import CatalogSelectionError, select_catalog_sources
 from .source_modules import (
     CatalogExecutionTier,
     CatalogHistoryPolicy,
     CatalogRunLane,
     CatalogRunProfile,
     CatalogSourceModuleSpec,
-    _resolve_catalog_source_dependencies,
 )
 
 
 class CatalogSourceRegistryEntry(DataForgeModel):
     """One source entry from the catalog source registry."""
 
+    model_config = ConfigDict(strict=True)
+
     source_id: str = Field(pattern=r"^[a-z][a-z0-9_]*$")
     family: str = Field(min_length=1)
     wave: str = Field(min_length=1, max_length=8)
     endpoint: str = Field(min_length=1)
     enabled: bool = True
-    connector_id: str = Field(min_length=1)
+    connector_id: str = Field(default="", min_length=0)
     profile_id: str = Field(default="", min_length=0)
     execution_tier: CatalogExecutionTier = "catalog"
     run_lane: CatalogRunLane = "catalog"
@@ -49,12 +52,49 @@ class CatalogSourceRegistryEntry(DataForgeModel):
     keyword_allowlist: tuple[str, ...] = Field(default_factory=tuple)
     keyword_denylist: tuple[str, ...] = Field(default_factory=tuple)
 
+    @field_validator("format_allowlist", "format_denylist")
+    @classmethod
+    def _normalize_format_codes(cls, values: tuple[str, ...]) -> tuple[str, ...]:
+        """Normalize validated format codes for case-insensitive consumers."""
+        return tuple(normalized for value in values if (normalized := value.strip().upper()))
+
+    @model_validator(mode="before")
+    @classmethod
+    def _apply_execution_tier_defaults(cls, value: object) -> object:
+        """Preserve the batch registry's dependent defaults for omitted fields."""
+        if not isinstance(value, dict):
+            return value
+        normalized = dict(value)
+        execution_tier = normalized.get("execution_tier", "catalog")
+        normalized.setdefault(
+            "run_lane",
+            "catalog" if execution_tier == "catalog" else "empirical",
+        )
+        normalized.setdefault("publish_blocking", execution_tier != "catalog")
+        return normalized
+
+    @model_validator(mode="after")
+    def _policy_fields_are_consistent(self) -> Self:
+        """Keep the existing batch registry's cross-field policy constraints."""
+        if self.run_lane == "enrichment" and self.publish_blocking:
+            raise ValueError("enrichment sources cannot be publish-blocking")
+        if self.allow_manual_backfill and self.history_policy != "rolling_window":
+            raise ValueError("manual backfill requires rolling_window history policy")
+        if self.default_lookback_days is not None and self.history_policy != "rolling_window":
+            raise ValueError("default_lookback_days requires rolling_window history policy")
+        return self
+
     def included_in_run_profile(self, profile: CatalogRunProfile) -> bool:
         """Return whether this source participates in a Data Forge run profile."""
         return self.to_module_spec().included_in_run_profile(profile)
 
     def to_module_spec(self) -> CatalogSourceModuleSpec:
         """Convert a registry entry into a source-module contract."""
+        if not self.connector_id:
+            raise CatalogSelectionError(
+                "connector_identity_missing",
+                f"source={self.source_id}/owner=CatalogSourceRegistryEntry.connector_id",
+            )
         return CatalogSourceModuleSpec(
             source_id=self.source_id,
             family=self.family,
@@ -88,8 +128,22 @@ class CatalogSourceRegistryEntry(DataForgeModel):
 class CatalogSourceRegistrySpec(DataForgeModel):
     """Validated source registry contract used by Data Forge catalog planning."""
 
-    version: int = Field(ge=1)
+    model_config = ConfigDict(strict=True)
+
+    version: int = Field(default=1, ge=1)
     sources: tuple[CatalogSourceRegistryEntry, ...] = Field(default_factory=tuple)
+
+    @field_validator("sources")
+    @classmethod
+    def _source_ids_are_unique(
+        cls,
+        sources: tuple[CatalogSourceRegistryEntry, ...],
+    ) -> tuple[CatalogSourceRegistryEntry, ...]:
+        """Reject repeated identities before a registry can be projected."""
+        source_ids = tuple(source.source_id for source in sources)
+        if len(source_ids) != len(set(source_ids)):
+            raise ValueError("source registry contains duplicate source identity")
+        return sources
 
     def source_by_id(self, source_id: str) -> CatalogSourceRegistryEntry | None:
         """Return a source entry by id."""
@@ -105,18 +159,12 @@ class CatalogSourceRegistrySpec(DataForgeModel):
         run_profile: CatalogRunProfile = "prod_full",
     ) -> tuple[CatalogSourceRegistryEntry, ...]:
         """Return selected registry entries with seed dependencies expanded."""
-        selected = [
-            source
-            for source in self.sources
-            if source.enabled
-            and (wave is None or source.wave.upper() == wave.upper())
-            and source.included_in_run_profile(run_profile)
-        ]
-        return _resolve_catalog_source_dependencies(self.sources, selected)
+        return select_catalog_sources(self.sources, wave=wave, run_profile=run_profile)
 
     def to_module_specs(self) -> tuple[CatalogSourceModuleSpec, ...]:
         """Return source-module specs for all registry entries."""
         return tuple(source.to_module_spec() for source in self.sources)
+
 
 def default_catalog_source_registry_path() -> Path:
     """Return the checked-in Data Forge source registry file."""
@@ -125,23 +173,136 @@ def default_catalog_source_registry_path() -> Path:
 
 def load_catalog_source_registry(path: str | Path | None = None) -> CatalogSourceRegistrySpec:
     """Load a source registry file through the Data Forge canonical registry."""
+    registry_path = Path(path) if path is not None else default_catalog_source_registry_path()
+    return _load_catalog_source_registry(registry_path)
+
+
+@lru_cache(maxsize=1)
+def _default_catalog_source_registry_view() -> CatalogSourceRegistrySpec:
+    """Cache the checked-in registry for static compatibility views."""
+    return _load_catalog_source_registry(default_catalog_source_registry_path())
+
+
+def _load_catalog_source_registry(registry_path: Path) -> CatalogSourceRegistrySpec:
+    """Parse one YAML registry through strict Pydantic source contracts."""
     import yaml
 
-    registry_path = Path(path) if path is not None else default_catalog_source_registry_path()
-    payload = yaml.safe_load(registry_path.read_text(encoding="utf-8")) or {}
+    payload = _load_registry_yaml(yaml, registry_path)
+    if payload is None:
+        payload = {}
     if not isinstance(payload, dict):
         raise ValueError(f"source registry must be a mapping: {registry_path}")
     raw_sources = payload.get("sources", [])
     if not isinstance(raw_sources, list):
         raise ValueError(f"source registry 'sources' must be a list: {registry_path}")
-    return CatalogSourceRegistrySpec(
-        version=int(payload.get("version", 1)),
-        sources=tuple(
-            _entry_from_mapping(row)
-            for row in raw_sources
-            if isinstance(row, dict) and str(row.get("name") or "").strip()
-        ),
-    )
+
+    normalized_sources: list[dict[str, object]] = []
+    for index, row in enumerate(raw_sources):
+        if not isinstance(row, dict):
+            raise ValueError(f"source registry row {index} must be a mapping: {registry_path}")
+        normalized_row: dict[str, object] = {}
+        for key, value in row.items():
+            normalized_key = "source_id" if key == "name" else key
+            if normalized_key in normalized_row:
+                raise ValueError(
+                    f"source registry row {index} repeats source identity: {registry_path}"
+                )
+            normalized_row[normalized_key] = _normalize_yaml_sequences(value)
+        normalized_sources.append(normalized_row)
+
+    normalized_payload = {key: _normalize_yaml_sequences(value) for key, value in payload.items()}
+    normalized_payload["sources"] = tuple(normalized_sources)
+    return CatalogSourceRegistrySpec.model_validate(normalized_payload, strict=True)
+
+
+def _load_registry_yaml(yaml: object, registry_path: Path) -> object:
+    """Load YAML while rejecting duplicate keys before Python mappings collapse them."""
+    from yaml.constructor import ConstructorError
+    from yaml.nodes import MappingNode, SequenceNode
+
+    class DuplicateRejectingSafeLoader(yaml.SafeLoader):  # type: ignore[attr-defined]
+        """Safe YAML loader that refuses repeated explicit and merged mapping keys."""
+
+        def construct_mapping(self, node: object, deep: bool = False) -> dict[object, object]:
+            if not isinstance(node, MappingNode):
+                raise ConstructorError(
+                    None,
+                    None,
+                    "expected a mapping node",
+                    getattr(node, "start_mark", None),
+                )
+            pairs = self._expanded_pairs(node, active=frozenset())
+            mapping: dict[object, object] = {}
+            for key_node, value_node in pairs:
+                key = self.construct_object(key_node, deep=deep)
+                try:
+                    duplicate = key in mapping
+                except TypeError as exc:
+                    raise ConstructorError(
+                        "while constructing a mapping",
+                        node.start_mark,
+                        "found an unhashable mapping key",
+                        key_node.start_mark,
+                    ) from exc
+                if duplicate:
+                    raise ConstructorError(
+                        "while constructing a mapping",
+                        node.start_mark,
+                        f"duplicate YAML mapping key {key!r}",
+                        key_node.start_mark,
+                    )
+                mapping[key] = self.construct_object(value_node, deep=deep)
+            return mapping
+
+        def _expanded_pairs(
+            self,
+            node: object,
+            *,
+            active: frozenset[int],
+        ) -> list[tuple[object, object]]:
+            if not isinstance(node, MappingNode):
+                raise ConstructorError(
+                    "while constructing a mapping",
+                    getattr(node, "start_mark", None),
+                    "YAML merge values must be mappings",
+                    getattr(node, "start_mark", None),
+                )
+            if id(node) in active:
+                raise ConstructorError(
+                    "while constructing a mapping",
+                    node.start_mark,
+                    "cyclic YAML merge alias",
+                    node.start_mark,
+                )
+
+            active = active | {id(node)}
+            merged: list[tuple[object, object]] = []
+            explicit: list[tuple[object, object]] = []
+            for key_node, value_node in node.value:
+                if key_node.tag != "tag:yaml.org,2002:merge":
+                    explicit.append((key_node, value_node))
+                    continue
+                if isinstance(value_node, MappingNode):
+                    merged.extend(self._expanded_pairs(value_node, active=active))
+                elif isinstance(value_node, SequenceNode):
+                    for mapping_node in value_node.value:
+                        merged.extend(self._expanded_pairs(mapping_node, active=active))
+                else:
+                    raise ConstructorError(
+                        "while constructing a mapping",
+                        node.start_mark,
+                        "YAML merge value must be a mapping or sequence of mappings",
+                        value_node.start_mark,
+                    )
+            return merged + explicit
+
+    try:
+        return yaml.load(  # type: ignore[attr-defined]
+            registry_path.read_text(encoding="utf-8"),
+            Loader=DuplicateRejectingSafeLoader,
+        )
+    except yaml.YAMLError as exc:  # type: ignore[attr-defined]
+        raise ValueError(f"invalid source registry YAML at {registry_path}: {exc}") from exc
 
 
 def catalog_source_modules_from_registry(
@@ -151,83 +312,21 @@ def catalog_source_modules_from_registry(
     return registry.to_module_specs()
 
 
-def _entry_from_mapping(row: dict[str, Any]) -> CatalogSourceRegistryEntry:
-    execution_tier = _execution_tier(row.get("execution_tier"))
-    run_lane = _run_lane(row.get("run_lane"), execution_tier)
-    return CatalogSourceRegistryEntry(
-        source_id=str(row.get("name") or "").strip(),
-        family=str(row.get("family") or "").strip(),
-        wave=str(row.get("wave") or "").strip().upper(),
-        endpoint=str(row.get("endpoint") or "").strip(),
-        enabled=bool(row.get("enabled", True)),
-        connector_id=str(row.get("connector_id") or "").strip(),
-        profile_id=str(row.get("profile_id") or "").strip(),
-        execution_tier=execution_tier,
-        run_lane=run_lane,
-        publish_blocking=bool(row.get("publish_blocking", execution_tier != "catalog")),
-        update_frequency=str(row.get("update_frequency") or "").strip(),
-        metrics_required=bool(row.get("metrics_required", False)),
-        history_policy=_history_policy(row.get("history_policy")),
-        default_lookback_days=_int_or_none(row.get("default_lookback_days")),
-        max_rows_per_snapshot=_int_or_none(row.get("max_rows_per_snapshot")),
-        max_bytes_per_snapshot=_int_or_none(row.get("max_bytes_per_snapshot")),
-        allow_manual_backfill=bool(row.get("allow_manual_backfill", False)),
-        seed_from=_optional_str(row.get("seed_from")),
-        require_curated_resources=bool(row.get("require_curated_resources", False)),
-        agency_prefix=str(row.get("agency_prefix") or "").strip(),
-        agency_allowlist=_string_tuple(row.get("agency_allowlist")),
-        exclude_agencies=_string_tuple(row.get("exclude_agencies")),
-        format_allowlist=_upper_string_tuple(row.get("format_allowlist")),
-        format_denylist=_upper_string_tuple(row.get("format_denylist")),
-        keyword_allowlist=_lower_string_tuple(row.get("keyword_allowlist")),
-        keyword_denylist=_lower_string_tuple(row.get("keyword_denylist")),
-    )
+def _catalog_source_module(source_id: str) -> CatalogSourceModuleSpec:
+    """Return one compatibility-view module from the canonical YAML source."""
+    source = _default_catalog_source_registry_view().source_by_id(source_id)
+    if source is None:
+        raise ValueError(f"catalog source is not registered: {source_id}")
+    return source.to_module_spec()
 
 
-def _execution_tier(value: object) -> CatalogExecutionTier:
-    tier = str(value or "catalog").strip() or "catalog"
-    if tier in {"catalog", "fetchable", "transport_ready"}:
-        return tier
-    raise ValueError(f"invalid catalog execution_tier: {tier}")
-
-
-def _run_lane(value: object, execution_tier: CatalogExecutionTier) -> CatalogRunLane:
-    lane = str(value or "").strip() or ("catalog" if execution_tier == "catalog" else "empirical")
-    if lane in {"catalog", "empirical", "enrichment"}:
-        return lane
-    raise ValueError(f"invalid catalog run_lane: {lane}")
-
-
-def _history_policy(value: object) -> CatalogHistoryPolicy:
-    policy = str(value or "full_snapshot").strip() or "full_snapshot"
-    if policy in {"full_snapshot", "rolling_window"}:
-        return policy
-    raise ValueError(f"invalid catalog history_policy: {policy}")
-
-
-def _optional_str(value: object) -> str | None:
-    text = str(value or "").strip()
-    return text or None
-
-
-def _int_or_none(value: object) -> int | None:
-    if value in (None, ""):
-        return None
-    return int(value)
-
-
-def _string_tuple(value: object) -> tuple[str, ...]:
-    if not isinstance(value, list | tuple):
-        return ()
-    return tuple(str(item).strip() for item in value if str(item).strip())
-
-
-def _upper_string_tuple(value: object) -> tuple[str, ...]:
-    return tuple(item.upper() for item in _string_tuple(value))
-
-
-def _lower_string_tuple(value: object) -> tuple[str, ...]:
-    return tuple(item.lower() for item in _string_tuple(value))
+def _normalize_yaml_sequences(value: object) -> object:
+    """Represent YAML arrays as tuples while retaining every scalar type."""
+    if isinstance(value, list):
+        return tuple(_normalize_yaml_sequences(item) for item in value)
+    if isinstance(value, dict):
+        return {key: _normalize_yaml_sequences(item) for key, item in value.items()}
+    return value
 
 
 __all__ = [

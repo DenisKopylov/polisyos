@@ -21,6 +21,49 @@ analysis flows.
 ## Key Concepts
 
 - **Staged pipeline** - harvest, normalize, merge/dedup, graph load/index, core source ingest, embed, benchmark, QC, publish.
+- **Content-bound receipts** - benchmark, QC, and publish receipts bind the
+  selected source/config/database/report inputs to required output bytes.
+  `run_content_stage_with_receipt()` dispatches the canonical producer and
+  refuses to record a receipt if inputs change during execution.
+- **Material input currentness** - one producer basis binds the canonical source
+  registry, metrics map, actual core seed locator, proxy alignment policy, both
+  WVS registry readers, and the selected WVS local XLSX metadata fallback.
+  Internal `material_inputs.py` snapshots path, current bytes, presence and
+  selection. The same snapshots key proxy and WVS reader caches, including the
+  derived harvest catalog, so warm readers consume current policy.
+  The existing normalized legacy-serial selector and covered singleton
+  SourceProfileRegistry connection/execution settings share this basis.
+  Covered same-ID or file-byte edits invalidate saved stage receipts before
+  reuse; mtime-only edits preserve reuse. Registry, metrics and seed absence
+  refuse recomputation. Proxy/WVS policy and selected XLSX absence retain their
+  existing empty/static fallback and bind absence distinctly from empty files.
+  XLSX is unselected while valid nonempty WVS YAML supplies the catalog; it is
+  then neither read nor required. Other file-read errors refuse recomputation.
+  Existing malformed WVS YAML fallback remains explicit and its bytes remain
+  bound; malformed proxy policy retains its parsing failure.
+  The full singleton profile denominator is conservative: presentation-only
+  and unselected profile edits also invalidate. ALL header policy, including
+  non-secret content negotiation, credentials and environment auth overlays are
+  excluded. No header revision or classifier is established, so complete
+  effective-policy currentness remains limited pending owner invalidation or a
+  non-secret revision. Raw observation corpus and remote response/version
+  identity are outside this finite local configuration/assets basis.
+  A separately injected RetrievalService profile registry is not bound here;
+  no absent serving CatalogRunProfile is supplied.
+- **Embedding-generation currentness** - the embed producer projects each
+  dataset through the versioned Catalog projection and binds the selected
+  material basis and loaded encoder assets into the immutable generation.
+  Fresh Catalog query readers recompute that same material basis and compare
+  the actual query encoder's assets, model, device, and dimension with the
+  selected generation before vector reuse. Refusals carry a named reason and
+  preserve typed text-only results; selectorless legacy vector files require
+  regeneration through the producer before vector admission.
+- **Observation transport ownership** - loaders resolve their split-module
+  transformer and API dependencies through the existing compatibility context.
+  The connector/session cache remains owned by `core_sources/writers.py`; the
+  observation API owns closing that cache after successful or failed ingestion.
+  DuckDB relations separate values from identifiers without narrowing native
+  integer year bounds. WVS still resolves current policy once per bulk operation.
 - **Observation mode** - `observation_mode` controls whether runs build core, backfill, or all observations.
 - **Benchmarking** - the benchmark stage now folds in core-ingest context and bulk-equivalence metrics.
 - **Readiness gating** - QC and publish use the benchmark/readiness outputs to decide whether the snapshot is consumer-ready.
@@ -40,10 +83,15 @@ analysis flows.
   observation-mode wiring.
 - [`cli.py`](cli.py) is the operator/dev entrypoint for staged catalog batch
   runs.
+- [`material_inputs.py`](material_inputs.py) provides immutable current-file snapshots
+  shared by the producer basis and the canonical proxy/WVS policy readers.
 - [`pipeline.py`](pipeline.py) coordinates harvest, normalize, merge/dedup,
   graph, ingest, embed, benchmark, QC, and publish stages.
-- [`source_registry.yaml`](source_registry.yaml) is a reviewed product seed
-  input. Keep generated harvests and run outputs outside the source tree.
+- The canonical reviewed source seed is
+  [`../source_registry.yaml`](../source_registry.yaml). Batch runtime uses its
+  canonical parser and selection policy; the batch-local
+  [`source_registry.yaml`](source_registry.yaml) remains a compatibility copy.
+  Keep generated harvests and run outputs outside the source tree.
 - [`core_sources_ingest.py`](core_sources_ingest.py) is the current
   high-complexity ingestion owner tracked in `architecture/module_size_budget.toml`.
 

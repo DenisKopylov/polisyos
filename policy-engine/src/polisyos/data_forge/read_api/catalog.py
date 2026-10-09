@@ -69,6 +69,7 @@ _EXPORTS = {
     ),
     "CatalogStageManifest": _CATALOG_DOMAIN,
     "DatasetCatalogGraph": "polisyos.data_forge.domains.catalog.knowledge.search",
+    "EmbeddingGenerationRef": "polisyos.data_forge.kernel.embeddings",
     "DerivationCatalogSelectionOwner": (
         "polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection"
     ),
@@ -197,6 +198,8 @@ _EXPORTS = {
     "default_seed_alignments_path": (
         "polisyos.data_forge.domains.catalog.knowledge.variable_alignment"
     ),
+    "embedding_generation_matches_encoder": "polisyos.data_forge.kernel.embeddings",
+    "generation_basis_matches_members": "polisyos.data_forge.kernel.io.generation_basis",
     "load_catalog_benchmark_report": _CATALOG_DOMAIN,
     "load_catalog_qc_report": _CATALOG_DOMAIN,
     "load_catalog_readiness_package": _CATALOG_DOMAIN,
@@ -215,6 +218,7 @@ _EXPORTS = {
     "plan_catalog_source_stage_contracts": _CATALOG_DOMAIN,
     "plan_catalog_source_modules": _CATALOG_DOMAIN,
     "resolve_proxy": "polisyos.data_forge.domains.catalog.knowledge.proxy_resolver",
+    "resolve_embedding_generation": "polisyos.data_forge.kernel.embeddings",
     "resolve_live_temporal_bounds": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),

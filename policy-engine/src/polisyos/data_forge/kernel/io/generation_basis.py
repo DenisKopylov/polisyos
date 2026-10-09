@@ -5,9 +5,12 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
-from typing import Literal, cast
+from typing import TYPE_CHECKING, Literal, cast
+
+if TYPE_CHECKING:
+    from polisyos.data_forge.kernel.embeddings import EmbeddingGenerationRef
 
 GENERATION_BASIS_SCHEMA_VERSION = "policyos.generation_basis.v1"
 _CONTENT_IDENTITY_PATTERN = re.compile(r"^sha256:[0-9a-f]{64}$")
@@ -26,6 +29,27 @@ class GenerationBasisMember:
             "identifier": self.identifier,
             "content_identity": self.content_identity,
         }
+
+
+@dataclass(frozen=True, slots=True)
+class GenerationIdentity:
+    """Internal content identity for a generation derivation input.
+
+    This does not change the persisted generation-basis schema. Callers bind
+    the digest into the existing generator rule version so model assets and
+    projection settings participate in the already-versioned basis contract.
+    """
+
+    content_identity: str
+
+    def __post_init__(self) -> None:
+        if not _CONTENT_IDENTITY_PATTERN.fullmatch(self.content_identity):
+            raise ValueError("generation identity must be a sha256 content identity")
+
+    @classmethod
+    def from_bytes(cls, raw: bytes) -> GenerationIdentity:
+        """Build an immutable identity directly from canonical bytes."""
+        return cls(content_identity=_sha256(raw))
 
 
 @dataclass(frozen=True)
@@ -132,9 +156,7 @@ def compare_generation_basis(
             recorded_rule_version="malformed",
             current_rule_version=current.generator_rule_version,
         )
-    status: Literal["current", "incompatible"] = (
-        "current" if parsed == current else "incompatible"
-    )
+    status: Literal["current", "incompatible"] = "current" if parsed == current else "incompatible"
     return GenerationBasisComparison(
         status=status,
         recorded_generation=parsed.basis_digest,
@@ -142,6 +164,45 @@ def compare_generation_basis(
         recorded_rule_version=parsed.generator_rule_version,
         current_rule_version=current.generator_rule_version,
     )
+
+
+def generation_basis_matches_members(
+    reference: EmbeddingGenerationRef,
+    *,
+    basis_kind: str,
+    members: Sequence[tuple[str, bytes]],
+) -> bool:
+    """Return whether a selected complete generation binds the supplied members.
+
+    The reference resolver verifies the selected generation and its inventory. This
+    comparison then derives every current member identity from the caller's actual
+    projected bytes and compares the complete canonical basis, including its schema,
+    kind, rule version, member identities, and digest. Malformed or incomplete inputs
+    fail closed.
+    """
+    try:
+        if reference.selected is not True or reference.status != "complete":
+            return False
+        inventory = reference.inventory
+    except AttributeError:
+        return False
+    if not isinstance(inventory, Mapping):
+        return False
+    recorded = inventory.get("basis")
+    if not isinstance(recorded, Mapping):
+        return False
+    generator_rule_version = recorded.get("generator_rule_version")
+    if not isinstance(generator_rule_version, str) or not generator_rule_version.strip():
+        return False
+    try:
+        current = build_generation_basis(
+            basis_kind=basis_kind,
+            generator_rule_version=generator_rule_version,
+            members=members,
+        )
+    except (TypeError, ValueError):
+        return False
+    return compare_generation_basis(recorded, current=current).is_current
 
 
 def _parse_generation_basis(value: object) -> GenerationBasis:
@@ -168,9 +229,7 @@ def _parse_generation_basis(value: object) -> GenerationBasis:
         raise ValueError("generation basis kind is invalid")
     if not isinstance(generator_rule_version, str) or not generator_rule_version:
         raise ValueError("generation basis rule version is invalid")
-    if not isinstance(basis_digest, str) or not _CONTENT_IDENTITY_PATTERN.fullmatch(
-        basis_digest
-    ):
+    if not isinstance(basis_digest, str) or not _CONTENT_IDENTITY_PATTERN.fullmatch(basis_digest):
         raise ValueError("generation basis digest is invalid")
     if not isinstance(raw_members, list) or not raw_members:
         raise ValueError("generation basis members are invalid")
@@ -248,6 +307,8 @@ __all__ = [
     "GenerationBasis",
     "GenerationBasisComparison",
     "GenerationBasisMember",
+    "GenerationIdentity",
     "build_generation_basis",
     "compare_generation_basis",
+    "generation_basis_matches_members",
 ]

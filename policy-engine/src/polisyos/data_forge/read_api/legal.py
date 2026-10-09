@@ -14,9 +14,12 @@ if TYPE_CHECKING:
 _LEGAL_DOMAIN = "polisyos.data_forge.domains.legal"
 _EXPORTS = {
     "BatchConfig": "polisyos.data_forge.domains.legal.batch.config",
-    "LegalSearchBenchmarkCase": (
-        "polisyos.data_forge.domains.legal.batch.benchmark_fixtures"
+    "EmbeddingGenerationRef": "polisyos.data_forge.kernel.embeddings",
+    "LEGAL_EMBEDDING_PROJECTION_RULE_VERSION": (
+        "polisyos.data_forge.domains.legal.embedding_projection"
     ),
+    "GenerationIdentity": "polisyos.data_forge.kernel.io.generation_basis",
+    "LegalSearchBenchmarkCase": ("polisyos.data_forge.domains.legal.batch.benchmark_fixtures"),
     "DocSourcePropsV1": "polisyos.data_forge.domains.legal.corpus.index",
     "GonkaClientPool": "polisyos.data_forge.domains.legal.batch.spo_client",
     "LEGAL_BATCH_RUNTIME_MODULE": _LEGAL_DOMAIN,
@@ -39,15 +42,22 @@ _EXPORTS = {
     "collect_amendment_quality_metrics": (
         "polisyos.data_forge.domains.legal.batch.amendment_metrics"
     ),
+    "derive_encoder_identity": "polisyos.data_forge.kernel.embeddings",
+    "embedding_generation_matches_encoder": "polisyos.data_forge.kernel.embeddings",
+    "generation_basis_matches_members": "polisyos.data_forge.kernel.io.generation_basis",
+    "entity_embedding_text": "polisyos.data_forge.domains.legal.embedding_projection",
+    "fact_embedding_text": "polisyos.data_forge.domains.legal.embedding_projection",
     "export_normative_claim_sets": "polisyos.data_forge.domains.legal.batch.claim_bridge",
     "iter_documents": "polisyos.data_forge.domains.legal.batch.xml_parser",
-    "legal_search_benchmark_cases": (
-        "polisyos.data_forge.domains.legal.batch.benchmark_fixtures"
-    ),
+    "legal_search_benchmark_cases": ("polisyos.data_forge.domains.legal.batch.benchmark_fixtures"),
     "load_doc_source_props": "polisyos.data_forge.domains.legal.corpus.index",
     "load_lex_shadow_bundle": _LEGAL_DOMAIN,
     "load_provision_index": "polisyos.data_forge.domains.legal.corpus.index",
     "load_version_index": "polisyos.data_forge.domains.legal.corpus.index",
+    "hnsw_index_matches_vectors": "polisyos.data_forge.kernel.embeddings",
+    "legal_embedding_generator_rule_version": "polisyos.data_forge.kernel.embeddings",
+    "provision_embedding_text": "polisyos.data_forge.domains.legal.embedding_projection",
+    "resolve_embedding_generation": "polisyos.data_forge.kernel.embeddings",
     "resolve_active_version": "polisyos.data_forge.domains.legal.corpus.versioning",
     "run_batch_pipeline": "polisyos.data_forge.domains.legal.batch.pipeline",
 }

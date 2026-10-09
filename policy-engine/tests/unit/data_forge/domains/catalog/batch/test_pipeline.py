@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
+from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
 from polisyos.data_forge.domains.catalog.batch.pipeline import (
     _record_stage_completion,
     _should_skip_stage,
@@ -43,6 +44,19 @@ def test_embed_resume_does_not_skip_when_selected_member_is_missing(tmp_path) ->
         stages=frozenset({"embed"}),
         resume=True,
     )
+    build_embedding_generation(
+        rows=[],
+        index_dir=config.index_dir,
+        embedding_model=config.embedding_model,
+        embedding_device="cpu",
+        embedding_dimension=config.embedding_dimension,
+        legacy_embeddings_path=config.index_dir / "ds_dataset_embeddings.npz",
+        legacy_index_path=config.index_dir / "ds_dataset_index.hnsw",
+    )
+    _record_stage_completion(config, "embed")
+    assert not _should_skip_stage(config, "embed")
+
+    build_graph(records=[], db_path=config.db_path)
     build_embedding_generation(
         rows=[],
         index_dir=config.index_dir,

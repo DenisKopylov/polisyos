@@ -12,6 +12,9 @@ __all__ = [
     "LegalKnowledgeGraph",
     "LegalProvision",
     "LegalProvisionResult",
+    "LegalQueryInput",
+    "LegalQueryProfile",
+    "LegalQueryProfileError",
     "LegalRuleThresholdRow",
     "LegalSearchResult",
     "LegalTemporalCompetence",
@@ -21,6 +24,9 @@ __all__ = [
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "LegalKnowledgeGraph": ("polisyos.lex.knowledge.search", "LegalKnowledgeGraph"),
+    "LegalQueryInput": ("polisyos.lex.knowledge.store", "LegalQueryInput"),
+    "LegalQueryProfile": ("polisyos.lex.knowledge.store", "LegalQueryProfile"),
+    "LegalQueryProfileError": ("polisyos.lex.knowledge.store", "LegalQueryProfileError"),
     "LegalEntity": ("polisyos.lex.knowledge.types", "LegalEntity"),
     "LegalFact": ("polisyos.lex.knowledge.types", "LegalFact"),
     "LegalFactResult": ("polisyos.lex.knowledge.types", "LegalFactResult"),

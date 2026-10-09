@@ -2,11 +2,68 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
+from contextlib import contextmanager
+from contextvars import ContextVar, Token
 from dataclasses import dataclass, field
-from datetime import datetime
-from typing import Any
+from types import MappingProxyType
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    import asyncio
+    from collections.abc import Iterator, Mapping
+    from datetime import datetime
+
+
+@dataclass(frozen=True, slots=True)
+class CoreSourcesCompatibilityContext:
+    """Immutable request-scoped bindings for the compatibility facade."""
+
+    bindings: Mapping[tuple[str, str], Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        copied: dict[tuple[str, str], Any] = {}
+        for key, value in self.bindings.items():
+            if (
+                not isinstance(key, tuple)
+                or len(key) != 2
+                or not all(isinstance(part, str) and part for part in key)
+            ):
+                raise ValueError("compatibility binding keys must be (module, name) pairs")
+            copied[key] = value
+        object.__setattr__(self, "bindings", MappingProxyType(copied))
+
+    def resolve(self, module_name: str, name: str) -> tuple[bool, Any]:
+        """Return a scoped override and whether this context defines it."""
+        key = (module_name, name)
+        return (key in self.bindings, self.bindings.get(key))
+
+
+_CORE_SOURCES_COMPATIBILITY_CONTEXT: ContextVar[CoreSourcesCompatibilityContext | None] = (
+    ContextVar("core_sources_compatibility_context", default=None)
+)
+
+
+@contextmanager
+def bind_core_sources_compatibility_context(
+    context: CoreSourcesCompatibilityContext,
+) -> Iterator[None]:
+    """Bind immutable compatibility values to the current async execution context."""
+    token: Token[CoreSourcesCompatibilityContext | None] = _CORE_SOURCES_COMPATIBILITY_CONTEXT.set(
+        context
+    )
+    try:
+        yield
+    finally:
+        _CORE_SOURCES_COMPATIBILITY_CONTEXT.reset(token)
+
+
+def resolve_core_sources_compatibility_binding(module_name: str, name: str) -> tuple[bool, Any]:
+    """Resolve one binding from the current request context, if present."""
+    context = _CORE_SOURCES_COMPATIBILITY_CONTEXT.get()
+    if context is None:
+        return False, None
+    return context.resolve(module_name, name)
 
 
 @dataclass
@@ -25,6 +82,7 @@ class CoreSourcesIngestStats:
     failed_shards: int = 0
     empty_shards: int = 0
     observations_by_source: dict[str, int] | None = None
+    _progress_metadata: dict[str, Any] | None = field(default=None, repr=False, compare=False)
 
     def __post_init__(self) -> None:
         if self.observations_by_source is None:
@@ -269,6 +327,7 @@ class WriterFlushState:
 
 __all__ = [
     "CatalogTransportDataset",
+    "CoreSourcesCompatibilityContext",
     "CoreSourcesIngestStats",
     "DeferredObservationPlan",
     "ObservationFetchKey",
@@ -283,4 +342,6 @@ __all__ = [
     "WriterFlushState",
     "_ObservationRuntimeMetrics",
     "_SourceBudgetWindow",
+    "bind_core_sources_compatibility_context",
+    "resolve_core_sources_compatibility_binding",
 ]

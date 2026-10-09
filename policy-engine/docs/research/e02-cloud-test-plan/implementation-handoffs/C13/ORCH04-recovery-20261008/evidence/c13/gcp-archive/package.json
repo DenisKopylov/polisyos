@@ -1,0 +1,15 @@
+{
+  "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "argv": [
+    "bash",
+    "ops/cloud/gcp/package_repo.sh"
+  ],
+  "cwd": "/workspace/ORCH04-C13/policy-engine",
+  "pid": 6701,
+  "exit_code": 0,
+  "wall_seconds": 10.110337308999988,
+  "max_rss_kib": 19728,
+  "UPLOAD": "0",
+  "output": "/workspace/ORCH04-evidence/c13/gcp-archive/package.log",
+  "output_sha256": "1844c6a3cf6999b521cc6e9619e6050c000b26ba0da0630cc2920c11fac0ef52"
+}

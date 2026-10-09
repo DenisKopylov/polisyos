@@ -1,0 +1,23 @@
+Building wheel...
+Traceback (most recent call last):
+  File "<string>", line 11, in <module>
+    wheel_filename = backend.build_wheel("/workspace/ORCH04-evidence/c13/gcp-archive/wheel", {}, None)
+  File "/workspace/.polisyos-environment/cache/uv/builds-v0/.tmpbBUQMb/lib/python3.14/site-packages/hatchling/build.py", line 58, in build_wheel
+    return os.path.basename(next(builder.build(directory=wheel_directory, versions=["standard"])))
+                            ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.polisyos-environment/cache/uv/builds-v0/.tmpbBUQMb/lib/python3.14/site-packages/hatchling/builders/plugin/interface.py", line 166, in build
+    artifact = version_api[version](directory, **build_data)
+  File "/workspace/.polisyos-environment/cache/uv/builds-v0/.tmpbBUQMb/lib/python3.14/site-packages/hatchling/builders/wheel.py", line 528, in build_standard
+    for included_file in self.recurse_included_files():
+                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/workspace/.polisyos-environment/cache/uv/builds-v0/.tmpbBUQMb/lib/python3.14/site-packages/hatchling/builders/plugin/interface.py", line 188, in recurse_included_files
+    yield from self.recurse_forced_files(self.config.get_force_include())
+  File "/workspace/.polisyos-environment/cache/uv/builds-v0/.tmpbBUQMb/lib/python3.14/site-packages/hatchling/builders/plugin/interface.py", line 248, in recurse_forced_files
+    raise FileNotFoundError(msg)
+FileNotFoundError: Forced include not found: /workspace/ORCH04-environments/gcp-archive-source/policy-engine/data/dataset_catalog/metrics_map.yaml
+  × Failed to build
+  │ `/workspace/ORCH04-environments/gcp-archive-source/policy-engine`
+  ├─▶ The build backend returned an error
+  ╰─▶ Call to `hatchling.build.build_wheel` failed (exit status: 1)
+      hint: This usually indicates a problem with the package or the build
+      environment.

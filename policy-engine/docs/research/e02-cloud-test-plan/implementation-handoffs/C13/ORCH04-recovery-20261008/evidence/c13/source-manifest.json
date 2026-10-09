@@ -1,0 +1,63 @@
+{
+  "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "tree": "fd0b6e711d872afe4f74c371d28b01862af0ae7e",
+  "inputs": {
+    "pyproject.toml": {
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007
+    },
+    "uv.lock": {
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "bytes": 779204
+    },
+    "hatch.toml": {
+      "git_blob": "ab91c577cc1fc7beed00b78d29efd9c84ba7c9f7",
+      "sha256": "24ad192a85397fdf56e2722275e19adf79c10a27938640f5bc4f86353936efcd",
+      "bytes": 2194
+    },
+    "pnpm-lock.yaml": {
+      "git_blob": "095a555d9a1eb173732f409550d5a1436c3be861",
+      "sha256": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+      "bytes": 482583
+    },
+    "tests/conftest.py": {
+      "git_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "bytes": 9664
+    },
+    "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py": {
+      "git_blob": "1ba29602702927e3aa80b6d85f017ea71d4afd89",
+      "sha256": "acd5d0bd70fa0768df0e517882501d7c8ea836038102f046dac42888e7776d40",
+      "bytes": 21216
+    },
+    "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py": {
+      "git_blob": "153226bceb53e7e290be03bc9dd068140edbe667",
+      "sha256": "5a479bc577181020b229be26415ece9453d5b54c5b83188ae39b5dbe21fc17ac",
+      "bytes": 16846
+    },
+    "tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py": {
+      "git_blob": "093d88257fe28274fc01b8ae9daa140c31a2ad77",
+      "sha256": "b8f9227a18737490a539a70cbace221344a72e4935c6f28d9a7f35b65dc40f42",
+      "bytes": 11758
+    },
+    "workers/dowhy-014/protocol.py": {
+      "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239",
+      "bytes": 4704
+    },
+    "workers/dowhy-014/worker.py": {
+      "sha256": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253",
+      "bytes": 10652
+    },
+    "workers/dowhy-014/uv.lock": {
+      "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a",
+      "bytes": 98340
+    },
+    "workers/dowhy-014/pyproject.toml": {
+      "sha256": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447",
+      "bytes": 379
+    }
+  },
+  "scope": "Independent scoped conformance; not broad portable replay."
+}

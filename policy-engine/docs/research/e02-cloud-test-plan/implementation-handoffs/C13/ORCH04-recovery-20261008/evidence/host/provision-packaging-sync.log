@@ -1,0 +1,10 @@
+Using CPython 3.14.2 interpreter at: .polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14
+Resolved 6 packages in 3ms
+Prepared 4 packages in 91ms
+Installed 6 packages in 5ms
+ + hatchling==1.32.4
+ + packaging==26.3
+ + pathspec==1.1.1
+ + pluggy==1.6.0
+ + tomlkit==0.15.1
+ + trove-classifiers==2026.9.21.13

@@ -1,0 +1,422 @@
+[
+  {
+    "utc": "2026-10-08T15:49:17.476562+00:00",
+    "memory_current": "17174102016",
+    "memory_events": "low 0\nhigh 0\nmax 8438\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 18140160000
+  },
+  {
+    "utc": "2026-10-08T15:49:17.500329+00:00",
+    "memory_current": "17179758592",
+    "memory_events": "low 0\nhigh 0\nmax 8455\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 18140135424
+  },
+  {
+    "utc": "2026-10-08T15:49:19.520763+00:00",
+    "memory_current": "17179865088",
+    "memory_events": "low 0\nhigh 0\nmax 10783\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 18140114944
+  },
+  {
+    "utc": "2026-10-08T15:49:21.526109+00:00",
+    "memory_current": "17177939968",
+    "memory_events": "low 0\nhigh 0\nmax 12732\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 18140114944
+  },
+  {
+    "utc": "2026-10-08T15:49:23.532678+00:00",
+    "memory_current": "17179750400",
+    "memory_events": "low 0\nhigh 0\nmax 14498\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 18140090368
+  },
+  {
+    "utc": "2026-10-08T15:49:25.540630+00:00",
+    "memory_current": "17164935168",
+    "memory_events": "low 0\nhigh 0\nmax 15865\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 18131013632
+  },
+  {
+    "utc": "2026-10-08T15:49:27.548326+00:00",
+    "memory_current": "17179824128",
+    "memory_events": "low 0\nhigh 0\nmax 17952\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 18082033664
+  },
+  {
+    "utc": "2026-10-08T15:49:29.549337+00:00",
+    "memory_current": "17179697152",
+    "memory_events": "low 0\nhigh 0\nmax 19403\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 18052526080
+  },
+  {
+    "utc": "2026-10-08T15:49:31.550117+00:00",
+    "memory_current": "14561288192",
+    "memory_events": "low 0\nhigh 0\nmax 19513\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17990586368
+  },
+  {
+    "utc": "2026-10-08T15:49:33.558384+00:00",
+    "memory_current": "14482997248",
+    "memory_events": "low 0\nhigh 0\nmax 19513\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17919913984
+  },
+  {
+    "utc": "2026-10-08T15:49:35.559036+00:00",
+    "memory_current": "14865375232",
+    "memory_events": "low 0\nhigh 0\nmax 19513\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17893666816
+  },
+  {
+    "utc": "2026-10-08T15:49:37.560419+00:00",
+    "memory_current": "15599067136",
+    "memory_events": "low 0\nhigh 0\nmax 19513\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17717149696
+  },
+  {
+    "utc": "2026-10-08T15:49:39.569274+00:00",
+    "memory_current": "16012996608",
+    "memory_events": "low 0\nhigh 0\nmax 19513\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17651908608
+  },
+  {
+    "utc": "2026-10-08T15:49:41.570976+00:00",
+    "memory_current": "16282808320",
+    "memory_events": "low 0\nhigh 0\nmax 19513\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17607835648
+  },
+  {
+    "utc": "2026-10-08T15:49:43.573365+00:00",
+    "memory_current": "16482144256",
+    "memory_events": "low 0\nhigh 0\nmax 19513\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17600200704
+  },
+  {
+    "utc": "2026-10-08T15:49:45.574234+00:00",
+    "memory_current": "16666218496",
+    "memory_events": "low 0\nhigh 0\nmax 19513\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17584644096
+  },
+  {
+    "utc": "2026-10-08T15:49:47.580350+00:00",
+    "memory_current": "16840826880",
+    "memory_events": "low 0\nhigh 0\nmax 19513\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17559355392
+  },
+  {
+    "utc": "2026-10-08T15:49:49.581142+00:00",
+    "memory_current": "16975294464",
+    "memory_events": "low 0\nhigh 0\nmax 19513\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17551728640
+  },
+  {
+    "utc": "2026-10-08T15:49:51.581968+00:00",
+    "memory_current": "17151348736",
+    "memory_events": "low 0\nhigh 0\nmax 19513\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17539186688
+  },
+  {
+    "utc": "2026-10-08T15:49:53.583022+00:00",
+    "memory_current": "16616886272",
+    "memory_events": "low 0\nhigh 0\nmax 19669\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17521651712
+  },
+  {
+    "utc": "2026-10-08T15:49:55.583842+00:00",
+    "memory_current": "16847986688",
+    "memory_events": "low 0\nhigh 0\nmax 19669\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17509326848
+  },
+  {
+    "utc": "2026-10-08T15:49:57.588477+00:00",
+    "memory_current": "16967753728",
+    "memory_events": "low 0\nhigh 0\nmax 19669\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17487060992
+  },
+  {
+    "utc": "2026-10-08T15:49:59.589277+00:00",
+    "memory_current": "16919068672",
+    "memory_events": "low 0\nhigh 0\nmax 19669\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17466396672
+  },
+  {
+    "utc": "2026-10-08T15:50:01.614730+00:00",
+    "memory_current": "16838094848",
+    "memory_events": "low 0\nhigh 0\nmax 19669\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17446944768
+  },
+  {
+    "utc": "2026-10-08T15:50:03.615679+00:00",
+    "memory_current": "16998084608",
+    "memory_events": "low 0\nhigh 0\nmax 19669\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17427124224
+  },
+  {
+    "utc": "2026-10-08T15:50:05.616672+00:00",
+    "memory_current": "17179779072",
+    "memory_events": "low 0\nhigh 0\nmax 19692\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17405222912
+  },
+  {
+    "utc": "2026-10-08T15:50:07.617545+00:00",
+    "memory_current": "17024724992",
+    "memory_events": "low 0\nhigh 0\nmax 20037\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17395507200
+  },
+  {
+    "utc": "2026-10-08T15:50:09.618956+00:00",
+    "memory_current": "17100443648",
+    "memory_events": "low 0\nhigh 0\nmax 20037\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17387122688
+  },
+  {
+    "utc": "2026-10-08T15:50:11.620341+00:00",
+    "memory_current": "17179844608",
+    "memory_events": "low 0\nhigh 0\nmax 20450\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17379598336
+  },
+  {
+    "utc": "2026-10-08T15:50:13.624386+00:00",
+    "memory_current": "17172475904",
+    "memory_events": "low 0\nhigh 0\nmax 20913\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17372356608
+  },
+  {
+    "utc": "2026-10-08T15:50:15.627052+00:00",
+    "memory_current": "17179746304",
+    "memory_events": "low 0\nhigh 0\nmax 21428\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17367973888
+  },
+  {
+    "utc": "2026-10-08T15:50:17.627990+00:00",
+    "memory_current": "17179738112",
+    "memory_events": "low 0\nhigh 0\nmax 22286\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17356689408
+  },
+  {
+    "utc": "2026-10-08T15:50:19.632511+00:00",
+    "memory_current": "17179869184",
+    "memory_events": "low 0\nhigh 0\nmax 22717\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17344917504
+  },
+  {
+    "utc": "2026-10-08T15:50:21.633547+00:00",
+    "memory_current": "17179582464",
+    "memory_events": "low 0\nhigh 0\nmax 23027\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17340313600
+  },
+  {
+    "utc": "2026-10-08T15:50:23.634703+00:00",
+    "memory_current": "17179844608",
+    "memory_events": "low 0\nhigh 0\nmax 23927\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17334489088
+  },
+  {
+    "utc": "2026-10-08T15:50:25.635698+00:00",
+    "memory_current": "17179344896",
+    "memory_events": "low 0\nhigh 0\nmax 24308\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17332371456
+  },
+  {
+    "utc": "2026-10-08T15:50:27.640323+00:00",
+    "memory_current": "17101819904",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17330282496
+  },
+  {
+    "utc": "2026-10-08T15:50:29.641304+00:00",
+    "memory_current": "16990494720",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17328123904
+  },
+  {
+    "utc": "2026-10-08T15:50:31.641953+00:00",
+    "memory_current": "16916455424",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17325912064
+  },
+  {
+    "utc": "2026-10-08T15:50:33.642660+00:00",
+    "memory_current": "16970186752",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17325805568
+  },
+  {
+    "utc": "2026-10-08T15:50:35.643509+00:00",
+    "memory_current": "16374448128",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17325801472
+  },
+  {
+    "utc": "2026-10-08T15:50:37.652309+00:00",
+    "memory_current": "14618611712",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17318338560
+  },
+  {
+    "utc": "2026-10-08T15:50:39.653052+00:00",
+    "memory_current": "14698102784",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17308225536
+  },
+  {
+    "utc": "2026-10-08T15:50:41.653763+00:00",
+    "memory_current": "14866845696",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17294782464
+  },
+  {
+    "utc": "2026-10-08T15:50:43.656166+00:00",
+    "memory_current": "14854868992",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17301905408
+  },
+  {
+    "utc": "2026-10-08T15:50:45.660323+00:00",
+    "memory_current": "15048032256",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17281556480
+  },
+  {
+    "utc": "2026-10-08T15:50:47.661048+00:00",
+    "memory_current": "14967169024",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17280204800
+  },
+  {
+    "utc": "2026-10-08T15:50:49.662145+00:00",
+    "memory_current": "15191801856",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17268617216
+  },
+  {
+    "utc": "2026-10-08T15:50:51.669484+00:00",
+    "memory_current": "14710460416",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17254645760
+  },
+  {
+    "utc": "2026-10-08T15:50:53.671189+00:00",
+    "memory_current": "14786166784",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17259515904
+  },
+  {
+    "utc": "2026-10-08T15:50:55.678652+00:00",
+    "memory_current": "14998036480",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17240969216
+  },
+  {
+    "utc": "2026-10-08T15:50:57.688111+00:00",
+    "memory_current": "14969438208",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17223102464
+  },
+  {
+    "utc": "2026-10-08T15:50:59.690939+00:00",
+    "memory_current": "15140577280",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17226383360
+  },
+  {
+    "utc": "2026-10-08T15:51:01.728357+00:00",
+    "memory_current": "15379357696",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17203798016
+  },
+  {
+    "utc": "2026-10-08T15:51:03.729238+00:00",
+    "memory_current": "15380508672",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17177460736
+  },
+  {
+    "utc": "2026-10-08T15:51:05.731759+00:00",
+    "memory_current": "15670304768",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17158123520
+  },
+  {
+    "utc": "2026-10-08T15:51:07.734706+00:00",
+    "memory_current": "15914250240",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17141805056
+  },
+  {
+    "utc": "2026-10-08T15:51:09.738006+00:00",
+    "memory_current": "16019943424",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17145122816
+  },
+  {
+    "utc": "2026-10-08T15:51:11.740420+00:00",
+    "memory_current": "16112742400",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17127718912
+  },
+  {
+    "utc": "2026-10-08T15:51:13.744379+00:00",
+    "memory_current": "16227758080",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17115754496
+  },
+  {
+    "utc": "2026-10-08T15:51:15.745357+00:00",
+    "memory_current": "16343773184",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17102868480
+  },
+  {
+    "utc": "2026-10-08T15:51:17.748505+00:00",
+    "memory_current": "16190435328",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17103990784
+  },
+  {
+    "utc": "2026-10-08T15:51:19.749618+00:00",
+    "memory_current": "16069316608",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17096196096
+  },
+  {
+    "utc": "2026-10-08T15:51:21.751016+00:00",
+    "memory_current": "15634493440",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17061216256
+  },
+  {
+    "utc": "2026-10-08T15:51:23.752145+00:00",
+    "memory_current": "14698586112",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17047945216
+  },
+  {
+    "utc": "2026-10-08T15:51:25.756389+00:00",
+    "memory_current": "14799122432",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17030885376
+  },
+  {
+    "utc": "2026-10-08T15:51:27.757388+00:00",
+    "memory_current": "14806294528",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17027559424
+  },
+  {
+    "utc": "2026-10-08T15:51:29.758454+00:00",
+    "memory_current": "14814941184",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 17021747200
+  },
+  {
+    "utc": "2026-10-08T15:51:31.760285+00:00",
+    "memory_current": "14862098432",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 16966250496
+  },
+  {
+    "utc": "2026-10-08T15:51:33.761616+00:00",
+    "memory_current": "14917636096",
+    "memory_events": "low 0\nhigh 0\nmax 24411\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "workspace_available_bytes": 16917426176
+  }
+]

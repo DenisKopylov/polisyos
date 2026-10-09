@@ -1,0 +1,20 @@
+{
+  "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "argv": [
+    "uv",
+    "build",
+    "--wheel",
+    "--out-dir",
+    "/workspace/ORCH04-evidence/c13/gcp-archive/wheel",
+    "--build-constraint",
+    "/workspace/ORCH04-evidence/host/packaging-tooling.lock"
+  ],
+  "cwd": "/workspace/ORCH04-environments/gcp-archive-source/policy-engine",
+  "pid": 6758,
+  "exit_code": 2,
+  "wall_seconds": 2.232408591999956,
+  "max_rss_kib": 30336,
+  "UPLOAD": "0",
+  "output": "/workspace/ORCH04-evidence/c13/gcp-archive/extracted-wheel-build.log",
+  "output_sha256": "6f424869946dd30cf8f4a7d795e69fe81b20045b14f1e56cb3f94feadc4ad219"
+}

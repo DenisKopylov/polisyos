@@ -1,0 +1,17 @@
+Filesystem     Type     Size  Used Avail Use% Mounted on
+overlay        overlay   32G  2.6G   28G   9% /
+none           tmpfs    8.8G  4.0K  8.8G   1% /tmp
+shm            tmpfs    8.8G     0  8.8G   0% /dev/shm
+Filesystem      Inodes IUsed   IFree IUse% Mounted on
+overlay        2097152 95074 2002078    5% /
+none           2305017     3 2305014    1% /tmp
+shm            2305017     1 2305016    1% /dev/shm
+TARGET SOURCE  FSTYPE  OPTIONS
+/      overlay overlay rw,relatime,lowerdir=/run/kata-containers/erofs-multi-layer/9065c09363504c169872e645e87b2f2d/lower-0,upperdir=/run/kata-containers/erofs-multi-layer/9065c09363504c169872e645e87b2f2d/upper/upper,workdir=/run/kata-containers/erofs-multi-layer/9065c09363504c169872e645e87b2f2d/upper/work,index=off,metacopy=off
+TARGET SOURCE FSTYPE OPTIONS
+/tmp   none   tmpfs  rw,relatime
+TARGET   SOURCE FSTYPE OPTIONS
+/dev/shm shm    tmpfs  rw,relatime
+2.7G	/workspace/.polisyos-environment
+83M	/workspace/polisyos/policy-engine/.venv
+59M	/workspace/polisyos/policy-engine/node_modules

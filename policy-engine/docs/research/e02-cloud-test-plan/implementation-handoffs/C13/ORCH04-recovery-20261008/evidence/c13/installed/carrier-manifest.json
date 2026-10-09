@@ -1,0 +1,27 @@
+{
+  "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "files": {
+    "test_installed_worker_profile.py": {
+      "original_path": "/workspace/ORCH04-C13/policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py",
+      "runtime_carrier": "/workspace/ORCH04-environments/installed-check-carriers/test_installed_worker_profile.py",
+      "sha256": "b8f9227a18737490a539a70cbace221344a72e4935c6f28d9a7f35b65dc40f42",
+      "git_blob": "093d88257fe28274fc01b8ae9daa140c31a2ad77",
+      "bytes": 11758
+    },
+    "test_dowhy_worker.py": {
+      "original_path": "/workspace/ORCH04-C13/policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "runtime_carrier": "/workspace/ORCH04-environments/installed-check-carriers/test_dowhy_worker.py",
+      "sha256": "5a479bc577181020b229be26415ece9453d5b54c5b83188ae39b5dbe21fc17ac",
+      "git_blob": "153226bceb53e7e290be03bc9dd068140edbe667",
+      "bytes": 16846
+    },
+    "test_gcm_backend_contract.py": {
+      "original_path": "/workspace/ORCH04-C13/policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "runtime_carrier": "/workspace/ORCH04-environments/installed-check-carriers/test_gcm_backend_contract.py",
+      "sha256": "acd5d0bd70fa0768df0e517882501d7c8ea836038102f046dac42888e7776d40",
+      "git_blob": "1ba29602702927e3aa80b6d85f017ea71d4afd89",
+      "bytes": 21216
+    }
+  },
+  "qualification": "Exact unmodified runtime test carriers, separate from receipts; avoid checkout parent conftest/source imports."
+}

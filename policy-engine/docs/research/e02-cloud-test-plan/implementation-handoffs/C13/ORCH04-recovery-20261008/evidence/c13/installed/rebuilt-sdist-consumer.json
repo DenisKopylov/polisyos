@@ -1,0 +1,28 @@
+{
+  "label": "rebuilt-sdist-consumer",
+  "argv": [
+    "/workspace/ORCH04-environments/installed-rebuilt-sdist/bin/python",
+    "-I",
+    "/workspace/ORCH04-evidence/c13/installed/launch_installed.py",
+    "/workspace/ORCH04-evidence/c13/installed",
+    "rebuilt-sdist",
+    "/workspace/ORCH04-environments/installed-check-carriers"
+  ],
+  "cwd": "/workspace/ORCH04-environments/installed-check-carriers",
+  "pid": 6385,
+  "started_utc": "2026-10-08T15:52:38.512485+00:00",
+  "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "extra_env": {
+    "E02_DOWHY_FIXTURE_PATH": "/workspace/ORCH04-environments/installed-check-carriers/test_dowhy_worker.py",
+    "E02_GCM_FIXTURE_PATH": "/workspace/ORCH04-environments/installed-check-carriers/test_gcm_backend_contract.py",
+    "E02_PROFILE_EXPECTED_JSON": "/workspace/ORCH04-evidence/c13/installed/profile-expected.json",
+    "E02_TEST_DOWHY_WORKER_PYTHON": "/workspace/ORCH04-environments/worker/bin/python"
+  },
+  "output": "/workspace/ORCH04-evidence/c13/installed/rebuilt-sdist-consumer.log",
+  "exit_code": 0,
+  "wall_seconds": 57.76924631099996,
+  "max_rss_kib": 702200,
+  "user_cpu_seconds": 55.025088,
+  "system_cpu_seconds": 7.365041,
+  "output_sha256": "129a214ea164d8baf7cd6050b9161d7dfa172e11a2c5019a2a90e10e772ae58c"
+}

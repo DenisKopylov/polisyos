@@ -1,0 +1,363 @@
+{
+  "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "sdist": {
+    "path": "/workspace/ORCH04-evidence/c13/installed/sdist/policy_engine-0.1.0.tar.gz",
+    "sha256": "b2e69ae7a276d0528f9ace729c24eccb3131125d36996dc0dc3496576e4ebafa",
+    "bytes": 141391228
+  },
+  "wheel_and_rebuilt_sdist_wheel_complete_member_identity": true,
+  "comparison_exemption": "Only wheel RECORD, as original complete comparison contract.",
+  "complete_member_denominator": 3468,
+  "wheels": {
+    "wheel": {
+      "path": "/workspace/ORCH04-evidence/c13/installed/source-wheel/policy_engine-0.1.0-py3-none-any.whl",
+      "sha256": "326a42ac0637413c0b38b1bc3bce54bbdd72bb2f5f636645b1cc42e1294ce981",
+      "bytes": 15154383
+    },
+    "rebuilt-sdist": {
+      "path": "/workspace/ORCH04-evidence/c13/installed/rebuilt-wheel/policy_engine-0.1.0-py3-none-any.whl",
+      "sha256": "326a42ac0637413c0b38b1bc3bce54bbdd72bb2f5f636645b1cc42e1294ce981",
+      "bytes": 15154383
+    }
+  },
+  "required_assets_complete_denominator": [
+    {
+      "source": "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+      "wheel_destination": "polisyos/foundry/methods/catalog/_resources/method_catalog_dependency_digest_domains.toml",
+      "source_blob": "caf4fa98a0669f6d81bd8b5db0014cb015b9492f",
+      "sha256": "186078f2cd5c24cdef007449109d5667f60f4f7949c9b663026e5658e538bb5b",
+      "bytes": 38632,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false,
+      "source_and_both_wheels_exact_hash_equal": true
+    },
+    {
+      "source": "policy-engine/data/dataset_catalog/metrics_map.yaml",
+      "wheel_destination": "polisyos/data_forge/domains/catalog/_resources/metrics_map.yaml",
+      "source_blob": "7f6cf78a02e4e58219353548af604de49e796442",
+      "sha256": "0877e6521e4dd66dbc2c08010367c79f672c37a8b6b30e68f47b10135f680266",
+      "bytes": 2163,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false,
+      "source_and_both_wheels_exact_hash_equal": true
+    },
+    {
+      "source": "policy-engine/data/dataset_catalog/proxy_metric_alignments.yaml",
+      "wheel_destination": "polisyos/data_forge/domains/catalog/_resources/proxy_metric_alignments.yaml",
+      "source_blob": "649cd9a249ca12745b4ed9c9871d2aca57eb0a61",
+      "sha256": "4c6c04bb99ea566b061c7b2d23540d22f8eb7c043067585a7e9b93ccaf87388b",
+      "bytes": 293,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false,
+      "source_and_both_wheels_exact_hash_equal": true
+    },
+    {
+      "source": "policy-engine/data/dataset_catalog/seed_variable_alignments.yaml",
+      "wheel_destination": "polisyos/data_forge/domains/catalog/_resources/seed_variable_alignments.yaml",
+      "source_blob": "49d63f6e693ab9488fad50b25d75b042f3dff9dd",
+      "sha256": "cb1daa3237ff58d8c875571ff2459a55c5182c3a4f13a076497a517f9a8740d8",
+      "bytes": 1309,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false,
+      "source_and_both_wheels_exact_hash_equal": true
+    },
+    {
+      "source": "policy-engine/data/dataset_catalog/wvs_indicator_registry.yaml",
+      "wheel_destination": "polisyos/data_forge/domains/catalog/_resources/wvs_indicator_registry.yaml",
+      "source_blob": "e28c9dfc7e83f3c7d2fbf020312dcfdd66bee3a0",
+      "sha256": "dabbadf04fdbf6c4658a720a6af5b63a60c69727b2350c0424368691399e413d",
+      "bytes": 160329,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false,
+      "source_and_both_wheels_exact_hash_equal": true
+    },
+    {
+      "source": "policy-engine/workers/dowhy-014/.python-version",
+      "wheel_destination": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/.python-version",
+      "source_blob": "e4fba2183587225f216eeada4c78dfab6b2e65f5",
+      "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+      "bytes": 5,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false,
+      "source_and_both_wheels_exact_hash_equal": true
+    },
+    {
+      "source": "policy-engine/workers/dowhy-014/README.md",
+      "wheel_destination": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/README.md",
+      "source_blob": "84528b455b39585aa3e507e4c6697213c7f7365a",
+      "sha256": "fc4b60aecff0f52a19866c17da419ac4583de6fe09d74b424f8f9908f795f198",
+      "bytes": 4934,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false,
+      "source_and_both_wheels_exact_hash_equal": true
+    },
+    {
+      "source": "policy-engine/workers/dowhy-014/protocol.py",
+      "wheel_destination": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/protocol.py",
+      "source_blob": "ca392779e3351e4cf13b23db0a27077487a29368",
+      "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239",
+      "bytes": 4704,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false,
+      "source_and_both_wheels_exact_hash_equal": true
+    },
+    {
+      "source": "policy-engine/workers/dowhy-014/pyproject.toml",
+      "wheel_destination": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/pyproject.toml",
+      "source_blob": "770a46160a0b13614507d345f729910c9e81acde",
+      "sha256": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447",
+      "bytes": 379,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false,
+      "source_and_both_wheels_exact_hash_equal": true
+    },
+    {
+      "source": "policy-engine/workers/dowhy-014/uv.lock",
+      "wheel_destination": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/uv.lock",
+      "source_blob": "77ce3b5392703b452d70da87c0f57372b88e9117",
+      "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a",
+      "bytes": 98340,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false,
+      "source_and_both_wheels_exact_hash_equal": true
+    },
+    {
+      "source": "policy-engine/workers/dowhy-014/worker.py",
+      "wheel_destination": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/worker.py",
+      "source_blob": "8e4ea39ce6b4f03626b30fb674b0d3f881557aef",
+      "sha256": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253",
+      "bytes": 10652,
+      "test_context_selected": false,
+      "actual_gcp_archive_selected": false,
+      "source_and_both_wheels_exact_hash_equal": true
+    }
+  ],
+  "commands": [
+    {
+      "label": "wheel-build",
+      "argv": [
+        "uv",
+        "build",
+        "--wheel",
+        "--out-dir",
+        "/workspace/ORCH04-evidence/c13/installed/source-wheel",
+        "--build-constraint",
+        "/workspace/ORCH04-evidence/host/packaging-tooling.lock"
+      ],
+      "cwd": "/workspace/ORCH04-C13/policy-engine",
+      "pid": 5250,
+      "started_utc": "2026-10-08T15:50:42.735587+00:00",
+      "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "extra_env": {},
+      "output": "/workspace/ORCH04-evidence/c13/installed/wheel-build.log",
+      "exit_code": 0,
+      "wall_seconds": 4.934311256000001,
+      "max_rss_kib": 29184,
+      "user_cpu_seconds": 3.296329,
+      "system_cpu_seconds": 0.22711199999999998,
+      "output_sha256": "f789ddff035ee671b6f06ce33669b580941a6d0855694993cc2deab7044efee0"
+    },
+    {
+      "label": "sdist-build",
+      "argv": [
+        "uv",
+        "build",
+        "--sdist",
+        "--out-dir",
+        "/workspace/ORCH04-evidence/c13/installed/sdist",
+        "--build-constraint",
+        "/workspace/ORCH04-evidence/host/packaging-tooling.lock"
+      ],
+      "cwd": "/workspace/ORCH04-C13/policy-engine",
+      "pid": 5280,
+      "started_utc": "2026-10-08T15:50:47.670447+00:00",
+      "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "extra_env": {},
+      "output": "/workspace/ORCH04-evidence/c13/installed/sdist-build.log",
+      "exit_code": 0,
+      "wall_seconds": 50.93526203800002,
+      "max_rss_kib": 33500,
+      "user_cpu_seconds": 34.478349,
+      "system_cpu_seconds": 2.449287,
+      "output_sha256": "2c79007893bba1dd7600a994efc21fc4a529ce13c2938c92456268368f95067e"
+    },
+    {
+      "label": "rebuilt-sdist-wheel",
+      "argv": [
+        "uv",
+        "build",
+        "--wheel",
+        "--out-dir",
+        "/workspace/ORCH04-evidence/c13/installed/rebuilt-wheel",
+        "--build-constraint",
+        "/workspace/ORCH04-evidence/host/packaging-tooling.lock"
+      ],
+      "cwd": "/workspace/ORCH04-environments/rebuilt-sdist-source/policy_engine-0.1.0",
+      "pid": 5873,
+      "started_utc": "2026-10-08T15:51:43.636661+00:00",
+      "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "extra_env": {},
+      "output": "/workspace/ORCH04-evidence/c13/installed/rebuilt-sdist-wheel.log",
+      "exit_code": 0,
+      "wall_seconds": 2.977345483000022,
+      "max_rss_kib": 29568,
+      "user_cpu_seconds": 2.630998,
+      "system_cpu_seconds": 0.324415,
+      "output_sha256": "f5ac21891e641a4837d2084afdc63e6c9a041e30d1b9aadb7f73a69303db1c4b"
+    },
+    {
+      "label": "wheel-venv",
+      "argv": [
+        "uv",
+        "venv",
+        "--python",
+        "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+        "/workspace/ORCH04-environments/installed-wheel"
+      ],
+      "cwd": "/workspace/ORCH04-C13/policy-engine",
+      "pid": 5893,
+      "started_utc": "2026-10-08T15:51:47.056579+00:00",
+      "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "extra_env": {},
+      "output": "/workspace/ORCH04-evidence/c13/installed/wheel-venv.log",
+      "exit_code": 0,
+      "wall_seconds": 0.06352338800002144,
+      "max_rss_kib": 40232,
+      "user_cpu_seconds": 0.045544,
+      "system_cpu_seconds": 0.016826999999999998,
+      "output_sha256": "ac5f9badf473b35c5149f99d76185f8d77659df6937d5900a55a95269781c2c8"
+    },
+    {
+      "label": "wheel-install",
+      "argv": [
+        "uv",
+        "pip",
+        "install",
+        "--python",
+        "/workspace/ORCH04-environments/installed-wheel/bin/python",
+        "--no-deps",
+        "/workspace/ORCH04-evidence/c13/installed/source-wheel/policy_engine-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "/workspace/ORCH04-C13/policy-engine",
+      "pid": 5896,
+      "started_utc": "2026-10-08T15:51:47.120707+00:00",
+      "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "extra_env": {},
+      "output": "/workspace/ORCH04-evidence/c13/installed/wheel-install.log",
+      "exit_code": 0,
+      "wall_seconds": 0.28093646599995736,
+      "max_rss_kib": 40232,
+      "user_cpu_seconds": 0.263935,
+      "system_cpu_seconds": 0.309062,
+      "output_sha256": "cb63aa9e1aa11229c1fac008188dab106720491d00b3f9a8b6bc64fa5f07ec16"
+    },
+    {
+      "label": "wheel-consumer",
+      "argv": [
+        "/workspace/ORCH04-environments/installed-wheel/bin/python",
+        "-I",
+        "/workspace/ORCH04-evidence/c13/installed/launch_installed.py",
+        "/workspace/ORCH04-evidence/c13/installed",
+        "wheel",
+        "/workspace/ORCH04-environments/installed-check-carriers"
+      ],
+      "cwd": "/workspace/ORCH04-environments/installed-check-carriers",
+      "pid": 5908,
+      "started_utc": "2026-10-08T15:51:47.402108+00:00",
+      "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "extra_env": {
+        "E02_DOWHY_FIXTURE_PATH": "/workspace/ORCH04-environments/installed-check-carriers/test_dowhy_worker.py",
+        "E02_GCM_FIXTURE_PATH": "/workspace/ORCH04-environments/installed-check-carriers/test_gcm_backend_contract.py",
+        "E02_PROFILE_EXPECTED_JSON": "/workspace/ORCH04-evidence/c13/installed/profile-expected.json",
+        "E02_TEST_DOWHY_WORKER_PYTHON": "/workspace/ORCH04-environments/worker/bin/python"
+      },
+      "output": "/workspace/ORCH04-evidence/c13/installed/wheel-consumer.log",
+      "exit_code": 0,
+      "wall_seconds": 50.30524756,
+      "max_rss_kib": 699176,
+      "user_cpu_seconds": 52.515308,
+      "system_cpu_seconds": 4.283237,
+      "output_sha256": "0bdedf6ec7d7ff6df36422091deee7f549861b779adca6a1ae642707c02831cf"
+    },
+    {
+      "label": "rebuilt-sdist-venv",
+      "argv": [
+        "uv",
+        "venv",
+        "--python",
+        "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+        "/workspace/ORCH04-environments/installed-rebuilt-sdist"
+      ],
+      "cwd": "/workspace/ORCH04-C13/policy-engine",
+      "pid": 6370,
+      "started_utc": "2026-10-08T15:52:38.075363+00:00",
+      "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "extra_env": {},
+      "output": "/workspace/ORCH04-evidence/c13/installed/rebuilt-sdist-venv.log",
+      "exit_code": 0,
+      "wall_seconds": 0.08852836599999137,
+      "max_rss_kib": 40232,
+      "user_cpu_seconds": 0.057239,
+      "system_cpu_seconds": 0.029019999999999997,
+      "output_sha256": "62996b9336958c366c9b9e62604369784da5df6e47170365303c7751217f847b"
+    },
+    {
+      "label": "rebuilt-sdist-install",
+      "argv": [
+        "uv",
+        "pip",
+        "install",
+        "--python",
+        "/workspace/ORCH04-environments/installed-rebuilt-sdist/bin/python",
+        "--no-deps",
+        "/workspace/ORCH04-evidence/c13/installed/rebuilt-wheel/policy_engine-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "/workspace/ORCH04-C13/policy-engine",
+      "pid": 6373,
+      "started_utc": "2026-10-08T15:52:38.166357+00:00",
+      "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "extra_env": {},
+      "output": "/workspace/ORCH04-evidence/c13/installed/rebuilt-sdist-install.log",
+      "exit_code": 0,
+      "wall_seconds": 0.34485933399992064,
+      "max_rss_kib": 40232,
+      "user_cpu_seconds": 0.312865,
+      "system_cpu_seconds": 0.40519299999999997,
+      "output_sha256": "be7f0324ef69d30356f3f57c0da4caf1d07e970838583156bf58fccb93261032"
+    },
+    {
+      "label": "rebuilt-sdist-consumer",
+      "argv": [
+        "/workspace/ORCH04-environments/installed-rebuilt-sdist/bin/python",
+        "-I",
+        "/workspace/ORCH04-evidence/c13/installed/launch_installed.py",
+        "/workspace/ORCH04-evidence/c13/installed",
+        "rebuilt-sdist",
+        "/workspace/ORCH04-environments/installed-check-carriers"
+      ],
+      "cwd": "/workspace/ORCH04-environments/installed-check-carriers",
+      "pid": 6385,
+      "started_utc": "2026-10-08T15:52:38.512485+00:00",
+      "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "extra_env": {
+        "E02_DOWHY_FIXTURE_PATH": "/workspace/ORCH04-environments/installed-check-carriers/test_dowhy_worker.py",
+        "E02_GCM_FIXTURE_PATH": "/workspace/ORCH04-environments/installed-check-carriers/test_gcm_backend_contract.py",
+        "E02_PROFILE_EXPECTED_JSON": "/workspace/ORCH04-evidence/c13/installed/profile-expected.json",
+        "E02_TEST_DOWHY_WORKER_PYTHON": "/workspace/ORCH04-environments/worker/bin/python"
+      },
+      "output": "/workspace/ORCH04-evidence/c13/installed/rebuilt-sdist-consumer.log",
+      "exit_code": 0,
+      "wall_seconds": 57.76924631099996,
+      "max_rss_kib": 702200,
+      "user_cpu_seconds": 55.025088,
+      "system_cpu_seconds": 7.365041,
+      "output_sha256": "129a214ea164d8baf7cd6050b9161d7dfa172e11a2c5019a2a90e10e772ae58c"
+    }
+  ],
+  "oversized_member_inventory": {
+    "local_path": "/workspace/ORCH04-evidence/c13/installed/artifacts.json",
+    "sha256": "deddfe1a60a1409faac9b2dfd32e7dc4f1b1e88dad96e67ece5548df443dc5f4",
+    "bytes": 895643,
+    "custody": "Preserved local ordinary-export evidence; duplicate derived wheel member views omitted from current tracked receipt."
+  }
+}

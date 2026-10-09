@@ -1,0 +1,21 @@
+(node:4341) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+> @polisyos/runtime-dashboard@0.1.0 test:contracts /workspace/ORCH04-C13/policy-engine/apps/runtime-dashboard
+> vitest run src/test/contracts/contractFixtures.test.ts
+
+(node:4446) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4446) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ RUN  v4.1.5 /workspace/ORCH04-C13/policy-engine/apps/runtime-dashboard
+
+(node:4579) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  15:49:24
+   Duration  7.64s (transform 838ms, setup 2.27s, import 85ms, tests 177ms, environment 4.31s)
+

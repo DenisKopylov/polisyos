@@ -1,0 +1,53 @@
+{
+  "scope": "planning/documentation QA only; not runtime gate acceptance",
+  "runs": [
+    {
+      "control": "unrouted-original-finding",
+      "actual_validator": "validate_pack.py live main; json input mutated in memory, canonical files unchanged",
+      "outcome": "expected refusal",
+      "reason": "missing routes: ['B01']"
+    },
+    {
+      "control": "dependency-cycle",
+      "actual_validator": "validate_pack.py live main; json input mutated in memory, canonical files unchanged",
+      "outcome": "expected refusal",
+      "reason": "dependency cycle through BOOT0"
+    },
+    {
+      "check": "ruff-check",
+      "argv": [
+        "policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "policy-engine/ruff.toml",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/validate_pack.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "check": "ruff-format-check",
+      "argv": [
+        "policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--config",
+        "policy-engine/ruff.toml",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/validate_pack.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "check": "pack-validator",
+      "argv": [
+        "python3",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/validate_pack.py"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "relative_markdown_links": "PASS"
+}

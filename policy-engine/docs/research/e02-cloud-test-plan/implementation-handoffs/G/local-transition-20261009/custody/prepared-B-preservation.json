@@ -1,0 +1,18 @@
+[
+  {
+    "commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+    "tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+    "protected_local_ref": "refs/e02-g/local-transition-20261009/prepared-B-1e18a965",
+    "current_exact_origin_fetch_exit": 0,
+    "object_local": "available and preserved; not code acceptance",
+    "remote_topic": "PR55 remains 53b14a6e; this is not its published tip"
+  },
+  {
+    "commit": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+    "tree": "677257974c442ba878a6bf4dba6686ae854b2e67",
+    "protected_local_ref": "refs/e02-g/local-transition-20261009/prepared-B-a0ee451f",
+    "current_exact_origin_fetch_exit": 0,
+    "object_local": "available and preserved; not code acceptance",
+    "remote_topic": "PR55 remains 53b14a6e; this is not its published tip"
+  }
+]

@@ -1,0 +1,13 @@
+........................................................................ [ 66%]
+..........................ssss..s.ss                                     [100%]
+=============================== warnings summary ===============================
+tests/unit/scientist/search/strategies/test_bayesian.py::test_whole_and_warm_split_use_the_same_actual_cold_sobol_plan[True]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/checks/COMPOSED/candidate/policy-engine/src/polisyos/scientist/methods/search/strategies/space.py:227: UserWarning: The balance properties of Sobol' points require n to be a power of 2.
+    samples = qmc.random(n=n_samples).tolist()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [4] tests/unit/scientist/search/strategies/test_bayesian.py:198: BoTorch stack not installed
+SKIPPED [1] tests/unit/scientist/search/strategies/test_bayesian.py:390: BoTorch stack not installed
+SKIPPED [1] tests/unit/scientist/search/strategies/test_bayesian.py:663: BoTorch stack not installed
+SKIPPED [1] tests/unit/scientist/search/strategies/test_bayesian.py:569: BoTorch stack not installed

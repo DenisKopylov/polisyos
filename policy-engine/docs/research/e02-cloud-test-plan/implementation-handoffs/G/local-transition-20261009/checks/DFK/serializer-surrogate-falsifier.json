@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-c",
+    "import sys; import tools.quality.validation.schema_fqn_census as m; m.collect_census=lambda root: ({'selection': {'selected_paths': ['bad_\\udcff.json']}}, 0); raise SystemExit(m.main(['--repo-root', '.']))"
+  ],
+  "candidate": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/test-candidates/DFK",
+  "error": "'utf-8' codec can't decode byte 0xff in position 39: invalid start byte",
+  "error_type": "UnicodeDecodeError",
+  "exit_code": 0,
+  "json_parse": "FAIL",
+  "stderr_hex": "",
+  "stdout_hex": "7b2273656c656374696f6e223a207b2273656c65637465645f7061746873223a205b226261645fff2e6a736f6e225d7d7d0a",
+  "stdout_sha256": "23675276fffdec109894d4b8cb0fda85a2f1ed461af1cef30dfce8da698ea1fb",
+  "stdout_size": 50
+}

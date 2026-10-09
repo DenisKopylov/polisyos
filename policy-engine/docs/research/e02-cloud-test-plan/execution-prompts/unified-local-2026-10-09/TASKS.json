@@ -1,0 +1,678 @@
+{
+  "schema": "policyos.e02.unified_local_execution_tasks.v1",
+  "base_source": "78be3aff64185e2de24abe710523e14491e36ba6",
+  "original_denominator": {
+    "bundles": 127,
+    "findings": 282,
+    "criterion_occurrences": 291
+  },
+  "tasks": {
+    "S3": {
+      "title": "B31 producer-owned persisted subject join",
+      "depends": [
+        "BOOT0",
+        "S1"
+      ],
+      "original_exit": "exact identification/nativeuncertainty refs bound to recomputed resolvedsubject/unit; freshAconsumer retains4point and1to10interval; fake/mismatch/unresolvedremoval refuses; no contract-only authority",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/S3",
+      "finding_ids": [
+        "B31"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "exact identification/nativeuncertainty refs bound to recomputed resolvedsubject/unit; freshAconsumer retains4point and1to10interval; fake/mismatch/unresolvedremoval refuses; no contract-only authority",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "V6": {
+      "title": "CYC02->RES03 persisted independent simulation survives sibling failure",
+      "depends": [
+        "BOOT0",
+        "Q1",
+        "R1"
+      ],
+      "original_exit": "actual producer then laterindependentfailure; successfulCAS/history/debugservedreader retains typedpartial/exacterror; corruptrefrefuses",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/V6",
+      "finding_ids": [
+        "B13"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "Select canonical simulation DTO/intake/replay reader; native successful simulation survives separate later failure; freshparsedGET/browser.",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "V7": {
+      "title": "EMP01->FRC02 compatible method-specific empirical producer",
+      "depends": [
+        "BOOT0",
+        "S1"
+      ],
+      "original_exit": "measured counts->persistedevidence->freshS10/defaultHTTP; sameCI differentactualoutcomes changesgrade; predictiveonly notcausal",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/V7",
+      "finding_ids": [
+        "B16",
+        "B32",
+        "LA-051"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "measured counts->persistedevidence->freshS10/defaultHTTP; sameCI differentactualoutcomes changesgrade; predictiveonly notcausal",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "Q0": {
+      "title": "Original criterion evaluation and closure proposals for G",
+      "depends": [
+        "BOOT0"
+      ],
+      "original_exit": "exact original occurrence vs candidate-bound property/consumer/negative; no stronger invented scope; G decision separate from source merge",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/Q0",
+      "finding_ids": [
+        "B06",
+        "B11",
+        "B18",
+        "B23",
+        "B25",
+        "B26",
+        "LA-045",
+        "B14",
+        "B24",
+        "B37",
+        "B38",
+        "B39",
+        "B40",
+        "B42",
+        "B43",
+        "B44",
+        "B45",
+        "B46",
+        "B47",
+        "B48",
+        "B49",
+        "B50",
+        "B51",
+        "B52",
+        "B53",
+        "B55",
+        "B57",
+        "LA-057",
+        "B58",
+        "B60",
+        "B62",
+        "B63",
+        "B64",
+        "B65",
+        "B69",
+        "B70",
+        "B71",
+        "B72",
+        "B73",
+        "B75",
+        "B76",
+        "B77",
+        "B78",
+        "B90",
+        "B91",
+        "B92",
+        "B93",
+        "B94",
+        "B95",
+        "B96",
+        "B149",
+        "B150",
+        "B151",
+        "B152",
+        "B153",
+        "B155",
+        "LA-008",
+        "LA-009",
+        "LA-010",
+        "LA-011",
+        "LA-012",
+        "LA-013",
+        "B17",
+        "LA-022",
+        "LA-029",
+        "LA-030",
+        "LA-031",
+        "LA-034",
+        "LA-038",
+        "LA-039",
+        "LA-043",
+        "LA-044",
+        "LA-047",
+        "LA-048",
+        "LA-049",
+        "B81",
+        "B82",
+        "B84",
+        "B85",
+        "B86",
+        "B88",
+        "B138",
+        "B139",
+        "B140",
+        "B141",
+        "B142",
+        "B143",
+        "B144",
+        "B145",
+        "B146",
+        "B147",
+        "LA-014",
+        "LA-015",
+        "B41",
+        "B106",
+        "B107",
+        "B109",
+        "B110",
+        "B111",
+        "B112",
+        "B113",
+        "B114",
+        "B115",
+        "B116",
+        "B117",
+        "B118",
+        "B119",
+        "B120",
+        "B121",
+        "B122",
+        "B123",
+        "B124",
+        "B125",
+        "B126",
+        "B127",
+        "B128",
+        "B129",
+        "B130",
+        "B132",
+        "B133",
+        "B134",
+        "B135",
+        "B136",
+        "B156",
+        "B158",
+        "B159",
+        "B160",
+        "B162",
+        "B163",
+        "B165",
+        "LA-052",
+        "LA-056",
+        "B97",
+        "B98",
+        "B99",
+        "B100",
+        "B101",
+        "B102",
+        "B103",
+        "B104",
+        "B105",
+        "B166",
+        "B167",
+        "B168",
+        "B169",
+        "B170",
+        "B171",
+        "B174",
+        "B175",
+        "B176",
+        "B177",
+        "B178",
+        "B179",
+        "B180",
+        "B181",
+        "B182",
+        "B183",
+        "B184",
+        "B185",
+        "B186",
+        "B187",
+        "B188",
+        "B189",
+        "B191",
+        "B192",
+        "B193",
+        "B195",
+        "B196",
+        "B198",
+        "B199",
+        "B201",
+        "B202",
+        "B203",
+        "LA-001",
+        "LA-002",
+        "LA-003",
+        "LA-004",
+        "LA-007",
+        "LA-016",
+        "LA-017",
+        "LA-019",
+        "LA-020",
+        "LA-035",
+        "LA-037",
+        "B54",
+        "B204",
+        "B205",
+        "B206",
+        "B207",
+        "B208",
+        "B209",
+        "B210",
+        "B211",
+        "B212",
+        "B213",
+        "B215",
+        "B216",
+        "B217",
+        "B218",
+        "B219",
+        "B220",
+        "B221",
+        "B222",
+        "B223",
+        "B224",
+        "B225"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "Check the exact original occurrence against the candidate-bound whole property/consumer/negative; do not invent stronger scope. Author records proposals; G separately admits source and adjudicates findings. Include declared platform-specific UKOPS/Linux verification for LA-029 or a tested supported-profile availability reason; do not end at a generic crosswalk.",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "Q1": {
+      "title": "Select exact compatible source DAG/owner blobs",
+      "depends": [
+        "BOOT0"
+      ],
+      "original_exit": "explicit base/candidate/tree and parents plus per-path source/test/config/companion blob owner/input manifest; canonical choices; preserve history",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/Q1",
+      "finding_ids": [
+        "LA-021"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "Reconcile selected exact source DAG, code/test/config/companion paths and Core/IR typed write options and profile/content conformance. CAN/C10/C11/repaired DFK are already in the base; do not import whole old-base C05/C12/B branches. Investigate profileless history migration/legacy selector and Core/IR law ambiguity; present actual contract choices to G. LA-021 requires its original profile compatibility/legacy behavior outcome beyond source-DAG selection.",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "R1": {
+      "title": "Prepared B exact verification and source publication",
+      "depends": [
+        "BOOT0",
+        "Q1"
+      ],
+      "original_exit": "prepared defining baseline/13 named affected contours/matched removals; no carry from old0bf",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/R1",
+      "finding_ids": [
+        "LA-033",
+        "B13",
+        "B59",
+        "B61",
+        "B74",
+        "B148"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "Fetch exact available1e18/a0ee objects; reconcile bounded B delta+all13affectedcontours on current G; native/removal checks and normal own-topic publication. B61 and B148 retain criterion-specific outcomes and their genuinely missing inputs; a generic 13-contour run does not clear them.",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "I1": {
+      "title": "Effective profile/policy currentness basis",
+      "depends": [
+        "BOOT0"
+      ],
+      "original_exit": "same-ID mutation invalidates before reuse; unchanged positive and fresh checkpoint/benchmark",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/I1",
+      "finding_ids": [
+        "LA-041"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "Compose C05 14ownedpaths+4facades with13existingdifferent suppliers; retain G _resources and existing exports; freshcurrentness/cache/session/WVS consumers.",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "I2": {
+      "title": "DFK two-path census companion",
+      "depends": [
+        "BOOT0"
+      ],
+      "original_exit": "two staged/two unstaged/rename/clean real records",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/I2",
+      "finding_ids": [
+        "LA-005",
+        "LA-006",
+        "LA-026"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "DFK source already integrated with serializer fix. Finish original full-scope census/release/CLI companions and Linux real-byte case where supported; no retirement inference.",
+      "scope_status": "bounded mechanism integrated; original full-scope/release/verification work remains, do not redo unchanged implementation"
+    },
+    "S1": {
+      "title": "Subject/refinement/query-specific partial graph decisions",
+      "depends": [
+        "BOOT0"
+      ],
+      "original_exit": "three separate minimal decisions B31/B161/B214 with actual discriminators; reuse existing carriers/ID",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/S1",
+      "finding_ids": [
+        "B07",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B31",
+        "B33",
+        "B36",
+        "LA-023",
+        "LA-032",
+        "LA-036",
+        "B161",
+        "B172",
+        "B173",
+        "B214"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "Research distinct subject B31, refinement B161 and partial-graph B214 semantics against existing contracts and actual discriminators. Validate C09 fixed kind/media/schema and typed report basis; repair internal defects, retain persisted unsupported-query limits, and submit genuinely ambiguous choices to G. Record separate outcomes for all assigned IDs including LA-023/LA-032/LA-036; the three named decisions do not cover those by implication.",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "T1": {
+      "title": "Latest owner input/API and authority-plane inventory",
+      "depends": [
+        "BOOT0"
+      ],
+      "original_exit": "internal configured owner vs external facts; actual source/ref/issuer/verifier/consumer; no stale null-owner demand",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/T1",
+      "finding_ids": [
+        "B30",
+        "B67",
+        "B148",
+        "LA-027",
+        "LA-050",
+        "B108",
+        "LA-053"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "internal configured owner vs external facts; actual source/ref/issuer/verifier/consumer; no stale null-owner demand",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "R2": {
+      "title": "B pool/C stream physical cleanup and restart",
+      "depends": [
+        "BOOT0",
+        "Q1",
+        "R1"
+      ],
+      "original_exit": "actual handle/process closure + no premature reuse, cursor/window/CAS fresh consumer",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/R2",
+      "finding_ids": [
+        "B87",
+        "B89"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "actual handle/process closure + no premature reuse, cursor/window/CAS fresh consumer",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "R3": {
+      "title": "Configured monetary producer/ledger/A/D composition",
+      "depends": [
+        "BOOT0",
+        "Q1"
+      ],
+      "original_exit": "reported/estimated/reuse/unknown events and durable outcomes remain distinct; provider/cache/retry/reopen/cancel",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/R3",
+      "finding_ids": [
+        "B10",
+        "B66",
+        "B67",
+        "B68"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "Compose configured provider/observer/ledger/A/D events with reported/estimated/reuse/unknown outcomes; retain unknown cost. Execute retry/cancel/reopen/cache scopes and the available C08 controls on the exact selected composition.",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "R4": {
+      "title": "Existing Runtime competing-study/fold admission witness",
+      "depends": [
+        "BOOT0"
+      ],
+      "original_exit": "full workload within shared cap, no lost folds/deadlock; extend existing owner only if witness disproves coverage",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/R4",
+      "finding_ids": [
+        "B56"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "Execute a named configured competing-study/fold workload through the existing Runtime/C01 permit with a qualifying shared cap and roster; no lost folds/deadlock. A declared portable synthetic witness is valid for generic admission properties; identify any genuinely production-specific requirement separately.",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "I3": {
+      "title": "Source-confirmed progress and event identity",
+      "depends": [
+        "BOOT0",
+        "R2"
+      ],
+      "original_exit": "verified progress and durable24h replay; absent/ambiguous key typedunsupported",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/I3",
+      "finding_ids": [
+        "B79",
+        "B80",
+        "B83"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "verified progress and durable24h replay; absent/ambiguous key typedunsupported",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "I4": {
+      "title": "Catalog/Legal serving profile bridge",
+      "depends": [
+        "BOOT0",
+        "I1"
+      ],
+      "original_exit": "actual request->typedprofile/encodedquery->fresh reader; wrong/missing profile refuses",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/I4",
+      "finding_ids": [
+        "LA-033",
+        "LA-046",
+        "LA-028",
+        "LA-032",
+        "LA-040"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "Wire CatalogRunProfile and immutable Legal intent through existing request/caller/encoder/fresh reader; preserve refusal code and truthful text fallback.",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "V1": {
+      "title": "Ordinary authentic source-backed served generation",
+      "depends": [
+        "BOOT0",
+        "Q1"
+      ],
+      "original_exit": "POST->ownedcontext->N5->CAS->freshGET; synthetic configured witness remains bounded",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/V1",
+      "finding_ids": [
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B08",
+        "B10",
+        "B13",
+        "B74",
+        "B154"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "Launch exact local owned serving instance with observed root/profile/context; matching release or supported versioned replacement; realPOST/N5/CAS/freshGET.",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "V2": {
+      "title": "N4 meaningful-child producer and actual recursive reader",
+      "depends": [
+        "BOOT0",
+        "S1"
+      ],
+      "original_exit": "actual N4 two meaningful children->N6 frontier/history->freshGET/client; manual supplied graph not producer",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/V2",
+      "finding_ids": [
+        "B15",
+        "B29"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "Select actual N4 producer/qualified slots and per-childprofile/owner; distinct meaningful children, budget stop, retained frontier and parsed API.",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "V3": {
+      "title": "Source-driven same-candidate reissue and acquisition",
+      "depends": [
+        "BOOT0",
+        "S1"
+      ],
+      "original_exit": "admitted content change->samecandidateWMR/N5/history; ID/write-time-only control no reissue; REQ/ACQ separate",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/V3",
+      "finding_ids": [
+        "B09",
+        "B12",
+        "B27",
+        "B28",
+        "LA-046"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "admitted content change->samecandidateWMR/N5/history; ID/write-time-only control no reissue; REQ/ACQ separate",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "V4": {
+      "title": "Compatible forecast/empirical evidence adoption",
+      "depends": [
+        "BOOT0",
+        "S1"
+      ],
+      "original_exit": "CAS resolver recomputes->freshgrade/defaultHTTP; predictive coverage not causal calibration",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/V4",
+      "finding_ids": [
+        "B16",
+        "B32",
+        "LA-051"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "CAS resolver recomputes->freshgrade/defaultHTTP; predictive coverage not causal calibration",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "V5": {
+      "title": "Named configured Search/funnel consumer",
+      "depends": [
+        "BOOT0",
+        "Q1"
+      ],
+      "original_exit": "exactcontext/history/quantity/CAS path; selected GP/native/injected evidence separately graded",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/V5",
+      "finding_ids": [
+        "B108",
+        "B157"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "C11 boundedhistory source present; provision supported optionalprofile then join actual Search receiver/MethodJob/CAS withselectedBcontract; no fixture-onlyreceiver.",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "S2": {
+      "title": "Actual law/draw/calibration/relationship intake",
+      "depends": [
+        "BOOT0",
+        "S1"
+      ],
+      "original_exit": "attempted denominator/covariance/axis/subject identity consumed fresh; counterfeit metadata refuses",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/S2",
+      "finding_ids": [
+        "LA-036",
+        "B157",
+        "B190",
+        "B194",
+        "B197",
+        "B200"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "attempted denominator/covariance/axis/subject identity consumed fresh; counterfeit metadata refuses",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "T2": {
+      "title": "Protected positive and revalidation consumer",
+      "depends": [
+        "BOOT0",
+        "T1"
+      ],
+      "original_exit": "valid positive + fake/foreign/stale/revoked zero effects including commit-time check",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/T2",
+      "finding_ids": [
+        "B05",
+        "B08",
+        "B154",
+        "LA-018",
+        "LA-024",
+        "LA-025",
+        "B131",
+        "B137",
+        "B164",
+        "LA-054",
+        "LA-055"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "valid positive + fake/foreign/stale/revoked zero effects including commit-time check LA-018/LA-025/B131/B137/B164 each require original issuer/currentness/input boundary or verified unavailability; a positive fixture alone is insufficient.",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "Q2": {
+      "title": "Canonical generated and declared installed consumers",
+      "depends": [
+        "BOOT0",
+        "Q1"
+      ],
+      "original_exit": "frozen contracts->canonicalfamily->typedclient/defaultinstalled reader; declared supported profiles only",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/Q2",
+      "finding_ids": [
+        "B04",
+        "B11",
+        "B29",
+        "B30",
+        "LA-033",
+        "B34",
+        "B35",
+        "B36",
+        "LA-045",
+        "LA-005",
+        "LA-006",
+        "LA-021",
+        "LA-023",
+        "LA-026",
+        "LA-027",
+        "LA-042",
+        "LA-050",
+        "LA-053",
+        "B201",
+        "B202",
+        "B212"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "next_action": "After selecting upstream contracts, regenerate the canonical DTO/schema/client/artifact family; verify validators --check plus corrupt-field drift refusal, normal parsed served readers and exact installed wheel/rebuilt-sdist consumers. Reconcile required Core constructors/UI/i18n companions; do not classify prior FAIL as inherited without exact slice base evidence.",
+      "scope_status": "execution_remaining; inherited proposals are not closures"
+    },
+    "BOOT0": {
+      "title": "Exact local admission, saved work and recoverable source intake",
+      "depends": [],
+      "finding_ids": [],
+      "next_action": "Read current G+INPUTS; matching candidate lane or one admitted isolation; preserve oldroots/dirtywork; check preparedB and missingORCH03 once; resume canonical work without waitingfailedVM.",
+      "exit": "attached ownbranch, exactbase/supplier identity, one writer perpath and visible runnablequeue"
+    },
+    "DX0": {
+      "title": "Native DevX, source formatting, archive/package and generated-input discipline",
+      "depends": [
+        "BOOT0"
+      ],
+      "finding_ids": [],
+      "next_action": "Repair canonical Ruff root convention; actual native SOTA row-by-row; fix scopedformatdebt; package all11declaredforce-includes throughGCP/archive/wheel. Preserveproduction exclusions. No baseline/exception/clock suppression.",
+      "exit": "full deciding commands on exactsource, honest remainingissuer decisions, source-to-installedassets bytes/origins; commoncontextdoesnotblockindependentwork"
+    },
+    "DEC0": {
+      "title": "Source-backed architecture/contract decisions for G",
+      "depends": [
+        "BOOT0"
+      ],
+      "finding_ids": [],
+      "next_action": "Investigate all remaining internal ambiguities beforedeferral; alternatives reuse/extend/consolidate/build; impacts/falsifier/prototype/recommendednarrowoption. G votes; no invented external rights/law/sourceauthority.",
+      "exit": "each decision has executable alternatives and exact affectedproperties; independent taskscontinuewhileGreviews"
+    }
+  },
+  "writer_policy": "Root publishes only its own candidate topics; G separately reviews/integrates/adjudicates. Onelevel directsubagents, onecanonicalwriter perpath/companions.",
+  "all282routes_present": true,
+  "formal_closure_ids": [],
+  "selection_rule": "Dependencies gate exit properties, not read-only research or preparation; overlapping producer/consumer families share one canonical writer.",
+  "execution_requested": true,
+  "per_finding_completion_rule": "A task exit never closes its findings. For every assigned ID and every canonical criterion occurrence, record actual property outcome, exact evidence and limitation or a verified external-input/G-decision reason with completed attempts and next runnable action. Generic task PASS or source selection cannot substitute for an individual criterion result. Preserve shared routes without double-counting closure."
+}

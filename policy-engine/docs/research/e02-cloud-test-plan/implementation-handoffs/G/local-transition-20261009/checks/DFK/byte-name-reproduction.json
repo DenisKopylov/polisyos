@@ -1,0 +1,8 @@
+{
+  "candidate": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/test-candidates/DFK",
+  "errno": 92,
+  "error": "OSError(92, 'Illegal byte sequence')",
+  "filesystem_create": "UNAVAILABLE",
+  "fixture": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/checks/DFK/byte-name-fixture",
+  "raw_filename_hex": "6261645fff2e6a736f6e"
+}

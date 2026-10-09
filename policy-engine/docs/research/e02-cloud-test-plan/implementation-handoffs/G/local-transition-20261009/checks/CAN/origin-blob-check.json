@@ -1,0 +1,9 @@
+{
+  "candidate_module_files_checked": 390,
+  "commit": "2762cec321d0cc78874abb986736dab54e2fb189",
+  "imported_module_count": 390,
+  "mismatches": [],
+  "outside_candidate_imports": 0,
+  "result": "PASS",
+  "slice": "CAN"
+}

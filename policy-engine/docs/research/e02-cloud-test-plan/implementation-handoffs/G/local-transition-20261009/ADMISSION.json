@@ -1,0 +1,364 @@
+{
+  "schema": "policyos.e02.G_local_transition_admission.v1",
+  "entry_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+  "development_source": {
+    "sha": "78be3aff64185e2de24abe710523e14491e36ba6",
+    "tree": "7dc9df15aebbdac1e2ba6ba894fff4c31b84b59c",
+    "scope": "bounded composition for continued local development; no general release/production freeze"
+  },
+  "accepted_bounded_code": [
+    {
+      "unit": "C06-CAN",
+      "source": "2762cec321d0cc78874abb986736dab54e2fb189",
+      "carrier": "328d91dfee230aeb67ad1168e83b2ece8183d725",
+      "merge": "b776bcb7049dacb45daeafc0dba40e88bc25f331",
+      "tree": "e5b06a66f54240f0bf0af1c112f77bb9b3928532",
+      "scope": "local development base; strict presented-profile IR read only, not full Core/IR conformance, history rollout or producer attestation",
+      "fresh_exact_checks": "50PASS native CAS/consumer; 390loadedmodules byteexact",
+      "limitations": [
+        "profile-less historical artifacts refuse; migration/rollout not accepted",
+        "raw-sidecar materialization, emitter conformance and Core/IR profile identity remain decisions",
+        "Core Mapping options warning/authority loss companion queued",
+        "installed wheel/rebuilt-sdist UNRUN on exact source; architecture FAIL/P41 not_established"
+      ],
+      "formal_closure_ids": []
+    },
+    {
+      "unit": "C10",
+      "source": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+      "carrier": "8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+      "merge": "5e1c5cb38c29cd6eddddb9c947737fe16045d3a0",
+      "tree": "c99b71d2bac1127a84124aa0137a2d05a16f217b",
+      "parent_G": "b776bcb7049dacb45daeafc0dba40e88bc25f331",
+      "changed_files": 372,
+      "all_incoming_byte_readback": "PASS",
+      "scope": "candidate-only internal recursion/owner-bound CAS/context and conservative frontier; manual display only",
+      "fresh_exact_checks": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 1,
+        "time_seconds": 22.155
+      },
+      "limitations": [
+        "ordinary parsed HTTP/GET/browser and DTO/intake companions incomplete",
+        "actual N4/child source/profile/coupling, B36 transform and L6 currentness remain inputs",
+        "constructor/Core/i18n diagnostics FAIL; no complete final C10 suite PASS"
+      ],
+      "formal_closure_ids": []
+    },
+    {
+      "unit": "C11",
+      "source": "03698439abfb1cb59f763397a182d8e0e393d40d",
+      "carrier": "f425407e9f2228300905831d44bf179bb797e69d",
+      "merge": "79c7bdcc26fc515c6c9bb88cc2f5d6ca6eee793f",
+      "tree": "138a2b6f0a5434ea5b5a345efeb53f4ebb510b0c",
+      "parent_G": "5e1c5cb38c29cd6eddddb9c947737fe16045d3a0",
+      "changed_files": 483,
+      "all_incoming_byte_readback": "PASS",
+      "scope": "bounded persisted warm-start/history/refit and Phase5/refinement intake; no external authority claim",
+      "fresh_exact_checks": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 7,
+        "tests": 11,
+        "time_seconds": 0.059
+      },
+      "limitations": [
+        "local exact11cases =4PASS+7SKIP; BoTorch/GP cases UNRUN locally",
+        "source-qualified independent cloud11affected+GP7positive/1negative remain distinct",
+        "joined Search receiver/profile and extra E/F supplier registration UNRUN",
+        "B131/B137/B157/B161/B164 held; B108 law limited; raw L6 completion mapping not promotion authority"
+      ],
+      "formal_closure_ids": []
+    },
+    {
+      "unit": "C06-DFK",
+      "original_source": "3a0d5549606087c1d4e8d344ed474c0dfb4cbe5d",
+      "carrier": "6c565cd65899d91bda370416651555eee143e194",
+      "fixed_candidate": "78be3aff64185e2de24abe710523e14491e36ba6",
+      "tree": "7dc9df15aebbdac1e2ba6ba894fff4c31b84b59c",
+      "parent_G": "79c7bdcc26fc515c6c9bb88cc2f5d6ca6eee793f",
+      "original_source_accepted_as_is": false,
+      "scope": "bounded local Git-visible UTF8 text census, no retirement permission",
+      "fix": "ASCII JSON escaping preserves filesystem-decoded path; one boundary regression",
+      "review": "independent sourceHOLD + separate forwardfixGO",
+      "full_fresh_fixed_G_checks": "46 DFK PASS in exact composed78be 101PASS+7SKIP/108cases",
+      "limitations": [
+        "Linux actual invalid-byte filename Git end-to-end UNRUN: APFS errno92; real serializer boundary falsifier and fix verified",
+        "Unicode-scalar-only cross-language byte-path representation not established",
+        "installed/full/external census and public release companions not established",
+        "globalarchitecture FAIL,P41not_established"
+      ],
+      "formal_closure_ids": []
+    }
+  ],
+  "metadata_custody_merges": [
+    {
+      "unit": "L01",
+      "original_head": "25333d87e3e32795e2e89288d5f2bd70e8e756c9",
+      "merge": "b16aaa342ff11784e538c6029d4b15f43d227806",
+      "tree": "b4a3d1e10c6c2c220da97bd950fb776fdd9e7916",
+      "parent_G": "dee58973f7673299070b7c7374f419b0adb8175c",
+      "changed_files": 18,
+      "readback": "all changed bytes exact original",
+      "qualification": "metadata/proposal custody only; runtime/source/finding acceptance separate",
+      "hooks": "normal active hooks, no bypass",
+      "formal_closure_ids": []
+    },
+    {
+      "unit": "L02",
+      "original_head": "c3b171010a7ce30b12d1dbd497eb646b9147afa0",
+      "merge": "0dc365791adf362d2879e32a36ee1a8bb9a0efb1",
+      "tree": "669a46ad25dac6829018fda6d3f41c4e5b66d907",
+      "parent_G": "b16aaa342ff11784e538c6029d4b15f43d227806",
+      "changed_files": 35,
+      "readback": "all changed bytes exact original",
+      "qualification": "metadata/proposal custody only; runtime/source/finding acceptance separate",
+      "hooks": "normal active hooks, no bypass",
+      "formal_closure_ids": []
+    },
+    {
+      "unit": "ORCH02-coordinator",
+      "original_head": "d9a4b671c99bf6a5435fde4fc873092e03b451b0",
+      "merge": "6079e3c555c6798118ccc2b9eb6fa4cf2d68c4e0",
+      "tree": "a6fa47acdd16988077ca36842fbf134912135b58",
+      "parent_G": "0dc365791adf362d2879e32a36ee1a8bb9a0efb1",
+      "changed_files": 175,
+      "readback": "all changed bytes exact original",
+      "qualification": "metadata/proposal custody only; runtime/source/finding acceptance separate",
+      "hooks": "normal active hooks, no bypass",
+      "formal_closure_ids": []
+    },
+    {
+      "unit": "C05-G-proposal",
+      "original_head": "42987be62c48356211e1ce4397ca67cd45249997",
+      "merge": "7dc8a403dc6dd0cc5271fe612b0f093e1110f1f6",
+      "tree": "ca3637913534fc71ce803c4bf7977c1b75cdf0b3",
+      "parent_G": "6079e3c555c6798118ccc2b9eb6fa4cf2d68c4e0",
+      "changed_files": 31,
+      "readback": "all changed bytes exact original",
+      "qualification": "metadata/proposal custody only; runtime/source/finding acceptance separate",
+      "hooks": "normal active hooks, no bypass",
+      "formal_closure_ids": []
+    },
+    {
+      "unit": "C13",
+      "original_head": "1c8c3f3e068a2bd86dc88d4918621149aaf3179c",
+      "merge": "e92487c58d77481f05450085e2b78f6e2478b512",
+      "tree": "b9daf5c80b90e2088b285a6575efb186b04d01c3",
+      "parent_G": "7dc8a403dc6dd0cc5271fe612b0f093e1110f1f6",
+      "changed_files": 69,
+      "readback": "all changed bytes exact original",
+      "qualification": "metadata/proposal custody only; runtime/source/finding acceptance separate",
+      "hooks": "normal active hooks, no bypass",
+      "formal_closure_ids": []
+    }
+  ],
+  "complete_merge_footprint_denominators": [
+    {
+      "unit": "C06-CAN",
+      "from_G_parent": "e92487c58d77481f05450085e2b78f6e2478b512",
+      "to_merge": "b776bcb7049dacb45daeafc0dba40e88bc25f331",
+      "git_diff_paths_count": 85,
+      "outside_research_receipts_count": 4,
+      "recompute_argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "e92487c58d77481f05450085e2b78f6e2478b512",
+        "b776bcb7049dacb45daeafc0dba40e88bc25f331"
+      ],
+      "complete_footprint_identity": "immutable Git diff; no tracked source/inventory copies"
+    },
+    {
+      "unit": "C10",
+      "from_G_parent": "b776bcb7049dacb45daeafc0dba40e88bc25f331",
+      "to_merge": "5e1c5cb38c29cd6eddddb9c947737fe16045d3a0",
+      "git_diff_paths_count": 372,
+      "outside_research_receipts_count": 15,
+      "recompute_argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "b776bcb7049dacb45daeafc0dba40e88bc25f331",
+        "5e1c5cb38c29cd6eddddb9c947737fe16045d3a0"
+      ],
+      "complete_footprint_identity": "immutable Git diff; no tracked source/inventory copies"
+    },
+    {
+      "unit": "C11",
+      "from_G_parent": "5e1c5cb38c29cd6eddddb9c947737fe16045d3a0",
+      "to_merge": "79c7bdcc26fc515c6c9bb88cc2f5d6ca6eee793f",
+      "git_diff_paths_count": 483,
+      "outside_research_receipts_count": 21,
+      "recompute_argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "5e1c5cb38c29cd6eddddb9c947737fe16045d3a0",
+        "79c7bdcc26fc515c6c9bb88cc2f5d6ca6eee793f"
+      ],
+      "complete_footprint_identity": "immutable Git diff; no tracked source/inventory copies"
+    },
+    {
+      "unit": "C06-DFK",
+      "from_G_parent": "79c7bdcc26fc515c6c9bb88cc2f5d6ca6eee793f",
+      "to_merge": "78be3aff64185e2de24abe710523e14491e36ba6",
+      "git_diff_paths_count": 181,
+      "outside_research_receipts_count": 3,
+      "recompute_argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "79c7bdcc26fc515c6c9bb88cc2f5d6ca6eee793f",
+        "78be3aff64185e2de24abe710523e14491e36ba6"
+      ],
+      "complete_footprint_identity": "immutable Git diff; no tracked source/inventory copies"
+    }
+  ],
+  "fresh_test_runs": [
+    {
+      "unit": "CAN",
+      "candidate": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/test-candidates/CAN",
+      "elapsed_seconds": 4.166,
+      "exit_code": 0,
+      "results": {
+        "tests": 50,
+        "PASS": 50,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "run_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/checks/CAN/run.json",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/checks/CAN/junit.xml"
+    },
+    {
+      "unit": "C10",
+      "candidate": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/test-candidates/C10",
+      "elapsed_seconds": 25.814,
+      "exit_code": 0,
+      "results": {
+        "tests": 1,
+        "PASS": 1,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "run_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/checks/C10/run.json",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/checks/C10/junit.xml"
+    },
+    {
+      "unit": "C11",
+      "candidate": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/test-candidates/C11",
+      "elapsed_seconds": 9.063,
+      "exit_code": 0,
+      "results": {
+        "tests": 11,
+        "PASS": 4,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 7
+      },
+      "run_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/checks/C11/run.json",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/checks/C11/junit.xml"
+    },
+    {
+      "unit": "DFK",
+      "candidate": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/test-candidates/DFK",
+      "elapsed_seconds": 42.189,
+      "exit_code": 0,
+      "results": {
+        "tests": 45,
+        "PASS": 45,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "run_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/checks/DFK/run.json",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/checks/DFK/junit.xml"
+    },
+    {
+      "unit": "DFK-fix",
+      "candidate": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/test-candidates/DFK",
+      "elapsed_seconds": 0.82,
+      "exit_code": 0,
+      "results": {
+        "tests": 1,
+        "PASS": 1,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "run_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/checks/DFK-fix/run.json",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/checks/DFK-fix/junit.xml"
+    },
+    {
+      "unit": "DFK-fix-regression",
+      "candidate": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/test-candidates/DFK",
+      "elapsed_seconds": 4.301,
+      "exit_code": 0,
+      "results": {
+        "tests": 3,
+        "PASS": 3,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "run_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/checks/DFK-fix-regression/run.json",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/checks/DFK-fix-regression/junit.xml"
+    },
+    {
+      "unit": "COMPOSED",
+      "candidate": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/checks/COMPOSED/candidate",
+      "elapsed_seconds": 69.699,
+      "exit_code": 0,
+      "results": {
+        "tests": 108,
+        "PASS": 101,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 7
+      },
+      "run_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/checks/COMPOSED/run.json",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/checks/COMPOSED/junit.xml"
+    }
+  ],
+  "single_composed_run": "COMPOSED is one pytest invocation; counts overlap earlier exact runs and are not additive",
+  "import_provenance": {
+    "all_imports": 1523,
+    "candidate_imports": 1523,
+    "commit": "78be3aff64185e2de24abe710523e14491e36ba6",
+    "mismatches": [],
+    "outside_candidate": 0,
+    "result": "PASS"
+  },
+  "quality": {
+    "changed_source_test_ruff_check": "PASS",
+    "DFK_changed_source_and_DFK01_format": "PASS",
+    "broader_scoped_format": "FAIL; bayesian.py,C10 consumer test,unchangedDFK02",
+    "P41_attribution": "not_established; immediate-parent supporting outputs are not complete slice-base plus zero-denominator-overlap evidence",
+    "global_architecture_typing_packaging": "historical/scoped FAIL remain; not replayed as overall gates here"
+  },
+  "unaccepted_source_work": [
+    "C05 currentG composition",
+    "C12 supplier/caller/profile composition",
+    "prepared B newsource verification",
+    "ORCH03 unreceived staged deltas; reconstruct newidentity if unavailable"
+  ],
+  "unreceived_bytes": [
+    "ORCH03r2 archive cloudlocal; GitHubdraftassets0",
+    "ORCH04workspace export and old4unpublishedrefs; fetchable newsource refs separately available"
+  ],
+  "future_root_permissions": "candidate author may cross oldmodule boundaries; G alone publishes integration and formally accepts/adjudicates",
+  "planning_packet": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/README.md",
+  "evidence_manifest": "EVIDENCE.json",
+  "large_runtime_receipts": {
+    "scope": "runtime import-origin inventories only; source module bytes not copied",
+    "local_ignored_path": "policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/checks",
+    "rule": "complete deciding outputs retained here; full import paths retained ignored onhost, digest checks/verification scripts retained"
+  },
+  "formal_closure_ids": [],
+  "historical_decisions": "unchanged; B198 historical closed retained",
+  "main_anchor_unchanged": "198076863e143dea9f89f02734b13d50dae3eed5"
+}

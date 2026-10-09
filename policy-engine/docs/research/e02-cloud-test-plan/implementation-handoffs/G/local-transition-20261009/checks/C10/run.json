@@ -1,0 +1,43 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-ra",
+    "-o",
+    "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/checks/C10/pytest-cache",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/checks/C10/pytest-tmp",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/checks/C10/junit.xml",
+    "-p",
+    "pytest_origin_plugin",
+    "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_non_simulation_leaf_requires_current_eval_safety_head"
+  ],
+  "candidate": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/test-candidates/C10",
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/test-candidates/C10/policy-engine",
+  "elapsed_seconds": 25.814,
+  "env_allowlist": {
+    "COVERAGE_FILE": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/checks/C10/.coverage",
+    "E02_CANDIDATE_ROOT": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/test-candidates/C10",
+    "E02_G_ROOT": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+    "E02_IMPORT_ORIGINS_OUT": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/checks/C10/import-origins.json",
+    "E02_RECEIPT_DIR": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/checks/C10",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHASHSEED": "0",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/checks:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/test-candidates/C10/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/test-candidates/C10/policy-engine",
+    "TMPDIR": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/checks/C10/tmp",
+    "USER": "deniskopylov",
+    "XDG_CACHE_HOME": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/checks/C10/xdg-cache"
+  },
+  "exit_code": 0,
+  "finished_utc": "2026-10-09T06:35:25.015041+00:00",
+  "junit_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/checks/C10/junit.xml",
+  "origin_inventory_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/checks/C10/import-origins.json",
+  "python_version": "Python 3.14.3",
+  "receipt": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/checks/C10",
+  "started_utc": "2026-10-09T06:34:59.200236+00:00",
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/checks/C10/stderr.txt",
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/local-transition-20261009/checks/C10/stdout.txt"
+}

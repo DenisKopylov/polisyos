@@ -1,0 +1,2 @@
+Would reformat: src/polisyos/scientist/methods/search/strategies/bayesian.py
+1 file would be reformatted, 6 files already formatted

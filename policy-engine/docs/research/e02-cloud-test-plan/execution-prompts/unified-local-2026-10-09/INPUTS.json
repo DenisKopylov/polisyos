@@ -1,0 +1,142 @@
+{
+  "schema": "policyos.e02.unified_local_inputs.v1",
+  "client_date": "2026-10-09",
+  "development_source_base": {
+    "sha": "78be3aff64185e2de24abe710523e14491e36ba6",
+    "tree": "7dc9df15aebbdac1e2ba6ba894fff4c31b84b59c",
+    "branch": "codex/e02-integration",
+    "scope": "bounded working source composition; no broad/source-release freeze or formal closeout"
+  },
+  "main_anchor": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "pinned_remote_heads": [
+    {
+      "remote_ref": "origin/codex/e02-C-orch02-c05-r2-gproposal",
+      "head": "42987be62c48356211e1ce4397ca67cd45249997",
+      "protected_ref": "refs/e02-g/local-transition-20261009/C-orch02-c05-r2-gproposal",
+      "tree": "ab1aa6a9cfe98d4a613fe04f83cc4bd56124c628"
+    },
+    {
+      "remote_ref": "origin/codex/e02-C-orch02-c05-recovery",
+      "head": "eee090e345d1121d3d53cdd93a7ab32f818d5ef7",
+      "protected_ref": "refs/e02-g/local-transition-20261009/C-orch02-c05-recovery",
+      "tree": "4a9af5064f47b795bfb5d00533b19f2e39bcb1c9"
+    },
+    {
+      "remote_ref": "origin/codex/e02-C-orch02-c06-can-r2-g-compatible",
+      "head": "328d91dfee230aeb67ad1168e83b2ece8183d725",
+      "protected_ref": "refs/e02-g/local-transition-20261009/C-orch02-c06-can-r2-g-compatible",
+      "tree": "f499af13ffb094745d0f58a9013b768a953c2390"
+    },
+    {
+      "remote_ref": "origin/codex/e02-C-orch02-c12-recovery",
+      "head": "fcf164eb1c5bb54786462e67ba2537313b33b90d",
+      "protected_ref": "refs/e02-g/local-transition-20261009/C-orch02-c12-recovery",
+      "tree": "e0ad136df2f004bc87cdb596c3955a88913b3ff1"
+    },
+    {
+      "remote_ref": "origin/codex/e02-C-orch02-r2-c06-dfk-g",
+      "head": "6c565cd65899d91bda370416651555eee143e194",
+      "protected_ref": "refs/e02-g/local-transition-20261009/C-orch02-r2-c06-dfk-g",
+      "tree": "c2740b7eb4e0b49cf30fec1582545bea54593a79"
+    },
+    {
+      "remote_ref": "origin/codex/e02-C-orch02-recovery-coordination",
+      "head": "d9a4b671c99bf6a5435fde4fc873092e03b451b0",
+      "protected_ref": "refs/e02-g/local-transition-20261009/C-orch02-recovery-coordination",
+      "tree": "48ded41b6b62bb0000627b30ba78441844c0a58a"
+    },
+    {
+      "remote_ref": "origin/codex/e02-C11-recovery-20261008",
+      "head": "f425407e9f2228300905831d44bf179bb797e69d",
+      "protected_ref": "refs/e02-g/local-transition-20261009/C11-recovery-20261008",
+      "tree": "85c1e39a351cde922f3af3c5a220eab6cad84e72"
+    },
+    {
+      "remote_ref": "origin/codex/e02-L01-custody-20261008",
+      "head": "25333d87e3e32795e2e89288d5f2bd70e8e756c9",
+      "protected_ref": "refs/e02-g/local-transition-20261009/L01-custody-20261008",
+      "tree": "760dcf9b09373e36308db5b2a5da7d24aa30489d"
+    },
+    {
+      "remote_ref": "origin/codex/e02-L02-authentic-20261008",
+      "head": "c3b171010a7ce30b12d1dbd497eb646b9147afa0",
+      "protected_ref": "refs/e02-g/local-transition-20261009/L02-authentic-20261008",
+      "tree": "762d1b52e7dd3be6be0ddfdd58cbd2b8c507b392"
+    },
+    {
+      "remote_ref": "origin/codex/e02-ORCH04-recovery-20261008",
+      "head": "91f458f37c67fb3620b0107735535629a8b60ede",
+      "protected_ref": "refs/e02-g/local-transition-20261009/ORCH04-recovery-20261008",
+      "tree": "0eb25a86f537d1fbcc62eb108e3b211aa6974de4"
+    },
+    {
+      "remote_ref": "origin/codex/e02-C10-recovery-20261008",
+      "head": "8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e",
+      "protected_ref": "refs/e02-g/local-transition-20261009/C10-recovery-20261008",
+      "tree": "124dc6e5746716ade61e5d9d6d8633009db48315"
+    },
+    {
+      "remote_ref": "origin/codex/e02-C13-recovery-20261008",
+      "head": "1c8c3f3e068a2bd86dc88d4918621149aaf3179c",
+      "protected_ref": "refs/e02-g/local-transition-20261009/C13-recovery-20261008",
+      "tree": "010cec28d2884d626ba7e7ed5ef101fcbacc2ccf"
+    }
+  ],
+  "prepared_B": [
+    {
+      "commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+      "tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+      "protected_local_ref": "refs/e02-g/local-transition-20261009/prepared-B-1e18a965",
+      "current_exact_origin_fetch_exit": 0,
+      "object_local": "available and preserved; not code acceptance",
+      "remote_topic": "PR55 remains 53b14a6e; this is not its published tip"
+    },
+    {
+      "commit": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+      "tree": "677257974c442ba878a6bf4dba6686ae854b2e67",
+      "protected_local_ref": "refs/e02-g/local-transition-20261009/prepared-B-a0ee451f",
+      "current_exact_origin_fetch_exit": 0,
+      "object_local": "available and preserved; not code acceptance",
+      "remote_topic": "PR55 remains 53b14a6e; this is not its published tip"
+    }
+  ],
+  "original_graph": {
+    "tasks": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+    "findings": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+    "coverage": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json"
+  },
+  "local_custody": {
+    "ORCH03_r2": "Archive remains on cloud VM, draft assets0; no local bytes or remote newsource. Counts68/149 source-reported only. Reconstruct smallest necessary delta with new SHA if ordinary recovery remains unavailable.",
+    "ORCH04_export": "Git sources available;731.8MB workspace export and old4unpublishedrefs not locally delivered. Do not depend on that archive for already fetchable sources.",
+    "ORCH01": "VM unresponsive reported; exact newtask result not established. Historical C01-C04/R1-R4/Q1 scopes remain executable from canonical graph."
+  },
+  "source_selection_constraints": {
+    "C05": "13held supplier paths present/different; _resources.py G-only.14ownedGpatch+4facades are proposals; objects are available.",
+    "C12": "Select existing Legal generation/encoder/member APIs and request/serving companions before source adoption.",
+    "ORCH04_carrier": "Full coordinator carrier duplicates59 current-G documents. Unique source/evidence refs retained; do not import snapshot copies just to claim delivery."
+  },
+  "formal_closure_ids": [],
+  "supplier_source_commits": {
+    "C05-own": {
+      "commit": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+      "tree": "9633ae3e5fdbdcc6a6a76af3d7ef29bdaa12fd09",
+      "current_G_composition": "not accepted; mandatory supplier/consumer companions queued"
+    },
+    "C12-own": {
+      "commit": "a47ec396228d3a8be63cb6c2c5ad3a1f17ee20e7",
+      "tree": "2e40b42e506b5dbae790f809368c308631cdaac4",
+      "current_G_composition": "not accepted; mandatory supplier/consumer companions queued"
+    }
+  },
+  "metadata_intake_refs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/ADMISSION.json",
+  "private_local_custody_roots": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-l01-custody-20261008/polisyos",
+      "purpose": "existing ignored custody identities/locators only; production read-only; verify availability before use"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+      "purpose": "source-qualified authentic inputs/locators; do not infer production currentness"
+    }
+  ]
+}

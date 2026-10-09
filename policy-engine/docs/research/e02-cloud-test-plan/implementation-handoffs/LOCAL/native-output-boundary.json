@@ -1,0 +1,162 @@
+{
+  "schema": "policyos.e02.local_slice_handoff.v1",
+  "slice_id": "native-output-boundary",
+  "slice_base": {
+    "commit": "a49909826cf87f164dae36c26b21fb5d188ca835",
+    "tree": "bdce171c3fa6a3fc7781b42ea2523af1c0c5f2ab"
+  },
+  "candidate_source": {
+    "commit": "d35f77a2991d82d9a2736640d69bb672f53e570b",
+    "tree": "28b3eddf02d253892197b59d775e13471fe8c13b"
+  },
+  "parents": [
+    "a49909826cf87f164dae36c26b21fb5d188ca835"
+  ],
+  "source_footprint": [
+    {
+      "path": "policy-engine/tools/devx/workspace/repository_sota_closeout.py",
+      "sha256": "99019d11fd73cedb9c749fb21ec006a551268cbefa1e445c75cce1c77776b06d",
+      "blob": "82da2d960f28f7f1ebcf1d672fbc5cf7e436bf56"
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/README.md",
+      "sha256": "a3b61dde26b1335261241b183a051a39fafea30b9ccccea5ec788d6779d93e9b",
+      "blob": "90cc8ddf5e82a5d3fc3bf2ed005d205c6fac3c78"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py",
+      "sha256": "4707af7381158a8e1f7f8910d3fcc34f67b6db9e4d31b736419d5cacdfb2f866",
+      "blob": "515b7cca4ddbcdef2f9eaa18a700848c99b0f0a5"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-09-repository-sota-child-output-receipts.toml",
+      "sha256": "1360bf16e7950e774ee03285fb18ab74b5f7b1dcc5f807e0efb038d577586fe6",
+      "blob": "0510f1c3de57bbaaeb9d284f0c339f00fae20970"
+    },
+    {
+      "path": "policy-engine/tests/unit/ddm/test_contract_compatibility.py",
+      "sha256": "e2931688daf033f9ed9b95e16a6e462bf87ce67908505c186312cdd5b2728813",
+      "blob": "c018a6638d0aefbbb8b56b6c87a0c3b9ca95f444"
+    }
+  ],
+  "selected_inputs": [
+    {
+      "profile": "controlled child streams with CRLF, invalid UTF-8, >5KB per stream and nonzero exit; DDM manual wire schema/model/defaulted payload and synthetic legacy-FQN pickle fixtures"
+    }
+  ],
+  "backend_profile": {
+    "python": "3.14.3",
+    "platform": "macOS arm64",
+    "numerical_threads": 1,
+    "lock_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+    "heavy_wave": "not_run"
+  },
+  "commands": [
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-receipt-boundary/tests.xml",
+        "tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py::test_phase5_child_gate_receipt_retains_complete_failure_output",
+        "tests/unit/ddm/test_contract_compatibility.py",
+        "tests/unit/ddm/test_contracts.py",
+        "tests/unit/ddm/test_public_api.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "status": "ERROR",
+      "exit_code": 4,
+      "wall_seconds": 0.7316511669778265,
+      "stdout_ref": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-receipt-boundary/stdout.txt",
+        "sha256": "a6fc53a5cef0fe8278c459c532a5e372bbe2dd65e4c365a7d7757a210299799f",
+        "availability": "Retained locally for independent G; raw outputs are ignored."
+      },
+      "stderr_ref": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-receipt-boundary/stderr.txt",
+        "sha256": "3d8151fa4b762586b1c8d07c1e9df626121ee0c997a5a47b7f37ad14fbde14f7",
+        "availability": "Retained locally for independent G; raw outputs are ignored."
+      },
+      "deciding_output": "Collection error: guessed DDM path absent; no tests ran. Corrected against actual file inventory.",
+      "source_qualification": "Exact target bytes read back from implementation commit. Scoped intermediate proof; source composition remains unfrozen."
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-receipt-boundary/attempt-2/tests.xml",
+        "tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py::test_phase5_child_gate_receipt_retains_complete_failure_output",
+        "tests/unit/ddm/test_contract_compatibility.py",
+        "tests/unit/ddm/test_readiness_mapping.py",
+        "tests/unit/ddm/test_facade.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "status": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 1.8176527500036173,
+      "stdout_ref": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-receipt-boundary/attempt-2/stdout.txt",
+        "sha256": "7cf99e256a711000c5c403798059e3def94d35e88d5e3272c219c3ae58ab4f2c",
+        "availability": "Retained locally for independent G; raw outputs are ignored."
+      },
+      "stderr_ref": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-receipt-boundary/attempt-2/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "Retained locally for independent G; raw outputs are ignored."
+      },
+      "deciding_output": "24 passed in 0.86s",
+      "source_qualification": "Exact target bytes read back from implementation commit. Scoped intermediate proof; source composition remains unfrozen."
+    },
+    {
+      "command": "uv run polisyos-tools workspace repository-sota-closeout --subprocess-receipt-dir <frozen-wave-output>",
+      "status": "UNRUN",
+      "unrun_reason": "Await complete source/input/backend freeze and independent blocking fixes; scoped output-retention proof is not native SOTA execution."
+    }
+  ],
+  "chain": {
+    "native_output": "actual child process -> complete captured bytes -> atomically persisted streams + argv/cwd/exit/hash -> unchanged gate comparisons with readable decoded text",
+    "ddm": "missing required wire fields -> wire refusal / domain model defaults -> defaulted full dump accepted by manual schema"
+  },
+  "controls": [
+    {
+      "property": "CRLF and invalid UTF-8 remain byte-exact in both persisted streams; readable summaries and default text-mode behavior retained",
+      "path": "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py"
+    },
+    {
+      "id": "LA-056",
+      "property": "wire/domain defaults differ intentionally; full defaulted payload satisfies wire schema",
+      "path": "policy-engine/tests/unit/ddm/test_contract_compatibility.py"
+    }
+  ],
+  "consumer_surface": {
+    "native": "Repository SOTA child gate consumer + CLI opt-in stream receipts",
+    "ddm": "manual Draft2020-12 wire validator, canonical/legacy public DTO facades"
+  },
+  "limitations": [
+    "Intermediate scoped implementation boundary; final composed replay/native SOTA/Linux/installed/browser/authentic verification remain pending.",
+    "Synthetic pickle bytes prove current legacy-global lookup, not bytes from a historical release.",
+    "No automatic finding closure and no formal G acceptance."
+  ],
+  "decision_refs": [
+    "LOCAL/reviews/dx0-review-delta.md",
+    "LOCAL/reviews/e-original-criteria.md",
+    "LOCAL/dx0-native/sota-expiry-issuer-options.md"
+  ],
+  "proposal_ids": [
+    {
+      "id": "LA-056",
+      "proposal": "compatibility witness now pins wire/domain split; final original criterion evaluation and independent G acceptance pending"
+    }
+  ],
+  "formal_closure_ids": [],
+  "closure_ids": []
+}

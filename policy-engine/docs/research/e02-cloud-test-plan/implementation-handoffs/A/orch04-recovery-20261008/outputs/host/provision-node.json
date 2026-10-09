@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm",
+    "install",
+    "--frozen-lockfile"
+  ],
+  "cwd": "/workspace/ORCH04-C13/policy-engine",
+  "pid": 2284,
+  "started_utc": "2026-10-08T15:43:42.128782+00:00",
+  "UV_PROJECT_ENVIRONMENT": null,
+  "TMPDIR": "/workspace/ORCH04-environments/tmp",
+  "lock_sha256_before": {
+    "/workspace/ORCH04-C13/policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+    "/workspace/ORCH04-C13/policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+    "/workspace/ORCH04-C13/policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+    "/workspace/ORCH04-C13/policy-engine/workers/dowhy-014/pyproject.toml": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447",
+    "/workspace/ORCH04-C13/policy-engine/workers/dowhy-014/uv.lock": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a"
+  },
+  "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "exit_code": 0,
+  "wall_seconds": 40.55867577600003,
+  "ended_utc": "2026-10-08T15:44:22.687472+00:00",
+  "output": "/workspace/ORCH04-evidence/host/provision-node.log",
+  "lock_sha256_after": {
+    "/workspace/ORCH04-C13/policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+    "/workspace/ORCH04-C13/policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+    "/workspace/ORCH04-C13/policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+    "/workspace/ORCH04-C13/policy-engine/workers/dowhy-014/pyproject.toml": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447",
+    "/workspace/ORCH04-C13/policy-engine/workers/dowhy-014/uv.lock": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a"
+  }
+}

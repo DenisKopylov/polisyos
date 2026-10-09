@@ -1,0 +1,4 @@
+
+> @polisyos/runtime-dashboard@0.1.0 typecheck /workspace/ORCH04-C10/policy-engine/apps/runtime-dashboard
+> tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit && tsc -p tsconfig.tools.json --noEmit
+

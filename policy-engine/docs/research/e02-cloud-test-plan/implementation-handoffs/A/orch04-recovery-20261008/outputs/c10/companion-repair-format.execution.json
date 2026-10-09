@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "/workspace/ORCH04-environments/app/bin/python",
+    "-m",
+    "ruff",
+    "format",
+    "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py"
+  ],
+  "cwd": "/workspace/ORCH04-C10/policy-engine",
+  "started_utc": "2026-10-08T16:51:21.260712+00:00",
+  "python_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+  "profile_env": {
+    "PYTHONPATH": null,
+    "NODE_USE_ENV_PROXY": null,
+    "COREPACK_HOME": null,
+    "npm_config_store_dir": null
+  },
+  "pid": 20357,
+  "finished_utc": "2026-10-08T16:51:21.309523+00:00",
+  "elapsed_seconds": 0.04881362999913108,
+  "returncode": 0,
+  "outputs": {
+    ".stdout": {
+      "bytes": 19,
+      "sha256": "413a709001976657cb743636fd34e48fc41d8d302d665460d3f874b3313da127"
+    },
+    ".stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

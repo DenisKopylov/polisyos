@@ -1,0 +1,44 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_n4_candidate_child_producer_deduplicates_names_and_refuses_foreign_subject _
+
+    def test_n4_candidate_child_producer_deduplicates_names_and_refuses_foreign_subject():
+        from polisyos.runtime.quality.design_generation import (
+            DesignGenerationError,
+            derive_n4_candidate_child_problems,
+        )
+    
+        problem, result = _controlled_declared_n4_child_inputs()
+        # Keep the owner denominator valid while changing only the external name.
+        payload = result.model_dump(mode="python")
+        first = result.candidates[0]
+        alternate = first.model_copy(update={"candidate_id": "candidate_" + "f" * 16})
+        payload["candidates"] = [first.model_dump(mode="python"), alternate.model_dump(mode="python")]
+        dispositions = [
+            row for row in result.grounding_dispositions if row.candidate_id == first.candidate_id
+        ]
+        assert len(dispositions) == 1
+        payload["grounding_dispositions"] = [
+            (dispositions[0].model_copy(update={"candidate_id": alternate.candidate_id})
+             if row.candidate_id == result.candidates[1].candidate_id else row).model_dump(mode="python")
+            for row in result.grounding_dispositions
+        ]
+        duplicate = type(result).model_validate(payload)
+>       assert (
+            len(derive_n4_candidate_child_problems(problem, duplicate, model_id=result.model_id)) == 1
+        )
+E       AssertionError: assert 2 == 1
+E        +  where 2 = len((N4CandidateChildProblem(problem=DesignProblem(schema_version='policyos.runtime.design_problem.v2', design_problem_id=...33d6de1fba8d228383da9dc09f',), semantic_ref='sha256:75a3fdb347d0a0d1657e7dd7147f6d619e9bca4a08d5159b4a1fe13a9d027883')))
+E        +    where (N4CandidateChildProblem(problem=DesignProblem(schema_version='policyos.runtime.design_problem.v2', design_problem_id=...33d6de1fba8d228383da9dc09f',), semantic_ref='sha256:75a3fdb347d0a0d1657e7dd7147f6d619e9bca4a08d5159b4a1fe13a9d027883')) = <function derive_n4_candidate_child_problems at 0x7f4fcbb07d70>(DesignProblem(schema_version='policyos.runtime.design_problem.v2', design_problem_id='gy_n4_cgf_decisive_capture_1_202... artifact_ref=None)]), model_spec_ref=None, ir_problem_frame_ref=None, policy_request_frame_ref=None, runtime_hints={}), GenerationUnderAResult(schema_version='policyos.runtime.design_generation_under_a.v1', artifact_kind='runtime.quality....alidate_design_generation_strangle_receipts', 'tools.quality.validation.check_layer3_gy_design_generation_contract']})), model_id='moonshotai/Kimi-K2.6')
+E        +      where 'moonshotai/Kimi-K2.6' = GenerationUnderAResult(schema_version='policyos.runtime.design_generation_under_a.v1', artifact_kind='runtime.quality....alidate_design_generation_strangle_receipts', 'tools.quality.validation.check_layer3_gy_design_generation_contract']})).model_id
+
+../../../C10-03a7c5d5-source/policy-engine/tests/unit/runtime/quality/test_generation_cycle.py:10182: AssertionError
+=============================== warnings summary ===============================
+../../../../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_generation_cycle.py::test_n4_candidate_child_producer_deduplicates_names_and_refuses_foreign_subject

@@ -1045,11 +1045,13 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.control.nl_pipeline import (
         _DesignProblemGatewayClient,
     )
+    from polisyos.runtime.quality.design_generation import GenerationUnderAResult
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.epoch_certificate_issuance import DecisionPacketEpochIssuanceOwner
     from polisyos.runtime.quality.recursive_generation_cycle import (
         ExecutionIntent,
         RecursiveCycleBudget,
+        RecursiveLeafContextOwner,
     )
     from polisyos.scientist import BudgetState
 
@@ -2311,6 +2313,8 @@ class ControlPlaneService(
         ]
         | None = None,
         candidate_simulation_currentness_resolver: Callable[[], bool] | None = None,
+        n4_recursive_source: GenerationUnderAResult | None = None,
+        recursive_leaf_context_owner: RecursiveLeafContextOwner | None = None,
         root_evaluation_context: EvaluationExecutionContext | None = None,
     ) -> (
         CompiledRecursiveGenerationCycleRun
@@ -2339,6 +2343,8 @@ class ControlPlaneService(
             candidate_simulation_currentness_resolver=(
                 candidate_simulation_currentness_resolver
             ),
+            n4_recursive_source=n4_recursive_source,
+            recursive_leaf_context_owner=recursive_leaf_context_owner,
             root_evaluation_context=root_evaluation_context,
             eval_safety_verifier=self._evaluation_safety_admission_verifier,
             promotion_runtime=self._promotion_runtime,

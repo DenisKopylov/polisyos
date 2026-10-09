@@ -1,0 +1,45 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______ test_recursive_constructor_denominator_has_no_unwrapped_n9_call ________
+
+    def test_recursive_constructor_denominator_has_no_unwrapped_n9_call() -> None:
+        repo_root = Path(__file__).resolve().parents[4]
+>       git_paths, filesystem_paths = _production_python_paths(repo_root)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:2052: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:806: in _production_python_paths
+    {row for row in git_candidates if _source_role(row) == "production_capable"},
+                                      ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+relative_path = 'docs/superpowers/journals/gy-eight-gaps-evidence/j/probes/j_initial_receipt_reconcile.py'
+
+    def _source_role(relative_path: str) -> str:
+        first = relative_path.split("/", 1)[0]
+        if first == "tests":
+            return "test_only"
+        if first == "benchmarks":
+            return "benchmark_only"
+        if first == "examples":
+            return "example_only"
+        if relative_path.startswith("docs/research/"):
+            return "research_only"
+        if first in {"src", "tools", "apps", "ops", "architecture"}:
+            return "production_capable"
+        if relative_path in {"jax_bootstrap.py", "migrate.py"}:
+            return "production_capable"
+>       raise AssertionError(f"unclassified Python/stub path: {relative_path}")
+E       AssertionError: unclassified Python/stub path: docs/superpowers/journals/gy-eight-gaps-evidence/j/probes/j_initial_receipt_reconcile.py
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:734: AssertionError
+=============================== warnings summary ===============================
+../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_recursive_constructor_denominator_has_no_unwrapped_n9_call

@@ -1,0 +1,1436 @@
+{
+  "schema": "orch04.independent_native_receipt.v1",
+  "unit": "A",
+  "source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+  "tree": "46aab0ec802b239da47d4fab5ee1d7e1f616045a",
+  "parents": [
+    "b6c3201aca6f8a94f05479269e13cde2dd3e7119"
+  ],
+  "base": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "source_go": "nonauthor review_c10 after b6 full-parent falsifier repair; GO admits scoped testing only",
+  "scope": "bounded actual complete owned child context/currentness/CAS history/new reader, declared typed N4 semantic child producer and B36 consumer projection, generic recursive/compiled partial/full parent integrity, existing configured served consumers",
+  "status": "native51 wave44PASS/6FAIL/1explicit UNRUN skip; diagnostic hold, no blanket native/ordinary served/browser PASS",
+  "source_manifest": {
+    "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source-source-manifest.json",
+    "sha256": "c8d9f33138bd4504daa9bf81ecb0f15210d3b95f91a88ba2a35897b1b4ac9a56",
+    "bytes": 6935592
+  },
+  "writer_source_input_packet": {
+    "path": "/workspace/ORCH04-evidence/c10/source-input-manifest.json",
+    "sha256": "376340102de1876f7a50e8460e6e0c034dbb5d49433eb5678d0b44791376064e",
+    "bytes": 9403
+  },
+  "initial_final_wave": {
+    "execution": {
+      "directory": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-native-wave",
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_value_owner_projection_preserves_required_modality_and_other_hints",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_n4_candidate_child_producer_uses_declared_atom_semantics_and_complete_problem",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_n4_candidate_child_producer_deduplicates_names_and_refuses_foreign_subject",
+        "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+        "tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+        "tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+        "--junitxml=/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-junit.xml",
+        "--basetemp=/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-pytest-temp",
+        "-q"
+      ],
+      "pid": 19003,
+      "exit_code": 1,
+      "wall_seconds": 45.99046884500012,
+      "max_rss_kib": 1754908,
+      "source_delta_before": [],
+      "source_delta_after": [],
+      "files": [
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-native-wave/execution.json",
+          "sha256": "d16c034217fc668dc5d4c5033d3216ce07049a4ef152341c9af7f7677b421da9",
+          "bytes": 5674
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-native-wave/stdout.txt",
+          "sha256": "66dfb7e6d6ac12d1fc17b4844fd09625f70f8363280d7a0fd71658b1eb865f0f",
+          "bytes": 38149
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-native-wave/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-native-wave/environment-origins.stdout.txt",
+          "sha256": "30a2d65eeac568de859e6cf1d11848183929ea034ae262fccc969cd887eebe03",
+          "bytes": 11198
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-native-wave/environment-origins.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ]
+    },
+    "junit": {
+      "file": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-junit.xml",
+        "sha256": "8b9cf606e78219e40f047057498d77ea3d06cf8f868d950b56cf3d17df454f48",
+        "bytes": 47784
+      },
+      "cases": [
+        {
+          "classname": "tests.unit.runtime.quality.test_generation_cycle",
+          "name": "test_value_owner_projection_preserves_required_modality_and_other_hints[required0]",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_generation_cycle",
+          "name": "test_value_owner_projection_preserves_required_modality_and_other_hints[required1]",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_generation_cycle",
+          "name": "test_value_owner_projection_preserves_required_modality_and_other_hints[required2]",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_generation_cycle",
+          "name": "test_n4_candidate_child_producer_uses_declared_atom_semantics_and_complete_problem",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_generation_cycle",
+          "name": "test_n4_candidate_child_producer_deduplicates_names_and_refuses_foreign_subject",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_empty_eval_safety_map_is_rejected_before_n4_dispatch",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_production_recursive_owner_rejects_substrate_without_execution_intent",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_non_simulation_context_without_admission_is_not_candidate_fallback",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_protected_intent_cannot_route_through_context_free_custom_factory",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_implicit_contract_testing_candidate_rejects_subclassed_n9_dispatch[controller]",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_implicit_contract_testing_candidate_rejects_subclassed_n9_dispatch[promotion_port]",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_candidate_or_simulation_intent_preserves_context_free_n4_dispatch[candidate_only]",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_candidate_or_simulation_intent_preserves_context_free_n4_dispatch[simulate_only]",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_data_trust_modes_report_their_missing_owner_separately_from_eval_safety[retrospective]",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_data_trust_modes_report_their_missing_owner_separately_from_eval_safety[measurement_audit]",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[missing-sandbox_pilot]",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[missing-field_pilot]",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[missing-deployment]",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[extra-sandbox_pilot]",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[extra-field_pilot]",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[extra-deployment]",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[wrong_key-sandbox_pilot]",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[wrong_key-field_pilot]",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[wrong_key-deployment]",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_default_recursive_generation_factory_binds_subject_authority_and_gate",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_direct_recursive_controller_rejects_foreign_epoch_dependencies",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_production_recursive_owner_requires_explicit_eval_safety_context_mapping",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_non_simulation_leaf_requires_current_eval_safety_head",
+          "result": "FAIL"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_http_contextless_explicit_n4_refuses_before_n4",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_http_recursive_route_carries_one_cycle_context_without_manual_context",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_http_recursive_route_carries_one_context_to_n5_owner_block",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_http_recursive_route_without_owner_context_fails_closed_before_boundary_wmr",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_http_protected_explicit_n4_without_owner_context_fails_closed_before_boundary_wmr",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_recursive_leaf_preserves_history_and_current_problem_binding",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_recursive_constructor_denominator_has_no_unwrapped_n9_call",
+          "result": "FAIL"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_task_44_public_export_denominator_is_exact",
+          "result": "FAIL"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_implicit_contract_testing_candidate_rejects_instance_shadowed_n9_methods[run]",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_implicit_contract_testing_candidate_rejects_instance_shadowed_n9_methods[_promote_completed_generation]",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_implicit_contract_testing_candidate_rejects_instance_shadowed_n9_methods[deployment_identity_refusal]",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_implicit_contract_testing_candidate_completes_without_n9_authority",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_recursive_child_capsule_resolves_complete_owned_inputs_and_refuses_transplants",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.integration.runtime_quality.test_e02_recursive_budget_frontier",
+          "name": "test_budget_stopped_child_keeps_completed_child_and_pending_sibling",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.integration.runtime_quality.test_e02_recursive_budget_frontier",
+          "name": "test_epistemic_abstention_does_not_truncate_recursive_sibling",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.integration.runtime_quality.test_e02_recursive_budget_frontier",
+          "name": "test_partial_v2_rejects_self_asserted_internal_parent_terminal",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.integration.runtime_quality.test_e02_recursive_budget_frontier",
+          "name": "test_complete_uncomposed_parent_refuses_rehashed_positive_or_budget_terminal",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.integration.runtime_quality.test_configured_candidate_simulation_served",
+          "name": "test_profile_selection_ref_ignores_only_server_execution_ids",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.integration.runtime_quality.test_configured_candidate_simulation_served",
+          "name": "test_served_unknown_candidate_profile_keeps_persisted_n4_candidate",
+          "result": "FAIL"
+        },
+        {
+          "classname": "tests.integration.runtime_quality.test_configured_candidate_simulation_served",
+          "name": "test_served_unrefreshable_profile_evidence_keeps_n4_and_blocks_n5",
+          "result": "FAIL"
+        },
+        {
+          "classname": "tests.integration.runtime_quality.test_configured_candidate_simulation_served",
+          "name": "test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects_drift",
+          "result": "FAIL"
+        },
+        {
+          "classname": "tests.integration.runtime_quality.test_configured_candidate_simulation_served",
+          "name": "test_candidate_child_budget_profile_is_explicit_and_preserves_root_default",
+          "result": "PASS"
+        },
+        {
+          "classname": "tests.integration.runtime_quality.test_configured_candidate_simulation_served",
+          "name": "test_configured_child_intake_refuses_missing_complete_owner_before_n6",
+          "result": "UNRUN/SKIP"
+        }
+      ],
+      "counts": {
+        "PASS": 44,
+        "FAIL": 6,
+        "UNRUN/SKIP": 1
+      }
+    },
+    "module_counts": {
+      "generation_affected": "5PASS",
+      "recursive_epoch": "33PASS3FAIL",
+      "frontier": "4PASS",
+      "configured_served": "2PASS3missingL6FAIL1catalogUNRUNskip"
+    }
+  },
+  "git_scanner_environment_repair": {
+    "archive_attempt": "git ls-files exit128; no scanner proof from archive",
+    "actual_clean_admitted_worktree": {
+      "directory": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-worktree-scanner",
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_recursive_constructor_denominator_has_no_unwrapped_n9_call",
+        "--junitxml=/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-worktree-scanner.xml",
+        "--basetemp=/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-worktree-scanner-temp",
+        "-q"
+      ],
+      "pid": 19498,
+      "exit_code": 1,
+      "wall_seconds": 40.48851473600007,
+      "max_rss_kib": 1602116,
+      "source_delta_before": [],
+      "source_delta_after": [],
+      "files": [
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-worktree-scanner/execution.json",
+          "sha256": "9b2dd0b812b83020b6c5113018903ee1839de506c98b8a85f6df56cdd03035ed",
+          "bytes": 5132
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-worktree-scanner/stdout.txt",
+          "sha256": "fc0ed97436d1c39e6fa86800d02e84d0c9108e38cd94530d7fb05827e9b02144",
+          "bytes": 2830
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-worktree-scanner/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-worktree-scanner/environment-origins.stdout.txt",
+          "sha256": "57553465915969db4b2ed1cd66ec28148852ddae3682d5b746bc3335d881354c",
+          "bytes": 11159
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-worktree-scanner/environment-origins.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ]
+    },
+    "junit": {
+      "file": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-worktree-scanner.xml",
+        "sha256": "dd1586c5a895244185738b6155009b014256b2eed2ff8ed8a561af98d49c881a",
+        "bytes": 2389
+      },
+      "cases": [
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_recursive_constructor_denominator_has_no_unwrapped_n9_call",
+          "result": "FAIL"
+        }
+      ],
+      "counts": {
+        "FAIL": 1
+      }
+    },
+    "before_after_head": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+    "before_after_status": "clean",
+    "diagnostic": "unclassified tracked docs/superpowers Python path; full input inventory retained, no denominator filter or hook bypass"
+  },
+  "concrete_baseline_isolation": {
+    "callback_and_core_export": {
+      "directory": "/workspace/ORCH04-evidence/native-tester/G032-C10-companion-baseline",
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_non_simulation_leaf_requires_current_eval_safety_head",
+        "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_task_44_public_export_denominator_is_exact",
+        "--junitxml=/workspace/ORCH04-evidence/native-tester/G032-C10-companion-baseline.xml",
+        "--basetemp=/workspace/ORCH04-evidence/native-tester/G032-C10-companion-baseline-temp",
+        "-q"
+      ],
+      "pid": 19795,
+      "exit_code": 1,
+      "wall_seconds": 48.86130891400035,
+      "max_rss_kib": 1651224,
+      "source_delta_before": [],
+      "source_delta_after": [],
+      "files": [
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/G032-C10-companion-baseline/execution.json",
+          "sha256": "5f7f1145755796c9ee43603de15ee958d9f4f8ee024bce1fa13b8fceb6db6af6",
+          "bytes": 5339
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/G032-C10-companion-baseline/stdout.txt",
+          "sha256": "1b9d43191708f959bcdbfb0f462d8744939cc990d9b676546233da8a4826a926",
+          "bytes": 15771
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/G032-C10-companion-baseline/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/G032-C10-companion-baseline/environment-origins.stdout.txt",
+          "sha256": "2f165a05e070be85977870e1cc65af6a772df800ed94d2792956f2d949a8c949",
+          "bytes": 11199
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/G032-C10-companion-baseline/environment-origins.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ]
+    },
+    "junit": {
+      "file": {
+        "path": "/workspace/ORCH04-evidence/native-tester/G032-C10-companion-baseline.xml",
+        "sha256": "bb4fb6a9ef727fd3b32fcdf82590c629c5751939295fc79c2efd0e67385469e3",
+        "bytes": 15859
+      },
+      "cases": [
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_non_simulation_leaf_requires_current_eval_safety_head",
+          "result": "FAIL"
+        },
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_task_44_public_export_denominator_is_exact",
+          "result": "FAIL"
+        }
+      ],
+      "counts": {
+        "FAIL": 2
+      }
+    },
+    "actual_git_scanner_G_input_equal_C13": {
+      "directory": "/workspace/ORCH04-evidence/native-tester/G032-C13-actual-scanner-baseline",
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_recursive_constructor_denominator_has_no_unwrapped_n9_call",
+        "--junitxml=/workspace/ORCH04-evidence/native-tester/G032-C13-actual-scanner-baseline.xml",
+        "--basetemp=/workspace/ORCH04-evidence/native-tester/G032-C13-actual-scanner-baseline-temp",
+        "-q"
+      ],
+      "pid": 19860,
+      "exit_code": 1,
+      "wall_seconds": 33.26652683900011,
+      "max_rss_kib": 1597960,
+      "source_delta_before": [],
+      "source_delta_after": [],
+      "files": [
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/G032-C13-actual-scanner-baseline/execution.json",
+          "sha256": "3dfbcd41308f209ca4a3d3a70e121dc95d9e7177570c123fc1ac60caa5b94a9d",
+          "bytes": 5100
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/G032-C13-actual-scanner-baseline/stdout.txt",
+          "sha256": "ea24366283d4e8fdb40e304b7a8733d73286bb85bfc561163e13ea38a17c91ae",
+          "bytes": 2840
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/G032-C13-actual-scanner-baseline/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/G032-C13-actual-scanner-baseline/environment-origins.stdout.txt",
+          "sha256": "d5b7284b5200bf8f0c4811748e283009f882c8c5c36838d1e44db2db76007351",
+          "bytes": 11159
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/G032-C13-actual-scanner-baseline/environment-origins.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ]
+    },
+    "scanner_junit": {
+      "file": {
+        "path": "/workspace/ORCH04-evidence/native-tester/G032-C13-actual-scanner-baseline.xml",
+        "sha256": "32b09101555db619fbb5c14ad00c9212f71051ddbeddcb5a63f4e31b94f786cb",
+        "bytes": 2404
+      },
+      "cases": [
+        {
+          "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+          "name": "test_recursive_constructor_denominator_has_no_unwrapped_n9_call",
+          "result": "FAIL"
+        }
+      ],
+      "counts": {
+        "FAIL": 1
+      }
+    },
+    "unclassified_inventory": {
+      "path": "/workspace/ORCH04-evidence/native-tester/G032-C10-scanner-unclassified-inputs.json",
+      "sha256": "a780ddff492aae19bbb6d768ebc5e6652b282d79b0258c0f92a186ab7dae981f",
+      "bytes": 27284
+    },
+    "qualification": "concrete inherited diagnostic evidence; does not waive checks/relabel final failures. Unknown-path first item varies by set iteration."
+  },
+  "removals": [
+    {
+      "property": "b36-required",
+      "mutation": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/b36-required-mutation.json",
+        "sha256": "5f165c3eb00c968475fd0994c666f433382915f4e6f1414ed783e5f0140dfa40",
+        "bytes": 679
+      },
+      "preimage": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "sha256": "40caaf6c37d4d4d89e9dd3f26954b1621dbd5d8163ddf37a4ba1e6d72586c643",
+        "bytes": 578860
+      },
+      "postimage": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/b36-required/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "sha256": "a9805d62d9582bde3dd300035097460a0e1511c4ebd026d8a2da8be7fff615fb",
+        "bytes": 578910
+      },
+      "execution": {
+        "directory": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-b36-required",
+        "argv": [
+          "/workspace/ORCH04-environments/app/bin/python",
+          "-m",
+          "pytest",
+          "tests/unit/runtime/quality/test_generation_cycle.py::test_value_owner_projection_preserves_required_modality_and_other_hints",
+          "--junitxml=/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-b36-required.xml",
+          "--basetemp=/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-b36-required-temp",
+          "-q"
+        ],
+        "pid": 19415,
+        "exit_code": 1,
+        "wall_seconds": 44.889002878000156,
+        "max_rss_kib": 1605856,
+        "source_delta_before": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "before": "40caaf6c37d4d4d89e9dd3f26954b1621dbd5d8163ddf37a4ba1e6d72586c643",
+            "after": "a9805d62d9582bde3dd300035097460a0e1511c4ebd026d8a2da8be7fff615fb"
+          }
+        ],
+        "source_delta_after": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "before": "40caaf6c37d4d4d89e9dd3f26954b1621dbd5d8163ddf37a4ba1e6d72586c643",
+            "after": "a9805d62d9582bde3dd300035097460a0e1511c4ebd026d8a2da8be7fff615fb"
+          }
+        ],
+        "files": [
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-b36-required/execution.json",
+            "sha256": "958a74abced8ec7814db5e6f524b9b114a6ca79bbca10399b83c2f9da38729dd",
+            "bytes": 5775
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-b36-required/stdout.txt",
+            "sha256": "71187105c9d938a9aeed4a87f056254255d882fe18ecddcab00ee6f0de453333",
+            "bytes": 8692
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-b36-required/stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-b36-required/environment-origins.stdout.txt",
+            "sha256": "690f43aeb0da0544ed3e7c1488f40018de0d9b7a5a164e96e6c7b36c5ff634c5",
+            "bytes": 11213
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-b36-required/environment-origins.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          }
+        ]
+      },
+      "junit": {
+        "file": {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-b36-required.xml",
+          "sha256": "16c711c4ac4e8c5faa16fcbae85484f0d3fc7b9aaf6dee1aa8b790c73d7930e1",
+          "bytes": 8486
+        },
+        "cases": [
+          {
+            "classname": "tests.unit.runtime.quality.test_generation_cycle",
+            "name": "test_value_owner_projection_preserves_required_modality_and_other_hints[required0]",
+            "result": "FAIL"
+          },
+          {
+            "classname": "tests.unit.runtime.quality.test_generation_cycle",
+            "name": "test_value_owner_projection_preserves_required_modality_and_other_hints[required1]",
+            "result": "FAIL"
+          },
+          {
+            "classname": "tests.unit.runtime.quality.test_generation_cycle",
+            "name": "test_value_owner_projection_preserves_required_modality_and_other_hints[required2]",
+            "result": "FAIL"
+          }
+        ],
+        "counts": {
+          "FAIL": 3
+        }
+      },
+      "interpretation": "semantic runtime property removed with named markers/refs/body retained; selected consumer fails meaningfully"
+    },
+    {
+      "property": "child-semantics",
+      "mutation": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/child-semantics-mutation.json",
+        "sha256": "0f4bf27158fc5f64cc3b26792fca37b632228e4a8ba5e7463f8807746be57cd9",
+        "bytes": 657
+      },
+      "preimage": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/quality/design_generation.py",
+        "sha256": "e92783bb28ee30d9c75600921177711ebaace433d4d6905179d02818c9458225",
+        "bytes": 187552
+      },
+      "postimage": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/child-semantics/policy-engine/src/polisyos/runtime/quality/design_generation.py",
+        "sha256": "070e9fc16a219e13503ee8ef547a7574ec15c270f17f0c661aa7566885d45d95",
+        "bytes": 187626
+      },
+      "execution": {
+        "directory": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-child-semantics",
+        "argv": [
+          "/workspace/ORCH04-environments/app/bin/python",
+          "-m",
+          "pytest",
+          "tests/unit/runtime/quality/test_generation_cycle.py::test_n4_candidate_child_producer_deduplicates_names_and_refuses_foreign_subject",
+          "--junitxml=/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-child-semantics.xml",
+          "--basetemp=/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-child-semantics-temp",
+          "-q"
+        ],
+        "pid": 19414,
+        "exit_code": 1,
+        "wall_seconds": 45.03330336700037,
+        "max_rss_kib": 1611392,
+        "source_delta_before": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+            "before": "e92783bb28ee30d9c75600921177711ebaace433d4d6905179d02818c9458225",
+            "after": "070e9fc16a219e13503ee8ef547a7574ec15c270f17f0c661aa7566885d45d95"
+          }
+        ],
+        "source_delta_after": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+            "before": "e92783bb28ee30d9c75600921177711ebaace433d4d6905179d02818c9458225",
+            "after": "070e9fc16a219e13503ee8ef547a7574ec15c270f17f0c661aa7566885d45d95"
+          }
+        ],
+        "files": [
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-child-semantics/execution.json",
+            "sha256": "29d63a846b9dbdac74c8d320ecc9c19894f0d0a15556bf72331ecc1c911ba012",
+            "bytes": 5806
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-child-semantics/stdout.txt",
+            "sha256": "f72c7980406b72d0b367c353331e1148220b48edb66959ba24efae4b564bed34",
+            "bytes": 3967
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-child-semantics/stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-child-semantics/environment-origins.stdout.txt",
+            "sha256": "59d83e6ddc40e202ca86cc79caf50e1b8915e35d42c49f1715008aacdd4ffd3f",
+            "bytes": 11216
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-child-semantics/environment-origins.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          }
+        ]
+      },
+      "junit": {
+        "file": {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-child-semantics.xml",
+          "sha256": "39c5556e1370ce6f3324baf6ed0cc4cde6ac376592b675aa3545207158561705",
+          "bytes": 4804
+        },
+        "cases": [
+          {
+            "classname": "tests.unit.runtime.quality.test_generation_cycle",
+            "name": "test_n4_candidate_child_producer_deduplicates_names_and_refuses_foreign_subject",
+            "result": "FAIL"
+          }
+        ],
+        "counts": {
+          "FAIL": 1
+        }
+      },
+      "interpretation": "semantic runtime property removed with named markers/refs/body retained; selected consumer fails meaningfully"
+    },
+    {
+      "property": "capsule-current-job",
+      "mutation": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/capsule-current-job-mutation.json",
+        "sha256": "384b4363dcd13e09d16d9b2ffcdc4d74f5f1e241c015095b50710b62bf5ebfcb",
+        "bytes": 741
+      },
+      "preimage": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "sha256": "8fc4063cd126e8c05317b7da642f81fed75ae27ec600c2106adebfcf1fbb951b",
+        "bytes": 91503
+      },
+      "postimage": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/capsule-current-job/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "sha256": "12f530917da28fd68d83658352796e3ddac12dbb8fa497ce74316f977a1d89ad",
+        "bytes": 91570
+      },
+      "execution": {
+        "directory": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-current-job",
+        "argv": [
+          "/workspace/ORCH04-environments/app/bin/python",
+          "-m",
+          "pytest",
+          "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_recursive_child_capsule_resolves_complete_owned_inputs_and_refuses_transplants",
+          "--junitxml=/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-current-job.xml",
+          "--basetemp=/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-current-job-temp",
+          "-q"
+        ],
+        "pid": 19412,
+        "exit_code": 1,
+        "wall_seconds": 37.043551863000175,
+        "max_rss_kib": 1607768,
+        "source_delta_before": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+            "before": "8fc4063cd126e8c05317b7da642f81fed75ae27ec600c2106adebfcf1fbb951b",
+            "after": "12f530917da28fd68d83658352796e3ddac12dbb8fa497ce74316f977a1d89ad"
+          }
+        ],
+        "source_delta_after": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+            "before": "8fc4063cd126e8c05317b7da642f81fed75ae27ec600c2106adebfcf1fbb951b",
+            "after": "12f530917da28fd68d83658352796e3ddac12dbb8fa497ce74316f977a1d89ad"
+          }
+        ],
+        "files": [
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-current-job/execution.json",
+            "sha256": "3c7e8c84e13ae5ec087c9d2747b50e5f992e4b3f2cae09e68e535ea52c0d6bfb",
+            "bytes": 5874
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-current-job/stdout.txt",
+            "sha256": "4744888651b3b477bfe8111dff0f1f1731feab460d61ea529bb8cd75209de79a",
+            "bytes": 10045
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-current-job/stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-current-job/environment-origins.stdout.txt",
+            "sha256": "ed61d75d9f439b1f4091a36742ac73bb064bea6858bf37ee1d6d7e1e6ff5c2ae",
+            "bytes": 11220
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-current-job/environment-origins.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          }
+        ]
+      },
+      "junit": {
+        "file": {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-current-job.xml",
+          "sha256": "07f93888acbec61462612a5dfb08c12f689af8bb5bbf76bbfbbf9dcb0383ea66",
+          "bytes": 9501
+        },
+        "cases": [
+          {
+            "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+            "name": "test_recursive_child_capsule_resolves_complete_owned_inputs_and_refuses_transplants",
+            "result": "FAIL"
+          }
+        ],
+        "counts": {
+          "FAIL": 1
+        }
+      },
+      "interpretation": "semantic runtime property removed with named markers/refs/body retained; selected consumer fails meaningfully"
+    },
+    {
+      "property": "capsule-reader-binding",
+      "mutation": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/capsule-reader-binding-mutation.json",
+        "sha256": "42af6b9589f41c4ea1401faee1a637c70683d36b124b64ed8e46b27a47519b37",
+        "bytes": 649
+      },
+      "preimage": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "sha256": "8fc4063cd126e8c05317b7da642f81fed75ae27ec600c2106adebfcf1fbb951b",
+        "bytes": 91503
+      },
+      "postimage": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/capsule-reader-binding/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "sha256": "35cf5dc7aee0cb47c0d0e4fb4a90e8793d766e254b21588b0ac4efa664377881",
+        "bytes": 91513
+      },
+      "execution": {
+        "directory": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-reader-binding",
+        "argv": [
+          "/workspace/ORCH04-environments/app/bin/python",
+          "-m",
+          "pytest",
+          "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_recursive_child_capsule_resolves_complete_owned_inputs_and_refuses_transplants",
+          "--junitxml=/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-reader-binding.xml",
+          "--basetemp=/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-reader-binding-temp",
+          "-q"
+        ],
+        "pid": 19709,
+        "exit_code": 1,
+        "wall_seconds": 37.32408367500011,
+        "max_rss_kib": 1606404,
+        "source_delta_before": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+            "before": "8fc4063cd126e8c05317b7da642f81fed75ae27ec600c2106adebfcf1fbb951b",
+            "after": "35cf5dc7aee0cb47c0d0e4fb4a90e8793d766e254b21588b0ac4efa664377881"
+          }
+        ],
+        "source_delta_after": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+            "before": "8fc4063cd126e8c05317b7da642f81fed75ae27ec600c2106adebfcf1fbb951b",
+            "after": "35cf5dc7aee0cb47c0d0e4fb4a90e8793d766e254b21588b0ac4efa664377881"
+          }
+        ],
+        "files": [
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-reader-binding/execution.json",
+            "sha256": "2b0d8383eaa1880fb735fa9f7f8a522d1043ac145f388ed5cd5bb4c8435c3307",
+            "bytes": 5897
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-reader-binding/stdout.txt",
+            "sha256": "3ea2ec9531d95f2496234640551c9fbad66c71f091508e9d7edffb378c41101b",
+            "bytes": 9478
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-reader-binding/stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-reader-binding/environment-origins.stdout.txt",
+            "sha256": "545f2296befe79e281a5757c26e1176c3e87af60ce944c237ba6d6cf7429d545",
+            "bytes": 11223
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-reader-binding/environment-origins.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          }
+        ]
+      },
+      "junit": {
+        "file": {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-capsule-reader-binding.xml",
+          "sha256": "07dd5203b174e26a39bbd07bce03169ede8993d4d0b3706f15d6f5e3a6328539",
+          "bytes": 8934
+        },
+        "cases": [
+          {
+            "classname": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate",
+            "name": "test_recursive_child_capsule_resolves_complete_owned_inputs_and_refuses_transplants",
+            "result": "FAIL"
+          }
+        ],
+        "counts": {
+          "FAIL": 1
+        }
+      },
+      "interpretation": "semantic runtime property removed with named markers/refs/body retained; selected consumer fails meaningfully"
+    },
+    {
+      "property": "partial-frontier",
+      "mutation": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/partial-frontier-mutation.json",
+        "sha256": "a801c924d708f012252fbfbaee3b7a74964e6162bb8374b5c39c7340d36e992f",
+        "bytes": 629
+      },
+      "preimage": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "sha256": "8fc4063cd126e8c05317b7da642f81fed75ae27ec600c2106adebfcf1fbb951b",
+        "bytes": 91503
+      },
+      "postimage": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/partial-frontier/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "sha256": "58303d75d12f9e307135e1430859a4148b620df0449f11e286cb1ef4fce01d78",
+        "bytes": 91525
+      },
+      "execution": {
+        "directory": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-partial-frontier",
+        "argv": [
+          "/workspace/ORCH04-environments/app/bin/python",
+          "-m",
+          "pytest",
+          "tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py::test_budget_stopped_child_keeps_completed_child_and_pending_sibling",
+          "--junitxml=/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-partial-frontier.xml",
+          "--basetemp=/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-partial-frontier-temp",
+          "-q"
+        ],
+        "pid": 19708,
+        "exit_code": 1,
+        "wall_seconds": 45.054207462999784,
+        "max_rss_kib": 1622688,
+        "source_delta_before": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+            "before": "8fc4063cd126e8c05317b7da642f81fed75ae27ec600c2106adebfcf1fbb951b",
+            "after": "58303d75d12f9e307135e1430859a4148b620df0449f11e286cb1ef4fce01d78"
+          }
+        ],
+        "source_delta_after": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+            "before": "8fc4063cd126e8c05317b7da642f81fed75ae27ec600c2106adebfcf1fbb951b",
+            "after": "58303d75d12f9e307135e1430859a4148b620df0449f11e286cb1ef4fce01d78"
+          }
+        ],
+        "files": [
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-partial-frontier/execution.json",
+            "sha256": "f6d4119d7de83f1156ffdc88efdfe997457fcd349bdee433f0d0bc11ca684d38",
+            "bytes": 5843
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-partial-frontier/stdout.txt",
+            "sha256": "b9730c9f103c8708f46a49c2f00c55e7c99d0cba4b1ca410fb34fd120741cab8",
+            "bytes": 5365
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-partial-frontier/stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-partial-frontier/environment-origins.stdout.txt",
+            "sha256": "2e6394b548930d70899b0278cadb954e0a029695f919ceb55a43a5823efa13f5",
+            "bytes": 11217
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-partial-frontier/environment-origins.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          }
+        ]
+      },
+      "junit": {
+        "file": {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-partial-frontier.xml",
+          "sha256": "1ffa7b28d4f13c87d8cd8820fe9b20a820eec381fed66e89ccd80086e569aa7a",
+          "bytes": 5135
+        },
+        "cases": [
+          {
+            "classname": "tests.integration.runtime_quality.test_e02_recursive_budget_frontier",
+            "name": "test_budget_stopped_child_keeps_completed_child_and_pending_sibling",
+            "result": "FAIL"
+          }
+        ],
+        "counts": {
+          "FAIL": 1
+        }
+      },
+      "interpretation": "semantic runtime property removed with named markers/refs/body retained; selected consumer fails meaningfully"
+    },
+    {
+      "property": "uncomposed-parent",
+      "mutation": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/uncomposed-parent-mutation.json",
+        "sha256": "ed2632f06571a742081f87c13e7299c9dfa7d44b33e48c7d78f24bd115c219a9",
+        "bytes": 757
+      },
+      "preimage": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "sha256": "8fc4063cd126e8c05317b7da642f81fed75ae27ec600c2106adebfcf1fbb951b",
+        "bytes": 91503
+      },
+      "postimage": {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removals/uncomposed-parent/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "sha256": "94ad00bb9fb92e44138bda970b035ac2006fab85ced7abd88cb5a46590003126",
+        "bytes": 91586
+      },
+      "execution": {
+        "directory": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-uncomposed-parent",
+        "argv": [
+          "/workspace/ORCH04-environments/app/bin/python",
+          "-m",
+          "pytest",
+          "tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py::test_complete_uncomposed_parent_refuses_rehashed_positive_or_budget_terminal",
+          "tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py::test_partial_v2_rejects_self_asserted_internal_parent_terminal",
+          "--junitxml=/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-uncomposed-parent.xml",
+          "--basetemp=/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-uncomposed-parent-temp",
+          "-q"
+        ],
+        "pid": 19707,
+        "exit_code": 1,
+        "wall_seconds": 41.553273309999895,
+        "max_rss_kib": 1622144,
+        "source_delta_before": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+            "before": "8fc4063cd126e8c05317b7da642f81fed75ae27ec600c2106adebfcf1fbb951b",
+            "after": "94ad00bb9fb92e44138bda970b035ac2006fab85ced7abd88cb5a46590003126"
+          }
+        ],
+        "source_delta_after": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+            "before": "8fc4063cd126e8c05317b7da642f81fed75ae27ec600c2106adebfcf1fbb951b",
+            "after": "94ad00bb9fb92e44138bda970b035ac2006fab85ced7abd88cb5a46590003126"
+          }
+        ],
+        "files": [
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-uncomposed-parent/execution.json",
+            "sha256": "01867520f0a375d1927165b446047a8afa2dfee93008712066b602d5efd698a8",
+            "bytes": 6001
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-uncomposed-parent/stdout.txt",
+            "sha256": "8b3076c4d5bbc37131d786b57f31c1b40d04d79846f0ed3b7e9ee0419b61b2bc",
+            "bytes": 11633
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-uncomposed-parent/stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-uncomposed-parent/environment-origins.stdout.txt",
+            "sha256": "f748abcee4df4e66f209cb570eafd342e351b29da07a0ddee5ba145280ba47ff",
+            "bytes": 11218
+          },
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-uncomposed-parent/environment-origins.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          }
+        ]
+      },
+      "junit": {
+        "file": {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-removal-uncomposed-parent.xml",
+          "sha256": "6da0f672a3b83eaaab7a56269c28e3d7639d70e8bdb0dbe2f54159f51f9f636c",
+          "bytes": 11208
+        },
+        "cases": [
+          {
+            "classname": "tests.integration.runtime_quality.test_e02_recursive_budget_frontier",
+            "name": "test_complete_uncomposed_parent_refuses_rehashed_positive_or_budget_terminal",
+            "result": "FAIL"
+          },
+          {
+            "classname": "tests.integration.runtime_quality.test_e02_recursive_budget_frontier",
+            "name": "test_partial_v2_rejects_self_asserted_internal_parent_terminal",
+            "result": "FAIL"
+          }
+        ],
+        "counts": {
+          "FAIL": 2
+        }
+      },
+      "interpretation": "semantic runtime property removed with named markers/refs/body retained; selected consumer fails meaningfully"
+    }
+  ],
+  "fresh_process": {
+    "producer": {
+      "directory": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-producer",
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "/workspace/ORCH04-evidence/native-tester/c10_fresh_capsule.py",
+        "produce",
+        "--packet",
+        "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-packet.json",
+        "--fixture-root",
+        "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture"
+      ],
+      "pid": 19373,
+      "exit_code": 0,
+      "wall_seconds": 32.07018404500013,
+      "max_rss_kib": 1597096,
+      "source_delta_before": [],
+      "source_delta_after": [],
+      "files": [
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-producer/execution.json",
+          "sha256": "868d97785df161a0052369158c7429f44c8c14ab3a59d73c934f2a53f485d28f",
+          "bytes": 5311
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-producer/stdout.txt",
+          "sha256": "a1beca3926be14a800832bb987abbfc661784bc3f10b13a1741b6570ece4ec6a",
+          "bytes": 225
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-producer/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-producer/environment-origins.stdout.txt",
+          "sha256": "30a2d65eeac568de859e6cf1d11848183929ea034ae262fccc969cd887eebe03",
+          "bytes": 11198
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-producer/environment-origins.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ]
+    },
+    "reader": {
+      "directory": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-reader",
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "/workspace/ORCH04-evidence/native-tester/c10_fresh_capsule.py",
+        "read",
+        "--packet",
+        "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-packet.json",
+        "--fixture-root",
+        "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture"
+      ],
+      "pid": 19600,
+      "exit_code": 0,
+      "wall_seconds": 30.84353012800011,
+      "max_rss_kib": 1586220,
+      "source_delta_before": [],
+      "source_delta_after": [],
+      "files": [
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-reader/execution.json",
+          "sha256": "e827aa16056ae46762fbc1964114545c02e0f0a166f783d9f3b023231831c8fd",
+          "bytes": 5505
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-reader/stdout.txt",
+          "sha256": "b731e363a748293939ca3ce1c7a2f75e908a9b00162b45dc18485503fa299b87",
+          "bytes": 564
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-reader/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-reader/environment-origins.stdout.txt",
+          "sha256": "30a2d65eeac568de859e6cf1d11848183929ea034ae262fccc969cd887eebe03",
+          "bytes": 11198
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-reader/environment-origins.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ]
+    },
+    "packet": {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-packet.json",
+      "sha256": "b624c5a063e8ad1c86d0707eb21ca44150dc5199491f3838633d4f81f8672ee5",
+      "bytes": 23071
+    },
+    "cas_files": [
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/ownership/transactions/locks/stripe-25.lock",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/ownership/transactions/locks/stripe-31.lock",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/ownership/transactions/locks/stripe-48.lock",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/ownership/transactions/root.lock",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.blob",
+        "sha256": "6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0",
+        "bytes": 37
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.manifest.json",
+        "sha256": "3d06dc7811c2c22055a04d66ccae434fcca7348ac23053eaa1a30c4eccbdf31b",
+        "bytes": 358
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.view.d973cbf8818906409964639cee6fa2412442c0a22de882b8d86c4aaea52b1879.manifest.json",
+        "sha256": "3d06dc7811c2c22055a04d66ccae434fcca7348ac23053eaa1a30c4eccbdf31b",
+        "bytes": 358
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/d4/0b/d40be56a365ba09208c7ca584c1b5b00cb7e52a0384af9c0ad0be589de05ca19.blob",
+        "sha256": "d40be56a365ba09208c7ca584c1b5b00cb7e52a0384af9c0ad0be589de05ca19",
+        "bytes": 16369
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/d4/0b/d40be56a365ba09208c7ca584c1b5b00cb7e52a0384af9c0ad0be589de05ca19.manifest.json",
+        "sha256": "71c6051a2a3d8bee2f462012a0ab5677ddebd78de95aa7303cd81ffabdfd6d77",
+        "bytes": 831
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/d4/0b/d40be56a365ba09208c7ca584c1b5b00cb7e52a0384af9c0ad0be589de05ca19.view.92f948dcfb7f9ab8591a275e56829da9a30f262fc4527a3e51e4410aa365c019.manifest.json",
+        "sha256": "71c6051a2a3d8bee2f462012a0ab5677ddebd78de95aa7303cd81ffabdfd6d77",
+        "bytes": 831
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/d4/43/d4434926ce6efe99539dd805394333e20f548af1718ebc1d6929830cd2256cdf.blob",
+        "sha256": "d4434926ce6efe99539dd805394333e20f548af1718ebc1d6929830cd2256cdf",
+        "bytes": 8931
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/d4/43/d4434926ce6efe99539dd805394333e20f548af1718ebc1d6929830cd2256cdf.manifest.json",
+        "sha256": "721c37b88375dea5fd7a5c98842460ab5b72d89ef618c24cac5b974504c46ed7",
+        "bytes": 1044
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas/artifacts/sha256/d4/43/d4434926ce6efe99539dd805394333e20f548af1718ebc1d6929830cd2256cdf.view.ea363d51f50f0c092089d2c827fca94ad5888756bf7c114dbe780618b28d4dba.manifest.json",
+        "sha256": "721c37b88375dea5fd7a5c98842460ab5b72d89ef618c24cac5b974504c46ed7",
+        "bytes": 1044
+      }
+    ],
+    "qualification": "committed mirrored bounded synthetic producer, real CAS and owner reader in separate process. Complete context/problem/profile and scope read, changed current job refuses, historical packet retained. Actual owner current-job test helper; no ordinary served GET/browser/profile selection or production authority claim."
+  },
+  "actual_imports": {
+    "execution": {
+      "directory": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-origins",
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "/workspace/ORCH04-evidence/native-tester/inspect_origins.py",
+        "polisyos.runtime.quality.generation_cycle",
+        "polisyos.runtime.quality.design_generation",
+        "polisyos.runtime.quality.recursive_generation_cycle",
+        "polisyos.runtime.quality.cycle_substrate",
+        "polisyos.runtime.http.services.control.generation_cycle",
+        "polisyos.runtime.http.services.control.run_lifecycle",
+        "polisyos.core.contracts.runtime"
+      ],
+      "pid": 19831,
+      "exit_code": 0,
+      "wall_seconds": 26.72756790800031,
+      "max_rss_kib": 1602200,
+      "source_delta_before": [],
+      "source_delta_after": [],
+      "files": [
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-origins/execution.json",
+          "sha256": "a840c2d4b8aa457f5b20ecdced291097b49b905d4356d690f0c108c66c8252b5",
+          "bytes": 5456
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-origins/stdout.txt",
+          "sha256": "003534f8d2f1804b85ee916fe25def9c25eda0a146cb80ed9c36fe47f8abf6a3",
+          "bytes": 3409
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-origins/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-origins/environment-origins.stdout.txt",
+          "sha256": "30a2d65eeac568de859e6cf1d11848183929ea034ae262fccc969cd887eebe03",
+          "bytes": 11198
+        },
+        {
+          "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-actual-origins/environment-origins.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ]
+    },
+    "qualification": "7 affected actual __file__ paths/hashes match selected committed source; imports alone not semantic/numerical PASS"
+  },
+  "frontend_diagnostic": {
+    "path": "/workspace/ORCH04-evidence/native-tester/frontend-baseline-diagnostic.json",
+    "sha256": "c00ef5b7c8aca55ef02fb4a5396070d91e49831ceaa0bf089bb9b0245816323c",
+    "bytes": 2798
+  },
+  "l6_input_boundary": {
+    "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-L6-input-boundary.json",
+    "sha256": "8762d8ae19f54a6d7e0b8a791c958620777791df1423af1e3f87e3e6efd79fbe",
+    "bytes": 2277
+  },
+  "l6_tracked_availability": {
+    "path": "/workspace/ORCH04-evidence/l6-input-research/tracked-input-availability.json",
+    "sha256": "c669aac938528826cdbdd44514e80d27bda190abf5378fb8a9eacbeb6cd259ad",
+    "bytes": 11618
+  },
+  "l6_canonical_producer_source": {
+    "path": "/workspace/ORCH04-evidence/l6-input-research/producer-source-evidence.json",
+    "sha256": "24dd46c3b7e290d14e73aea78495206e958e8a2b75c88b11e2580ab2aa0b72b2",
+    "bytes": 16013
+  },
+  "held": {
+    "own_test_companions": [
+      "unexpected artifact_store keyword in old exact callback",
+      "Task44 exact export expectation behind canonical Core",
+      "full Python source-role inventory incomplete; no source filtering permitted"
+    ],
+    "external_inputs": [
+      "three real L6 control bytes absent across measured tracked G/A/B/D/E packet trees; production input remains L01/L02",
+      "configured missing-owner catalog prerequisite unavailable => explicit UNRUN skip",
+      "actual configured typed root N4/profile/levers and full per-child selection absent; default singleton unchanged",
+      "B36 real transformation producer provenance absent when transformation required"
+    ],
+    "external_companion": [
+      "canonical Core DTO/facade and existing runDetailsSchemaInner validator intake bridge strip fields; outside C10 lease",
+      "actual ordinary parsed child served/browser positive and fresh persisted served GET remain held"
+    ],
+    "frontend": [
+      "locale leaf census baseline2907 vs expected2879; candidate2923 includes16 new leaves; neither diagnostic establishes general frontend PASS"
+    ]
+  },
+  "old_bytes": "a92f5793 old C10 receipt unavailable; no recovered old SHA/PASS assertion",
+  "acceptance": "G chooses source composition and code acceptance; formal G/production closure separate; no production packet copied/emitted",
+  "tester_helpers": [
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/run_native.py",
+      "sha256": "7ef04c4846426d42e38a8598e26b728bfbc5bb32f034faba0c3da61dd670826d",
+      "bytes": 3608
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/export_source.py",
+      "sha256": "9b267c289af9c0b5d45d2330ac01c85b38b8c81cf296c414f6ac7a62df229db2",
+      "bytes": 1456
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/clone_removal.py",
+      "sha256": "54ef05c493d5644db176a7c582fd311160ef0328e991c67e796e52d66a02bd4f",
+      "bytes": 799
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/prepare_c10_removals.py",
+      "sha256": "1d07ce067c09e7930fe2d44335da07671c31e77b96ecbe611417e44525a98743",
+      "bytes": 2221
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/c10_fresh_capsule.py",
+      "sha256": "59db1b4274d528dad3b92c9dfc0dc0cffa06ecb10362cca93d7ef095e350b4dd",
+      "bytes": 3448
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/inspect_origins.py",
+      "sha256": "6cb91ad1a92b55f430b4846ac641f739a750488067e67fe2cf5829d223dba0a0",
+      "bytes": 451
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/run_frontend_baseline.py",
+      "sha256": "b0b6fee070b35a5219f381412aa497993ccf03299613cf9ce2913acf5376d39f",
+      "bytes": 4345
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/run_frontend_baseline_preparation1.py",
+      "sha256": "004cc055c46b6b4b152158800a6a7864a8a4674817d208db88a5e4c5bb397c76",
+      "bytes": 4353
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/build_c10_receipt.py",
+      "sha256": "81c2aa5f93705f4204a1d5b4ca10ab810af77de14e0f58c39ef49732ed6d095e",
+      "bytes": 6888
+    }
+  ]
+}

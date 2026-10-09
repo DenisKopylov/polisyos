@@ -1,0 +1,28 @@
+
+==================================== ERRORS ====================================
+_ ERROR collecting tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py _
+tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py:36: in <module>
+    from tests.unit.runtime.quality.test_depth_n_universality import (
+<frozen importlib._bootstrap>:1371: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1342: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:938: in _load_unlocked
+    ???
+.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+tests/unit/runtime/quality/test_depth_n_universality.py:32: in <module>
+    assert_universality_preflight(REPO_ROOT)
+tools/quality/validation/universality_preflight.py:111: in assert_universality_preflight
+    raise CgSubstrateUnavailableError(
+E   tools.quality.validation.universality_preflight.CgSubstrateUnavailableError: cg_substrate_unavailable:ortools_cp_sat:ModuleNotFoundError
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/ORCH04-C10/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!

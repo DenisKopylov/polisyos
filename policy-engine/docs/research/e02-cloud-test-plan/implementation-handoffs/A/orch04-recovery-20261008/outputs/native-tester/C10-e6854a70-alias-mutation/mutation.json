@@ -1,0 +1,15 @@
+{
+  "input_module": "/workspace/ORCH04-C10/policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+  "input_module_sha256": "31f15335100567b1fcef6cfa2e4379405b8809e5eb60d6b256daa4972c2462a8",
+  "property": "assignment alias propagation into actual constructor target census",
+  "preimage_sha256": "82add52ceca3ab1118eec9a9054479cfde5742dd353704b3e46b78cd81e59d84",
+  "postimage_sha256": "87563d7cc16f348d93385dc2a1494b6d7978435a69bba33d922202c472ba0b59",
+  "replacements": [
+    [
+      "assignments.append((node.targets[0].id, node.value))",
+      "pass  # assignments.append((node.targets[0].id, node.value)) marker retained"
+    ]
+  ],
+  "runtime_product_files_changed": false,
+  "scope": "committed family/alias component only, no complete live guard authority or production conformance"
+}

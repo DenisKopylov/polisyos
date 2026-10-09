@@ -1,0 +1,231 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_complete_uncomposed_parent_refuses_rehashed_positive_or_budget_terminal _
+
+    @pytest.mark.asyncio
+    async def test_complete_uncomposed_parent_refuses_rehashed_positive_or_budget_terminal() -> None:
+        """Original independent b6c3201 falsifier, applied to complete history.
+    
+        A content hash is integrity evidence; it cannot establish N5/composition
+        authority absent from the artifact. Both complete and partial histories
+        share the same conservative no-evidence parent invariant.
+        """
+        run, *_ = await _run_recursive_fixture(
+            budget_state=BudgetState(limits={
+                "run": BudgetLimit(key="run", max_usd=Decimal("5")),
+            }),
+        )
+        assert type(run) is RecursiveGenerationCycleRun
+        ordinary = run.model_dump(mode="json")
+        root = next(row for row in ordinary["nodes"] if row["node_ref"] == run.root_node_ref)
+        assert root["child_refs"]
+        assert root["joint_simulation"] is None
+        assert root["composition_certificate"] is None
+        assert root["terminal"]["kind"] == SearchTerminalKind.RECURSIVE_BLOCKED.value
+        assert RecursiveGenerationCycleRun.model_validate(ordinary).model_dump(mode="json") == ordinary
+        for forged, expected_error in (
+            (
+                {
+                    **root["terminal"],
+                    "kind": SearchTerminalKind.GROUNDED_ADMISSIBLE.value,
+                    "reason": "Source-independent forged root outcome",
+                    "blocking_obligations": [],
+                    "budget_kind": None,
+                    "costed_plan": None,
+                    "data_need_spec": None,
+                },
+                "recursive_parent_not_conservatively_blocked",
+            ),
+            (
+                {**root["terminal"], "budget_kind": "recursive"},
+                "recursive_parent_terminal_not_owner_derived",
+            ),
+        ):
+            payload = run.model_dump(mode="json")
+            node = next(row for row in payload["nodes"] if row["node_ref"] == run.root_node_ref)
+            node["terminal"] = forged
+            payload["terminal"] = forged
+            payload["content_hash"] = gy_content_hash({
+                key: value for key, value in payload.items() if key != "content_hash"
+            })
+>           with pytest.raises(ValidationError, match=expected_error):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+../../../C10-03a7c5d5-source/policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py:687: Failed
+________ test_partial_v2_rejects_self_asserted_internal_parent_terminal ________
+
+    @pytest.mark.asyncio
+    async def test_partial_v2_rejects_self_asserted_internal_parent_terminal() -> None:
+        """A completed uncomposed parent can retain only a conservative blocked fold."""
+    
+        full_result, leaf_refs, _request, _full_factory = await _run_recursive_fixture(
+            budget_state=BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5"))})
+        )
+        assert type(full_result) is RecursiveGenerationCycleRun
+        full_nodes = {node.node_ref: node for node in full_result.nodes}
+    
+        internal_ref = "design://e02/recursive-budget/completed-parent"
+        budget_node_ref = "design://e02/recursive-budget/budget-stopped-leaf"
+        pending_node_ref = "design://e02/recursive-budget/pending-leaf"
+        budget_problem = _recursive_problem(budget_node_ref)
+        budget_problem_ref = gy_content_hash(budget_problem.model_dump(mode="json"))
+        budget_factory = _CycleControllerFactory()
+        budget_leaf_controller = budget_factory(budget_node_ref, budget_problem)
+        budget_cycle_run: GenerationCycleRun = await budget_leaf_controller.run(
+            budget_problem,
+            budget_state=BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("0"))}),
+            min_cycles=1,
+            max_cycles=1,
+            stable_design_problem_ref=budget_problem_ref,
+        )
+        assert generation_cycle_terminal_state(budget_cycle_run).kind is (
+            SearchTerminalKind.BUDGET_EXHAUSTED
+        )
+        assert len(budget_factory.promotion_calls) <= 1
+        assert bool(budget_factory.promotion_calls) == (
+            budget_cycle_run.promotion_port.status == "promotion_pending_n9"
+        )
+    
+        root_problem = _recursive_problem(full_result.root_node_ref)
+        root_problem_ref = gy_content_hash(root_problem.model_dump(mode="json"))
+        internal_problem = _recursive_problem(internal_ref)
+        internal_problem_ref = gy_content_hash(internal_problem.model_dump(mode="json"))
+        pending_problem = _recursive_problem(pending_node_ref)
+        pending_problem_ref = gy_content_hash(pending_problem.model_dump(mode="json"))
+        module_refs = (
+            internal_ref,
+            *leaf_refs,
+            budget_node_ref,
+            pending_node_ref,
+        )
+        graph = derive_recursive_design_graph(
+            design_ref=full_result.root_node_ref,
+            module_refs=module_refs,
+            parent_child_edges=(
+                (full_result.root_node_ref, internal_ref),
+                (full_result.root_node_ref, budget_node_ref),
+                (full_result.root_node_ref, pending_node_ref),
+                (internal_ref, leaf_refs[0]),
+                (internal_ref, leaf_refs[1]),
+            ),
+            typed_dependency_edges=(),
+            rule_version_ref="repo://rules/e02-recursive-internal-parent-contract-test",
+        )
+        routed_leaves = tuple(
+            full_nodes[leaf_ref].model_copy(update={"parent_ref": internal_ref, "depth": 2})
+            for leaf_ref in leaf_refs
+        )
+        internal_parent = RecursiveCycleNode(
+            node_ref=internal_ref,
+            parent_ref=full_result.root_node_ref,
+            depth=1,
+            child_refs=leaf_refs,
+            design_problem_ref=internal_problem_ref,
+            # The code is a route-emitted diagnostic. V2 only preserves a blocked
+            # shape here; it does not recompute the missing-subdesign predicate.
+            terminal=full_nodes[full_result.root_node_ref].terminal,
+        )
+        budget_stop = RecursiveCycleNode(
+            node_ref=budget_node_ref,
+            parent_ref=full_result.root_node_ref,
+            depth=1,
+            design_problem_ref=budget_problem_ref,
+            cycle_run=budget_cycle_run,
+            terminal=generation_cycle_terminal_state(budget_cycle_run),
+        )
+        root_pending = RecursiveCyclePendingNode(
+            node_ref=full_result.root_node_ref,
+            parent_ref=None,
+            depth=0,
+            child_refs=(internal_ref, budget_node_ref, pending_node_ref),
+            design_problem_ref=root_problem_ref,
+        )
+        frontier_pending = RecursiveCyclePendingNode(
+            node_ref=pending_node_ref,
+            parent_ref=full_result.root_node_ref,
+            depth=1,
+            design_problem_ref=pending_problem_ref,
+        )
+        nodes = (
+            root_pending,
+            internal_parent,
+            *routed_leaves,
+            budget_stop,
+            frontier_pending,
+        )
+        recursive_budget = RecursiveCycleBudget(
+            max_depth=2,
+            max_nodes=len(graph.node_refs),
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=1,
+        )
+        payload: dict[str, object] = {
+            "schema_version": "policyos.runtime.recursive_generation_cycle.partial.v2",
+            "run_id": f"recursive:{graph.graph_id}",
+            "controller_ref": full_result.controller_ref,
+            "authority_scope": full_result.authority_scope,
+            "recursive_graph": graph.model_dump(mode="json"),
+            "recursive_graph_ref": graph.graph_ref,
+            "recursive_graph_content_hash": gy_content_hash(graph.model_dump(mode="json")),
+            "root_node_ref": full_result.root_node_ref,
+            "root_design_problem_ref": root_problem_ref,
+            "recursive_budget": recursive_budget.model_dump(mode="json"),
+            "observed_max_depth": 2,
+            "nodes": [node.model_dump(mode="json") for node in nodes],
+            "traversal_status": "budget_stopped",
+            "traversal_stop_reason": "child_budget_exhausted",
+            "budget_stop_node_ref": budget_node_ref,
+            "frontier_node_refs": [pending_node_ref],
+            "terminal": None,
+        }
+        checkpoint = RecursiveGenerationCyclePartialRunV2.model_validate(
+            {
+                **payload,
+                "nodes": nodes,
+                "content_hash": gy_content_hash(payload),
+            }
+        )
+        assert checkpoint.leaf_nodes
+        assert checkpoint.budget_stop_node_ref == budget_node_ref
+        assert internal_parent.child_refs == leaf_refs
+        assert internal_parent.cycle_run is None
+        assert internal_parent.joint_simulation is None
+        assert internal_parent.composition_certificate is None
+        assert internal_parent.terminal.kind is SearchTerminalKind.RECURSIVE_BLOCKED
+    
+        for forged_terminal, expected_error in (
+            (
+                routed_leaves[0].terminal.model_dump(mode="json"),
+                "recursive_parent_not_conservatively_blocked",
+            ),
+            (
+                {
+                    **internal_parent.terminal.model_dump(mode="json"),
+                    "budget_kind": "recursive",
+                },
+                "recursive_parent_terminal_not_owner_derived",
+            ),
+        ):
+            forged = checkpoint.model_dump(mode="json")
+            internal_index = next(
+                index for index, node in enumerate(forged["nodes"]) if node["node_ref"] == internal_ref
+            )
+            forged["nodes"][internal_index]["terminal"] = forged_terminal
+            forged_payload = {key: value for key, value in forged.items() if key != "content_hash"}
+            forged["content_hash"] = gy_content_hash(forged_payload)
+>           with pytest.raises(ValidationError, match=expected_error):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+../../../C10-03a7c5d5-source/policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py:637: Failed
+=============================== warnings summary ===============================
+../../../../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py::test_complete_uncomposed_parent_refuses_rehashed_positive_or_budget_terminal
+FAILED tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py::test_partial_v2_rejects_self_asserted_internal_parent_terminal

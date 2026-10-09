@@ -1,0 +1,131 @@
+{
+  "sha": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+  "tree": "6506a68152d7a957fc7762e9846a72e7ab98d557",
+  "parents": [
+    "cfe46cfa8428d4388a44d2d68828ad1a5a19b256"
+  ],
+  "previous_source": "cfe46cfa8428d4388a44d2d68828ad1a5a19b256",
+  "base": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "changed_paths": [
+    "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx",
+    "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+    "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+    "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+    "policy-engine/release-fragments/unreleased/2026-10-08-orch04-c10-candidate-recovery.toml",
+    "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+    "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+    "policy-engine/src/polisyos/runtime/quality/README.md",
+    "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+    "policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+    "policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+    "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+    "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py"
+  ],
+  "delta_paths": [
+    "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+  ],
+  "source_manifest_sha256": "3e105030b7b007e910422a5fa313c40740604ae72fa890a48026d5a828565af7",
+  "checks": [
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx",
+      "preimage_matches": true,
+      "postimage_matches": true
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+      "preimage_matches": true,
+      "postimage_matches": true
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+      "preimage_matches": true,
+      "postimage_matches": true
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+      "preimage_matches": true,
+      "postimage_matches": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-orch04-c10-candidate-recovery.toml",
+      "preimage_matches": true,
+      "postimage_matches": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "preimage_matches": true,
+      "postimage_matches": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "preimage_matches": true,
+      "postimage_matches": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+      "preimage_matches": true,
+      "postimage_matches": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+      "preimage_matches": true,
+      "postimage_matches": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "preimage_matches": true,
+      "postimage_matches": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "preimage_matches": true,
+      "postimage_matches": true
+    },
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+      "preimage_matches": true,
+      "postimage_matches": true
+    },
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+      "preimage_matches": true,
+      "postimage_matches": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "preimage_matches": true,
+      "postimage_matches": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+      "preimage_matches": true,
+      "postimage_matches": true
+    }
+  ],
+  "exact_unchanged_paths_from_previous": [
+    "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx",
+    "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+    "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+    "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+    "policy-engine/release-fragments/unreleased/2026-10-08-orch04-c10-candidate-recovery.toml",
+    "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+    "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+    "policy-engine/src/polisyos/runtime/quality/README.md",
+    "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+    "policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+    "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+    "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py"
+  ],
+  "manifest_complete_denominator": true,
+  "delta_exact_one_keyword": "FoundryValuePort(artifact_store=self._artifact_store) in default protected recursive leaf route",
+  "strict_callback_and_all_test_bytes_unchanged_from_cfe": true,
+  "canonical_binding_basis": {
+    "constructor": "RecursiveGenerationCycleController.__init__ rejects foreign artifact_store and derives store from PromotionRuntime.store",
+    "consumer": "FoundryValuePort.__init__ stores this exact artifact_store; __call__ passes it to simulation_evaluation_input_ref",
+    "scope": "protected leaf explicit evaluation_context; candidate/default/reentry siblings retain existing configured store behavior"
+  }
+}

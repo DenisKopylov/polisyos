@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/ORCH04-evidence/native-tester/c10_alias_component_removal.py", line 8, in <module>
+    try:m.test_recursive_constructor_census_scans_executable_source_families()
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/workspace/ORCH04-C10/policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py", line 2095, in test_recursive_constructor_census_scans_executable_source_families
+    assert len(found) == 1
+           ^^^^^^^^^^^^^^^
+AssertionError

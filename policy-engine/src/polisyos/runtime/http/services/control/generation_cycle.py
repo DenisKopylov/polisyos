@@ -42,6 +42,7 @@ from polisyos.runtime.quality.public_export import (
 )
 from polisyos.runtime.quality.recursive_generation_cycle import (
     ExecutionIntent,
+    RecursiveGenerationCyclePartialRunV2,
     RecursiveGenerationCycleRun,
     build_default_recursive_generation_cycle_controller,
 )
@@ -58,6 +59,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.design_generation import (
         DesignGenerationOrganRun,
+        GenerationUnderAResult,
         N4CandidateProposalSource,
     )
     from polisyos.runtime.quality.evaluation_safety import (
@@ -69,11 +71,15 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.recursive_generation_cycle import (
         RecursiveCycleBudget,
         RecursiveGenerationCycleController,
+        RecursiveLeafContextOwner,
     )
     from polisyos.scientist import BudgetState
 
 COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION = (
     "policyos.runtime.http.compiled_recursive_generation_cycle.v1"
+)
+COMPILED_RECURSIVE_GENERATION_CYCLE_PARTIAL_SCHEMA_VERSION = (
+    "policyos.runtime.http.compiled_recursive_generation_cycle.v2"
 )
 NORMATIVE_RUN_DISPOSITION_KIND = "runtime.normative_generation_composition"
 NORMATIVE_RUN_DISPOSITION_V1_SCHEMA = "policyos.normative_generation_composition.v1"
@@ -151,13 +157,28 @@ class RecursiveBudgetResolution(BaseModel):
     effective_max_iterations: int = Field(ge=1)
     recursive_budget: RecursiveBudgetProjection
     clamp_reason: str
+    requested_candidate_children: int | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    effective_candidate_children: int | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    child_budget_profile: Literal["candidate-lever-exploration-at-most-2.v1"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
 
 def _resolve_http_recursive_budget(
     requested_max_iterations: object,
+    *,
+    candidate_child_count: int | None = None,
 ) -> tuple[int, RecursiveBudgetResolution]:
     """Resolve the existing HTTP cap without hiding its requested value."""
 
+    if candidate_child_count is not None and (
+        type(candidate_child_count) is not int or not 1 <= candidate_child_count <= 2
+    ):
+        raise DesignProblemAuthorityError("n4_recursive_child_count_outside_supported_profile")
     requested = int(requested_max_iterations or 1)
     effective = max(1, min(requested, _HTTP_RECURSIVE_MAX_CYCLES_PER_LEAF))
     if requested > _HTTP_RECURSIVE_MAX_CYCLES_PER_LEAF:
@@ -170,12 +191,19 @@ def _resolve_http_recursive_budget(
         requested_max_iterations=requested,
         effective_max_iterations=effective,
         recursive_budget=RecursiveBudgetProjection(
-            max_depth=_HTTP_RECURSIVE_MAX_DEPTH,
-            max_nodes=_HTTP_RECURSIVE_MAX_NODES,
+            max_depth=1 if candidate_child_count is not None else _HTTP_RECURSIVE_MAX_DEPTH,
+            max_nodes=1 + candidate_child_count
+            if candidate_child_count is not None
+            else _HTTP_RECURSIVE_MAX_NODES,
             min_cycles_per_leaf=1,
             max_cycles_per_leaf=effective,
         ),
         clamp_reason=clamp_reason,
+        requested_candidate_children=candidate_child_count,
+        effective_candidate_children=candidate_child_count,
+        child_budget_profile="candidate-lever-exploration-at-most-2.v1"
+        if candidate_child_count is not None
+        else None,
     )
 
 
@@ -316,9 +344,7 @@ class NormativeRunDispositionHistory:
     """Immutable outer replay plus the persisted admission-currentness evidence per leaf."""
 
     disposition: NormativeRunDisposition
-    admission_currentness_by_node: dict[
-        str, N6DeploymentCurrentnessObservation | None
-    ]
+    admission_currentness_by_node: dict[str, N6DeploymentCurrentnessObservation | None]
 
     @property
     def admission_authority_established(self) -> bool:
@@ -358,9 +384,7 @@ def _normative_run_disposition_v1_payload(
     }
 
 
-def _assert_normative_run_disposition_v1_shape(
-    payload: object, *, producer: bool = False
-) -> None:
+def _assert_normative_run_disposition_v1_shape(payload: object, *, producer: bool = False) -> None:
     """Reject a post-v1 outer or embedded field before v1 admission."""
 
     if not isinstance(payload, dict):
@@ -376,17 +400,11 @@ def _assert_normative_run_disposition_v1_shape(
         or not isinstance(leaves, dict)
         or any(
             not isinstance(leaf, dict)
-            or (
-                set(leaf) != expected_leaf if producer else not set(leaf) <= expected_leaf
-            )
+            or (set(leaf) != expected_leaf if producer else not set(leaf) <= expected_leaf)
             for leaf in leaves.values()
         )
         or not isinstance(receipt, dict)
-        or (
-            set(receipt) != expected_receipt
-            if producer
-            else not set(receipt) <= expected_receipt
-        )
+        or (set(receipt) != expected_receipt if producer else not set(receipt) <= expected_receipt)
     ):
         raise P20NormativeChoiceError("p20_normative_outer_v1_shape_mismatch")
 
@@ -401,9 +419,7 @@ def _read_normative_run_disposition_v1(
             ref if isinstance(ref, ArtifactRef) else artifacts.ArtifactID.model_validate(ref)
         )
         artifact_id = (
-            selected_ref.artifact_id
-            if isinstance(selected_ref, ArtifactRef)
-            else selected_ref
+            selected_ref.artifact_id if isinstance(selected_ref, ArtifactRef) else selected_ref
         )
         raw = store.get_bytes(selected_ref)
         manifest = store.get_manifest(selected_ref)
@@ -452,13 +468,10 @@ def normative_owner_for_runtime_store(
     """Reuse the exact runtime store and its optional signature capability."""
     try:
         required_operations = tuple(
-            getattr(store, name, None)
-            for name in ("get_bytes", "get_manifest", "put_json")
+            getattr(store, name, None) for name in ("get_bytes", "get_manifest", "put_json")
         )
     except (AttributeError, TypeError) as exc:
-        raise P20NormativeChoiceError(
-            "p20_normative_signed_store_unavailable"
-        ) from exc
+        raise P20NormativeChoiceError("p20_normative_signed_store_unavailable") from exc
     if not all(callable(operation) for operation in required_operations):
         raise P20NormativeChoiceError("p20_normative_signed_store_unavailable")
     if signature_verifier is not None:
@@ -466,9 +479,7 @@ def normative_owner_for_runtime_store(
             verifier_store = signature_verifier.guarded_store
             verify_signature = signature_verifier.verify_signature
         except (AttributeError, TypeError) as exc:
-            raise P20NormativeChoiceError(
-                "p20_normative_signature_port_unavailable"
-            ) from exc
+            raise P20NormativeChoiceError("p20_normative_signature_port_unavailable") from exc
         if verifier_store is not store:
             raise P20NormativeChoiceError("p20_normative_signature_store_mismatch")
         if not callable(verify_signature):
@@ -484,13 +495,9 @@ def normative_owner_for_runtime_store(
 def _read_normative_source(
     store: artifacts.ArtifactStore, ref: str | ArtifactRef, *, kind: str
 ) -> dict[str, object]:
-    selected_ref = (
-        ref if isinstance(ref, ArtifactRef) else artifacts.ArtifactID.model_validate(ref)
-    )
+    selected_ref = ref if isinstance(ref, ArtifactRef) else artifacts.ArtifactID.model_validate(ref)
     artifact_id = (
-        selected_ref.artifact_id
-        if isinstance(selected_ref, ArtifactRef)
-        else selected_ref
+        selected_ref.artifact_id if isinstance(selected_ref, ArtifactRef) else selected_ref
     )
     raw = store.get_bytes(selected_ref)
     manifest = store.get_manifest(selected_ref)
@@ -509,8 +516,6 @@ def _normative_generation_sources(
     persist: bool,
     compiled_artifact_ref: ArtifactRef | None = None,
 ) -> dict[str, NormativeGenerationBinding]:
-    from polisyos.runtime.quality.generation_cycle import GENERATION_CYCLE_SCHEMA_VERSION
-
     compiled = CompiledRecursiveGenerationCycleRun.model_validate(
         _read_normative_source(
             store,
@@ -518,6 +523,8 @@ def _normative_generation_sources(
             kind="runtime.compiled_recursive_generation_cycle",
         )
     )
+    if isinstance(compiled.recursive_run, RecursiveGenerationCyclePartialRunV2):
+        raise P20NormativeChoiceError("p20_normative_partial_compiled_run")
     sources = {}
     for node in compiled.recursive_run.leaf_nodes:
         if node.cycle_run is None or node.node_ref in sources:
@@ -533,7 +540,7 @@ def _normative_generation_sources(
                     media_type="application/json",
                     schema=artifacts.SchemaInfo(
                         name=NORMATIVE_GENERATION_SOURCE_KIND,
-                        version=GENERATION_CYCLE_SCHEMA_VERSION,
+                        version=node.cycle_run.schema_version,
                     ),
                 ),
                 canon_spec=canon.CanonSpec(forbid_floats=False),
@@ -641,9 +648,7 @@ def produce_normative_run_disposition(
         evaluated_at=evaluated_at,
         compiled_artifact_ref=compiled_artifact_ref,
     )
-    _assert_normative_run_disposition_v1_shape(
-        projection.model_dump(mode="json"), producer=True
-    )
+    _assert_normative_run_disposition_v1_shape(projection.model_dump(mode="json"), producer=True)
     ref = store.put_json(
         _normative_run_disposition_v1_payload(projection),
         artifacts.PutOptions(
@@ -763,14 +768,17 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION
+    schema_version: Literal[
+        "policyos.runtime.http.compiled_recursive_generation_cycle.v1",
+        "policyos.runtime.http.compiled_recursive_generation_cycle.v2",
+    ] = COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION
     design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     design_problem: DesignProblem
     cycle_substrate_context_ref: str | None = Field(
         default=None,
         pattern=r"^sha256:[0-9a-f]{64}$",
     )
-    recursive_run: RecursiveGenerationCycleRun
+    recursive_run: RecursiveGenerationCycleRun | RecursiveGenerationCyclePartialRunV2
     recursive_budget_resolution: RecursiveBudgetResolution | None = Field(
         default=None,
         exclude_if=lambda value: value is None,
@@ -788,6 +796,16 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
             raise ValueError("compiled_recursive_design_problem_hash_mismatch")
         if self.recursive_run.root_design_problem_ref != self.design_problem_ref:
             raise ValueError("compiled_recursive_run_problem_binding_mismatch")
+        is_partial = isinstance(
+            self.recursive_run,
+            RecursiveGenerationCyclePartialRunV2,
+        )
+        if is_partial != (
+            self.schema_version == COMPILED_RECURSIVE_GENERATION_CYCLE_PARTIAL_SCHEMA_VERSION
+        ):
+            raise ValueError("compiled_recursive_generation_cycle_schema_run_mismatch")
+        if is_partial and self.open_world_risk_limitations:
+            raise ValueError("compiled_recursive_partial_open_world_projection_forbidden")
         payload = gy_artifact_self_identity_projection(self)
         recursive_run = dict(payload["recursive_run"])
         recursive_run.pop("leaf_nodes", None)
@@ -842,12 +860,11 @@ async def compile_and_run_recursive_generation_cycle(
     eval_safety_verifier: EvalSafetyVerifierPort | None = None,
     span_support_client: _SpanSupportVerifierClient | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
-    cycle_substrate_context_resolver: Callable[
-        [DesignProblem], object | None
-    ]
-    | None = None,
+    cycle_substrate_context_resolver: Callable[[DesignProblem], object | None] | None = None,
     candidate_simulation_currentness_resolver: Callable[[], bool] | None = None,
     root_n4_generation_port: N4GenerationPort | None = None,
+    n4_recursive_source: GenerationUnderAResult | None = None,
+    recursive_leaf_context_owner: RecursiveLeafContextOwner | None = None,
     target_world_scope_profile_id: str | None = None,
     promotion_runtime: PromotionRuntime | None = None,
     repo_root: Path | None = None,
@@ -939,7 +956,8 @@ async def compile_and_run_recursive_generation_cycle(
             "context, CycleSubstrateContext, recursive controller, or explicit N4 port.",
         )
     if cycle_substrate_context_resolver is not None and (
-        not n4_proposal_only or execution_intent != "simulate_only"
+        (not n4_proposal_only and n4_recursive_source is None)
+        or execution_intent != "simulate_only"
     ):
         raise DesignProblemAuthorityError(
             "cycle_substrate_context_resolver_scope_mismatch",
@@ -1029,9 +1047,7 @@ async def compile_and_run_recursive_generation_cycle(
                     "The served context resolver must return the canonical typed artifact.",
                 )
     if cycle_substrate_context is None:
-        scope_selection = _classify_target_world_scope_profile(
-            target_world_scope_profile_id
-        )
+        scope_selection = _classify_target_world_scope_profile(target_world_scope_profile_id)
     else:
         scope_selection = None
     candidate_only_n4_route = (
@@ -1039,9 +1055,7 @@ async def compile_and_run_recursive_generation_cycle(
         and execution_intent == "candidate_only"
         and root_n4_generation_port is None
     )
-    if candidate_only_n4_route or (
-        n4_proposal_only and cycle_substrate_context is None
-    ):
+    if candidate_only_n4_route or (n4_proposal_only and cycle_substrate_context is None):
         from polisyos.runtime.quality.design_generation import (
             generate_design_candidate_proposal_under_a,
         )
@@ -1134,11 +1148,78 @@ async def compile_and_run_recursive_generation_cycle(
             eval_safety_verifier=eval_safety_verifier,
         )
 
+    # The internal candidate-child route takes complete immutable actual N4
+    # source. HTTP request dictionaries cannot allocate this source or owner.
+    problems_by_node = None
+    contexts_by_node = None
+    handoffs_by_node = None
+    generation_ports_by_node = None
+    if n4_recursive_source is not None:
+        from polisyos.runtime.quality.candidate_simulation import CandidateSimulationContextHandoff
+        from polisyos.runtime.quality.design_generation import derive_n4_candidate_child_problems
+        from polisyos.runtime.quality.generation_cycle import N4GenerationPort
+        from polisyos.runtime.quality.recursive_generation_cycle import RecursiveLeafContextOwner
+
+        if execution_intent != "simulate_only" or root_evaluation_context is not None:
+            raise DesignProblemAuthorityError("n4_recursive_child_intent_not_candidate")
+        if type(recursive_leaf_context_owner) is not RecursiveLeafContextOwner:
+            raise DesignProblemAuthorityError("n4_recursive_child_context_owner_missing")
+        if cycle_substrate_context_resolver is None:
+            raise DesignProblemAuthorityError("n4_recursive_child_context_resolver_missing")
+        children = derive_n4_candidate_child_problems(
+            problem, n4_recursive_source, model_id=model_name
+        )
+        if not children:
+            raise DesignProblemAuthorityError("n4_recursive_child_source_empty")
+        if (
+            recursive_budget_resolution is None
+            or recursive_budget_resolution.child_budget_profile
+            != "candidate-lever-exploration-at-most-2.v1"
+            or recursive_budget_resolution.requested_candidate_children != len(children)
+            or recursive_budget_resolution.effective_candidate_children != len(children)
+            or recursive_budget.max_depth != 1
+            or recursive_budget.max_nodes != 1 + len(children)
+        ):
+            raise DesignProblemAuthorityError("n4_recursive_child_supported_budget_missing")
+        problems_by_node = {}
+        contexts_by_node = {}
+        handoffs_by_node = {}
+        generation_ports_by_node = {}
+        root_scope = (
+            (
+                candidate_simulation_handoff.job_id,
+                candidate_simulation_handoff.run_id,
+                candidate_simulation_handoff.tenant_id,
+                candidate_simulation_handoff.cell_id,
+            )
+            if candidate_simulation_handoff is not None
+            else None
+        )
+        for child in children:
+            child_ref = "design-problem://" + gy_content_hash(
+                child.problem.model_dump(mode="json")
+            ).removeprefix("sha256:")
+            handoff = cycle_substrate_context_resolver(child.problem)
+            if type(handoff) is not CandidateSimulationContextHandoff:
+                raise DesignProblemAuthorityError("n4_recursive_child_configured_context_missing")
+            scope = (handoff.job_id, handoff.run_id, handoff.tenant_id, handoff.cell_id)
+            if root_scope is not None and scope != root_scope:
+                raise DesignProblemAuthorityError("n4_recursive_child_job_scope_mismatch")
+            problems_by_node[child_ref] = child.problem
+            contexts_by_node[child_ref] = handoff.context
+            handoffs_by_node[child_ref] = handoff
+            generation_ports_by_node[child_ref] = N4GenerationPort(
+                model_id=model_name,
+                repo_root=repo_root,
+                cycle_substrate_context=handoff.context,
+                candidate_simulation_handoff=handoff,
+            )
+
     root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
     recursive_graph = derive_recursive_design_graph(
         design_ref=root_ref,
-        module_refs=(),
-        parent_child_edges=(),
+        module_refs=tuple(problems_by_node or ()),
+        parent_child_edges=tuple((root_ref, child_ref) for child_ref in problems_by_node or ()),
         rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
     )
     from polisyos.runtime.quality.generation_cycle import (
@@ -1148,36 +1229,40 @@ async def compile_and_run_recursive_generation_cycle(
     try:
         recursive_run = await resolved_controller.run(
             recursive_graph,
-            problems_by_node={root_ref: problem},
+            problems_by_node={root_ref: problem, **(problems_by_node or {})},
             budget_state=budget_state,
             recursive_budget=recursive_budget,
-            cycle_substrate_contexts_by_node=(
-                {root_ref: cycle_substrate_context}
-                if cycle_substrate_context is not None
-                else None
+            cycle_substrate_contexts_by_node=contexts_by_node
+            or (
+                {root_ref: cycle_substrate_context} if cycle_substrate_context is not None else None
             ),
-            candidate_simulation_handoffs_by_node=(
+            candidate_simulation_handoffs_by_node=handoffs_by_node
+            or (
                 {root_ref: candidate_simulation_handoff}
                 if candidate_simulation_handoff is not None
                 else None
             ),
-            candidate_simulation_currentness_resolvers_by_node=(
+            candidate_simulation_currentness_resolvers_by_node={}
+            if handoffs_by_node
+            else (
                 {root_ref: candidate_simulation_currentness_resolver}
                 if candidate_simulation_handoff is not None
                 and candidate_simulation_currentness_resolver is not None
                 else None
             ),
-            n4_generation_ports_by_node=(
-                {root_ref: root_n4_generation_port}
-                if root_n4_generation_port is not None
-                else None
+            n4_generation_ports_by_node=generation_ports_by_node
+            or (
+                {root_ref: root_n4_generation_port} if root_n4_generation_port is not None else None
             ),
-            evaluation_contexts_by_node=(
-                {root_ref: root_evaluation_context}
-                if root_evaluation_context is not None
-                else None
+            evaluation_contexts_by_node=None
+            if handoffs_by_node
+            else (
+                {root_ref: root_evaluation_context} if root_evaluation_context is not None else None
             ),
-            execution_intents_by_node={root_ref: execution_intent},
+            execution_intents_by_node=dict.fromkeys(
+                problems_by_node or (root_ref,), execution_intent
+            ),
+            leaf_context_owner=recursive_leaf_context_owner,
         )
     except _N4CandidateScenarioProposalOnlyError as signal:
         return N4CandidateScenarioProposalOnlyExecution(
@@ -1186,72 +1271,79 @@ async def compile_and_run_recursive_generation_cycle(
             limitation_code=signal.limitation_code,
         )
     limitations: list[OpenWorldRiskPublicLimitation] = []
-    seen_vector_refs: set[str] = set()
-    from polisyos.runtime.quality.generation_cycle import (
-        GenerationCycleError,
-        eligible_n9_source_for_run,
-    )
+    if isinstance(recursive_run, RecursiveGenerationCycleRun):
+        seen_vector_refs: set[str] = set()
+        from polisyos.runtime.quality.generation_cycle import (
+            GenerationCycleError,
+            eligible_n9_source_for_run,
+        )
 
-    for leaf in recursive_run.leaf_nodes:
-        cycle_run = leaf.cycle_run
-        if cycle_run is None:  # pragma: no cover - enforced by RecursiveCycleNode
-            continue
-        if cycle_run.promotion_port.reason == ("epoch_validity_refused:policy_admission_missing"):
-            for limitation in project_pre_n9_open_world_limitations(
-                run=cycle_run,
-                design_problem=problem,
-                resolver=promotion_runtime.resolver,
-                repo_root=repo_root,
+        for leaf in recursive_run.leaf_nodes:
+            cycle_run = leaf.cycle_run
+            if cycle_run is None:  # pragma: no cover - enforced by RecursiveCycleNode
+                continue
+            if cycle_run.promotion_port.reason == (
+                "epoch_validity_refused:policy_admission_missing"
             ):
+                for limitation in project_pre_n9_open_world_limitations(
+                    run=cycle_run,
+                    design_problem=problem,
+                    resolver=promotion_runtime.resolver,
+                    repo_root=repo_root,
+                ):
+                    vector_key = str(limitation.vector_artifact_ref.artifact_id)
+                    if vector_key in seen_vector_refs:
+                        raise PublicExportRedactionError("open_world_projection_duplicate")
+                    seen_vector_refs.add(vector_key)
+                    limitations.append(limitation)
+            try:
+                n9_source = eligible_n9_source_for_run(cycle_run)
+            except GenerationCycleError as exc:
+                raise PublicExportRedactionError(
+                    exc.code,
+                    str(exc),
+                ) from exc
+            if n9_source is None:
+                if cycle_run.promotion_port.receipts:
+                    raise PublicExportRedactionError(
+                        "generation_cycle_blocked_before_n9_cannot_supply_receipt"
+                    )
+                continue
+            for receipt_payload in n9_source.promotion_port.receipts:
+                try:
+                    receipt = CanonicalPromotionReceipt.model_validate(receipt_payload)
+                except ValueError as exc:
+                    raise PublicExportRedactionError(
+                        "promotion_receipt_invalid",
+                        str(exc),
+                    ) from exc
+                if promotion_runtime is None:
+                    raise PublicExportRedactionError("open_world_resolver_not_established")
+                limitation = project_promotion_open_world_limitation(
+                    run=cycle_run,
+                    design_problem=problem,
+                    receipt=receipt,
+                    resolver=promotion_runtime.resolver,
+                    repo_root=repo_root,
+                    n9_source=n9_source,
+                )
+                if limitation is None:
+                    continue
                 vector_key = str(limitation.vector_artifact_ref.artifact_id)
                 if vector_key in seen_vector_refs:
                     raise PublicExportRedactionError("open_world_projection_duplicate")
                 seen_vector_refs.add(vector_key)
                 limitations.append(limitation)
-        try:
-            n9_source = eligible_n9_source_for_run(cycle_run)
-        except GenerationCycleError as exc:
-            raise PublicExportRedactionError(
-                exc.code,
-                str(exc),
-            ) from exc
-        if n9_source is None:
-            if cycle_run.promotion_port.receipts:
-                raise PublicExportRedactionError(
-                    "generation_cycle_blocked_before_n9_cannot_supply_receipt"
-                )
-            continue
-        for receipt_payload in n9_source.promotion_port.receipts:
-            try:
-                receipt = CanonicalPromotionReceipt.model_validate(receipt_payload)
-            except ValueError as exc:
-                raise PublicExportRedactionError(
-                    "promotion_receipt_invalid",
-                    str(exc),
-                ) from exc
-            if promotion_runtime is None:
-                raise PublicExportRedactionError("open_world_resolver_not_established")
-            limitation = project_promotion_open_world_limitation(
-                run=cycle_run,
-                design_problem=problem,
-                receipt=receipt,
-                resolver=promotion_runtime.resolver,
-                repo_root=repo_root,
-                n9_source=n9_source,
-            )
-            if limitation is None:
-                continue
-            vector_key = str(limitation.vector_artifact_ref.artifact_id)
-            if vector_key in seen_vector_refs:
-                raise PublicExportRedactionError("open_world_projection_duplicate")
-            seen_vector_refs.add(vector_key)
-            limitations.append(limitation)
     recursive_run_payload = recursive_run.model_dump(
         mode="json",
         exclude={"leaf_nodes"},
     )
     payload = {
-        "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+        "schema_version": (
+            COMPILED_RECURSIVE_GENERATION_CYCLE_PARTIAL_SCHEMA_VERSION
+            if isinstance(recursive_run, RecursiveGenerationCyclePartialRunV2)
+            else COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION
+        ),
         "design_problem_ref": problem_ref,
         "design_problem": problem.model_dump(mode="json"),
         "cycle_substrate_context_ref": (
@@ -1260,9 +1352,7 @@ async def compile_and_run_recursive_generation_cycle(
         "recursive_run": recursive_run_payload,
     }
     if recursive_budget_resolution is not None:
-        payload["recursive_budget_resolution"] = recursive_budget_resolution.model_dump(
-            mode="json"
-        )
+        payload["recursive_budget_resolution"] = recursive_budget_resolution.model_dump(mode="json")
     if limitations:
         payload["open_world_risk_limitations"] = tuple(
             row.model_dump(mode="json") for row in limitations
@@ -1315,6 +1405,7 @@ def _classify_target_world_scope_profile(
 
 
 __all__ = [
+    "COMPILED_RECURSIVE_GENERATION_CYCLE_PARTIAL_SCHEMA_VERSION",
     "COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION",
     "CompiledRecursiveGenerationCycleRun",
     "N4CandidateProposalExecution",

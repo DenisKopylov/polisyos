@@ -1,0 +1,12 @@
+id = "2026-10-08-orch04-c10-candidate-recovery"
+title = "Recover candidate recursive frontier and bind complete child context"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-runtime"
+summary = "Preserve owner data requirements during N8 projection; retain budget-stopped recursive checkpoints and persist full candidate child context for owned replay. Overview displays conditional and partial component observations without publication authority."
+change_class = "internal"
+surface_classification = "internal: runtime recursive generation and manual candidate Overview component"
+compatibility = "Absent capsule fields serialize with historical omission. Existing root configured paths retain their callback contract; child simulation requires complete canonical owner binding."
+migration = "G must select/review Core DTO and validator companions before the ordinary served parsed client can consume new projection fields."
+limitations = "Bounded actual-atom child production and internal owner-bound intake are implemented; ordinary served source/profile selection and parsed DTO/reader companions remain unestablished. No native consumer, source acceptance, formal G closure, or production claim is issued by this fragment."
+evidence = ["tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py", "tests/unit/runtime/quality/test_generation_cycle.py", "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py", "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx"]

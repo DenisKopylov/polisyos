@@ -13,6 +13,7 @@ from uuid import uuid4
 import pytest
 
 import polisyos.runtime.http.services.control.generation_cycle as generation_cycle_service
+from polisyos.core.artifacts import ArtifactStore
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.design_axes.coupling_composition import (
@@ -727,7 +728,11 @@ def _source_role(relative_path: str) -> str:
         return "example_only"
     if relative_path.startswith("docs/research/"):
         return "research_only"
-    if first in {"src", "tools", "apps", "ops", "architecture"}:
+    # Executable journals and worker/oracle programs can construct runtime owners.
+    # Their directory names do not exempt their calls from the actual census.
+    if first in {
+        "src", "tools", "apps", "ops", "architecture", "docs", "dev-oracles", "workers"
+    }:
         return "production_capable"
     if relative_path in {"jax_bootstrap.py", "migrate.py"}:
         return "production_capable"
@@ -848,6 +853,10 @@ def _assert_constructor_contract(
                     "cycle_substrate_context",
                     "promotion_runtime",
                     "value_port",
+                    "eval_safety_verifier",
+                    "artifact_store",
+                    "candidate_simulation_handoff",
+                    "candidate_simulation_currentness_resolver",
                 }
             ),
         ),
@@ -856,7 +865,12 @@ def _assert_constructor_contract(
             "src/polisyos/runtime/quality/generation_cycle.py",
             "GenerationCycleController.__init__",
             "polisyos.runtime.quality.promotion_sequence.CanonicalN9PromotionPort",
-            frozenset({"repo_root", "promotion_runtime", "epoch_n9_evidence_resolver"}),
+            frozenset(
+                {
+                    "repo_root", "promotion_runtime", "epoch_n9_evidence_resolver",
+                    "context_provider", "measurement_catalog", "measurement_providers",
+                }
+            ),
         ),
     }
     observed_production = {
@@ -1041,6 +1055,12 @@ def _assert_constructor_contract(
     assert len(constructors) == len(expected_production) + len(expected_verification)
     assert not any(row.has_keyword_expansion for row in constructors)
     expected_promotion_calls = {
+        (
+            "polisyos.runtime.quality.generation_cycle",
+            "src/polisyos/runtime/quality/generation_cycle.py",
+            "GenerationCycleController._promote_completed_generation",
+            frozenset({"admitted_batch", "problem", "deployment_identity"}),
+        ),
         (
             "polisyos.runtime.quality.generation_cycle",
             "src/polisyos/runtime/quality/generation_cycle.py",
@@ -1249,8 +1269,11 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
 
     def actual_n5_input_ref(
         observation: object,
+        *,
+        artifact_store: ArtifactStore | None = None,
     ) -> object:
         assert observation is simulation
+        assert artifact_store is runtime.store
         return fixture.execution_context.evaluation_input_refs[0]
 
     monkeypatch.setattr(
@@ -2047,6 +2070,41 @@ async def test_recursive_leaf_preserves_history_and_current_problem_binding() ->
     assert leaf.cycle_run.cycles[-1].design_problem_ref == leaf.design_problem_ref
 
 
+def test_recursive_constructor_census_scans_executable_source_families() -> None:
+    """Executable families retain actual alias resolution and unknown refusal."""
+
+    repo_root = Path(__file__).resolve().parents[4]
+    paths, filesystem_paths = _production_python_paths(repo_root)
+    assert paths == filesystem_paths
+    for relative_path in (
+        "docs/superpowers/journals/family_probe.py",
+        "dev-oracles/family_probe.py",
+        "workers/family/tests/family_probe.py",
+    ):
+        assert _source_role(relative_path) == "production_capable"
+        found, ports, unresolved = _scan_python_source(
+            source="""
+from polisyos.runtime.quality.generation_cycle import GenerationCycleController as Owner
+Alias = Owner
+def build():
+    return Alias(repo_root=None)
+""",
+            module="synthetic.executable_family_probe",
+            source_path=relative_path,
+        )
+        assert len(found) == 1
+        assert found[0].source_path == relative_path
+        assert found[0].target == (
+            "polisyos.runtime.quality.generation_cycle.GenerationCycleController"
+        )
+        assert found[0].keyword_names == frozenset({"repo_root"})
+        assert found[0].authority_scope is None
+        assert not found[0].has_keyword_expansion
+        assert ports == unresolved == ()
+    with pytest.raises(AssertionError, match="unclassified Python/stub path"):
+        _source_role("unallocated/family_probe.py")
+
+
 def test_recursive_constructor_denominator_has_no_unwrapped_n9_call() -> None:
     repo_root = Path(__file__).resolve().parents[4]
     git_paths, filesystem_paths = _production_python_paths(repo_root)
@@ -2436,3 +2494,168 @@ async def test_implicit_contract_testing_candidate_completes_without_n9_authorit
     assert leaf.cycle_run.promotion_port.status == "not_promoted"
     assert leaf.cycle_run.promotion_port.receipts == ()
     assert leaf.cycle_run.promotion_port.certified_candidate_ids == ()
+
+
+def test_recursive_child_capsule_resolves_complete_owned_inputs_and_refuses_transplants(
+    tmp_path: Path,
+) -> None:
+    """Full problem/current configuration survives CAS; a parent marker cannot substitute."""
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioN5Config,
+        CandidateScenarioSetToRule,
+        CandidateSimulationContextHandoff,
+        CandidateSimulationContextInputs,
+        CandidateSimulationScenarioProfile,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        ConfiguredCandidateSimulationContextAdmissionOwner,
+        CycleSubstrateContextArtifactOwner,
+        cycle_job_profile_selection_ref,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        RecursiveLeafContextCapsule,
+        RecursiveLeafContextOwner,
+    )
+    from tests.unit.runtime.quality.test_cycle_substrate import (
+        _authenticated_tenant_scope,
+        _cycle_context,
+        _design_problem,
+        _registry,
+        _TestCurrentJobExecutionOwner,
+        _world_record,
+    )
+
+    problem = _design_problem()
+    registry = _registry("education")
+    world = _world_record(
+        "education", registry, region_or_jurisdiction="UA",
+        policy_slot_ids=("education.teaching_method", "learning_outcomes"),
+    )
+    context = _cycle_context(
+        registry=registry, world_model_record=world,
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+    )
+    profile_payload = {
+        "schema_version": "policyos.runtime.candidate_simulation_profile.v2",
+        "profile_id": "bounded-child-profile",
+        "purpose": "synthetic_candidate_scenario",
+        "profile_selection_ref": cycle_job_profile_selection_ref(problem),
+        "context_inputs": CandidateSimulationContextInputs(
+            substrate_registry=context.substrate_registry,
+            selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+            world_model_record=world,
+            intervention_substrate=context.intervention_substrate,
+            candidate_levers=(), transport_context=None,
+            source_pack_content_hash=context.source_pack_content_hash,
+            substrate_input_content_hash=context.substrate_input_content_hash,
+        ).model_dump(mode="json"),
+        "rule": CandidateScenarioSetToRule(
+            operator_kind="teaching_method_set_to", parameter_id="intensity",
+            target_world_slot="education.teaching_method", unit_id="synthetic_score",
+            minimum=0, maximum=1,
+        ).model_dump(mode="json"),
+        "n5": CandidateScenarioN5Config(
+            budget_ref="budget://bounded-child", horizon=HorizonSpec(start=0, end=0, step=1),
+            baseline_state={"education.teaching_method": 0.0, "learning_outcomes": 0.0},
+            seed=7, replications=2,
+        ).model_dump(mode="json"),
+        "limitations": (
+            "scenario_only", "real_profile_not_established", "real_time_not_established",
+            "grounding_not_established", "s8_blocked", "n9_not_admitted",
+        ),
+    }
+    profile = CandidateSimulationScenarioProfile.model_validate({
+        **profile_payload, "content_hash": gy_content_hash(profile_payload)
+    })
+    store = FileSystemCAS(tmp_path / "child-cas")
+    job_owner = _TestCurrentJobExecutionOwner("child-job", "child-run")
+    context_owner = CycleSubstrateContextArtifactOwner(store=store, control_store=job_owner)
+    admission_owner = ConfiguredCandidateSimulationContextAdmissionOwner(
+        profiles=(profile,), store=store,
+    )
+    owner = RecursiveLeafContextOwner(
+        store=store, context_owner=context_owner, admission_owner=admission_owner,
+    )
+    scope = {"tenant_id": "child-tenant", "cell_id": "child-cell"}
+    expected = {
+        "node_ref": "design://child", "parent_ref": "design://parent", "problem": problem,
+        "expected_job_id": "child-job", "expected_run_id": "child-run",
+        "expected_tenant_id": "child-tenant", "expected_cell_id": "child-cell",
+    }
+    with _authenticated_tenant_scope(**scope):
+        offer = admission_owner.admit_context(
+            problem=problem, job_id="child-job", run_id="child-run", **scope,
+        )
+        assert offer is not None
+        context_ref = context_owner.persist_for_current_job(offer.context, problem=problem)
+        handoff = CandidateSimulationContextHandoff(
+            context=offer.context, context_job_ref=context_ref, profile=profile,
+            profile_config_ref=offer.profile_config_ref,
+            job_id="child-job", run_id="child-run", **scope,
+        )
+        payload = {
+            "schema_version": "policyos.runtime.recursive_leaf_context.v1",
+            "authority_purpose": "candidate_leaf_replay_only",
+            "node_ref": "design://child", "parent_ref": "design://parent",
+            "problem": problem.model_dump(mode="json"),
+            "handoff": handoff.model_dump(mode="json"),
+        }
+        capsule = RecursiveLeafContextCapsule.model_validate({
+            **payload, "content_hash": gy_content_hash(payload)
+        })
+        capsule_ref = owner.persist(capsule)
+        assert owner.read(capsule_ref, **expected) == capsule
+        assert capsule.problem.authority_profile == problem.authority_profile
+        assert capsule.authority_purpose == "candidate_leaf_replay_only"
+        import asyncio
+
+        graph = derive_recursive_design_graph(
+            design_ref="design://parent",
+            module_refs=("design://child",),
+            parent_child_edges=(("design://parent", "design://child"),),
+            rule_version_ref="test://bounded-child-currentness",
+        )
+        controller = build_default_recursive_generation_cycle_controller(
+            promotion_runtime=PromotionRuntime(store=store),
+        )
+        from tests.unit.runtime.quality.test_generation_cycle import _budget
+
+        with pytest.raises(ValueError, match="recursive_child_context_owner_not_established"):
+            asyncio.run(controller.run(
+                graph,
+                problems_by_node={"design://parent": problem, "design://child": problem},
+                budget_state=_budget(),
+                recursive_budget=RecursiveCycleBudget(
+                    max_depth=1, max_nodes=2, min_cycles_per_leaf=1, max_cycles_per_leaf=1,
+                ),
+                cycle_substrate_contexts_by_node={"design://child": handoff.context},
+                candidate_simulation_handoffs_by_node={"design://child": handoff},
+                candidate_simulation_currentness_resolvers_by_node={"design://child": lambda: True},
+                execution_intents_by_node={"design://child": "simulate_only"},
+            ))
+        # Content hashes/markers remain valid; foreign actual problem fails.
+        changed = problem.model_copy(update={"problem_statement": "Different child objective"})
+        transplanted = {**payload, "problem": changed.model_dump(mode="json")}
+        with pytest.raises(ValueError, match="recursive_leaf_capsule_full_problem_mismatch"):
+            RecursiveLeafContextCapsule.model_validate({
+                **transplanted, "content_hash": gy_content_hash(transplanted)
+            })
+        with pytest.raises(ValueError, match="recursive_leaf_capsule_reader_binding_mismatch"):
+            owner.read(capsule_ref, **{**expected, "node_ref": "design://foreign"})
+        with pytest.raises(ValueError, match="historical_binding_mismatch"):
+            owner.read(capsule_ref, **{**expected, "expected_job_id": "foreign-job"})
+        # Historical replay retains the artifact after its execution lease;
+        # current execution admission independently refuses a changed job.
+        job_owner.record.job_id = "new-current-job"
+        with pytest.raises(ValueError, match="cycle_substrate_context_job_binding_mismatch"):
+            owner.require_current(capsule)
+        assert owner.read(capsule_ref, **expected) == capsule
+        no_profile_owner = RecursiveLeafContextOwner(
+            store=store, context_owner=context_owner,
+            admission_owner=ConfiguredCandidateSimulationContextAdmissionOwner(
+                profiles=(), store=store,
+            ),
+        )
+        with pytest.raises(ValueError, match="recursive_leaf_configured_profile_not_current"):
+            no_profile_owner.read(capsule_ref, **expected)

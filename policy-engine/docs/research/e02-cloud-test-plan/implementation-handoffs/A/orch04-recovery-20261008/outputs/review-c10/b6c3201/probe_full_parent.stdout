@@ -1,0 +1,25 @@
+{
+  "source_sha": "b6c3201aca6f8a94f05479269e13cde2dd3e7119",
+  "original_root_terminal": {
+    "kind": "recursive_blocked",
+    "reason": "Recursive parent lacks owner-proven coupling/composition inputs.",
+    "blocking_obligations": [
+      "subdesign_contract_denominator_missing"
+    ],
+    "budget_kind": null,
+    "costed_plan": null,
+    "data_need_spec": null
+  },
+  "forged_root_terminal": {
+    "kind": "grounded_admissible",
+    "reason": "Source-independent forged root outcome",
+    "blocking_obligations": [],
+    "budget_kind": null,
+    "costed_plan": null,
+    "data_need_spec": null
+  },
+  "forged_positive_accepted": true,
+  "error": null,
+  "origin_count": 1457,
+  "origins_outside_export": []
+}

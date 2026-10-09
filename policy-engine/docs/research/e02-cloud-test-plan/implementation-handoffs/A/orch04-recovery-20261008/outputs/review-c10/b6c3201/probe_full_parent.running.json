@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/workspace/ORCH04-environments/app/bin/python",
+    "/workspace/ORCH04-evidence/review-c10/b6c3201/probe_full_parent.py"
+  ],
+  "cwd": "/workspace/ORCH04-evidence/review-c10/b6c3201/probe-export/policy-engine",
+  "PYTHONPATH": "/workspace/ORCH04-evidence/review-c10/b6c3201/probe-export/policy-engine/src:/workspace/ORCH04-evidence/review-c10/b6c3201/probe-export/policy-engine",
+  "pid": 16272,
+  "started_utc": "2026-10-08T16:27:20.018016+00:00"
+}

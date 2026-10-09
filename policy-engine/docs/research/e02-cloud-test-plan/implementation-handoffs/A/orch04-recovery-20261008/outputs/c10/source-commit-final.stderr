@@ -1,0 +1,42 @@
+(node:15432) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+╭───────────────────────────────────╮
+│ lefthook v2.1.6  hook: pre-commit │
+╰───────────────────────────────────╯
+┃  check-reduced-motion ❯ 
+
+(node:15514) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Reduced-motion checks passed.
+
+┃  check-contrast ❯ 
+
+(node:15515) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Contrast checks passed.
+
+┃  prettier ❯ 
+
+(node:15517) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15567) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+src/features/runs/routes/tabs/OverviewTab.test.tsx 100ms (unchanged)
+src/features/runs/routes/tabs/OverviewTab.tsx 130ms (unchanged)
+src/shared/i18n/locales/en.json 142ms (unchanged)
+src/shared/i18n/locales/uk.json 88ms (unchanged)
+
+┃  eslint ❯ 
+
+(node:15516) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15554) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+                                      
+  ────────────────────────────────────
+summary: (done in 29.50 seconds)      
+✓ check-reduced-motion (0.20 seconds)
+✓ check-contrast (0.26 seconds)
+✓ prettier (1.35 seconds)
+✓ eslint (29.25 seconds)

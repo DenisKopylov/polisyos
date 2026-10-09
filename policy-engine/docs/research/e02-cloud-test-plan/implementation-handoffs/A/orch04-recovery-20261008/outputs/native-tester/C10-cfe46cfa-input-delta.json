@@ -1,0 +1,35 @@
+{
+  "from_source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+  "from_tree": "46aab0ec802b239da47d4fab5ee1d7e1f616045a",
+  "to_source": "cfe46cfa8428d4388a44d2d68828ad1a5a19b256",
+  "to_tree": "3313e6e84959cd7d43ad18aa083baf26563a0c86",
+  "to_parents": [
+    "bf3580aed1127fbb5c4e14d9ec8c50de073bfc89"
+  ],
+  "complete_changed_paths": [
+    "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py"
+  ],
+  "all_product_frontend_lock_and_config_input_equal": true,
+  "all_equal_paths": 21500,
+  "product_frontend_lock_paths": 4383,
+  "changed_file_preimage": {
+    "path": "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+    "mode": "100644",
+    "git_blob": "e27cce3fd39442ccaa95570a95b1c9517d43d62e",
+    "bytes": 101485,
+    "sha256": "71ed85d66fc21d039c2ab2c0ed2c07add4ed4b276dbc79a8d795916c85cb166b"
+  },
+  "changed_file_postimage": {
+    "path": "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+    "mode": "100644",
+    "git_blob": "b38c1e184820d30180c6eae1ebe2ff42e5df0f9b",
+    "sha256": "31f15335100567b1fcef6cfa2e4379405b8809e5eb60d6b256daa4972c2462a8",
+    "size": 103950
+  },
+  "comparison_fields": [
+    "mode",
+    "git_blob",
+    "sha256"
+  ],
+  "qualification": "Only epochgate test file changed.03a native runtime/producer/property/fresh reader evidence remains labeled exact prior test/input packet; final wholeepoch wave is freshcfe. No whole finaltest-byte equality or allfresh51/nativeordinarychild/production claim."
+}

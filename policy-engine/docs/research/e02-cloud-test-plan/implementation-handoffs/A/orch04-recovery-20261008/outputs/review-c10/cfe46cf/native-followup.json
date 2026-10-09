@@ -1,0 +1,54 @@
+{
+  "schema": "policyos.orch04.C10.post-source-native-finding.v1",
+  "created_utc": "2026-10-08T17:02:26.062643+00:00",
+  "source": "cfe46cfa8428d4388a44d2d68828ad1a5a19b256",
+  "affected_native_file_cases": 37,
+  "PASS": 34,
+  "FAIL": 3,
+  "pid": 21609,
+  "wall_seconds": 75.477,
+  "source_status": "clean; source_before_after empty",
+  "new_owned_finding": {
+    "id": "C10-review-foundry-store-route-002",
+    "class": "missing_canonical_CAS_store_binding_to_owned_consumer",
+    "source_path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+    "source_seam": "RecursiveGenerationCycleController.run.route FoundryValuePort constructor",
+    "evidence": "strict actual N5 intake spy received artifact_store=None while recursive owner and N6 receive canonical PromotionRuntime.store",
+    "interpretation": "real default protected route wiring omission; fixture callback assertion must remain strict",
+    "minimal_supported_fix": "artifact_store=self._artifact_store in actual existing FoundryValuePort constructor",
+    "claim_limit": "missing mechanism binding, no production authority escape claim"
+  },
+  "separate_shared_diagnostics": [
+    "complete recursive constructor census nonleased docs/acquisition/tools",
+    "Task44 shared Core public export table"
+  ],
+  "source_review_after_new_finding": "HOLD_pending_owned_runtime_fix",
+  "previous_static_GO": "qualified review allowing affected run; not native consumer PASS or final source acceptance",
+  "artifacts": [
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-cfe46cfa-affected-epoch-wave/environment-origins.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-cfe46cfa-affected-epoch-wave/environment-origins.stdout.txt",
+      "bytes": 11159,
+      "sha256": "57553465915969db4b2ed1cd66ec28148852ddae3682d5b746bc3335d881354c"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-cfe46cfa-affected-epoch-wave/execution.json",
+      "bytes": 5035,
+      "sha256": "ebf713782f7f3cdd0277041c5f3966ab12dbf8eb43d8af007cfcaea660c33c41"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-cfe46cfa-affected-epoch-wave/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-cfe46cfa-affected-epoch-wave/stdout.txt",
+      "bytes": 20607,
+      "sha256": "e68ea3dc3032aa949eb0bf5f021dd3a2342012cac0967ba13e6d3d652943c638"
+    }
+  ]
+}

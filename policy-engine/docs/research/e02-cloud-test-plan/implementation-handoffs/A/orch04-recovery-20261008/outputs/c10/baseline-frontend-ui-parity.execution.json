@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm",
+    "--dir",
+    "/workspace/ORCH04-evidence/c10/baseline-G032/policy-engine/apps/runtime-dashboard",
+    "exec",
+    "vitest",
+    "run",
+    "src/features/runs/routes/tabs/OverviewTab.test.tsx",
+    "src/shared/i18n/parity.test.ts"
+  ],
+  "cwd": "/workspace/ORCH04-C10",
+  "started_utc": "2026-10-08T16:29:14.090499+00:00",
+  "python_executable": "/workspace/ORCH04-environments/app/bin/python",
+  "profile_env": {
+    "PYTHONPATH": null,
+    "NODE_USE_ENV_PROXY": "1",
+    "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+    "npm_config_store_dir": "/workspace/.polisyos-environment/cache/pnpm"
+  },
+  "pid": 16669,
+  "finished_utc": "2026-10-08T16:29:45.548572+00:00",
+  "elapsed_seconds": 31.458088618999682,
+  "returncode": 1,
+  "outputs": {
+    ".stdout": {
+      "bytes": 431,
+      "sha256": "9db6408ac7786068a6abd4b77f5c93bf2c85874845a826960e33ef2be23d5f99"
+    },
+    ".stderr": {
+      "bytes": 3851,
+      "sha256": "4d84a2cc9e5a84e8f32b2e64a616e48a9caae015d887b110c6acdc0098253cad"
+    }
+  }
+}

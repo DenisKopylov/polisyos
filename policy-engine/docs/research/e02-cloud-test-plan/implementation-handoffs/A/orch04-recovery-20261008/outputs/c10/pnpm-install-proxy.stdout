@@ -1,0 +1,21 @@
+Scope: all 6 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +1213
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 1213, reused 1211, downloaded 0, added 533
+Progress: resolved 1213, reused 1211, downloaded 0, added 1213, done
+
+apps/runtime-dashboard prepare$ node ../../tools/devx/install_repo_hooks.mjs
+apps/runtime-dashboard prepare: (node:3293) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+apps/runtime-dashboard prepare: (Use `node --trace-warnings ...` to show where the warning was created)
+apps/runtime-dashboard prepare: Done
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: @sentry/cli@2.58.5, esbuild@0.25.12,                │
+│   esbuild@0.27.7, lefthook@2.1.6, msw@2.14.2, unrs-resolver@1.11.1.          │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Done in 2.4s using pnpm v10.33.2

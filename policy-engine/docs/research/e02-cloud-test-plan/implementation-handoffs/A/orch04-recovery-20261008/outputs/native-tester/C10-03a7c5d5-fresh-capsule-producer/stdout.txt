@@ -1,0 +1,1 @@
+{"case": "producer", "synthetic_packet": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-packet.json", "cas_root": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-fresh-capsule-fixture/child-cas"}

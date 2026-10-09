@@ -1,0 +1,13 @@
+{
+  "baseline": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source",
+  "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+  "preimage_sha256": "8fc4063cd126e8c05317b7da642f81fed75ae27ec600c2106adebfcf1fbb951b",
+  "postimage_sha256": "12f530917da28fd68d83658352796e3ddac12dbb8fa497ce74316f977a1d89ad",
+  "replacements": [
+    [
+      "        \"\"\"Resolve complete child evidence afresh before candidate execution.\"\"\"\n",
+      "        \"\"\"Resolve complete child evidence afresh before candidate execution.\"\"\"\n        return  # current-owner methods and markers retained below\n"
+    ]
+  ],
+  "purpose": "remove runtime property while keeping named markers/refs/testing inputs intact"
+}

@@ -1,0 +1,97 @@
+{
+  "schema": "policyos.orch04.C10.test-companion-ownership.v1",
+  "created_utc": "2026-10-08T16:49:00.193052+00:00",
+  "reviewer": "/root/review_c10",
+  "source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+  "G": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "test": "test_task_44_public_export_denominator_is_exact",
+  "ownership": "shared_Core_decision_validity_API_census; outside_C10_own_mechanism_lease",
+  "basis": "Complete owner/facade export set and order, control API and lazy import origins, Scientist facade exclusions; no C10 runtime export change. Dispatch test-start path is discovery selector, not blanket write lease.",
+  "stale_expected_names_count": 34,
+  "actual_selected_names_count": 45,
+  "added_selected_public_names": [
+    "DecisionValidityEpochImpactOwnerRow",
+    "DecisionValidityEpochImpactSnapshot",
+    "DecisionValidityEpochImpactSnapshotHandle",
+    "DecisionValidityEpochImpactTarget",
+    "EpochDenominatorReconciliationAdmissionBinding",
+    "EpochTransitionDenominatorMappingRow",
+    "EpochTransitionDenominatorReconciliationHandle",
+    "EpochTransitionDenominatorReconciliationReader",
+    "EpochTransitionDenominatorReconciliationReceipt",
+    "PersistedDecisionValidityEpochImpactSnapshot",
+    "PersistedEpochTransitionDenominatorReconciliation"
+  ],
+  "missing_original_names": [],
+  "additional_symbol_supplier_commit": "712eaa467f33f8471a2c72e884258e1fa5674f95",
+  "minimal_G_companion_requirement": [
+    "Review and reconcile exact selected decision_validity public API owner/facade ordered denominator with the later 11 already-present contracts; do not invent or remove Core contracts in C10.",
+    "Retain complete exact owner/facade denominator, lazy import owner identity, same-name object identity, control epoch request/response expectations and all forbidden private/authority symbols; reconcile any deliberately changed owner contract explicitly.",
+    "Run this exact isolated export consumer plus its same-oracle mutations after G companion freeze; do not copy current observed exports into expected table without contract/source review."
+  ],
+  "C10_action": "retain diagnostic FAIL and supply this requirement; no expected global table edit",
+  "allowed_other_C10_mirrored_repairs": [
+    "actual_n5_input_ref keyword-only artifact_store input and canonical runtime.store identity witness",
+    "recursive constructor guard source_role complete known docs/dev-oracles/workers family classification conservatively production_capable; retain unknown family refusal, Git/filesystem denominator parity and foreign/unwrapped constructors coverage"
+  ],
+  "reviewed_inputs": [
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+      "source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+      "git_blob": "e27cce3fd39442ccaa95570a95b1c9517d43d62e",
+      "sha256": "71ed85d66fc21d039c2ab2c0ed2c07add4ed4b276dbc79a8d795916c85cb166b",
+      "same_as_G": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/decision_validity.py",
+      "source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+      "git_blob": "d65cc85d832575168469f5943ff45d235165ffb0",
+      "sha256": "abaffe00d724cca864c6486193a0ef5890a2fd1ac253bcad37ffbc9f632ad380",
+      "same_as_G": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+      "git_blob": "80ecfa1eb62284adc453c5c74724059d81d3121a",
+      "sha256": "9b711f5139397946be246aca817aacfb31c7637385cac570cff71872470e7d4e",
+      "same_as_G": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/control.py",
+      "source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+      "git_blob": "f50c1bf321abfb05ed5c7aaa56a845a8ecf9ab65",
+      "sha256": "9de30a4eac9b123b9fc8cdfbedeb35e43663ea6d12d93d44b6dc8f68b14c7822",
+      "same_as_G": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/validation/__init__.py",
+      "source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+      "git_blob": "e2da6fadfd38ec5dcf30894c7e8a9dd162fe716a",
+      "sha256": "91906565a848458b26c669c8e8e04fc7648f8d4d1bf5e288f3b01259d3e160d3",
+      "same_as_G": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/validation/decision_validity.py",
+      "source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+      "git_blob": "a31eb97015906cd1388ec7aa6c7e61cd361ead83",
+      "sha256": "67edc90b91f44d834da4465a6721c361684439fd1ff1ed87859a78c86125a3b4",
+      "same_as_G": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C10.md",
+      "source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+      "git_blob": "bc3384e1c7bfa61fd269fd5bbeeae552dd54ba33",
+      "sha256": "63973b1ead21327d85b029fb0c5c3f6b1f207c8b0ab2eb4f675317f21acdf4bc",
+      "same_as_G": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/dispatch.json",
+      "source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+      "git_blob": "f2e8d2096b86148fb93d4eb61520d22002228a1d",
+      "sha256": "6d9d894368a214c820ef88265e22c07a832294fe0681cde4eedce14998f512a6",
+      "same_as_G": true
+    }
+  ],
+  "source_acceptance": "G only",
+  "native_initial_scope": "51 cases:44PASS6FAIL1explicitUNRUN skip; separate controls/fresh capsules are qualified evidence, not blanket native PASS"
+}

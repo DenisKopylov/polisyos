@@ -1,0 +1,4 @@
+[codex/e02-C10-recovery-20261008 b6c3201ac] fix(runtime): bind candidate child context and recover recursive frontier
+ 15 files changed, 2384 insertions(+), 182 deletions(-)
+ create mode 100644 policy-engine/release-fragments/unreleased/2026-10-08-orch04-c10-candidate-recovery.toml
+ create mode 100644 policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py

@@ -1,0 +1,32 @@
+{
+  "schema": "policyos.orch04.C10.independent-evidence-ack.v1",
+  "reviewer": "/root/review_c10",
+  "source": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+  "tree": "6506a68152d7a957fc7762e9846a72e7ab98d557",
+  "source_review": "GO_SCOPED",
+  "native_affected_selector": "test_non_simulation_leaf_requires_current_eval_safety_head",
+  "result": "PASS1of1",
+  "pid": 22389,
+  "wall_seconds": 67.88637827399998,
+  "source_before_after": [],
+  "JUnit_tests": 1,
+  "actual_import_checks": [
+    {
+      "module": "polisyos.runtime.quality.recursive_generation_cycle",
+      "path": "/workspace/ORCH04-C10/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "matches_final_git_bytes": true
+    },
+    {
+      "module": "polisyos.runtime.quality.generation_cycle",
+      "path": "/workspace/ORCH04-C10/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "matches_final_git_bytes": true
+    },
+    {
+      "module": "polisyos.core.artifacts.store",
+      "path": "/workspace/ORCH04-C10/policy-engine/src/polisyos/core/artifacts/store.py",
+      "matches_final_git_bytes": true
+    }
+  ],
+  "interpretation": "real owned route store binding repaired without weakening strict callback; no broader native or production positive",
+  "native_addendum": "/workspace/ORCH04-evidence/native-tester/C10-independent-native-final-addendum-e6854a70.json"
+}

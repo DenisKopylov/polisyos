@@ -1,0 +1,13 @@
+{
+  "baseline": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source",
+  "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+  "preimage_sha256": "8fc4063cd126e8c05317b7da642f81fed75ae27ec600c2106adebfcf1fbb951b",
+  "postimage_sha256": "94ad00bb9fb92e44138bda970b035ac2006fab85ced7abd88cb5a46590003126",
+  "replacements": [
+    [
+      "    if (\n        terminal.kind is not SearchTerminalKind.RECURSIVE_BLOCKED",
+      "    return terminal  # conservative invariant and named diagnostics retained below\n    if (\n        terminal.kind is not SearchTerminalKind.RECURSIVE_BLOCKED"
+    ]
+  ],
+  "purpose": "remove shared full/partial conservative-parent property while retaining every diagnostic marker/ref/body"
+}

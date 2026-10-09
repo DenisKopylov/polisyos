@@ -1,0 +1,83 @@
+{
+  "old_source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+  "final_source": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+  "full_source_files_all_equal": false,
+  "changed_product_file": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+  "changed_test_file": "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+  "exact_unchanged_owner_and_parent_models": {
+    "RecursiveLeafContextOwner": {
+      "old_sha256": "99bf82c885c0fffeac31675886f7d16753ac5e0e2b5229e13adcc1a5a8be217a",
+      "new_sha256": "99bf82c885c0fffeac31675886f7d16753ac5e0e2b5229e13adcc1a5a8be217a",
+      "exact_text_equal": true
+    },
+    "_fold_uncomposed_parent_terminal": {
+      "old_sha256": "4bc7977c2fb6fbd8fb1e4394127b14c765064a8addf2bd89553bf2501debe56d",
+      "new_sha256": "4bc7977c2fb6fbd8fb1e4394127b14c765064a8addf2bd89553bf2501debe56d",
+      "exact_text_equal": true
+    },
+    "_blocked_parent_terminal": {
+      "old_sha256": "6ee586f64b80b667551a40f65bfb15a05cc9131b156153943189f3ee2893e60d",
+      "new_sha256": "6ee586f64b80b667551a40f65bfb15a05cc9131b156153943189f3ee2893e60d",
+      "exact_text_equal": true
+    },
+    "RecursiveGenerationCycleRun": {
+      "old_sha256": "cd3ec455fdd1d2cc2aef45ef0cf68a8e6ab21e6050e2612a5d1b823106b03175",
+      "new_sha256": "cd3ec455fdd1d2cc2aef45ef0cf68a8e6ab21e6050e2612a5d1b823106b03175",
+      "exact_text_equal": true
+    },
+    "RecursiveGenerationCyclePartialRunV2": {
+      "old_sha256": "d35ff378469f022f73922a510e1601cc81aaf85cc35a09a6b3ae2e00f2d3d61c",
+      "new_sha256": "d35ff378469f022f73922a510e1601cc81aaf85cc35a09a6b3ae2e00f2d3d61c",
+      "exact_text_equal": true
+    }
+  },
+  "exact_capsule_test_function": {
+    "name": "test_recursive_child_capsule_resolves_complete_owned_inputs_and_refuses_transplants",
+    "old_sha256": "14526daf715c6c8ecb6cccd9a6bee9e3b0743aa1588a15ae6d4cc515b494b088",
+    "new_sha256": "14526daf715c6c8ecb6cccd9a6bee9e3b0743aa1588a15ae6d4cc515b494b088",
+    "exact_function_text_equal": true
+  },
+  "unchanged_complete_files": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "final_sha256": "40caaf6c37d4d4d89e9dd3f26954b1621dbd5d8163ddf37a4ba1e6d72586c643",
+      "old_sha256": "40caaf6c37d4d4d89e9dd3f26954b1621dbd5d8163ddf37a4ba1e6d72586c643"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+      "final_sha256": "e92783bb28ee30d9c75600921177711ebaace433d4d6905179d02818c9458225",
+      "old_sha256": "e92783bb28ee30d9c75600921177711ebaace433d4d6905179d02818c9458225"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/cycle_substrate.py",
+      "final_sha256": "d16440eff59fb66d98a9eabeb9437e120085fe46bbc015538c399d650ce19e74",
+      "old_sha256": "d16440eff59fb66d98a9eabeb9437e120085fe46bbc015538c399d650ce19e74"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "final_sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+      "old_sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "final_sha256": "8ffc00f30887724315dff5aa9e6f6d8d3298b0f6b92b0b3b1f02f45b627ec0eb",
+      "old_sha256": "8ffc00f30887724315dff5aa9e6f6d8d3298b0f6b92b0b3b1f02f45b627ec0eb"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_cycle_substrate.py",
+      "final_sha256": "297d0a3f3b0ef40ffe2733cc9f362142d2272474814d19158906254983432621",
+      "old_sha256": "297d0a3f3b0ef40ffe2733cc9f362142d2272474814d19158906254983432621"
+    },
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+      "final_sha256": "91072d69f4c94c7f7bf0020be09ba6379f9945c89ff6c57dd73c6e6a06b56747",
+      "old_sha256": "91072d69f4c94c7f7bf0020be09ba6379f9945c89ff6c57dd73c6e6a06b56747"
+    },
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+      "final_sha256": "1efad266144b6934341e2673614266984ccf33fd2d4b5a736a32e65ffcb536b9",
+      "old_sha256": "1efad266144b6934341e2673614266984ccf33fd2d4b5a736a32e65ffcb536b9"
+    }
+  ],
+  "qualification": "Owner/capsule/full-partial model mechanisms and their bounded fixture function text remain exact. The recursive controller run differs only by explicit protected FoundryValuePort CAS forwarding, freshly tested by sole affected e685 selector. Prior03a properties/readers/producer inputs remain labeled exact earlier immutable packet; no whole final testmodule/source-file equality or allfresh consumer claim."
+}

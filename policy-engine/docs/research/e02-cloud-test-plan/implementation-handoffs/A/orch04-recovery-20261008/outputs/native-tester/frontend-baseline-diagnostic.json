@@ -1,0 +1,70 @@
+{
+  "schema": "orch04.frontend_baseline_diagnostic.v1",
+  "scope": "ordinary supported locked Node frontend command, actual readonly admitted C13 lane; all actual policy-engine non-receipt tracked inputs equal G032",
+  "baseline": {
+    "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+    "actual_head": "1c8c3f3e068a2bd86dc88d4918621149aaf3179c",
+    "actual_tree": "010cec28d2884d626ba7e7ed5ef101fcbacc2ccf",
+    "tests": 49,
+    "pass": 48,
+    "fail": 1,
+    "expected_leaf_census": [
+      2879,
+      2879
+    ],
+    "actual_leaf_census": [
+      2907,
+      2907
+    ],
+    "status": "diagnostic FAIL; no general frontend PASS",
+    "files": [
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C13-G032-frontend-ui-parity-baseline-v2/execution.json",
+        "sha256": "0fe720558048043fa28f32346e38aed644869187c0982d67ba304c09a1ac5855",
+        "bytes": 5574
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C13-G032-frontend-ui-parity-baseline-v2/stdout.txt",
+        "sha256": "38df1cf6e402ccd3bd7f120a86b58c415539b796c7bb3301453137b54c3b16b7",
+        "bytes": 408
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C13-G032-frontend-ui-parity-baseline-v2/stderr.txt",
+        "sha256": "e000dde90d9ac2cff1e767237a01a5a61368182c96011e70c89927ad72a7cacd",
+        "bytes": 1723
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C13-G032-frontend-ui-parity-baseline-v2/input-equality.json",
+        "sha256": "6f33ad26263eb4f92adae4f59c3baa42706a0fe8afa24f18d7b33e414ef51b60",
+        "bytes": 4240480
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C13-G032-frontend-ui-parity-baseline-v2/runner-origins.json",
+        "sha256": "884b52da404f25810a93385e325457a8f1f254d85f3551fd1a8faae0ea2e091a",
+        "bytes": 699
+      }
+    ]
+  },
+  "candidate_author_exact_run": {
+    "tests": 48,
+    "pass": 47,
+    "fail": 1,
+    "actual_leaf_census": [
+      2923,
+      2923
+    ],
+    "additional_leaf_count_per_locale": 16,
+    "execution": {
+      "path": "/workspace/ORCH04-evidence/c10/frontend-ui-parity.execution.json",
+      "sha256": "a52bc21eb9fa5ef0be8ec30fc557870861af52aa1c6ef9cfa8132ffa6bdf9c4d",
+      "bytes": 1024
+    },
+    "source": "C10 b6c3201/03a runtime delta; author UI/parity evidence source-qualified separately"
+  },
+  "preparation_error": {
+    "path": "/workspace/ORCH04-evidence/native-tester/C13-G032-frontend-ui-parity-baseline/preparation-error.json",
+    "sha256": "38d2018a3afbd45eb6569a8e8bb34b52b45c2cc94e40c2b26d39587f0ab416bd",
+    "bytes": 477
+  },
+  "limitation": "Actual inherited baseline mismatch and candidate additional16 census leaves do not waive check or permit PASS. DTO/browser/source-profile holds remain separate."
+}

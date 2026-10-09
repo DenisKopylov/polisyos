@@ -1,0 +1,71 @@
+.F                                                                       [100%]
+=================================== FAILURES ===================================
+____ test_configured_child_intake_refuses_missing_complete_owner_before_n6 _____
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-2/test_configured_child_intake_r0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f3ec10583e0>
+
+    def test_configured_child_intake_refuses_missing_complete_owner_before_n6(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Use the actual container composition; compiler/source inputs are controlled.
+    
+        This is a missing-owner consumer witness, not an ordinary parsed served
+        positive. Removing the child intake makes this refusal disappear even though
+        the independent manually supplied controller graph tests still pass.
+        """
+        import asyncio
+        from decimal import Decimal
+    
+        from polisyos.runtime.http.services.control import generation_cycle as cycle_service
+        from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
+        from polisyos.runtime.quality.recursive_generation_cycle import RecursiveCycleBudget
+        from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+        from tests.unit.runtime.quality.test_generation_cycle import (
+            _controlled_declared_n4_child_inputs,
+        )
+    
+        problem, result = _controlled_declared_n4_child_inputs()
+    
+        async def controlled_compiler(**_kwargs):
+            return problem
+    
+        monkeypatch.setattr(cycle_service, "build_design_problem_from_nl_request", controlled_compiler)
+        _, resolution = cycle_service._resolve_http_recursive_budget(1, candidate_child_count=2)
+>       env = build_runtime_api_env(tmp_path, app_kwargs={"candidate_simulation_profiles": ()})
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/runtime_quality/test_configured_candidate_simulation_served.py:1915: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2234: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/workspace/ORCH04-C10/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb')
+
+    def identify(path: Path) -> CatalogContentIdentity:
+        if not path.is_file():
+>           raise ValueError("catalog_fetch_source_unreadable")
+E           ValueError: catalog_fetch_source_unreadable
+
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: ValueError
+=============================== warnings summary ===============================
+../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/runtime_quality/test_configured_candidate_simulation_served.py::test_configured_child_intake_refuses_missing_complete_owner_before_n6

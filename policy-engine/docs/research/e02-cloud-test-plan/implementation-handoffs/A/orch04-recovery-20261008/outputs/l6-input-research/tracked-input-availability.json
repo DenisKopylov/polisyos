@@ -1,0 +1,274 @@
+{
+  "schema": "orch04.l6-source-only-input-availability.v1",
+  "paths": {
+    "intervention_knob_dictionary": "policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+    "lex_intervention_map": "policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json",
+    "observation_to_contract_manifest": "policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/observation_to_contract_manifest.json"
+  },
+  "source_objects_checked": [
+    {
+      "role": "G",
+      "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "command": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "0321633c0e6d9a87bccfbbe889a4998934c52dd3"
+      ],
+      "PID": 19914,
+      "started_utc": "2026-10-08T16:44:57.145796+00:00",
+      "ended_utc": "2026-10-08T16:44:57.243953+00:00",
+      "wall_seconds": 0.09815963500022917,
+      "exit_code": 0,
+      "stderr": "",
+      "recursive_path_object_listing_sha256": "651d5fd6bf14918cb38a63a7d915a90edaab6546ef264002ec40dbf9d672211d",
+      "required_controls": {
+        "intervention_knob_dictionary": {
+          "path": "policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+          "tracked": false
+        },
+        "lex_intervention_map": {
+          "path": "policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json",
+          "tracked": false
+        },
+        "observation_to_contract_manifest": {
+          "path": "policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/observation_to_contract_manifest.json",
+          "tracked": false
+        }
+      },
+      "tracked_same_basename_paths": [
+        {
+          "path": "policy-engine/tests/_data/lex/c6a/intervention_knob_dictionary.json",
+          "mode": "100644",
+          "type": "blob",
+          "object": "c44cef3c37203e6b2c288fc25a4add560fa01734"
+        },
+        {
+          "path": "policy-engine/tests/_data/lex/c6a/lex_intervention_map.json",
+          "mode": "100644",
+          "type": "blob",
+          "object": "40f89203fc493caff512e447bf363e89f8b82415"
+        }
+      ],
+      "canonical_owner_bindings": {
+        "path": "policy-engine/architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json",
+        "tracked": true,
+        "mode": "100644",
+        "type": "blob",
+        "object": "1705340a9f6bf75e60ae0f2b0777a97a1b957d7d"
+      }
+    },
+    {
+      "role": "A",
+      "commit": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+      "command": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "8bfea70b2e2090ad5c541b103b7521efc01b30eb"
+      ],
+      "PID": 19915,
+      "started_utc": "2026-10-08T16:44:57.246310+00:00",
+      "ended_utc": "2026-10-08T16:44:57.316360+00:00",
+      "wall_seconds": 0.07005368699992687,
+      "exit_code": 0,
+      "stderr": "",
+      "recursive_path_object_listing_sha256": "cf3d14e9e4e578fd03b6b7365fb926440aafc106403e5e012bdb4c79ba0429b7",
+      "required_controls": {
+        "intervention_knob_dictionary": {
+          "path": "policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+          "tracked": false
+        },
+        "lex_intervention_map": {
+          "path": "policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json",
+          "tracked": false
+        },
+        "observation_to_contract_manifest": {
+          "path": "policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/observation_to_contract_manifest.json",
+          "tracked": false
+        }
+      },
+      "tracked_same_basename_paths": [
+        {
+          "path": "policy-engine/tests/_data/lex/c6a/intervention_knob_dictionary.json",
+          "mode": "100644",
+          "type": "blob",
+          "object": "c44cef3c37203e6b2c288fc25a4add560fa01734"
+        },
+        {
+          "path": "policy-engine/tests/_data/lex/c6a/lex_intervention_map.json",
+          "mode": "100644",
+          "type": "blob",
+          "object": "40f89203fc493caff512e447bf363e89f8b82415"
+        }
+      ],
+      "canonical_owner_bindings": {
+        "path": "policy-engine/architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json",
+        "tracked": true,
+        "mode": "100644",
+        "type": "blob",
+        "object": "1705340a9f6bf75e60ae0f2b0777a97a1b957d7d"
+      }
+    },
+    {
+      "role": "B_prepared",
+      "commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+      "command": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "1e18a965b4334331dc3d5542b609f8a00bb35c6d"
+      ],
+      "PID": 19916,
+      "started_utc": "2026-10-08T16:44:57.318561+00:00",
+      "ended_utc": "2026-10-08T16:44:57.379943+00:00",
+      "wall_seconds": 0.06138687100019524,
+      "exit_code": 0,
+      "stderr": "",
+      "recursive_path_object_listing_sha256": "13b022d4a33b6a1116cacb3dfe15b87e72978f901291c1900e04b6568cc9ce01",
+      "required_controls": {
+        "intervention_knob_dictionary": {
+          "path": "policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+          "tracked": false
+        },
+        "lex_intervention_map": {
+          "path": "policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json",
+          "tracked": false
+        },
+        "observation_to_contract_manifest": {
+          "path": "policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/observation_to_contract_manifest.json",
+          "tracked": false
+        }
+      },
+      "tracked_same_basename_paths": [
+        {
+          "path": "policy-engine/tests/_data/lex/c6a/intervention_knob_dictionary.json",
+          "mode": "100644",
+          "type": "blob",
+          "object": "c44cef3c37203e6b2c288fc25a4add560fa01734"
+        },
+        {
+          "path": "policy-engine/tests/_data/lex/c6a/lex_intervention_map.json",
+          "mode": "100644",
+          "type": "blob",
+          "object": "40f89203fc493caff512e447bf363e89f8b82415"
+        }
+      ],
+      "canonical_owner_bindings": {
+        "path": "policy-engine/architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json",
+        "tracked": true,
+        "mode": "100644",
+        "type": "blob",
+        "object": "1705340a9f6bf75e60ae0f2b0777a97a1b957d7d"
+      }
+    },
+    {
+      "role": "D",
+      "commit": "8e864f4ed0eeedf509d836381b20976c413f2443",
+      "command": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "8e864f4ed0eeedf509d836381b20976c413f2443"
+      ],
+      "PID": 19917,
+      "started_utc": "2026-10-08T16:44:57.382297+00:00",
+      "ended_utc": "2026-10-08T16:44:57.430256+00:00",
+      "wall_seconds": 0.04796129899978041,
+      "exit_code": 0,
+      "stderr": "",
+      "recursive_path_object_listing_sha256": "ee8347f216311477e9c17079f5a6b8ede496de418074ef313713f7bc50a6e44b",
+      "required_controls": {
+        "intervention_knob_dictionary": {
+          "path": "policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+          "tracked": false
+        },
+        "lex_intervention_map": {
+          "path": "policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json",
+          "tracked": false
+        },
+        "observation_to_contract_manifest": {
+          "path": "policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/observation_to_contract_manifest.json",
+          "tracked": false
+        }
+      },
+      "tracked_same_basename_paths": [
+        {
+          "path": "policy-engine/tests/_data/lex/c6a/intervention_knob_dictionary.json",
+          "mode": "100644",
+          "type": "blob",
+          "object": "c44cef3c37203e6b2c288fc25a4add560fa01734"
+        },
+        {
+          "path": "policy-engine/tests/_data/lex/c6a/lex_intervention_map.json",
+          "mode": "100644",
+          "type": "blob",
+          "object": "40f89203fc493caff512e447bf363e89f8b82415"
+        }
+      ],
+      "canonical_owner_bindings": {
+        "path": "policy-engine/architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json",
+        "tracked": true,
+        "mode": "100644",
+        "type": "blob",
+        "object": "1705340a9f6bf75e60ae0f2b0777a97a1b957d7d"
+      }
+    },
+    {
+      "role": "E",
+      "commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+      "command": [
+        "git",
+        "ls-tree",
+        "-rz",
+        "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c"
+      ],
+      "PID": 19918,
+      "started_utc": "2026-10-08T16:44:57.431944+00:00",
+      "ended_utc": "2026-10-08T16:44:57.521314+00:00",
+      "wall_seconds": 0.08937424400028249,
+      "exit_code": 0,
+      "stderr": "",
+      "recursive_path_object_listing_sha256": "eb36ae486bdba2d147f694c964de6b2b88b8a209d8f1097033d4c78ac273b0ec",
+      "required_controls": {
+        "intervention_knob_dictionary": {
+          "path": "policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+          "tracked": false
+        },
+        "lex_intervention_map": {
+          "path": "policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json",
+          "tracked": false
+        },
+        "observation_to_contract_manifest": {
+          "path": "policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/observation_to_contract_manifest.json",
+          "tracked": false
+        }
+      },
+      "tracked_same_basename_paths": [
+        {
+          "path": "policy-engine/tests/_data/lex/c6a/intervention_knob_dictionary.json",
+          "mode": "100644",
+          "type": "blob",
+          "object": "c44cef3c37203e6b2c288fc25a4add560fa01734"
+        },
+        {
+          "path": "policy-engine/tests/_data/lex/c6a/lex_intervention_map.json",
+          "mode": "100644",
+          "type": "blob",
+          "object": "40f89203fc493caff512e447bf363e89f8b82415"
+        }
+      ],
+      "canonical_owner_bindings": {
+        "path": "policy-engine/architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json",
+        "tracked": true,
+        "mode": "100644",
+        "type": "blob",
+        "object": "1705340a9f6bf75e60ae0f2b0777a97a1b957d7d"
+      }
+    }
+  ],
+  "production_packet_bytes_read_or_exported": false,
+  "generation_performed": false,
+  "substitute_fixture_bytes_used": false,
+  "scope": "Only Git tracked path/object metadata and canonical producer source; no production payload access."
+}

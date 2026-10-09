@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "/workspace/ORCH04-environments/app/bin/python",
+    "-m",
+    "pytest",
+    "tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
+    "-q"
+  ],
+  "cwd": "/workspace/ORCH04-C10/policy-engine",
+  "started_utc": "2026-10-08T16:31:29.890149+00:00",
+  "python_executable": "/workspace/ORCH04-environments/app/bin/python",
+  "profile_env": {
+    "PYTHONPATH": "src:tests",
+    "NODE_USE_ENV_PROXY": null,
+    "COREPACK_HOME": null,
+    "npm_config_store_dir": null
+  },
+  "pid": 17923,
+  "finished_utc": "2026-10-08T16:32:00.230580+00:00",
+  "elapsed_seconds": 30.340659245000097,
+  "returncode": 0,
+  "outputs": {
+    ".stdout": {
+      "bytes": 655,
+      "sha256": "8adc04c5d81fa20b5a20292fc21958daad183e036fa3a4531826f9d6bb71a9e9"
+    },
+    ".stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

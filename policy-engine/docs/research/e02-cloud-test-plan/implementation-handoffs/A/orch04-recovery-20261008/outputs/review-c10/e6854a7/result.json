@@ -1,0 +1,245 @@
+{
+  "schema": "policyos.e02.orch04.independent-source-review.v1",
+  "created_utc": "2026-10-08T17:12:24.813678+00:00",
+  "reviewer": "/root/review_c10",
+  "role": "readonly independent source/test reviewer; no children",
+  "source": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+  "tree": "6506a68152d7a957fc7762e9846a72e7ab98d557",
+  "parents": [
+    "cfe46cfa8428d4388a44d2d68828ad1a5a19b256"
+  ],
+  "base": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "complete_footprint_count": 15,
+  "source_manifest_denominator_pre_postimages": "verified",
+  "source_review": "GO_SCOPED_WITH_EXPLICIT_SHARED_INPUT_COMPANION_DIAGNOSTICS",
+  "G_source_acceptance": "pending_G",
+  "native_final_consumer": "UNRUN_at_review_issuance; independent_tester_started_after_GO",
+  "ordinary_parsed_served_child_browser_positive": "not_established",
+  "production_claim": false,
+  "findings": [
+    {
+      "id": "C10-review-parent-no-evidence-001",
+      "class": "self_asserted_uncomposed_parent_terminal",
+      "initial_source": "b6c3201aca6f8a94f05479269e13cde2dd3e7119",
+      "initial_deciding_result": "FAIL",
+      "status": "fixed_by_structural_full_partial_reconciliation",
+      "repair_source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+      "final_original_falsifier": "PASS_specific_rejection",
+      "production_escape": "not_established"
+    },
+    {
+      "id": "C10-review-foundry-store-route-002",
+      "class": "missing_canonical_CAS_store_binding_to_owned_consumer",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "source_seam": "RecursiveGenerationCycleController.run.route FoundryValuePort constructor",
+      "evidence": "strict actual N5 intake spy received artifact_store=None while recursive owner and N6 receive canonical PromotionRuntime.store",
+      "interpretation": "real default protected route wiring omission; fixture callback assertion must remain strict",
+      "minimal_supported_fix": "artifact_store=self._artifact_store in actual existing FoundryValuePort constructor",
+      "claim_limit": "missing mechanism binding, no production authority escape claim",
+      "status": "fixed_by_actual_canonical_owner_store_keyword",
+      "repair_source": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+      "fresh_deciding_result": "PASS1of1 strict original unchanged callback",
+      "source_HOLD_preserved": "cfe46cf/native-followup.json"
+    }
+  ],
+  "diagnostics": [
+    {
+      "id": "active_locale_census",
+      "status": "FAIL",
+      "scope": "affected active en/uk complete catalog census",
+      "expected": 2879,
+      "G_actual": 2907,
+      "candidate_actual": 2923,
+      "own_delta": 16,
+      "baseline_attempt": "actual48PASS1FAIL49cases; prior pnpm dependency setup ERROR remains; clean admitted baseline replay delegated",
+      "waived": false
+    },
+    {
+      "id": "Task44_shared_Core_public_export_census",
+      "status": "FAIL",
+      "owner": "G/canonical shared Core API owner",
+      "C10_action": "no global table mutation; minimal proposal retained"
+    },
+    {
+      "id": "complete_constructor_census_nonleased_inputs",
+      "status": "FAIL",
+      "owner": "canonical docs/acquisition/tools suppliers via G",
+      "C10_action": "conservative complete family inclusion; own literal rows only; no exclusion or authority whitelist"
+    }
+  ],
+  "held_companions": [
+    "RunDetails conditional_simulation_values and recursive_cycle_checkpoint Core/export/facade/generated family and canonical validator intake",
+    "fresh persisted served reader and failure readback after selected companion composition"
+  ],
+  "held_inputs": [
+    "actual configured root N4 source with compatible qualified levers, full perchild profile selection and explicit supported budget",
+    "typed B36 transformation input/output/provenance where required",
+    "actual N5/subdesign coupling/composition evidence for positive parent; otherwise conservative blocked"
+  ],
+  "old_receipt_bytes": "a92f579 unavailable on this host; no reconstructed identity/PASS",
+  "artifacts": [
+    {
+      "path": "/workspace/ORCH04-evidence/review-c10/e6854a7/REPORT.md",
+      "bytes": 9225,
+      "sha256": "715b162d342090d5b32703aa05f4d6feb9d1333c56c467f0e868b90909c4e740"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/review-c10/e6854a7/source-identity.json",
+      "bytes": 6215,
+      "sha256": "7df9bdec61573d1ba5f89bd4d3e4bc648ec70557bddeefd15409bc31782190b4"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/review-c10/e6854a7/author-source-input-manifest.json",
+      "bytes": 11927,
+      "sha256": "3e105030b7b007e910422a5fa313c40740604ae72fa890a48026d5a828565af7"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/review-c10/e6854a7/delta.diff",
+      "bytes": 800,
+      "sha256": "7c28bdcf011cabd43e8034e60f988ca8117ba2af4dbecda4aa0b97632a756b76"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/review-c10/e6854a7/candidate.diff",
+      "bytes": 161603,
+      "sha256": "75daf9f366733db2b0c2b2e79ca94bfd7431ef4c4fb8fb7de845e83a4d85745d"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/review-c10/e6854a7/native-evidence-ack.json",
+      "bytes": 1386,
+      "sha256": "58db1fa4268c7c98b69a08b62798cc37193ebef098624d284fa72ac89a333698"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-single-current-head/execution.json",
+      "bytes": 5109,
+      "sha256": "21a7702ab6c6071f23bb03817662f92868a7ed3eeb911c2d093672653d9c3042"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-single-current-head/stdout.txt",
+      "bytes": 655,
+      "sha256": "05e1128cd82465a3bc4bf8d9609a42591cca4e38800bae947b995d4eabbe2ba0"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-single-current-head/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-single-current-head.xml",
+      "bytes": 423,
+      "sha256": "e7dfed7fa9b0fa7969d2e4e4c4608f621969ce1a90ac64329e43a11e1d93bce7"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-actual-origins/stdout.txt",
+      "bytes": 1274,
+      "sha256": "c0963a8b515d191224f8c3b855e7b89d6c3ad0a7b552ea08822caea2c916468c"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-input-delta.json",
+      "bytes": 1642,
+      "sha256": "eeb20a8ee17c71dcf559c63e3a2a7c02dcf9a9bf14c5c5f008044ae862f3af32"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-e6854a70-git-after-tests.json",
+      "bytes": 385,
+      "sha256": "9ede3ef32e966e01b19ef718a0e343db1640338a808c187f134b5235eba759c4"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-independent-native-final-addendum-e6854a70.json",
+      "bytes": 25856,
+      "sha256": "9e766b505e59cefe86af2d6f6e2ade1943c715b8e86bc4682049a94e1048c6d2"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/frontend-baseline-diagnostic.json",
+      "bytes": 2798,
+      "sha256": "c00ef5b7c8aca55ef02fb4a5396070d91e49831ceaa0bf089bb9b0245816323c"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/review-c10/test-companion-ownership.json",
+      "bytes": 5484,
+      "sha256": "f4e220722b0f2dd0c634b65e18a0ef74b44aea6722705bf7730a956e7db37d5d"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/review-c10/constructor-census-companion.json",
+      "bytes": 3623,
+      "sha256": "6c15c9ea352a56361be3675d1b6b94f8f82ae40d633b61f61e7e719d388a6149"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/review-c10/complete-scanner-mismatch-census-03a7.json",
+      "bytes": 4579,
+      "sha256": "fdbd8fa269adecfbaaa7b2d636e1afc4712c5cfe4229fe7a7699ee048272b935"
+    }
+  ],
+  "report": "/workspace/ORCH04-evidence/review-c10/e6854a7/REPORT.md",
+  "previous_reviewed_source": "cfe46cfa8428d4388a44d2d68828ad1a5a19b256",
+  "test_companion_source_review": "GO_FOR_AFFECTED_EPOCH_GATE_FILE",
+  "runtime_and_frontend_from_previous": "one recursive source keyword changed; all test/frontend/lock/other source equalcfe; fine-grained unaffected03a property closure retained in independent addendum",
+  "native_03a_scope": {
+    "cases": 51,
+    "pass": 44,
+    "fail": 6,
+    "explicit_UNRUN_skip": 1,
+    "source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+    "qualification": "not full final test-byte equality or blanket native PASS"
+  },
+  "native_final_affected_epoch_gate": {
+    "source": "cfe46cfa8428d4388a44d2d68828ad1a5a19b256",
+    "cases": 37,
+    "PASS": 34,
+    "FAIL": 3,
+    "qualification": "raw retained; one own failed selector repaired and fresh-tested on e685; two shared diagnostics unchanged"
+  },
+  "global_Core_Task44_test": "exact_unchanged; shared_core_census_outside_C10_lease; retained_diagnostic_FAIL",
+  "constructor_guard": "own callsites reconciled; complete nonleased source companion diagnostic_FAIL retained",
+  "native_followup": "historical cfe46cf/native-followup.json; superseded only for the owned CAS binding by final affected1PASS",
+  "native_final_affected_selector": {
+    "schema": "policyos.orch04.C10.independent-evidence-ack.v1",
+    "reviewer": "/root/review_c10",
+    "source": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+    "tree": "6506a68152d7a957fc7762e9846a72e7ab98d557",
+    "source_review": "GO_SCOPED",
+    "native_affected_selector": "test_non_simulation_leaf_requires_current_eval_safety_head",
+    "result": "PASS1of1",
+    "pid": 22389,
+    "wall_seconds": 67.88637827399998,
+    "source_before_after": [],
+    "JUnit_tests": 1,
+    "actual_import_checks": [
+      {
+        "module": "polisyos.runtime.quality.recursive_generation_cycle",
+        "path": "/workspace/ORCH04-C10/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "matches_final_git_bytes": true
+      },
+      {
+        "module": "polisyos.runtime.quality.generation_cycle",
+        "path": "/workspace/ORCH04-C10/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "matches_final_git_bytes": true
+      },
+      {
+        "module": "polisyos.core.artifacts.store",
+        "path": "/workspace/ORCH04-C10/policy-engine/src/polisyos/core/artifacts/store.py",
+        "matches_final_git_bytes": true
+      }
+    ],
+    "interpretation": "real owned route store binding repaired without weakening strict callback; no broader native or production positive",
+    "native_addendum": "/workspace/ORCH04-evidence/native-tester/C10-independent-native-final-addendum-e6854a70.json"
+  },
+  "native_blanket_final_scope_PASS": false,
+  "frontend_candidate": {
+    "component_tests": 4,
+    "component_PASS": 4,
+    "joint_total": 52,
+    "joint_PASS": 51,
+    "joint_FAIL": 1,
+    "typecheck_exit": 0,
+    "build_exit": 0,
+    "scope": "unchanged exact frontend bytes; censusFAIL unwaived"
+  },
+  "frontend_clean_G_baseline": {
+    "total": 49,
+    "PASS": 48,
+    "FAIL": 1,
+    "actual_census": 2907,
+    "expected": 2879,
+    "scope": "actual admitted C13 locked source inputs equalG032; preparationERROR retained separately"
+  }
+}

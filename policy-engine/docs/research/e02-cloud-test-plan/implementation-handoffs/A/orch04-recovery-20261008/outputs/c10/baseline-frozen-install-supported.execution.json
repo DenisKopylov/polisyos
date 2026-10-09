@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm",
+    "install",
+    "--frozen-lockfile"
+  ],
+  "cwd": "/workspace/ORCH04-evidence/c10/baseline-G032/policy-engine",
+  "started_utc": "2026-10-08T16:32:36.202889+00:00",
+  "python_executable": "/workspace/ORCH04-environments/app/bin/python",
+  "profile_env": {
+    "PYTHONPATH": null,
+    "NODE_USE_ENV_PROXY": "1",
+    "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+    "npm_config_store_dir": "/workspace/.polisyos-environment/cache/pnpm"
+  },
+  "pid": 18062,
+  "finished_utc": "2026-10-08T16:32:40.466812+00:00",
+  "elapsed_seconds": 4.263968636999834,
+  "returncode": 1,
+  "outputs": {
+    ".stdout": {
+      "bytes": 2899,
+      "sha256": "e36a091b39646f078881316803736eb6b72e2a1ee40005353d3bf76636f8e32f"
+    },
+    ".stderr": {
+      "bytes": 712,
+      "sha256": "a9267ff6cca816504d3d3f9205a71e5ad835d3809c37507eabd70fea5df36091"
+    }
+  }
+}

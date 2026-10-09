@@ -1,0 +1,45 @@
+{
+  "source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+  "classification_harness": "c10 complete-scanner-proposed-role-diagnostic.json; source classifier proposed only, no product mutations",
+  "expected_production_count": 4,
+  "actual_production_count": 8,
+  "actual_production_not_in_expected": [
+    "('docs.superpowers.journals.gy-phase5-evidence.pr1.runtime_snapshot', 'docs/superpowers/journals/gy-phase5-evidence/pr1/runtime_snapshot.py', '', 'polisyos.runtime.quality.generation_cycle.GenerationCycleController', frozenset({'repo_root'}))",
+    "('docs.superpowers.journals.gy-phase5-evidence.pr1.scope_audit', 'docs/superpowers/journals/gy-phase5-evidence/pr1/scope_audit.py', 'inventory', 'polisyos.runtime.quality.generation_cycle.GenerationCycleController', frozenset({'repo_root'}))",
+    "('docs.superpowers.journals.gy-phase5-evidence.shared.skg_real_replay', 'docs/superpowers/journals/gy-phase5-evidence/shared/skg_real_replay.py', 'main', 'polisyos.runtime.quality.generation_cycle.GenerationCycleController', frozenset({'repo_root'}))",
+    "('polisyos.runtime.quality.acquisition_world_growth', 'src/polisyos/runtime/quality/acquisition_world_growth.py', 'AcquisitionWorldGrowthBridge.resume', 'polisyos.runtime.quality.generation_cycle.GenerationCycleController', frozenset({'promotion_runtime', 'repo_root', 'model_id'}))",
+    "('polisyos.runtime.quality.generation_cycle', 'src/polisyos/runtime/quality/generation_cycle.py', 'GenerationCycleController.__init__', 'polisyos.runtime.quality.promotion_sequence.CanonicalN9PromotionPort', frozenset({'measurement_catalog', 'epoch_n9_evidence_resolver', 'repo_root', 'promotion_runtime', 'context_provider', 'measurement_providers'}))",
+    "('polisyos.runtime.quality.recursive_generation_cycle', 'src/polisyos/runtime/quality/recursive_generation_cycle.py', 'RecursiveGenerationCycleController.run.route', 'polisyos.runtime.quality.generation_cycle.GenerationCycleController', frozenset({'eval_safety_verifier', 'repo_root', 'candidate_simulation_handoff', 'generation_port', 'promotion_runtime', 'cycle_substrate_context', 'value_port', 'model_id', 'artifact_store', 'candidate_simulation_currentness_resolver'}))"
+  ],
+  "expected_production_missing_from_actual": [
+    "('polisyos.runtime.quality.generation_cycle', 'src/polisyos/runtime/quality/generation_cycle.py', 'GenerationCycleController.__init__', 'polisyos.runtime.quality.promotion_sequence.CanonicalN9PromotionPort', frozenset({'epoch_n9_evidence_resolver', 'promotion_runtime', 'repo_root'}))",
+    "('polisyos.runtime.quality.recursive_generation_cycle', 'src/polisyos/runtime/quality/recursive_generation_cycle.py', 'RecursiveGenerationCycleController.run.route', 'polisyos.runtime.quality.generation_cycle.GenerationCycleController', frozenset({'promotion_runtime', 'cycle_substrate_context', 'value_port', 'model_id', 'repo_root', 'generation_port'}))"
+  ],
+  "expected_verification_count": 13,
+  "actual_verification_count": 13,
+  "actual_verification_not_in_expected": [
+    "('tools.quality.validation.check_layer3_gy_generation_cycle_contract', 'tools/quality/validation/check_layer3_gy_generation_cycle_contract.py', '_build_live_payload_in_verification_namespace', 'polisyos.runtime.quality.promotion_sequence.CanonicalN9PromotionPort._for_verification', frozenset({'repo_root', 'confidence_ledger_session_factory'}), None)"
+  ],
+  "expected_verification_missing_from_actual": [
+    "('tools.quality.validation.check_layer3_gy_generation_cycle_contract', 'tools/quality/validation/check_layer3_gy_generation_cycle_contract.py', '_build_live_payload_in_verification_namespace', 'polisyos.runtime.quality.promotion_sequence.CanonicalN9PromotionPort._for_verification', frozenset({'repo_root', 'confidence_ledger_session'}), None)"
+  ],
+  "promotion_extra": [
+    "('polisyos.runtime.quality.generation_cycle', 'src/polisyos/runtime/quality/generation_cycle.py', 'GenerationCycleController._promote_completed_generation', frozenset({'admitted_batch', 'deployment_identity', 'problem'}))"
+  ],
+  "promotion_missing": [],
+  "keyword_expansion_rows": [
+    {
+      "module": "polisyos.runtime.quality.acquisition_world_growth",
+      "source_path": "src/polisyos/runtime/quality/acquisition_world_growth.py",
+      "enclosing": "AcquisitionWorldGrowthBridge.resume",
+      "target": "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+      "keyword_names": [
+        "model_id",
+        "promotion_runtime",
+        "repo_root"
+      ],
+      "has_keyword_expansion": true,
+      "authority_scope": null
+    }
+  ]
+}

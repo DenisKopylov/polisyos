@@ -1,0 +1,7 @@
+{
+  "utc": "2026-10-08T17:07:26.198183+00:00",
+  "head": "e6854a70a6d2ae9e4df82351925d7cabe1e9e5e8",
+  "tree": "6506a68152d7a957fc7762e9846a72e7ab98d557",
+  "status": "",
+  "timing": "read after final native/origin/alias completion; writer freeze hold released just before this metadata read; all three exact full tracked source before/after deltas[] captured by execution receipts"
+}

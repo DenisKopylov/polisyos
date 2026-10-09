@@ -6,11 +6,6 @@ from typing import Any, get_args
 
 import pytest
 from _helpers.runtime_http import build_runtime_api_env, close_runtime_api_env
-from tests._helpers.controlled_candidate_profile import (
-    _configured_procurement_profile,
-    _controlled_procurement_recording,
-    _current_compiler_problem,
-)
 
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.runtime.http.container import RuntimeContainerOverrides
@@ -22,6 +17,11 @@ from polisyos.runtime.quality.generation_source import (
     N4CandidateProposalSimulationRecord,
 )
 from polisyos.scientist.orchestration.llm import factory as llm_factory
+from tests._helpers.controlled_candidate_profile import (
+    _configured_procurement_profile,
+    _controlled_procurement_recording,
+    _current_compiler_problem,
+)
 from tools.quality.validation import (
     check_layer3_gy_design_generation_contract as n4_contract,
 )
@@ -1859,3 +1859,76 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert zero_budget_leaf.value_port.status == "value_blocked"
         assert n8_owner_calls == []
         assert n9_owner_calls == []
+
+
+def test_candidate_child_budget_profile_is_explicit_and_preserves_root_default() -> None:
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        _resolve_http_recursive_budget,
+    )
+    from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
+
+    _, default = _resolve_http_recursive_budget(2)
+    assert default.recursive_budget.max_depth == 0
+    assert default.recursive_budget.max_nodes == 1
+    assert "child_budget_profile" not in default.model_dump(mode="json")
+    _, selected = _resolve_http_recursive_budget(8, candidate_child_count=2)
+    assert selected.requested_max_iterations == 8
+    assert selected.effective_max_iterations == 3
+    assert selected.clamp_reason == "requested_max_iterations_above_http_cycle_cap_3"
+    assert selected.requested_candidate_children == selected.effective_candidate_children == 2
+    assert selected.child_budget_profile == "candidate-lever-exploration-at-most-2.v1"
+    assert selected.recursive_budget.max_depth == 1
+    assert selected.recursive_budget.max_nodes == 3
+    for invalid in (0, 3, True):
+        with pytest.raises(DesignProblemAuthorityError, match="outside_supported_profile"):
+            _resolve_http_recursive_budget(1, candidate_child_count=invalid)
+
+
+def test_configured_child_intake_refuses_missing_complete_owner_before_n6(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Use the actual container composition; compiler/source inputs are controlled.
+
+    This is a missing-owner consumer witness, not an ordinary parsed served
+    positive. Removing the child intake makes this refusal disappear even though
+    the independent manually supplied controller graph tests still pass.
+    """
+    import asyncio
+    from decimal import Decimal
+
+    from polisyos.runtime.http.services.control import generation_cycle as cycle_service
+    from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
+    from polisyos.runtime.quality.recursive_generation_cycle import RecursiveCycleBudget
+    from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _controlled_declared_n4_child_inputs,
+    )
+
+    catalog = REPO_ROOT / "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb"
+    if not catalog.is_file():
+        pytest.skip("served container owner catalog unavailable; this negative intake remains UNRUN")
+    problem, result = _controlled_declared_n4_child_inputs()
+
+    async def controlled_compiler(**_kwargs):
+        return problem
+
+    monkeypatch.setattr(cycle_service, "build_design_problem_from_nl_request", controlled_compiler)
+    _, resolution = cycle_service._resolve_http_recursive_budget(1, candidate_child_count=2)
+    env = build_runtime_api_env(tmp_path, app_kwargs={"candidate_simulation_profiles": ()})
+    try:
+        service = env["app"].state._control_service
+        with pytest.raises(DesignProblemAuthorityError, match="n4_recursive_child_context_owner_missing"):
+            asyncio.run(service.compile_and_run_recursive_generation_cycle(
+                raw_request=problem.nl_provenance.raw_request,
+                context={}, model_name=result.model_id, execution_intent="simulate_only",
+                compiler_gateway=None,
+                budget_state=BudgetState(BudgetLimit(usd_limit=Decimal("1"))),
+                recursive_budget=RecursiveCycleBudget(**resolution.recursive_budget.model_dump()),
+                recursive_budget_resolution=resolution,
+                n4_recursive_source=result,
+                cycle_substrate_context_resolver=lambda _problem: None,
+                root_evaluation_context=None,
+            ))
+    finally:
+        close_runtime_api_env(env)

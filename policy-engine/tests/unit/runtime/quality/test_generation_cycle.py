@@ -10009,3 +10009,208 @@ async def test_nonblocked_scheduler_stop_still_reaches_n9_owner(tmp_path: Path) 
         "generation_cycle_n6_census_not_established:n6_census_issuer_not_appointed"
     )
     assert validate_generation_cycle_candidate_run(run) == ()
+
+
+@pytest.mark.parametrize("required", [("panel",), ("unavailable_modality",), ()])
+def test_value_owner_projection_preserves_required_modality_and_other_hints(
+    required: tuple[str, ...],
+) -> None:
+    """Available row shape cannot rewrite the request passed to real selection."""
+    from polisyos.foundry.methods.selection.advisor import _value_selection_criteria
+
+    problem = _problem().model_copy(
+        update={
+            "runtime_hints": {
+                "value_required_data_modalities": required,
+                "declared_owner_rule": "preserve-me",
+                "value_data_characteristics": {"n_obs": 99999},
+            }
+        }
+    )
+    rows = []
+    for period_id in range(4):
+        row = {
+            "unit_id": "single_unit",
+            "period_id": period_id,
+            "outcome_value": float(period_id),
+            "source_row_content_hashes": ("sha256:" + "a" * 64,),
+        }
+        rows.append(
+            generation_cycle_module.ValueOwnerRow(**row, row_content_hash=gy_content_hash(row))
+        )
+    payload = {
+        "schema_version": "policyos.runtime.value_data_profile.v1",
+        "outcome": "firm_survival",
+        "rows": [row.model_dump(mode="json") for row in rows],
+        "owner_row_count": 4,
+        "unit_count": 1,
+        "period_count": 4,
+        "available_data_modalities": ("tabular",),
+        "treatment_assignment_status": "owner_assignment_unresolved",
+        "owner_access_ref": "test://bounded-owner-rows",
+        "owner_rows_content_hash": gy_content_hash([row.model_dump(mode="json") for row in rows]),
+    }
+    profile = generation_cycle_module.ValueDataProfile.model_validate(
+        {**payload, "content_hash": gy_content_hash(payload)}
+    )
+    projected = generation_cycle_module._selector_problem_for_value_profile(problem, profile)
+    assert projected.runtime_hints["value_required_data_modalities"] == required
+    assert projected.runtime_hints["value_available_data_modalities"] == ("tabular",)
+    assert projected.runtime_hints["declared_owner_rule"] == "preserve-me"
+    assert projected.runtime_hints["value_data_characteristics"]["n_obs"] == 4
+    assert problem.runtime_hints["value_data_characteristics"]["n_obs"] == 99999
+    # Exercise the canonical selector's actual criteria, including an empty
+    # catalog: neither owner data nor catalog availability weakens the request.
+    criteria = _value_selection_criteria(
+        candidate={},
+        problem=projected,
+        value_entries=(),
+        observation_to_contract_manifest=None,
+    )
+    assert criteria.required_data_modalities == required
+
+def _controlled_declared_n4_child_inputs():
+    """Declared canonical slots for a bounded producer test, not production inputs.
+
+    The archived real N4 atoms are replay inputs. Their old underscored lever
+    declaration cannot silently be aliased to a qualified world slot. This
+    controlled companion explicitly declares the atom owner's exact slots and
+    uses fresh parent/result/atom identities; it is not the archived PASS.
+    """
+    import copy
+
+    from polisyos.runtime.quality.design_generation import GenerationUnderAResult
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+
+    original_result, candidate = _real_n4_generation_result_with_candidate()
+    problem = _recorded_problem_for_candidate(candidate)
+    result = copy.deepcopy(original_result)
+    levers = []
+    for row in result["candidates"]:
+        atom = row["atom"]
+        original = next(
+            lever
+            for lever in problem.candidate_lever_space.candidate_levers
+            if lever.operator_kind == atom["operator_kind"]["trinity_kind"]
+        )
+        for slot in atom["target_world_slots"]:
+            levers.append(original.model_copy(update={"target_slot": slot}))
+    problem = DesignProblem.model_validate(
+        {
+            **problem.model_dump(mode="python"),
+            "schema_version": "policyos.runtime.design_problem.v2",
+            "candidate_lever_space": {
+                "allowed_operator_kinds": sorted({lever.operator_kind for lever in levers}),
+                "candidate_levers": [lever.model_dump(mode="python") for lever in levers],
+            },
+        }
+    )
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    result["design_problem_ref"] = problem_ref
+    for row in result["candidates"]:
+        atom = InterventionAtomBinding.model_validate(row["atom"])
+        draft = atom.model_copy(update={"problem_frame_ref": problem_ref})
+        atom_ref = intervention_atom_content_hash(draft)
+        fresh = draft.model_copy(
+            update={
+                "content_hash": atom_ref,
+                "atom_id": "atom_" + atom_ref.removeprefix("sha256:")[:16],
+            }
+        )
+        row["atom"] = fresh.model_dump(mode="json")
+        row["provenance"]["content_hash"] = atom_ref
+        for disposition in result["grounding_dispositions"]:
+            if disposition.get("candidate_id") == row["candidate_id"]:
+                disposition["shadow_atom_content_hash"] = atom_ref
+    return problem, GenerationUnderAResult.model_validate(result)
+
+
+def test_n4_candidate_child_producer_uses_declared_atom_semantics_and_complete_problem():
+    from polisyos.runtime.quality.design_generation import (
+        DesignGenerationError,
+        derive_n4_candidate_child_problems,
+    )
+
+    problem, result = _controlled_declared_n4_child_inputs()
+    children = derive_n4_candidate_child_problems(problem, result, model_id=result.model_id)
+    assert len(children) == 2
+    assert len({child.semantic_ref for child in children}) == 2
+    assert len({gy_content_hash(child.problem.model_dump(mode="json")) for child in children}) == 2
+    retained = problem.model_dump(mode="json")
+    for field in ("design_problem_id", "candidate_lever_space", "runtime_hints"):
+        retained.pop(field)
+    for child in children:
+        actual = child.problem.model_dump(mode="json")
+        for field in ("design_problem_id", "candidate_lever_space", "runtime_hints"):
+            actual.pop(field)
+        assert actual == retained
+        assert child.source_result_ref == gy_content_hash(result.model_dump(mode="json"))
+        assert child.source_atom_refs
+        assert child.problem.runtime_hints["n4_candidate_child_source"]["purpose"] == (
+            "candidate_lever_exploration_only"
+        )
+    # Removing the actual N4 source cannot be replaced by a two-node fixture graph.
+    with pytest.raises(DesignGenerationError, match="n4_recursive_child_source_untyped"):
+        derive_n4_candidate_child_problems(problem, None, model_id=result.model_id)
+
+
+def test_n4_candidate_child_producer_deduplicates_names_and_refuses_foreign_subject():
+    from polisyos.runtime.quality.design_generation import (
+        DesignGenerationError,
+        derive_n4_candidate_child_problems,
+    )
+
+    problem, result = _controlled_declared_n4_child_inputs()
+    # Keep the owner denominator valid while changing only the external name.
+    payload = result.model_dump(mode="python")
+    first = result.candidates[0]
+    alternate = first.model_copy(update={"candidate_id": "candidate_" + "f" * 16})
+    payload["candidates"] = [first.model_dump(mode="python"), alternate.model_dump(mode="python")]
+    dispositions = [
+        row for row in result.grounding_dispositions if row.candidate_id == first.candidate_id
+    ]
+    assert len(dispositions) == 1
+    payload["grounding_dispositions"] = [
+        (dispositions[0].model_copy(update={"candidate_id": alternate.candidate_id})
+         if row.candidate_id == result.candidates[1].candidate_id else row).model_dump(mode="python")
+        for row in result.grounding_dispositions
+    ]
+    duplicate = type(result).model_validate(payload)
+    assert (
+        len(derive_n4_candidate_child_problems(problem, duplicate, model_id=result.model_id)) == 1
+    )
+    with pytest.raises(DesignGenerationError, match="n4_recursive_child_parent_mismatch"):
+        derive_n4_candidate_child_problems(
+            problem.model_copy(update={"domain": "foreign"}),
+            result,
+            model_id=result.model_id,
+        )
+    with pytest.raises(DesignGenerationError, match="n4_recursive_child_model_mismatch"):
+        derive_n4_candidate_child_problems(problem, result, model_id="foreign-model")
+    foreign = result.candidates[0].atom.model_copy(
+        update={
+            "intended_downstream_estimand": result.candidates[
+                0
+            ].atom.intended_downstream_estimand.model_copy(
+                update={"target_population": "foreign-population"}
+            )
+        }
+    )
+    from polisyos.runtime.quality.intervention_atom_binding import intervention_atom_content_hash
+
+    foreign_ref = intervention_atom_content_hash(foreign)
+    foreign = foreign.model_copy(update={"content_hash": foreign_ref})
+    candidate = result.candidates[0].model_copy(
+        update={
+            "atom": foreign,
+            "provenance": result.candidates[0].provenance.model_copy(
+                update={"content_hash": foreign_ref}
+            ),
+        }
+    )
+    altered = result.model_copy(update={"candidates": (candidate, *result.candidates[1:])})
+    with pytest.raises(DesignGenerationError, match="n4_recursive_child_subject_mismatch"):
+        derive_n4_candidate_child_problems(problem, altered, model_id=result.model_id)

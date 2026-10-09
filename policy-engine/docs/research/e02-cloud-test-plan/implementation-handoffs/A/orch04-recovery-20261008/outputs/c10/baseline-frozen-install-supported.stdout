@@ -1,0 +1,41 @@
+Scope: all 6 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +1213
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 1213, reused 872, downloaded 0, added 0
+Progress: resolved 1213, reused 1211, downloaded 0, added 757
+Progress: resolved 1213, reused 1211, downloaded 0, added 1213, done
+
+apps/runtime-dashboard prepare$ node ../../tools/devx/install_repo_hooks.mjs
+apps/runtime-dashboard prepare: (node:18078) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+apps/runtime-dashboard prepare: (Use `node --trace-warnings ...` to show where the warning was created)
+apps/runtime-dashboard prepare: fatal: not a git repository (or any of the parent directories): .git
+apps/runtime-dashboard prepare: node:internal/errors:983
+apps/runtime-dashboard prepare:   const err = new Error(message);
+apps/runtime-dashboard prepare:               ^
+apps/runtime-dashboard prepare: Error: Command failed: git rev-parse --path-format=absolute --git-path hooks
+apps/runtime-dashboard prepare: fatal: not a git repository (or any of the parent directories): .git
+apps/runtime-dashboard prepare:     at genericNodeError (node:internal/errors:983:15)
+apps/runtime-dashboard prepare:     at wrappedFn (node:internal/errors:537:14)
+apps/runtime-dashboard prepare:     at checkExecSyncError (node:child_process:916:11)
+apps/runtime-dashboard prepare:     at execFileSync (node:child_process:952:15)
+apps/runtime-dashboard prepare:     at file:///workspace/ORCH04-evidence/c10/baseline-G032/policy-engine/tools/devx/install_repo_hooks.mjs:19:15
+apps/runtime-dashboard prepare:     at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+apps/runtime-dashboard prepare:     at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+apps/runtime-dashboard prepare:     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+apps/runtime-dashboard prepare:     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+apps/runtime-dashboard prepare:   status: 128,
+apps/runtime-dashboard prepare:   signal: null,
+apps/runtime-dashboard prepare:   output: [
+apps/runtime-dashboard prepare:     null,
+apps/runtime-dashboard prepare:     '',
+apps/runtime-dashboard prepare:     'fatal: not a git repository (or any of the parent directories): .git\n'
+apps/runtime-dashboard prepare:   ],
+apps/runtime-dashboard prepare:   pid: 18086,
+apps/runtime-dashboard prepare:   stdout: '',
+apps/runtime-dashboard prepare:   stderr: 'fatal: not a git repository (or any of the parent directories): .git\n'
+apps/runtime-dashboard prepare: }
+apps/runtime-dashboard prepare: Node.js v22.23.3
+apps/runtime-dashboard prepare: Failed
+ ELIFECYCLE  Command failed with exit code 1.

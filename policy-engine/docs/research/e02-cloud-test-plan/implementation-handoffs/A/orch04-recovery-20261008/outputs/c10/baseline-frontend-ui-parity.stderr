@@ -1,0 +1,72 @@
+(node:16669) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Downloading the pnpm 12.10.1 binary for linux-x64...
+[WARN] deprecated eslint@9.39.5. 10.12.0 is not deprecated, outside the range you declared.
+[WARN] deprecated recharts@2.15.4. 3.11.0-canary.5 is not deprecated, outside the range you declared.
+Progress: resolved 0, reused 0, downloaded 28, added 0
+Downloading storybook@9.1.20: 0.00 B/9.97 MB
+Downloading storybook@9.1.20: 9.97 MB/9.97 MB, done
+Progress: resolved 0, reused 0, downloaded 109, added 0
+Progress: resolved 0, reused 0, downloaded 155, added 0
+Progress: resolved 0, reused 0, downloaded 202, added 0
+Progress: resolved 0, reused 0, downloaded 236, added 0
+Progress: resolved 0, reused 0, downloaded 280, added 0
+Progress: resolved 0, reused 0, downloaded 328, added 0
+Progress: resolved 0, reused 0, downloaded 382, added 0
+Progress: resolved 0, reused 0, downloaded 444, added 0
+Progress: resolved 0, reused 0, downloaded 494, added 0
+Progress: resolved 0, reused 0, downloaded 537, added 0
+Downloading lefthook-linux-x64@2.1.17: 0.00 B/5.44 MB
+Progress: resolved 0, reused 0, downloaded 619, added 0
+Progress: resolved 0, reused 0, downloaded 660, added 0
+Progress: resolved 0, reused 0, downloaded 721, added 0
+Progress: resolved 0, reused 0, downloaded 771, added 0
+Progress: resolved 0, reused 0, downloaded 832, added 0
+Progress: resolved 0, reused 0, downloaded 883, added 0
+Progress: resolved 0, reused 0, downloaded 938, added 0
+Downloading @sentry/cli-linux-x64@2.58.6: 0.00 B/8.55 MB
+Progress: resolved 0, reused 0, downloaded 1028, added 0
+Error:   × installing dependencies
+  ├─▶ Failed to resolve dependency tree: Failed to resolve dependency: Cannot
+  │   resolve package from workspace because workspace packages were not
+  │   loaded into the resolver
+  │   
+  │   Failed to resolve @polisyos/atlas-ui@workspace:*
+  ╰─▶ Failed to resolve dependency: Cannot resolve package from workspace
+      because workspace packages were not loaded into the resolver
+
+[WARN] The install that runs before scripts failed, so your node_modules may be out of sync with your lockfile. Set "verifyDepsBeforeRun: false" to skip this install.
+(node:16744) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16744) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16771) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16772) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| src/shared/i18n/parity.test.ts > locale catalogs > freezes the complete quantitative-use declaration set
+AssertionError: expected [ 2907, 2907 ] to deeply equal [ 2879, 2879 ]
+
+- Expected
++ Received
+
+  [
+-   2879,
+-   2879,
++   2907,
++   2907,
+  ]
+
+ ❯ src/shared/i18n/parity.test.ts:2139:72
+    2137|     expect(declaredVariableNames).toHaveLength(158);
+    2138|     expect(new Set(declaredVariableNames).size).toBe(158);
+    2139|     expect([collectLeafPairs(en).length, collectLeafPairs(uk).length])…
+       |                                                                        ^
+    2140|       ACTIVE_LOCALE_LEAF_COUNT,
+    2141|       ACTIVE_LOCALE_LEAF_COUNT,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

@@ -1,0 +1,67 @@
+E501 Line too long (104 > 100)
+    --> src/polisyos/runtime/http/services/control/generation_cycle.py:1177:101
+     |
+1175 |         if cycle_substrate_context_resolver is None:
+1176 |             raise DesignProblemAuthorityError("n4_recursive_child_context_resolver_missing")
+1177 |         children = derive_n4_candidate_child_problems(problem, n4_recursive_source, model_id=model_name)
+     |                                                                                                     ^^^^
+1178 |         if not children:
+1179 |             raise DesignProblemAuthorityError("n4_recursive_child_source_empty")
+     |
+
+E501 Line too long (124 > 100)
+    --> src/polisyos/runtime/http/services/control/generation_cycle.py:1192:101
+     |
+1190 |         )
+1191 |         for child in children:
+1192 |             child_ref = "design-problem://" + gy_content_hash(child.problem.model_dump(mode="json")).removeprefix("sha256:")
+     |                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^
+1193 |             handoff = cycle_substrate_context_resolver(child.problem)
+1194 |             if type(handoff) is not CandidateSimulationContextHandoff:
+     |
+
+E501 Line too long (103 > 100)
+    --> src/polisyos/runtime/http/services/control/generation_cycle.py:1251:101
+     |
+1249 |                 else None
+1250 |             ),
+1251 |             execution_intents_by_node=dict.fromkeys(problems_by_node or (root_ref,), execution_intent),
+     |                                                                                                     ^^^
+1252 |             leaf_context_owner=recursive_leaf_context_owner,
+1253 |         )
+     |
+
+E501 Line too long (111 > 100)
+   --> src/polisyos/runtime/quality/design_generation.py:693:101
+    |
+691 |             or estimand.outcome_variables != (problem.outcome_of_interest.target_variable,)
+692 |             or estimand.target_population != problem.jurisdiction_time.region
+693 |             or (estimand.metric_id is not None and estimand.metric_id != problem.outcome_of_interest.metric_id)
+    |                                                                                                     ^^^^^^^^^^^
+694 |         ):
+695 |             raise DesignGenerationError("n4_recursive_child_subject_mismatch")
+    |
+
+E501 Line too long (111 > 100)
+   --> src/polisyos/runtime/quality/design_generation.py:709:101
+    |
+707 |             "declared_levers": sorted(
+708 |                 (lever.model_dump(mode="json") for lever in levers),
+709 |                 key=lambda row: (row["operator_kind"], row["target_slot"], row["instrument"], row["lever_id"]),
+    |                                                                                                     ^^^^^^^^^^^
+710 |             ),
+711 |         })
+    |
+
+E501 Line too long (104 > 100)
+   --> src/polisyos/runtime/quality/design_generation.py:718:101
+    |
+716 |     for semantic_ref, (levers, atom_refs) in sorted(by_semantics.items()):
+717 |         payload = problem.model_dump(mode="python")
+718 |         payload["design_problem_id"] = "n4_candidate_child_" + semantic_ref.removeprefix("sha256:")[:24]
+    |                                                                                                     ^^^^
+719 |         payload["candidate_lever_space"] = {
+720 |             "allowed_operator_kinds": sorted({lever.operator_kind for lever in levers}),
+    |
+
+Found 7 errors (1 fixed, 6 remaining).

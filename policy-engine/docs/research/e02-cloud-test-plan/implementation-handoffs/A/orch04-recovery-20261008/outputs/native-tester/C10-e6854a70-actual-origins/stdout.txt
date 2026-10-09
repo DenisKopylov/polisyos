@@ -1,0 +1,24 @@
+{
+  "schema": "orch04.actual_import_origins.v1",
+  "modules": [
+    {
+      "module": "polisyos.runtime.quality.recursive_generation_cycle",
+      "actual_file": "/workspace/ORCH04-C10/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "resolved_file": "/workspace/ORCH04-C10/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "sha256": "3861c662c1957dea009d5580d0878a5c4da13d3e7cb46e2f27805c8214418551"
+    },
+    {
+      "module": "polisyos.runtime.quality.generation_cycle",
+      "actual_file": "/workspace/ORCH04-C10/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "resolved_file": "/workspace/ORCH04-C10/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "sha256": "40caaf6c37d4d4d89e9dd3f26954b1621dbd5d8163ddf37a4ba1e6d72586c643"
+    },
+    {
+      "module": "polisyos.core.artifacts.store",
+      "actual_file": "/workspace/ORCH04-C10/policy-engine/src/polisyos/core/artifacts/store.py",
+      "resolved_file": "/workspace/ORCH04-C10/policy-engine/src/polisyos/core/artifacts/store.py",
+      "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+    }
+  ],
+  "scope": "actual import origins only, not numerical or semantic conformance"
+}

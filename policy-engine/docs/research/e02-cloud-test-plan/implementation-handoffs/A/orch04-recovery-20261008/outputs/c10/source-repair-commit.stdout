@@ -1,0 +1,2 @@
+[codex/e02-C10-recovery-20261008 03a7c5d5e] fix(runtime): reject self-asserted uncomposed parent outcomes
+ 2 files changed, 60 insertions(+), 10 deletions(-)

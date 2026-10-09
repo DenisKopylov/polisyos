@@ -1,0 +1,1011 @@
+{
+  "sys_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "resolved_executable": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+  "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "sys_prefix": "/workspace/polisyos/policy-engine/.venv",
+  "sys_path": [
+    "/workspace/ORCH04-evidence/host",
+    "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python314.zip",
+    "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14",
+    "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/lib-dynload",
+    "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+    "/workspace/polisyos/policy-engine",
+    "/workspace/polisyos/policy-engine/src"
+  ],
+  "selected_distributions": {
+    "policy-engine": {
+      "version": "0.1.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/policy_engine-0.1.0.dist-info",
+      "origin_root": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+      "direct_url": "{\"url\":\"file:///workspace/polisyos/policy-engine\",\"dir_info\":{\"editable\":true}}"
+    },
+    "pydantic": {
+      "version": "2.12.5",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic-2.12.5.dist-info",
+      "origin_root": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+      "direct_url": null
+    },
+    "pytest": {
+      "version": "9.0.2",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest-9.0.2.dist-info",
+      "origin_root": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+      "direct_url": null
+    },
+    "jax": {
+      "version": "0.8.2",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax-0.8.2.dist-info",
+      "origin_root": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+      "direct_url": null
+    },
+    "jaxlib": {
+      "version": "0.8.2",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jaxlib-0.8.2.dist-info",
+      "origin_root": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+      "direct_url": null
+    },
+    "numpy": {
+      "version": "2.3.5",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy-2.3.5.dist-info",
+      "origin_root": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+      "direct_url": null
+    },
+    "scipy": {
+      "version": "1.16.3",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/scipy-1.16.3.dist-info",
+      "origin_root": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+      "direct_url": null
+    },
+    "pandas": {
+      "version": "2.3.3",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pandas-2.3.3.dist-info",
+      "origin_root": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+      "direct_url": null
+    },
+    "statsmodels": {
+      "installed": false
+    },
+    "dowhy": {
+      "installed": false
+    },
+    "torch": {
+      "installed": false
+    },
+    "gpytorch": {
+      "installed": false
+    },
+    "botorch": {
+      "installed": false
+    },
+    "linear-operator": {
+      "installed": false
+    },
+    "hatchling": {
+      "installed": false
+    },
+    "build": {
+      "installed": false
+    },
+    "fastapi": {
+      "version": "0.128.6",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi-0.128.6.dist-info",
+      "origin_root": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+      "direct_url": null
+    },
+    "uvicorn": {
+      "version": "0.40.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/uvicorn-0.40.0.dist-info",
+      "origin_root": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+      "direct_url": null
+    }
+  },
+  "module_specs": {
+    "polisyos": {
+      "origin": "/workspace/polisyos/policy-engine/src/polisyos/__init__.py",
+      "search_locations": [
+        "/workspace/polisyos/policy-engine/src/polisyos"
+      ]
+    },
+    "pytest": {
+      "origin": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+      "search_locations": [
+        "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest"
+      ]
+    },
+    "jax": {
+      "origin": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/__init__.py",
+      "search_locations": [
+        "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax"
+      ]
+    },
+    "numpy": {
+      "origin": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+      "search_locations": [
+        "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy"
+      ]
+    },
+    "scipy": {
+      "origin": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/scipy/__init__.py",
+      "search_locations": [
+        "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/scipy"
+      ]
+    },
+    "dowhy": null,
+    "torch": null,
+    "gpytorch": null,
+    "botorch": null
+  },
+  "complete_distribution_inventory": [
+    {
+      "name": "about-time",
+      "version": "4.2.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/about_time-4.2.1.dist-info"
+    },
+    {
+      "name": "absl-py",
+      "version": "2.3.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/absl_py-2.3.1.dist-info"
+    },
+    {
+      "name": "aiohappyeyeballs",
+      "version": "2.6.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/aiohappyeyeballs-2.6.1.dist-info"
+    },
+    {
+      "name": "aiohttp",
+      "version": "3.13.3",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/aiohttp-3.13.3.dist-info"
+    },
+    {
+      "name": "aiosignal",
+      "version": "1.4.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/aiosignal-1.4.0.dist-info"
+    },
+    {
+      "name": "alive-progress",
+      "version": "3.3.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/alive_progress-3.3.0.dist-info"
+    },
+    {
+      "name": "annotated-doc",
+      "version": "0.0.4",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/annotated_doc-0.0.4.dist-info"
+    },
+    {
+      "name": "annotated-types",
+      "version": "0.7.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/annotated_types-0.7.0.dist-info"
+    },
+    {
+      "name": "anyio",
+      "version": "4.12.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/anyio-4.12.0.dist-info"
+    },
+    {
+      "name": "arrow",
+      "version": "1.4.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/arrow-1.4.0.dist-info"
+    },
+    {
+      "name": "attrs",
+      "version": "25.4.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/attrs-25.4.0.dist-info"
+    },
+    {
+      "name": "autograd",
+      "version": "1.8.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/autograd-1.8.0.dist-info"
+    },
+    {
+      "name": "autograd-gamma",
+      "version": "0.5.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/autograd_gamma-0.5.0.dist-info"
+    },
+    {
+      "name": "basedpyright",
+      "version": "1.39.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/basedpyright-1.39.0.dist-info"
+    },
+    {
+      "name": "certifi",
+      "version": "2025.11.12",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/certifi-2025.11.12.dist-info"
+    },
+    {
+      "name": "cffi",
+      "version": "2.0.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/cffi-2.0.0.dist-info"
+    },
+    {
+      "name": "cfgv",
+      "version": "3.5.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/cfgv-3.5.0.dist-info"
+    },
+    {
+      "name": "charset-normalizer",
+      "version": "3.4.4",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/charset_normalizer-3.4.4.dist-info"
+    },
+    {
+      "name": "chex",
+      "version": "0.1.91",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/chex-0.1.91.dist-info"
+    },
+    {
+      "name": "click",
+      "version": "8.3.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/click-8.3.1.dist-info"
+    },
+    {
+      "name": "cma",
+      "version": "4.4.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/cma-4.4.1.dist-info"
+    },
+    {
+      "name": "contourpy",
+      "version": "1.3.3",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/contourpy-1.3.3.dist-info"
+    },
+    {
+      "name": "cryptography",
+      "version": "46.0.4",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/cryptography-46.0.4.dist-info"
+    },
+    {
+      "name": "cycler",
+      "version": "0.12.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/cycler-0.12.1.dist-info"
+    },
+    {
+      "name": "defusedxml",
+      "version": "0.7.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/defusedxml-0.7.1.dist-info"
+    },
+    {
+      "name": "Deprecated",
+      "version": "1.3.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/deprecated-1.3.1.dist-info"
+    },
+    {
+      "name": "diffrax",
+      "version": "0.7.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/diffrax-0.7.0.dist-info"
+    },
+    {
+      "name": "distlib",
+      "version": "0.4.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/distlib-0.4.0.dist-info"
+    },
+    {
+      "name": "distro",
+      "version": "1.9.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/distro-1.9.0.dist-info"
+    },
+    {
+      "name": "duckdb",
+      "version": "1.4.3",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb-1.4.3.dist-info"
+    },
+    {
+      "name": "equinox",
+      "version": "0.13.2",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/equinox-0.13.2.dist-info"
+    },
+    {
+      "name": "et_xmlfile",
+      "version": "2.0.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/et_xmlfile-2.0.0.dist-info"
+    },
+    {
+      "name": "execnet",
+      "version": "2.1.2",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/execnet-2.1.2.dist-info"
+    },
+    {
+      "name": "fastapi",
+      "version": "0.128.6",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi-0.128.6.dist-info"
+    },
+    {
+      "name": "filelock",
+      "version": "3.20.2",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/filelock-3.20.2.dist-info"
+    },
+    {
+      "name": "fonttools",
+      "version": "4.61.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/fonttools-4.61.1.dist-info"
+    },
+    {
+      "name": "formulaic",
+      "version": "1.2.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/formulaic-1.2.1.dist-info"
+    },
+    {
+      "name": "fqdn",
+      "version": "1.5.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/fqdn-1.5.1.dist-info"
+    },
+    {
+      "name": "frozenlist",
+      "version": "1.8.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/frozenlist-1.8.0.dist-info"
+    },
+    {
+      "name": "googleapis-common-protos",
+      "version": "1.72.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/googleapis_common_protos-1.72.0.dist-info"
+    },
+    {
+      "name": "graphemeu",
+      "version": "0.7.2",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/graphemeu-0.7.2.dist-info"
+    },
+    {
+      "name": "grpcio",
+      "version": "1.78.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/grpcio-1.78.0.dist-info"
+    },
+    {
+      "name": "h11",
+      "version": "0.16.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/h11-0.16.0.dist-info"
+    },
+    {
+      "name": "httpcore",
+      "version": "1.0.9",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/httpcore-1.0.9.dist-info"
+    },
+    {
+      "name": "httptools",
+      "version": "0.7.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/httptools-0.7.1.dist-info"
+    },
+    {
+      "name": "httpx",
+      "version": "0.28.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/httpx-0.28.1.dist-info"
+    },
+    {
+      "name": "hypothesis",
+      "version": "6.151.2",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/hypothesis-6.151.2.dist-info"
+    },
+    {
+      "name": "identify",
+      "version": "2.6.15",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/identify-2.6.15.dist-info"
+    },
+    {
+      "name": "idna",
+      "version": "3.11",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/idna-3.11.dist-info"
+    },
+    {
+      "name": "importlib_metadata",
+      "version": "8.7.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/importlib_metadata-8.7.1.dist-info"
+    },
+    {
+      "name": "iniconfig",
+      "version": "2.3.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/iniconfig-2.3.0.dist-info"
+    },
+    {
+      "name": "interface-meta",
+      "version": "1.3.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/interface_meta-1.3.0.dist-info"
+    },
+    {
+      "name": "isoduration",
+      "version": "20.11.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/isoduration-20.11.0.dist-info"
+    },
+    {
+      "name": "jax",
+      "version": "0.8.2",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax-0.8.2.dist-info"
+    },
+    {
+      "name": "jaxlib",
+      "version": "0.8.2",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jaxlib-0.8.2.dist-info"
+    },
+    {
+      "name": "jaxtyping",
+      "version": "0.3.4",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jaxtyping-0.3.4.dist-info"
+    },
+    {
+      "name": "jiter",
+      "version": "0.13.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jiter-0.13.0.dist-info"
+    },
+    {
+      "name": "joblib",
+      "version": "1.5.3",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/joblib-1.5.3.dist-info"
+    },
+    {
+      "name": "jsonpatch",
+      "version": "1.33",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jsonpatch-1.33.dist-info"
+    },
+    {
+      "name": "jsonpointer",
+      "version": "3.0.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jsonpointer-3.0.0.dist-info"
+    },
+    {
+      "name": "jsonschema",
+      "version": "4.25.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jsonschema-4.25.1.dist-info"
+    },
+    {
+      "name": "jsonschema-specifications",
+      "version": "2025.9.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jsonschema_specifications-2025.9.1.dist-info"
+    },
+    {
+      "name": "kiwisolver",
+      "version": "1.4.9",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/kiwisolver-1.4.9.dist-info"
+    },
+    {
+      "name": "langchain",
+      "version": "1.2.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/langchain-1.2.0.dist-info"
+    },
+    {
+      "name": "langchain-core",
+      "version": "1.2.6",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/langchain_core-1.2.6.dist-info"
+    },
+    {
+      "name": "langgraph",
+      "version": "1.0.5",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/langgraph-1.0.5.dist-info"
+    },
+    {
+      "name": "langgraph-checkpoint",
+      "version": "3.0.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/langgraph_checkpoint-3.0.1.dist-info"
+    },
+    {
+      "name": "langgraph-prebuilt",
+      "version": "1.0.5",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/langgraph_prebuilt-1.0.5.dist-info"
+    },
+    {
+      "name": "langgraph-sdk",
+      "version": "0.3.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/langgraph_sdk-0.3.1.dist-info"
+    },
+    {
+      "name": "langsmith",
+      "version": "0.6.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/langsmith-0.6.0.dist-info"
+    },
+    {
+      "name": "lark",
+      "version": "1.3.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/lark-1.3.1.dist-info"
+    },
+    {
+      "name": "libcst",
+      "version": "1.8.6",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/libcst-1.8.6.dist-info"
+    },
+    {
+      "name": "librt",
+      "version": "0.7.7",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/librt-0.7.7.dist-info"
+    },
+    {
+      "name": "lifelines",
+      "version": "0.30.3",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/lifelines-0.30.3.dist-info"
+    },
+    {
+      "name": "lineax",
+      "version": "0.0.8",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/lineax-0.0.8.dist-info"
+    },
+    {
+      "name": "loguru",
+      "version": "0.7.3",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/loguru-0.7.3.dist-info"
+    },
+    {
+      "name": "MAPIE",
+      "version": "1.3.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/mapie-1.3.0.dist-info"
+    },
+    {
+      "name": "matplotlib",
+      "version": "3.10.8",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/matplotlib-3.10.8.dist-info"
+    },
+    {
+      "name": "ml_dtypes",
+      "version": "0.5.4",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/ml_dtypes-0.5.4.dist-info"
+    },
+    {
+      "name": "moocore",
+      "version": "0.1.10",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/moocore-0.1.10.dist-info"
+    },
+    {
+      "name": "multidict",
+      "version": "6.7.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/multidict-6.7.1.dist-info"
+    },
+    {
+      "name": "mypy",
+      "version": "1.19.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/mypy-1.19.1.dist-info"
+    },
+    {
+      "name": "mypy_extensions",
+      "version": "1.1.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/mypy_extensions-1.1.0.dist-info"
+    },
+    {
+      "name": "narwhals",
+      "version": "2.14.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/narwhals-2.14.0.dist-info"
+    },
+    {
+      "name": "nodeenv",
+      "version": "1.10.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/nodeenv-1.10.0.dist-info"
+    },
+    {
+      "name": "nodejs-wheel-binaries",
+      "version": "24.14.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/nodejs_wheel_binaries-24.14.1.dist-info"
+    },
+    {
+      "name": "numpy",
+      "version": "2.3.5",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy-2.3.5.dist-info"
+    },
+    {
+      "name": "odfpy",
+      "version": "1.4.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/odfpy-1.4.1.dist-info"
+    },
+    {
+      "name": "openai",
+      "version": "1.109.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/openai-1.109.1.dist-info"
+    },
+    {
+      "name": "openpyxl",
+      "version": "3.1.5",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/openpyxl-3.1.5.dist-info"
+    },
+    {
+      "name": "opentelemetry-api",
+      "version": "1.39.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/opentelemetry_api-1.39.1.dist-info"
+    },
+    {
+      "name": "opentelemetry-exporter-otlp-proto-common",
+      "version": "1.39.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/opentelemetry_exporter_otlp_proto_common-1.39.1.dist-info"
+    },
+    {
+      "name": "opentelemetry-exporter-otlp-proto-grpc",
+      "version": "1.39.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/opentelemetry_exporter_otlp_proto_grpc-1.39.1.dist-info"
+    },
+    {
+      "name": "opentelemetry-exporter-prometheus",
+      "version": "0.60b1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/opentelemetry_exporter_prometheus-0.60b1.dist-info"
+    },
+    {
+      "name": "opentelemetry-proto",
+      "version": "1.39.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/opentelemetry_proto-1.39.1.dist-info"
+    },
+    {
+      "name": "opentelemetry-sdk",
+      "version": "1.39.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/opentelemetry_sdk-1.39.1.dist-info"
+    },
+    {
+      "name": "opentelemetry-semantic-conventions",
+      "version": "0.60b1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/opentelemetry_semantic_conventions-0.60b1.dist-info"
+    },
+    {
+      "name": "opt_einsum",
+      "version": "3.4.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/opt_einsum-3.4.0.dist-info"
+    },
+    {
+      "name": "optax",
+      "version": "0.2.6",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/optax-0.2.6.dist-info"
+    },
+    {
+      "name": "optimistix",
+      "version": "0.0.11",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/optimistix-0.0.11.dist-info"
+    },
+    {
+      "name": "orjson",
+      "version": "3.11.5",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/orjson-3.11.5.dist-info"
+    },
+    {
+      "name": "ormsgpack",
+      "version": "1.12.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/ormsgpack-1.12.1.dist-info"
+    },
+    {
+      "name": "packaging",
+      "version": "25.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/packaging-25.0.dist-info"
+    },
+    {
+      "name": "pandas",
+      "version": "2.3.3",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pandas-2.3.3.dist-info"
+    },
+    {
+      "name": "pathspec",
+      "version": "0.12.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pathspec-0.12.1.dist-info"
+    },
+    {
+      "name": "pillow",
+      "version": "12.3.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pillow-12.3.0.dist-info"
+    },
+    {
+      "name": "platformdirs",
+      "version": "4.5.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/platformdirs-4.5.1.dist-info"
+    },
+    {
+      "name": "pluggy",
+      "version": "1.6.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy-1.6.0.dist-info"
+    },
+    {
+      "name": "policy-engine",
+      "version": "0.1.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/policy_engine-0.1.0.dist-info"
+    },
+    {
+      "name": "pre_commit",
+      "version": "4.5.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pre_commit-4.5.1.dist-info"
+    },
+    {
+      "name": "prometheus_client",
+      "version": "0.23.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/prometheus_client-0.23.1.dist-info"
+    },
+    {
+      "name": "propcache",
+      "version": "0.4.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/propcache-0.4.1.dist-info"
+    },
+    {
+      "name": "protobuf",
+      "version": "6.33.2",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/protobuf-6.33.2.dist-info"
+    },
+    {
+      "name": "py-cpuinfo",
+      "version": "9.0.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/py_cpuinfo-9.0.0.dist-info"
+    },
+    {
+      "name": "pyarrow",
+      "version": "22.0.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pyarrow-22.0.0.dist-info"
+    },
+    {
+      "name": "pycparser",
+      "version": "2.23",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pycparser-2.23.dist-info"
+    },
+    {
+      "name": "pydantic",
+      "version": "2.12.5",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic-2.12.5.dist-info"
+    },
+    {
+      "name": "pydantic-settings",
+      "version": "2.12.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic_settings-2.12.0.dist-info"
+    },
+    {
+      "name": "pydantic_core",
+      "version": "2.41.5",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic_core-2.41.5.dist-info"
+    },
+    {
+      "name": "Pygments",
+      "version": "2.19.2",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pygments-2.19.2.dist-info"
+    },
+    {
+      "name": "PyJWT",
+      "version": "2.11.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pyjwt-2.11.0.dist-info"
+    },
+    {
+      "name": "pymoo",
+      "version": "0.6.1.6",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pymoo-0.6.1.6.dist-info"
+    },
+    {
+      "name": "pyparsing",
+      "version": "3.3.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pyparsing-3.3.1.dist-info"
+    },
+    {
+      "name": "pypdf",
+      "version": "6.7.4",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pypdf-6.7.4.dist-info"
+    },
+    {
+      "name": "pytest",
+      "version": "9.0.2",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest-9.0.2.dist-info"
+    },
+    {
+      "name": "pytest-asyncio",
+      "version": "1.3.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio-1.3.0.dist-info"
+    },
+    {
+      "name": "pytest-benchmark",
+      "version": "5.2.3",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_benchmark-5.2.3.dist-info"
+    },
+    {
+      "name": "pytest-xdist",
+      "version": "3.8.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_xdist-3.8.0.dist-info"
+    },
+    {
+      "name": "python-dateutil",
+      "version": "2.9.0.post0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/python_dateutil-2.9.0.post0.dist-info"
+    },
+    {
+      "name": "python-dotenv",
+      "version": "1.2.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/python_dotenv-1.2.1.dist-info"
+    },
+    {
+      "name": "pytz",
+      "version": "2025.2",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytz-2025.2.dist-info"
+    },
+    {
+      "name": "PyYAML",
+      "version": "6.0.3",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pyyaml-6.0.3.dist-info"
+    },
+    {
+      "name": "rdflib",
+      "version": "7.6.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/rdflib-7.6.0.dist-info"
+    },
+    {
+      "name": "referencing",
+      "version": "0.37.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/referencing-0.37.0.dist-info"
+    },
+    {
+      "name": "regex",
+      "version": "2026.9.3",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/regex-2026.9.3.dist-info"
+    },
+    {
+      "name": "requests",
+      "version": "2.32.5",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests-2.32.5.dist-info"
+    },
+    {
+      "name": "requests-toolbelt",
+      "version": "1.0.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/requests_toolbelt-1.0.0.dist-info"
+    },
+    {
+      "name": "rfc3339-validator",
+      "version": "0.1.4",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/rfc3339_validator-0.1.4.dist-info"
+    },
+    {
+      "name": "rfc3986-validator",
+      "version": "0.1.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/rfc3986_validator-0.1.1.dist-info"
+    },
+    {
+      "name": "rfc3987-syntax",
+      "version": "1.1.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/rfc3987_syntax-1.1.0.dist-info"
+    },
+    {
+      "name": "rpds-py",
+      "version": "0.30.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/rpds_py-0.30.0.dist-info"
+    },
+    {
+      "name": "ruff",
+      "version": "0.14.10",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/ruff-0.14.10.dist-info"
+    },
+    {
+      "name": "scikit-learn",
+      "version": "1.8.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/scikit_learn-1.8.0.dist-info"
+    },
+    {
+      "name": "scipy",
+      "version": "1.16.3",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/scipy-1.16.3.dist-info"
+    },
+    {
+      "name": "six",
+      "version": "1.17.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/six-1.17.0.dist-info"
+    },
+    {
+      "name": "sniffio",
+      "version": "1.3.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/sniffio-1.3.1.dist-info"
+    },
+    {
+      "name": "sortedcontainers",
+      "version": "2.4.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/sortedcontainers-2.4.0.dist-info"
+    },
+    {
+      "name": "starlette",
+      "version": "0.52.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette-0.52.1.dist-info"
+    },
+    {
+      "name": "structlog",
+      "version": "25.5.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/structlog-25.5.0.dist-info"
+    },
+    {
+      "name": "tenacity",
+      "version": "9.1.2",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/tenacity-9.1.2.dist-info"
+    },
+    {
+      "name": "threadpoolctl",
+      "version": "3.6.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/threadpoolctl-3.6.0.dist-info"
+    },
+    {
+      "name": "tiktoken",
+      "version": "0.12.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/tiktoken-0.12.0.dist-info"
+    },
+    {
+      "name": "toolz",
+      "version": "1.1.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/toolz-1.1.0.dist-info"
+    },
+    {
+      "name": "tqdm",
+      "version": "4.67.3",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/tqdm-4.67.3.dist-info"
+    },
+    {
+      "name": "types-requests",
+      "version": "2.32.4.20250913",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/types_requests-2.32.4.20250913.dist-info"
+    },
+    {
+      "name": "typing-inspection",
+      "version": "0.4.2",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/typing_inspection-0.4.2.dist-info"
+    },
+    {
+      "name": "typing_extensions",
+      "version": "4.15.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/typing_extensions-4.15.0.dist-info"
+    },
+    {
+      "name": "tzdata",
+      "version": "2025.3",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/tzdata-2025.3.dist-info"
+    },
+    {
+      "name": "uri-template",
+      "version": "1.3.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/uri_template-1.3.0.dist-info"
+    },
+    {
+      "name": "urllib3",
+      "version": "2.6.2",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/urllib3-2.6.2.dist-info"
+    },
+    {
+      "name": "uuid_utils",
+      "version": "0.12.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/uuid_utils-0.12.0.dist-info"
+    },
+    {
+      "name": "uvicorn",
+      "version": "0.40.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/uvicorn-0.40.0.dist-info"
+    },
+    {
+      "name": "uvloop",
+      "version": "0.22.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/uvloop-0.22.1.dist-info"
+    },
+    {
+      "name": "virtualenv",
+      "version": "20.35.4",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/virtualenv-20.35.4.dist-info"
+    },
+    {
+      "name": "wadler_lindig",
+      "version": "0.1.7",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/wadler_lindig-0.1.7.dist-info"
+    },
+    {
+      "name": "watchfiles",
+      "version": "1.1.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/watchfiles-1.1.1.dist-info"
+    },
+    {
+      "name": "webcolors",
+      "version": "25.10.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/webcolors-25.10.0.dist-info"
+    },
+    {
+      "name": "websockets",
+      "version": "16.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/websockets-16.0.dist-info"
+    },
+    {
+      "name": "wrapt",
+      "version": "2.0.1",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/wrapt-2.0.1.dist-info"
+    },
+    {
+      "name": "xlrd",
+      "version": "2.0.2",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/xlrd-2.0.2.dist-info"
+    },
+    {
+      "name": "xxhash",
+      "version": "3.6.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/xxhash-3.6.0.dist-info"
+    },
+    {
+      "name": "yarl",
+      "version": "1.22.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/yarl-1.22.0.dist-info"
+    },
+    {
+      "name": "zipp",
+      "version": "3.23.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/zipp-3.23.0.dist-info"
+    },
+    {
+      "name": "zstandard",
+      "version": "0.25.0",
+      "metadata_path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/zstandard-0.25.0.dist-info"
+    }
+  ],
+  "qualification": "Metadata and loader origins; numerical/imported-native behavior not tested."
+}

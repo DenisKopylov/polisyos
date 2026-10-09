@@ -1,0 +1,36 @@
+{
+  "source": "03a7c5d5e206f87097a18480dcf6091eb2af3d93",
+  "tree": "46aab0ec802b239da47d4fab5ee1d7e1f616045a",
+  "required": [
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+      "exists": false
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json",
+      "exists": false
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/observation_to_contract_manifest.json",
+      "exists": false
+    }
+  ],
+  "optional": [
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/policy_scenario_templates.json",
+      "exists": false
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/runtime_bundle_v1/slot_family_manifest.json",
+      "exists": false
+    }
+  ],
+  "owner_bindings": {
+    "path": "/workspace/ORCH04-evidence/native-tester/C10-03a7c5d5-source/policy-engine/architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json",
+    "exists": true,
+    "sha256": "3347976276700016a99d47301fd22a8e897678dfd7aef6a926561e9a4a044378"
+  },
+  "profile": "actual committed archive, production_data unprovided; no substitute packet emitted",
+  "loader": "load_l6_intervention_substrate reads canonical defaults; check_layer3_gy_intervention_substrate_contract writes inventory only; no ready canonical producer/source packet located in measured available code search",
+  "held_scope": "three actual configured served consumers fail l6_control_artifact_missing before N4/N5 phase; independent own capsule/producer/B36/partial semantics continue"
+}

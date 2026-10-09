@@ -1,0 +1,118 @@
+(node:14247) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14259) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14259) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14285) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14286) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| src/shared/i18n/parity.test.ts > locale catalogs > keeps the legacy-continuity Russian key set frozen
+AssertionError: expected '24640e690e072de535c0d696fc78ae849e862…' to be 'afcb270475b8a61f3ff4606478c6a0916ab18…' // Object.is equality
+
+Expected: "afcb270475b8a61f3ff4606478c6a0916ab1890932b56e9468a5cb590a0f014d"
+Received: "24640e690e072de535c0d696fc78ae849e862ba62ba8e0c7f315f3a974d2c294"
+
+ ❯ src/shared/i18n/parity.test.ts:1216:7
+    1214|     expect(
+    1215|       crypto.createHash("sha256").update(JSON.stringify(ruKeys)).diges…
+    1216|     ).toBe(LEGACY_CONTINUITY_RU_KEY_SET_SHA256);
+       |       ^
+    1217|     expect(ruKeys).toHaveLength(LEGACY_CONTINUITY_RU_KEY_COUNT);
+    1218|     expect(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| src/shared/i18n/parity.test.ts > locale catalogs > rejects a real new active-catalog numeric use until it is declared
+AssertionError: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "en:pages.runs.candidateSimulation.boundaries#{sampling}:variable-kind-undeclared",
++   "en:pages.runs.candidateSimulation.boundaries#{units}:variable-kind-undeclared",
++ ]
+
+ ❯ src/shared/i18n/parity.test.ts:1804:7
+    1802|     expect(
+    1803|       collectVariableKindDeclarationFailures(catalogWithNewUse, "en"),
+    1804|     ).toEqual([]);
+       |       ^
+    1805|     expect(
+    1806|       collectNumericUseDeclarationFailures(catalogWithNewUse, "en", "e…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| src/shared/i18n/parity.test.ts > locale catalogs > freezes the complete quantitative-use declaration set
+AssertionError: expected [ 2921, 2921 ] to deeply equal [ 2879, 2879 ]
+
+- Expected
++ Received
+
+  [
+-   2879,
+-   2879,
++   2921,
++   2921,
+  ]
+
+ ❯ src/shared/i18n/parity.test.ts:2139:72
+    2137|     expect(declaredVariableNames).toHaveLength(158);
+    2138|     expect(new Set(declaredVariableNames).size).toBe(158);
+    2139|     expect([collectLeafPairs(en).length, collectLeafPairs(uk).length])…
+       |                                                                        ^
+    2140|       ACTIVE_LOCALE_LEAF_COUNT,
+    2141|       ACTIVE_LOCALE_LEAF_COUNT,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| src/shared/i18n/parity.test.ts > locale catalogs > requires complete active en quantitative-use declarations
+AssertionError: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "en:pages.runs.candidateSimulation.boundaries#{sampling}:variable-kind-undeclared",
++   "en:pages.runs.candidateSimulation.boundaries#{units}:variable-kind-undeclared",
++ ]
+
+ ❯ src/shared/i18n/parity.test.ts:2270:71
+    2268|     "requires complete active %s quantitative-use declarations",
+    2269|     (locale, intlLocale, catalog) => {
+    2270|       expect(collectVariableKindDeclarationFailures(catalog, locale)).…
+       |                                                                       ^
+    2271|         [],
+    2272|       );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |unit| src/shared/i18n/parity.test.ts > locale catalogs > requires complete active uk quantitative-use declarations
+AssertionError: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "uk:pages.runs.candidateSimulation.boundaries#{sampling}:variable-kind-undeclared",
++   "uk:pages.runs.candidateSimulation.boundaries#{units}:variable-kind-undeclared",
++ ]
+
+ ❯ src/shared/i18n/parity.test.ts:2270:71
+    2268|     "requires complete active %s quantitative-use declarations",
+    2269|     (locale, intlLocale, catalog) => {
+    2270|       expect(collectVariableKindDeclarationFailures(catalog, locale)).…
+       |                                                                       ^
+    2271|         [],
+    2272|       );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+

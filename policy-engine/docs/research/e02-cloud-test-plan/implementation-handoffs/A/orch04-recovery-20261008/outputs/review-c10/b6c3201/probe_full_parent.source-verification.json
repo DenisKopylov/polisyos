@@ -1,0 +1,9 @@
+{
+  "sha": "b6c3201aca6f8a94f05479269e13cde2dd3e7119",
+  "loaded_file_backed_python_modules": 1457,
+  "mismatches": [],
+  "profile_python": "/workspace/ORCH04-environments/app/bin/python",
+  "property": "full uncomposed parent must not accept rehashed self-asserted grounded terminal",
+  "result": "FAIL",
+  "production_authority_escape": "not_established; scoped artifact validation finding only"
+}

@@ -1,0 +1,1 @@
+{"case": "produce", "basis_ref": "sha256:ad33e7a78fbc4e4bbedd793e8ebbb950d6e680587be9c3019a0d981af68b7bcb", "observations": ["sha256:487a8b87f95e372a5385232da952897c54dfefae6f9d3f4eb7228f1cfd2606e6", "sha256:f06441807043f0379eac0599a6c4b0181471576b3a0cbe38834cd4cc2ab85324"]}

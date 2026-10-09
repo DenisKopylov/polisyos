@@ -1,0 +1,261 @@
+{
+  "schema": "policyos.orch04.C11.B114-source-qualified-leaf-handoff.v1",
+  "unit": "D",
+  "writer": "/root/c11",
+  "coordinator": "/root",
+  "role": "Direct owned source writer; independent reviewers and immutable testers separate; no children",
+  "base": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "branch": "codex/e02-C11-recovery-20261008",
+  "remote": "https://github.com/DenisKopylov/polisyos.git",
+  "authority": {
+    "source_acceptance": "G only; not established by this receipt",
+    "formal_G_closure": 0,
+    "composition": "Only explicit future G selected freeze admits portable replay",
+    "production_payload": "L01/L02 local; none exported here"
+  },
+  "source_inputs": {
+    "slice_base_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+    "lineage": "fresh G-based implementation + explicitly inspected D scoped L6 source/test supplier; no old unpublished C11 byte reconstruction",
+    "unavailable_old_receipt": "f9903d8e803c17743554a58d3f45c6c66d686191",
+    "inputs": [
+      {
+        "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/D.json",
+        "blob": "72e308ddcb908233e1104ae3e584cdca4340b8a0",
+        "sha256": "16b8538556a1276ce8fe161a8aff365a171907ae12522a63a31a3f48098a8fdb",
+        "qualification": "available explicit input, no historical PASS or G source acceptance transferred"
+      },
+      {
+        "commit": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+        "blob": "5154ebfe71891ca5a3046a05e0b03cb79a755a4a",
+        "sha256": "31d00ab5bd721d4f3d63e7581df74a49bc87e91f548ed7bb61d4c9770d730c19",
+        "qualification": "available explicit input, no historical PASS or G source acceptance transferred"
+      },
+      {
+        "commit": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py",
+        "blob": "a5d97c881ffb1f56d770f0d77b0f39729f1c089e",
+        "sha256": "3c8eae482bae140471b79f6c021601f379718e904c00f1feb47bb125e0fc773f",
+        "qualification": "available explicit input, no historical PASS or G source acceptance transferred"
+      }
+    ],
+    "B161_refinement_positive": "held; producer law not established",
+    "LA036": "conditional law/model supplier contract absent in this fresh G scope; remains held, no inferred law",
+    "registration_companion": "An exact additional E/F supplier module/node registration packet has not been provided for this slice; its source SHA and node/module list require G+E/F selection. Existing registered BuildVerifiedPolicyReport, BuildPolicyOutputBundle, RunPolicyTranslation and BuildDecisionPacket consumers retain their actual Phase5 preflight wiring and existing catalog discovery/freshness is exercised. This is a specific supplier-input hold, not a repository-wide absence claim."
+  },
+  "source_inputs_qualification": "Exact available scoped D L6 source/test plus canonical G and L01 owner packet; no whole D carrier imported, no Historical20PASS transfer, no old unpublished source reconstructed.",
+  "unavailable": {
+    "old_C11_receipt": "f9903d8e803c17743554a58d3f45c6c66d686191",
+    "observation": "Exact fetch128 upload-pack not our ref on current host/time; unavailable custody bytes, not proof of global absence",
+    "effect": "Old packet transfer held; fresh own mechanisms implemented with new lineage/evidence"
+  },
+  "profile": {
+    "python": "/workspace/ORCH04-environments/app/bin/python; locked supported Python3.14.2 app on writable /workspace volume",
+    "candidate_origin": "Independent exact036 export;13actualorigin entries/7affected product source __file__/SHA256 match immutable036, actual installed library origins preserved. See evidence/native/C11-03698439-B114-actual-origin-verification.json and raw actual-origins output; earlier eight-module origins retain c1 pin and qualify unchanged selected call closures.",
+    "optional_native": "Torch2.10.0+cu128; BoTorch0.16.1; GPyTorch1.15.1; NumPy2.3.5; actual module/library origins in independent receipts",
+    "runtime_tuning": "No ad hoc OMP/MKL/OpenBLAS/XLA caps; product Torch runtime configured CPU4/inter-op1 in deciding output",
+    "observations": "Exact command/start/finish/PID/RSS/filesystem/inodes/cgroup limits/events/stat before/after in execution receipts. Exit -9/137 alone is not an OOM diagnosis; no old process cause reconstructed.",
+    "frontend": "Node22.23.3; normal corepack pnpm install --frozen-lockfile succeeded in this lane after ordinary supported proxy configuration; no lock mutation"
+  },
+  "remaining_inputs": {
+    "held_five": [
+      {
+        "criterion": "B131",
+        "packet": "../B131-minimum-owner-input.json"
+      },
+      {
+        "criterion": "B137",
+        "packet": "../B137-minimum-owner-input.json"
+      },
+      {
+        "criterion": "B157",
+        "packet": "../B157-minimum-owner-input.json"
+      },
+      {
+        "criterion": "B161",
+        "packet": "../B161-minimum-owner-input.json"
+      },
+      {
+        "criterion": "B164",
+        "packet": "../B164-minimum-owner-input.json"
+      }
+    ],
+    "limited_B108": {
+      "packet": "../B108-minimum-owner-input.json",
+      "limitation": "Actual fiscal unit/sign/alias/time/missing/conflict law remains external"
+    },
+    "LA036": "Admitted observed-feature conditional law/model producer binding not established; BERL bounds do not invent this law",
+    "registration_companion": "An exact additional E/F supplier module/node registration packet has not been provided for this slice; its source SHA and node/module list require G+E/F selection. Existing registered BuildVerifiedPolicyReport, BuildPolicyOutputBundle, RunPolicyTranslation and BuildDecisionPacket consumers retain their actual Phase5 preflight wiring and existing catalog discovery/freshness is exercised. This is a specific supplier-input hold, not a repository-wide absence claim.",
+    "optional_joined_workflow": "Broader WarmStartBridge→BayesianCandidateGenerator→SearchLoopRunner/CAS transfer supplier/API/profile integration is not established by these scoped examples. It is separate future composition work, not a strengthened original B114 criterion or block on this owned repair."
+  },
+  "claims_excluded": [
+    "Historical20PASS transfer",
+    "source reconstructed from narrative",
+    "producer/refinement or permission authority invented",
+    "old native -9 cause diagnosed from exit code",
+    "import/build/component readiness as numerical PASS",
+    "production claim",
+    "G source acceptance or formal closure"
+  ],
+  "source": "03698439abfb1cb59f763397a182d8e0e393d40d",
+  "tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+  "parents": [
+    "53a7cb99e4636e3cdfa903e22743e0a9b19a62a7"
+  ],
+  "append_only_lineage": [
+    "76f262402cbb4da18888482529d86582c409a7f8",
+    "26eaf5c7f9518e1d1bb0c82c0118c448ea0f22a6",
+    "a16381458ac148ede05cae2eb84de88e5780c279",
+    "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+    "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+    "4810a9c4eb4e2a3dc4bdaa946483fe93e86e8067",
+    "53a7cb99e4636e3cdfa903e22743e0a9b19a62a7",
+    "03698439abfb1cb59f763397a182d8e0e393d40d"
+  ],
+  "prior_complete_receipt": {
+    "receipt": "4810a9c4eb4e2a3dc4bdaa946483fe93e86e8067",
+    "implementation_source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+    "implementation_tree": "605764d3afec7ba005bd891530ee074df5811497",
+    "handoff": "../HANDOFF.json",
+    "handoff_sha256": "aa57953583fc3c2c356bf339b1dad8a8e449d75325a17691f3d71bee551a8a7a",
+    "unchanged": true,
+    "ordinary_publication_readback": "evidence/prior-publication/publication-readback.json",
+    "qualification": "All earlier implementation, independent source/test/evidence and separate owner input packets are retained at their exact original pins. This new packet adds the original B114 repair and final source qualification; prior pending publication text remains historical and actual prior normal push/readback is supplied separately."
+  },
+  "source_manifest": "evidence/author/b114/source-freeze-final.json",
+  "footprint_count": 271,
+  "footprint_qualification": "Complete G032→036 source footprint has271 paths, comprising inherited earlier implementation/receipt paths and four changed owned B114 production/test/README/release paths. Exact classification, blob/SHA256/bytes/parents are in the full manifest. This new separate receipt adds only its uniquely owned docs/evidence; runtime/tests remain frozen036.",
+  "delta_paths": [
+    "policy-engine/release-fragments/unreleased/orch04-c11-b114-rejection-retention-20261008.md",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+    "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py"
+  ],
+  "mechanisms": [
+    "Strict complete configured basis/observation CAS intake preserves selected manifest views, compares expected basis/candidate/producer/stage envelope and resolves all declared inputs/risk refs.",
+    "History max retained; current available only when every stage observation admits, independent risks max aggregated; no last/min overwrite or invented scientific lowering rule.",
+    "Real public orchestrator/cache intake and native L3/L4 supplied observation-ref forwarding; configured runtime node projects current/history/refusal fields.",
+    "Complete ArtifactRef cache identity uses existing Core canonical helper including selected view; no Core write.",
+    "Effectful generic L6 callback refused before effects until actual typed issuer/verifier/revoke-serialized commit bridge; supplied prepared interpretation remains read only.",
+    "Existing builtin catalog factories produce fresh component instances; existing Phase5 report/output/translation/decision consumers retain actual registration/preflight wiring.",
+    "Present-input Phase5 runs actual BERL schema/validator; marker/malformed/unavailable/negative inputs fail closed.",
+    "GP state records actual fitted corpus, search-space identity and original full-refit counters independently of requested corpus; restores supported real model/transform state, preserves conditioning boundary and refuses missing legacy continuation bytes.",
+    "Rejected warm records retain every actual existing refusal reason and full Evaluation snapshot per occurrence in normal strategy state/artifact; snapshots are isolated from caller mutation and never enter training. Missing old ledger is explicitly incomplete.",
+    "Single adaptive acquisition and actual cold single/batch Sobol planning consume the same admitted, deduplicated corpus as training. Independent replicas remain distinct, fixed batch qEI and current-request/full-refit scheduling remain unchanged."
+  ],
+  "original_criteria": {
+    "dispatch": "execution-prompts/parallel-2026-10-08/C11.md and dispatch.json",
+    "B156": "Configured real orchestrator/cache consumer with permitted mocked callback; callback mock is not prohibited",
+    "B161": "Allowed scientific refinement positive held; implemented bounded current/history configured intake is not criterion closure",
+    "B164": "Actual issuer/revoke serialized commit positive held; refusal/prepared read-only evidence does not close issuer criterion",
+    "B114": "Original OPT-03 B_r19_original.md2991/2995: discarded records retain identity/reason; equivalent eligible whole and warm+new corpus has consistent sample/plan, duplicate artifacts do not count twice, independent replicas remain distinct. Three exact owned deciding examples repaired; optional joined supplier/API/profile research is not an added original acceptance bar.",
+    "B115": "Bounded actual native GP continuation/oracle evidence remains distinct from acquisition route/Sobol/rejection evidence and production permission/law."
+  },
+  "independent_source_review": {
+    "reviewer": "/root/review_c11",
+    "result": "SCOPED_SOURCE_GO_EVIDENCE_ACK; G acceptance separate",
+    "report": "evidence/review-final/REPORT.md",
+    "result_packet": "evidence/review-final/final-result.json",
+    "source_manifest": "evidence/review-final/source-manifest.json",
+    "qualification": "Complete four delta paths/full271-footprint and original retention/planning criteria reviewed. Original static pending result and REPORT-before-evidence-ack retain chronology. Final acknowledgment independently verifies native11+3originalprobes+5validcontrols (7semanticred/2fixedbatchPASS), initialinvalidrestoreERROR, exactactual7product importbytes/all68native receiptrefs and fresh036-GP bounded sevenGaussian positives/lengthscale negative. Prior126 scoped coverage remains not freshly rerun036. Supplied ledger guards establish version/reason/identity shape and normal produced-checkpoint preservation, not arbitrary full Evaluation schema/authenticity; restored complete flag is supplied-state metadata.",
+    "native_GP_evidence_ack": "evidence/review-final/native-GP-evidence-ack.json",
+    "packet_sha256": {
+      "REPORT.md": "fac1e3f77947daa52d1f4f41bb8fdd83278c7150443d27d23a4e1ff57f8db7af",
+      "final-result.json": "4b16568b9163050548cc0c2cdfd17afaea305e132c049f9b88ab3d3977d86e6b",
+      "native-GP-evidence-ack.json": "374294de139fedc328bf4400a8606a6a0cd69d16c74306e680b6edf95e1b7c0c",
+      "evidence-index.json": "c27226c9ec2720eeae01f0efe2334a49c62f1dd6481ac1ab43465b14e4079f98"
+    }
+  },
+  "checks": {
+    "prior_scoped_native": {
+      "source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+      "earlier_receipt": "../HANDOFF.json",
+      "result": "53freshc1+73qualifiedbdc=126previouscoverage; no fresh126 run",
+      "final_source_qualification": "Selected native fixtures/source/input call closures remain unchanged under this four-path strategy-only delta, independently reviewed. Original53/73 execution pins remain; no blanket Bayesian state-module input-equality transfer. Old125124/1 and initial invalid builtin removal ERROR remain distinct historical outputs. Final independent evidence ack explicitly records this bounded continuation qualification."
+    },
+    "original_B114_findings": {
+      "source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+      "rejection": "Native-present original fixture accepts8/rejects3 but old public state/return/log loses rejected identities/reasons; deciding v2 ASSERTFAIL, initial serializer ERROR retained.",
+      "adaptive": "Reversed identical eligible corpus yields actual single UCB whole vs EI warm+new despite same8 deduped X/y; original-order positive retained. Controlled fit/optimization spies classify route only.",
+      "cold": "Actual supported Sobol whole indices3/4 vs warm+new1/2 yield different params for same eligible3 below nInitial6; no fit/optimization spy.",
+      "outputs": "evidence/original-findings/; exact inputs, commands, PID/time, raw stdout/stderr and finding manifests indexed."
+    },
+    "affected_native": {
+      "source": "03698439abfb1cb59f763397a182d8e0e393d40d",
+      "result": "11PASS0FAIL",
+      "execution": "evidence/native/C11-03698439-B114-native/execution.json",
+      "stdout": "evidence/native/C11-03698439-B114-native/stdout.txt",
+      "junit": "evidence/native/C11-03698439-B114-native/junit.xml",
+      "pid": 29321,
+      "wall_seconds": 27.211634246999893,
+      "max_rss_kib": 1395828,
+      "scope": "Rejection-stateartifact1 +same-corpus adaptive/fixedqEI4 +actualcoldSobol2 +realwarmtraining1 +lightweightstate1(test named without_deps, actual installednativeprofile) +realrestoredappend1 +actualnorefit1; not broad native125/126/32 rerun. The lightweight checkpoint check does not establish dependency-absent environment behavior.",
+      "receipt": "evidence/native/C11-independent-B114-final-03698439-receipt.json",
+      "receipt_sha256": "f036f7d0b58cd67bd027fce4df73ed45cc06161d088b202bbea4754372de1fdc",
+      "input_closure": "evidence/native/C11-03698439-B114-input-closure.json",
+      "actual_origin_verification": "evidence/native/C11-03698439-B114-actual-origin-verification.json"
+    },
+    "original_fixture_probes": {
+      "source": "03698439abfb1cb59f763397a182d8e0e393d40d",
+      "result": "ThreePASS: rejection, reversed adaptive plan, actual cold single/batch Sobol",
+      "outputs": [
+        "evidence/native/C11-03698439-B114-rejection-boundary/stdout.txt",
+        "evidence/native/C11-03698439-B114-adaptive-plan-boundary/stdout.txt",
+        "evidence/native/C11-03698439-B114-cold-plan-boundary/stdout.txt"
+      ],
+      "limit": "Planning probe fit/optimization observers are permitted route controls on actual optimizer; actual cold Sobol is native. These do not claim genuine ML fit or numerical law."
+    },
+    "semantic_removals": {
+      "source": "03698439abfb1cb59f763397a182d8e0e393d40d",
+      "result": "Five independently matched valid removals yield7semantic assertion FAILs and2unaffected fixed-batchqEI PASS controls",
+      "families": {
+        "ledger_append": "1semanticFAIL",
+        "ledger_restore_v2": "1semanticFAIL",
+        "adaptive_corpus": "2semanticFAIL+2fixedbatchqEIPASS",
+        "cold_index": "2semanticFAIL",
+        "corpus_union": "1semanticFAIL"
+      },
+      "outputs": "evidence/native/C11-03698439-B114-removal-* directories; exact function pre/postimages and control manifests retained",
+      "invalid_probe": "Initial ledger_restore attempt PID29505 raised scratch RuntimeError from absent zero-argument super closure before semantic assertion: ERROR/invalid witness retained. Corrected v2 PID29741 semantic assertion FAIL is the valid restore property witness. No candidate product failure waived.",
+      "receipt": "evidence/native/C11-independent-B114-final-03698439-receipt.json"
+    },
+    "GP_continuation": {
+      "source": "03698439abfb1cb59f763397a182d8e0e393d40d",
+      "result": "Fresh independent affected Gaussian continuation oraclePASS after real fullfit10→condition11→checkpointrestore→append12; no extra same-basis MLL fit until separate due-positive",
+      "execution": "evidence/gp/analytic-final-036/execution.json",
+      "stdout": "evidence/gp/analytic-final-036/stdout.txt",
+      "report": "evidence/gp/analytic-final-036/report.json",
+      "harness": "evidence/gp/analytic_posterior_v2.py",
+      "source_manifest": "evidence/gp/final-036-source-manifest.json",
+      "pid": 29820,
+      "wall_seconds": 7.641603372998361,
+      "max_mean_abs_error": 4.440892098500626e-15,
+      "max_cov_abs_error": 1.5807667674838655e-15,
+      "limits": "Same bounded synthetic1D Gaussian fixture/installed native profile/reference as earlier original oracle. Empty rejection ledger checkpoint exercised here; nonempty rejection artifact roundtrip is independently native-tested. Fit/conditioning/modelbasis functions unchanged, but source036 is freshly witnessed rather than blanket prior module equality. No calibration/authority/production/cross-backend/universal law/installed product wheel claim.",
+      "max_rss_kib": 1173956,
+      "receipt": "evidence/gp/final-036-gp-receipt.json",
+      "receipt_sha256": "1b6143ebb8f5850c748ec2b573759890abbc064da8d5d88d6e56823da6d417ac",
+      "bound": "Initial10rows+twoappend→12rows,4querypoints,seven positiveGaussian comparisons+one actual independentlengthscale negative; full command wall7.641603s includes all phases. Previous preclarification receipt bytes separately preserved; no new run."
+    },
+    "ordinary_frontend_and_hooks": {
+      "install": "PASS corepack pnpm install --frozen-lockfile; full initial unsupported proxy failure and supported retry outputs retained",
+      "precommit": "Prior five implementation source commits and both new append-only source commits53a/036 use штатный hooks with exit0; separate prior4810receipt also uses normal hook0. New separate addendum receipt will run its own normal precommit.",
+      "prepush": "Required own-lane normal hook/typecheck runs at publication; pending here because receipt precedes its own push",
+      "build": "C13 full dashboard build PASS at G032; prior frontend proof ../evidence/frontend/input-equality.json/dashboard-build.stdout.txt/scoped-checks.json pins c1 equality. Both new source commits modify only owned strategy/test/README/release inputs, leaving all frontend/lock/config inputs byte-identical. Own normal prepush mandatory typecheck runs again for this receipt.",
+      "prior_outputs": "../HANDOFF.json and ../evidence; prior normal publication/typecheck proof evidence/prior-publication/publication-readback.json"
+    },
+    "author_developer": {
+      "result": "2 precursor rejection/state +6 precursor planning/Sobol developer PASS; not final deciding consumer evidence",
+      "outputs": "evidence/author/b114-developer and b114-planning-developer; commits use normal hooks0"
+    }
+  },
+  "deciding_output_index": "evidence/artifact-index.json",
+  "publication": {
+    "target": "origin codex/e02-C11-recovery-20261008",
+    "method": "Ordinary topic push with required hooks; no bypass/force/main/integration",
+    "status": "Pending ordinary push of this new separate receipt; its own mandatory hook output and complete remote byte readback are recorded afterward in external author proof/coordinator final packet.",
+    "fallback": "If required hook fails, ERROR/incomplete publication plus normal full export; independent available work continues"
+  },
+  "ignored_export_requirements": "evidence/ignored-export-requirements.json"
+}

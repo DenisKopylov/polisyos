@@ -1,0 +1,12 @@
+(node:25827) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+╭───────────────────────────────────╮
+│ lefthook v2.1.6  hook: pre-commit │
+╰───────────────────────────────────╯
+│  prettier (skip) no files for inspection
+│  check-contrast (skip) no matching staged files
+│  check-reduced-motion (skip) no matching staged files
+│  eslint (skip) no files for inspection
+                                      
+  ────────────────────────────────────
+summary: (done in 0.24 seconds)       

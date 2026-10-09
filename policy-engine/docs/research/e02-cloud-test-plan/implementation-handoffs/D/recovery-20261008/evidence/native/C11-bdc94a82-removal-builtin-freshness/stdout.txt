@@ -1,0 +1,37 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removals/builtin-freshness/policy-engine
+configfile: pytest.ini
+plugins: asyncio-1.3.0, langsmith-0.6.0, hypothesis-6.151.2, anyio-4.12.0, xdist-3.8.0, benchmark-5.2.3, jaxtyping-0.3.4
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 1 item
+
+tests/unit/scientist/nodes/test_components.py F
+
+=================================== FAILURES ===================================
+______ test_builtin_component_instances_do_not_share_prior_runtime_state _______
+
+    def test_builtin_component_instances_do_not_share_prior_runtime_state():
+>       for component in builtin_node_components():
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/nodes/test_components.py:7: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    @lru_cache(maxsize=1)
+    def builtin_node_components() -> tuple[ScientistNodeComponent, ...]:
+        """Return builtin Scientist nodes as component providers."""
+        return tuple(
+>           scientist_node_component(node, node_factory=lambda node=node: node)  # type(node) retained for node in builtin_nodes()
+                                     ^^^^
+        )
+E       NameError: name 'node' is not defined
+
+src/polisyos/scientist/nodes/components.py:51: NameError
+- generated xml file: /workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-builtin-freshness.xml -
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/nodes/test_components.py::test_builtin_component_instances_do_not_share_prior_runtime_state
+============================== 1 failed in 0.11s ===============================

@@ -1,0 +1,113 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removals/berl-unavailable/policy-engine
+configfile: pytest.ini
+plugins: asyncio-1.3.0, langsmith-0.6.0, hypothesis-6.151.2, anyio-4.12.0, xdist-3.8.0, benchmark-5.2.3, jaxtyping-0.3.4
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 3 items
+
+tests/unit/scientist/validation/test_phase5_preflight.py FFF
+
+=================================== FAILURES ===================================
+_ test_preflight_fails_closed_when_actual_berl_validation_is_unavailable[marker_only] _
+
+mutation = 'marker_only'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8afa26ec40>
+
+    @pytest.mark.parametrize("mutation", ["marker_only", "malformed", "unavailable"])
+    def test_preflight_fails_closed_when_actual_berl_validation_is_unavailable(
+        mutation: str,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        payload = _present_berl_payload()
+        if mutation == "marker_only":
+            payload = {
+                "kind": "scientist.explanation_bundle",
+                "faithfulness_claim": "bounded",
+                "berl_validation": {"status": "pass"},
+            }
+        elif mutation == "malformed":
+            payload["model"] = {"model_id": "model"}
+        else:
+            import polisyos.scientist.validation.phase5_preflight as phase5
+    
+            monkeypatch.setattr(phase5, "_run_berl_validation", lambda record: None)
+        report = build_phase5_validation_report(
+            _ctx(), _state(), artifact_payload=payload, artifact_kind="scientist.explanation_bundle"
+        )
+>       assert any("validation unavailable or input malformed" in x for x in report.gate_failures)
+E       assert False
+E        +  where False = any(<generator object test_preflight_fails_closed_when_actual_berl_validation_is_unavailable.<locals>.<genexpr> at 0x7f8af9c9e260>)
+
+tests/unit/scientist/validation/test_phase5_preflight.py:383: AssertionError
+_ test_preflight_fails_closed_when_actual_berl_validation_is_unavailable[malformed] _
+
+mutation = 'malformed'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8af99eafd0>
+
+    @pytest.mark.parametrize("mutation", ["marker_only", "malformed", "unavailable"])
+    def test_preflight_fails_closed_when_actual_berl_validation_is_unavailable(
+        mutation: str,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        payload = _present_berl_payload()
+        if mutation == "marker_only":
+            payload = {
+                "kind": "scientist.explanation_bundle",
+                "faithfulness_claim": "bounded",
+                "berl_validation": {"status": "pass"},
+            }
+        elif mutation == "malformed":
+            payload["model"] = {"model_id": "model"}
+        else:
+            import polisyos.scientist.validation.phase5_preflight as phase5
+    
+            monkeypatch.setattr(phase5, "_run_berl_validation", lambda record: None)
+        report = build_phase5_validation_report(
+            _ctx(), _state(), artifact_payload=payload, artifact_kind="scientist.explanation_bundle"
+        )
+>       assert any("validation unavailable or input malformed" in x for x in report.gate_failures)
+E       assert False
+E        +  where False = any(<generator object test_preflight_fails_closed_when_actual_berl_validation_is_unavailable.<locals>.<genexpr> at 0x7f8af9a6c860>)
+
+tests/unit/scientist/validation/test_phase5_preflight.py:383: AssertionError
+_ test_preflight_fails_closed_when_actual_berl_validation_is_unavailable[unavailable] _
+
+mutation = 'unavailable'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8af9a02e70>
+
+    @pytest.mark.parametrize("mutation", ["marker_only", "malformed", "unavailable"])
+    def test_preflight_fails_closed_when_actual_berl_validation_is_unavailable(
+        mutation: str,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        payload = _present_berl_payload()
+        if mutation == "marker_only":
+            payload = {
+                "kind": "scientist.explanation_bundle",
+                "faithfulness_claim": "bounded",
+                "berl_validation": {"status": "pass"},
+            }
+        elif mutation == "malformed":
+            payload["model"] = {"model_id": "model"}
+        else:
+            import polisyos.scientist.validation.phase5_preflight as phase5
+    
+            monkeypatch.setattr(phase5, "_run_berl_validation", lambda record: None)
+        report = build_phase5_validation_report(
+            _ctx(), _state(), artifact_payload=payload, artifact_kind="scientist.explanation_bundle"
+        )
+>       assert any("validation unavailable or input malformed" in x for x in report.gate_failures)
+E       assert False
+E        +  where False = any(<generator object test_preflight_fails_closed_when_actual_berl_validation_is_unavailable.<locals>.<genexpr> at 0x7f8af9a6d150>)
+
+tests/unit/scientist/validation/test_phase5_preflight.py:383: AssertionError
+- generated xml file: /workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-berl-unavailable.xml -
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/validation/test_phase5_preflight.py::test_preflight_fails_closed_when_actual_berl_validation_is_unavailable[marker_only]
+FAILED tests/unit/scientist/validation/test_phase5_preflight.py::test_preflight_fails_closed_when_actual_berl_validation_is_unavailable[malformed]
+FAILED tests/unit/scientist/validation/test_phase5_preflight.py::test_preflight_fails_closed_when_actual_berl_validation_is_unavailable[unavailable]
+============================== 3 failed in 1.32s ===============================

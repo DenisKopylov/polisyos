@@ -1,0 +1,21 @@
+{
+  "id": "B108",
+  "bundle": "OPT-01",
+  "minimum_next_input": [
+    "Opaque ref to actual fiscal producer/result and its source/version",
+    "Owner-issued applicable sign/unit/alias profile plus measurement time/context",
+    "Conflict/missing policy bound to that producer/profile"
+  ],
+  "smallest_discriminator": "On one owner-qualified physical measurement, equivalent declared balance/deficit encodings must yield the same score, explicit zero must remain zero, and a conflicting or incompatible-unit encoding must be unavailable. A synthetic numeric test cannot supply the owner profile.",
+  "four_planes": {
+    "internal_configured_owner": "PolicyOS has the fiscal objective/extractor and evaluator consumers. The actual fiscal unit/sign/source-law declaring owner is requested but appointment is not established.",
+    "external_fact": "Missing: actual fiscal producer/result and source refs; owner-declared sign, unit and alias equivalence/profile; measurement time/context; and that producer’s conflict/missing policy. No production payload or private source path was opened.",
+    "our_admission": "The D source parses gov_balance/government_balance and budget_deficit/deficit aliases and rejects missing, non-finite and conflicting balance inputs in its named numeric tests. This is technical parsing, not admission of fiscal law. runner.summarize_state emits gov_balance from government_balance; the legacy/default objective consumer still reads gov_balance with a zero default.",
+    "claim_reaction": "Keep the connected author proposal limited. Do not treat numeric alias controls or the existence of a field as evidence of the real producer’s unit/sign/alias law."
+  },
+  "status": "limited",
+  "actual_owner_positive": "UNRUN",
+  "G_closure": "not_adjudicated",
+  "source_packet": "L01/parallel-20261008-l01/packets/D.json@0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "qualification": "Exact preserved input requirements; no new issuer, fiscal law or refinement procedure supplied by this implementation."
+}

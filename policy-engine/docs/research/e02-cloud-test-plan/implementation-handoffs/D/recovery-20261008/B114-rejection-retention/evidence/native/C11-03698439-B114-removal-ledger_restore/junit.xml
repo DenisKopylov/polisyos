@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.092" timestamp="2026-10-08T17:58:43.531105+00:00" hostname="9065c0936350"><testcase classname="tests.unit.scientist.search.strategies.test_bayesian" name="test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus" time="0.009"><failure message="RuntimeError: super(): __class__ cell not found">simple_space = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=&lt;ParameterType.CONTINUOUS: 'continuous'&gt;, log_scale=False, categories=None)])
+
+    def test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus(
+        simple_space: SearchSpace,
+    ) -&gt; None:
+        strategy = BayesianOptimizer(simple_space, BayesianConfig(seed=19))
+        compatibility = {
+            "search_space_fingerprint": simple_space.sobol_space_fingerprint(),
+            "input_transform_fingerprint": "Normalize[0,1]",
+            "outcome_transform_fingerprint": "Standardize[m=1]",
+            "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+            "objective_fingerprint": "scalar_score[minimize]",
+            "context_fingerprint": "context/rejection-audit",
+        }
+        records = [
+            make_evaluation(
+                candidate_id=f"full-record-identity/{index}",
+                params={"x": float(index - 2)},
+                score=float(index),
+                space=simple_space,
+            )
+            for index in range(6)
+        ]
+        for index, evaluation in enumerate(records):
+            evaluation.provenance_ref = f"origin/rejection-audit/{index}"
+            evaluation.metadata = {
+                "replicate_id": f"replica-{index}",
+                "seed": index,
+                "warm_start_compatibility": dict(compatibility),
+                "payload": {"retained": [index]},
+            }
+        accepted, *rejected = records
+        rejected[0].stage_a_passed = False
+        rejected[1].provenance_ref = None
+        rejected[2].params_normalized = (0.25, 0.75)
+        rejected[3].metadata.pop("warm_start_compatibility")
+        rejected[4].metadata["warm_start_compatibility"]["context_fingerprint"] = "foreign"
+        reasons = [
+            "invalid outcome",
+            "missing provenance_ref",
+            "incompatible normalized parameters",
+            "missing or incompatible warm-start fingerprint",
+            "incompatible context fingerprint",
+        ]
+        expected = json.loads(
+            json.dumps(
+                [
+                    {"reason": reason, "evaluation": asdict(evaluation)}
+                    for reason, evaluation in zip(reasons, rejected, strict=True)
+                ],
+                default=str,
+            )
+        )
+        assert strategy.warm_start(records) is None
+        assert strategy._select_training_subset([]) == [accepted]
+        # Retain each rejected occurrence, including repeated complete record identities.
+        strategy.warm_start([rejected[1]])
+        expected.append(expected[1])
+        rejected[0].metadata["payload"]["retained"].append("changed by caller")
+        state = StrategyState.from_artifact(strategy.get_state().to_artifact())
+        history = state.metadata["warm_start_rejections"]
+        assert history["version"] == 1
+        assert history["complete"] is True
+        assert history["records"] == expected
+        assert strategy._select_training_subset([]) == [accepted]
+        restored = BayesianOptimizer(simple_space, BayesianConfig(seed=19))
+&gt;       restored.set_state(state)
+
+tests/unit/scientist/search/strategies/test_bayesian.py:131: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.scientist.methods.search.strategies.bayesian.BayesianOptimizer object at 0x7fa796ecee90&gt;
+state = StrategyState(strategy_name='BayesianOptimizer', iteration=0, rng_state={'python': {'codec': 'python_random', 'codec_v...': '2026-10-08 17:58:43.563847+00:00', 'wall_time_seconds': 0.0}, 'reason': 'missing provenance_ref'}], 'version': 1}})
+
+    def set_state(self, state: StrategyState) -&gt; None:
+        """Restore a recorded GP basis and its actual full-refit boundary.
+    
+        Legacy model snapshots lack enough information for append continuation;
+        reject them explicitly rather than invent the missing fitting history.
+        """
+        rejection_history = state.metadata.get("warm_start_rejections")
+        if rejection_history is None:
+            rejection_records: list[dict[str, Any]] = []
+            rejection_history_complete = False
+        else:
+            if (
+                not isinstance(rejection_history, Mapping)
+                or type(rejection_history.get("version")) is not int
+                or rejection_history.get("version") != 1
+                or type(rejection_history.get("complete")) is not bool
+                or not isinstance(rejection_history.get("records"), list)
+            ):
+                raise ValueError("Warm-start rejection history is malformed or unsupported")
+            for record in rejection_history["records"]:
+                if (
+                    not isinstance(record, Mapping)
+                    or not isinstance(record.get("reason"), str)
+                    or record.get("reason") not in _WARM_REJECTION_REASONS
+                    or not isinstance(record.get("evaluation"), Mapping)
+                    or not isinstance(record["evaluation"].get("candidate_id"), str)
+                ):
+                    raise ValueError("Warm-start rejection record or reason is malformed")
+            rejection_records = deepcopy(rejection_history["records"])
+            rejection_history_complete = rejection_history["complete"]
+        continuation = state.metadata.get("gp_continuation")
+        if state.model_state is not None:
+            if not isinstance(continuation, Mapping) or continuation.get("version") != "1.0":
+                raise ValueError("GP continuation basis/refit history not established in snapshot")
+            if continuation.get("space_fingerprint") != self._space.sobol_space_fingerprint():
+                raise ValueError("GP continuation search space differs from the snapshot")
+            last_iteration = continuation.get("last_refit_iteration")
+            last_size = continuation.get("last_train_size")
+            if (
+                type(last_iteration) is not int
+                or type(last_size) is not int
+                or last_iteration &lt; 0
+                or last_iteration &gt; state.iteration
+                or last_size &lt; 1
+            ):
+                raise ValueError("GP continuation has invalid full-refit counters")
+&gt;       super().set_state(state)
+    ^^^^^^^
+E       RuntimeError: super(): __class__ cell not found
+
+../../C11-03698439-B114-removal-ledger_restore-packet/set_state.postimage.py:47: RuntimeError</failure></testcase></testsuite></testsuites>

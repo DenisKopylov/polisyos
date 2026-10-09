@@ -1,0 +1,13 @@
+{
+  "schema": "orch04.C11.B114.receipt-integrity.v1",
+  "utc": "2026-10-08T18:11:07.563306+00:00",
+  "status": "PASS",
+  "indexed_files_before_this_integrity_record": 208,
+  "indexed_bytes_before_this_record": 1912988,
+  "old_HANDOFF_byte_identical_4810": true,
+  "frozen_source": "03698439abfb1cb59f763397a182d8e0e393d40d",
+  "runtime_tests_release_equal_frozen_source": true,
+  "all_indexed_bytes_and_JSON_parse_verified": true,
+  "independent_review_final_ACK": "evidence/review-final/final-result.json",
+  "qualification": "Verification of receipt custody/identity; G source acceptance/formal closure separate."
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "orch04.C11.ignored-export-inputs.v1",
+  "artifacts": [
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-source-source-manifest.json",
+      "bytes": 6938856,
+      "sha256": "7d76f9685894d95b900e2f0eba4f40003e9b4592550d9dcd3dd9a85a9a8188f2",
+      "qualification": "ordinary ignored custody/export input; no source acceptance or production bytes"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source-source-manifest.json",
+      "bytes": 6938856,
+      "sha256": "1cacc40277fca4d0069f11296241ed4f0b900db696674941d4cb001f92718f0d",
+      "qualification": "ordinary ignored custody/export input; no source acceptance or production bytes"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/final-bdc-source.tar",
+      "bytes": 93265920,
+      "sha256": "5c4bed068d676035277a290c74aa25180f9564ad0c2727b08c7fc572cd86a16e",
+      "qualification": "ordinary ignored custody/export input; no source acceptance or production bytes"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/conditioning-removal-input.tar",
+      "bytes": 93235200,
+      "sha256": "8f224edcd9142bd63fc7cd6a2b77640ade86995b38222500ed9d13ae0f45da40",
+      "qualification": "ordinary ignored custody/export input; no source acceptance or production bytes"
+    }
+  ],
+  "additional": "Actual immutable scratch source exports, basetemp and library install trees are derivable from listed commits/locks and are not deciding output. Root custody export also retains host/admission/hook/prepush/readback receipts."
+}

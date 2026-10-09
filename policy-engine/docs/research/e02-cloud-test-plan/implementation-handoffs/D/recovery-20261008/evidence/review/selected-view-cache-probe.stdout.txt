@@ -1,0 +1,15 @@
+{
+  "qualification": "Actual mocked callback on public real orchestrator/cache; refs are synthetically valid shapes, no real CAS or scientific authority established",
+  "selected_refs_differ": true,
+  "artifact_ids_equal": true,
+  "reused_ticket": true,
+  "calls": 1,
+  "first_score": 1.0,
+  "second_score": 1.0,
+  "retained_basis": {
+    "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "kind": "scientist.search.uncertainty_basis",
+    "media_type": "application/json",
+    "manifest_profile_sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+  }
+}

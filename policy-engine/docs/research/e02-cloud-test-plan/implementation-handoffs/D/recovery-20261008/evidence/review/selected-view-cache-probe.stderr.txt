@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/ORCH04-evidence/review-c11/selected-view-cache-probe.py", line 20, in <module>
+    assert first is not second and stage.calls==2,'Changed selected view was collapsed into the old terminal ticket'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Changed selected view was collapsed into the old terminal ticket

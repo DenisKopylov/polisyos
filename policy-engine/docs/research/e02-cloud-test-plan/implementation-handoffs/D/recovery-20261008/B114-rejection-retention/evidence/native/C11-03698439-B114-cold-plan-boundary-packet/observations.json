@@ -1,0 +1,131 @@
+{
+  "observations": {
+    "single_whole": {
+      "corpus_ids": [
+        "warm-0",
+        "warm-1",
+        "current-0"
+      ],
+      "selected_ids": [
+        "warm-0",
+        "warm-1",
+        "current-0"
+      ],
+      "below_initial_threshold": true,
+      "candidates": [
+        {
+          "params": {
+            "x": -2.696235328912735
+          },
+          "params_normalized": [
+            0.2303764671087265
+          ],
+          "source": "sobol_init"
+        }
+      ],
+      "cold_request_count": 3,
+      "fit_executed": false
+    },
+    "single_warm_plus_new": {
+      "corpus_ids": [
+        "warm-0",
+        "warm-1",
+        "current-0"
+      ],
+      "selected_ids": [
+        "warm-0",
+        "warm-1",
+        "current-0"
+      ],
+      "below_initial_threshold": true,
+      "candidates": [
+        {
+          "params": {
+            "x": -2.696235328912735
+          },
+          "params_normalized": [
+            0.2303764671087265
+          ],
+          "source": "sobol_init"
+        }
+      ],
+      "cold_request_count": 1,
+      "fit_executed": false
+    },
+    "batch_whole": {
+      "corpus_ids": [
+        "warm-0",
+        "warm-1",
+        "current-0"
+      ],
+      "selected_ids": [
+        "warm-0",
+        "warm-1",
+        "current-0"
+      ],
+      "below_initial_threshold": true,
+      "candidates": [
+        {
+          "params": {
+            "x": -2.696235328912735
+          },
+          "params_normalized": [
+            0.2303764671087265
+          ],
+          "source": "sobol_init"
+        },
+        {
+          "params": {
+            "x": -4.311996102333069
+          },
+          "params_normalized": [
+            0.06880038976669312
+          ],
+          "source": "sobol_init"
+        }
+      ],
+      "cold_request_count": 3,
+      "fit_executed": false
+    },
+    "batch_warm_plus_new": {
+      "corpus_ids": [
+        "warm-0",
+        "warm-1",
+        "current-0"
+      ],
+      "selected_ids": [
+        "warm-0",
+        "warm-1",
+        "current-0"
+      ],
+      "below_initial_threshold": true,
+      "candidates": [
+        {
+          "params": {
+            "x": -2.696235328912735
+          },
+          "params_normalized": [
+            0.2303764671087265
+          ],
+          "source": "sobol_init"
+        },
+        {
+          "params": {
+            "x": -4.311996102333069
+          },
+          "params_normalized": [
+            0.06880038976669312
+          ],
+          "source": "sobol_init"
+        }
+      ],
+      "cold_request_count": 1,
+      "fit_executed": false
+    }
+  },
+  "same_single_corpus": true,
+  "same_batch_corpus": true,
+  "same_single_plan": true,
+  "same_batch_plan": true,
+  "scope": "Original B114 same below-threshold eligible corpus whole-vs-warm+new; actual supported Sobol candidates without fit/acquisition stubs or GP training; no request/refit counter equality imposed."
+}

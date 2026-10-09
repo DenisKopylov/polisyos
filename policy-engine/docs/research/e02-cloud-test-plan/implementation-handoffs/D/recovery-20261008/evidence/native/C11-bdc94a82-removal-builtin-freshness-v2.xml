@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="13.738" timestamp="2026-10-08T16:11:05.226067+00:00" hostname="9065c0936350"><testcase classname="tests.unit.scientist.nodes.test_components" name="test_builtin_component_instances_do_not_share_prior_runtime_state" time="13.657"><failure message="assert BuildDataSnapshotNode(allow_fabric=True) is not BuildDataSnapshotNode(allow_fabric=True)">def test_builtin_component_instances_do_not_share_prior_runtime_state():
+        for component in builtin_node_components():
+            first, second = component.create(), component.create()
+&gt;           assert first is not second
+E           assert BuildDataSnapshotNode(allow_fabric=True) is not BuildDataSnapshotNode(allow_fabric=True)
+
+../../../C11-bdc94a82-source/policy-engine/tests/unit/scientist/nodes/test_components.py:9: AssertionError</failure></testcase></testsuite></testsuites>

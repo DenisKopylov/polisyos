@@ -1,0 +1,111 @@
+{
+  "schema": "ORCH04-B114-matched-property-removal-v1",
+  "source": "03698439abfb1cb59f763397a182d8e0e393d40d",
+  "kind": "ledger_append",
+  "source_files_modified": false,
+  "original_owner_module": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+  "original_owner_sha256": "59ca17ed3b226c5a8ee09e842134e6d91356f00b45a2cea47a36a88b52baf1b8",
+  "actual_base_module": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+  "actual_base_sha256": "9dcffa7b1276e18be70c9a3c1d9fc3e618b4f11b9cc8611f96de06a9744bb7e7",
+  "changes": [
+    {
+      "method": "_record_warm_start_rejection",
+      "actual_original_code_filename": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "preimage": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append-packet/_record_warm_start_rejection.preimage.py",
+      "preimage_sha256": "364e5c6e64b83341c02b751451870ac0d76936b2bb4f24c1db97057a54c9ea0e",
+      "postimage": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append-packet/_record_warm_start_rejection.postimage.py",
+      "postimage_sha256": "385ed8c5d2861bca275e65e2652acbcc89d31a488374952ab8f8691493e343e9",
+      "removed_effect": "self._warm_start_rejections.append(\n            {\"reason\": reason, \"evaluation\": asdict(evaluation)}\n        )",
+      "effect_identifier_marker_preserved": true,
+      "runtime_function_code_filename": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append-packet/_record_warm_start_rejection.postimage.py"
+    }
+  ],
+  "pytest_argv": [
+    "tests/unit/scientist/search/strategies/test_bayesian.py::test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus",
+    "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_append/junit.xml"
+  ],
+  "qualification": "Only the named effect is removed in this process. Version/complete/count/per-record log/class/enum/reference/input markers remain. Original committed tests and ordinary conftest run; no product/test file edit, native numerical positive inferred from removal, or hook bypass."
+}
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus _
+
+simple_space = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=<ParameterType.CONTINUOUS: 'continuous'>, log_scale=False, categories=None)])
+
+    def test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus(
+        simple_space: SearchSpace,
+    ) -> None:
+        strategy = BayesianOptimizer(simple_space, BayesianConfig(seed=19))
+        compatibility = {
+            "search_space_fingerprint": simple_space.sobol_space_fingerprint(),
+            "input_transform_fingerprint": "Normalize[0,1]",
+            "outcome_transform_fingerprint": "Standardize[m=1]",
+            "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+            "objective_fingerprint": "scalar_score[minimize]",
+            "context_fingerprint": "context/rejection-audit",
+        }
+        records = [
+            make_evaluation(
+                candidate_id=f"full-record-identity/{index}",
+                params={"x": float(index - 2)},
+                score=float(index),
+                space=simple_space,
+            )
+            for index in range(6)
+        ]
+        for index, evaluation in enumerate(records):
+            evaluation.provenance_ref = f"origin/rejection-audit/{index}"
+            evaluation.metadata = {
+                "replicate_id": f"replica-{index}",
+                "seed": index,
+                "warm_start_compatibility": dict(compatibility),
+                "payload": {"retained": [index]},
+            }
+        accepted, *rejected = records
+        rejected[0].stage_a_passed = False
+        rejected[1].provenance_ref = None
+        rejected[2].params_normalized = (0.25, 0.75)
+        rejected[3].metadata.pop("warm_start_compatibility")
+        rejected[4].metadata["warm_start_compatibility"]["context_fingerprint"] = "foreign"
+        reasons = [
+            "invalid outcome",
+            "missing provenance_ref",
+            "incompatible normalized parameters",
+            "missing or incompatible warm-start fingerprint",
+            "incompatible context fingerprint",
+        ]
+        expected = json.loads(
+            json.dumps(
+                [
+                    {"reason": reason, "evaluation": asdict(evaluation)}
+                    for reason, evaluation in zip(reasons, rejected, strict=True)
+                ],
+                default=str,
+            )
+        )
+        assert strategy.warm_start(records) is None
+        assert strategy._select_training_subset([]) == [accepted]
+        # Retain each rejected occurrence, including repeated complete record identities.
+        strategy.warm_start([rejected[1]])
+        expected.append(expected[1])
+        rejected[0].metadata["payload"]["retained"].append("changed by caller")
+        state = StrategyState.from_artifact(strategy.get_state().to_artifact())
+        history = state.metadata["warm_start_rejections"]
+        assert history["version"] == 1
+        assert history["complete"] is True
+>       assert history["records"] == expected
+E       AssertionError: assert [] == [{'evaluation...venance_ref'}]
+E         
+E         Right contains 6 more items, first extra item: {'evaluation': {'candidate_id': 'full-record-identity/1', 'metadata': {'payload': {'retained': [1]}, 'replicate_id': '...s_satisfied': True, 'name': 'score', 'raw_value': 1.0, ...}], 'params': {'x': -1.0}, ...}, 'reason': 'invalid outcome'}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/strategies/test_bayesian.py:128: AssertionError
+=============================== warnings summary ===============================
+../../../../ORCH04-environments/app/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/strategies/test_bayesian.py::test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus
+1 failed, 1 warning in 0.08s

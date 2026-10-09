@@ -1,0 +1,531 @@
+{
+  "schema": "ORCH04.independent-c11-source-review.v1",
+  "reviewer": "/root/review_c11",
+  "source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+  "tree": "605764d3afec7ba005bd891530ee074df5811497",
+  "parents": [
+    "bdc94a82d2bc911f61e729635ebe2eb03774848f"
+  ],
+  "base": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "footprint_count": 27,
+  "verdict": "GO_FOR_SCOPED_INDEPENDENT_TESTING",
+  "verdict_scope": "Complete immutable source/test/document/input footprint; no remaining static blocker within explicitly bounded supplied routing intake, history retention, existing BERL validation, component factories, generic L6 refusal and GP owned snapshot continuation",
+  "spec_grade": "PARTIAL_ORIGINAL_CRITERIA; explicit held owner positives and absent producer/companion inputs retained",
+  "engineering_grade": "NO_REMAINING_STATIC_BLOCKER_WITHIN_DECLARED_BOUNDS",
+  "evidence_grade": "FINAL53_FRESH_PASS_PLUS73_EXACT_INPUT_QUALIFIED_UNCHANGED; FIVE_VALID_REMOVALS_AND_FOUR_FRESH_READERS; SEPARATE_GP_BOUNDED_NUMERICAL_PASS",
+  "active_blockers": [],
+  "fixed_findings": [
+    {
+      "id": "C11-review-1",
+      "priority": "P1",
+      "confidence": "high",
+      "property": "Exact selected ArtifactRef basis identity must participate in effective cache identity",
+      "first_candidate": "76f262402cbb4da18888482529d86582c409a7f8",
+      "divergence": "Same blob ID, different selected manifest profile reused old terminal ticket and callback once",
+      "P40": "same_class_one_level_deeper: effective-basis cache identity",
+      "fixed_commit": "26eaf5c7f9518e1d1bb0c82c0118c448ea0f22a6",
+      "final_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "final_line": 145,
+      "final_mechanism": "Typed Core ArtifactRef projected through existing artifact_ref_identity_key before generic artifact_id fallback",
+      "state": "SOURCE_FIXED; final scoped native positive/removal or affected selector evidence acknowledged separately in native-evidence-ack.json",
+      "evidence": [
+        "selected-view-cache-probe.py",
+        "selected-view-cache-probe.stdout.txt",
+        "selected-view-cache-probe.stderr.txt"
+      ],
+      "evidence_qualification": "Independent actual public orchestrator/cache plus allowed mocked callback; synthetic typed refs, not actual CAS or native producer provenance; assertion exit1 proves initial defect only"
+    },
+    {
+      "id": "C11-review-2",
+      "priority": "P2",
+      "confidence": "high",
+      "property": "Complete affected FUN03 denominator must reflect actual bound-current/issuer semantics",
+      "first_candidate": "76f262402cbb4da18888482529d86582c409a7f8",
+      "P40": "second_same_class: proxy test expectations; complete focused module diagnosis and canonical correction, not repeated individual-test bypass",
+      "fixed_commits": [
+        "26eaf5c7f9518e1d1bb0c82c0118c448ea0f22a6",
+        "a16381458ac148ede05cae2eb84de88e5780c279",
+        "c1bffbd531b9b2c4339f073416c95d42d90ee317"
+      ],
+      "final_path": "policy-engine/tests/unit/remediation/test_fun_03.py",
+      "final_lines": [
+        91,
+        267,
+        671
+      ],
+      "final_mechanism": "Unbound current unavailable while stage diagnostic/history retained; bool preflight and actual node L6 missing typed bridge yield zero effects; node still executes full L4 backend",
+      "state": "SOURCE_FIXED; final scoped native positive/removal or affected selector evidence acknowledged separately in native-evidence-ack.json",
+      "retained_diagnostic": "/workspace/ORCH04-evidence/c11/fun03-diagnostic.stdout",
+      "retained_diagnostic_source": "26eaf5c7f9518e1d1bb0c82c0118c448ea0f22a6",
+      "retained_diagnostic_result": "18 total:17PASS/1FAIL owned stale expectation; no inherited-red waiver",
+      "required_positive": "Original B161 allowed refinement and B164 typed owner permit/revoke-serialized writer positives remain held/UNRUN; changed proxy tests are not these positives",
+      "complete_consumer_denominator": [
+        "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "policy-engine/tests/unit/remediation/test_fun_03.py",
+        "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py"
+      ],
+      "worked_example_after_final_native125": {
+        "fixed_commit": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "line": 566,
+        "property": "actual L5/L6 audit consumer must not equate absent issuer and generic callback to allowed effectful completion",
+        "mechanism": "Two parameterized prepared-read-only/absent-packet scenarios, audit/side refs retained, runner_calls=[] both; complete iff prepared interpretation, defer/bridge_missing otherwise",
+        "P40": "same runtime class, additional legacy expectation worked example; canonical runtime already fixed, no new product patch ladder"
+      }
+    }
+  ],
+  "fresh_final_checks_required": [
+    {
+      "scope": "Configured observations, CAS expected complete basis, cache view, independent risks",
+      "paths": [
+        "policy-engine/tests/unit/scientist/methods/search/funnel/test_configured_observations.py"
+      ],
+      "required": "exact final fresh public intake/cache positives and negatives; mechanism removal with positive control; preserve B156 allowed mocked callback on real orchestrator/cache"
+    },
+    {
+      "scope": "FUN03 complete affected denominator",
+      "paths": [
+        "policy-engine/tests/unit/remediation/test_fun_03.py"
+      ],
+      "required": "all18 final cases, not just renamed cases; report real controlled native-node/full-L4 versus absent issuer positive separately"
+    },
+    {
+      "scope": "Phase5 present BERL",
+      "paths": [
+        "policy-engine/tests/unit/scientist/validation/test_phase5_preflight.py"
+      ],
+      "required": "all affected schema/validator positive, threshold negative, malformed/marker/dependency-unavailable refusal"
+    },
+    {
+      "scope": "Fresh builtin catalog admissions and L6 refusal",
+      "paths": [
+        "policy-engine/tests/unit/scientist/nodes/test_components.py",
+        "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py"
+      ],
+      "required": "actual catalog factory identity plus generic callback zero effects; absent extension modules and typed owner positive held"
+    },
+    {
+      "scope": "GP continuation",
+      "paths": [
+        "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py"
+      ],
+      "required": "exact final native affected restore/append/counters/refit tests; distinct independent NumPy fixed-learned-parameter full posterior oracle and removal after conditioned checkpoint and next append; no numerical PASS from source/helper/spy alone"
+    },
+    {
+      "scope": "Final test-only companion affected selector",
+      "paths": [
+        "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "policy-engine/tests/unit/remediation/test_fun_03.py",
+        "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py"
+      ],
+      "required": "Run exact final c1b immutable full three-module selector. Earlier broader124 may carry only for unmodified runtime/source/test/input bytes with documented denominator intersection. Preserve old1FAIL; no full125green relabel."
+    }
+  ],
+  "remaining_criteria_separate": [
+    {
+      "criterion": "B131",
+      "type": "owner_input",
+      "need": "actual tenant/split/reuse admission producer and allowed data/model/eval/metric/unit refs"
+    },
+    {
+      "criterion": "B137",
+      "type": "owner_input",
+      "need": "genuinely new authorized version/evidence grounds/time; TTL/read is insufficient"
+    },
+    {
+      "criterion": "B157",
+      "type": "owner_input",
+      "need": "same candidate/input/seed observed reduced versus full native draws/work, directL4 and L3-L4"
+    },
+    {
+      "criterion": "B161",
+      "type": "owner_input_and_mechanism",
+      "need": "admitted actual producer procedure and permitted same-estimand/unit/input/rule/time refinement relation; currentness/origin and risk derivation; no latest/min law"
+    },
+    {
+      "criterion": "B164",
+      "type": "owner_input_and_mechanism",
+      "need": "actual typed promotion-purpose issuer/current verifier and revoke-serialized writer, authorized positive plus revoked zero-effects control"
+    },
+    {
+      "criterion": "B108",
+      "type": "fiscal_law_limit",
+      "need": "actual owner fiscal sign/unit/alias/time/conflict/missing law; no invented law"
+    },
+    {
+      "criterion": "LA036",
+      "type": "conditional_law_supplier",
+      "need": "conditional feature/model/law producer absent; real existing BERL validator execution is distinct"
+    },
+    {
+      "criterion": "registration",
+      "type": "companion",
+      "need": "Exact additional E/F supplier module/node registration packet has not been provided or established in this slice. Existing registered report/output/translation/decision consumers retain actual Phase5 preflight wiring and catalog discovery/freshness tests. No repository-wide absence claim is supported."
+    },
+    {
+      "criterion": "B114",
+      "type": "configured_consumer",
+      "need": "full admitted WarmStartBridge-to-BayesianCandidateGenerator-to-SearchLoopRunner/CAS workflow not established by this scoped source review"
+    },
+    {
+      "criterion": "B115",
+      "type": "verification_and_origin_bound",
+      "need": "Bounded final independent posterior/counter-removal companion PASS separately received; original production model authenticity/history and cross-backend bit identity remain not established"
+    }
+  ],
+  "old_bytes_unavailable": [
+    {
+      "ref": "f9903d8e803c17743554a58d3f45c6c66d686191",
+      "status": "unavailable on current host as supplied by custody root; not reconstructed; no bytes/PASS transfer"
+    }
+  ],
+  "reviewer_executions": [
+    {
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+      "source": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+      "exit": 0,
+      "qualification": "text binding only, no product PASS",
+      "stdout": "baseline-importer.stdout.txt",
+      "stderr": "baseline-importer.stderr.txt"
+    },
+    {
+      "script": "selected-view-cache-probe.py",
+      "source": "76f262402cbb4da18888482529d86582c409a7f8",
+      "immutable_source_path": "/workspace/ORCH04-evidence/native-tester/C11-76f26240-source/policy-engine/src",
+      "runtime": "/workspace/ORCH04-environments/app/bin/python, locked Python3.14; PYTHONDONTWRITEBYTECODE=1",
+      "exit": 1,
+      "qualification": "initial-defect scratch discriminator on permitted public callback/cache; not product suite or final numerical/native PASS",
+      "stdout": "selected-view-cache-probe.stdout.txt",
+      "stderr": "selected-view-cache-probe.stderr.txt",
+      "pid_time_limit": "probe PID/wall-time not separately recorded; do not infer"
+    }
+  ],
+  "historical_or_developer_not_final": [
+    "Historical20PASS precedes late correction and does not attach to final source",
+    "Author39casesPASS evolves before final parse/cache/FUN03/GP changes",
+    "Author GP real-fitspy1PASS is not independent numeric oracle",
+    "FUN03 raw17/1 applies26eaf and is retained as owned diagnostic; no final18PASS inferred",
+    "G032GP numerical/runtime receipts qualify that base only; final GP replay separate"
+  ],
+  "installed_dependency_source": {
+    "path": "/workspace/ORCH04-environments/app/lib/python3.14/site-packages/botorch/models/gpytorch.py",
+    "sha256": "fe4bbb1252a799b10c9fe69d5d3ac024b23305aa577c815842f35dbfecae06f1",
+    "lines": [
+      326,
+      385
+    ],
+    "version": "0.16.1",
+    "qualification": "readonly actual installed source for supported transform restoration helper; import readiness and static helper review do not establish numerical consumer PASS"
+  },
+  "authority": {
+    "source_acceptance": "G reserved",
+    "formal_closure": "G reserved",
+    "production_claim": false,
+    "hook_or_push_authority": "coordinator/author ordinary required checks and topic push; reviewer did not publish or mutate source"
+  },
+  "source_manifest": "final-source-manifest.json",
+  "report": "REPORT.md",
+  "previous_static_review": {
+    "source": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+    "result": "bdc94a82-static-result.json",
+    "source_manifest": "bdc94a82-source-manifest.json"
+  },
+  "publication_readiness": "Scoped source/native evidence complete with named holds; ordinary required hook/topic push/readback still writer/coordinator work. No G acceptance/closure or production claim.",
+  "final_test_only_delta": {
+    "paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/README.md",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "runtime_source_byte_equal": true,
+    "root_exact_companion_lease_reaffirmed": true,
+    "review": "Complete new test_orchestrator module plus exact README/test delta; actual L5/L6 prepared read-only versus absent bridge preserves audit/side-information and zero effectful callback assertions",
+    "state": "SOURCE_GO; affected consumer verification pending"
+  },
+  "prior_native_receipt": {
+    "source": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+    "tree": "b99374f46dd6971daf47fd200549e98d32f23f23",
+    "command": [
+      "/workspace/ORCH04-environments/app/bin/python",
+      "-m",
+      "pytest",
+      "tests/unit/scientist/methods/search/funnel/test_configured_observations.py",
+      "tests/unit/scientist/search/funnel/test_orchestrator.py",
+      "tests/unit/scientist/search/funnel/test_types.py",
+      "tests/unit/scientist/search/funnel/test_level3_medium.py",
+      "tests/unit/scientist/search/funnel/test_level4_full.py",
+      "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+      "tests/unit/scientist/nodes/test_components.py",
+      "tests/unit/scientist/nodes/test_extension_registration.py",
+      "tests/unit/remediation/test_fun_02.py",
+      "tests/unit/remediation/test_fun_03.py",
+      "tests/unit/scientist/validation/test_phase5_preflight.py",
+      "tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
+      "-v",
+      "-s",
+      "--basetemp=/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-basetemp",
+      "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-junit.xml"
+    ],
+    "cwd": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-source/policy-engine",
+    "pid": 12588,
+    "start_utc": "2026-10-08T16:08:16.212682+00:00",
+    "finish_utc": "2026-10-08T16:08:42.932065+00:00",
+    "wall_seconds": 25.595140334000007,
+    "max_rss_kib": 1636120,
+    "exit_code": 1,
+    "source_delta_before": [],
+    "source_delta_after": [],
+    "test_result": "125 total;124PASS/1FAIL",
+    "failure_nodeid": "tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_level5_and_level6_runtime_generalization_collects_audit_refs",
+    "failure_property": "expected unpermitted generic L6 callback complete; actual defer_to_human",
+    "classification": "owned affected legacy test expectation, no inherited red waiver; not runtime regression or new issuer authority",
+    "artifacts": [
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-native-wave/execution.json",
+        "bytes": 5757,
+        "sha256": "abe059651f46fd0576dc9418d9809a8091d9c580f4a9f97ab3215bf4d46e7493"
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-native-wave/stdout.txt",
+        "bytes": 5690,
+        "sha256": "d4414400d7fe5a975e5102171c2717f8da443f78cee2d436f873e77e1f32cf04"
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-native-wave/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-native-wave/environment-origins.stdout.txt",
+        "bytes": 11198,
+        "sha256": "b1fed0fe2d8e5de291ebafbe1247d3d4c62e6e4eb28460bcf4c1be5c726771c2"
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-junit.xml",
+        "bytes": 23264,
+        "sha256": "3a03cfbd9940f8811ea13c4538b73c73cf9a661f92b432039ca794b1d6148a55"
+      }
+    ],
+    "qualification": "Independent native tester run; reviewer read full deciding failure and execution metadata.124 applies exact prior inputs, not automatically entire final commit; final selector and input equality required."
+  },
+  "independent_gp_companion": {
+    "tester": "/root/gp_conformance",
+    "tested_source": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+    "applicable_source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+    "GP_input_blobs_equal": true,
+    "equal_input_count": 34,
+    "scope": "synthetic 1D scalar learned Gaussian GP, true SingleTaskGP/MLL/Normalize/Standardize, independent NumPy Cholesky mean and full latent covariance; fitted10->condition11->checkpoint/restore->append12 and scheduled due refit",
+    "result": "BOUNDED_NUMERICAL_PASS",
+    "max_positive_mean_absolute_error": 4.440892098500626e-15,
+    "max_positive_covariance_absolute_error": 1.5807667674838655e-15,
+    "same_basis_extra_fits": 0,
+    "post_condition_checkpoint_extra_fits": 0,
+    "scheduled_due_extra_fits": 1,
+    "execution": {
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "/workspace/ORCH04-evidence/gp/analytic_posterior_v2.py",
+        "--source",
+        "/workspace/ORCH04-evidence/gp/final-bdc-source/policy-engine",
+        "--out",
+        "/workspace/ORCH04-evidence/gp/analytic-final-bdc"
+      ],
+      "cwd": "/workspace/ORCH04-evidence/gp/final-bdc-source/policy-engine",
+      "start_utc": "2026-10-08T16:10:02.163523+00:00",
+      "parent_pid": 12933,
+      "pid": 12954,
+      "exit_code": 0,
+      "max_rss_kib": 1168316,
+      "wall_seconds": 6.588837853000086,
+      "finish_utc": "2026-10-08T16:10:08.752888+00:00"
+    },
+    "negative_control": "Counter-restore mechanism removed in independent scratch exact source: native fit-count FAIL2vs1 and independent posterior/frozen-basis FAIL; positive preserved; no production source edit",
+    "limitations": [
+      "1D scalar GaussianLikelihood/ConstantMean/unit-amplitude RBF, ten plus one synthetic unique points",
+      "actual native genuine MLL fit; frozen fitted parameters from this fixture, not calibration/scientific authority",
+      "NumPy Cholesky reference limited to nondegenerate positive definite finite fixture",
+      "no production data, cross-backend bit identity, acquisition-quality/general law, transfer CAS bridge or authority proof"
+    ],
+    "artifacts": [
+      {
+        "path": "/workspace/ORCH04-evidence/gp/analytic-final-bdc/report.json",
+        "bytes": 19518,
+        "sha256": "32b8e5327363acd8aad58f830c625e03d3f62820d1c1fb8851f40566c0265851"
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/gp/analytic-final-bdc/execution.json",
+        "bytes": 3571,
+        "sha256": "b56e34c4921f45399cec04e13dbb9ab86185f5ce28d59dc05e7f1158870a4c8c"
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/gp/analytic-final-bdc/stdout.txt",
+        "bytes": 10501,
+        "sha256": "f5ce5642b2b0db0f2e4c4de19f44b29566c3210cd2d5925d29e8a87f00ab1e70"
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/gp/analytic-final-bdc/stderr.txt",
+        "bytes": 949,
+        "sha256": "4d36184d4cc2a684aa94fe649274ec86a32fdc4d7e2e9e4dd38f87abd960c280"
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/gp/latest-c1b-GP-input-equality.json",
+        "bytes": 8889,
+        "sha256": "aac6f7f06bb6ee407d92ed226797d16628da3c68edc5aa9e5392717e3a604207"
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/gp/final-counter-removal.patch",
+        "bytes": 661,
+        "sha256": "c40bf9e1e4bd8ef81b82a7d70a7fff1762a5b2b306ac6dc4cbb8901a99526afc"
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/gp/final-counter-removal-manifest.json",
+        "bytes": 714,
+        "sha256": "64c6600a86d1e6be96fa2aa4373992f138fcf230e9cc3a50a9016a20acae6e90"
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/gp/native-final-counter-removal/stdout.txt",
+        "bytes": 4518,
+        "sha256": "2c78125d04df22d0797222e6ad88ba326c5623f47685e70750ffcfc0dce51bdd"
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/gp/native-final-counter-removal/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/gp/native-final-counter-removal/execution.json",
+        "bytes": 3772,
+        "sha256": "33398111c8928a0779a09f0df744ceea5841540950663db499111459b15058ce"
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/gp/analytic-final-counter-removal/report.json",
+        "bytes": 15514,
+        "sha256": "903d2d98c217a78e34451b5a58a558e355879c7668b0d645a8ab3e9e12573619"
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/gp/analytic-final-counter-removal/stdout.txt",
+        "bytes": 7886,
+        "sha256": "2aeb55caad18cd8e0fa71ecb8ab3a2f598fd587e59c14579fe5c8d13935681e5"
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/gp/analytic-final-counter-removal/stderr.txt",
+        "bytes": 949,
+        "sha256": "e8713a75c6de399f8618e3a73b49ac29a64468d3a6e152e59068661710853f87"
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/gp/analytic-final-counter-removal/execution.json",
+        "bytes": 3597,
+        "sha256": "80fd679d7a57d73632bce960654c82d7276738f4696beabde5792b0fa06161c7"
+      }
+    ],
+    "qualification": "Reviewer read artifacts; not reviewer execution. This is separate numerical companion, not original full B114 transfer CAS workflow, origin authority, production general law, G source acceptance or formal closure."
+  },
+  "historical_static_review_chronology": {
+    "report": "REPORT-before-native-ack.md",
+    "report_sha256": "031229a95f145babbe86af9e8ee5f80287c1faf7c8497b32a1aa9eae89836978",
+    "result": "c1b-static-result-before-native-ack.json",
+    "result_sha256": "da05c7d1777182ae54d11fa052d776dec37c32d92294e6907760a14189db60db",
+    "qualification": "Earlier source GO and affected-native-pending status preserved verbatim; acknowledgment below does not backdate fresh PASS"
+  },
+  "native_evidence_acknowledgment": {
+    "path": "native-evidence-ack.json",
+    "time_utc": "2026-10-08T16:25:39.828016+00:00",
+    "verdict": "SCOPED_SOURCE_GO_AND_NATIVE_EVIDENCE_ACKNOWLEDGED_WITH_NAMED_HOLDS",
+    "final_native_fresh": {
+      "cases": 53,
+      "passed": 53,
+      "failed": 0,
+      "modules": {
+        "tests.unit.scientist.search.funnel.test_orchestrator": 26,
+        "tests.unit.remediation.test_fun_03": 18,
+        "tests.unit.scientist.search.funnel.test_level6_promotion": 9
+      },
+      "execution": {
+        "schema": "orch04.native_execution.v1",
+        "argv": [
+          "/workspace/ORCH04-environments/app/bin/python",
+          "-m",
+          "pytest",
+          "tests/unit/scientist/search/funnel/test_orchestrator.py",
+          "tests/unit/remediation/test_fun_03.py",
+          "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+          "-v",
+          "-s",
+          "--basetemp=/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-affected-l6-basetemp",
+          "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-affected-l6-junit.xml"
+        ],
+        "cwd": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine",
+        "source_commit": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+        "source_tree": "605764d3afec7ba005bd891530ee074df5811497",
+        "source_manifest_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source-source-manifest.json",
+        "source_manifest_sha256": "1cacc40277fca4d0069f11296241ed4f0b900db696674941d4cb001f92718f0d",
+        "start_utc": "2026-10-08T16:11:40.533962+00:00",
+        "parent_pid": 13596,
+        "source_delta_before": [],
+        "selected_environment": {
+          "PYTHONPATH": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/src:/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine:",
+          "TMPDIR": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-affected-l6-wave/tmp",
+          "JAX_PLATFORMS": null,
+          "JAX_PLATFORM_NAME": null,
+          "OMP_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "XLA_FLAGS": null
+        },
+        "external_file_inputs": [
+          {
+            "path": "/workspace/ORCH04-evidence/native-tester/run_native.py",
+            "sha256": "7ef04c4846426d42e38a8598e26b728bfbc5bb32f034faba0c3da61dd670826d"
+          }
+        ],
+        "origins_exit_code": 0,
+        "pid": 13604,
+        "exit_code": 0,
+        "wall_seconds": 19.48893587800012,
+        "finish_utc": "2026-10-08T16:12:01.540331+00:00",
+        "max_rss_kib": 1472404,
+        "user_seconds": 18.270175,
+        "system_seconds": 1.7236500000000001,
+        "source_delta_after": []
+      }
+    },
+    "qualified_unchanged": {
+      "cases": 73,
+      "all_passed_at_bdc": true,
+      "original_affected52_modules": {
+        "tests.unit.scientist.search.funnel.test_orchestrator": 25,
+        "tests.unit.remediation.test_fun_03": 18,
+        "tests.unit.scientist.search.funnel.test_level6_promotion": 9
+      },
+      "qualification": "Complete JUnit command-denominator subtraction independently verified:125-52=73. Source full Git change set README+test_orchestrator only; actual8module origins match final committed blobs.73 carry only exact unmodified source/test/config/lock/supplier inputs."
+    },
+    "combined_scoped_coverage": {
+      "cases": 126,
+      "qualification": "53 fresh final affected +73 prior exact-input-qualified; not126fresh"
+    },
+    "old_red_preserved": {
+      "cases": 125,
+      "passed": 124,
+      "failed": 1,
+      "source": "bdc94a82",
+      "qualification": "Owned affected legacy assertion diagnostic; not relabeled and no inherited-red waiver"
+    },
+    "invalid_probe": {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-builtin-freshness",
+      "classification": "tester scratch mutation invalid: inline comment hid comprehension yielding NameError; no semantic removal claim; corrected independent v2 gave first-is-second assertion red"
+    },
+    "fresh_process": {
+      "producer_pid": 12789,
+      "reader_pids": {
+        "valid": 13219,
+        "foreign": 13218,
+        "substituted": 13216,
+        "missing": 13217
+      },
+      "result": "all4 reader assertions passed; actual new FunnelOrchestrator/CAS in separate processes, synthetic injected callbacks allowed under B156",
+      "packet": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-fresh-packet.json",
+      "limits": "No serialized-ticket continuation, native scientific producer/refinement law, installed consumer, numerical GP or permission issuer claim"
+    },
+    "registration_correction": "Exact additional E/F supplier module/node registration packet has not been provided or established in this slice. Existing registered report/output/translation/decision consumers retain actual Phase5 preflight wiring and catalog discovery/freshness tests. No repository-wide absence claim is supported."
+  },
+  "independent_source_review_limits": "No actual native scientific producer/currentness/refinement relation, issuer/verifier/serialized protected write, missing supplier law, production claim or G adjudication inferred from scoped native PASS."
+}

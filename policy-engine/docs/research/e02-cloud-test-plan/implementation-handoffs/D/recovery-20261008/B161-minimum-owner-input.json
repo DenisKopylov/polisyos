@@ -1,0 +1,22 @@
+{
+  "id": "B161",
+  "bundle": "FUN-03",
+  "minimum_next_input": [
+    "Opaque prior/later estimate refs",
+    "Same subject/value/input/rule/time basis",
+    "C11/C09/C10 owner decision on allowed refinement relation",
+    "Producer evidence and independent risks to preserve"
+  ],
+  "smallest_discriminator": "A later authorized estimate for the same scope changes the current estimate while preserving an independent high risk and unknown component; a newer estimate for a different subject/value/input/rule/time cannot supersede the earlier state.",
+  "four_planes": {
+    "internal_configured_owner": "PolicyOS has funnel uncertainty history and aggregation consumers. The semantic relation authorizing same-scope refinement is assigned to C11/C09/C10, not L01; no owner appointment or relation is established here.",
+    "external_fact": "Missing: actual prior/later estimate refs; same subject/value/input/rule/time comparison basis; owner-supplied permitted refinement relation; producer evidence for the later estimate/interval; and independent risk components that must remain.",
+    "our_admission": "Current FunnelOrchestrator/UncertaintyEnvelope aggregation can preserve historical maxima; its test shows a bounded same-scope current-vs-history distinction. This implementation/test does not decide the semantic permission to replace earlier unknown risk.",
+    "claim_reaction": "Keep held and defer the refinement law to C11/C09/C10. L01 reports only factual inputs and their scope."
+  },
+  "status": "held",
+  "actual_owner_positive": "UNRUN",
+  "G_closure": "not_adjudicated",
+  "source_packet": "L01/parallel-20261008-l01/packets/D.json@0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "qualification": "Exact preserved input requirements; no new issuer, fiscal law or refinement procedure supplied by this implementation."
+}

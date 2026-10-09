@@ -26,6 +26,7 @@ from polisyos.scientist.methods.search.funnel.types import (
     UncertaintyType,
     statistical_uncertainty_from_ci_width,
 )
+from polisyos.scientist.methods.search.uncertainty import search_uncertainty_observation_ref
 from polisyos.scientist.orchestration.workflows.engine_base import WorkflowEngine
 
 logger = get_logger(__name__)
@@ -176,6 +177,7 @@ class Level3MediumFidelity(FunnelStage):
             compute_actual_usd=duration * self._cost_per_second,
             fidelity_level=self.fidelity_level,
             actual_score=objective,
+            uncertainty_observation_ref=search_uncertainty_observation_ref(sim_results),
         )
 
     # ------------------------------------------------------------------

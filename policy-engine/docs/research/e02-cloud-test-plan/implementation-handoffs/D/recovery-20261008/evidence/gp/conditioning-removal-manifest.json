@@ -1,0 +1,16 @@
+{
+  "source_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "archive_paths": [
+    "policy-engine/src",
+    "policy-engine/tests",
+    "policy-engine/pyproject.toml",
+    "policy-engine/uv.lock"
+  ],
+  "archive_sha256": "8f224edcd9142bd63fc7cd6a2b77640ade86995b38222500ed9d13ae0f45da40",
+  "export_path": "/workspace/ORCH04-evidence/gp/conditioning-removal-source",
+  "changed_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+  "preimage_sha256": "084bbf4f441340f3f19e203d727bcb7a6a80f75881c3fdc3cbb2bac3566b6de4",
+  "postimage_sha256": "5b316fb4cff924bf2c084a70afe0768a88e503e5596b1d2e4203d932ba796b30",
+  "removal": "condition_on_observations call only; fields, markers, fit, learned parameters/transforms remain",
+  "checkout_mutations": false
+}

@@ -1,0 +1,148 @@
+{
+  "schema": "ORCH04.independent-c11-B114-rejection-finding.v1",
+  "reviewer": "/root/review_c11",
+  "time_utc": "2026-10-08T17:35:41.347330+00:00",
+  "id": "C11-review-3",
+  "priority": "P2",
+  "confidence": "high",
+  "source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+  "tree": "605764d3afec7ba005bd891530ee074df5811497",
+  "criterion": {
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "lines": [
+      2983,
+      2996
+    ],
+    "acceptance_line2995": "**Приёмка.** Один и тот же пригодный корпус, переданный целиком или через warm-start + новую часть, даёт согласованную обучающую выборку и план; отклонённые записи не исчезают без причины; идентичные артефакты не удваивают sample-count; намеренные независимые повторы остаются отдельными.",
+    "recommended_line2991": "**Рекомендуемое решение.** Сформировать один эффективный training corpus из совместимых исторических и текущих оценок до решения о cold-start и ограничения `max_train_size`. Проверять пространство, исходы, data/context vintage, split/доступ и независимость. Существующий механизм подвыборки оставить, но применить к действительно разрешённому корпусу. Непригодную историю сохранять с объяснением, не насильно добавлять в fit."
+  },
+  "owned_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+  "line_range": [
+    117,
+    151
+  ],
+  "property": "Rejected warm history records survive with explanation tied to original record identity; counts only are insufficient",
+  "actual_predicate": "Local rejection strings discarded after logging counts; rejected evaluation IDs/full snapshots not retained in result/state/logs",
+  "divergent_existing_inputs": {
+    "accepted_positive": [
+      "warm-0",
+      "warm-1",
+      "warm-2",
+      "warm-3",
+      "warm-4",
+      "warm-5",
+      "warm-2",
+      "warm-2-replica"
+    ],
+    "rejected_inputs": [
+      "warm-foreign-basis",
+      "warm-incompatible-context",
+      "warm-unbound"
+    ],
+    "actual_local_rejection_reasons": [
+      "incompatible normalized parameters",
+      "incompatible context fingerprint",
+      "missing provenance_ref"
+    ],
+    "outward_return": null,
+    "actual_logs": [
+      "Bayesian warm-start: added 8 historical evaluations; rejected 3"
+    ],
+    "rejected_ids_visible": {
+      "warm-foreign-basis": false,
+      "warm-incompatible-context": false,
+      "warm-unbound": false
+    },
+    "reasons_visible": {
+      "incompatible normalized parameters": false,
+      "incompatible context fingerprint": false,
+      "missing provenance_ref": false
+    },
+    "fit_executed": false,
+    "scope": "warm_start owned boundary only; no required report API/field format imposed"
+  },
+  "deciding_execution": {
+    "source_commit": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+    "source_tree": "605764d3afec7ba005bd891530ee074df5811497",
+    "pid": 25268,
+    "exit_code": 1,
+    "wall_seconds": 9.53329982700052,
+    "max_rss_kib": 1312860,
+    "source_delta_before": [],
+    "source_delta_after": []
+  },
+  "fixture_identity": {
+    "source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+    "test_module": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+    "test_module_sha256": "25deba8b89a1ed4174b1e13e48e296fc8eb92b91849ef898c9e242f846064a49",
+    "input_prefix_ast_sha256": "24831e0f06e456e4df1cc4249c5c7af3504cc21c39365c37ee2d2b8f02a7824c",
+    "test_helper": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/tests/_helpers/search_strategies.py",
+    "test_helper_sha256": "8d443fc9e91e643e016461548aca52292a5d44a9fd96fe707ef67a5b3f553687",
+    "owner_module": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+    "owner_module_sha256": "beca4fa1db4a5b4073fa1ec1de88badc44f65d2dcb33ba4d2d199dcca0e6df45",
+    "qualification": "Exact declared bounded warm-test fixtures only; no TRN original CAS/content admission, GP fit, statistical/issuer/production law or whole B114 closure claim."
+  },
+  "P40": "new_or_distinct_rejection_record_explanation_boundary_within_originalOPT03_B114; separate_from_GP_counter_cache_identity_and_issuer_proxy_expectation_classes",
+  "lineage_qualification": "Same defect existed in G032 but is within current already-touched C11-owned bayesian.py; no inherited-red waiver or supplier/CoreDTO/profile/global-freeze blocker for this mechanism",
+  "source_disposition": "HOLD_FOR_MINIMAL_OWNED_APPEND_ONLY_REPAIR_AND_SCOPED_REVIEW_TEST; prior scoped sourceGO/native evidence retained at original pins",
+  "minimal_requirement": "Retain actual rejected records and own existing reasons at observable owned boundary; identify input record without shortened-ID loss; accepted corpus/dedup/independent replica/numerical behavior preserved. No particular report API/new issuer/refinement law/full joined-chain criterion imposed.",
+  "separate_from": "Joined supplied D_source NumericTransferBasis/admit_warm_start/report/wrapper API mismatch and HNSW profile gap are selected-source compatibility/verification inputs, not originalB114 stronger acceptance",
+  "proof_artifacts": [
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-packet-v2/inputs.json",
+      "bytes": 15028,
+      "sha256": "a6c79e10bfcc78f2b9607912373f662f3fbcc1b4b2c0fb86eb70588386ec4b15"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-packet-v2/acceptance-preimage.py",
+      "bytes": 1608,
+      "sha256": "d90e4083f8bc638690ac0a591e33ff524f9faacce228b4cfa74a9e831df78515"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-packet-v2/acceptance-postimage.py",
+      "bytes": 1632,
+      "sha256": "b80ac631ac77bcab3df0428ca12004cee3d161a7ff8cb7f8a48fb79e05568a4a"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-packet-v2/acceptance-removal.json",
+      "bytes": 526,
+      "sha256": "08e24eee6fc6fb7b1743974d832503df9040946bda94400935dfe2cf249683ae"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-packet-v2/observations.json",
+      "bytes": 75429,
+      "sha256": "73b192c3b6c702a2488989c543861a640bb0be01d6f0c0951a18006ee3a0f084"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-boundary-v2/execution.json",
+      "bytes": 5207,
+      "sha256": "ac7cbb83ab8d7cd76b1236f7205e5ac37a68bc97d35852237f202214a57a6fc2"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-boundary-v2/stdout.txt",
+      "bytes": 75429,
+      "sha256": "73b192c3b6c702a2488989c543861a640bb0be01d6f0c0951a18006ee3a0f084"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-boundary-v2/stderr.txt",
+      "bytes": 1388,
+      "sha256": "7eaa251bc2c55905eacae92fd4f0dfcdb6e4ce0d7936ee9caa516c7c89387953"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-boundary-v2/environment-origins.stdout.txt",
+      "bytes": 11198,
+      "sha256": "cf284814451b32d52c9c08ff95746fd2ed221a80f04444c51a1b478fe6e5de14"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-boundary-v2/environment-origins.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/b114_rejection_boundary_v2.py",
+      "bytes": 5612,
+      "sha256": "2a491801a33397b4624ae8cde0b435b9879adc2dca1a584f5db76d485f0d31d5"
+    }
+  ]
+}

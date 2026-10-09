@@ -1,0 +1,260 @@
+{
+  "HEAD": "03698439abfb1cb59f763397a182d8e0e393d40d",
+  "tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+  "parents": [
+    "53a7cb99e4636e3cdfa903e22743e0a9b19a62a7"
+  ],
+  "branch": "refs/heads/codex/e02-C11-recovery-20261008",
+  "branch_HEAD": "03698439abfb1cb59f763397a182d8e0e393d40d",
+  "branch_status": "",
+  "archive_paths": [
+    "policy-engine/src",
+    "policy-engine/pyproject.toml",
+    "policy-engine/uv.lock",
+    "policy-engine/tests/_helpers/search_strategies.py",
+    "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+    "policy-engine/tests/conftest.py",
+    "policy-engine/tests/unit/scientist/conftest.py",
+    "policy-engine/tests/unit/scientist/search/conftest.py",
+    "policy-engine/tests/unit/scientist/search/strategies/conftest.py",
+    "policy-engine/tests/_helpers/__init__.py"
+  ],
+  "archive_sha256": "70deb2ba0fe6e5831df6b3d86f72d06d35acf94d71aa294ce006e3b7b3c2e0cb",
+  "archive_bytes": 58234880,
+  "export": "/workspace/ORCH04-evidence/gp/final-036-source",
+  "scratch_harness": {
+    "path": "/workspace/ORCH04-evidence/gp/analytic_posterior_v2.py",
+    "sha256": "e0b16820946a76599315ac988f4b03c7027a4e857e6b31dba3bffe527d3b1638"
+  },
+  "previous_tested_sha": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+  "method_AST_delta": [
+    {
+      "function": "__init__",
+      "previous_ast_sha256": "34db5995275539807cdd770bcb6a673928e6f471f5a6fb0c2ed538d36b2290af",
+      "current_ast_sha256": "dc316bfa889bd64bd102a6f440b770c71bf87f3e85b51d5785e491609f0cafe2",
+      "identical_ast": false
+    },
+    {
+      "function": "_effective_execution",
+      "previous_ast_sha256": "76a331d769dc97c94ea28beadfa2087182ecc4b04e22e834e962a83ca0e92180",
+      "current_ast_sha256": "76a331d769dc97c94ea28beadfa2087182ecc4b04e22e834e962a83ca0e92180",
+      "identical_ast": true
+    },
+    {
+      "function": "_effective_optim_params",
+      "previous_ast_sha256": "a90e89b3a063a68df36fc83c5830063b937de3c2ec47668cc10cea410b8224ef",
+      "current_ast_sha256": "a90e89b3a063a68df36fc83c5830063b937de3c2ec47668cc10cea410b8224ef",
+      "identical_ast": true
+    },
+    {
+      "function": "_effective_training_corpus",
+      "previous_ast_sha256": "41905f01286ae8b84a9dd89e5e484311a877d2113a7d9fc8701bae6b7a8293bf",
+      "current_ast_sha256": "41905f01286ae8b84a9dd89e5e484311a877d2113a7d9fc8701bae6b7a8293bf",
+      "identical_ast": true
+    },
+    {
+      "function": "_evaluation_identity",
+      "previous_ast_sha256": "623ae056f9b3a960fd2aa5e3576c3ea3d04c882ed4dc32a333f120391e07a675",
+      "current_ast_sha256": "623ae056f9b3a960fd2aa5e3576c3ea3d04c882ed4dc32a333f120391e07a675",
+      "identical_ast": true
+    },
+    {
+      "function": "_fit_full_gp",
+      "previous_ast_sha256": "90a4f485fb9cabec51f150fdbfd4d4f84b3c8bbae9f1149b6af4fb07755b2e86",
+      "current_ast_sha256": "90a4f485fb9cabec51f150fdbfd4d4f84b3c8bbae9f1149b6af4fb07755b2e86",
+      "identical_ast": true
+    },
+    {
+      "function": "_fit_gp",
+      "previous_ast_sha256": "a0a6dc82f9cddbfe2cfc8d9f9d2261d73b4ba960377645ef63107dd06a92d13c",
+      "current_ast_sha256": "a0a6dc82f9cddbfe2cfc8d9f9d2261d73b4ba960377645ef63107dd06a92d13c",
+      "identical_ast": true
+    },
+    {
+      "function": "_has_compatible_params",
+      "previous_ast_sha256": "f34915acb73b6d592fdb7bfab4c8a2ff6abf66cad8766db4341d8cfef9ea773a",
+      "current_ast_sha256": "f34915acb73b6d592fdb7bfab4c8a2ff6abf66cad8766db4341d8cfef9ea773a",
+      "identical_ast": true
+    },
+    {
+      "function": "_is_append_update",
+      "previous_ast_sha256": "579eab61c4dfbbbfca54c5247dbd9d13aa693223e4237f65a24f04d8d22eacf4",
+      "current_ast_sha256": "579eab61c4dfbbbfca54c5247dbd9d13aa693223e4237f65a24f04d8d22eacf4",
+      "identical_ast": true
+    },
+    {
+      "function": "_is_duplicate",
+      "previous_ast_sha256": "51d852bd0bd18277c4e1629860e636704493e3f52e7bf684fd760633fe0e08a3",
+      "current_ast_sha256": "51d852bd0bd18277c4e1629860e636704493e3f52e7bf684fd760633fe0e08a3",
+      "identical_ast": true
+    },
+    {
+      "function": "_model_train_x",
+      "previous_ast_sha256": "b886aae14a8a1d91de454ef3094251e3a771813478d240da9e22ba161548196e",
+      "current_ast_sha256": "b886aae14a8a1d91de454ef3094251e3a771813478d240da9e22ba161548196e",
+      "identical_ast": true
+    },
+    {
+      "function": "_model_train_x_matches_fitted",
+      "previous_ast_sha256": "48fb09a831e24a8dc2abd721a8cbe4fb97a0c4ed0f8abc3cbf1958437e3b53d3",
+      "current_ast_sha256": "48fb09a831e24a8dc2abd721a8cbe4fb97a0c4ed0f8abc3cbf1958437e3b53d3",
+      "identical_ast": true
+    },
+    {
+      "function": "_non_duplicate_random",
+      "previous_ast_sha256": "308791d1868afea78a487b20902df877449a38bb40cbd356b0ba739cd32ab397",
+      "current_ast_sha256": "308791d1868afea78a487b20902df877449a38bb40cbd356b0ba739cd32ab397",
+      "identical_ast": true
+    },
+    {
+      "function": "_optimize_acquisition",
+      "previous_ast_sha256": "befeb393308d4940efec902d32880ff02ae8cde13f510579584f3b1a0d5696d7",
+      "current_ast_sha256": "befeb393308d4940efec902d32880ff02ae8cde13f510579584f3b1a0d5696d7",
+      "identical_ast": true
+    },
+    {
+      "function": "_origin_ref",
+      "previous_ast_sha256": "3be5d0c4cf4792401f166a74212403ec6730ee8b4f3d48f67b0f0827803bd0f7",
+      "current_ast_sha256": "3be5d0c4cf4792401f166a74212403ec6730ee8b4f3d48f67b0f0827803bd0f7",
+      "identical_ast": true
+    },
+    {
+      "function": "_prepare_training_data",
+      "previous_ast_sha256": "f97c84cea5ac2fd07c671995b1562ab2e49aa44397822022d75473eb6c3eabe0",
+      "current_ast_sha256": "f97c84cea5ac2fd07c671995b1562ab2e49aa44397822022d75473eb6c3eabe0",
+      "identical_ast": true
+    },
+    {
+      "function": "_record_warm_start_rejection",
+      "previous_ast_sha256": null,
+      "current_ast_sha256": "e0f342567e0260e4daa591bff368e47ba0f412fcad4c02af340d544d84cdae61",
+      "identical_ast": false
+    },
+    {
+      "function": "_same_replicate_scope",
+      "previous_ast_sha256": "19703aa933981bbc0a4adeb6e6364cf8d205c8b981e3bde04e333fb138027248",
+      "current_ast_sha256": "19703aa933981bbc0a4adeb6e6364cf8d205c8b981e3bde04e333fb138027248",
+      "identical_ast": true
+    },
+    {
+      "function": "_select_acquisition",
+      "previous_ast_sha256": "9d5f9e751bd3c884aabb88602ce4dec81399c8c8fcd336271d02ffcd472b757b",
+      "current_ast_sha256": "9d5f9e751bd3c884aabb88602ce4dec81399c8c8fcd336271d02ffcd472b757b",
+      "identical_ast": true
+    },
+    {
+      "function": "_select_training_subset",
+      "previous_ast_sha256": "514a1688cd19c9fa83a2b1805912ddbb5fd67d9086705bef24ab1c690c3353f9",
+      "current_ast_sha256": "514a1688cd19c9fa83a2b1805912ddbb5fd67d9086705bef24ab1c690c3353f9",
+      "identical_ast": true
+    },
+    {
+      "function": "_tensor_to_candidate",
+      "previous_ast_sha256": "ea21f3d3f43adb8a8dddf6cedc3177c77eb87293a660c5d0127a8921b6d36c93",
+      "current_ast_sha256": "ea21f3d3f43adb8a8dddf6cedc3177c77eb87293a660c5d0127a8921b6d36c93",
+      "identical_ast": true
+    },
+    {
+      "function": "_warm_compatibility",
+      "previous_ast_sha256": "92aa88118b46918efaeef5ed5fa55fb9e97297411a44497dade32dfa473f9319",
+      "current_ast_sha256": "92aa88118b46918efaeef5ed5fa55fb9e97297411a44497dade32dfa473f9319",
+      "identical_ast": true
+    },
+    {
+      "function": "get_state",
+      "previous_ast_sha256": "53f676bc58c4be418a392b48104bab5e9e2836896c40754d2461895fbd5542e0",
+      "current_ast_sha256": "1da1e7133a49ac9ef442016ed0d09d6fca72f3e5a671303a7c643499c9370578",
+      "identical_ast": false
+    },
+    {
+      "function": "set_state",
+      "previous_ast_sha256": "6ba8847f85f5fabedce85b8d6207debff818fc6b00db0b58532ef688578422f1",
+      "current_ast_sha256": "86efd6c6c1472a9809ae2779de84114c7d22f6e8773dac7893028e1b685a9e6d",
+      "identical_ast": false
+    },
+    {
+      "function": "suggest",
+      "previous_ast_sha256": "62b60938f46b39314fbf631caa84add2c9102c53a883cdab13da7ffa03335cd5",
+      "current_ast_sha256": "847546757c827bbf783e73524df4eaa9569761bba79f1dc72f56f7e685d7d2dc",
+      "identical_ast": false
+    },
+    {
+      "function": "suggest_batch",
+      "previous_ast_sha256": "7ba0620abd8507354d9531c7ad9b9dcc501f128cc7f85aaa961a26760c66c0a1",
+      "current_ast_sha256": "046009bdc88eaedd85836140edf73711ded1c50726de13f11bb614eabc8977af",
+      "identical_ast": false
+    },
+    {
+      "function": "warm_start",
+      "previous_ast_sha256": "4ca9df7f1400d61ed8ed760d48bd80f12a0e73c96b5ebb08d8c3ea92f0268835",
+      "current_ast_sha256": "8031c469af4577416527cd104c300e7d712220b110338217e168c81c16645de3",
+      "identical_ast": false
+    }
+  ],
+  "prior_vs_current_named_inputs": [
+    {
+      "path": "policy-engine/pyproject.toml",
+      "previous_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "current_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "actual_export_sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "previous_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "current_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "actual_export_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/tests/_helpers/search_strategies.py",
+      "previous_blob": "99589ee19d48f4090c1a984a2fe1be7a2521f8ac",
+      "current_blob": "99589ee19d48f4090c1a984a2fe1be7a2521f8ac",
+      "actual_export_sha256": "8d443fc9e91e643e016461548aca52292a5d44a9fd96fe707ef67a5b3f553687",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+      "previous_blob": "c6f76ea92c3678349dbf2f4310fa30893f83db1a",
+      "current_blob": "8da87726dec78b5577d255860a9bb8d4795ac313",
+      "actual_export_sha256": "e0e4099efc607946aefcf750a0577ab0a8543421b2431e45adf95a7c49a55efd",
+      "equal": false
+    },
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "previous_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "current_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "actual_export_sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/conftest.py",
+      "previous_blob": "8da092e5640e18bcdac257e5521f4d3a4e7aa2c0",
+      "current_blob": "8da092e5640e18bcdac257e5521f4d3a4e7aa2c0",
+      "actual_export_sha256": "9d711f8d627e1aec1d9baa959b5cac44971a4383aa44a449b348a085495d6fcd",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/conftest.py",
+      "previous_blob": "82ed5f82c0fe08dfdb94ec417e254022d992c474",
+      "current_blob": "82ed5f82c0fe08dfdb94ec417e254022d992c474",
+      "actual_export_sha256": "6dc9b5da7ccd8b39349aeea13ab21048c2c1f40e3c7485269b767cc014b3e0a4",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/conftest.py",
+      "previous_blob": "611ace82d55431f2f66ea31556f192f3e998d189",
+      "current_blob": "611ace82d55431f2f66ea31556f192f3e998d189",
+      "actual_export_sha256": "2fd12a2db914514cf7297c2e9a458463a784115e4858a9cc878a5bbeb59c7420",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/tests/_helpers/__init__.py",
+      "previous_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "current_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actual_export_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "equal": true
+    }
+  ],
+  "claim": "fresh numerical replay only affected statepath after resourcegate/reviewGO; no numericalexecutionstarted at preparation"
+}

@@ -88,7 +88,7 @@ def _artifact_ref(hex_digit: str) -> ArtifactRef:
     )
 
 
-def test_same_scope_refinement_is_current_while_history_keeps_unknown_risk() -> None:
+def test_unbound_refinement_is_unavailable_while_history_keeps_unknown_risk() -> None:
     historical_unknown = UncertaintyEnvelope.unknown(source="deterministic gate")
     refined = _envelope(statistical=0.1, model=0.8)
 
@@ -110,15 +110,19 @@ def test_same_scope_refinement_is_current_while_history_keeps_unknown_risk() -> 
     assert current.uncertainty_envelope.uncertainties[UncertaintyType.MODEL].level == pytest.approx(
         0.8
     )
-    assert _uncertainty_level(
-        current.feedback["uncertainty_historical_max"], UncertaintyType.STATISTICAL
-    ) == 1.0
-    assert _uncertainty_level(
-        current.feedback["uncertainty_current"], UncertaintyType.STATISTICAL
-    ) == pytest.approx(0.1)
-    assert _uncertainty_level(
-        outcome.stage_results[4].feedback["uncertainty_current"], UncertaintyType.STATISTICAL
-    ) == pytest.approx(0.1)
+    assert (
+        _uncertainty_level(
+            current.feedback["uncertainty_historical_max"], UncertaintyType.STATISTICAL
+        )
+        == 1.0
+    )
+    # Identical domain text and a lower last-stage number do not supply a
+    # producer-owned permitted refinement relation. The stage diagnostic is
+    # retained above; it must not become a bound current scientific result.
+    assert current.feedback["uncertainty_current"] is None
+    assert current.feedback["uncertainty_current_status"] == "not_established"
+    assert current.feedback["uncertainty_refinement_status"] == "producer_law_not_established"
+    assert outcome.stage_results[4].feedback["uncertainty_current"] is None
 
 
 @pytest.mark.parametrize(
@@ -152,9 +156,7 @@ def test_scope_identity_prevents_cross_scope_continuation(scope_key: str) -> Non
     assert ticket_b.stage_results == {}
     outcome_b = orchestrator.advance(ticket_b, policy="full")
     assert stage.evaluate.call_count == 2
-    assert outcome_a.uncertainty_envelope.uncertainties[
-        UncertaintyType.STATISTICAL
-    ].level == 1.0
+    assert outcome_a.uncertainty_envelope.uncertainties[UncertaintyType.STATISTICAL].level == 1.0
     assert outcome_b.final_result is not None
     assert outcome_b.final_result.uncertainty_envelope.uncertainties[
         UncertaintyType.STATISTICAL
@@ -189,10 +191,13 @@ def test_persisted_empty_report_fails_closed_over_stale_normal_mode(tmp_path) ->
     assert metrics["sample_count"] == 0
     assert metrics["calibration_state"] == "not_established"
     assert metrics["routing_mode"] == "no_promotion"
-    assert runtime._resolve_degradation_mode(
-        state,
-        calibration_report=loaded_report,
-    ) == "no_promotion"
+    assert (
+        runtime._resolve_degradation_mode(
+            state,
+            calibration_report=loaded_report,
+        )
+        == "no_promotion"
+    )
 
 
 def test_statistically_bad_tracker_is_observed_drift_not_empty_state() -> None:
@@ -259,7 +264,7 @@ def test_level6_owner_recheck_happens_before_effectful_runner() -> None:
     )
 
 
-def test_level6_normal_path_calls_runner_after_owner_recheck() -> None:
+def test_level6_normal_true_preflight_does_not_authorize_effectful_runner() -> None:
     calls: list[str] = []
 
     def recheck(_candidate: dict[str, Any], _context: dict[str, Any]) -> bool:
@@ -275,14 +280,16 @@ def test_level6_normal_path_calls_runner_after_owner_recheck() -> None:
         promotion_owner_recheck=recheck,
     ).evaluate({"candidate_id": "fun-03"}, {"funnel_degradation_mode": "normal"})
 
-    assert calls == ["recheck", "runner"]
-    assert result.terminal_action == "complete"
+    assert calls == []
+    assert result.terminal_action == "defer_to_human"
+    assert result.feedback["promotion_admission_status"] == "bridge_missing"
 
 
 def test_production_owner_recheck_requires_explicit_write_permission(monkeypatch) -> None:
     candidate_ref = _artifact_ref("a")
     evidence_ref = _artifact_ref("b")
     state = ExperimentState(run_id="fun-03-owner-run")
+
     class _EvidenceBundle:
         def __init__(self, bound_candidate_ref: ArtifactRef) -> None:
             self.candidate_ref = bound_candidate_ref
@@ -301,18 +308,24 @@ def test_production_owner_recheck_requires_explicit_write_permission(monkeypatch
     ctx = MagicMock(store=MagicMock())
 
     assert runtime._policy_promotion_owner_recheck(ctx, state, candidate_ref, context) is False
-    assert runtime._policy_promotion_owner_recheck(
-        ctx,
-        state,
-        candidate_ref,
-        {**context, "promotion_write_allowed": False},
-    ) is False
-    assert runtime._policy_promotion_owner_recheck(
-        ctx,
-        state,
-        candidate_ref,
-        {**context, "promotion_write_allowed": True},
-    ) is True
+    assert (
+        runtime._policy_promotion_owner_recheck(
+            ctx,
+            state,
+            candidate_ref,
+            {**context, "promotion_write_allowed": False},
+        )
+        is False
+    )
+    assert (
+        runtime._policy_promotion_owner_recheck(
+            ctx,
+            state,
+            candidate_ref,
+            {**context, "promotion_write_allowed": True},
+        )
+        is True
+    )
     assert bundle.compatible_runs == [state.run_id]
 
 
@@ -323,9 +336,7 @@ def test_orchestrator_honors_persisted_no_promotion_projection_without_tracker()
         calls.append("runner")
         return {"decision": "complete"}
 
-    orchestrator = FunnelOrchestrator(
-        [Level6PromotionStage(promotion_runner=runner)]
-    )
+    orchestrator = FunnelOrchestrator([Level6PromotionStage(promotion_runner=runner)])
     ticket = orchestrator.submit(
         {"candidate_id": "fun-03"},
         {
@@ -649,12 +660,15 @@ def test_run_policy_blueprint_execute_caps_promotion_after_real_l4_candidate_wor
     assert "degraded_mode_promotion_cap" in {
         card["failure_type"] for card in level6["failure_cards"]
     }
-    assert outcome.state.params["_funnel_outcome"]["stage_results"]["4"]["feedback"][
-        "policy_runtime_fidelity"
-    ] == "full"
+    assert (
+        outcome.state.params["_funnel_outcome"]["stage_results"]["4"]["feedback"][
+            "policy_runtime_fidelity"
+        ]
+        == "full"
+    )
 
 
-def test_run_policy_blueprint_execute_rechecks_owner_at_commit(
+def test_run_policy_blueprint_execute_refuses_without_typed_owner_commit_bridge(
     tmp_path,
     monkeypatch,
 ) -> None:
@@ -672,10 +686,10 @@ def test_run_policy_blueprint_execute_rechecks_owner_at_commit(
 
     assert outcome.status == "ok"
     assert harness["backend_calls"] == ["full"]
-    assert harness["runner_calls"] == ["runner"]
-    assert harness["owner_checks"] == [True, False]
+    assert harness["runner_calls"] == []
+    assert harness["owner_checks"] == []
     assert harness["promotion_writes"] == []
-    assert outcome.state.params["policy_promotion_result"]["reason"] == (
-        "promotion_owner_recheck_failed"
-    )
+    assert "policy_promotion_result" not in outcome.state.params
+    level6 = outcome.state.params["_funnel_outcome"]["stage_results"]["6"]
+    assert level6["feedback"]["promotion_admission_status"] == "bridge_missing"
     assert outcome.state.params["_funnel_outcome"]["final_action"] == "defer_to_human"

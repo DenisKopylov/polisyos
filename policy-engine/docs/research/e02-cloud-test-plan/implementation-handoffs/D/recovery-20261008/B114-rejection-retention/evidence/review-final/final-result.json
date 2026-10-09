@@ -1,0 +1,49 @@
+{
+  "schema": "ORCH04.independent-c11-B114-static-review.v1",
+  "reviewer": "/root/review_c11",
+  "utc": "2026-10-08T17:55:45.398270+00:00",
+  "verdict": "SCOPED_SOURCE_GO_AND_AFFECTED_EVIDENCE_ACKNOWLEDGED_WITH_NAMED_HOLDS",
+  "source": {
+    "commit": "03698439abfb1cb59f763397a182d8e0e393d40d",
+    "tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+    "parents": [
+      "53a7cb99e4636e3cdfa903e22743e0a9b19a62a7"
+    ]
+  },
+  "manifest": "source-manifest.json",
+  "manifest_sha256": "4ddff4adeb494c36a0ffac48aa403d0a1adc33afce91bb5756e6c825e7b69cd5",
+  "complete_delta_paths": [
+    "policy-engine/release-fragments/unreleased/orch04-c11-b114-rejection-retention-20261008.md",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+    "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py"
+  ],
+  "remaining_source_blockers": [],
+  "findings": {
+    "C11-review-3": "FIXED: full actual rejected Evaluation snapshots and existing refusal reasons retained per occurrence in ordinary version1 strategy artifact/state channel, repeat and caller-mutation isolation; oldcheckpoint completefalse without fabricatedhistory.",
+    "C11-review-4": "FIXED: actual adaptive planning receives same complete admitted/deduped corpus as training intake, ordinary/reversed presentation consistent; originalfixedbatchqEI retained.",
+    "C11-review-4-cold-batch": "FIXED: coldsingle uses effectivecorpus count; coldbatch offsets samecount. Currentiteration/refitcountersemantics unchanged."
+  },
+  "restore_boundary": "Version/list/reason/candidateID shape guards and full normal produced-snapshot preservation; arbitrary caller-provided ledger evaluation mappings are not fully Evaluation-schema validated or authenticated. Restored complete flag is carried supplied-state metadata, not provenance/scientificauthority. Audit records never enter training.",
+  "P40": "Canonical widening of same effective-corpus planning intake class across adaptive/coldsingle/coldbatch; rejectedrecord explanation retention is separately fixed originalB114 branch. No exception waiver or adjacentsourcewriter.",
+  "required_affected_deciding_scope": [
+    "rejectionstateartifact1(all5reasons,repeatedreject,deepcopy,normalroundtrip,legacyincomplete)",
+    "authoredsingleadaptiveandfixedbatchqEI4(original+reversed)",
+    "actualsupportedSobolcoldsinglebatch2",
+    "existingrealnativewarmtraining1",
+    "lightweightstatewithoutdeps1",
+    "actualrestoredappend1",
+    "actualnorefit1",
+    "independentexactoriginalfixtureadaptive/cold/rejection probes and meaningful property removals"
+  ],
+  "pending": "No unfinished affected deciding scope within this bounded append. Normal publication/remote readback and G source acceptance/composition/formal closure remain separate.",
+  "prior_native_coverage": "126 qualified previous scoped cases53c1fresh+73bdcqualified, none freshly rerun here; exact fixture/ownruntimecallclosure unchanged. No GPmodule-wide priorinputequalitytransfer.",
+  "held_inputs": "B131/B137/B157/B161/B164 separately unchanged; B108fiscallaw,LA036conditionalproductionlaw,exactadditionalE/Fsupplierpacket unchanged; full joinedWarmStartBridge/BayesianCandidateGenerator/SearchLoopRunner/CAS supplierAPI/HNSWboundary remains separate from originalB114minimalrepair.",
+  "historical_static_verdict": "SCOPED_SOURCE_GO_AFFECTED_TEST_PENDING",
+  "evidence_acknowledgment": {
+    "path": "/workspace/ORCH04-evidence/review-c11/03698439/native-GP-evidence-ack.json",
+    "sha256": "374294de139fedc328bf4400a8606a6a0cd69d16c74306e680b6edf95e1b7c0c",
+    "bytes": 17445
+  },
+  "required_affected_deciding_scope_completed": "11fresh+3exactoriginalprobes+5validmatchedremovalscopes(7red/2batchPASS)+freshboundedindependentGPstateoracle"
+}

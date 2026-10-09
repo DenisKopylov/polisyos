@@ -1,0 +1,484 @@
+{
+  "schema": "orch04.independent_native_receipt.v1",
+  "unit": "D",
+  "final_source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+  "final_tree": "605764d3afec7ba005bd891530ee074df5811497",
+  "runtime_source_unchanged_since": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+  "source_go": "nonauthorreview_c11; bounded static admission only",
+  "scope": "configured CAS funnel state/history/current intake and cache, L3/L4 ref forwarding, existing FUN02/FUN03/L6 native node, Phase5 present BERL validation and registration",
+  "result": "scoped_consumer_and_removal_pass_with_named_holds",
+  "initial_deciding_wave": {
+    "commit": "bdc94a82",
+    "cases": 125,
+    "passed": 124,
+    "failed": 1,
+    "classification": "owned test companion mismatch, retained exact red; not inherited and not relabeled"
+  },
+  "final_affected_wave": {
+    "commit": "c1bffbd5",
+    "cases": 53,
+    "passed": 53,
+    "failed": 0
+  },
+  "unchanged_cases_transfer": {
+    "cases": 73,
+    "rule": "complete final tree compared, only README+test_orchestrator changed; all runtime/test/lock/config/supplier input blobs unchanged outside affected 3-file wave",
+    "manifest": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-input-delta.json"
+  },
+  "combined_scoped_coverage": {
+    "cases": 126,
+    "description": "53 fresh final affected +73 exact unchanged input-qualified; not a single fresh126case run"
+  },
+  "removals": [
+    {
+      "property": "intake-binding",
+      "cases": 12,
+      "expected_failures": 11,
+      "junit_path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-intake-binding.xml",
+      "junit_sha256": "7708e821b52ecbfc50a63fda1a59fa5e7705ce3630e3c566859eae2a868c993e",
+      "deciding_output": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-intake-binding/stdout.txt"
+    },
+    {
+      "property": "cache-selected-view",
+      "cases": 1,
+      "expected_failures": 1,
+      "junit_path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-cache-selected-view.xml",
+      "junit_sha256": "19ee46a91dfa79de80fe18d83419136577a8f61e315877af0b218695d5a44a36",
+      "deciding_output": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-cache-selected-view/stdout.txt"
+    },
+    {
+      "property": "berl-unavailable",
+      "cases": 3,
+      "expected_failures": 3,
+      "junit_path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-berl-unavailable.xml",
+      "junit_sha256": "a39a679850c6ddf2d06605bf22a38c8572f54e115e73f40e451c8da144ffb8e8",
+      "deciding_output": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-berl-unavailable/stdout.txt"
+    },
+    {
+      "property": "builtin-freshness-v2",
+      "cases": 1,
+      "expected_failures": 1,
+      "junit_path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-builtin-freshness-v2.xml",
+      "junit_sha256": "bcc0afc51e81dac4e3cea549f95afed5838cfc1d5060eb05e0fb57ef0a0f4690",
+      "deciding_output": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-builtin-freshness-v2/stdout.txt"
+    },
+    {
+      "property": "promotion-no-effect",
+      "cases": 9,
+      "expected_failures": 8,
+      "junit_path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-promotion-no-effect.xml",
+      "junit_sha256": "b9e755c50495327856ab3bff9b0050bbb32e77be4cc02e44fefe643e49578519",
+      "deciding_output": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-promotion-no-effect/stdout.txt"
+    }
+  ],
+  "invalid_probe_retained": {
+    "path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-builtin-freshness",
+    "classification": "tester scratch mutation invalid: inline comment hid comprehension yielding NameError; no semantic removal claim; corrected independent v2 gave first-is-second assertion red"
+  },
+  "fresh_process": {
+    "producer_pid": 12789,
+    "reader_pids": {
+      "valid": 13219,
+      "foreign": 13218,
+      "substituted": 13216,
+      "missing": 13217
+    },
+    "result": "all4 reader assertions passed; actual new FunnelOrchestrator/CAS in separate processes, synthetic injected callbacks allowed under B156",
+    "packet": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-fresh-packet.json",
+    "limits": "No serialized-ticket continuation, native scientific producer/refinement law, installed consumer, numerical GP or permission issuer claim"
+  },
+  "gp": "separate independent gp_conformance oracle/4affectedselectors on unchanged exactbdc source inputs; numerical results separate from native funnel and import readiness",
+  "held": [
+    "B131 institutional source/access",
+    "B137 owner calibration/authority inputs",
+    "B157 production effective config counts",
+    "B161 permitted producer refinement law",
+    "B164 owner permission issuer/verifier/serialized commit",
+    "B108 fiscal unit/sign/alias law",
+    "LA036 admitted observed-feature law/model binding"
+  ],
+  "raw_execution_receipts": [
+    {
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "/workspace/ORCH04-evidence/native-tester/c11_fresh_cas.py",
+        "produce",
+        "--packet",
+        "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-fresh-packet.json",
+        "--cas",
+        "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-fresh-cas"
+      ],
+      "source_commit": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+      "source_tree": "b99374f46dd6971daf47fd200549e98d32f23f23",
+      "pid": 12789,
+      "exit_code": 0,
+      "wall_seconds": 9.297451277999926,
+      "max_rss_kib": 1301096,
+      "source_delta_before": [],
+      "source_delta_after": [],
+      "receipt_path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-fresh-producer/execution.json",
+      "sha256": "0a5a7c3206c193de0fbbf01cae17ceb9db4075adb8682c660515c839360b324a"
+    },
+    {
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "/workspace/ORCH04-evidence/native-tester/c11_fresh_cas.py",
+        "read",
+        "--case",
+        "foreign",
+        "--packet",
+        "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-fresh-packet.json",
+        "--cas",
+        "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-fresh-cas"
+      ],
+      "source_commit": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+      "source_tree": "b99374f46dd6971daf47fd200549e98d32f23f23",
+      "pid": 13218,
+      "exit_code": 0,
+      "wall_seconds": 9.886444941000036,
+      "max_rss_kib": 1302624,
+      "source_delta_before": [],
+      "source_delta_after": [],
+      "receipt_path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-fresh-reader-foreign/execution.json",
+      "sha256": "7c3a1f86fcf5e9e8f5db002fa55ef526cd261ba4b27428570abc1b420fba94fb"
+    },
+    {
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "/workspace/ORCH04-evidence/native-tester/c11_fresh_cas.py",
+        "read",
+        "--case",
+        "missing",
+        "--packet",
+        "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-fresh-packet.json",
+        "--cas",
+        "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-fresh-cas"
+      ],
+      "source_commit": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+      "source_tree": "b99374f46dd6971daf47fd200549e98d32f23f23",
+      "pid": 13217,
+      "exit_code": 0,
+      "wall_seconds": 13.084965725000075,
+      "max_rss_kib": 1302396,
+      "source_delta_before": [],
+      "source_delta_after": [],
+      "receipt_path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-fresh-reader-missing/execution.json",
+      "sha256": "27b5096560a0f2c8782e83d7ae2ac4ec607abf09f19822c1da7cc3cb5f3b5828"
+    },
+    {
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "/workspace/ORCH04-evidence/native-tester/c11_fresh_cas.py",
+        "read",
+        "--case",
+        "substituted",
+        "--packet",
+        "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-fresh-packet.json",
+        "--cas",
+        "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-fresh-cas"
+      ],
+      "source_commit": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+      "source_tree": "b99374f46dd6971daf47fd200549e98d32f23f23",
+      "pid": 13216,
+      "exit_code": 0,
+      "wall_seconds": 9.986011061,
+      "max_rss_kib": 1302584,
+      "source_delta_before": [],
+      "source_delta_after": [],
+      "receipt_path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-fresh-reader-substituted/execution.json",
+      "sha256": "33f9113541264090e27a7ccc0115e7e9c7215a71ab4c3da69030a0b4176116ca"
+    },
+    {
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "/workspace/ORCH04-evidence/native-tester/c11_fresh_cas.py",
+        "read",
+        "--case",
+        "valid",
+        "--packet",
+        "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-fresh-packet.json",
+        "--cas",
+        "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-fresh-cas"
+      ],
+      "source_commit": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+      "source_tree": "b99374f46dd6971daf47fd200549e98d32f23f23",
+      "pid": 13219,
+      "exit_code": 0,
+      "wall_seconds": 13.250321544999906,
+      "max_rss_kib": 1301920,
+      "source_delta_before": [],
+      "source_delta_after": [],
+      "receipt_path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-fresh-reader-valid/execution.json",
+      "sha256": "51db20eabc81b566ba1826412d80cd0c77157fbcdae8f7cfa922b2d3abc7a149"
+    },
+    {
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/search/funnel/test_configured_observations.py",
+        "tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "tests/unit/scientist/search/funnel/test_types.py",
+        "tests/unit/scientist/search/funnel/test_level3_medium.py",
+        "tests/unit/scientist/search/funnel/test_level4_full.py",
+        "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+        "tests/unit/scientist/nodes/test_components.py",
+        "tests/unit/scientist/nodes/test_extension_registration.py",
+        "tests/unit/remediation/test_fun_02.py",
+        "tests/unit/remediation/test_fun_03.py",
+        "tests/unit/scientist/validation/test_phase5_preflight.py",
+        "tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
+        "-v",
+        "-s",
+        "--basetemp=/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-basetemp",
+        "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-junit.xml"
+      ],
+      "source_commit": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+      "source_tree": "b99374f46dd6971daf47fd200549e98d32f23f23",
+      "pid": 12588,
+      "exit_code": 1,
+      "wall_seconds": 25.595140334000007,
+      "max_rss_kib": 1636120,
+      "source_delta_before": [],
+      "source_delta_after": [],
+      "receipt_path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-native-wave/execution.json",
+      "sha256": "abe059651f46fd0576dc9418d9809a8091d9c580f4a9f97ab3215bf4d46e7493"
+    },
+    {
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/validation/test_phase5_preflight.py::test_preflight_fails_closed_when_actual_berl_validation_is_unavailable",
+        "-v",
+        "-s",
+        "--basetemp=/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-berl-unavailable-basetemp",
+        "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-berl-unavailable.xml"
+      ],
+      "source_commit": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+      "source_tree": "b99374f46dd6971daf47fd200549e98d32f23f23",
+      "pid": 12700,
+      "exit_code": 1,
+      "wall_seconds": 4.794764359000055,
+      "max_rss_kib": 124652,
+      "source_delta_before": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/validation/phase5_preflight.py",
+          "before": "9f85ef33ab3c953ace5ed0191326e9f829c8d9fb212c7b2a328d7dd8f52ab494",
+          "after": "c79e3f4a1fc47713a32da7d292b29531fc8667dbe8ae2a528c1f012995fb68d8"
+        }
+      ],
+      "source_delta_after": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/validation/phase5_preflight.py",
+          "before": "9f85ef33ab3c953ace5ed0191326e9f829c8d9fb212c7b2a328d7dd8f52ab494",
+          "after": "c79e3f4a1fc47713a32da7d292b29531fc8667dbe8ae2a528c1f012995fb68d8"
+        }
+      ],
+      "receipt_path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-berl-unavailable/execution.json",
+      "sha256": "42f299bac2fbac2e0eda4f46e9cf748fe6a418b38f90e6cde9f4302ab593f60b"
+    },
+    {
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/nodes/test_components.py",
+        "-v",
+        "-s",
+        "--basetemp=/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-builtin-freshness-basetemp",
+        "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-builtin-freshness.xml"
+      ],
+      "source_commit": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+      "source_tree": "b99374f46dd6971daf47fd200549e98d32f23f23",
+      "pid": 12696,
+      "exit_code": 1,
+      "wall_seconds": 2.9682833849999497,
+      "max_rss_kib": 119164,
+      "source_delta_before": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/components.py",
+          "before": "7109ea66c732b23a6fc85eb576fe93c11e6785d1e3949e1c96b5a93727e2a597",
+          "after": "f379f14b1f08b8f5cf3e08036a88577e6cd23864be2abcf243b4589b2a055759"
+        }
+      ],
+      "source_delta_after": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/components.py",
+          "before": "7109ea66c732b23a6fc85eb576fe93c11e6785d1e3949e1c96b5a93727e2a597",
+          "after": "f379f14b1f08b8f5cf3e08036a88577e6cd23864be2abcf243b4589b2a055759"
+        }
+      ],
+      "receipt_path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-builtin-freshness/execution.json",
+      "sha256": "9c184c3765982dfef1546e7d58cd67088dd2f1fabf8e27676b728286448fe6ae"
+    },
+    {
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/nodes/test_components.py",
+        "-v",
+        "-s",
+        "--basetemp=/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-builtin-freshness-v2-basetemp",
+        "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-builtin-freshness-v2.xml"
+      ],
+      "source_commit": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+      "source_tree": "b99374f46dd6971daf47fd200549e98d32f23f23",
+      "pid": 13384,
+      "exit_code": 1,
+      "wall_seconds": 19.885082369999964,
+      "max_rss_kib": 1509536,
+      "source_delta_before": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/components.py",
+          "before": "7109ea66c732b23a6fc85eb576fe93c11e6785d1e3949e1c96b5a93727e2a597",
+          "after": "e43a5c43ece4beb0efd3f2032656e9231a3c255fa36a9531f59a4e9a3a878a25"
+        }
+      ],
+      "source_delta_after": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/components.py",
+          "before": "7109ea66c732b23a6fc85eb576fe93c11e6785d1e3949e1c96b5a93727e2a597",
+          "after": "e43a5c43ece4beb0efd3f2032656e9231a3c255fa36a9531f59a4e9a3a878a25"
+        }
+      ],
+      "receipt_path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-builtin-freshness-v2/execution.json",
+      "sha256": "60237b43dca750189e0319f5f15501edb39fab8f2b4ba3bb9d9037dc90986c20"
+    },
+    {
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/search/funnel/test_configured_observations.py::test_selected_manifest_view_change_executes_real_callback",
+        "-v",
+        "-s",
+        "--basetemp=/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-cache-selected-view-basetemp",
+        "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-cache-selected-view.xml"
+      ],
+      "source_commit": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+      "source_tree": "b99374f46dd6971daf47fd200549e98d32f23f23",
+      "pid": 12708,
+      "exit_code": 1,
+      "wall_seconds": 21.607100484000057,
+      "max_rss_kib": 1344884,
+      "source_delta_before": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "before": "41204cd1e4c177346a3706304a21a0212553e49f9566fee5a10a440c3cd9645b",
+          "after": "8ac10dc35a4c03263975b40cce07a528ba10e78d8d5ac073bbf0ce527f8311eb"
+        }
+      ],
+      "source_delta_after": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "before": "41204cd1e4c177346a3706304a21a0212553e49f9566fee5a10a440c3cd9645b",
+          "after": "8ac10dc35a4c03263975b40cce07a528ba10e78d8d5ac073bbf0ce527f8311eb"
+        }
+      ],
+      "receipt_path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-cache-selected-view/execution.json",
+      "sha256": "3999034b18815b98055219fe9146d90580253585c7cc86bbd1ab4885bd1c674d"
+    },
+    {
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/search/funnel/test_configured_observations.py",
+        "-v",
+        "-s",
+        "--basetemp=/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-intake-binding-basetemp",
+        "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-intake-binding.xml"
+      ],
+      "source_commit": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+      "source_tree": "b99374f46dd6971daf47fd200549e98d32f23f23",
+      "pid": 12699,
+      "exit_code": 1,
+      "wall_seconds": 25.216490240999974,
+      "max_rss_kib": 1344368,
+      "source_delta_before": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+          "before": "f0aedad8066897dbe3b08650bae1d39c5f1cbb4997a39e3757d678338af00b65",
+          "after": "3d27cbbb1f89b214f90a27ca1cc9a374db2f16b0cf2fda35fb93909e935fe503"
+        }
+      ],
+      "source_delta_after": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+          "before": "f0aedad8066897dbe3b08650bae1d39c5f1cbb4997a39e3757d678338af00b65",
+          "after": "3d27cbbb1f89b214f90a27ca1cc9a374db2f16b0cf2fda35fb93909e935fe503"
+        }
+      ],
+      "receipt_path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-intake-binding/execution.json",
+      "sha256": "98d8157c7bcdb787ff789bb1a0168ca143c5e60ad51226e94132aeb017e58bc1"
+    },
+    {
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+        "-v",
+        "-s",
+        "--basetemp=/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-promotion-no-effect-basetemp",
+        "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-promotion-no-effect.xml"
+      ],
+      "source_commit": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+      "source_tree": "b99374f46dd6971daf47fd200549e98d32f23f23",
+      "pid": 12723,
+      "exit_code": 1,
+      "wall_seconds": 16.983009134999975,
+      "max_rss_kib": 1335604,
+      "source_delta_before": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+          "before": "31d00ab5bd721d4f3d63e7581df74a49bc87e91f548ed7bb61d4c9770d730c19",
+          "after": "0736507045c0b71c6151a0a5630bd08ca44c178b9483913b14532fe9ee2804fa"
+        }
+      ],
+      "source_delta_after": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+          "before": "31d00ab5bd721d4f3d63e7581df74a49bc87e91f548ed7bb61d4c9770d730c19",
+          "after": "0736507045c0b71c6151a0a5630bd08ca44c178b9483913b14532fe9ee2804fa"
+        }
+      ],
+      "receipt_path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-removal-promotion-no-effect/execution.json",
+      "sha256": "b71174ec9db2d2be8b69a9e141ea17b96ee2e11127590d890ed3fd506c5b65f0"
+    },
+    {
+      "argv": [
+        "/workspace/ORCH04-environments/app/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "tests/unit/remediation/test_fun_03.py",
+        "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+        "-v",
+        "-s",
+        "--basetemp=/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-affected-l6-basetemp",
+        "--junitxml=/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-affected-l6-junit.xml"
+      ],
+      "source_commit": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+      "source_tree": "605764d3afec7ba005bd891530ee074df5811497",
+      "pid": 13604,
+      "exit_code": 0,
+      "wall_seconds": 19.48893587800012,
+      "max_rss_kib": 1472404,
+      "source_delta_before": [],
+      "source_delta_after": [],
+      "receipt_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-affected-l6-wave/execution.json",
+      "sha256": "583228d01844c40a9b543e252f078bc00abfdd9836a2a38c5b9c2352c8ba297a"
+    }
+  ],
+  "source_manifest": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source-source-manifest.json",
+  "ordinary_publication": "writer/coordinator owns hooks/topicpush; tester did not publish or bypass hooks",
+  "formal_acceptance": "G owns source acceptance and closure; no production claim",
+  "actual_import_origins": {
+    "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-actual-origins/stdout.txt",
+    "sha256": "4387740289e19f932a1d302db62da411799bd64f4c8ac8845769409c4942381b",
+    "result": "actual imports of all 8 final affected funnel/uncertainty/registration/runtime-node/Phase5 modules resolve inside exact c1b committed export; origin inspection is not semantic/numerical PASS"
+  }
+}

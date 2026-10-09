@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="1.351" timestamp="2026-10-08T16:09:34.083968+00:00" hostname="9065c0936350"><testcase classname="tests.unit.scientist.validation.test_phase5_preflight" name="test_preflight_fails_closed_when_actual_berl_validation_is_unavailable[marker_only]" time="0.144"><failure message="assert False&#10; +  where False = any(&lt;generator object test_preflight_fails_closed_when_actual_berl_validation_is_unavailable.&lt;locals&gt;.&lt;genexpr&gt; at 0x7f8af9c9e260&gt;)">mutation = 'marker_only'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f8afa26ec40&gt;
+
+    @pytest.mark.parametrize("mutation", ["marker_only", "malformed", "unavailable"])
+    def test_preflight_fails_closed_when_actual_berl_validation_is_unavailable(
+        mutation: str,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        payload = _present_berl_payload()
+        if mutation == "marker_only":
+            payload = {
+                "kind": "scientist.explanation_bundle",
+                "faithfulness_claim": "bounded",
+                "berl_validation": {"status": "pass"},
+            }
+        elif mutation == "malformed":
+            payload["model"] = {"model_id": "model"}
+        else:
+            import polisyos.scientist.validation.phase5_preflight as phase5
+    
+            monkeypatch.setattr(phase5, "_run_berl_validation", lambda record: None)
+        report = build_phase5_validation_report(
+            _ctx(), _state(), artifact_payload=payload, artifact_kind="scientist.explanation_bundle"
+        )
+&gt;       assert any("validation unavailable or input malformed" in x for x in report.gate_failures)
+E       assert False
+E        +  where False = any(&lt;generator object test_preflight_fails_closed_when_actual_berl_validation_is_unavailable.&lt;locals&gt;.&lt;genexpr&gt; at 0x7f8af9c9e260&gt;)
+
+tests/unit/scientist/validation/test_phase5_preflight.py:383: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.validation.test_phase5_preflight" name="test_preflight_fails_closed_when_actual_berl_validation_is_unavailable[malformed]" time="0.002"><failure message="assert False&#10; +  where False = any(&lt;generator object test_preflight_fails_closed_when_actual_berl_validation_is_unavailable.&lt;locals&gt;.&lt;genexpr&gt; at 0x7f8af9a6c860&gt;)">mutation = 'malformed'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f8af99eafd0&gt;
+
+    @pytest.mark.parametrize("mutation", ["marker_only", "malformed", "unavailable"])
+    def test_preflight_fails_closed_when_actual_berl_validation_is_unavailable(
+        mutation: str,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        payload = _present_berl_payload()
+        if mutation == "marker_only":
+            payload = {
+                "kind": "scientist.explanation_bundle",
+                "faithfulness_claim": "bounded",
+                "berl_validation": {"status": "pass"},
+            }
+        elif mutation == "malformed":
+            payload["model"] = {"model_id": "model"}
+        else:
+            import polisyos.scientist.validation.phase5_preflight as phase5
+    
+            monkeypatch.setattr(phase5, "_run_berl_validation", lambda record: None)
+        report = build_phase5_validation_report(
+            _ctx(), _state(), artifact_payload=payload, artifact_kind="scientist.explanation_bundle"
+        )
+&gt;       assert any("validation unavailable or input malformed" in x for x in report.gate_failures)
+E       assert False
+E        +  where False = any(&lt;generator object test_preflight_fails_closed_when_actual_berl_validation_is_unavailable.&lt;locals&gt;.&lt;genexpr&gt; at 0x7f8af9a6c860&gt;)
+
+tests/unit/scientist/validation/test_phase5_preflight.py:383: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.validation.test_phase5_preflight" name="test_preflight_fails_closed_when_actual_berl_validation_is_unavailable[unavailable]" time="0.001"><failure message="assert False&#10; +  where False = any(&lt;generator object test_preflight_fails_closed_when_actual_berl_validation_is_unavailable.&lt;locals&gt;.&lt;genexpr&gt; at 0x7f8af9a6d150&gt;)">mutation = 'unavailable'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f8af9a02e70&gt;
+
+    @pytest.mark.parametrize("mutation", ["marker_only", "malformed", "unavailable"])
+    def test_preflight_fails_closed_when_actual_berl_validation_is_unavailable(
+        mutation: str,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        payload = _present_berl_payload()
+        if mutation == "marker_only":
+            payload = {
+                "kind": "scientist.explanation_bundle",
+                "faithfulness_claim": "bounded",
+                "berl_validation": {"status": "pass"},
+            }
+        elif mutation == "malformed":
+            payload["model"] = {"model_id": "model"}
+        else:
+            import polisyos.scientist.validation.phase5_preflight as phase5
+    
+            monkeypatch.setattr(phase5, "_run_berl_validation", lambda record: None)
+        report = build_phase5_validation_report(
+            _ctx(), _state(), artifact_payload=payload, artifact_kind="scientist.explanation_bundle"
+        )
+&gt;       assert any("validation unavailable or input malformed" in x for x in report.gate_failures)
+E       assert False
+E        +  where False = any(&lt;generator object test_preflight_fails_closed_when_actual_berl_validation_is_unavailable.&lt;locals&gt;.&lt;genexpr&gt; at 0x7f8af9a6d150&gt;)
+
+tests/unit/scientist/validation/test_phase5_preflight.py:383: AssertionError</failure></testcase></testsuite></testsuites>

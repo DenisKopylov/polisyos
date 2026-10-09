@@ -1,0 +1,11 @@
+{
+  "schema": "orch04.C11.leaf-integrity-check.v1",
+  "utc": "2026-10-08T16:27:12.432344+00:00",
+  "source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+  "files_checked": 237,
+  "indexed_byte_integrity_errors": [],
+  "all_packet_JSON_parse": "PASS",
+  "runtime_test_delta_from_source_freeze": [],
+  "result": "PASS",
+  "qualification": "Receipt/export integrity only; no product test or source acceptance claim"
+}

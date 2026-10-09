@@ -4,13 +4,15 @@ from types import SimpleNamespace
 from typing import cast
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.ir.analytics.sensitivity import SensitivityAnalysisBundle
 from polisyos.ir.governance.validation import Phase5GateComponent, ValidationReport
+from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_FAIRNESS_AUDIT_REPORT_REF
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_FAIRNESS_AUDIT_REPORT_REF
 from polisyos.scientist.validation.phase5_preflight import (
     Phase5ArtifactPreflightInput,
     Phase5ValidationBlocked,
@@ -18,7 +20,6 @@ from polisyos.scientist.validation.phase5_preflight import (
     enforce_phase5_validation_report,
     run_phase5_artifact_preflight,
 )
-from pydantic import ValidationError
 
 
 def _ctx() -> ExecutionContext:
@@ -297,3 +298,86 @@ def test_analyst_publication_accepts_attached_full_judge_verdict(tmp_path) -> No
     assert result.publishable
     assert result.judge_verdict_ref is not None
     assert result.validation_report.verdict == "pass"
+
+
+def _present_berl_payload() -> dict[str, object]:
+    """Portable real BERL contract input, independently bounded heldout evidence."""
+    return {
+        "kind": "scientist.explanation_bundle",
+        "bundle_id": "portable-berl",
+        "created_at": "2026-10-08T00:00:00Z",
+        "faithfulness_claim": "bounded",
+        "display_policy": "analyst_display",
+        "model": {"model_id": "model", "model_hash": "sha256:fixture", "model_class": "linear"},
+        "prediction": {
+            "prediction_id": "p",
+            "row_id": "r",
+            "output_name": "y",
+            "output_scale": "kg",
+            "raw_score": 1.0,
+        },
+        "feature_context": {
+            "feature_values_ref": "fixture:features",
+            "feature_schema_version": "1",
+        },
+        "assumptions": {
+            "perturbation_distribution": {"name": "portable"},
+            "feature_dependence_policy": {"primary": "conditional_observational"},
+        },
+        "methods": [
+            {
+                "method_id": "portable",
+                "library": "fixture",
+                "library_version": "1",
+                "params": {"draws": 100},
+                "infidelity": {
+                    "point_estimate": 0.002,
+                    "upper_bound": 0.01,
+                    "confidence": 0.95,
+                    "n_eval_perturbations": 100,
+                    "residual_cap": 1.0,
+                    "bound_type": "empirical_bernstein_heldout",
+                    "evaluation_split": "heldout",
+                },
+            }
+        ],
+        "audit": {"code_version": "fixture@1", "random_seeds": [1]},
+    }
+
+
+def test_preflight_runs_present_berl_input_and_ignores_success_marker() -> None:
+    payload = _present_berl_payload()
+    report = build_phase5_validation_report(
+        _ctx(), _state(), artifact_payload=payload, artifact_kind="scientist.explanation_bundle"
+    )
+    component = next(c for c in report.phase5_components if c.name == "explanation")
+    assert component.status == "pass"
+    payload["methods"][0]["infidelity"]["upper_bound"] = 0.9
+    report = build_phase5_validation_report(
+        _ctx(), _state(), artifact_payload=payload, artifact_kind="scientist.explanation_bundle"
+    )
+    assert any("p95_infidelity_upper_bound_exceeds_tolerance" in x for x in report.gate_failures)
+
+
+@pytest.mark.parametrize("mutation", ["marker_only", "malformed", "unavailable"])
+def test_preflight_fails_closed_when_actual_berl_validation_is_unavailable(
+    mutation: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    payload = _present_berl_payload()
+    if mutation == "marker_only":
+        payload = {
+            "kind": "scientist.explanation_bundle",
+            "faithfulness_claim": "bounded",
+            "berl_validation": {"status": "pass"},
+        }
+    elif mutation == "malformed":
+        payload["model"] = {"model_id": "model"}
+    else:
+        import polisyos.scientist.validation.phase5_preflight as phase5
+
+        monkeypatch.setattr(phase5, "_run_berl_validation", lambda record: None)
+    report = build_phase5_validation_report(
+        _ctx(), _state(), artifact_payload=payload, artifact_kind="scientist.explanation_bundle"
+    )
+    assert any("validation unavailable or input malformed" in x for x in report.gate_failures)

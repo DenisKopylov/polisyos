@@ -1,0 +1,163 @@
+{
+  "schema": "ORCH04-independent-verification-finding-v1",
+  "utc": "2026-10-08T17:36:18.432517+00:00",
+  "finding_id": "C11-B114-rejected-record-reasons-discarded",
+  "classification": "CONFIRMED owned original-criterion acceptance FAIL; local admission boundary; not a full numerical consumer verdict",
+  "source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+  "tree": "605764d3afec7ba005bd891530ee074df5811497",
+  "parents": [
+    "bdc94a82d2bc911f61e729635ebe2eb03774848f"
+  ],
+  "scope": {
+    "owner": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+    "lines": [
+      117,
+      153
+    ],
+    "entrypoint": "BayesianOptimizer.warm_start",
+    "actual_import_origin_and_hash": "C11-c1bffbd5-B114-rejection-packet-v2/inputs.json"
+  },
+  "criterion": {
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-03.md",
+    "git_blob": "ca113cf95e55e57b19605c63df36a209770157bb",
+    "sha256": "0bb18c83c79a6a8094af1cc3c22421a488e72520e6c7abd79d724a4f38ff037b",
+    "bytes": 12239,
+    "exact_preimage": "/workspace/ORCH04-evidence/native-tester/B114-boundary-research/canonical/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-03.md"
+  },
+  "criterion_line": 66,
+  "original_requirement": "Один и тот же пригодный корпус, переданный целиком или через warm-start + новую часть, даёт согласованную обучающую выборку и план; отклонённые записи не исчезают без причины; идентичные артефакты не удваивают sample-count; намеренные независимые повторы остаются отдельными.",
+  "input_recipe": "AST-execute the unchanged committed test_bayesian_warm_start_reaches_gp_training_before_initial_threshold input prefix, stopping before its warm_start call; actual simple_space fixture and native-ready BayesianOptimizer; warm_start only, no suggest/fit or previous GP oracle replay.",
+  "observed": {
+    "backend_ready": true,
+    "accepted_positive": [
+      "warm-0",
+      "warm-1",
+      "warm-2",
+      "warm-3",
+      "warm-4",
+      "warm-5",
+      "warm-2",
+      "warm-2-replica"
+    ],
+    "rejected_inputs": [
+      "warm-foreign-basis",
+      "warm-incompatible-context",
+      "warm-unbound"
+    ],
+    "actual_local_rejection_reasons": [
+      "incompatible normalized parameters",
+      "incompatible context fingerprint",
+      "missing provenance_ref"
+    ],
+    "outward_return": null,
+    "actual_logs": [
+      "Bayesian warm-start: added 8 historical evaluations; rejected 3"
+    ],
+    "rejected_ids_visible": {
+      "warm-foreign-basis": false,
+      "warm-incompatible-context": false,
+      "warm-unbound": false
+    },
+    "reasons_visible": {
+      "incompatible normalized parameters": false,
+      "incompatible context fingerprint": false,
+      "missing provenance_ref": false
+    },
+    "fit_executed": false
+  },
+  "consequence": "Incompatible normalized-basis/context/unbound-provenance history is refused, but after return no rejected row identity/reason survives in the outward result, checkpoint state, or actual emitted log. The local list contains only reasons and is discarded; count-only logging cannot identify why a particular historical record was excluded.",
+  "api_boundary": "The original criterion requires retained explanation; no particular Core DTO field, public report API name, or joined transfer workflow is imposed by this finding.",
+  "minimal_owned_remediation": "Preserve rejected record identity and its actual refusal reason in an existing owned observable/retained channel, while leaving refusals intact. Add an affected original-criterion regression and immutable independent review; do not fabricate receiver law or replace refusal with acceptance.",
+  "execution": {
+    "argv": [
+      "/workspace/ORCH04-environments/app/bin/python",
+      "/workspace/ORCH04-evidence/native-tester/b114_rejection_boundary_v2.py",
+      "--out",
+      "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-packet-v2"
+    ],
+    "cwd": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source/policy-engine",
+    "pid": 25268,
+    "start_utc": "2026-10-08T17:30:01.236545+00:00",
+    "finish_utc": "2026-10-08T17:30:11.793928+00:00",
+    "exit_code": 1,
+    "wall_seconds": 9.53329982700052,
+    "max_rss_kib": 1312860,
+    "source_delta_before": [],
+    "source_delta_after": [],
+    "source_commit": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+    "source_tree": "605764d3afec7ba005bd891530ee074df5811497",
+    "source_manifest_path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source-source-manifest.json",
+    "source_manifest_sha256": "1cacc40277fca4d0069f11296241ed4f0b900db696674941d4cb001f92718f0d",
+    "external_file_inputs": [
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/run_native.py",
+        "sha256": "7ef04c4846426d42e38a8598e26b728bfbc5bb32f034faba0c3da61dd670826d"
+      },
+      {
+        "path": "/workspace/ORCH04-evidence/native-tester/b114_rejection_boundary_v2.py",
+        "sha256": "2a491801a33397b4624ae8cde0b435b9879adc2dca1a584f5db76d485f0d31d5"
+      }
+    ]
+  },
+  "deciding_assertion": "All three refused row identities and all three exact refusal reasons remain observable after return, in any existing result/state/log channel. It fails with all six visibility flags false.",
+  "positive_and_control": "8 accepted warm rows are retained; a separate process-namespace marker-preserving acceptance-effect removal yields0 vs expected8. The removal packet is an effect discriminator, not an actual JUnit failing case or a positive→red proof of rejection retention. Retention already FAILs until owner repair.",
+  "initial_attempt": "Earlier v1 run ERROR at JSON datetime serialization; retained separately, no semantic outcome attributed to it.",
+  "not_established": [
+    "full B114 acceptance across whole-vs-split training plan",
+    "joined WarmStartBridge/BayesianCandidateGenerator/SearchLoopRunner/CAS transfer workflow",
+    "new GP numerical fit or full consumer",
+    "production/input law"
+  ],
+  "evidence": [
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/b114_rejection_boundary_v2.py",
+      "sha256": "2a491801a33397b4624ae8cde0b435b9879adc2dca1a584f5db76d485f0d31d5",
+      "bytes": 5612
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-boundary-v2/execution.json",
+      "sha256": "ac7cbb83ab8d7cd76b1236f7205e5ac37a68bc97d35852237f202214a57a6fc2",
+      "bytes": 5207
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-boundary-v2/stdout.txt",
+      "sha256": "73b192c3b6c702a2488989c543861a640bb0be01d6f0c0951a18006ee3a0f084",
+      "bytes": 75429
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-boundary-v2/stderr.txt",
+      "sha256": "7eaa251bc2c55905eacae92fd4f0dfcdb6e4ce0d7936ee9caa516c7c89387953",
+      "bytes": 1388
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-boundary-v2/environment-origins.stdout.txt",
+      "sha256": "cf284814451b32d52c9c08ff95746fd2ed221a80f04444c51a1b478fe6e5de14",
+      "bytes": 11198
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-packet-v2/inputs.json",
+      "sha256": "a6c79e10bfcc78f2b9607912373f662f3fbcc1b4b2c0fb86eb70588386ec4b15",
+      "bytes": 15028
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-packet-v2/observations.json",
+      "sha256": "73b192c3b6c702a2488989c543861a640bb0be01d6f0c0951a18006ee3a0f084",
+      "bytes": 75429
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-packet-v2/acceptance-preimage.py",
+      "sha256": "d90e4083f8bc638690ac0a591e33ff524f9faacce228b4cfa74a9e831df78515",
+      "bytes": 1608
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-packet-v2/acceptance-postimage.py",
+      "sha256": "b80ac631ac77bcab3df0428ca12004cee3d161a7ff8cb7f8a48fb79e05568a4a",
+      "bytes": 1632
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-B114-rejection-packet-v2/acceptance-removal.json",
+      "sha256": "08e24eee6fc6fb7b1743974d832503df9040946bda94400935dfe2cf249683ae",
+      "bytes": 526
+    }
+  ]
+}

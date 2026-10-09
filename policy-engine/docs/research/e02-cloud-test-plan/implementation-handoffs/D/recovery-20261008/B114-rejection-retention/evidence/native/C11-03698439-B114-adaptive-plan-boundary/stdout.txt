@@ -1,0 +1,192 @@
+{
+  "observations": {
+    "whole": {
+      "native_ready": true,
+      "effective_ids": [
+        "warm-2-replica",
+        "warm-2",
+        "warm-5",
+        "warm-4",
+        "warm-3",
+        "warm-1",
+        "warm-0",
+        "current-0"
+      ],
+      "selected_ids": [
+        "warm-2-replica",
+        "warm-2",
+        "warm-5",
+        "warm-4",
+        "warm-3",
+        "warm-1",
+        "warm-0",
+        "current-0"
+      ],
+      "training_X": [
+        [
+          0.35
+        ],
+        [
+          0.35
+        ],
+        [
+          0.65
+        ],
+        [
+          0.55
+        ],
+        [
+          0.45
+        ],
+        [
+          0.25
+        ],
+        [
+          0.15
+        ],
+        [
+          0.9
+        ]
+      ],
+      "training_y_bo": [
+        [
+          -2.25
+        ],
+        [
+          -2.0
+        ],
+        [
+          -5.0
+        ],
+        [
+          -4.0
+        ],
+        [
+          -3.0
+        ],
+        [
+          -1.0
+        ],
+        [
+          -0.0
+        ],
+        [
+          -8.0
+        ]
+      ],
+      "fit_executed": false,
+      "actual_acquisition_caller_ids": [
+        "warm-2-replica",
+        "warm-2",
+        "warm-5",
+        "warm-4",
+        "warm-3",
+        "warm-1",
+        "warm-0",
+        "current-0"
+      ],
+      "actual_plan": "upper_confidence_bound",
+      "actual_best_f": -0.0,
+      "soft_limit": false,
+      "candidate_route": "bayesian_acquisition",
+      "iteration": 9
+    },
+    "warm_plus_new": {
+      "native_ready": true,
+      "effective_ids": [
+        "warm-2-replica",
+        "warm-2",
+        "warm-5",
+        "warm-4",
+        "warm-3",
+        "warm-1",
+        "warm-0",
+        "current-0"
+      ],
+      "selected_ids": [
+        "warm-2-replica",
+        "warm-2",
+        "warm-5",
+        "warm-4",
+        "warm-3",
+        "warm-1",
+        "warm-0",
+        "current-0"
+      ],
+      "training_X": [
+        [
+          0.35
+        ],
+        [
+          0.35
+        ],
+        [
+          0.65
+        ],
+        [
+          0.55
+        ],
+        [
+          0.45
+        ],
+        [
+          0.25
+        ],
+        [
+          0.15
+        ],
+        [
+          0.9
+        ]
+      ],
+      "training_y_bo": [
+        [
+          -2.25
+        ],
+        [
+          -2.0
+        ],
+        [
+          -5.0
+        ],
+        [
+          -4.0
+        ],
+        [
+          -3.0
+        ],
+        [
+          -1.0
+        ],
+        [
+          -0.0
+        ],
+        [
+          -8.0
+        ]
+      ],
+      "fit_executed": false,
+      "actual_acquisition_caller_ids": [
+        "warm-2-replica",
+        "warm-2",
+        "warm-5",
+        "warm-4",
+        "warm-3",
+        "warm-1",
+        "warm-0",
+        "current-0"
+      ],
+      "actual_plan": "upper_confidence_bound",
+      "actual_best_f": -0.0,
+      "soft_limit": false,
+      "candidate_route": "bayesian_acquisition",
+      "iteration": 1
+    }
+  },
+  "same_effective_ids": true,
+  "same_selected_ids": true,
+  "same_training_X": true,
+  "same_training_y_bo": true,
+  "same_plan": true,
+  "qualification": "Original B114 same eligible corpus whole-vs-warm+new, adaptive planning option; actual suggest route and native tensor preparation, local fit/acquisition spies; NO numerical fit/optimization or full-chain claim."
+}

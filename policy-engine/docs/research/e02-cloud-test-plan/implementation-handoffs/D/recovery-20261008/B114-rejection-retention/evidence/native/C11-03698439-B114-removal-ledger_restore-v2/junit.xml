@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.087" timestamp="2026-10-08T18:02:03.984468+00:00" hostname="9065c0936350"><testcase classname="tests.unit.scientist.search.strategies.test_bayesian" name="test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus" time="0.012"><failure message="AssertionError: assert {'complete': ... 'version': 1} == {'complete': ... 'version': 1}&#10;  &#10;  Omitting 2 identical items, use -vv to show&#10;  Differing items:&#10;  {'records': []} != {'records': [{'evaluation': {'candidate_id': 'full-record-identity/1', 'metadata': {'payload': {'retained': [...]}, 'r...ied': True, 'name': 'score', 'raw_value': 2.0, ...}], 'params': {'x': 0.0}, ...}, 'reason': 'missing provenance_ref'}]}&#10;  Use -v to get more diff">simple_space = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=&lt;ParameterType.CONTINUOUS: 'continuous'&gt;, log_scale=False, categories=None)])
+
+    def test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus(
+        simple_space: SearchSpace,
+    ) -&gt; None:
+        strategy = BayesianOptimizer(simple_space, BayesianConfig(seed=19))
+        compatibility = {
+            "search_space_fingerprint": simple_space.sobol_space_fingerprint(),
+            "input_transform_fingerprint": "Normalize[0,1]",
+            "outcome_transform_fingerprint": "Standardize[m=1]",
+            "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+            "objective_fingerprint": "scalar_score[minimize]",
+            "context_fingerprint": "context/rejection-audit",
+        }
+        records = [
+            make_evaluation(
+                candidate_id=f"full-record-identity/{index}",
+                params={"x": float(index - 2)},
+                score=float(index),
+                space=simple_space,
+            )
+            for index in range(6)
+        ]
+        for index, evaluation in enumerate(records):
+            evaluation.provenance_ref = f"origin/rejection-audit/{index}"
+            evaluation.metadata = {
+                "replicate_id": f"replica-{index}",
+                "seed": index,
+                "warm_start_compatibility": dict(compatibility),
+                "payload": {"retained": [index]},
+            }
+        accepted, *rejected = records
+        rejected[0].stage_a_passed = False
+        rejected[1].provenance_ref = None
+        rejected[2].params_normalized = (0.25, 0.75)
+        rejected[3].metadata.pop("warm_start_compatibility")
+        rejected[4].metadata["warm_start_compatibility"]["context_fingerprint"] = "foreign"
+        reasons = [
+            "invalid outcome",
+            "missing provenance_ref",
+            "incompatible normalized parameters",
+            "missing or incompatible warm-start fingerprint",
+            "incompatible context fingerprint",
+        ]
+        expected = json.loads(
+            json.dumps(
+                [
+                    {"reason": reason, "evaluation": asdict(evaluation)}
+                    for reason, evaluation in zip(reasons, rejected, strict=True)
+                ],
+                default=str,
+            )
+        )
+        assert strategy.warm_start(records) is None
+        assert strategy._select_training_subset([]) == [accepted]
+        # Retain each rejected occurrence, including repeated complete record identities.
+        strategy.warm_start([rejected[1]])
+        expected.append(expected[1])
+        rejected[0].metadata["payload"]["retained"].append("changed by caller")
+        state = StrategyState.from_artifact(strategy.get_state().to_artifact())
+        history = state.metadata["warm_start_rejections"]
+        assert history["version"] == 1
+        assert history["complete"] is True
+        assert history["records"] == expected
+        assert strategy._select_training_subset([]) == [accepted]
+        restored = BayesianOptimizer(simple_space, BayesianConfig(seed=19))
+        restored.set_state(state)
+        restored_state = StrategyState.from_artifact(restored.get_state().to_artifact())
+&gt;       assert restored_state.metadata["warm_start_rejections"] == history
+E       AssertionError: assert {'complete': ... 'version': 1} == {'complete': ... 'version': 1}
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Differing items:
+E         {'records': []} != {'records': [{'evaluation': {'candidate_id': 'full-record-identity/1', 'metadata': {'payload': {'retained': [...]}, 'r...ied': True, 'name': 'score', 'raw_value': 2.0, ...}], 'params': {'x': 0.0}, ...}, 'reason': 'missing provenance_ref'}]}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/strategies/test_bayesian.py:133: AssertionError</failure></testcase></testsuite></testsuites>

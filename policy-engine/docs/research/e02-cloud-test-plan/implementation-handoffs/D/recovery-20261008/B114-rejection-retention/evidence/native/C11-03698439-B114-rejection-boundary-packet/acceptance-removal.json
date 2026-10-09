@@ -1,0 +1,9 @@
+{
+  "preimage_sha256": "b612cec2f5b8163cb65394825a0449fad299f09fb8ddebaede5ba382f1301a53",
+  "postimage_sha256": "fe7bef8d50462ac55d8a7fa5dce39d5b8cf5e558b68acdaf523ed51e846dd7a7",
+  "actual_accepted": 0,
+  "positive_expected_accepted": 8,
+  "semantic_expected_failure": "original accepted-count assertion would fail0vs8",
+  "source_files_changed": false,
+  "qualification": "Separate accepted-corpus effect discriminator; not a JUnit red or ledger-retention property proof."
+}

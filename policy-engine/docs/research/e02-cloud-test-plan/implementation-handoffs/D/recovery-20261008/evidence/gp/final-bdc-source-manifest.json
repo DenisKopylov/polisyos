@@ -1,0 +1,33 @@
+{
+  "HEAD": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+  "tree": "b99374f46dd6971daf47fd200549e98d32f23f23",
+  "parents": [
+    "a16381458ac148ede05cae2eb84de88e5780c279"
+  ],
+  "archive_paths": [
+    "policy-engine/src",
+    "policy-engine/tests",
+    "policy-engine/pyproject.toml",
+    "policy-engine/uv.lock"
+  ],
+  "archive_sha256": "5c4bed068d676035277a290c74aa25180f9564ad0c2727b08c7fc572cd86a16e",
+  "export": "/workspace/ORCH04-evidence/gp/final-bdc-source",
+  "source_preimages": {
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py": {
+      "blob": "178828c665b4827ec49a377cef6eaca30256886f",
+      "sha256": "beca4fa1db4a5b4073fa1ec1de88badc44f65d2dcb33ba4d2d199dcca0e6df45"
+    },
+    "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py": {
+      "blob": "c6f76ea92c3678349dbf2f4310fa30893f83db1a",
+      "sha256": "25deba8b89a1ed4174b1e13e48e296fc8eb92b91849ef898c9e242f846064a49"
+    },
+    "policy-engine/pyproject.toml": {
+      "blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    },
+    "policy-engine/uv.lock": {
+      "blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    }
+  }
+}

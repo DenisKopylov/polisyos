@@ -1,0 +1,25 @@
+......                                                                   [100%]
+=============================== warnings summary ===============================
+../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/scientist/search/strategies/test_bayesian.py::test_whole_and_warm_split_use_the_same_permitted_acquisition_plan[False-False]
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+tests/unit/scientist/search/strategies/test_bayesian.py::test_whole_and_warm_split_use_the_same_permitted_acquisition_plan[True-False]
+tests/unit/scientist/search/strategies/test_bayesian.py::test_whole_and_warm_split_use_the_same_permitted_acquisition_plan[True-True]
+  /workspace/ORCH04-environments/app/lib/python3.14/site-packages/botorch/acquisition/monte_carlo.py:400: NumericsWarning: qExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 qExpectedImprovement 	 --> 	 qLogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html

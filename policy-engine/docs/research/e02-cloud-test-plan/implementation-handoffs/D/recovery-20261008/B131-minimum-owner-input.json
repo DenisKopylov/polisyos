@@ -1,0 +1,22 @@
+{
+  "id": "B131",
+  "bundle": "TRN-01",
+  "minimum_next_input": [
+    "Opaque source and target tenant/split/subject refs",
+    "Actual owner allowed-reuse/adapter decision or explicit refusal",
+    "Source/target model/data/evaluator/metric/unit/direction refs and physical parameter/evaluation refs",
+    "Permitted adapter and bounded applicability"
+  ],
+  "smallest_discriminator": "Keep objective names and superficial metadata equal while changing a load-bearing unit/split/direction/subject basis or supplying owner refusal: no numeric transfer may be admitted. The positive must use the same native reader with a real owner-approved basis.",
+  "four_planes": {
+    "internal_configured_owner": "PolicyOS owns the typed numeric-transfer reader and WarmStartBridge. The actual tenant/split/source reuse decision owner is requested for confirmation by A/G; appointment is false and no owner was appointed.",
+    "external_fact": "Missing: actual source and target tenant/split/subject refs; the real owner’s allowed reuse/adapter decision or refusal; source/target data/model/evaluator/metric/unit/direction basis; and exact physical parameter/evaluation refs.",
+    "our_admission": "Current code has NumericTransferBasis and content-/artifact-bound numeric admission; similar-run discovery and tenant/split metadata remain technical matching signals. WarmStartBridge rehydrates selected evaluations as warm-start results with promotable=false. The source/tests do not contain the missing actual owner decision.",
+    "claim_reaction": "Keep held. Similar names, matching tenant strings, a content ref, or a fixture basis do not establish owner-authorized reuse."
+  },
+  "status": "held",
+  "actual_owner_positive": "UNRUN",
+  "G_closure": "not_adjudicated",
+  "source_packet": "L01/parallel-20261008-l01/packets/D.json@0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "qualification": "Exact preserved input requirements; no new issuer, fiscal law or refinement procedure supplied by this implementation."
+}

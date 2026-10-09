@@ -5,11 +5,13 @@ from __future__ import annotations
 from decimal import Decimal
 from unittest.mock import MagicMock
 
+import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
 from polisyos.scientist.methods.doe.stress_report import StressTestReport
-from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.methods.search.funnel.level5_refutation_governance import (
     Level5RefutationGovernanceStage,
 )
@@ -327,9 +329,7 @@ class TestFunnelOrchestrator:
             stage.evaluate.return_value.compute_actual_usd = cost
         stages[3].estimated_cost_usd = 1.0
         tracker = _Tracker()
-        budget = BudgetState(
-            limits={"run": BudgetLimit(key="run", max_usd=Decimal("0.5"))}
-        )
+        budget = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("0.5"))})
         orch = FunnelOrchestrator(
             stages,
             budget_state=budget,
@@ -563,8 +563,10 @@ class TestFunnelOrchestrator:
         assert snapshot.observations
         assert snapshot.observations[-1].candidate_id
 
-    def test_level5_and_level6_runtime_generalization_collects_audit_refs(self, tmp_path):
+    @pytest.mark.parametrize("prepared", [False, True])
+    def test_level5_and_level6_runtime_generalization_collects_audit_refs(self, tmp_path, prepared):
         store = FileSystemCAS(tmp_path / ".polisyos")
+        runner_calls = []
         stages = [
             _make_stage(0, "L0"),
             _make_stage(1, "L1"),
@@ -581,7 +583,8 @@ class TestFunnelOrchestrator:
                 require_hidden_holdout=True,
             ),
             Level6PromotionStage(
-                promotion_runner=lambda candidate, context: {
+                promotion_runner=lambda candidate, context: runner_calls.append(candidate)
+                or {
                     "decision": "complete",
                     "reason": "promoted_for_test",
                 },
@@ -622,15 +625,25 @@ class TestFunnelOrchestrator:
                     "hidden_holdout_evaluation": hidden_holdout,
                     "stress_test_report": stress_report,
                     "governance_report": governance_report,
+                    **(
+                        {"promotion_result": {"decision": "complete", "reason": "already_prepared"}}
+                        if prepared
+                        else {}
+                    ),
                 },
             ),
             policy="full",
         )
 
         assert outcome.completed is True
-        assert outcome.final_action == "complete"
+        assert outcome.final_action == ("complete" if prepared else "defer_to_human")
+        assert runner_calls == []
         assert outcome.final_result is not None
         assert outcome.final_result.stage_name == "funnel_L6_promotion"
+        if prepared:
+            assert outcome.final_result.feedback["promotion_result_read_only"] is True
+        else:
+            assert outcome.final_result.feedback["promotion_admission_status"] == "bridge_missing"
         assert outcome.audit_refs
         assert outcome.actionable_side_information_refs
 

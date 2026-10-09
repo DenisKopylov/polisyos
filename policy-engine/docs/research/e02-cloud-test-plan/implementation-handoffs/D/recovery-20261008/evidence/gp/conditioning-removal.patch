@@ -1,0 +1,14 @@
+--- a/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py
++++ b/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py
+@@ -475,10 +475,7 @@
+             if getattr(self._model, "prediction_strategy", None) is None:
+                 with self._torch.no_grad():
+                     self._model(X[:1])
+-            self._model = self._model.condition_on_observations(
+-                X=X[previous_size:],
+-                Y=y_bo[previous_size:],
+-            )
++            self._model = self._model  # isolated removal: retain model without new observations
+             self._fitted_train_X = X.detach().clone()
+             self._fitted_train_y_bo = y_bo.detach().clone()
+         except Exception as exc:

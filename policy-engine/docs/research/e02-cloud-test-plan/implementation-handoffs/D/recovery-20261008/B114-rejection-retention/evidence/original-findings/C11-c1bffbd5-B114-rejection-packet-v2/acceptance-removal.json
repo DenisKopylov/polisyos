@@ -1,0 +1,9 @@
+{
+  "preimage_sha256": "d90e4083f8bc638690ac0a591e33ff524f9faacce228b4cfa74a9e831df78515",
+  "postimage_sha256": "b80ac631ac77bcab3df0428ca12004cee3d161a7ff8cb7f8a48fb79e05568a4a",
+  "actual_accepted": 0,
+  "positive_expected_accepted": 8,
+  "semantic_expected_failure": "original accepted-count assertion would fail0vs8",
+  "source_files_changed": false,
+  "qualification": "Separate accepted-corpus effect discriminator; original reason visibility already fails and cannot have positive removal proof until owner repair."
+}

@@ -1,0 +1,236 @@
+{
+  "schema": "policyos.orch04.C11.source-qualified-leaf-handoff.v1",
+  "unit": "D",
+  "writer": "/root/c11",
+  "coordinator": "/root",
+  "role": "Direct owned source writer; independent reviewers and immutable testers separate; no children",
+  "source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+  "tree": "605764d3afec7ba005bd891530ee074df5811497",
+  "parents": [
+    "bdc94a82d2bc911f61e729635ebe2eb03774848f"
+  ],
+  "base": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "branch": "codex/e02-C11-recovery-20261008",
+  "remote": "https://github.com/DenisKopylov/polisyos.git",
+  "append_only_lineage": [
+    "76f262402cbb4da18888482529d86582c409a7f8",
+    "26eaf5c7f9518e1d1bb0c82c0118c448ea0f22a6",
+    "a16381458ac148ede05cae2eb84de88e5780c279",
+    "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+    "c1bffbd531b9b2c4339f073416c95d42d90ee317"
+  ],
+  "source_manifest": "evidence/author/freeze-final.json",
+  "footprint_count": 27,
+  "footprint_qualification": "Implementation freeze is c1bffbd5 (27 paths); this separate receipt adds only owned D docs/evidence and narrows unsupported registration absence prose. Runtime/tests remain immutable.",
+  "authority": {
+    "source_acceptance": "G only; not established by this receipt",
+    "formal_G_closure": 0,
+    "composition": "Only explicit future G selected freeze admits portable replay",
+    "production_payload": "L01/L02 local; none exported here"
+  },
+  "source_inputs": {
+    "slice_base_sha": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+    "lineage": "fresh G-based implementation + explicitly inspected D scoped L6 source/test supplier; no old unpublished C11 byte reconstruction",
+    "unavailable_old_receipt": "f9903d8e803c17743554a58d3f45c6c66d686191",
+    "inputs": [
+      {
+        "commit": "0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/packets/D.json",
+        "blob": "72e308ddcb908233e1104ae3e584cdca4340b8a0",
+        "sha256": "16b8538556a1276ce8fe161a8aff365a171907ae12522a63a31a3f48098a8fdb",
+        "qualification": "available explicit input, no historical PASS or G source acceptance transferred"
+      },
+      {
+        "commit": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+        "blob": "5154ebfe71891ca5a3046a05e0b03cb79a755a4a",
+        "sha256": "31d00ab5bd721d4f3d63e7581df74a49bc87e91f548ed7bb61d4c9770d730c19",
+        "qualification": "available explicit input, no historical PASS or G source acceptance transferred"
+      },
+      {
+        "commit": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py",
+        "blob": "a5d97c881ffb1f56d770f0d77b0f39729f1c089e",
+        "sha256": "3c8eae482bae140471b79f6c021601f379718e904c00f1feb47bb125e0fc773f",
+        "qualification": "available explicit input, no historical PASS or G source acceptance transferred"
+      }
+    ],
+    "B161_refinement_positive": "held; producer law not established",
+    "LA036": "conditional law/model supplier contract absent in this fresh G scope; remains held, no inferred law",
+    "registration_companion": "An exact additional E/F supplier module/node registration packet has not been provided for this slice; its source SHA and node/module list require G+E/F selection. Existing registered BuildVerifiedPolicyReport, BuildPolicyOutputBundle, RunPolicyTranslation and BuildDecisionPacket consumers retain their actual Phase5 preflight wiring and existing catalog discovery/freshness is exercised. This is a specific supplier-input hold, not a repository-wide absence claim."
+  },
+  "source_inputs_qualification": "Exact available scoped D L6 source/test plus canonical G and L01 owner packet; no whole D carrier imported, no Historical20PASS transfer, no old unpublished source reconstructed.",
+  "unavailable": {
+    "old_C11_receipt": "f9903d8e803c17743554a58d3f45c6c66d686191",
+    "observation": "Exact fetch128 upload-pack not our ref on current host/time; unavailable custody bytes, not proof of global absence",
+    "effect": "Old packet transfer held; fresh own mechanisms implemented with new lineage/evidence"
+  },
+  "mechanisms": [
+    "Strict complete configured basis/observation CAS intake preserves selected manifest views, compares expected basis/candidate/producer/stage envelope and resolves all declared inputs/risk refs.",
+    "History max retained; current available only when every stage observation admits, independent risks max aggregated; no last/min overwrite or invented scientific lowering rule.",
+    "Real public orchestrator/cache intake and native L3/L4 supplied observation-ref forwarding; configured runtime node projects current/history/refusal fields.",
+    "Complete ArtifactRef cache identity uses existing Core canonical helper including selected view; no Core write.",
+    "Effectful generic L6 callback refused before effects until actual typed issuer/verifier/revoke-serialized commit bridge; supplied prepared interpretation remains read only.",
+    "Existing builtin catalog factories produce fresh component instances; existing Phase5 report/output/translation/decision consumers retain actual registration/preflight wiring.",
+    "Present-input Phase5 runs actual BERL schema/validator; marker/malformed/unavailable/negative inputs fail closed.",
+    "GP state records actual fitted corpus, search-space identity and original full-refit counters independently of requested corpus; restores supported real model/transform state, preserves conditioning boundary and refuses missing legacy continuation bytes."
+  ],
+  "original_criteria": {
+    "dispatch": "execution-prompts/parallel-2026-10-08/C11.md and dispatch.json",
+    "B156": "Configured real orchestrator/cache consumer with permitted mocked callback; callback mock is not prohibited",
+    "B161": "Allowed scientific refinement positive held; implemented bounded current/history configured intake is not criterion closure",
+    "B164": "Actual issuer/revoke serialized commit positive held; refusal/prepared read-only evidence does not close issuer criterion",
+    "B114_B115": "Separate bounded native/numerical GP continuation witness; full original WarmStartBridge/SearchLoopRunner/transfer CAS workflow not established"
+  },
+  "profile": {
+    "python": "/workspace/ORCH04-environments/app/bin/python; locked supported Python3.14.2 app on writable /workspace volume",
+    "candidate_origin": "Immutable Git exports selected via PYTHONPATH; actual __file__/SHA256 for 8 affected imports in evidence/native/C11-c1bffbd5-actual-origins/stdout.txt",
+    "optional_native": "Torch2.10.0+cu128; BoTorch0.16.1; GPyTorch1.15.1; NumPy2.3.5; actual module/library origins in independent receipts",
+    "runtime_tuning": "No ad hoc OMP/MKL/OpenBLAS/XLA caps; product Torch runtime configured CPU4/inter-op1 in deciding output",
+    "observations": "Exact command/start/finish/PID/RSS/filesystem/inodes/cgroup limits/events/stat before/after in execution receipts. Exit -9/137 alone is not an OOM diagnosis; no old process cause reconstructed.",
+    "frontend": "Node22.23.3; normal corepack pnpm install --frozen-lockfile succeeded in this lane after ordinary supported proxy configuration; no lock mutation"
+  },
+  "independent_source_review": {
+    "reviewer": "/root/review_c11",
+    "result": "GO for scoped verification, not G source acceptance/native PASS",
+    "report": "evidence/review/REPORT.md",
+    "result_packet": "evidence/review/result.json",
+    "qualification": "Historical pre-native53 pending review is preserved in REPORT-before-native-ack.md/c1b-static-result-before-native-ack.json; final appended native-evidence-ack independently verifies53fresh+73exact-qualified JUnit denominators, actual8module origins, controls and held bounds. Source GO remains scoped, not G source acceptance. Narrowed registration supplier wording is explicitly acknowledged.",
+    "native_evidence_ack": "evidence/review/native-evidence-ack.json",
+    "packet_sha256": {
+      "REPORT.md": "7b68d47f48a97ad9a4739d05624a99cdd7f0f73097555db2a9b6d4a742a32395",
+      "result.json": "82203cab55dd98302561d49c2106416e687748662ce87d462a762191c5a6b482",
+      "native-evidence-ack.json": "0739348cf75e42d803854f4ee45b6f62f0c6ef910247f2abff3ac26a27e0b945",
+      "evidence-index.json": "cb782e231f0a5d518efd67298b9b64bad099dd5840081ce2d97b66a99ccb2a81"
+    }
+  },
+  "checks": {
+    "old_author_FUN03_diagnostic": {
+      "source": "26eaf5c7f9518e1d1bb0c82c0118c448ea0f22a6",
+      "result": "18cases17PASS1FAIL",
+      "output": "evidence/author/fun03-diagnostic.stdout",
+      "classification": "Owned affected legacy boolean-proxy expectation red; retained exact, no waiver"
+    },
+    "old_independent_deciding_wave": {
+      "source": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+      "result": "125cases124PASS1FAIL",
+      "output": "evidence/native/C11-bdc94a82-native-wave/stdout.txt",
+      "classification": "Owned affected audit-consumer expectation red; runtime correctly refused absent issuer. Raw failure not relabeled."
+    },
+    "final_affected_native": {
+      "source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+      "result": "53PASS0FAIL",
+      "output": "evidence/native/C11-c1bffbd5-affected-l6-wave/stdout.txt",
+      "execution": "evidence/native/C11-c1bffbd5-affected-l6-wave/execution.json",
+      "pid": 13604,
+      "wall_seconds": 19.48893587800012,
+      "max_rss_kib": 1472404
+    },
+    "unchanged_native": {
+      "result": "73 prior cases qualified by exact complete source/test/lock/config/supplier input equality",
+      "equality": "evidence/native/C11-c1bffbd5-input-delta.json",
+      "combined_scope": "53 fresh +73 qualified =126 coverage; not a fresh126case run",
+      "denominator": "Independent JUnit subtraction: old125-(25orchestrator+18FUN03+9L6)=73; final53=26+18+9. Blob-equality list also contains rerun FUN03/L6, so its label is not used as denominator.",
+      "label_correction": "evidence/native/C11-c1bffbd5-input-delta-label-corrected.json; pre-ack raw equality packet retained separately."
+    },
+    "semantic_removals": {
+      "result": "5 independently matched valid controls detect removed behavior: intake11red/cache1red/BERL3red/builtin identity1red/promotion8red",
+      "receipt": "evidence/native/C11-independent-native-receipt.json",
+      "invalid_probe": "First builtin removal scratch mutation produced NameError, ERROR/invalid as a property witness; full output retained separately. Corrected v2 is the semantic assertion red."
+    },
+    "fresh_process_CAS_funnel": {
+      "result": "Producer and four independent reader processes PASS valid/foreign/substituted/missing assertions",
+      "harness": "evidence/native/c11_fresh_cas.py",
+      "receipt": "evidence/native/C11-independent-native-receipt.json",
+      "limit": "Actual new FunnelOrchestrator/CAS per process, synthetic permitted callback; no serialized-ticket continuation, actual native scientific producer, law or issuer proof. Same-process get_outcome is classified separately."
+    },
+    "GP_native": {
+      "tested_source": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+      "qualified_final_source": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+      "result": "4 affected native selectors PASS",
+      "equality": "evidence/gp/latest-c1b-GP-input-equality.json",
+      "output": "evidence/gp/native-final-bdc/stdout.txt"
+    },
+    "GP_numerical": {
+      "result": "Bounded Gaussian oracle PASS after full fit10→condition11→checkpoint/restore→append12, exact parameters/transforms retained and no extra same-basis MLL fit; due iteration60 positive invokes real fit",
+      "max_mean_abs_error": 4.440892098500626e-15,
+      "max_cov_abs_error": 1.5807667674838655e-15,
+      "receipt": "evidence/gp/final-gp-receipt.json",
+      "output": "evidence/gp/analytic-final-bdc/stdout.txt",
+      "limits": [
+        "1D scalar GaussianLikelihood/ConstantMean/unit-amplitude RBF, ten plus one synthetic unique points",
+        "actual native genuine MLL fit; frozen fitted parameters from this fixture, not calibration/scientific authority",
+        "NumPy Cholesky reference limited to nondegenerate positive definite finite fixture",
+        "no production data, cross-backend bit identity, acquisition-quality/general law, transfer CAS bridge or authority proof",
+        "explicitlegacyGPsnapshots without verified continuation basis/counters are unsupported and rejected; lost old bytes not reconstructed",
+        "no installedwheel/rebuiltsdistGP consumer claim; actualoptionalGP libraries installed, productsourcefromexactarchive",
+        "no productionhistorylaws/calibration authority/wholeSearchacceptance/portableGfreeze replay"
+      ]
+    },
+    "GP_removal": {
+      "result": "Independent counter-restore removal leaves initial/native append positives, triggers native[8,9]vs[8] failure and independent frozen posterior difference; expected falsifier, no candidate gate failure",
+      "patch": "evidence/gp/final-counter-removal.patch",
+      "manifest": "evidence/gp/final-counter-removal-manifest.json",
+      "native_output": "evidence/gp/native-final-counter-removal/stdout.txt",
+      "numerical_output": "evidence/gp/analytic-final-counter-removal/stdout.txt"
+    },
+    "author_developer": {
+      "result": "39 developer native checks and separate cache/GP author controls on evolving source; not final deciding source evidence",
+      "output": "evidence/author/developer.stdout"
+    },
+    "ordinary_frontend_and_hooks": {
+      "install": "PASS corepack pnpm install --frozen-lockfile; full initial unsupported proxy failure and supported retry outputs retained",
+      "precommit": "All five implementation commits use штатный hook with exit0; unchanged frontend skips only via normal config",
+      "prepush": "Required own-lane normal hook/typecheck runs at publication; pending here because receipt precedes its own push",
+      "build": "PASS C13 complete dashboard build at exact G032 inputs; apps/packages/tools and root lock/config objects directly equal final C11, evidence/frontend/input-equality.json +dashboard-build.stdout.txt +scoped-checks.json. Own normal pre-push mandatory typecheck remains publication deciding output."
+    }
+  },
+  "remaining_inputs": {
+    "held_five": [
+      {
+        "criterion": "B131",
+        "packet": "B131-minimum-owner-input.json"
+      },
+      {
+        "criterion": "B137",
+        "packet": "B137-minimum-owner-input.json"
+      },
+      {
+        "criterion": "B157",
+        "packet": "B157-minimum-owner-input.json"
+      },
+      {
+        "criterion": "B161",
+        "packet": "B161-minimum-owner-input.json"
+      },
+      {
+        "criterion": "B164",
+        "packet": "B164-minimum-owner-input.json"
+      }
+    ],
+    "limited_B108": {
+      "packet": "B108-minimum-owner-input.json",
+      "limitation": "Actual fiscal unit/sign/alias/time/missing/conflict law remains external"
+    },
+    "LA036": "Admitted observed-feature conditional law/model producer binding not established; BERL bounds do not invent this law",
+    "registration_companion": "An exact additional E/F supplier module/node registration packet has not been provided for this slice; its source SHA and node/module list require G+E/F selection. Existing registered BuildVerifiedPolicyReport, BuildPolicyOutputBundle, RunPolicyTranslation and BuildDecisionPacket consumers retain their actual Phase5 preflight wiring and existing catalog discovery/freshness is exercised. This is a specific supplier-input hold, not a repository-wide absence claim.",
+    "B114_full_consumer": "Full admitted native WarmStartBridge→BayesianCandidateGenerator→SearchLoopRunner/CAS transfer consumer not established by bounded GP oracle"
+  },
+  "deciding_output_index": "evidence/artifact-index.json",
+  "ignored_export_requirements": "evidence/ignored-export-requirements.json",
+  "publication": {
+    "target": "origin codex/e02-C11-recovery-20261008",
+    "method": "Ordinary topic push with required hooks; no bypass/force/main/integration",
+    "status": "pending normal push of this separate receipt; exact hook/remote byte readback saved by author afterward and coordinator final handoff",
+    "fallback": "If required hook fails, ERROR/incomplete publication plus normal full export; independent available work continues"
+  },
+  "claims_excluded": [
+    "Historical20PASS transfer",
+    "source reconstructed from narrative",
+    "producer/refinement or permission authority invented",
+    "old native -9 cause diagnosed from exit code",
+    "import/build/component readiness as numerical PASS",
+    "production claim",
+    "G source acceptance or formal closure"
+  ]
+}

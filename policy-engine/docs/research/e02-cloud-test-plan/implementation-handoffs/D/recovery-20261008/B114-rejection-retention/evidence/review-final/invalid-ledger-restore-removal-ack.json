@@ -1,0 +1,55 @@
+{
+  "schema": "ORCH04.independent-c11-B114-invalid-removal-ack.v1",
+  "reviewer": "/root/review_c11",
+  "utc": "2026-10-08T18:01:14.540452+00:00",
+  "source": "03698439abfb1cb59f763397a182d8e0e393d40d",
+  "tree": "dde25e8efa4a8ce5322bdcad176720fa0894a635",
+  "disposition": "INVALID_SCRATCH_PROBE_ERROR_NOT_SEMANTIC_REMOVAL_RED",
+  "explanation": "Standalone recompilation of actual set_state loses zero-argument super __class__ closure. RuntimeError occurs at super().set_state before intended restored history comparison. Product source unchanged; scoped source GO not affected. Preserve first raw output; corrected single scoped removal required.",
+  "failure_message": "RuntimeError: super(): __class__ cell not found",
+  "execution": {
+    "pid": 29505,
+    "exit_code": 1,
+    "wall_seconds": 11.785484821000864,
+    "max_rss_kib": 1326128,
+    "source_delta_before": [],
+    "source_delta_after": []
+  },
+  "evidence": [
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore/execution.json",
+      "sha256": "1a89397bddbd03760aa057714f86badf8766d4fb297f21d616b03aac9f20abcb",
+      "bytes": 5583
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore/stdout.txt",
+      "sha256": "0912eb7f2facb64d491a882699f2b6300446080a9e26ac6683eb03416fadf0ab",
+      "bytes": 9727
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore/junit.xml",
+      "sha256": "df32761f94dff230330dd71b1d862ade2a79aa3c6c457959bfd8795f3003f8d8",
+      "bytes": 7040
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-packet/removal-manifest.json",
+      "sha256": "8ca1500c8d8babdeb808dc6a28f43338a84596d40290090a6504dc67e050343d",
+      "bytes": 2234
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-packet/set_state.preimage.py",
+      "sha256": "7c7c7322325153fc0e04b22d2603880c548d2b4a29175b03a4e055541616e1a6",
+      "bytes": 5474
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-B114-removal-ledger_restore-packet/set_state.postimage.py",
+      "sha256": "1d3f23fc878ef1ed9a0ead22840da44c9abf3c1daf4782a3f294bb40e570cb40",
+      "bytes": 5498
+    }
+  ]
+}

@@ -29,7 +29,11 @@ class ScientistNodeComponent:
         return self.node_factory()
 
 
-def scientist_node_component(node: Node) -> ScientistNodeComponent:
+def scientist_node_component(
+    node: Node,
+    *,
+    node_factory: Callable[[], Node] | None = None,
+) -> ScientistNodeComponent:
     """Wrap a builtin node in the public component-provider contract."""
     metadata = node.spec.metadata
     if metadata.kind != ComponentKind.SCIENTIST_NODE:
@@ -37,13 +41,15 @@ def scientist_node_component(node: Node) -> ScientistNodeComponent:
     if not (metadata.capabilities & Capability.SCIENTIST_NODE):
         raise ValueError("Scientist node component must declare SCIENTIST_NODE capability")
 
-    return ScientistNodeComponent(metadata=metadata, node_factory=lambda: node)
+    return ScientistNodeComponent(metadata=metadata, node_factory=node_factory or (lambda: node))
 
 
 @lru_cache(maxsize=1)
 def builtin_node_components() -> tuple[ScientistNodeComponent, ...]:
     """Return builtin Scientist nodes as component providers."""
-    return tuple(scientist_node_component(node) for node in builtin_nodes())
+    return tuple(
+        scientist_node_component(node, node_factory=type(node)) for node in builtin_nodes()
+    )
 
 
 def __getattr__(name: str) -> object:

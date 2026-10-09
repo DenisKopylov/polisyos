@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="1.565" timestamp="2026-10-08T16:11:36.547176+00:00" hostname="9065c0936350"><testcase classname="tests.unit.scientist.search.strategies.test_bayesian" name="test_restored_append_preserves_actual_full_refit_boundary_and_learned_basis" time="1.336"><failure message="assert [8, 9] == [8]&#10;  &#10;  Left contains one more item: 9&#10;  Use -v to get more diff">simple_space = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=&lt;ParameterType.CONTINUOUS: 'continuous'&gt;, log_scale=False, categories=None)])
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f93be8a3100&gt;
+
+    @pytest.mark.skipif(fit_gpytorch_mll is None, reason="BoTorch stack not installed")
+    def test_restored_append_preserves_actual_full_refit_boundary_and_learned_basis(
+        simple_space: SearchSpace,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """Real GP state continuation conditions before the actual scheduled refit."""
+        from dataclasses import replace
+    
+        config = BayesianConfig(
+            n_initial=1,
+            refit_interval=50,
+            num_restarts=3,
+            raw_samples=32,
+            seed=109,
+            fallback_on_failure=False,
+        )
+        actual_fit = bayesian_module.fit_gpytorch_mll
+        fit_sizes = []
+    
+        def record_fit(mll):
+            fit_sizes.append(int(mll.model.train_inputs[0].shape[-2]))
+            return actual_fit(mll)
+    
+        monkeypatch.setattr(bayesian_module, "fit_gpytorch_mll", record_fit)
+        original = BayesianOptimizer(simple_space, config)
+        observations = [
+            make_evaluation(
+                candidate_id=f"state-{i}",
+                params={"x": -3.5 + i},
+                score=float((i - 3) ** 2),
+                space=simple_space,
+            )
+            for i in range(8)
+        ]
+        assert original.suggest(observations).source_strategy == "bayesian_acquisition"
+        state = original.get_state()
+        learned = {name: value.detach().clone() for name, value in original._model.named_parameters()}
+        restored = BayesianOptimizer(simple_space, config)
+        restored.set_state(state)
+        expanded = [
+            *observations,
+            make_evaluation(
+                candidate_id="state-new", params={"x": 4.0}, score=0.25, space=simple_space
+            ),
+        ]
+        assert restored.suggest(expanded).source_strategy == "bayesian_acquisition"
+&gt;       assert fit_sizes == [8]
+E       assert [8, 9] == [8]
+E         
+E         Left contains one more item: 9
+E         Use -v to get more diff
+
+tests/unit/scientist/search/strategies/test_bayesian.py:455: AssertionError</failure></testcase></testsuite></testsuites>

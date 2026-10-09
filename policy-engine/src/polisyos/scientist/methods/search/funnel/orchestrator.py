@@ -12,8 +12,7 @@ from typing import Any, Literal
 from uuid import uuid4
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.scientist.orchestration.engine.budget import BudgetState
+from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.scientist.methods.search.funnel.types import (
     FunnelEvaluationStatus,
     FunnelStage,
@@ -32,12 +31,14 @@ from polisyos.scientist.methods.search.sentinels import (
 )
 from polisyos.scientist.methods.search.stages import CorrelationTracker
 from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
+from polisyos.scientist.methods.search.uncertainty import load_search_uncertainty_observation
 from polisyos.scientist.methods.search.voi_scheduler import (
     ParetoSnapshot,
     PredictiveVOIScheduler,
     SchedulingDecision,
     SimpleVOIScheduler,
 )
+from polisyos.scientist.orchestration.engine.budget import BudgetState
 
 logger = get_logger(__name__)
 
@@ -141,6 +142,8 @@ def _is_volatile_cache_key(key: str) -> bool:
 def _cache_identity_value(value: Any) -> Any:
     """Project stable context identity while excluding runtime handles and timestamps."""
 
+    if isinstance(value, ArtifactRef):
+        return artifact_ref_identity_key(value)
     if value is None or isinstance(value, (str, int, float, bool)):
         return value
     if isinstance(value, Enum):
@@ -278,6 +281,9 @@ class FunnelOutcome:
     lineage: tuple[str, ...] = ()
     continuation_reason: str | None = None
     evaluation_status: FunnelEvaluationStatus = "evaluated"
+    current_uncertainty_envelope: UncertaintyEnvelope | None = None
+    uncertainty_observation_refs: list[ArtifactRef] = field(default_factory=list)
+    uncertainty_intake_failures: list[str] = field(default_factory=list)
 
 
 class FunnelOrchestrator:
@@ -374,8 +380,7 @@ class FunnelOrchestrator:
             ):
                 self._carry_forward_continuation(previous_ticket, ticket)
             elif (
-                previous_ticket.is_terminal
-                and previous_ticket.final_action in _CONTINUABLE_ACTIONS
+                previous_ticket.is_terminal and previous_ticket.final_action in _CONTINUABLE_ACTIONS
             ):
                 ticket.continuation_reason = "effective_context_changed"
         self._tickets[ticket.ticket_id] = ticket
@@ -412,10 +417,7 @@ class FunnelOrchestrator:
                 resolved_ticket.is_terminal = True
                 break
 
-            if (
-                resolved_ticket.current_level in (2, 3)
-                and resolved_ticket.next_level == next_level
-            ):
+            if resolved_ticket.current_level in (2, 3) and resolved_ticket.next_level == next_level:
                 scheduling_action = self._maybe_schedule_transition(
                     resolved_ticket,
                     execution_target=execution_target,
@@ -507,6 +509,7 @@ class FunnelOrchestrator:
                     compute_actual_usd=result.compute_actual_usd,
                     fidelity_level=result.fidelity_level,
                     audit_refs=list(result.audit_refs),
+                    uncertainty_observation_ref=result.uncertainty_observation_ref,
                     actionable_side_information_ref=result.actionable_side_information_ref,
                     terminal_action=result.terminal_action,
                 )
@@ -583,13 +586,46 @@ class FunnelOrchestrator:
             uncertainty_envelope = UncertaintyEnvelope.unknown()
 
         outcome_stage_results = dict(resolved_ticket.stage_results)
+        admitted_envelopes: list[UncertaintyEnvelope] = []
+        observation_refs: list[ArtifactRef] = []
+        intake_failures: list[str] = []
+        store = resolved_ticket.context.get("store")
+        basis_ref = resolved_ticket.context.get("uncertainty_basis_ref")
+        subject_ref = resolved_ticket.context.get("policy_candidate_ref")
+        for result in ordered_results:
+            ref = result.uncertainty_observation_ref
+            if (
+                ref is None
+                or store is None
+                or not isinstance(basis_ref, ArtifactRef)
+                or not isinstance(subject_ref, ArtifactRef)
+            ):
+                intake_failures.append(f"{result.stage_name}:producer_observation_missing")
+                continue
+            try:
+                observation = load_search_uncertainty_observation(
+                    store, ref, basis_ref, result.uncertainty_envelope, subject_ref
+                )
+            except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+                intake_failures.append(f"{result.stage_name}:{exc}")
+                continue
+            admitted_envelopes.append(observation.envelope)
+            observation_refs.append(ref)
+        current_uncertainty = (
+            UncertaintyEnvelope.merge_max(admitted_envelopes)
+            if admitted_envelopes and not intake_failures
+            else None
+        )
         final_result = resolved_ticket.last_result
         if final_result is not None:
-            # Keep the existing historical max on FunnelOutcome while making
-            # the latest same-ticket/same-context estimate explicit to readers.
-            current_uncertainty = final_result.uncertainty_envelope
             feedback = dict(final_result.feedback or {})
-            feedback["uncertainty_current"] = current_uncertainty.model_dump(mode="json")
+            feedback["uncertainty_current"] = (
+                None if current_uncertainty is None else current_uncertainty.model_dump(mode="json")
+            )
+            feedback["uncertainty_current_status"] = (
+                "not_established" if current_uncertainty is None else "basis_bound_routing_only"
+            )
+            feedback["uncertainty_refinement_status"] = "producer_law_not_established"
             feedback["uncertainty_historical_max"] = uncertainty_envelope.model_dump(mode="json")
             final_result = replace(final_result, feedback=feedback)
             for level, result in outcome_stage_results.items():
@@ -619,6 +655,9 @@ class FunnelOrchestrator:
             lineage=resolved_ticket.lineage,
             continuation_reason=resolved_ticket.continuation_reason,
             evaluation_status=self._evaluation_status(resolved_ticket),
+            current_uncertainty_envelope=current_uncertainty,
+            uncertainty_observation_refs=_dedupe_artifact_refs(observation_refs),
+            uncertainty_intake_failures=intake_failures,
         )
 
     def evaluate(
@@ -669,10 +708,13 @@ class FunnelOrchestrator:
                 sentinel_meta=sentinel_meta,
                 routing_mode=routing_mode,
             )
-            cache_hit = self._cached_ticket_for_key(
-                cache_key,
-                routing_mode=routing_mode,
-            ) is not None
+            cache_hit = (
+                self._cached_ticket_for_key(
+                    cache_key,
+                    routing_mode=routing_mode,
+                )
+                is not None
+            )
             ticket = self.submit(candidate, context)
             outcome = self.advance(ticket, policy="full")
             stage_result = outcome.final_result or self._empty_result(candidate)
@@ -737,8 +779,7 @@ class FunnelOrchestrator:
             ticket.is_terminal
             and ticket.final_action in _CONTINUABLE_ACTIONS
             and ticket.terminal_basis is not None
-            and ticket.terminal_basis
-            != self._continuation_basis(ticket, routing_mode=routing_mode)
+            and ticket.terminal_basis != self._continuation_basis(ticket, routing_mode=routing_mode)
         ):
             return None
         return ticket
@@ -770,11 +811,9 @@ class FunnelOrchestrator:
         return bool(
             ticket.is_terminal
             and ticket.final_action in _CONTINUABLE_ACTIONS
-            and self._continuation_context_key(ticket.candidate, ticket.context)
-            == continuation_key
+            and self._continuation_context_key(ticket.candidate, ticket.context) == continuation_key
             and ticket.terminal_basis is not None
-            and ticket.terminal_basis
-            != self._continuation_basis(ticket, routing_mode=routing_mode)
+            and ticket.terminal_basis != self._continuation_basis(ticket, routing_mode=routing_mode)
         )
 
     @staticmethod
@@ -799,9 +838,7 @@ class FunnelOrchestrator:
                 }
                 for key, limit in sorted(self._budget_state.limits.items())
             },
-            "spent": {
-                key: str(value) for key, value in sorted(self._budget_state.spent.items())
-            },
+            "spent": {key: str(value) for key, value in sorted(self._budget_state.spent.items())},
             "reserved": {
                 key: str(value) for key, value in sorted(self._budget_state.reserved.items())
             },

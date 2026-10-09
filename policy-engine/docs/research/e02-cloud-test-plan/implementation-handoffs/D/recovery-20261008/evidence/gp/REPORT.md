@@ -1,0 +1,14 @@
+# C13 independent GP conformance — G032 baseline
+
+Source `0321633c0e6d9a87bccfbbe889a4998934c52dd3`, tree `fd0b6e711d872afe4f74c371d28b01862af0ae7e`, clean C13 admitted branch. No production source/test mutations. Full command/output/source/import/resource evidence is indexed in `baseline-receipt.json` and `source-manifest.json`.
+
+Original criterion B114/B115 is preserved in `criterion-inputs.json`: original B_r19 lines 2983–2996 and 2997–3010. The real SingleTaskGP/learned-state/new-observation/transform property is distinct from factory theta, import readiness, and calibration authority.
+
+- Existing native Bayesian/adaptive/ensemble/warm scope: **32 PASS**, genuine Torch 2.10.0/BoTorch 0.16.1/GPyTorch 1.15.1. Normal repository conftests were retained; complete stdout/stderr/JUnit in `native-scoped/`.
+- Bounded independent numerical oracle: **PASS** for actual fitted, restored-before-append, native append, and restored-after-append mean/full latent covariance. Independent NumPy Cholesky formula uses fixed observed GaussianLikelihood/ConstantMean/unit-amplitude RBF and saved Normalize/Standardize basis, ten plus one unique 1D synthetic observations, four query points; maximum passing discrepancies mean `2.22e-15`, covariance `1.58e-15`. This is engineering conformance, with no scientific/production authority.
+- **Confirmed source FAIL:** public `suggest→get_state→set_state→suggest` before `refit_interval=50` performs a second real MLL fit (`[8,9]` training-row counts). `set_state` does not restore `_last_train_size` or `_last_refit_iteration`; their defaults trigger refit despite admitted same-basis append. At the numerical ten-plus-one fixture the resumed fit differs from fixed-basis continuation by mean `0.0011835` and covariance `0.000255714`. Original `analytic-original/` exit 1 is this explicit property failure, not runner failure.
+- Isolated matched removal exports source from Git, replaces only `condition_on_observations` with retained-model assignment, and leaves fields/markers/learned parameters/transforms. Initial fitted/restored positives remain valid; appended posterior differs by mean `0.0320701`, covariance `0.00209906`. The original native no-refit test fails as expected (`8` actual vs `9` expected rows). Export hash/pre/postimage and exact patch are preserved.
+
+The coverage recipe's named `tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py` and `test_gp_resource_resume.py` do not exist on G032. Their historical/named verdict remains UNRUN. Transfer CAS workflow, installed artifact GP consumer, cross-backend bit identity, production history/calibration law and portable replay are outside this bounded witness and remain unestablished. Old C13 receipt bytes were not recovered.
+
+Canonical C11 owns the granted state repair; C13 remains nonauthor. A targeted final delta oracle is pending immutable source and independent review. Formal closure and source acceptance remain G decisions.

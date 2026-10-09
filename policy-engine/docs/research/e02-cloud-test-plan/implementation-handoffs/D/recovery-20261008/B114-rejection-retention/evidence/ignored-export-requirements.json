@@ -1,0 +1,42 @@
+{
+  "schema": "orch04.C11.B114.ignored-export-inputs.v1",
+  "artifacts": [
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-bdc94a82-source-source-manifest.json",
+      "bytes": 6938856,
+      "sha256": "7d76f9685894d95b900e2f0eba4f40003e9b4592550d9dcd3dd9a85a9a8188f2",
+      "qualification": "ordinary ignored custody/export input; no source acceptance or production bytes"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-c1bffbd5-source-source-manifest.json",
+      "bytes": 6938856,
+      "sha256": "1cacc40277fca4d0069f11296241ed4f0b900db696674941d4cb001f92718f0d",
+      "qualification": "ordinary ignored custody/export input; no source acceptance or production bytes"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/final-bdc-source.tar",
+      "bytes": 93265920,
+      "sha256": "5c4bed068d676035277a290c74aa25180f9564ad0c2727b08c7fc572cd86a16e",
+      "qualification": "ordinary ignored custody/export input; no source acceptance or production bytes"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/conditioning-removal-input.tar",
+      "bytes": 93235200,
+      "sha256": "8f224edcd9142bd63fc7cd6a2b77640ade86995b38222500ed9d13ae0f45da40",
+      "qualification": "ordinary ignored custody/export input; no source acceptance or production bytes"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/native-tester/C11-03698439-source-source-manifest.json",
+      "bytes": 7031139,
+      "sha256": "35570f0a5f6c2521ad4543970ce281a230fc091d7310763983ac2946b9d252c3",
+      "qualification": "new exact036 ordinary custody/export input; source export reconstructible from bundle commit; raw source inventory preserved as unique receipt, no production/source acceptance claim"
+    },
+    {
+      "path": "/workspace/ORCH04-evidence/gp/final-036-source.tar",
+      "bytes": 58234880,
+      "sha256": "70deb2ba0fe6e5831df6b3d86f72d06d35acf94d71aa294ce006e3b7b3c2e0cb",
+      "qualification": "new exact036 ordinary custody/export input; source export reconstructible from bundle commit; raw source inventory preserved as unique receipt, no production/source acceptance claim"
+    }
+  ],
+  "additional": "Root normal custody export retains new separate receipt-commit/topic-push/remote-fetch/remote-fsck/publication-readback proof under /workspace/ORCH04-evidence/c11/b114-publication. Unchanged old publication proof retained under earlier c11 paths. Exact scratch clones/basetemp/library installation trees are reconstructible from bundle+commits/locks plus matched removal function pre/postimages; complete deciding stdout/stderr/JUnit/harness/manifests are tracked here."
+}

@@ -1,0 +1,215 @@
+{
+  "tested_sha": "bdc94a82d2bc911f61e729635ebe2eb03774848f",
+  "latest_sha": "c1bffbd531b9b2c4339f073416c95d42d90ee317",
+  "latest_tree": "605764d3afec7ba005bd891530ee074df5811497",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/README.md",
+    "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+  ],
+  "GP_inputs": [
+    {
+      "path": "policy-engine/pyproject.toml",
+      "tested_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "latest_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+      "tested_blob": "c288f954e93e920333ad86beae47b3380b003adb",
+      "latest_blob": "c288f954e93e920333ad86beae47b3380b003adb",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/__init__.py",
+      "tested_blob": "472fb3f05dad897b864ca688a94e7690f62a74d8",
+      "latest_blob": "472fb3f05dad897b864ca688a94e7690f62a74d8",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+      "tested_blob": "058cb5388de7ebb1f63cea32cb17b23c98b94eec",
+      "latest_blob": "058cb5388de7ebb1f63cea32cb17b23c98b94eec",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/acquisition.py",
+      "tested_blob": "1c7259bff642f9544c72d1a930a172b6145f1bbf",
+      "latest_blob": "1c7259bff642f9544c72d1a930a172b6145f1bbf",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+      "tested_blob": "fa68d647f511abd5851224ca66b00678ce4eda11",
+      "latest_blob": "fa68d647f511abd5851224ca66b00678ce4eda11",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "tested_blob": "6c87a0c8aca64b5972c9ed13ad920e43af5332a6",
+      "latest_blob": "6c87a0c8aca64b5972c9ed13ad920e43af5332a6",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "tested_blob": "c1b7c1582efe6acdfd5cc830f04f1f03e8f175bc",
+      "latest_blob": "c1b7c1582efe6acdfd5cc830f04f1f03e8f175bc",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "tested_blob": "178828c665b4827ec49a377cef6eaca30256886f",
+      "latest_blob": "178828c665b4827ec49a377cef6eaca30256886f",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/codec.py",
+      "tested_blob": "5e31120e88b50f4a6900cf52d83689c81d403d27",
+      "latest_blob": "5e31120e88b50f4a6900cf52d83689c81d403d27",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/ensemble_surrogate.py",
+      "tested_blob": "b89cf5277c322c02ce29cc45ef36cb7fffbcbc6d",
+      "latest_blob": "b89cf5277c322c02ce29cc45ef36cb7fffbcbc6d",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/errors.py",
+      "tested_blob": "fa018d0536ffa17f9685d47e120612efab34aee4",
+      "latest_blob": "fa018d0536ffa17f9685d47e120612efab34aee4",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py",
+      "tested_blob": "bcac7e9383f386717d6e6aabfdc3ca6a2d6264b8",
+      "latest_blob": "bcac7e9383f386717d6e6aabfdc3ca6a2d6264b8",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_fidelity.py",
+      "tested_blob": "42af00a1634cf0d582b08e45586f1abe7ce1b3f0",
+      "latest_blob": "42af00a1634cf0d582b08e45586f1abe7ce1b3f0",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "tested_blob": "75b53531047e43e31dd4d12e6991ee03f6da7a79",
+      "latest_blob": "75b53531047e43e31dd4d12e6991ee03f6da7a79",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+      "tested_blob": "05e240d27d1ffe38dee31d5c45fc3de0d88df7c0",
+      "latest_blob": "05e240d27d1ffe38dee31d5c45fc3de0d88df7c0",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/normalization.py",
+      "tested_blob": "1d962108917da646ccd205866e958842762c42d8",
+      "latest_blob": "1d962108917da646ccd205866e958842762c42d8",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/objective_adapter.py",
+      "tested_blob": "b3558f6749d39e510fed42407e48242b435d3e14",
+      "latest_blob": "b3558f6749d39e510fed42407e48242b435d3e14",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/random.py",
+      "tested_blob": "2a4592ba268fac0a06757a3fd896bc67637247c9",
+      "latest_blob": "2a4592ba268fac0a06757a3fd896bc67637247c9",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/resource_arbiter.py",
+      "tested_blob": "746683625e218c5b1cd644a56001c2d61f013ba8",
+      "latest_blob": "746683625e218c5b1cd644a56001c2d61f013ba8",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+      "tested_blob": "207230ff3e40e438019813c891f195cf344d7476",
+      "latest_blob": "207230ff3e40e438019813c891f195cf344d7476",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/run_similarity.py",
+      "tested_blob": "917c301ed22f46954673853f292748e470ba6f59",
+      "latest_blob": "917c301ed22f46954673853f292748e470ba6f59",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/runtime.py",
+      "tested_blob": "ac05f1c9f593fe2362e02f6250dcc345dfea72d7",
+      "latest_blob": "ac05f1c9f593fe2362e02f6250dcc345dfea72d7",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+      "tested_blob": "1d3c79f0305210ad6af1eef07fdb9489275f7e2d",
+      "latest_blob": "1d3c79f0305210ad6af1eef07fdb9489275f7e2d",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/surrogate.py",
+      "tested_blob": "6397943dcbcd167cbf614537b16d60e9252fbafe",
+      "latest_blob": "6397943dcbcd167cbf614537b16d60e9252fbafe",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "tested_blob": "5a780cb27cce52d1ecdbcad50e8b1c48b1c596d0",
+      "latest_blob": "5a780cb27cce52d1ecdbcad50e8b1c48b1c596d0",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "tested_blob": "8f82b4759f3f9aab8eb6213644e4c8b3b511148f",
+      "latest_blob": "8f82b4759f3f9aab8eb6213644e4c8b3b511148f",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/tests/_helpers/search_strategies.py",
+      "tested_blob": "99589ee19d48f4090c1a984a2fe1be7a2521f8ac",
+      "latest_blob": "99589ee19d48f4090c1a984a2fe1be7a2521f8ac",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "tested_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "latest_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/conftest.py",
+      "tested_blob": "8da092e5640e18bcdac257e5521f4d3a4e7aa2c0",
+      "latest_blob": "8da092e5640e18bcdac257e5521f4d3a4e7aa2c0",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/conftest.py",
+      "tested_blob": "82ed5f82c0fe08dfdb94ec417e254022d992c474",
+      "latest_blob": "82ed5f82c0fe08dfdb94ec417e254022d992c474",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/conftest.py",
+      "tested_blob": "611ace82d55431f2f66ea31556f192f3e998d189",
+      "latest_blob": "611ace82d55431f2f66ea31556f192f3e998d189",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+      "tested_blob": "c6f76ea92c3678349dbf2f4310fa30893f83db1a",
+      "latest_blob": "c6f76ea92c3678349dbf2f4310fa30893f83db1a",
+      "equal": true
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "tested_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "latest_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "equal": true
+    }
+  ]
+}

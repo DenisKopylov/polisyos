@@ -651,6 +651,7 @@ class RunPolicyBlueprintRuntimeNode:
             "policy_candidate_ref": candidate_ref,
             "simulation_metrics": simulation_metrics,
             "uncertainty_envelope": uncertainty_envelope,
+            "uncertainty_basis_ref": maybe_artifact_ref(state.params.get("uncertainty_basis_ref")),
             "selection_evaluation": selection_evaluation,
             "hidden_holdout_evaluation": hidden_holdout,
             "benchmark_registry": benchmark_registry,
@@ -1083,9 +1084,7 @@ def _ensure_calibration_report(
     if state_metrics:
         report = report.model_copy(
             update={
-                "current_mode": str(
-                    state_metrics.get("routing_mode", report.current_mode)
-                ),
+                "current_mode": str(state_metrics.get("routing_mode", report.current_mode)),
                 "routing_health": {
                     **report.routing_health,
                     **state_metrics,
@@ -2099,6 +2098,16 @@ def _serialize_funnel_outcome(outcome: FunnelOutcome) -> dict[str, Any]:
         "final_action": outcome.final_action,
         "completed": outcome.completed,
         "degradation_mode": outcome.degradation_mode,
+        "uncertainty_historical_max": outcome.uncertainty_envelope.model_dump(mode="json"),
+        "uncertainty_current": (
+            None
+            if outcome.current_uncertainty_envelope is None
+            else outcome.current_uncertainty_envelope.model_dump(mode="json")
+        ),
+        "uncertainty_observation_refs": [
+            ref.model_dump(mode="json") for ref in outcome.uncertainty_observation_refs
+        ],
+        "uncertainty_intake_failures": list(outcome.uncertainty_intake_failures),
         "audit_refs": [ref.model_dump(mode="json") for ref in outcome.audit_refs],
         "actionable_side_information_refs": [
             ref.model_dump(mode="json") for ref in outcome.actionable_side_information_refs

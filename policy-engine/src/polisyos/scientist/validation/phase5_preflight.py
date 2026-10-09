@@ -163,12 +163,7 @@ def build_phase5_validation_report(
     verdict = _resolve_verdict(components, readiness)
     artifact_ref_text = _artifact_ref_to_text(artifact_ref)
     evidence_refs = sorted(
-        {
-            ref
-            for component in components
-            for ref in component.evidence_refs
-            if ref
-        }
+        {ref for component in components for ref in component.evidence_refs if ref}
     )
     judge_verdict_ref = _first_present_string(
         payload.get("judge_verdict_ref"),
@@ -422,7 +417,9 @@ def _multimodality_component(mappings: Iterable[Mapping[str, Any]]) -> Phase5Gat
     for record in records:
         status_payload = _as_mapping(record.get("multimodality_status"))
         evidence_refs.extend(_collect_ref_strings(status_payload))
-        status = _norm_status(status_payload.get("status") or status_payload.get("posterior_readiness"))
+        status = _norm_status(
+            status_payload.get("status") or status_payload.get("posterior_readiness")
+        )
         mode = _norm_status(status_payload.get("mode") or status_payload.get("classification"))
         downgrade = _as_mapping(status_payload.get("downgrade"))
         readiness = _norm_status(downgrade.get("posterior_readiness"))
@@ -471,13 +468,17 @@ def _conditional_coverage_component(
     for record in interval_records:
         diagnostic = _as_mapping(record.get("conditional_coverage_diagnostic"))
         if not diagnostic:
-            blockers.append("Prediction interval/set claim is missing conditional coverage diagnostics.")
+            blockers.append(
+                "Prediction interval/set claim is missing conditional coverage diagnostics."
+            )
             continue
         evidence_refs.extend(_collect_ref_strings(diagnostic))
         status = _norm_status(diagnostic.get("status") or diagnostic.get("gate_status"))
         if status in {"fail", "failed", "unsupported", "blocked", "not_run", "missing"}:
             blockers.append(f"Conditional coverage diagnostic status is {status}.")
-        elif status in {"warn", "warning", "pending_outcomes"} or diagnostic.get("pending_outcomes"):
+        elif status in {"warn", "warning", "pending_outcomes"} or diagnostic.get(
+            "pending_outcomes"
+        ):
             warnings.append("Conditional coverage diagnostic is pending or degraded.")
     return _component(
         "conditional_coverage",
@@ -520,7 +521,11 @@ def _shift_component(
         status = _norm_status(report.get("status") or report.get("shift_status"))
         severity = _norm_status(report.get("severity") or report.get("shift_severity"))
         readiness = _norm_status(_path(report, "readiness_impact", "resulting_readiness"))
-        if status in {"confirmed", "fail", "blocked"} and severity in {"severe", "critical", "high"}:
+        if status in {"confirmed", "fail", "blocked"} and severity in {
+            "severe",
+            "critical",
+            "high",
+        }:
             blockers.append("Confirmed severe distribution shift blocks analyst readiness.")
         elif readiness in {"restricted", "blocked"}:
             blockers.append("Shift diagnostic downgraded readiness below analyst exposure.")
@@ -560,7 +565,9 @@ def _explanation_component(mappings: Iterable[Mapping[str, Any]]) -> Phase5GateC
         claim = _norm_status(record.get("faithfulness_claim") or record.get("bounded_infidelity"))
         validation = _as_mapping(record.get("validation") or record.get("berl_validation"))
         validation_status = _norm_status(validation.get("status") or validation.get("gate_status"))
-        display_policy = _norm_status(record.get("display_policy") or record.get("explanation_policy"))
+        display_policy = _norm_status(
+            record.get("display_policy") or record.get("explanation_policy")
+        )
         berl_result = _run_berl_validation(record)
         if claim not in {"bounded", "pass", "true", "verified"}:
             blockers.append("Explanation bundle lacks a bounded-infidelity envelope.")
@@ -573,8 +580,8 @@ def _explanation_component(mappings: Iterable[Mapping[str, Any]]) -> Phase5GateC
             if berl_result.get("display_policy") == "diagnostic_only":
                 blockers.append("Explanation bundle is diagnostic-only, not analyst-display safe.")
             warnings.extend(str(item) for item in berl_result.get("warnings") or [])
-        elif validation_status in {"fail", "blocked", "not_run", "missing"}:
-            blockers.append("Explanation BERL validation did not pass.")
+        else:
+            blockers.append("Explanation BERL validation unavailable or input malformed.")
         if display_policy in {"diagnostic_only", "internal_only", "research_only"}:
             blockers.append("Explanation bundle is diagnostic-only, not analyst-display safe.")
         elif validation_status in {"warn", "warning"}:
@@ -620,7 +627,9 @@ def _fairness_component(
     evidence_refs = [str(fairness_ref.artifact_id)] if fairness_ref is not None else []
     for audit in audit_records:
         evidence_refs.extend(_collect_ref_strings(audit))
-        status = _norm_status(audit.get("status") or audit.get("gate_status") or audit.get("decision"))
+        status = _norm_status(
+            audit.get("status") or audit.get("gate_status") or audit.get("decision")
+        )
         power = _norm_status(audit.get("power_status") or audit.get("sample_power"))
         deployable = audit.get("deployable")
         auto_allowed = audit.get("auto_decision_allowed")
@@ -631,7 +640,9 @@ def _fairness_component(
         if required and auto_allowed is False and payload.get("automated_decision"):
             blockers.append("Fairness audit refuses automated decisioning.")
         if required and power in {"underpowered", "not_computable", "insufficient"}:
-            blockers.append("Required high-impact fairness audit is underpowered or not computable.")
+            blockers.append(
+                "Required high-impact fairness audit is underpowered or not computable."
+            )
         elif status in {"warn", "warning"}:
             warnings.append("Fairness audit passed with warnings.")
     return _component(
@@ -664,14 +675,18 @@ def _sensitivity_component(mappings: Iterable[Mapping[str, Any]]) -> Phase5GateC
     warnings: list[str] = []
     evidence_refs: list[str] = []
     for record in records:
-        bundle = _as_mapping(record.get("sensitivity_analysis_bundle") or record.get("sensitivity") or record)
+        bundle = _as_mapping(
+            record.get("sensitivity_analysis_bundle") or record.get("sensitivity") or record
+        )
         canonical_bundle = (
             bundle.get("kind") == "scientist.sensitivity_analysis_bundle"
             or record.get("kind") == "scientist.sensitivity_analysis_bundle"
             or "sensitivity_analysis_bundle" in record
         )
         evidence_refs.extend(_collect_ref_strings(bundle))
-        indices = bundle.get("indices") or bundle.get("sensitivity_indices") or bundle.get("first_order")
+        indices = (
+            bundle.get("indices") or bundle.get("sensitivity_indices") or bundle.get("first_order")
+        )
         if not isinstance(indices, list) or not indices:
             message = "Sensitivity artifact has no normalized index list to validate."
             if canonical_bundle:
@@ -705,9 +720,7 @@ def _drift_component(mappings: Iterable[Mapping[str, Any]]) -> Phase5GateCompone
     records = [
         record
         for record in mappings
-        if "readiness_state" in record
-        or "ddm_readiness" in record
-        or "drift_readiness" in record
+        if "readiness_state" in record or "ddm_readiness" in record or "drift_readiness" in record
     ]
     if not records:
         return _component(
@@ -769,7 +782,10 @@ def _advisor_component(
         )
     status = _norm_status(consensus.get("status"))
     allowed = consensus.get("recommendation_allowed")
-    if status in {"not_enough_methods", "not_comparable", "not_run", "refuse", "hard_refuse"} or allowed is False:
+    if (
+        status in {"not_enough_methods", "not_comparable", "not_run", "refuse", "hard_refuse"}
+        or allowed is False
+    ):
         return _component(
             "advisor",
             "blocked",
@@ -1083,7 +1099,11 @@ def _run_berl_validation(record: Mapping[str, Any]) -> dict[str, Any] | None:
         from polisyos.berl.contracts.explanation_bundle import ExplanationBundle
         from polisyos.berl.contracts.validation_rules import validate_explanation_bundle
 
-        bundle = ExplanationBundle.model_validate(record)
+        # The envelope kind is a transport discriminator, not a BERL field.
+        bundle_payload = dict(record)
+        if bundle_payload.get("kind") == "scientist.explanation_bundle":
+            bundle_payload.pop("kind")
+        bundle = ExplanationBundle.model_validate(bundle_payload)
         result = validate_explanation_bundle(bundle)
         return {
             "passed": result.passed,
@@ -1142,8 +1162,7 @@ def _gate_failures(components: Iterable[Phase5GateComponent]) -> list[str]:
 def _summary(verdict: str, readiness: str, failures: list[str]) -> str:
     if failures:
         return (
-            f"Phase 5 validation {verdict}; readiness={readiness}; "
-            f"{len(failures)} gate failure(s)."
+            f"Phase 5 validation {verdict}; readiness={readiness}; {len(failures)} gate failure(s)."
         )
     return f"Phase 5 validation {verdict}; readiness={readiness}."
 

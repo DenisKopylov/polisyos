@@ -1,0 +1,22 @@
+{
+  "id": "B137",
+  "bundle": "TRN-03",
+  "minimum_next_input": [
+    "Opaque old and new evidence refs/version",
+    "New grounds and producer occurrence time",
+    "Owner-authorized revalidation purpose",
+    "Same subject/input/rule scope and content/confidence/freshness basis"
+  ],
+  "smallest_discriminator": "A read or TTL refresh of the same evidence ref must leave evidence version and confidence unchanged; a current owner-authorized new evidence version may update only the matching subject/input/rule scope.",
+  "four_planes": {
+    "internal_configured_owner": "PolicyOS owns LessonRegistry evidence anchoring, versioning, aging, reads and transfer projection. The actual lesson/evidence revalidation issuer is requested for confirmation by G; appointment is false and no owner was appointed.",
+    "external_fact": "Missing: old and newly produced exact evidence refs/versions, new grounds and occurrence time, owner authorization for this revalidation purpose, same subject/input/rule scope, and declared content/confidence/freshness basis.",
+    "our_admission": "Current query/access/TTL logic and _revalidate_transfer are reader/retention filters. The committed repeated-read test checks that read activity alone does not restore confidence; it is not a new evidence producer or owner-authorized revalidation event.",
+    "claim_reaction": "Keep held. Reads and retention activity do not raise evidence status or create a new evidence version."
+  },
+  "status": "held",
+  "actual_owner_positive": "UNRUN",
+  "G_closure": "not_adjudicated",
+  "source_packet": "L01/parallel-20261008-l01/packets/D.json@0321633c0e6d9a87bccfbbe889a4998934c52dd3",
+  "qualification": "Exact preserved input requirements; no new issuer, fiscal law or refinement procedure supplied by this implementation."
+}

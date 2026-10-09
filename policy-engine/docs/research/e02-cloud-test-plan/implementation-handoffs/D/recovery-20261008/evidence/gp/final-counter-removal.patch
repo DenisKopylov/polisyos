@@ -1,0 +1,12 @@
+--- a/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py
++++ b/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py
+@@ -373,8 +373,7 @@
+         )
+         buffer = io.BytesIO(state.model_state)
+         self._model.load_state_dict(self._torch.load(buffer, map_location=self._device))
+-        self._last_refit_iteration = last_iteration
+-        self._last_train_size = last_size
++        # isolated removal: persisted full-refit counters are not restored
+ 
+     def _select_training_subset(self, evaluations: list[Evaluation]) -> list[Evaluation]:
+         filtered = self._effective_training_corpus(evaluations)

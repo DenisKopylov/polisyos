@@ -1,0 +1,57 @@
+{
+  "basis": {
+    "schema_version": "1.0",
+    "subject_ref": {
+      "artifact_id": "sha256:478fe025bf5cd1816c880c943a4791157fb3088fda5ce6f6327d2e6309e589ef",
+      "kind": "scientist.independent_fixture",
+      "media_type": "application/json"
+    },
+    "value_ref": {
+      "artifact_id": "sha256:338169a388a4f19b2cc3db44cfe64dcccca3da76e7ac48f978f5015d476aa155",
+      "kind": "scientist.independent_fixture",
+      "media_type": "application/json"
+    },
+    "input_refs": [
+      {
+        "artifact_id": "sha256:7dcba4f7158b144f642fd615257c952ada9d8aa7357d0964ffb361618d993a15",
+        "kind": "scientist.independent_fixture",
+        "media_type": "application/json"
+      }
+    ],
+    "rule_ref": {
+      "artifact_id": "sha256:ef2d243fe26e3197f19458d85f0ce9d546f82edd0954cb3e4b3ced8d39ec7e8b",
+      "kind": "scientist.independent_fixture",
+      "media_type": "application/json"
+    },
+    "producer_ref": {
+      "artifact_id": "sha256:57da91f04de1655092c3cd92fd34a0f7138f2f304eda1e183c11568fc92855d2",
+      "kind": "scientist.independent_fixture",
+      "media_type": "application/json"
+    },
+    "valid_time": "2026-10-08T00:00:00Z",
+    "estimand": "fixture ATE",
+    "unit": "kg"
+  },
+  "basis_ref": {
+    "artifact_id": "sha256:ad33e7a78fbc4e4bbedd793e8ebbb950d6e680587be9c3019a0d981af68b7bcb",
+    "kind": "scientist.search.uncertainty_basis",
+    "media_type": "application/json"
+  },
+  "foreign_basis_ref": {
+    "artifact_id": "sha256:fef73fc9220e41c9f1158d2b833357832ebfd4bfc739060aa239fd0b96906ed4",
+    "kind": "scientist.search.uncertainty_basis",
+    "media_type": "application/json"
+  },
+  "observation_refs": [
+    {
+      "artifact_id": "sha256:487a8b87f95e372a5385232da952897c54dfefae6f9d3f4eb7228f1cfd2606e6",
+      "kind": "scientist.search.uncertainty_observation",
+      "media_type": "application/json"
+    },
+    {
+      "artifact_id": "sha256:f06441807043f0379eac0599a6c4b0181471576b3a0cbe38834cd4cc2ab85324",
+      "kind": "scientist.search.uncertainty_observation",
+      "media_type": "application/json"
+    }
+  ]
+}

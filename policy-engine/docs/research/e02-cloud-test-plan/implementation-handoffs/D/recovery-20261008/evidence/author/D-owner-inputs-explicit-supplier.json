@@ -1,0 +1,1244 @@
+{
+  "schema": "D.e02.current16-original-owner-input-packets.v1",
+  "candidate": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "fresh_G": {
+    "record": "76746fececd1a183a516c48f07ce2835baa8a2d1",
+    "tree": "51929dd44a3650c7842bf77aedcdeba6ecd1a755",
+    "COMMON_sha256": "f408d34394bab5f708df7afb6f59195588b5fc394b8304434c9e2fbe2238be79",
+    "COMMON_bytes": 8565,
+    "delta": "21docs-only ninthwave feedback sinceebae; Dfeedbackinput b5 not969/680; no acceptance/closure/sourceintegration",
+    "D_current_is_G_ancestor": false,
+    "main_unchanged": "198076863e143dea9f89f02734b13d50dae3eed5"
+  },
+  "original_minimum_recipes_are_historical_descriptive_reads": "Tracked original recipes keep original pins; current actual producer/module/evidence identity is in each current field. Do not execute unresolved placeholders or request whole production dataset.",
+  "packets": [
+    {
+      "key": "tenant_split_transfer",
+      "finding_ids": [
+        "B131"
+      ],
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/0",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "original_criterion_relation": "required_original_positive",
+      "current": {
+        "key": "tenant_split_transfer",
+        "finding_ids": [
+          "B131"
+        ],
+        "criterion_relation": "required_original_positive",
+        "current_input_state": "held",
+        "requested_canonical_owner": "Actual tenant/split/source reuse decision owner to be confirmed by A/G; D TRN-01 consumes it",
+        "appointment_basis": "not_established",
+        "original_committed_pointer": "/packets/0",
+        "minimum_ref_recipe_pointer": "same original packet; avoid blanket production dataset request"
+      },
+      "producer": "Existing data/evaluation/tenant owner authorizes specific source-to-target numerical reuse.",
+      "artifact_or_output": "Existing owner decision plus source/target qualified CAS refs; no new synthetic authority registry.",
+      "bridge": "Content-bound numeric_transfer_basis.v1/WarmStartBridge retains actual physical parameters, unit/direction and complete data/model/evaluator/split/scalarizer refs.",
+      "actual_consumer": "Real saved evaluation -> native warm-transfer target.",
+      "minimum_owner_supplied_content": [
+        "Actual source and target tenant/split/subject refs",
+        "Specific allowed reuse/adapter decision from the real owner",
+        "Source/target data/model/evaluator/metric/unit/direction basis",
+        "Exact source physical parameter and evaluation refs",
+        "Permitted adapter/ref and bounded applicability, or explicit refusal"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "transfer_criteria"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read real owner source/target qualified refs through existing B verified snapshot reader, then reconcile numeric_transfer_basis.v1 tenant/split/parameter/data/model/evaluator/scalarizer scope. Existing fixture labels are not the missing owner reuse decision.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Change tenant/split, target basis or allowed adapter while retaining owner text/source markers; actual numeric row must refuse unchanged target state. same owner-supplied decision must admit the bounded positive; incompatible content remains an idea.",
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "Actual tenant/split/source reuse decision owner to be confirmed by A/G; D TRN-01 consumes it",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input_ref": null,
+      "production_dataset_transfer": false,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "candidate_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+      "G_accepted": false
+    },
+    {
+      "key": "authorized_revalidation",
+      "finding_ids": [
+        "B137"
+      ],
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/1",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "original_criterion_relation": "required_original_positive",
+      "current": {
+        "key": "authorized_revalidation",
+        "finding_ids": [
+          "B137"
+        ],
+        "criterion_relation": "required_original_positive",
+        "current_input_state": "held",
+        "requested_canonical_owner": "Actual lesson/evidence revalidation issuer to be confirmed by G; D TRN-03 reader",
+        "appointment_basis": "not_established",
+        "original_committed_pointer": "/packets/1",
+        "minimum_ref_recipe_pointer": "same original packet; avoid blanket production dataset request"
+      },
+      "producer": "Actual authorized revalidation occurrence with new grounds, not retention access.",
+      "artifact_or_output": "Existing lesson/evidence new-version artifact plus actual occurrence/grounds/authorization refs.",
+      "bridge": "Existing lesson evidence anchor/version/as-of reader; retention sidecar remains separate.",
+      "actual_consumer": "Cold/warm/restart and transfer reads of the same lesson.",
+      "minimum_owner_supplied_content": [
+        "Prior and newly produced exact evidence refs/version",
+        "Actual new grounds and occurrence time from producer",
+        "Owner authorization for this revalidation purpose",
+        "Subject/input/rule scope tying old and new version",
+        "Declared content/confidence/freshness basis"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/search/lessons.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "transfer_criteria"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/unit/scientist/search/test_lesson_as_of.py::test_retention_reads_and_restart_never_refresh_evidence",
+            "policy-engine/tests/unit/scientist/search/test_lesson_as_of.py::test_newer_persisted_version_is_not_reinterpreted_as_older_evidence"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read existing lesson/evidence anchor and actual owner new-version/grounds/ref using qualified CAS; compare cold/warm/restart/as-of content. A newer created_at or retention sidecar alone does not authorize revalidation.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Repeated ordinary reads/retention-only updates never refresh evidence trust. Remove new grounds or real authorization while retaining new-version/time labels; revalidation positive must refuse. Fresh restart reader must reproduce the actual admitted evidence degree.",
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "Actual lesson/evidence revalidation issuer to be confirmed by G; D TRN-03 reader",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input_ref": null,
+      "production_dataset_transfer": false,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "candidate_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+      "G_accepted": false
+    },
+    {
+      "key": "native_draw_producer",
+      "finding_ids": [
+        "B157"
+      ],
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/2",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "original_criterion_relation": "required_original_positive",
+      "current": {
+        "key": "native_draw_producer",
+        "finding_ids": [
+          "B157"
+        ],
+        "criterion_relation": "required_original_positive",
+        "current_input_state": "held/not_established",
+        "requested_canonical_owner": "A/B actual numerical sample/draw stage owner; D FUN-02 consumes effective config",
+        "appointment_basis": "not_established",
+        "original_committed_pointer": "/packets/2",
+        "minimum_ref_recipe_pointer": "same original packet; avoid blanket production dataset request",
+        "current_scope": null,
+        "actual_receipts": null,
+        "supplier_sources": null
+      },
+      "producer": "Actual L3/L4 stage producer exposes executed draws/work for the same candidate/config boundary.",
+      "artifact_or_output": "Existing typed producer result/raw draw or sample artifact and actual execution lineage; labels alone insufficient.",
+      "bridge": "Existing effective-config L3 reduction/L4 restoration plus native stage adapter.",
+      "actual_consumer": "Actual direct L4 vs L3->L4 FunnelOrchestrator on the same boundary.",
+      "minimum_owner_supplied_content": [
+        "Exact candidate/input/seed/config/basis refs",
+        "Actual executed sample/draw/work count and source result ref",
+        "L3 reduced effective request, actual cheaper work/cost evidence",
+        "L4 full effective request on both paths",
+        "Unmutated caller context and exact run/evaluation/attempt scope"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "funnel_owner"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/unit/scientist/search/funnel/test_level3_medium.py::test_reduced_config_injected",
+            "policy-engine/tests/unit/scientist/search/funnel/test_level4_full.py::test_level4_full_emits_full_fidelity_stage_result"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read the actual native producer sample/draw artifact and same-request full/reduced effective configuration through its existing resolver. Its executed physical draws/work, not stage labels, supply the missing positive. Current configured Foundry20/80 remains separate.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Keep labels/sample_count metadata but remove actual reduction/restoration at the real producer: physical work/config parity oracle must fail. Changed full config must not reuse prior score. Existing Foundry20/80 positive stays its own profile.",
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "A/B actual numerical sample/draw stage owner; D FUN-02 consumes effective config",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input_ref": null,
+      "production_dataset_transfer": false,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "candidate_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+      "G_accepted": false
+    },
+    {
+      "key": "same_scope_refinement",
+      "finding_ids": [
+        "B161"
+      ],
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/3",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "original_criterion_relation": "required_original_positive",
+      "current": {
+        "key": "same_scope_refinement",
+        "finding_ids": [
+          "B161"
+        ],
+        "criterion_relation": "required_original_positive",
+        "current_input_state": "held/not_established",
+        "requested_canonical_owner": "Requested same-scope uncertainty/refinement law owner; A evidence producer/E calibration/D FUN-03",
+        "appointment_basis": "not_established",
+        "original_committed_pointer": "/packets/3",
+        "minimum_ref_recipe_pointer": "same original packet; avoid blanket production dataset request",
+        "current_scope": null,
+        "actual_receipts": null,
+        "supplier_sources": null
+      },
+      "producer": "Real subsequent estimator output is authorized to refine the same value/subject/input/rule/time scope.",
+      "artifact_or_output": "Existing typed estimate/component and owner refinement rule/grounds refs.",
+      "bridge": "Existing L5 tracker update and reentrant funnel consume authorized same-scope relation; preserve independent components.",
+      "actual_consumer": "Legitimate later estimate changes current result without erasing independent0.8 or unknown risks.",
+      "minimum_owner_supplied_content": [
+        "Actual prior and later estimate refs",
+        "Same subject/value/input/rule/time comparison basis",
+        "Owner supplied permitted refinement relation/conditions",
+        "Producer evidence for later value/interval",
+        "Independent risk components that remain unaffected"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "funnel_owner",
+            "funnel_node"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read owner actual refinement output/rule and typed component refs; reconcile same subject/value/input/rule/time/population against the existing tracker. Prepared/unknown risk fixtures do not supply legitimate refining authority.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Move later estimate to another population/time/input/rule or remove the authorized refinement grounds while retaining lower value: no min/last-wins replacement. True same-scope later output must change the intended component while independent risk remains.",
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "Requested same-scope uncertainty/refinement law owner; A evidence producer/E calibration/D FUN-03",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input_ref": null,
+      "production_dataset_transfer": false,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "candidate_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+      "G_accepted": false
+    },
+    {
+      "key": "typed_write_permit",
+      "finding_ids": [
+        "B164"
+      ],
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/4",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "original_criterion_relation": "required_original_positive",
+      "current": {
+        "key": "typed_write_permit",
+        "finding_ids": [
+          "B164"
+        ],
+        "criterion_relation": "required_original_positive",
+        "current_input_state": "held/not_established",
+        "requested_canonical_owner": "Actual purpose-bound permit issuer/current verifier and serialized commit owner to be confirmed by A/B/G; D FUN-03 consumer",
+        "appointment_basis": "not_established",
+        "original_committed_pointer": "/packets/4",
+        "minimum_ref_recipe_pointer": "same original packet; avoid blanket production dataset request",
+        "current_scope": null,
+        "actual_receipts": null,
+        "supplier_sources": null
+      },
+      "producer": "Existing authorized owner produces a current typed permit for the specific write purpose and committed subject.",
+      "artifact_or_output": "Real owner-issued typed permit/current verification ref and prepared payload refs; no bool or fixture marker.",
+      "bridge": "Existing purpose-bound issuer/verifier/revoke-vs-commit writer bridge supplied by authoritative owner.",
+      "actual_consumer": "Actual Level6/native commit effect; prepared payload read remains separately allowed.",
+      "minimum_owner_supplied_content": [
+        "Actual issued permit ref and purpose/subject/input binding",
+        "Existing current verifier/owner API and source",
+        "Serialized revoke-before-commit writer protocol",
+        "Real prepared payload/ref and permitted write target",
+        "Positive current permit plus revoked/lost-permission control"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "funnel_owner",
+            "funnel_node",
+            "G_owner_actions"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py::test_retained_preflight_markers_never_admit_effectful_generic_callback",
+            "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py::test_revoke_after_true_preflight_barrier_has_zero_effects"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Use the actual owner issuer/verifier/read policy and prepared payload qualified ref only once supplied; purpose/subject/current revocation must be checked by that existing writer before effect. There is currently no admitted typed positive to invoke; marker barrier is a negative, not a serialized revocation proof.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Owner-issued valid positive must reach the real permitted effect. Same permit revoked before commit must produce0 effects, with writer observing current revocation; retain all request/marker bytes while removing current verifier to discriminate. Existing marker barrier is only a zero-effects negative.",
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "Actual purpose-bound permit issuer/current verifier and serialized commit owner to be confirmed by A/B/G; D FUN-03 consumer",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input_ref": null,
+      "production_dataset_transfer": false,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "candidate_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+      "G_accepted": false
+    },
+    {
+      "key": "lossless_gateway_cost",
+      "finding_ids": [
+        "B120"
+      ],
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/5",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "original_criterion_relation": "required_original_numeric_boundary",
+      "current": "actual canonical Bdecoderadopted and realraw32PASS/freshledger; no longerupstreammissing",
+      "producer": "Actual GatewayLLMClient._post_json consumes native response.text before any binary-float loss.",
+      "artifact_or_output": "Corrected owner source/contract plus real24-case response-text output and fresh canonical B1.1 spend_receipts ledger.",
+      "bridge": "Preserve original declared USD numeric value/sign through raw/typed envelope; strict core intake must refuse nonzero-underflow/invalid-present before settlement.",
+      "actual_consumer": "Actual HTTP text -> Gateway -> core response -> enforcer -> B middleware -> fresh FileBudgetLedger.",
+      "minimum_owner_supplied_content": [
+        "Owner-selected lossless declared-cost numeric representation or explicit refusal",
+        "Exact corrected decoder/consumer source/tree",
+        "Current response-text fixture unchanged at qualified test ref",
+        "Fresh schema1.1 ledger and per-event receipt readback",
+        "Genuine0/0.0/1 and both-sign/all-five-field tiny numeric controls"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/core/llm/response.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "gateway_current24",
+            "G_owner_actions",
+            "gateway_b11_current",
+            "gateway_b11_owner_input"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read the current raw HTTP24 complete payload through gateway_b11_current/output bundle; reconcile original signed numeric lexeme before strict intake and actual schema1.1 spend_receipts ledger. A future corrected B ref must preserve value/sign; true0 must stay legal.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Current exact04bc24 is21FAIL3PASS: raw numeric1e-1000/-1e-1000 can settle0.0 then release reservation in actual B1.1. After correction remove lossless decoder while retaining all typed cost/event/digest markers; fresh-ledger refusal/expense oracle must fail.",
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "B LLM-01/LLM-02 B-W09 Gateway text decoder owner; D CTL-03 composed consumer",
+        "appointment_established": "CanonicalBownerexacte7/f011source, notDparallelparser",
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input_ref": null,
+      "production_dataset_transfer": false,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "candidate_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+      "G_accepted": false
+    },
+    {
+      "key": "owned_multikey_durability",
+      "finding_ids": [
+        "B120",
+        "B158",
+        "B159"
+      ],
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/6",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "original_criterion_relation": "actual_default_translator_two_key_durability_profile_dependency",
+      "current": "actualB1.2 selectedcanonicalAPI/durableunknownAck/eventidentity/retry/idempotent multi-keyprofile+nativefinancialconsumers; boundedlocaldurabilitynotdistributed",
+      "producer": "Actual native default translator attributes its physical provider event to its two declared accounting keys under the existing owner reservation; B owns that consumed durable scope.",
+      "artifact_or_output": "Owner appointed event/scope contract and durable receipt/reservation transaction in the existing B1.1 store.",
+      "bridge": "Reconcile the actual default translator two-key reservation/settlement with the existing B1.1 owner transaction. Do not treat this consumed profile as an arbitrary optional schema project or replace primary-key evidence.",
+      "actual_consumer": "Actual native translator/adversary full/split scope and fresh-process ledger reopen.",
+      "minimum_owner_supplied_content": [
+        "Actual caller multi-key/owned reservation profile and purpose",
+        "Physical event ID/digest/amount/provider and exact distinct accounting scopes",
+        "Owner chosen atomic settlement/release/reconciliation contract",
+        "Unknown ACK replay using same event/digest/reservation",
+        "Exact crash/reopen fault boundary and compatible schema/reader"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "resource_owner_requests",
+            "funnel_cost_stopping",
+            "G_owner_actions"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+            "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+            "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read the actual default translator two-key call/reservation contract in resource_owner_requests and B ledger owner source; reopen the same qualified existing ledger snapshot/receipts under the owner public reader. Do not create another store or infer cross-key atomic recovery from primary-key cases.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Actual supplied multi-key profile crashes between key settlements or before release: fresh reopen must reconcile same owned event once, never count physical provider spend twice or strand ownership. Remove durable transaction while preserving receipt labels to fail actual recovery.",
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "B DUR-01 B-W05 ledger/middleware owner, B-W09 enforcer; D native caller attribution",
+        "appointment_established": "ExactcanonicalBf011supportedownercontractsandstructuredoperatorcompanions",
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input_ref": null,
+      "production_dataset_transfer": false,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "candidate_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+      "G_accepted": false
+    },
+    {
+      "key": "public_typed_budget_snapshot",
+      "finding_ids": [
+        "B118",
+        "B120",
+        "B121"
+      ],
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/7",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "original_criterion_relation": "additional_read_contract_only",
+      "current": "existingpublicBownerport actualsnapshot/revision/receipt/freshreadback/currentunknownNone fence provided",
+      "producer": "Configured existing middleware supplies one public typed view from its own ledger under its lock.",
+      "artifact_or_output": "Existing BudgetLedgerSnapshot schema/ledger/contract/revision/spend_receipts; memory profile explicit None/unavailable.",
+      "bridge": "Owner-chosen public delegate to existing snapshot, with no second ledger or private _ledger access.",
+      "actual_consumer": "Same-owner CostBudgetStopping/native service result projection/fresh read.",
+      "minimum_owner_supplied_content": [
+        "Owner-approved public method/signature and source",
+        "One canonical immutable view/revision/receipt ref",
+        "Supported durable and explicitly memory-only profiles",
+        "Exact restore/schema compatibility/refusal contract"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "budget_snapshot_request",
+            "funnel_cost_stopping"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read budget_snapshot_request for the exact missing public middleware delegate to existing BudgetLedgerSnapshot. Once supplied, call the same owner public read under its lock; verify schema/ledger/contract/revision/spend_receipts. In-memory None stays unavailable; never use private _ledger as the bridge.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Another actual writer changes spend/revision: new public view must reflect same canonical ledger. Remove delegate or supply corrupt/unsupported snapshot; consumer cannot invent receipt/revision/provider-origin. Memory0 remains recorded accounting, never synthetic durable evidence.",
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "B DUR-01 configured middleware owner pending G confirmation; D CTL-03/SRV consumers",
+        "appointment_established": "Actual canonicalB BudgetMiddleware.snapshot/pre_check/receipt ports and D configuredcurrentconsumer bridge available; no newly appointed scientific authority",
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input_ref": null,
+      "production_dataset_transfer": false,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "candidate_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+      "G_accepted": false
+    },
+    {
+      "key": "A_frontier_default_workflow",
+      "finding_ids": [
+        "B109"
+      ],
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/8",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "original_criterion_relation": "separate_G_ordinary_workflow_task",
+      "current": {
+        "key": "A_frontier_default_workflow",
+        "finding_ids": [
+          "B109"
+        ],
+        "criterion_relation": "separate_A_serving_edge_not_original_B109",
+        "current_input_state": "not_established; must not block comparator acceptance",
+        "requested_canonical_owner": "A-W04 admitted frontier/evaluator/export producer; A-W01 actual caller; D-W01 registry adapter",
+        "appointment_basis": "not_established",
+        "original_committed_pointer": "/packets/8",
+        "minimum_ref_recipe_pointer": "same original packet; avoid blanket production dataset request"
+      },
+      "producer": "Actual current admitted frontier assessments originate from the appointed evaluator/source owner.",
+      "artifact_or_output": "Existing typed assessments/export and complete eligible/feasible/unknown denominator plus actual caller/input refs.",
+      "bridge": "Wire the existing ParetoRegistry into actual default HierarchicalPolicySearchAdapter coordinator, or cite a real appointed served caller; manual injected fixture is insufficient for this task.",
+      "actual_consumer": "Default evaluation -> registry update -> persisted fresh reader -> ranked frontier report.",
+      "minimum_owner_supplied_content": [
+        "Actual caller source/owner appointment and ordinary request terminus",
+        "Metric/split/direction/unit/definition-version assessed result refs",
+        "Eligible/feasible/unknown complete requested denominator",
+        "Producer source/input/evaluator admission basis",
+        "Existing registry/report CAS refs and normal bridge source"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "G_owner_actions"
+          ],
+          "existing_selectors": [],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read HierarchicalPolicySearchAdapter.instantiate_coordinator and fresh G owner-actions. Current ordinary constructor supplies config without ParetoRegistry. Read actual A-W04 assessed export plus eligible/feasible/unknown denominator and A-W01 caller mapping when supplied; then inspect ordinary persisted frontier/ref with the existing reader. No manual registry injection substitutes for that task.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Remove actual provider/export or default registry wire while retaining report labels: ordinary default output must be basis_limited/unavailable; no green projection. Same admitted complete input must update actual registry and fresh ranked report.",
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "A-W04 admitted frontier/evaluator/export producer; A-W01 actual caller; D-W01 registry adapter",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input_ref": null,
+      "production_dataset_transfer": false,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "candidate_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+      "G_accepted": false
+    },
+    {
+      "key": "served_hierarchical_context",
+      "finding_ids": [
+        "LA-014",
+        "LA-015",
+        "B109"
+      ],
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/9",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "original_criterion_relation": "separate_G_served_factory_scope",
+      "current": "boundedexistingpublicRunnerfactory/nativeService/Legacyalias request→evaluation→persistedfreshresume available; deployedhierarchicaltenantmapping remains optionalownerinput notoriginalconsumerblock",
+      "producer": "Actual existing hierarchical workflow supplies its ordinary candidate/request and admitted evaluation context.",
+      "artifact_or_output": "Existing PolicyCandidate/ParameterSearchSpec/PolicyEvaluationBundle, evaluator/model/data/split/metric refs and real evaluation-safety context/verifier/admission receipt.",
+      "bridge": "Use existing actual node/coordinator request seam and available public NativeSearchService checkpoint route only under owner-approved mapping.",
+      "actual_consumer": "Real served hierarchical node with fresh public resume/readback and evaluated-subject/cost/history parity.",
+      "minimum_owner_supplied_content": [
+        "Actual supported caller source and owner-approved mapping",
+        "Admitted concrete candidate/request and source refs",
+        "Existing eval-safety execution context/current verifier and world-model/provenance basis",
+        "Configured exact checkpoint owner/ref exposure",
+        "Known new/resumed/stopped/empty/evaluator-failure and rollback subjects"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "served_factory_request",
+            "G_owner_actions",
+            "native_factory_current",
+            "native_factory_independent"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/unit/scientist/methods/autotune/test_native_doe_factory.py"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read existing PolicyCandidate/ParameterSearchSpec/PolicyEvaluationBundle and actual evaluation-safety context/verifier/world-model ref ports; future owner mapping must point to a concrete ordinary caller/request. Native6fe15/caller scan is already available; do not repeat it as a missing served appointment.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Missing/wrong context/model/subject/admission refuses actual evaluation; wrong checkpoint/ref refuses before state effects. Removal of the ordinary native wire must fail actual evaluated-subject/history/frontier parity, not only a constructor capture.",
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "A-W01/CYC-01 actual workflow owner and evaluator owner; G to confirm the actual served caller; D native API/bridge consumers",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input_ref": null,
+      "production_dataset_transfer": false,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "candidate_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+      "G_accepted": false
+    },
+    {
+      "key": "ordinary_blueprint_configured_owner",
+      "finding_ids": [
+        "B120",
+        "B158",
+        "B160",
+        "B165"
+      ],
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/10",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "original_criterion_relation": "additional_actual_factory_profile",
+      "current": "actualordinarynativeworker/enforcer/owner receipt→stagedFUNprojection/calibration/currentconfiguredpublicfactory financial port provided",
+      "producer": "Ordinary configured caller constructs the available typed PolicyBudgetExecutionContext with the same existing BudgetMiddleware and admitted evaluation context.",
+      "artifact_or_output": "Existing candidate/source/eval-safety refs and configured in-process owner instance; no serialized object in ExperimentState.params.",
+      "bridge": "Available keyword-only frozen D context forwards same instance/run/candidate/evaluation scope into FunnelOrchestrator; actual stage producer must be separately provided if paid work is claimed.",
+      "actual_consumer": "Actual RunPolicyBlueprintRuntimeNode -> existing backend/L5 and true producer -> node outcome JSON/CAS.",
+      "minimum_owner_supplied_content": [
+        "Actual caller source/appointment and runnable request",
+        "Same configured B middleware owner instance and existing key scope",
+        "Existing admitted evaluation context/verifier/world-model refs",
+        "Actual stage producer output for the cost/work being claimed",
+        "Exact fresh output/report refs and pending ACK attribution if used"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "resource_owner_requests",
+            "funnel_node",
+            "funnel_cost_stopping"
+          ],
+          "existing_selectors": [],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read actual frozen keyword-only PolicyBudgetExecutionContext and node consumer; read caller admitted evaluation context and the same configured BudgetMiddleware owner ref. Inspect real native outcome params.funnel_outcome and fresh CAS with existing JSON reader. The ordinary CPU backend is not a provider-spend producer merely because the constructor forwards a port.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Wrong present context owner type refuses; plain base context stays honestly unmanaged. Remove same-owner forwarding or actual paid producer while retaining stage/cost labels: ledger-backed producer oracle must fail. No default CPU numerical backend is labeled provider-paid from constructor wiring alone.",
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "A actual node/evaluator caller owner; B existing resource owner; D blueprint node owner",
+        "appointment_established": "not_established",
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input_ref": null,
+      "production_dataset_transfer": false,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "candidate_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+      "G_accepted": false
+    },
+    {
+      "key": "B_canonical_history_compatibility",
+      "finding_ids": [
+        "LA-014",
+        "LA-015",
+        "B120"
+      ],
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/11",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "original_criterion_relation": "additional_actual_persisted_owner_profile",
+      "current": "canonicalB1.2 declaredhistorycompatibility/migration/refusal+actualcurrentreader adopted; productionhistoryminref onlyifcriterion specificallydata-dependent",
+      "producer": "B owns canonical schema1.1 spend_receipts/history/ref semantics and any required actual legacy reader decision.",
+      "artifact_or_output": "Existing B owner schema/release/operator recipe and qualified persisted refs; known native SearchService checkpoint formats remain owner declared.",
+      "bridge": "Preserve owner original commits and compatible read/refusal; never reconstruct old D1.0 resource_events/resource_reservations beside B1.1.",
+      "actual_consumer": "Actual fresh configured ledger/checkpoint/history reader for supported owner profile.",
+      "minimum_owner_supplied_content": [
+        "Exact appointed canonical persisted profile/reader source",
+        "Any actually supported prior history/artifact refs needing compatibility",
+        "Owner migration/refusal decision and existing release companion",
+        "Actual qualified CAS source/manifest lineage",
+        "Normal reader round-trip/explicit refusal evidence"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/search/service.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "B_owner_dependency",
+            "G_owner_actions",
+            "native_factory_manifest"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read exact owner schema1.1 spend_receipts and supported native checkpoint compatibility declarations; resolve only existing owner-selected historical qualified refs with those canonical readers. No invented raw history converter or restoration of retired D1.0 parallel ledger schema.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Old incompatible ledger/history cannot silently become a zero current state or reinterpret different subject/receipt. Remove manifest/reader version reconciliation while retaining ref labels: fresh read must refuse. A supported existing history must preserve exact meaning.",
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "B DUR-01 canonical ledger owner and CAS-01 qualified ref owner; D consumes compatible profile",
+        "appointment_established": "ExactcanonicalBf011supportedownercontractsandstructuredoperatorcompanions",
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input_ref": null,
+      "production_dataset_transfer": false,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "candidate_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+      "G_accepted": false
+    },
+    {
+      "key": "B_public_API_surface",
+      "finding_ids": [
+        "B118",
+        "B120",
+        "B121",
+        "LA-014",
+        "LA-015"
+      ],
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/12",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "original_criterion_relation": "separate_quality_API_gate",
+      "current": "exactowner API/signatures/publicRunneradditiveport/typedNative return/operatorcompatibility adopted; generatedfrontend/architecture/schemaquality incomplete untilcanonicalcompleteoutputs, not inferred fromruntime",
+      "producer": "Actual intended public APIs and callback signatures are declared by canonical source owner.",
+      "artifact_or_output": "Canonical contract/inventory/generated public surface and structured release classification companions.",
+      "bridge": "Either reconcile intended public FileBudgetLedger/LLMBudgetEnforcer/create_traced_gateway_client interfaces or classify internal consistently.",
+      "actual_consumer": "Actual exported public facade/import/caller; D releases preserve owner classifications.",
+      "minimum_owner_supplied_content": [
+        "Owner intended classification for exact APIs/callback types",
+        "Actual canonical contract/inventory update refs",
+        "Matching generated inventory/docs/release refs",
+        "Supported signature/compatibility/operator recipe"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "G_owner_actions",
+            "B_owner_dependency"
+          ],
+          "existing_selectors": [],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read B owner intended export classification/signatures and the exact canonical architecture/contract/public-inventory companions named in B_owner_dependency/G_owner_actions. Reconcile generated bytes to the owner refs once supplied; a reviewed flag or private helper does not settle public API authority.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Remove actual contract/inventory update while retaining author reviewed=true flag: canonical surface check must remain unresolved. Flag equality or local stale inventory is not acceptance.",
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "B DUR-01/LLM-01/LLM-02 API owners plus G public inventory/contract owner",
+        "appointment_established": "ExactcanonicalBf011supportedownercontractsandstructuredoperatorcompanions",
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input_ref": null,
+      "production_dataset_transfer": false,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "candidate_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+      "G_accepted": false
+    },
+    {
+      "key": "E_mutable_cardinality_cap",
+      "finding_ids": [
+        "B106",
+        "B107",
+        "B112",
+        "B113",
+        "B127"
+      ],
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/13",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "original_criterion_relation": "E_DOE01_dependency_profile",
+      "current": "E mutablepublicplan cap realfailure separateownerpacket; D originalscenariofraction/direction available; no E B100law claim",
+      "producer": "Existing public mutable SensitivityPlan/current sampling plan is admitted at the point materialization consumes it.",
+      "artifact_or_output": "E owner-selected immutable/revalidated plan and current estimated cardinality/explicit override contract, preserving existing rounds and declared direction/input law.",
+      "bridge": "Existing generate_sensitivity_samples direct API must not rely solely on constructor validation if publicly mutated plan is consumed; existing AdaptiveSampler round reconstruction/preflight already remains.",
+      "actual_consumer": "Public direct sampling and actual D SensitivityBridge/AdaptiveSampler -> truthful report fraction.",
+      "minimum_owner_supplied_content": [
+        "Actual mutable/immutable public-plan contract and source",
+        "Current method/parameter/n_trajectories/cap/allow_large_run values at consumed boundary",
+        "Oversize refusal before backend array/materialization",
+        "Declared round count and original physical direction/threshold",
+        "Exact affected E producer tests and ordinary D consumer profile refs"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/doe/adaptive.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "stress_E_actual",
+            "G_owner_actions"
+          ],
+          "existing_selectors": [
+            "policy-engine/tests/unit/scientist/methods/doe/test_sensitivity_plan.py"
+          ],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read the current public mutable SensitivityPlan and actual generate_sensitivity_samples boundary; compare consumed estimated runs/current cap before SALib materialization. Proposed mutated Morris2parameter/n1/max9 -> n4/estimated12 discriminant remains UNRUN, not a measured E failure. Existing AdaptiveSampler reconstructed round preflight and D6+12/oversize positive remain separate actual evidence.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Unexecuted source-bound discriminant: construct valid Morris2-parameter/n1/max9, then mutate n_trajectories=4 (12>9) and call actual public generate_sensitivity_samples. Require refusal before SALib materialization. Guard removal keeping plan labels must reach the sampler and fail that oracle; genuine admitted6 and explicit override retain declared behavior.",
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "E DOE-01 E-W06 canonical SensitivityPlan/sampling owner; D actual E->stress consumer",
+        "appointment_established": "not_established",
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input_ref": null,
+      "production_dataset_transfer": false,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "candidate_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+      "G_accepted": false
+    },
+    {
+      "key": "owner_declared_fiscal_profile",
+      "finding_ids": [
+        "B108"
+      ],
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/14",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "original_criterion_relation": "separate_scientific_issuer_claim",
+      "current": "numericprecision ownmechanism fixedactual680; realunit/sign/alias producerlaw incompatibleunit clause not_established/limited",
+      "producer": "Actual fiscal measurement producer declares its unit/sign/alias applicability and source measurement basis.",
+      "artifact_or_output": "Existing owner declaration and actual fiscal result refs, if a scientific issuer claim is requested.",
+      "bridge": "Existing strict fiscal extractor uses declared unit/profile and presence/null/conflict semantics.",
+      "actual_consumer": "Actual user/evaluator fiscal input; finite alias/unit boundary controls remain separately verified.",
+      "minimum_owner_supplied_content": [
+        "Actual producer/result and source refs",
+        "Owner-declared sign/unit/alias equivalence/profile",
+        "Measurement and applicable time/context basis",
+        "Real conflict/missing policy for that producer"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [
+            "git show 258a6c89ea7cbb8394d39965a243a4bab3592358:policy-engine/src/polisyos/scientist/methods/search/objective.py"
+          ],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "G_owner_actions"
+          ],
+          "existing_selectors": [],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": null,
+          "recipe": "Read the actual existing strict fiscal scalar extractor/declaration profile and source result ref when supplied; unit/sign/alias/presence/conflict must be bound to that result. Finite original B108 alias/unit/zero controls do not require a new cryptographic signature, unit registry or blanket production dataset.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Swap incompatible unit/sign/profile while retaining alias labels: actual extractor refuses or reports unavailable. Equivalent declared measurement and true0 remain unchanged.",
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "Actual fiscal unit/sign/source-law declaring owner to be confirmed by A/G",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input_ref": null,
+      "production_dataset_transfer": false,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "candidate_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+      "G_accepted": false
+    },
+    {
+      "key": "D_coordinate_volume_corrective",
+      "finding_ids": [
+        "B110",
+        "B111"
+      ],
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/15",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "original_criterion_relation": "required_original_same_class_control",
+      "current": "originalB109/B110/B111 boundedengineering fulfilled; exactcoordinate/geometry/typedunavailable/sourceprimaryfreshreadback current; rationalpositiveunderflow separateboundedclass",
+      "producer": "Existing coordinate identity and assessed volume adapter/optimizer consumer enforce paired identity and numeric representability.",
+      "artifact_or_output": "Frozen corrected source plus exact paired-axis/rational-positive-underflow/genuine-zero/derived-overflow oracle output, no new measurement authority.",
+      "bridge": "Use current identity/basis refusal and typed unavailable outcome; retain real CAS and existing upstream guards.",
+      "actual_consumer": "Actual promoter/persisted registry/is_dominated/physical quantity and optimizer reference consumer.",
+      "minimum_owner_supplied_content": [
+        "Exact source/test/tree and ordinary consumer source",
+        "All axes/policies/values/reference transformed together plus stale/unpaired refusal",
+        "Independent rational positive tiny-volume vs genuine empty-zero expected",
+        "Finite-input derived reference arithmetic refusal",
+        "Complete immutable positive and source-removal/old-source outputs"
+      ],
+      "local_read_only_recipe": [
+        {
+          "step": 1,
+          "method": "existing Git object read",
+          "commands": [],
+          "meaning": "Read exact final258 canonical contract via Git object only; no source copy, checkout, execution or mutation.",
+          "previous_navigation_source": "5050a940d990198f17de2b5dd9a3be691e153c05"
+        },
+        {
+          "step": 2,
+          "method": "existing source-qualified evidence read",
+          "reference_keys": [
+            "G_owner_actions",
+            "quantity_corrective",
+            "quantity_independent13",
+            "quantity_ordinary_independent2"
+          ],
+          "existing_selectors": [],
+          "meaning": "Read exact recorded input/environment/output refs, keeping scoped PASS/FAIL/SKIP/UNRUN distinct. These selectors are navigation, not new runtime results."
+        },
+        {
+          "step": 3,
+          "method": "actual minimum-ref read through existing owner reader",
+          "minimum_input_ref": {
+            "source_sha": "bd50417df1e467cc3d2e2292f23aaad58fa21f40",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/quantity-omission-representability.json",
+            "blob": "0d1eb21e4da3b533bb09a848167999a3471fb544",
+            "bytes": 24250,
+            "sha256": "8c4f41b2d6e7cf870576186610f75800ccf01cd72b128a54d8b0d49ac5ebb18f"
+          },
+          "recipe": "Read quantity_corrective, quantity_independent13 and quantity_ordinary_independent2 exact Git payloads. Reconcile paired axes/name/policy/value/reference and omission IDs; positive underflow unavailable vs genuine zero, finite derived-reference refusal, actual registry/A projection and fresh CAS are received. No additional producer law input is required for these original finite criteria.",
+          "appointment_ref": null,
+          "scope": "If the actual owner/ref/reader is absent, keep not_established; this draft performs no future producer, writer or backend execution."
+        }
+      ],
+      "falsifier": "Positive box(1e-200,1e-200) cannot become available exact0. Reindex axes/policies/values/reference together preserves candidate physical quantity; stale omission/axis IDs refuse. Finite derived ref overflow cannot be hidden by fallback.",
+      "existing_authority_appointment": {
+        "requested_canonical_owner": "D-W01 search_owner producer/consumer plus numerical_oracle independent controls",
+        "appointment_established": "Dcanonicalmathmechanism authors and independentGP review bound actualsource.",
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input_ref": {
+        "source_sha": "bd50417df1e467cc3d2e2292f23aaad58fa21f40",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/quantity-omission-representability.json",
+        "blob": "0d1eb21e4da3b533bb09a848167999a3471fb544",
+        "bytes": 24250,
+        "sha256": "8c4f41b2d6e7cf870576186610f75800ccf01cd72b128a54d8b0d49ac5ebb18f"
+      },
+      "production_dataset_transfer": false,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "candidate_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+      "G_accepted": false
+    }
+  ],
+  "full_original_packet_count": 16,
+  "scientific_required_positive_held_keys": [
+    "tenant_split_transfer",
+    "authorized_revalidation",
+    "native_draw_producer",
+    "same_scope_refinement",
+    "typed_write_permit"
+  ],
+  "fiscal_original_unit_law_limited": true,
+  "production_transfer": "forbidden; exactminimalownerrefs/localread-onlyrecipes only"
+}

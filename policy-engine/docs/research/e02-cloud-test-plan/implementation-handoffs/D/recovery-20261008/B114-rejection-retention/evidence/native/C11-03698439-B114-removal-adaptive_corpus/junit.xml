@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="4" time="6.388" timestamp="2026-10-08T17:58:58.052953+00:00" hostname="9065c0936350"><testcase classname="tests.unit.scientist.search.strategies.test_bayesian" name="test_whole_and_warm_split_use_the_same_permitted_acquisition_plan[False-False]" time="2.013"><failure message="AssertionError: assert [['warm-0', '...warm-5', ...]] == [['current-0']]&#10;  &#10;  At index 0 diff: ['warm-0', 'warm-1', 'warm-2', 'warm-3', 'warm-4', 'warm-5', 'warm-2', 'warm-2-replica', 'current-0'] != ['current-0']&#10;  Use -v to get more diff">simple_space = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=&lt;ParameterType.CONTINUOUS: 'continuous'&gt;, log_scale=False, categories=None)])
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fc3c72ccfc0&gt;
+reverse = False, batch = False
+
+    @pytest.mark.skipif(fit_gpytorch_mll is None, reason="BoTorch stack not installed")
+    @pytest.mark.parametrize("reverse", [False, True])
+    @pytest.mark.parametrize("batch", [False, True])
+    def test_whole_and_warm_split_use_the_same_permitted_acquisition_plan(
+        simple_space: SearchSpace, monkeypatch: pytest.MonkeyPatch, reverse: bool, batch: bool
+    ) -&gt; None:
+        """Actual caller/selector/constructor routing; fit and optimization are controlled."""
+        warm, current = _warm_planning_records(simple_space)
+        if reverse:
+            warm.reverse()
+        config = BayesianConfig(
+            n_initial=6, seed=21, adaptive_acquisition=True, fallback_on_failure=False
+        )
+        whole = BayesianOptimizer(simple_space, config)
+        split = BayesianOptimizer(simple_space, config)
+        split.warm_start(warm)
+        expected = whole._effective_training_corpus([*warm, *current])
+        assert len(expected) == 8
+        assert sum(e.candidate_id == "warm-2" for e in expected) == 1
+        assert any(e.candidate_id == "warm-2-replica" for e in expected)
+    
+        def observe_run(strategy, evaluations):
+            observed = {"training": [], "planning": [], "fit": [], "routes": []}
+            prepare = strategy._prepare_training_data
+            select = strategy._select_acquisition
+    
+            def observe_prepare(records):
+                observed["training"].append([e.candidate_id for e in records])
+                return prepare(records)
+    
+            def controlled_fit(x, y_bo):
+                observed["fit"].append((x.tolist(), y_bo.tolist()))
+                strategy._model = bayesian_module.SingleTaskGP(
+                    train_X=x,
+                    train_Y=y_bo,
+                    input_transform=bayesian_module.Normalize(d=x.shape[-1]),
+                    outcome_transform=bayesian_module.Standardize(m=1),
+                )
+    
+            def observe_select(records, y_bo):
+                observed["planning"].append([e.candidate_id for e in records])
+                return select(records, y_bo)
+    
+            def controlled_optimize(**kwargs):
+                observed["routes"].append(type(kwargs["acq_function"]).__name__)
+                q = kwargs["q"]
+                candidates = strategy._torch.linspace(0.61, 0.71, q, dtype=strategy._torch.float64)
+                return candidates.reshape(q, 1), strategy._torch.tensor(1.0)
+    
+            monkeypatch.setattr(strategy, "_prepare_training_data", observe_prepare)
+            monkeypatch.setattr(strategy, "_fit_gp", controlled_fit)
+            monkeypatch.setattr(strategy, "_select_acquisition", observe_select)
+            monkeypatch.setattr(bayesian_module, "optimize_acqf", controlled_optimize)
+            result = (
+                strategy.suggest_batch(evaluations, batch_size=2)
+                if batch
+                else [strategy.suggest(evaluations)]
+            )
+            assert all(c.source_strategy in {"bayesian_acquisition", "batch_qei"} for c in result)
+            assert strategy._iteration == (0 if batch else len(evaluations))
+            return observed
+    
+        whole_result = observe_run(whole, [*warm, *current])
+        split_result = observe_run(split, current)
+        expected_ids = [e.candidate_id for e in expected]
+        assert whole_result["training"] == split_result["training"] == [expected_ids]
+        assert whole_result["fit"] == split_result["fit"]
+        if batch:
+            assert whole_result["planning"] == split_result["planning"] == []
+            assert whole_result["routes"] == split_result["routes"] == ["qExpectedImprovement"]
+        else:
+&gt;           assert whole_result["planning"] == split_result["planning"] == [expected_ids]
+E           AssertionError: assert [['warm-0', '...warm-5', ...]] == [['current-0']]
+E             
+E             At index 0 diff: ['warm-0', 'warm-1', 'warm-2', 'warm-3', 'warm-4', 'warm-5', 'warm-2', 'warm-2-replica', 'current-0'] != ['current-0']
+E             Use -v to get more diff
+
+tests/unit/scientist/search/strategies/test_bayesian.py:269: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.search.strategies.test_bayesian" name="test_whole_and_warm_split_use_the_same_permitted_acquisition_plan[False-True]" time="1.279"><failure message="AssertionError: assert [['warm-2-rep...warm-2', ...]] == [['current-0']]&#10;  &#10;  At index 0 diff: ['warm-2-replica', 'warm-2', 'warm-5', 'warm-4', 'warm-3', 'warm-2', 'warm-1', 'warm-0', 'current-0'] != ['current-0']&#10;  Use -v to get more diff">simple_space = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=&lt;ParameterType.CONTINUOUS: 'continuous'&gt;, log_scale=False, categories=None)])
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fc3c72cc3e0&gt;
+reverse = True, batch = False
+
+    @pytest.mark.skipif(fit_gpytorch_mll is None, reason="BoTorch stack not installed")
+    @pytest.mark.parametrize("reverse", [False, True])
+    @pytest.mark.parametrize("batch", [False, True])
+    def test_whole_and_warm_split_use_the_same_permitted_acquisition_plan(
+        simple_space: SearchSpace, monkeypatch: pytest.MonkeyPatch, reverse: bool, batch: bool
+    ) -&gt; None:
+        """Actual caller/selector/constructor routing; fit and optimization are controlled."""
+        warm, current = _warm_planning_records(simple_space)
+        if reverse:
+            warm.reverse()
+        config = BayesianConfig(
+            n_initial=6, seed=21, adaptive_acquisition=True, fallback_on_failure=False
+        )
+        whole = BayesianOptimizer(simple_space, config)
+        split = BayesianOptimizer(simple_space, config)
+        split.warm_start(warm)
+        expected = whole._effective_training_corpus([*warm, *current])
+        assert len(expected) == 8
+        assert sum(e.candidate_id == "warm-2" for e in expected) == 1
+        assert any(e.candidate_id == "warm-2-replica" for e in expected)
+    
+        def observe_run(strategy, evaluations):
+            observed = {"training": [], "planning": [], "fit": [], "routes": []}
+            prepare = strategy._prepare_training_data
+            select = strategy._select_acquisition
+    
+            def observe_prepare(records):
+                observed["training"].append([e.candidate_id for e in records])
+                return prepare(records)
+    
+            def controlled_fit(x, y_bo):
+                observed["fit"].append((x.tolist(), y_bo.tolist()))
+                strategy._model = bayesian_module.SingleTaskGP(
+                    train_X=x,
+                    train_Y=y_bo,
+                    input_transform=bayesian_module.Normalize(d=x.shape[-1]),
+                    outcome_transform=bayesian_module.Standardize(m=1),
+                )
+    
+            def observe_select(records, y_bo):
+                observed["planning"].append([e.candidate_id for e in records])
+                return select(records, y_bo)
+    
+            def controlled_optimize(**kwargs):
+                observed["routes"].append(type(kwargs["acq_function"]).__name__)
+                q = kwargs["q"]
+                candidates = strategy._torch.linspace(0.61, 0.71, q, dtype=strategy._torch.float64)
+                return candidates.reshape(q, 1), strategy._torch.tensor(1.0)
+    
+            monkeypatch.setattr(strategy, "_prepare_training_data", observe_prepare)
+            monkeypatch.setattr(strategy, "_fit_gp", controlled_fit)
+            monkeypatch.setattr(strategy, "_select_acquisition", observe_select)
+            monkeypatch.setattr(bayesian_module, "optimize_acqf", controlled_optimize)
+            result = (
+                strategy.suggest_batch(evaluations, batch_size=2)
+                if batch
+                else [strategy.suggest(evaluations)]
+            )
+            assert all(c.source_strategy in {"bayesian_acquisition", "batch_qei"} for c in result)
+            assert strategy._iteration == (0 if batch else len(evaluations))
+            return observed
+    
+        whole_result = observe_run(whole, [*warm, *current])
+        split_result = observe_run(split, current)
+        expected_ids = [e.candidate_id for e in expected]
+        assert whole_result["training"] == split_result["training"] == [expected_ids]
+        assert whole_result["fit"] == split_result["fit"]
+        if batch:
+            assert whole_result["planning"] == split_result["planning"] == []
+            assert whole_result["routes"] == split_result["routes"] == ["qExpectedImprovement"]
+        else:
+&gt;           assert whole_result["planning"] == split_result["planning"] == [expected_ids]
+E           AssertionError: assert [['warm-2-rep...warm-2', ...]] == [['current-0']]
+E             
+E             At index 0 diff: ['warm-2-replica', 'warm-2', 'warm-5', 'warm-4', 'warm-3', 'warm-2', 'warm-1', 'warm-0', 'current-0'] != ['current-0']
+E             Use -v to get more diff
+
+tests/unit/scientist/search/strategies/test_bayesian.py:269: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.search.strategies.test_bayesian" name="test_whole_and_warm_split_use_the_same_permitted_acquisition_plan[True-False]" time="1.322" /><testcase classname="tests.unit.scientist.search.strategies.test_bayesian" name="test_whole_and_warm_split_use_the_same_permitted_acquisition_plan[True-True]" time="1.474" /></testsuite></testsuites>

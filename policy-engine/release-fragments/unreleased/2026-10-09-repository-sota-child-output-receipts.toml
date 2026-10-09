@@ -1,0 +1,32 @@
+id = "2026-10-09-repository-sota-child-output-receipts"
+title = "Retain complete Repository SOTA child-gate output on request"
+type = "changed"
+component = "tooling"
+owner = "team-devx"
+summary = "Repository SOTA closeout can retain each executed child gate's exact stdout and stderr bytes with its command, exit code, and byte hashes."
+evidence = [
+  "tools/devx/workspace/repository_sota_closeout.py",
+  "tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py",
+]
+compatibility = "The --subprocess-receipt-dir option is additive. Runs without it keep the existing text-mode capture, failure detail, and truncation behavior."
+change_class = "internal-only"
+surface_classification = "internal: Repository SOTA closeout diagnostics"
+migration = "Pass --subprocess-receipt-dir <path> to retain output from each executed subprocess gate for a deciding run."
+limitations = "Receipt hashes bind the exact captured process-stream bytes. Gate comparisons decode UTF-8 with backslashreplace and normalize universal newlines so invalid byte sequences remain readable without changing the retained evidence."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["tools/devx/workspace/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "repository-sota-child-output-receipts"
+change_class = "internal-only"
+impact = "additive"
+surface = "internal: Repository SOTA closeout diagnostics"
+owner = "team-devx"
+version_owner = "team-devx"
+deprecation_window = "not_applicable"
+release_note = "A full Repository SOTA closeout run may retain exact child output bytes and a command/exit/hash receipt for each executed subprocess gate."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["tools/devx/workspace/README.md"]
+runbook_docs = []

@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from tools.lib.fs import atomic_write_json
+from tools.lib.fs import atomic_write_bytes, atomic_write_json
 from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
@@ -170,6 +170,14 @@ def _build_parser() -> argparse.ArgumentParser:
         "--output-json",
         type=Path,
         help="Optional JSON report path.",
+    )
+    parser.add_argument(
+        "--subprocess-receipt-dir",
+        type=Path,
+        help=(
+            "Optional directory for complete stdout/stderr and command receipts from each "
+            "subprocess gate."
+        ),
     )
     return parser
 
@@ -1356,6 +1364,7 @@ def _generated_guardrail_command(*, skip_generated_checks: bool) -> list[str]:
 
 def _run_fail_closed_subprocess_gates(args: argparse.Namespace) -> list[Finding]:
     findings: list[Finding] = []
+    receipt_dir = getattr(args, "subprocess_receipt_dir", None)
     guardrail_command = _generated_guardrail_command(
         skip_generated_checks=args.skip_generated_checks
     )
@@ -1560,18 +1569,99 @@ def _run_fail_closed_subprocess_gates(args: argparse.Namespace) -> list[Finding]
         ),
     ]
     for gate, command in commands:
-        completed = subprocess.run(
+        completed = _run_subprocess_with_receipt(
+            gate,
+            command,
+            receipt_dir=receipt_dir,
+        )
+        if completed.returncode != 0:
+            findings.append(Finding(gate, "subprocess gate failed", _compact_output(completed)))
+
+    findings.extend(_run_docs_freshness_gate(receipt_dir=receipt_dir))
+    return findings
+
+
+def _run_subprocess_with_receipt(
+    gate: str,
+    command: Sequence[str],
+    *,
+    receipt_dir: Path | None,
+) -> subprocess.CompletedProcess[str]:
+    """Run one closeout child, optionally retaining its raw output before decoding it."""
+    if receipt_dir is None:
+        return subprocess.run(
             command,
             cwd=REPO_ROOT,
             capture_output=True,
             text=True,
             check=False,
         )
-        if completed.returncode != 0:
-            findings.append(Finding(gate, "subprocess gate failed", _compact_output(completed)))
 
-    findings.extend(_run_docs_freshness_gate())
-    return findings
+    raw_completed = subprocess.run(
+        command,
+        cwd=REPO_ROOT,
+        capture_output=True,
+        check=False,
+    )
+    _write_subprocess_receipt(
+        receipt_dir,
+        gate=gate,
+        command=command,
+        completed=raw_completed,
+    )
+    return subprocess.CompletedProcess(
+        raw_completed.args,
+        raw_completed.returncode,
+        stdout=_decode_subprocess_output(raw_completed.stdout or b""),
+        stderr=_decode_subprocess_output(raw_completed.stderr or b""),
+    )
+
+
+def _decode_subprocess_output(output: bytes) -> str:
+    """Decode retained child output for existing gate summaries and comparisons."""
+    return output.decode("utf-8", errors="backslashreplace").replace("\r\n", "\n").replace(
+        "\r", "\n"
+    )
+
+
+def _write_subprocess_receipt(
+    receipt_dir: Path,
+    *,
+    gate: str,
+    command: Sequence[str],
+    completed: subprocess.CompletedProcess[bytes],
+) -> None:
+    """Atomically retain one child gate's raw output and command/exit/hash manifest."""
+    stdout = completed.stdout or b""
+    stderr = completed.stderr or b""
+    output_dir = receipt_dir / gate
+    atomic_write_bytes(output_dir / "stdout.bin", stdout)
+    atomic_write_bytes(output_dir / "stderr.bin", stderr)
+    atomic_write_json(
+        output_dir / "receipt.json",
+        {
+            "schema_version": 1,
+            "gate": gate,
+            "command": list(command),
+            "cwd": str(REPO_ROOT),
+            "exit_code": completed.returncode,
+            "gate_output_decoding": {
+                "encoding": "utf-8",
+                "errors": "backslashreplace",
+                "newline_normalization": "universal",
+            },
+            "stdout": {
+                "file": "stdout.bin",
+                "byte_length": len(stdout),
+                "sha256": hashlib.sha256(stdout).hexdigest(),
+            },
+            "stderr": {
+                "file": "stderr.bin",
+                "byte_length": len(stderr),
+                "sha256": hashlib.sha256(stderr).hexdigest(),
+            },
+        },
+    )
 
 
 def _compact_output(completed: subprocess.CompletedProcess[str], *, limit: int = 4000) -> str:
@@ -1581,7 +1671,7 @@ def _compact_output(completed: subprocess.CompletedProcess[str], *, limit: int =
     return output[:limit] + "\n...[truncated]..."
 
 
-def _run_docs_freshness_gate() -> list[Finding]:
+def _run_docs_freshness_gate(*, receipt_dir: Path | None = None) -> list[Finding]:
     findings: list[Finding] = []
     baseline = _read_toml("architecture/exceptions/docs_freshness.toml")[
         "docs_freshness_exceptions"
@@ -1607,12 +1697,10 @@ def _run_docs_freshness_gate() -> list[Finding]:
         "--repo-root",
         ".",
     ]
-    completed = subprocess.run(
+    completed = _run_subprocess_with_receipt(
+        "docs-freshness",
         command,
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
+        receipt_dir=receipt_dir,
     )
     output = (completed.stdout or "") + (completed.stderr or "")
     digest = hashlib.sha256(output.encode("utf-8")).hexdigest()

@@ -110,6 +110,11 @@ preflight, fast local gates, CI parity и remote acceptance closeout.
 - Repository SOTA Phase 5 uses `repository-sota-closeout` to enforce topology,
   import, public-surface, generated-artifact, docs-freshness, shim, complexity,
   security, dependency, SBOM, release, and command-registry contracts.
+  Pass `--subprocess-receipt-dir <path>` when a full run needs each executed
+  child’s exact stdout/stderr bytes retained with its command, exit code, and
+  byte hashes. Gate summaries decode those bytes as UTF-8 with backslash escapes
+  for invalid sequences and normalize newlines. Omitting the option keeps the
+  existing text-mode capture and concise failure output.
 
 - `ci-parity` по умолчанию включает docs accuracy, strict MkDocs build и
   semantic docstring checks, если не указан `--skip-docs`.

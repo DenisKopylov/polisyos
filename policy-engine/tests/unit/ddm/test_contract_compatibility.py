@@ -97,11 +97,11 @@ def _shift_payload(case: str) -> dict[str, Any]:
         ("unknown-property", False),
     ],
 )
-def test_manual_shift_schema_and_model_accept_the_same_payloads(
+def test_manual_schema_and_model_validate_evidence_cases(
     case: str,
     expected_valid: bool,
 ) -> None:
-    """The manual wire schema and canonical model agree on required cases."""
+    """Evidence cases with wire-required defaults explicit agree across validators."""
 
     schema = _manual_shift_schema()
     Draft202012Validator.check_schema(schema)
@@ -118,6 +118,24 @@ def test_manual_shift_schema_and_model_accept_the_same_payloads(
         assert schema_errors, f"manual schema accepted {case}"
         with pytest.raises(ValidationError):
             ShiftDetectedEvent.model_validate(payload)
+
+
+def test_manual_wire_requires_fields_that_domain_model_defaults() -> None:
+    """Wire validation requires defaults that domain input validation supplies."""
+
+    schema = _manual_shift_schema()
+    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+    payload = _shift_payload("p-only")
+    del payload["event_type"]
+    del payload["diagnostic_only"]
+
+    assert not validator.is_valid(payload)
+
+    event = ShiftDetectedEvent.model_validate(payload)
+    assert event.event_type == "ml.track_2_2.shift_detected.v1"
+    assert event.diagnostic_only is False
+    assert {"event_type", "diagnostic_only"}.isdisjoint(event.model_fields_set)
+    assert validator.is_valid(event.model_dump(mode="json", by_alias=True))
 
 
 def test_manual_schema_evidence_branch_is_load_bearing() -> None:

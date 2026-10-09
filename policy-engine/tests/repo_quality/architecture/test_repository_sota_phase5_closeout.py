@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import datetime as dt
+import hashlib
+import json
 import re
 import subprocess
+import sys
 import tomllib
 from pathlib import Path
 from typing import Any
@@ -83,6 +86,79 @@ def test_phase5_closeout_generated_gate_uses_explicit_full_or_skip_mode() -> Non
         "guardrails",
         "check",
     ]
+
+
+def test_phase5_child_gate_receipt_retains_complete_failure_output(tmp_path: Path) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    parsed = repository_sota_closeout._build_parser().parse_args(
+        ["--subprocess-receipt-dir", str(tmp_path / "receipts")]
+    )
+    assert parsed.subprocess_receipt_dir == tmp_path / "receipts"
+
+    stdout = b"stdout-marker\r\ninvalid:\xff\xfe\r\n" + (b"x" * 5_000) + b"\r\n"
+    stderr = b"stderr-marker\r\ninvalid:\x80\r\n" + (b"y" * 5_000) + b"\r\n"
+    child_code = (
+        "import os\n"
+        f"os.write(1, {stdout!r})\n"
+        f"os.write(2, {stderr!r})\n"
+        "raise SystemExit(23)\n"
+    )
+    command = [sys.executable, "-c", child_code]
+    receipt_dir = tmp_path / "receipts"
+
+    completed = repository_sota_closeout._run_subprocess_with_receipt(
+        "receipt-probe",
+        command,
+        receipt_dir=receipt_dir,
+    )
+
+    assert completed.returncode == 23
+    gate_dir = receipt_dir / "receipt-probe"
+    assert (gate_dir / "stdout.bin").read_bytes() == stdout
+    assert (gate_dir / "stderr.bin").read_bytes() == stderr
+    receipt = json.loads((gate_dir / "receipt.json").read_text(encoding="utf-8"))
+    assert receipt["gate"] == "receipt-probe"
+    assert receipt["command"] == command
+    assert receipt["cwd"] == str(REPO_ROOT)
+    assert receipt["exit_code"] == 23
+    assert receipt["gate_output_decoding"] == {
+        "encoding": "utf-8",
+        "errors": "backslashreplace",
+        "newline_normalization": "universal",
+    }
+    assert receipt["stdout"]["byte_length"] == len(stdout)
+    assert receipt["stderr"]["byte_length"] == len(stderr)
+    assert receipt["stdout"]["sha256"] == hashlib.sha256(stdout).hexdigest()
+    assert receipt["stderr"]["sha256"] == hashlib.sha256(stderr).hexdigest()
+
+    expected_stdout = stdout.decode("utf-8", errors="backslashreplace").replace("\r\n", "\n")
+    expected_stderr = stderr.decode("utf-8", errors="backslashreplace").replace("\r\n", "\n")
+    assert completed.stdout == expected_stdout
+    assert completed.stderr == expected_stderr
+    summary = repository_sota_closeout._compact_output(completed, limit=20_000)
+    assert "stdout-marker\ninvalid:\\xff\\xfe" in summary
+    assert "stderr-marker\ninvalid:\\x80" in summary
+
+    legacy_stdout = "legacy-stdout-" + ("x" * 5_000)
+    legacy_stderr = "legacy-stderr-" + ("y" * 5_000)
+    legacy_code = (
+        "import sys\n"
+        f"sys.stdout.write({legacy_stdout!r})\n"
+        f"sys.stderr.write({legacy_stderr!r})\n"
+        "raise SystemExit(23)\n"
+    )
+    legacy_command = [sys.executable, "-c", legacy_code]
+    default_completed = repository_sota_closeout._run_subprocess_with_receipt(
+        "default-probe",
+        legacy_command,
+        receipt_dir=None,
+    )
+    assert default_completed.returncode == 23
+    assert not (tmp_path / "default-probe").exists()
+    assert repository_sota_closeout._compact_output(default_completed) == (
+        (legacy_stdout + legacy_stderr)[:4000] + "\n...[truncated]..."
+    )
 
 
 def test_phase5_remaining_exceptions_are_owner_approved_and_time_bounded() -> None:

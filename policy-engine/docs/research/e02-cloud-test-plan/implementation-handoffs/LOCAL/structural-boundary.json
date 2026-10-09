@@ -1,0 +1,218 @@
+{
+  "schema": "policyos.e02.local_slice_handoff.v1",
+  "slice_id": "structural-boundary",
+  "slice_base": {
+    "commit": "80f043c0c007ca14dfd4927f980e391f4fcdc62a",
+    "tree": "a9af1372c08712c3a58a367cad085a4926243f7e"
+  },
+  "candidate_source": {
+    "commit": "704082ef53d8e5aca645fd814b9c85b5db3e5168",
+    "tree": "820db8cf6994f916e8d07592da9ac5befc877d80"
+  },
+  "parents": [
+    "80f043c0c007ca14dfd4927f980e391f4fcdc62a"
+  ],
+  "source_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+      "sha256": "7fd66318ea1fe66d0807a6843dda5c23eab5631b7067ce8071f1dedfa7e4da02",
+      "blob": "2edaeb4876f1de22648a2159489ef3629a889fac"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+      "sha256": "92ff1127d1871fe0f2dee7de0b09f44252337a04676915f1e5da2af035e559ae",
+      "blob": "517fdb9cc91733c515a552f5a7ebc837831d221f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+      "sha256": "15a4be1c7fb5eb8c4da24fdc0dd21e63bec039a21d27cd8a11a2e2af9cbf7083",
+      "blob": "2f0b708c25163eda9fdae7fe1b61e044b07d80b7"
+    },
+    {
+      "path": "policy-engine/docs/brand/ATLAS_SOURCE_OF_TRUTH.md",
+      "sha256": "29864866614daab1be1a4e2ffaf3d19c10233b3bf990cc0a391809be69af39f6",
+      "blob": "547ab960a0d1e2dd870bf9b55c12ba61a1772b08"
+    },
+    {
+      "path": "policy-engine/docs/reference/frontend/atlas-live-application-audit.md",
+      "sha256": "207488d1fb452a64eef4bcbc0bb70a027a360a7d9b3cb96ffaee33aa3a2404cf",
+      "blob": "9b66b54a8764c0971ba9c78b97e035b0cb172f1c"
+    },
+    {
+      "path": "policy-engine/ops/cloud/gcp/package_repo.sh",
+      "sha256": "be03c9f66909e3cd5c6547562c6f3d9c2673a76079b3dc8ba1f1b5812608f5ec",
+      "blob": "2c90d935f6249d99dc286c80294726dd13473766"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_gcp_package_assets.py",
+      "sha256": "d2eefcc2bbbe4523c7c101c68a84c2ce0be720bceacc12adfaefc4b2df313e47",
+      "blob": "82829cfc72ec15835d44b82b0d30595f1f0c999c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/bootstrap.py",
+      "sha256": "eb8ae5af0f32881b41a5fd229666050c81ad9790ff6f3deea28ebb407b25c47f",
+      "blob": "439dad88f9b13bf807faee6432035ae8e21ddbd6"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+      "sha256": "1e1a7d787a79075746d4000931837391f45d6f2a437edf94f532aab1db727ab4",
+      "blob": "5cd7047555745fa9467145332fc7811532c8288d"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-09-e02-b175-bootstrap-preflight.toml",
+      "sha256": "5f4d1ad38a0a1ff6b298f8ee8acf29dd03f748279c6f43ae13637d8424e9b0f4",
+      "blob": "c05c995ed8b5be16afa2fa9c29be356c9f856d1c"
+    },
+    {
+      "path": "policy-engine/tests/unit/ddm/test_facade.py",
+      "sha256": "8ec5c49f05af963762f8fdb583ce71ea6258a3ef5300bc51d51ff782a3ee4491",
+      "blob": "cef2125bc649a27ba562b49208afcc91397ff087"
+    },
+    {
+      "path": "policy-engine/tests/unit/ddm/test_readiness_mapping.py",
+      "sha256": "2e42c1f75113a8a443610e143497a2d9a0356154119da83bc564075bba9e0f95",
+      "blob": "2a3ca808e88b74a914df3938215dab10f49d2345"
+    },
+    {
+      "path": "policy-engine/tests/unit/ddm/test_contract_compatibility.py",
+      "sha256": "89ee7b3414a41a2eb769f753b4616b0683fde513a9a95571811d759067a76e25",
+      "blob": "e4267c1126c6f634ef55d529fa2dc2df016d79cb"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+      "sha256": "ec75b89d5f2af75a339553027ee707a885f65cd39cc144c68a0e0bf18da16e84",
+      "blob": "c8098ffa4ae715fdc0ab6df08004c705c4291679"
+    }
+  ],
+  "selected_inputs": [
+    {
+      "profile": "controlled test/compatibility/archive fixtures; no production authority input"
+    },
+    {
+      "profile": "G-only Catalog resource resolver preserved",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+      "blob": "0867804c64b5468bff7025a5208574b2390b90ad"
+    }
+  ],
+  "backend_profile": {
+    "python": "3.14.3",
+    "platform": "macOS arm64",
+    "numerical_threads": 1,
+    "lock_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+    "heavy_wave": "not_run"
+  },
+  "commands": [
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "tests/repo_quality/tools/test_gcp_package_assets.py",
+        "tests/unit/ddm/test_facade.py",
+        "tests/unit/ddm/test_readiness_mapping.py",
+        "tests/unit/ddm/test_contract_compatibility.py",
+        "tests/unit/scientist/methods/backtesting/test_bootstrap.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "status": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 9.14973150001606,
+      "stdout_ref": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/commits/structural-boundary/root-focused.stdout.txt",
+        "sha256": "af5b79a50eac276fc51ed9d0626af548aaf607ac66c736d3a4f21627488086e6",
+        "availability": "Retained locally for independent G; raw outputs are ignored."
+      },
+      "stderr_ref": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/commits/structural-boundary/root-focused.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "Retained locally for independent G; raw outputs are ignored."
+      },
+      "deciding_output": "57 passed, 2 upstream Torch deprecation warnings",
+      "working_delta_sha256_before": "df171aadc1f9e0aa93f78a360e3be69ee8f9c3500971d30a107a764cfb48215c",
+      "working_delta_sha256_after": "df171aadc1f9e0aa93f78a360e3be69ee8f9c3500971d30a107a764cfb48215c",
+      "source_qualification": "Committed target bytes with unchanged tracked worktree delta during command; full composition is still unfrozen."
+    },
+    {
+      "command": "cd policy-engine && .venv/bin/python -m pytest -q -ra -o addopts= tests/unit/data_forge/domains/catalog/batch/test_pipeline.py tests/unit/data_forge/domains/catalog/knowledge/test_store.py tests/unit/fabric/test_retrieval_service_catalog.py tests/unit/remediation/test_dfi_03.py tests/unit/remediation/test_dfk_02.py",
+      "status": "PASS",
+      "exit_code": 0,
+      "stdout_ref": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/i1-c05/checks/catalog-proxy-structural-lane-tests.log",
+        "sha256": "1857075ac7c4320c0d278bf846a60655e6d60151bfa41f7cefcfae3ec8692281",
+        "availability": "Retained locally for independent G; raw outputs are ignored."
+      },
+      "stderr_ref": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/i1-c05/checks/catalog-proxy-structural-lane-tests.log",
+        "sha256": "1857075ac7c4320c0d278bf846a60655e6d60151bfa41f7cefcfae3ec8692281",
+        "availability": "Retained locally for independent G; raw outputs are ignored.",
+        "capture_mode": "merged stdout/stderr"
+      },
+      "deciding_output": "132 passed in 23.91s",
+      "source_qualification": "Author focused then-shared-worktree witness; target bytes read back from implementation commit; not final composed replay."
+    },
+    {
+      "command": "uv run polisyos-tools workspace repository-sota-closeout",
+      "status": "UNRUN",
+      "unrun_reason": "Await complete source/input/backend freeze and independent blocking fixes; contract-only is not native execution."
+    }
+  ],
+  "chain": {
+    "catalog": "typed proxies retain real owner lookup, override scope and supplier resource resolution with existing producer/material basis at021560651",
+    "bootstrap": "observation vector -> common finite1-D admission -> statistic/RNG -> BootstrapCI; matrix input refused before side effects",
+    "archive": "declared selector -> component-wise egg-info exclusion -> unchanged generic member preflight -> archive bytes",
+    "ddm": "actual manual schema/model payload validation; old pickle global -> legacy facade -> canonical class/full state"
+  },
+  "controls": [
+    {
+      "id": "B175",
+      "property": "2-D input fails before callback/RNG",
+      "evidence_ref": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s3-empirical/bootstrap-b175-tdd-red.stdout.txt",
+        "sha256": "225c7960c055f34c4e4f874c26ae01efb2432e71fa90b42377465f947e18971a",
+        "availability": "Retained locally for independent G; raw outputs are ignored."
+      }
+    },
+    {
+      "id": "LA-056",
+      "property": "Evidence branch, malformed/no-evidence and old FQN serialized state",
+      "path": "policy-engine/tests/unit/ddm/test_contract_compatibility.py"
+    },
+    {
+      "property": "distribution-named egg-info leak rejected",
+      "path": "policy-engine/tests/repo_quality/tools/test_gcp_package_assets.py"
+    }
+  ],
+  "consumer_surface": {
+    "catalog": "existing public facade/pipeline consumers",
+    "bootstrap": "existing public entrypoints",
+    "ddm": "canonical+legacy public facade/persisted Python lookup",
+    "archive": "GCP source archive; installed wheels pending"
+  },
+  "limitations": [
+    "Intermediate stable implementation boundary; final composed source/input/backend freeze and native/Linux/installed/authentic closeout remain pending.",
+    "Focus evidence does not close any finding automatically.",
+    "Other-owner backtest README changes remain preserved outside this commit.",
+    "G accepts code and adjudicates findings independently."
+  ],
+  "decision_refs": [
+    "LOCAL/dx0-native/sota-expiry-issuer-options.md",
+    "LOCAL/cas-contracts/la056/receipt.md",
+    "LOCAL/i1-c05/ready-files.json"
+  ],
+  "proposal_ids": [
+    {
+      "id": "B175",
+      "proposal": "source repaired; focused property verified; final original-criterion evaluation pending"
+    },
+    {
+      "id": "LA-056",
+      "proposal": "compatibility evidence added; independent acceptance pending"
+    }
+  ],
+  "formal_closure_ids": [],
+  "closure_ids": []
+}

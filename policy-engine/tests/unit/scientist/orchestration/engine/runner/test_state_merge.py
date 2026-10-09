@@ -3,8 +3,12 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.scientist.orchestration.engine.runner.serialization import deserialize_state, serialize_state
+from polisyos.scientist.orchestration.engine.runner.serialization import (
+    deserialize_state,
+    serialize_state,
+)
 from polisyos.scientist.orchestration.engine.runner.state_merge import (
     StateMergeConflictError,
     merge_tier_states,

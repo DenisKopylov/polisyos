@@ -1,0 +1,17 @@
+id = "2026-10-09-e02-stream-admission-recovery"
+title = "Bound stream admission and preserve predecessor state on rejected transitions"
+type = "fixed"
+component = "fabric-data-plane"
+owner = "team-fabric"
+summary = "Bound source rows and serialized bytes, retained window state, and output references; admit checkpoint state before rewind; validate each declared-schema row before publication; and retain exact event/version dedupe keys within a persisted UTC horizon."
+evidence = ["tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py", "tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py", "tests/unit/fabric/data_plane/test_streaming_runtime.py"]
+compatibility = "Adds explicit input-row, input-byte, and output-reference options. Default dedupe identity is narrowed to _message_id; connectors that use another event/version key must declare it."
+change_class = "python-public-api"
+surface_classification = "public_experimental: StreamRuntimeOptions; internal: row-local stream schema admission and checkpoint window recovery"
+migration = "Configure input and output caps for the stream profile. Configure dedupe fields only from source-owner event/version semantics; do not substitute entity IDs or payload hashes."
+api = "Adds optional StreamRuntimeOptions fields for max_input_rows, max_input_bytes, and max_output_refs."
+limitations = "Caps bound logical input, retained window, and reference counts, not connector allocation or process RSS. The default _message_id field alone does not establish supplier event/version semantics."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/fabric/data_plane/README.md"]
+runbook_docs = []

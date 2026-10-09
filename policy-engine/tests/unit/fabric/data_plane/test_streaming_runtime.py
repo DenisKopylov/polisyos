@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 import pytest
+
 from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
@@ -30,15 +31,21 @@ from polisyos.fabric.data_plane.cursor_store import (
     CursorStore,
     CursorStoreError,
 )
-from polisyos.fabric.data_plane.modes import _sanitize_stream_rows
+from polisyos.fabric.data_plane.modes import (
+    _sanitize_stream_rows,
+    _stream_runtime_options_from_manifest,
+)
 from polisyos.fabric.data_plane.quarantine import list_quarantine_records
 from polisyos.fabric.data_plane.streaming import (
+    StreamCapacityError,
+    StreamDedupeUnsupported,
     StreamingSourceSession,
     StreamRuntimeOptions,
     StreamSchemaBinding,
     StreamWindowAccumulator,
     iter_record_batches,
     process_stream_dataset,
+    resolve_dedupe_key,
 )
 from polisyos.fabric.data_plane.watermark import WindowPolicy
 from polisyos.fabric.quality.processing_guarantees import (
@@ -401,7 +408,7 @@ async def test_net01_rewind_failure_closes_owned_session(
         stream_id="net01-stream:rewind-failure:default",
         connector_id="net01-stream",
         dataset_id="rewind-failure",
-        offset=1,
+        offset=0,
         created_at=datetime.now(UTC),
     )
 
@@ -542,7 +549,9 @@ async def test_process_stream_dataset_recovers_from_checkpoint_and_dedupes_repla
     assert paused is not None
     assert paused.lifecycle_state == StreamLifecycleState.PAUSED
     assert paused.offset == 0
-    assert paused.dedupe_keys == ("_message_id:m1", "_message_id:m2")
+    assert paused.dedupe_keys == tuple(
+        resolve_dedupe_key({"_message_id": key}, fields=("_message_id",)) for key in ("m1", "m2")
+    )
 
     monkeypatch.setattr(StreamingSourceSession, "poll", original_poll)
     recovered = await process_stream_dataset(
@@ -647,9 +656,7 @@ async def test_stream_partitions_keep_frontiers_isolated_across_restart(
 
     assert resumed_left.final_checkpoint is not None
     assert resumed_left.final_checkpoint.partition_key == "left"
-    left_cursor = reopened.find_latest_cursor(
-        "stream.jsonl", "shared-events", partition_key="left"
-    )
+    left_cursor = reopened.find_latest_cursor("stream.jsonl", "shared-events", partition_key="left")
     right_cursor = reopened.find_latest_cursor(
         "stream.jsonl", "shared-events", partition_key="right"
     )
@@ -662,109 +669,59 @@ async def test_stream_partitions_keep_frontiers_isolated_across_restart(
 
 
 @pytest.mark.asyncio
-async def test_stream_dedupe_count_horizon_is_restart_invariant(
+async def test_stream_live_dedupe_keys_survive_capacity_refusal_and_restart(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A count-bounded dedupe horizon must make live and resumed decisions match."""
-
+    """A third live key must not evict the first from the UTC horizon."""
     stream_path = tmp_path / "dedupe-horizon.jsonl"
     stream_path.write_text(
         "\n".join(
-            [
-                '{"_message_id":"a","value":1}',
-                '{"_message_id":"b","value":2}',
-                '{"_message_id":"c","value":3}',
-                '{"_message_id":"a","value":1}',
-            ]
+            json.dumps({"_message_id": key, "value": index})
+            for index, key in enumerate(("a", "b", "c", "a"))
         )
         + "\n",
         encoding="utf-8",
     )
-
-    def registry_for_stream() -> ConnectorRegistry:
-        ConnectorRegistry.reset_instance()
-        registry = ConnectorRegistry.get_instance()
-        registry.set_default_config(
-            "stream.jsonl",
-            ConnectionConfig(
-                url=stream_path.as_uri(),
-                headers={"X-Stream-ChunkSize": "1"},
-            ),
-        )
-        return registry
-
+    now = datetime(2026, 10, 6, tzinfo=UTC)
+    monkeypatch.setattr("polisyos.fabric.data_plane.streaming._ingestion_utc", lambda: now)
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    config = ConnectionConfig(url=stream_path.as_uri(), headers={"X-Stream-ChunkSize": "1"})
     options = StreamRuntimeOptions(
         checkpoint_every_chunks=1,
         max_dedupe_keys=2,
         window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=10),
     )
-    uninterrupted_store = FileSystemCAS(tmp_path / "uninterrupted")
-    uninterrupted = await process_stream_dataset(
-        connector_id="stream.jsonl",
-        dataset_id="uninterrupted",
-        store=uninterrupted_store,
-        cursor_store=CursorStore(uninterrupted_store),
-        sanitize_rows=_valid_rows,
-        runtime_options=options,
-        registry=registry_for_stream(),
-    )
-    assert uninterrupted.final_checkpoint is not None
-
-    restart_store = FileSystemCAS(tmp_path / "restart")
-    restart_cursor_store = CursorStore(restart_store)
-    original_poll = StreamingSourceSession.poll
-    poll_state = {"chunks": 0}
-
-    async def fail_after_c(self: StreamingSourceSession):
-        if poll_state["chunks"] == 3:
-            raise RuntimeError("controlled restart after c")
-        chunk = await original_poll(self)
-        if chunk is not None:
-            poll_state["chunks"] += 1
-        return chunk
-
-    monkeypatch.setattr(StreamingSourceSession, "poll", fail_after_c)
-    with pytest.raises(RuntimeError, match="controlled restart after c"):
-        await process_stream_dataset(
-            connector_id="stream.jsonl",
-            dataset_id="restart",
-            store=restart_store,
-            cursor_store=restart_cursor_store,
-            sanitize_rows=_valid_rows,
-            runtime_options=options,
-            registry=registry_for_stream(),
+    store = FileSystemCAS(tmp_path / "index")
+    cursor_store = CursorStore(store)
+    for _ in range(2):
+        with pytest.raises(StreamDedupeUnsupported, match="before eviction"):
+            await process_stream_dataset(
+                connector_id="stream.jsonl",
+                dataset_id="events",
+                store=store,
+                cursor_store=cursor_store,
+                sanitize_rows=_valid_rows,
+                runtime_options=options,
+                registry=registry,
+                connection_config=config,
+            )
+        saved = cursor_store.find_latest_stream_checkpoint("stream.jsonl", "events")
+        assert saved is not None and saved.offset == 1
+        keys = tuple(
+            json.dumps([["_message_id", key]], separators=(",", ":")) for key in ("a", "b")
         )
-
-    paused = restart_cursor_store.find_latest_stream_checkpoint(
-        "stream.jsonl",
-        "restart",
-    )
-    assert paused is not None
-    assert paused.offset == 2
-    assert paused.dedupe_keys == ("_message_id:b", "_message_id:c")
-
-    monkeypatch.setattr(StreamingSourceSession, "poll", original_poll)
-    resumed = await process_stream_dataset(
-        connector_id="stream.jsonl",
-        dataset_id="restart",
-        store=restart_store,
-        cursor_store=restart_cursor_store,
-        sanitize_rows=_valid_rows,
-        runtime_options=options,
-        registry=registry_for_stream(),
-    )
-
-    assert resumed.final_checkpoint is not None
-    # With a count horizon, c evicts a from the live index.  The final a must
-    # therefore be accepted both in one uninterrupted run and after restart.
-    assert uninterrupted.dedupe_dropped == 0
-    assert resumed.dedupe_dropped == 0
-    assert uninterrupted.final_checkpoint.dedupe_keys == (
-        "_message_id:c",
-        "_message_id:a",
-    )
-    assert resumed.final_checkpoint.dedupe_keys == uninterrupted.final_checkpoint.dedupe_keys
+        assert saved.dedupe_keys == keys
+        assert saved.metadata["dedupe_horizon"]["entries"] == {key: now.isoformat() for key in keys}
+        current = cursor_store.find_latest_cursor("stream.jsonl", "events")
+        assert current is not None and current.watermark_value == "1"
+        if _ == 0:
+            predecessor = saved.model_dump(mode="json")
+        else:
+            assert saved.model_dump(mode="json") == predecessor
+        store = FileSystemCAS(tmp_path / "index")
+        cursor_store = CursorStore(store)
 
 
 @pytest.mark.asyncio
@@ -776,8 +733,7 @@ async def test_stream_failure_before_chunk_persistence_replays_dedupe_rows(
 
     stream_path = tmp_path / "pre-chunk-failure.jsonl"
     stream_path.write_text(
-        '{"_message_id":"m1","value":1}\n'
-        '{"_message_id":"m2","value":2}\n',
+        '{"_message_id":"m1","value":1}\n{"_message_id":"m2","value":2}\n',
         encoding="utf-8",
     )
     ConnectorRegistry.reset_instance()
@@ -1129,8 +1085,7 @@ async def test_stream_window_lineage_covers_trigger_and_final_flush(tmp_path: Pa
     stream_path = tmp_path / "trigger-final-lineage.jsonl"
     stream_path.write_text(
         "".join(
-            json.dumps({"_message_id": f"m{index}", "value": index}) + "\n"
-            for index in range(1, 4)
+            json.dumps({"_message_id": f"m{index}", "value": index}) + "\n" for index in range(1, 4)
         ),
         encoding="utf-8",
     )
@@ -1436,10 +1391,13 @@ async def test_stream_first_frontier_partial_cursor_and_failed_restore_is_unreso
     assert unresolved.metadata["frontier_committed"] is False
     # The pair was cleared before the post-restore failure; the unresolved
     # marker remains the fail-closed guard for recovery.
-    assert cursor_store.find_latest_cursor(
-        "stream.jsonl",
-        "partial-first-frontier",
-    ) is None
+    assert (
+        cursor_store.find_latest_cursor(
+            "stream.jsonl",
+            "partial-first-frontier",
+        )
+        is None
+    )
 
 
 @pytest.mark.asyncio
@@ -1922,7 +1880,7 @@ async def test_stream_legacy_paused_nonzero_checkpoint_without_state_fails_close
             dataset_id="legacy-paused",
             offset=2,
             lifecycle_state=StreamLifecycleState.PAUSED,
-            dedupe_keys=("_message_id:m1",),
+            dedupe_keys=(),
             metadata={"observed_offset": 2},
             created_at=datetime.now(UTC),
         )
@@ -2156,7 +2114,7 @@ async def test_process_stream_dataset_propagates_backpressure(tmp_path: Path):
         "stream.jsonl",
         ConnectionConfig(
             url=stream_path.as_uri(),
-            headers={"X-Stream-ChunkSize": "2"},
+            headers={"X-Stream-ChunkSize": "1"},
         ),
     )
 
@@ -2174,7 +2132,7 @@ async def test_process_stream_dataset_propagates_backpressure(tmp_path: Path):
             window_policy=WindowPolicy(
                 strategy=WindowStrategy.SESSION,
                 size=300,
-                session_gap_seconds=300,
+                session_gap_seconds=5,
                 timestamp_field="event_time",
             ),
         ),
@@ -2182,11 +2140,11 @@ async def test_process_stream_dataset_propagates_backpressure(tmp_path: Path):
 
     assert result.rows_emitted == 4
     assert result.backpressure_events >= 1
-    assert len(result.window_refs) == 1
+    assert len(result.window_refs) == 4
 
 
 @pytest.mark.asyncio
-async def test_process_stream_dataset_propagates_byte_backpressure(tmp_path: Path):
+async def test_stream_refuses_input_above_byte_capacity(tmp_path: Path):
     stream_path = tmp_path / "byte-backpressure.jsonl"
     stream_path.write_text(
         "\n".join(
@@ -2208,36 +2166,35 @@ async def test_process_stream_dataset_propagates_byte_backpressure(tmp_path: Pat
         ),
     )
 
-    result = await process_stream_dataset(
-        connector_id="stream.jsonl",
-        dataset_id="byte-backpressure",
-        store=FileSystemCAS(tmp_path / ".polisyos"),
-        cursor_store=CursorStore(FileSystemCAS(tmp_path / ".polisyos")),
-        sanitize_rows=_valid_rows,
-        runtime_options=StreamRuntimeOptions(
-            max_buffered_rows=10_000,
-            max_buffered_bytes=1,
-            pause_seconds=0.0,
-            window_policy=WindowPolicy(
-                strategy=WindowStrategy.SESSION,
-                size=300,
-                session_gap_seconds=300,
-                timestamp_field="event_time",
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    with pytest.raises(StreamCapacityError) as refusal:
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="byte-backpressure",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(
+                max_buffered_bytes=1,
+                pause_seconds=0.0,
+                window_policy=WindowPolicy(strategy=WindowStrategy.SESSION, size=300),
             ),
-        ),
-        registry=registry,
-    )
-
-    assert result.rows_emitted == 2
-    assert result.backpressure_events >= 1
+            registry=registry,
+        )
+    assert refusal.value.stage == "input"
+    assert refusal.value.bytes_size > refusal.value.max_bytes == 1
+    assert cursor_store.find_latest_cursor("stream.jsonl", "byte-backpressure") is None
+    assert cursor_store.find_latest_stream_checkpoint("stream.jsonl", "byte-backpressure") is None
+    assert not list((tmp_path / ".polisyos").rglob("*.manifest.json"))
 
 
 @pytest.mark.asyncio
-async def test_stream_characterizes_oversized_chunk_crossing_row_and_byte_limits(
+async def test_stream_refuses_oversized_input_before_materialization(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Characterize B84: pause is reached only after an oversized chunk is buffered."""
+    """B84: admission precedes sanitization, operator state, and CAS writes."""
 
     rows = [
         {
@@ -2262,63 +2219,120 @@ async def test_stream_characterizes_oversized_chunk_crossing_row_and_byte_limits
         ),
     )
 
-    observed_buffer: list[tuple[int, int, int]] = []
-    original_add_rows_with_refs = StreamWindowAccumulator.add_rows_with_refs
+    def forbidden_sanitize(*args: Any, **kwargs: Any):
+        del args, kwargs
+        pytest.fail("over-cap source input reached materialization/sanitization")
 
-    def observe_buffer_after_add(
-        accumulator: StreamWindowAccumulator,
-        clean_rows: list[dict[str, Any]],
-        contributor_refs: tuple[str, ...],
-    ) -> list[Any]:
-        emissions = original_add_rows_with_refs(
-            accumulator,
-            clean_rows,
-            contributor_refs,
-        )
-        observed_buffer.append(
-            (
-                accumulator.buffered_rows(),
-                accumulator.buffered_bytes(),
-                len(clean_rows),
-            )
-        )
-        return emissions
-
-    monkeypatch.setattr(
-        StreamWindowAccumulator,
-        "add_rows_with_refs",
-        observe_buffer_after_add,
-    )
     store = FileSystemCAS(tmp_path / ".polisyos")
-    result = await process_stream_dataset(
-        connector_id="stream.jsonl",
-        dataset_id="oversized-chunk",
-        store=store,
-        cursor_store=CursorStore(store),
-        sanitize_rows=_valid_rows,
-        runtime_options=StreamRuntimeOptions(
-            batch_size=1,
-            max_buffered_rows=1,
-            max_buffered_bytes=1,
-            pause_seconds=0.0,
-            window_policy=WindowPolicy(
-                strategy=WindowStrategy.SESSION,
-                size=300,
-                session_gap_seconds=300,
-                timestamp_field="event_time",
+    cursor_store = CursorStore(store)
+    with pytest.raises(StreamCapacityError) as refusal:
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="oversized-chunk",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=forbidden_sanitize,
+            runtime_options=StreamRuntimeOptions(
+                batch_size=1,
+                max_buffered_rows=1,
+                max_buffered_bytes=1,
+                pause_seconds=0.0,
+                window_policy=WindowPolicy(strategy=WindowStrategy.SESSION, size=300),
             ),
+            registry=registry,
+        )
+    assert refusal.value.stage == "input"
+    assert refusal.value.rows == 3 and refusal.value.max_rows == 1
+    assert cursor_store.find_latest_cursor("stream.jsonl", "oversized-chunk") is None
+    assert cursor_store.find_latest_stream_checkpoint("stream.jsonl", "oversized-chunk") is None
+    assert not list((tmp_path / ".polisyos").rglob("*.manifest.json"))
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("cap_name", "cap_value", "expected_stage"),
+    [
+        ("max_input_rows", 1, "input"),
+        ("max_input_bytes", 1, "input"),
+        ("max_output_refs", 1, "output"),
+    ],
+)
+async def test_stream_manifest_caps_reach_real_admission(
+    tmp_path: Path,
+    cap_name: str,
+    cap_value: int,
+    expected_stage: str,
+) -> None:
+    """Configured manifest caps reach source admission and output retention."""
+    stream_path = tmp_path / "manifest-capped.jsonl"
+    rows = [
+        {"_message_id": "m1", "value": 1},
+        {"_message_id": "m2", "value": 2},
+    ]
+    stream_path.write_text(
+        "\n".join(json.dumps(row, sort_keys=True) for row in rows) + "\n",
+        encoding="utf-8",
+    )
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(
+            url=stream_path.as_uri(),
+            headers={"X-Stream-ChunkSize": "2" if expected_stage == "input" else "1"},
         ),
-        registry=registry,
     )
 
-    assert result.rows_emitted == 3
-    assert result.backpressure_events >= 1
-    assert observed_buffer
-    assert observed_buffer[0][2] == 3
-    # This is an intentionally non-normative witness: it records the current
-    # pause-after-buffering behavior without claiming a spill implementation.
-    assert observed_buffer[0][0] > 1
-    assert observed_buffer[0][1] > 1
+    streaming = {
+        "batch_size": 1,
+        "checkpoint_every_chunks": 1,
+        "max_input_rows": 100,
+        "max_input_bytes": 100_000,
+        "max_output_refs": 100,
+        "window": {"strategy": "count", "size": 1},
+    }
+    streaming[cap_name] = cap_value
+    options = _stream_runtime_options_from_manifest({"streaming": streaming})
+    assert getattr(options, cap_name) == cap_value
+
+    def forbidden_sanitize(*args: Any, **kwargs: Any):
+        del args, kwargs
+        pytest.fail("over-cap manifest input reached row materialization")
+
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    try:
+        with pytest.raises(StreamCapacityError) as refusal:
+            await process_stream_dataset(
+                connector_id="stream.jsonl",
+                dataset_id="manifest-capped",
+                store=store,
+                cursor_store=cursor_store,
+                sanitize_rows=forbidden_sanitize if expected_stage == "input" else _valid_rows,
+                runtime_options=options,
+                registry=registry,
+            )
+        assert refusal.value.stage == expected_stage
+        if cap_name == "max_input_rows":
+            assert refusal.value.max_rows == cap_value
+        elif cap_name == "max_input_bytes":
+            assert refusal.value.max_bytes == cap_value
+        else:
+            assert refusal.value.max_rows == cap_value
+        if expected_stage == "input":
+            assert cursor_store.find_latest_cursor("stream.jsonl", "manifest-capped") is None
+            assert (
+                cursor_store.find_latest_stream_checkpoint("stream.jsonl", "manifest-capped")
+                is None
+            )
+            assert not list((tmp_path / ".polisyos").rglob("*.manifest.json"))
+    finally:
+        await registry.shutdown_async()
+
+
+def test_stream_manifest_rejects_malformed_capacity_instead_of_ignoring_it() -> None:
+    with pytest.raises(ValueError, match="max_input_rows must be a positive integer"):
+        _stream_runtime_options_from_manifest({"streaming": {"max_input_rows": "2"}})
 
 
 @pytest.mark.asyncio
@@ -2377,9 +2391,7 @@ async def test_stream_spill_to_disk_does_not_silently_buffer_oversized_chunk(
         registry=registry_for_stream(),
     )
     assert control.chunk_refs
-    control_chunk = from_canonical_bytes(
-        control_store.get_bytes(control.chunk_refs[0].artifact_id)
-    )
+    control_chunk = from_canonical_bytes(control_store.get_bytes(control.chunk_refs[0].artifact_id))
     expected_ids = tuple(row["_message_id"] for row in control_chunk["data"])
 
     observed_buffer: list[tuple[int, int, int]] = []
@@ -2478,7 +2490,7 @@ async def test_process_stream_dataset_enforces_backpressure_event_budget(tmp_pat
         "stream.jsonl",
         ConnectionConfig(
             url=stream_path.as_uri(),
-            headers={"X-Stream-ChunkSize": "2"},
+            headers={"X-Stream-ChunkSize": "1"},
         ),
     )
     processing = stream_processing_contract().model_copy(
@@ -2501,7 +2513,7 @@ async def test_process_stream_dataset_enforces_backpressure_event_budget(tmp_pat
                 window_policy=WindowPolicy(
                     strategy=WindowStrategy.SESSION,
                     size=300,
-                    session_gap_seconds=300,
+                    session_gap_seconds=5,
                     timestamp_field="event_time",
                 ),
             ),
@@ -2657,8 +2669,7 @@ async def test_bound_optional_presence_does_not_emit_removal_cdc(
 
     assert result.rows_emitted == 2
     cdc_payloads = [
-        from_canonical_bytes(store.get_bytes(ref.artifact_id))
-        for ref in result.cdc_event_refs
+        from_canonical_bytes(store.get_bytes(ref.artifact_id)) for ref in result.cdc_event_refs
     ]
     assert len(cdc_payloads) == 1
     cdc_payload = cdc_payloads[0]
@@ -2694,8 +2705,10 @@ def test_stream_schema_binding_rejects_registry_revision_change() -> None:
     updated_schema = DataSchema(
         schema_id=contract.schema.schema_id,
         version=SchemaVersion(1, 1, 0),
-        fields=contract.schema.fields
-        + (FieldSpec(name="extra", data_type=SchemaType.STRING, presence="optional"),),
+        fields=(
+            *contract.schema.fields,
+            FieldSpec(name="extra", data_type=SchemaType.STRING, presence="optional"),
+        ),
         primary_key=contract.schema.primary_key,
         required_completeness=0.0,
     )

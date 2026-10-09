@@ -32,6 +32,13 @@ contracts, readiness readers, benchmark/QC readers, artifact-hash comparisons,
 and read-only SKG inspection behind `polisyos.data_forge.read_api.academic`.
 The legacy `polisyos.academic` package was removed in the Phase 8 shim sunset.
 
+The academic read facade also exposes the existing `PreparedSKGRead` and
+`PreparedSKGReadReceipt` contracts for engine cache-input preparation and current
+read receipts. These are additive runtime-safe read exports of the canonical
+SKG implementation; the facade keeps lazy loading and does not grant source
+snapshot retention, filesystem authority or a new SKG algorithm. Existing
+prepared-connection/key/query behavior remains owned by the academic producer.
+
 Phase 3 catalog completion has moved catalog source registry contracts,
 per-source source-module planning, harvest/normalize/observation/publish asset
 contracts, catalog schema contracts, readiness readers, benchmark/QC readers,

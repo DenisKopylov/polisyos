@@ -9,6 +9,7 @@ from polisyos.fabric.connectors.base import ConnectionConfig
 from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.fabric.data_plane.cursor_store import CursorStore
 from polisyos.fabric.data_plane.streaming import (
+    StreamDedupeUnsupported,
     StreamRuntimeOptions,
     process_stream_dataset,
     resolve_dedupe_key,
@@ -62,16 +63,10 @@ def test_cdc_schema_change_compatibility_classification() -> None:
     )
 
 
-def test_missing_dedupe_key_can_quarantine_instead_of_hashing() -> None:
-    assert resolve_dedupe_key({"value": 1}, fields=("id",)) != ""
-    assert (
-        resolve_dedupe_key(
-            {"value": 1},
-            fields=("id",),
-            missing_key_action="quarantine",
-        )
-        == ""
-    )
+@pytest.mark.parametrize("action", ["hash_payload", "quarantine", "reject"])
+def test_missing_source_event_key_is_typed_unsupported(action: str) -> None:
+    with pytest.raises(StreamDedupeUnsupported, match="missing or unsupported"):
+        resolve_dedupe_key({"value": 1}, fields=("event_id",), missing_key_action=action)
 
 
 @pytest.mark.asyncio

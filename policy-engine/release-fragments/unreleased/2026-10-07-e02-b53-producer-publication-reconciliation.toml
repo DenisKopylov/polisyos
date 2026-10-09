@@ -1,0 +1,95 @@
+id = "2026-10-07-e02-b53-producer-publication-reconciliation"
+title = "Reconcile producer model admission and canonical completion"
+type = "fixed"
+component = "scientist.engine"
+owner = "B-W07"
+summary = "Producer model admission precedes copies, isolated representation installs preserve narrow grants, and completed refs cross the runner wire as canonical models."
+evidence = ["tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py", "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py", "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py", "tests/unit/scientist/orchestration/engine/test_producer_model_scope_oracle.py", "tests/unit/scientist/orchestration/engine/test_producer_validation_graph_oracle.py"]
+compatibility = "Existing grants, alias journals, frozen model semantics and prepared SKG cache/query behavior are retained. Async unsupported graph admission produces a structured failure."
+change_class = "internal"
+surface_classification = "Internal producer tracking; additive public_experimental academic read facade exports of existing PreparedSKGRead and PreparedSKGReadReceipt."
+migration = "Producer models with model-level assignment validators require a field-only supported profile or an explicit separate replay contract. No arbitrary model wire class is newly admitted."
+api = "Existing executor/worker and strict runner wire signatures remain unchanged."
+limitations = "Finite ordinary model fields and container graphs only; arbitrary callback closure effects/reflection are not sandboxed. Runtime, style, typing and matched-removal checks for the new candidate are UNRUN."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/orchestration/engine/README.md", "src/polisyos/data_forge/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "b53-field-only-assignment-validation"
+change_class = "internal"
+impact = "internal"
+surface = "internal: producer branch model assignment"
+owner = "B-W07"
+version_owner = "B-W07"
+deprecation_window = "not_applicable"
+release_note = "Refuse model-level assignment callbacks before admission and validate field normalization on an isolated graph before committing."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "b53-prepared-read-facade"
+change_class = "additive"
+impact = "additive"
+surface = "public_experimental: polisyos.data_forge.read_api.academic"
+owner = "data_forge"
+version_owner = "data_forge"
+deprecation_window = "not_applicable"
+release_note = "Expose existing prepared SKG reader and receipt types through the supported lazy academic read facade."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/data_forge/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "b61-explicit-retained-operational-source"
+change_class = "additive"
+impact = "additive"
+surface = "public_experimental: ExperimentState.inputs.skg_source_snapshot"
+owner = "scientist.engine"
+version_owner = "scientist.engine"
+deprecation_window = "not_applicable"
+release_note = "Verify an explicitly selected FileSystemCAS source descriptor before workflow persistence and use the canonical DuckDB reader for untimed sequential replay."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "b61-retained-cache-proof-v5"
+change_class = "internal"
+impact = "internal"
+surface = "internal: prepared SKG cache origin"
+owner = "scientist.engine"
+version_owner = "scientist.engine"
+deprecation_window = "not_applicable"
+release_note = "Retained-source v5 origins bind a full descriptor; v4 entries recompute and cannot be promoted to retained replay. Default live source selection remains."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "b61-canonical-durability-facade"
+change_class = "additive"
+impact = "additive"
+surface = "public_experimental: polisyos.core.artifacts durability helper reexports"
+owner = "core.artifacts"
+version_owner = "core.artifacts"
+deprecation_window = "not_applicable"
+release_note = "Expose the same existing AtomicFileDurabilityError, ensure_directory_durable and fsync_directory objects through the canonical facade; local filesystem publication with replaced=True retains an unknown durability result and never claims rollback."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/core/artifacts/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "b61-concrete-cas-snapshot-resolver"
+change_class = "internal"
+impact = "internal"
+surface = "internal: scientist.engine.skg_snapshot"
+owner = "scientist.engine"
+version_owner = "scientist.engine"
+deprecation_window = "not_applicable"
+release_note = "Verify selected descriptor and chunk profiles and actual aggregate source bytes; materialize once at the run-local digest path, refusing missing or corrupt explicit replay without live fallback."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/orchestration/engine/README.md", "src/polisyos/core/artifacts/README.md"]
+runbook_docs = []

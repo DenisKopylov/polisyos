@@ -52,6 +52,29 @@ do the operational recovery surfaces for quarantine and schema-drift evidence.
   `polisyos.scientist.feedback`, `polisyos.fabric.claims.normalize`, and
   `polisyos.fabric.world.store.quarantine`.
 
+## Stream admission and recovery
+
+`StreamRuntimeOptions` bounds source input rows and serialized bytes before
+runtime batch materialization, retained window rows and serialized bytes, and
+returned chunk/window/CDC references. Recovery admits saved state before source
+rewind. A prospective window transition uses the same accumulator against
+isolated containers before output publication; exceeding a cap raises
+`StreamCapacityError` and preserves the persisted predecessor. These are
+logical retention limits; connector allocation and process RSS are outside
+their scope.
+
+Dedupe retains exact configured event/version components in connector, dataset,
+and partition scope for the policy's UTC ingestion horizon (86,400 seconds by
+default). Checkpoints preserve first-ingestion times. Missing components,
+legacy keys without persisted UTC times, and live-key overflow raise
+`StreamDedupeUnsupported`; no entity-ID or payload-hash fallback or live-key
+eviction occurs. The source owner must establish the key's event/version
+semantics. The current default `_message_id` field is not proof of that supplier
+contract, including connectors which synthesize it from offsets.
+
+Declared stream-schema membership is checked per row against `FieldSpec` before
+quarantine or publication, independently of neighboring rows and batch size.
+
 ## Common Commands
 
 Run from the repository root (`policy-engine/`).

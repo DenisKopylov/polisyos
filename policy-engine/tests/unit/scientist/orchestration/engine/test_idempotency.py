@@ -378,7 +378,9 @@ def test_node_result_cache_rejects_expired_deadline_before_store_io(tmp_path, mo
     assert calls == 0
 
 
-def test_node_result_cache_rejects_expired_deadline_before_publication(tmp_path, monkeypatch) -> None:
+def test_node_result_cache_rejects_expired_deadline_before_publication(
+    tmp_path, monkeypatch
+) -> None:
     """An expired publication deadline does not start a CAS write."""
     store = FileSystemCAS(tmp_path)
     cache = NodeResultCache(store, run_id="R_cache_put_deadline")

@@ -89,6 +89,24 @@ Run from the repository root (`policy-engine/`).
   Full connector suite. Conceptual in this README refresh; not run in this
   pass.
 
+## Acquisition ownership
+
+`PoolConfig.acquire_timeout_seconds` is one monotonic admission budget through
+semaphore wait, connection creation, validation, and the final metadata commit.
+A connector that suppresses cancellation can finish physical work late; the pool
+owns and disconnects its handle before releasing its capacity reservation and
+refuses admission after expiry or a newly observed caller cancellation. The task's
+cancellation count at entry distinguishes an earlier handled cancellation from a
+new cancellation of this acquisition. Successful publication retires the acquisition
+registration under the same lock, with no later await before returning the handle.
+
+Cleanup remains cooperative: an unresponsive physical disconnect can outlive the
+admission budget. Failed disconnect retains its cleanup owner; in-flight acquire
+transitions keep their capacity reservation until physical cleanup succeeds.
+`close_all()` retries retained owners and refuses to report a completed drain
+until physical cleanup succeeds. Circuit/live journal permissions are independent
+of this admission budget and do not establish external data authority.
+
 ## Reference Docs
 
 - [Fabric connectors reference](../../../../docs/reference/fabric/connectors.md)

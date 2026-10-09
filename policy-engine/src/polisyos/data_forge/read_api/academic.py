@@ -53,6 +53,8 @@ _EXPORTS = {
     "ClaimVocabularySourceRowBinding": f"{_ACADEMIC_KNOWLEDGE}.types",
     "EstimateCandidate": f"{_ACADEMIC_KNOWLEDGE}.types",
     "ParameterCandidate": f"{_ACADEMIC_KNOWLEDGE}.skg_query",
+    "PreparedSKGRead": f"{_ACADEMIC_KNOWLEDGE}.skg_query",
+    "PreparedSKGReadReceipt": f"{_ACADEMIC_KNOWLEDGE}.skg_query",
     "ParameterPrior": f"{_ACADEMIC_KNOWLEDGE}.types",
     "ParameterSelector": f"{_ACADEMIC_KNOWLEDGE}.parameter_selector",
     "RUNTIME_CANONICAL_REGISTRY": _RUNTIME_CANONICAL_REGISTRY,

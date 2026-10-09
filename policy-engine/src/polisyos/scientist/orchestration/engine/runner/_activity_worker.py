@@ -82,11 +82,16 @@ async def run_node_in_worker(payload: dict[str, Any]) -> bytes:
         # Remote inputs cross the state wire without branch-local metadata.
         # Establish the same declared-write journal used by local executors
         # before the node can mutate its working state.
-        from polisyos.scientist.orchestration.engine.state_branching import branch_state
+        from polisyos.scientist.orchestration.engine.state_branching import (
+            _completed_producer_state,
+            _completed_producer_value,
+            branch_state,
+        )
 
         state = branch_state(
             state,
             write_paths=getattr(node.spec, "state_writes", ()),
+            enforce_write_scope=True,
         ).state
 
         # Execute with retry/timeout under a child span
@@ -127,7 +132,13 @@ async def run_node_in_worker(payload: dict[str, Any]) -> bytes:
                 alias=alias,
             )
 
-        return cast("bytes", serialize_outcome(outcome))
+        completed = outcome.model_copy(
+            update={
+                "state": _completed_producer_state(outcome.state),
+                "artifacts": _completed_producer_value(outcome.artifacts),
+            }
+        )
+        return cast("bytes", serialize_outcome(completed))
     finally:
         if _token is not None:
             _detach_parent_trace_context(

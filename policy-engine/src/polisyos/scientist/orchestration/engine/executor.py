@@ -9,11 +9,13 @@ from contextlib import ExitStack
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from enum import StrEnum
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
@@ -64,7 +66,18 @@ from polisyos.scientist.orchestration.engine.retry import (
     _preserve_retry_spend,
     execute_with_retry_sync,
 )
+from polisyos.scientist.orchestration.engine.skg_snapshot import (
+    SNAPSHOT_INPUT_KEY,
+    RetainedSKGSnapshotError,
+    bind_retained_skg_source,
+    load_retained_skg_snapshot,
+    prepare_retained_skg_read,
+    retain_prepared_skg_read,
+)
 from polisyos.scientist.orchestration.engine.state_branching import (
+    _completed_producer_state,
+    _completed_producer_value,
+    _validate_producer_state,
     branch_state,
     mutation_journal_for_state,
     snapshot_state,
@@ -89,7 +102,7 @@ from polisyos.scientist.orchestration.memory.authority import (
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGRead
+    from polisyos.data_forge.read_api.academic import PreparedSKGRead
     from polisyos.scientist.orchestration.engine.checkpoint import CheckpointHook
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
     from polisyos.scientist.orchestration.engine.registry import NodeRegistry
@@ -103,7 +116,7 @@ _CACHE_BYPASS_REPLAY_INCOMPATIBLE = 4
 _CACHE_BYPASS_PREPARED_READ = 5
 _CACHE_BYPASS_CACHE_HIT_VALIDATION = 6
 _CACHE_BYPASS_PREPARED_READ_TIMEOUT = 7
-_PREPARED_READ_SELECTOR_EPOCH = "prepared-read-bound-connection-query-v4"
+_PREPARED_READ_SELECTOR_EPOCH = "prepared-read-retained-source-v5"
 
 _CACHE_DISABLED_NODE_IDS = frozenset(
     {
@@ -479,11 +492,40 @@ def _merge_cached_outcome_state(
     return merge_result.state
 
 
+def _bind_retained_workflow_input(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> ExperimentState:
+    """Select a verified saved source before persistence, branching and cache keys.
+
+    Ordinary execution retains live lookup semantics. A selected descriptor is
+    a distinct explicit replay input; errors never delegate to the live source.
+    """
+    if SNAPSHOT_INPUT_KEY not in state.inputs:
+        return state
+    ref = state.inputs[SNAPSHOT_INPUT_KEY]
+    if not isinstance(ref, ArtifactRef):
+        raise RetainedSKGSnapshotError("retained_skg_input_ref_required")
+    if not isinstance(ctx.store, FileSystemCAS):
+        raise RetainedSKGSnapshotError("retained_skg_local_cas_required")
+    return bind_retained_skg_source(
+        ctx.store,
+        ref,
+        state,
+        directory=_retained_snapshot_directory(ctx),
+    )
+
+
+def _retained_snapshot_directory(ctx: ExecutionContext) -> Path:
+    trace_path = ctx.run.trace_path
+    if trace_path is None:
+        raise RetainedSKGSnapshotError("retained_skg_run_path_required")
+    return trace_path.parent / "skg-snapshots"
+
+
 def _prepared_read_origin(outcome: NodeOutcome, *, selector_version: str) -> dict[str, str] | None:
     """Read the bound-connection query evidence in the persisted cached outcome."""
-    origins = [
-        event for event in outcome.events if event.code == "skg.prepared_connection_query"
-    ]
+    origins = [event for event in outcome.events if event.code == "skg.prepared_connection_query"]
     if len(origins) != 1:
         return None
     attrs = origins[0].attrs
@@ -496,8 +538,13 @@ def _prepared_read_origin(outcome: NodeOutcome, *, selector_version: str) -> dic
         "prepared_at",
         "read_evidence_scope",
         "output_dependency",
+        "retained_snapshot_ref_json",
+        "retained_snapshot_schema_version",
+        "retained_source_original_reference",
     )
     if any(not isinstance(attrs.get(key), str) or not attrs[key] for key in required):
+        return None
+    if attrs.get("retained_snapshot_schema_version") != "1.0":
         return None
     if attrs.get("selector_version") != selector_version:
         return None
@@ -526,6 +573,42 @@ def _prepared_read_origin(outcome: NodeOutcome, *, selector_version: str) -> dic
     return {key: str(attrs[key]) for key in required}
 
 
+def _retained_prepared_source(
+    *,
+    ctx: ExecutionContext,
+    prepared_read: PreparedSKGRead,
+    selected_ref: ArtifactRef | None,
+    existing_ref: ArtifactRef | None = None,
+) -> tuple[ArtifactRef, str]:
+    """Reconcile the real prepared generation with one retained descriptor.
+
+    Explicit replay preserves its selected full ref. Its original logical source
+    reference differs from the materialized reader's physical path, so it must
+    not enter default live-source existing-ref reconciliation.
+    """
+    if not isinstance(ctx.store, FileSystemCAS):
+        raise RetainedSKGSnapshotError("retained_skg_local_cas_required")
+    if selected_ref is None:
+        ref = retain_prepared_skg_read(
+            ctx.store,
+            prepared_read,
+            existing_ref=existing_ref,
+        )
+    else:
+        if existing_ref is not None and existing_ref != selected_ref:
+            raise RetainedSKGSnapshotError("retained_skg_selected_ref_mismatch")
+        ref = selected_ref
+    snapshot = load_retained_skg_snapshot(ctx.store, ref)
+    if (
+        snapshot.source_sha256 != prepared_read.source_snapshot_sha256
+        or snapshot.source_binding_schema_version != prepared_read.source_binding_schema_version
+        or snapshot.query_version != prepared_read.query_version
+        or not prepared_read.source_generation_matches()
+    ):
+        raise RetainedSKGSnapshotError("retained_skg_prepared_source_mismatch")
+    return ref, snapshot.source_reference
+
+
 def _prepared_read_selector_version(node_id: str) -> str:
     """Version the cache binding when its persisted consumption proof changes."""
     return f"{node_id}:{_PREPARED_READ_SELECTOR_EPOCH}"
@@ -541,7 +624,8 @@ def _persist_prepared_read_receipt(
     cached_outcome: NodeOutcome,
 ) -> ArtifactRef | None:
     """Persist a current hit receipt while retaining the cached result's source lineage."""
-    from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGReadReceipt
+    from polisyos.data_forge.read_api.academic import PreparedSKGReadReceipt
+
     if not prepared_read.source_generation_matches():
         return None
     selector_version = _prepared_read_selector_version(node_id)
@@ -549,8 +633,7 @@ def _persist_prepared_read_receipt(
     if (
         origin is None
         or origin["source_snapshot_sha256"] != prepared_read.source_snapshot_sha256
-        or origin["source_binding_schema_version"]
-        != prepared_read.source_binding_schema_version
+        or origin["source_binding_schema_version"] != prepared_read.source_binding_schema_version
     ):
         return None
     receipt = PreparedSKGReadReceipt(
@@ -633,6 +716,19 @@ def _validate_dependencies(invocations: dict[str, NodeInvocation]) -> None:
 
 def _should_cache(node_id: str) -> bool:
     return node_id not in _CACHE_DISABLED_NODE_IDS
+
+
+def _validate_cached_node_hit(
+    node: CacheHitValidator,
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    cached_outcome: NodeOutcome,
+) -> bool:
+    """Apply the node owner's existing cache-hit acceptance rule."""
+    try:
+        return node.validate_cache_hit(ctx, state, cached_outcome)
+    except _EXECUTOR_DEGRADED_ERRORS:
+        return False
 
 
 def _topo_sort(invocations: dict[str, NodeInvocation]) -> list[str]:
@@ -900,21 +996,26 @@ class WorkflowExecutor:
         _validate_aliases(workflow.nodes)
         invocations = {inv.alias: inv for inv in workflow.nodes}
         _validate_dependencies(invocations)
-        _validate_required_binds(workflow.required_binds, state)
 
         # Validate node availability before execution
         for inv in workflow.nodes:
             self._registry.get(inv.node_id)
 
         order = _topo_sort(invocations)
-        state = self._ensure_memory_authority_for_serious_output(state)
+        _validate_producer_state(state)
         workflow_started = time.perf_counter()
+        state = _bind_retained_workflow_input(self._ctx, state)
+        _validate_required_binds(workflow.required_binds, state)
+        replay_source_ref = state.inputs.get(SNAPSHOT_INPUT_KEY)
+        state = self._ensure_memory_authority_for_serious_output(state)
 
         initial_state = snapshot_state(state)
         workflow_ref = self._persist_workflow_spec(workflow)
         self._ctx.run.add_input(workflow_ref)
         state_input_ref = self._persist_state(initial_state)
         self._ctx.run.add_input(state_input_ref)
+        if replay_source_ref is not None:
+            self._ctx.run.add_input(replay_source_ref)
         self._cache = NodeResultCache(self._ctx.store, run_id=state.run_id)
         restored_entries = self._cache.seed_from_trace(self._ctx.run.trace_path)
         restored_from_checkpoint = self._cache.seed_from_entry_refs(
@@ -1098,6 +1199,8 @@ class WorkflowExecutor:
                 cache_entry_ref: ArtifactRef | None = None
                 cache_bypass_reason: int | None = None
                 prepared_read: PreparedSKGRead | None = None
+                retained_hit_ref: ArtifactRef | None = None
+                retained_ref: ArtifactRef | None = None
                 query_execution_marker: int | None = None
                 connection_query_fingerprints: tuple[str, ...] = ()
                 node_context = self._ctx
@@ -1110,7 +1213,24 @@ class WorkflowExecutor:
                             cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ_TIMEOUT
                         else:
                             try:
-                                prepared_read = node.prepare_cache_input(self._ctx, state)
+                                if replay_source_ref is None:
+                                    prepared_read = node.prepare_cache_input(self._ctx, state)
+                                else:
+                                    if not isinstance(self._ctx.store, FileSystemCAS):
+                                        raise RetainedSKGSnapshotError(
+                                            "retained_skg_local_cas_required"
+                                        )
+                                    index_dir = (
+                                        Path(str(state.params["skg_index_dir"]))
+                                        if state.params.get("skg_index_dir") is not None
+                                        else Path(str(state.params["skg_db_path"])).parent
+                                    )
+                                    prepared_read = prepare_retained_skg_read(
+                                        self._ctx.store,
+                                        replay_source_ref,
+                                        directory=_retained_snapshot_directory(self._ctx),
+                                        index_dir=index_dir,
+                                    )
                                 if prepared_read is None:
                                     cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ
                                 else:
@@ -1121,10 +1241,16 @@ class WorkflowExecutor:
                                     )
                                     cache_bind_params["prepared_skg_read"] = (
                                         prepared_read.cache_binding(
-                                            selector_version=_prepared_read_selector_version(node_id)
+                                            selector_version=_prepared_read_selector_version(
+                                                node_id
+                                            )
                                         )
                                     )
                             except _EXECUTOR_DEGRADED_ERRORS as exc:
+                                if replay_source_ref is not None:
+                                    raise RetainedSKGSnapshotError(
+                                        "retained_skg_preparation_failed"
+                                    ) from exc
                                 cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ
                                 self._ctx.logger.warning(
                                     "Prepared SKG read unavailable for node %s: %s",
@@ -1132,6 +1258,10 @@ class WorkflowExecutor:
                                     exc,
                                 )
                             except Exception as exc:
+                                if replay_source_ref is not None:
+                                    raise RetainedSKGSnapshotError(
+                                        "retained_skg_preparation_failed"
+                                    ) from exc
                                 if not _is_duckdb_error(exc):
                                     raise
                                 cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ
@@ -1140,6 +1270,10 @@ class WorkflowExecutor:
                                     alias,
                                     exc,
                                 )
+                    if prepared_read is not None and not isinstance(self._ctx.store, FileSystemCAS):
+                        # A generic backend may compute a live result, but cannot
+                        # publish this concrete CAS retained-source cache proof.
+                        cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ
                     try:
                         if cache_bypass_reason is None:
                             cache_key = compute_idempotency_key(
@@ -1190,14 +1324,9 @@ class WorkflowExecutor:
                 if cache_key is not None and self._cache is not None:
                     cached_outcome = self._cache.get(cache_key)
                     if cached_outcome is not None and isinstance(node, CacheHitValidator):
-                        try:
-                            cache_hit_valid = node.validate_cache_hit(
-                                node_context,
-                                state,
-                                cached_outcome,
-                            )
-                        except _EXECUTOR_DEGRADED_ERRORS:
-                            cache_hit_valid = False
+                        cache_hit_valid = _validate_cached_node_hit(
+                            node, node_context, state, cached_outcome
+                        )
                         if not cache_hit_valid:
                             self._cache.discard(cache_key)
                             cached_outcome = None
@@ -1216,7 +1345,7 @@ class WorkflowExecutor:
                             cached_outcome,
                             selector_version=_prepared_read_selector_version(node_id),
                         )
-                        if origin is None or any(
+                        origin_matches = origin is not None and not any(
                             (
                                 origin["source_snapshot_ref"] != prepared_read.source_snapshot_ref,
                                 origin["source_snapshot_sha256"]
@@ -1225,7 +1354,47 @@ class WorkflowExecutor:
                                 != prepared_read.source_binding_schema_version,
                                 origin["query_version"] != prepared_read.query_version,
                             )
-                        ):
+                        )
+                        if origin_matches and origin is not None:
+                            try:
+                                origin_ref = ArtifactRef.model_validate_json(
+                                    origin["retained_snapshot_ref_json"]
+                                )
+                            except ValidationError:
+                                origin_matches = False
+                            else:
+                                if (
+                                    replay_source_ref is not None
+                                    and origin_ref != replay_source_ref
+                                ):
+                                    origin_matches = False
+                                else:
+                                    try:
+                                        retained_hit_ref, original_reference = (
+                                            _retained_prepared_source(
+                                                ctx=self._ctx,
+                                                prepared_read=prepared_read,
+                                                selected_ref=replay_source_ref,
+                                                existing_ref=origin_ref,
+                                            )
+                                        )
+                                    except _EXECUTOR_DEGRADED_ERRORS as exc:
+                                        if replay_source_ref is not None:
+                                            raise RetainedSKGSnapshotError(
+                                                "retained_skg_selected_source_unavailable"
+                                            ) from exc
+                                        origin_matches = False
+                                        self._ctx.logger.warning(
+                                            "Retained SKG cache source unavailable for node %s: %s",
+                                            alias,
+                                            exc,
+                                        )
+                                    else:
+                                        origin_matches = (
+                                            original_reference
+                                            == origin["retained_source_original_reference"]
+                                        )
+                        if not origin_matches:
                             self._cache.discard(cache_key)
                             cached_outcome = None
                             cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ
@@ -1240,6 +1409,8 @@ class WorkflowExecutor:
                             )
 
                 if cached_outcome is not None:
+                    if prepared_read is not None and retained_hit_ref is not None:
+                        self._ctx.run.add_input(retained_hit_ref)
                     try:
                         merged_cached_state = _merge_cached_outcome_state(
                             alias=alias,
@@ -1285,7 +1456,8 @@ class WorkflowExecutor:
                                 )
                             except _EXECUTOR_DEGRADED_ERRORS as exc:
                                 self._ctx.logger.warning(
-                                    "Prepared SKG cache receipt could not be stored for node %s: %s",
+                                    "Prepared SKG cache receipt could not be stored "
+                                    "for node %s: %s",
                                     alias,
                                     exc,
                                 )
@@ -1313,7 +1485,9 @@ class WorkflowExecutor:
                                         "source_binding_schema_version": (
                                             prepared_read.source_binding_schema_version
                                         ),
-                                        "source_snapshot_sha256": prepared_read.source_snapshot_sha256,
+                                        "source_snapshot_sha256": (
+                                            prepared_read.source_snapshot_sha256
+                                        ),
                                         "source_snapshot_authenticity": "not_established",
                                     },
                                 )
@@ -1347,6 +1521,7 @@ class WorkflowExecutor:
                     branched_state = branch_state(
                         state,
                         write_paths=getattr(node.spec, "state_writes", ()),
+                        enforce_write_scope=True,
                     )
                     node_state = branched_state.state
                     set_span_attribute(
@@ -1417,8 +1592,8 @@ class WorkflowExecutor:
 
                     if prepared_read is not None and query_execution_marker is not None:
                         if prepared_read.source_generation_matches():
-                            connection_query_fingerprints = (
-                                prepared_read.query_fingerprints_since(query_execution_marker)
+                            connection_query_fingerprints = prepared_read.query_fingerprints_since(
+                                query_execution_marker
                             )
 
                     if (
@@ -1426,40 +1601,84 @@ class WorkflowExecutor:
                         and connection_query_fingerprints
                         and outcome.status == "ok"
                     ):
-                        outcome.events.append(
-                            NodeEvent(
-                                level="info",
-                                code="skg.prepared_connection_query",
-                                message=(
-                                    "A successful SELECT/WITH ran on the bound source connection; "
-                                    "output dependence is not established."
-                                ),
-                                attrs={
-                                    "source_snapshot_ref": prepared_read.source_snapshot_ref,
-                                    "source_snapshot_sha256": prepared_read.source_snapshot_sha256,
-                                    "source_binding_schema_version": (
-                                        prepared_read.source_binding_schema_version
-                                    ),
-                                    "query_version": prepared_read.query_version,
-                                    "selector_version": _prepared_read_selector_version(node_id),
-                                    "prepared_at": prepared_read.prepared_at.isoformat(),
-                                    "connection_query_fingerprints_json": json.dumps(
-                                        list(connection_query_fingerprints), separators=(",", ":")
-                                    ),
-                                    "read_evidence_scope": "bound_connection_query_execution_only",
-                                    "output_dependency": "not_established",
-                                    "time_semantics": "read_transaction_opened_at",
-                                    "source_snapshot_authenticity": "not_established",
-                                    "authority_band": "candidate",
+                        try:
+                            retained_ref, original_reference = _retained_prepared_source(
+                                ctx=self._ctx,
+                                prepared_read=prepared_read,
+                                selected_ref=replay_source_ref,
+                            )
+                        except _EXECUTOR_DEGRADED_ERRORS as exc:
+                            if replay_source_ref is not None:
+                                raise RetainedSKGSnapshotError(
+                                    "retained_skg_selected_source_unavailable"
+                                ) from exc
+                            cache_key = None
+                            cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ
+                            self._ctx.logger.warning(
+                                "Retained SKG capture unavailable for node %s: %s",
+                                alias,
+                                exc,
+                            )
+                            self._ctx.run.emit(
+                                f"scientist.node.{alias}",
+                                "NODE_CACHE_BYPASS",
+                                metrics={
+                                    "duration_ms": int((time.perf_counter() - started) * 1000),
+                                    "cache_bypass": 1,
+                                    "reason_code": _CACHE_BYPASS_PREPARED_READ,
                                 },
                             )
-                        )
+                        else:
+                            self._ctx.run.add_input(retained_ref)
+                            if retained_ref not in outcome.artifacts:
+                                outcome.artifacts.append(retained_ref)
+                            outcome.events.append(
+                                NodeEvent(
+                                    level="info",
+                                    code="skg.prepared_connection_query",
+                                    message=(
+                                        "A successful SELECT/WITH ran on the "
+                                        "bound source connection; "
+                                        "output dependence is not established."
+                                    ),
+                                    attrs={
+                                        "source_snapshot_ref": prepared_read.source_snapshot_ref,
+                                        "retained_snapshot_ref_json": (
+                                            retained_ref.model_dump_json()
+                                        ),
+                                        "retained_snapshot_schema_version": "1.0",
+                                        "retained_source_original_reference": original_reference,
+                                        "source_snapshot_sha256": (
+                                            prepared_read.source_snapshot_sha256
+                                        ),
+                                        "source_binding_schema_version": (
+                                            prepared_read.source_binding_schema_version
+                                        ),
+                                        "query_version": prepared_read.query_version,
+                                        "selector_version": (
+                                            _prepared_read_selector_version(node_id)
+                                        ),
+                                        "prepared_at": prepared_read.prepared_at.isoformat(),
+                                        "connection_query_fingerprints_json": json.dumps(
+                                            list(connection_query_fingerprints),
+                                            separators=(",", ":"),
+                                        ),
+                                        "read_evidence_scope": (
+                                            "bound_connection_query_execution_only"
+                                        ),
+                                        "output_dependency": "not_established",
+                                        "time_semantics": "read_transaction_opened_at",
+                                        "source_snapshot_authenticity": "not_established",
+                                        "authority_band": "candidate",
+                                    },
+                                )
+                            )
 
                     if (
                         outcome.status == "ok"
                         and cache_key is not None
                         and self._cache is not None
-                        and (prepared_read is None or connection_query_fingerprints)
+                        and (prepared_read is None or retained_ref is not None)
                     ):
                         try:
                             entry_ref = self._cache.put(cache_key, node_id=node_id, outcome=outcome)
@@ -1530,6 +1749,12 @@ class WorkflowExecutor:
                             _CACHE_BYPASS_PREPARED_READ,
                         )
 
+                outcome = outcome.model_copy(
+                    update={
+                        "state": _completed_producer_state(outcome.state),
+                        "artifacts": _completed_producer_value(outcome.artifacts),
+                    }
+                )
                 duration_ms = int((time.perf_counter() - started) * 1000)
                 if self._ctx.metrics is not None:
                     self._ctx.metrics.record_node_completed(

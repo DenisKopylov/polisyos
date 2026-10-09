@@ -176,9 +176,7 @@ def test_cache_replay_normalizes_specialized_artifact_refs() -> None:
     )
 
     assert merged.applied
-    replayed_ref = merged.state.artifacts_index[
-        ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
-    ]
+    replayed_ref = merged.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
     assert isinstance(replayed_ref, ArtifactRef)
     assert str(replayed_ref.artifact_id) == str(ref.artifact_id)
 
@@ -194,9 +192,7 @@ def test_artifacts_index_rejects_malformed_specialized_ref_before_journaling() -
     )
 
     with pytest.raises(ValidationError):
-        branch.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] = (
-            malformed_ref
-        )
+        branch.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] = malformed_ref
 
     assert ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF not in branch.state.artifacts_index
     assert branch.journal.operations == []

@@ -7,6 +7,7 @@ from decimal import Decimal
 from unittest.mock import MagicMock
 
 import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
@@ -83,9 +84,13 @@ def _make_ctx():
     ctx.logger = MagicMock()
     ctx.metrics = None
     ctx.audit = None
-    ctx.store.put_json = MagicMock(return_value=MagicMock(spec=ArtifactRef))
-    ctx.store.put_json.return_value.kind = "test"
-    ctx.store.put_json.return_value.artifact_id = "sha256:" + "a" * 64
+    ctx.store.put_json = MagicMock(
+        return_value=ArtifactRef(
+            artifact_id="sha256:" + "a" * 64,
+            kind="test",
+            media_type="application/json",
+        )
+    )
     return ctx
 
 
@@ -109,7 +114,7 @@ class TestParallelStateIsolation:
         class MutatingNode:
             def __init__(self, name: str, nid: str):
                 self._name = name
-                self.spec = _node_spec(nid)
+                self.spec = _node_spec(nid, state_writes=[f"params.mutated_by_{name}"])
 
             def execute(self, ctx, state):
                 state.params[f"mutated_by_{self._name}"] = True
@@ -218,8 +223,8 @@ class TestTierSavepoints:
                 error=NodeError(code="node.exception", message="boom", details={}),
             )
 
-        node_a = _make_node(mutating_ok, node_id="test.a@1.0.0")
-        node_b = _make_node(failing, node_id="test.b@1.0.0")
+        node_a = _make_node(mutating_ok, node_id="test.a@1.0.0", state_writes=["params.tier1_done"])
+        node_b = _make_node(failing, node_id="test.b@1.0.0", state_writes=["params.tier2_mutation"])
 
         registry = _make_registry(
             ("test.a@1.0.0", node_a),
@@ -263,8 +268,14 @@ class TestTierSavepoints:
                 events.append((event, restored_state.model_dump(mode="python")))
 
         registry = _make_registry(
-            ("test.ok@1.0.0", _make_node(ok, node_id="test.ok@1.0.0")),
-            ("test.fail@1.0.0", _make_node(fail, node_id="test.fail@1.0.0")),
+            (
+                "test.ok@1.0.0",
+                _make_node(ok, node_id="test.ok@1.0.0", state_writes=["params.tier1_done"]),
+            ),
+            (
+                "test.fail@1.0.0",
+                _make_node(fail, node_id="test.fail@1.0.0", state_writes=["params.tier2_mutation"]),
+            ),
         )
         ctx = _make_ctx()
         workflow = _make_workflow(
@@ -297,7 +308,7 @@ class TestTierSavepoints:
                 error=NodeError(code="node.exception", message="boom", details={}),
             )
 
-        node = _make_node(failing, node_id="test.fail@1.0.0")
+        node = _make_node(failing, node_id="test.fail@1.0.0", state_writes=["params.leaked"])
         registry = _make_registry(("test.fail@1.0.0", node))
         ctx = _make_ctx()
         state = ExperimentState(run_id="single-fail-rollback", params={"baseline": True})

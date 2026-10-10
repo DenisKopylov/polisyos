@@ -2,10 +2,14 @@ from __future__ import annotations
 
 import json
 import os
+import shlex
+import shutil
 import subprocess
 import sys
 import tomllib
 from pathlib import Path
+
+import pytest
 
 from tools.quality.validation import decomposition_preflight as preflight
 from tools.quality.validation.decomposition_preflight import (
@@ -362,3 +366,95 @@ def test_move_module_codemod_rewrites_parent_leaf_imports(tmp_path: Path) -> Non
     assert not (source_dir / "old.py").exists()
     shim = (source_dir / "old" / "__init__.py").read_text(encoding="utf-8")
     assert "import *" not in shim
+
+
+@pytest.mark.skipif(os.name != "posix", reason="POSIX subprocess lookup honors cwd for PATH entries")
+@pytest.mark.parametrize(
+    ("path_mode", "expected_shim"),
+    [
+        ("relative", "repo-bin"),
+        ("empty", "repo-root"),
+        ("absolute", "absolute-first"),
+        ("unset", None),
+    ],
+)
+def test_move_module_git_lookup_preserves_child_cwd_path_search(
+    tmp_path: Path, path_mode: str, expected_shim: str | None
+) -> None:
+    real_git_command = shutil.which("git")
+    if real_git_command is None:
+        pytest.skip("git is required for the move-module integration test")
+    real_git = str(Path(real_git_command).resolve(strict=True))
+    if path_mode == "unset" and shutil.which("git", path=os.defpath) is None:
+        pytest.skip("git is not available on the platform default PATH")
+
+    repo = tmp_path / "repo"
+    caller = tmp_path / "caller"
+    caller.mkdir()
+    source_dir = repo / "src" / "polisyos" / "example"
+    source_dir.mkdir(parents=True)
+    (repo / "architecture").mkdir()
+    (repo / "src" / "polisyos" / "__init__.py").write_text("", encoding="utf-8")
+    (source_dir / "__init__.py").write_text("", encoding="utf-8")
+    (source_dir / "old.py").write_text("class Public:\n    pass\n", encoding="utf-8")
+    (repo / "architecture" / "shims.toml").write_text("", encoding="utf-8")
+
+    marker = tmp_path / "selected-git-shim.txt"
+
+    def install_git_shim(directory: Path, label: str) -> None:
+        directory.mkdir(parents=True, exist_ok=True)
+        executable = directory / "git"
+        executable.write_text(
+            "#!/bin/sh\n"
+            f"printf '%s' {shlex.quote(label)} > \"$GIT_SHIM_MARKER\"\n"
+            f"exec {shlex.quote(real_git)} \"$@\"\n",
+            encoding="utf-8",
+        )
+        executable.chmod(0o755)
+
+    env = os.environ.copy()
+    env["GIT_SHIM_MARKER"] = str(marker)
+    if path_mode == "relative":
+        install_git_shim(repo / "bin", "repo-bin")
+        install_git_shim(caller / "bin", "caller-bin")
+        env["PATH"] = "bin"
+    elif path_mode == "empty":
+        install_git_shim(repo, "repo-root")
+        install_git_shim(caller, "caller-root")
+        env["PATH"] = ""
+    elif path_mode == "absolute":
+        install_git_shim(repo / "absolute-first", "absolute-first")
+        install_git_shim(caller / "absolute-second", "absolute-second")
+        env["PATH"] = os.pathsep.join(
+            (str(repo / "absolute-first"), str(caller / "absolute-second"))
+        )
+    else:
+        env.pop("PATH", None)
+
+    subprocess.run([real_git, "init"], cwd=repo, check=True, capture_output=True, text=True)
+    subprocess.run([real_git, "add", "."], cwd=repo, check=True, capture_output=True, text=True)
+    script = REPO_ROOT / "tools" / "devx" / "refactor" / "move_module.py"
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(script),
+            "--repo-root",
+            str(repo),
+            "--from",
+            "polisyos.example.old",
+            "--to",
+            "polisyos.example.new.old",
+        ],
+        cwd=caller,
+        env=env,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert (repo / "src" / "polisyos" / "example" / "new" / "old.py").exists()
+    if expected_shim is None:
+        assert not marker.exists()
+    else:
+        assert marker.read_text(encoding="utf-8") == expected_shim

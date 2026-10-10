@@ -7,6 +7,8 @@ import argparse
 import ast
 import difflib
 import json
+import os
+import shutil
 import subprocess
 import sys
 from datetime import UTC, datetime, timedelta
@@ -475,7 +477,26 @@ def move_module(repo_root: Path, old_module: str, new_module: str, *, dry_run: b
         if init_file == shim_path:
             continue
         atomic_write_text(init_file, '"""Phase 5/6 decomposition package."""\n')
-    subprocess.run(["git", "mv", str(old_path), str(new_path)], cwd=repo_root, check=True)
+    git_search_path = os.environ.get("PATH", os.defpath)
+    if os.name == "posix":
+        # POSIX resolves relative PATH entries after changing to the child cwd.
+        resolved_repo_root = repo_root.resolve()
+        git_search_path = os.pathsep.join(
+            entry
+            if os.path.isabs(entry)
+            else str(resolved_repo_root / entry)
+            for entry in git_search_path.split(os.pathsep)
+        )
+    git_command = shutil.which("git", path=git_search_path)
+    if git_command is None:
+        raise FileNotFoundError("git executable not found on PATH")
+    git_executable = Path(git_command).resolve(strict=True)
+    # These paths come from plan_move, which resolves both module paths under repo_root.
+    subprocess.run(  # noqa: S603
+        [str(git_executable), "mv", str(old_path), str(new_path)],
+        cwd=repo_root,
+        check=True,
+    )
     for path, updated in updates.items():
         atomic_write_text(path, updated)
     shim_path.parent.mkdir(parents=True, exist_ok=True)

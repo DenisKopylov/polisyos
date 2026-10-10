@@ -54,6 +54,13 @@ SOURCE_LOCK_PINS
 manifest_path=policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-manifest.json
 test "$(git -C "$source_checkout" show "$new_sha:$manifest_path" | shasum -a 256 | awk '{print $1}')" = 26f415a50704a8f555be7c10676e5f427178b150152630140e22b8df054086c6
 test "$(git -C "$source_checkout" rev-parse "$new_sha:$manifest_path")" = 0e714774f27236b54353913527ebfbd1ff8f1965
+for path in \
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py \
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py \
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/supplemental_run.py \
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/supplemental-manifest.json; do
+  test -z "$(git -C "$source_checkout" ls-tree -r --name-only "$new_sha" -- "$path")"
+done
 shasum -a 256 -c - <<'HOST_INPUTS'
 c8604c1d0f130cbdb11b4b30814e226df61cc272cf8f2f5a10fa0aeae378d4bf  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py
 7c3413ea3735a8d9732431cd9ca1a3b16e8ac735c2d82a9614479379fa33b073  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py

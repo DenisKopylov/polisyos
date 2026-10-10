@@ -49,6 +49,7 @@ _SHA = r"^sha256:[0-9a-f]{64}$"
 _GROWTH_KIND = "runtime_quality.acquisition_world_growth_receipt"
 _ATTEMPT_KIND = "runtime_quality.acquisition_world_growth_attempt"
 _DEFERRAL_KIND = "runtime_quality.acquisition_world_growth_deferral"
+_NO_GROWTH_KIND = "runtime_quality.acquisition_world_growth_no_growth_receipt"
 _REENTRY_KIND = "runtime_quality.acquisition_overlay_reentry_receipt"
 
 
@@ -210,6 +211,48 @@ def admitted_membership_delta(
     return delta
 
 
+class AcquisitionWorldGrowthNoGrowthReceipt(_Strict):
+    """Persist a verified repeat action whose current owner membership did not grow."""
+
+    schema_version: Literal["AcquisitionWorldGrowthNoGrowthReceipt@1.0"] = (
+        "AcquisitionWorldGrowthNoGrowthReceipt@1.0"
+    )
+    selection: AcquisitionWorldGrowthRoute
+    growth_receipt_ref: str = Field(pattern=_SHA)
+    attempt_ref: str = Field(pattern=_SHA)
+    binding_id: str = Field(min_length=1)
+    passport_id: str = Field(min_length=1)
+    observed_admitted_observation_count: int = Field(gt=0)
+    admitted_observation_delta: Literal[0] = 0
+    live_evidence_refs: tuple[str, ...] = Field(min_length=1)
+    before: tuple[_PriorMembership, ...]
+    after: tuple[_PriorMembership, ...]
+
+    @model_validator(mode="after")
+    def _recompute_zero_delta(self) -> Self:
+        if self.before != self.after:
+            raise ValueError("acquisition_no_growth_membership_snapshot_changed")
+        rows = tuple(row for row in self.after if row.epoch_id == self.selection.epoch_id)
+        if (
+            len(rows) != 1
+            or rows[0].passport_id != self.passport_id
+            or rows[0].epoch_activation_state != "active"
+            or rows[0].admitted_observation_count != self.observed_admitted_observation_count
+        ):
+            raise ValueError("acquisition_no_growth_membership_unresolved")
+        if (
+            admitted_membership_delta(
+                before=self.before,
+                after=self.after,
+                epoch_id=self.selection.epoch_id,
+                passport_id=self.passport_id,
+            )
+            != self.admitted_observation_delta
+        ):
+            raise ValueError("acquisition_no_growth_delta_mismatch")
+        return self
+
+
 @contextmanager
 def _owner_lock(path: Path) -> Iterator[None]:
     with path.open("a+b") as stream:
@@ -248,9 +291,7 @@ class AcquisitionWorldGrowthBridge:
         self.event_log = event_log
         self.epoch_deployment = epoch_deployment
         self.promotion_runtime = promotion_runtime
-        self.cycle_substrate_context_admission_owner = (
-            cycle_substrate_context_admission_owner
-        )
+        self.cycle_substrate_context_admission_owner = cycle_substrate_context_admission_owner
         self.control_store = control_store
 
     def selection(
@@ -380,6 +421,98 @@ class AcquisitionWorldGrowthBridge:
         except (KeyError, OSError, RuntimeError, TypeError, ValueError):
             return False
         return True
+
+    def record_measured_no_growth(
+        self, closure: VerifiedAcquisitionRouteClosure
+    ) -> tuple[str, ...]:
+        """Record a real zero-delta repeat check for an existing native admission."""
+        selected = self.selection(closure)
+        if selected is None:
+            raise ValueError("acquisition_world_growth_selection_missing")
+        overlay_path, _ = self._paths(selected, create=False)
+        with _owner_lock(overlay_path.with_suffix(".admission.lock")):
+            pointer = self._growth_pointer(selected, create=False)
+            if not pointer.exists():
+                raise ValueError("acquisition_world_growth_receipt_missing")
+            growth_ref = json.loads(pointer.read_text())["receipt_ref"]
+            growth, admitted = self._verified_growth(closure, growth_ref)
+
+            attempt_pointer = pointer.with_suffix(".attempt.json")
+            if not attempt_pointer.exists():
+                raise ValueError("acquisition_world_growth_attempt_missing")
+            attempt_ref = json.loads(attempt_pointer.read_text())["receipt_ref"]
+            attempt = AcquisitionWorldGrowthAttempt.model_validate(
+                self._read(attempt_ref, _ATTEMPT_KIND)
+            )
+            reconcile_authority_ref(
+                artifact_store=self.artifact_store,
+                event_log=self.event_log,
+                cas_ref=attempt_ref,
+                expected_tenant_id=closure.tenant_id,
+                expected_cell_id=closure.cell_id,
+                expected_run_id=closure.run_id,
+                expected_job_id=closure.source_job_id,
+            )
+            if (
+                attempt.selection != selected
+                or attempt.binding_id != growth.binding_id
+                or attempt.owner_receipt_refs != growth.live_evidence_refs
+                or admitted.passport_id != growth.passport_id
+            ):
+                raise ValueError("acquisition_world_growth_attempt_binding_mismatch")
+            for evidence_ref in attempt.owner_receipt_refs:
+                if not self.artifact_store.verify(evidence_ref).ok:
+                    raise ValueError("acquisition_world_growth_evidence_unreadable")
+
+            before_state = data_forge_read_api.catalog.project_catalog_acquisition_state(
+                self.authority.baseline_path, overlay_path=overlay_path
+            )
+            before = tuple(
+                _PriorMembership.model_validate(
+                    {key: getattr(row, key) for key in _PriorMembership.model_fields}
+                )
+                for row in before_state.epochs
+            )
+            measured_attempt = AcquisitionWorldGrowthAttempt.model_validate(
+                {**attempt.model_dump(mode="python"), "before": before}
+            )
+            rechecked_growth = self._finish_admission(closure, measured_attempt, growth.activation)
+            if rechecked_growth is not None:
+                raise ValueError("acquisition_duplicate_action_membership_grew")
+
+            after_state = data_forge_read_api.catalog.project_catalog_acquisition_state(
+                self.authority.baseline_path, overlay_path=overlay_path
+            )
+            after = tuple(
+                _PriorMembership.model_validate(
+                    {key: getattr(row, key) for key in _PriorMembership.model_fields}
+                )
+                for row in after_state.epochs
+            )
+            receipt = AcquisitionWorldGrowthNoGrowthReceipt(
+                selection=selected,
+                growth_receipt_ref=growth_ref,
+                attempt_ref=attempt_ref,
+                binding_id=growth.binding_id,
+                passport_id=growth.passport_id,
+                observed_admitted_observation_count=admitted.admitted_observation_count,
+                live_evidence_refs=attempt.owner_receipt_refs,
+                before=before,
+                after=after,
+            )
+            receipt_ref = self._persist(
+                closure,
+                receipt.model_dump(mode="json"),
+                _NO_GROWTH_KIND,
+                "polisyos.runtime.AcquisitionWorldGrowthNoGrowthReceipt",
+                "admission_no_growth",
+            )
+            verified_receipt = AcquisitionWorldGrowthNoGrowthReceipt.model_validate(
+                self._read(receipt_ref, _NO_GROWTH_KIND)
+            )
+            if verified_receipt != receipt:
+                raise ValueError("acquisition_no_growth_receipt_readback_mismatch")
+            return tuple(dict.fromkeys((*growth.live_evidence_refs, growth_ref, receipt_ref)))
 
     def has_admission_attempt(self, closure: VerifiedAcquisitionRouteClosure) -> bool:
         """Recognize any prior attempt marker, including corrupt or unreadable state."""
@@ -726,7 +859,7 @@ class AcquisitionWorldGrowthBridge:
         selected = self.selection(closure)
         if selected is None:
             return None
-        pointer = self._growth_pointer(selected)
+        pointer = self._growth_pointer(selected, create=False)
         if not pointer.exists():
             return None
         ref = json.loads(pointer.read_text())["receipt_ref"]
@@ -844,13 +977,11 @@ class AcquisitionWorldGrowthBridge:
                 self.authority.baseline_path,
                 overlay_path,
             )
-            observation_projection = (
-                overlay.read_activated_semantic_epoch_observations(
-                    receipt_ref=admitted.receipt_ref,
-                    artifact_store=self.artifact_store,
-                    passport=passport,
-                    authority=self.authority,
-                )
+            observation_projection = overlay.read_activated_semantic_epoch_observations(
+                receipt_ref=admitted.receipt_ref,
+                artifact_store=self.artifact_store,
+                passport=passport,
+                authority=self.authority,
             )
             if (
                 growth.activation.overlay_admission_receipt_ref != admitted.receipt_ref
@@ -921,7 +1052,7 @@ class AcquisitionWorldGrowthBridge:
                 closure,
                 receipt.model_dump(mode="json"),
                 _REENTRY_KIND,
-                "AcquisitionOverlayReentryReceipt",
+                "polisyos.runtime.AcquisitionOverlayReentryReceipt",
                 "reentry_terminal",
                 event_id=event_id,
             )

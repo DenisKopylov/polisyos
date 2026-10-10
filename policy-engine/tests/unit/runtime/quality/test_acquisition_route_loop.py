@@ -74,7 +74,7 @@ async def _compiled() -> CompiledRecursiveGenerationCycleRun:
             generation_port=_CgfGenerationPort(target_world_slots=("administrative_tax_receipts",)),
             value_port=_CostedDataGapValuePort(),
             repo_root=REPO_ROOT,
-        )
+        ),
     )
     recursive_run = await recursive.run(
         graph,
@@ -146,15 +146,29 @@ def _append_terminal(
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "unsupported_schema",
+    [False, True],
+    ids=("supported-v1", "persisted-v5"),
+)
 async def test_route_closure_rejects_complete_before_terminal_then_ignores_newer_job(
     tmp_path: Path,
+    unsupported_schema: bool,
 ) -> None:
     store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
     cas = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", cell_id="cell-a")
     event_log = RuntimeDiagnosticEventLog(store=store, artifact_store=cas)
     compiled = await _compiled()
+    compiled_payload = compiled.model_dump(mode="json")
+    if unsupported_schema:
+        compiled_payload["schema_version"] = (
+            "policyos.runtime.http.compiled_recursive_generation_cycle.v5"
+        )
+        compiled_payload["content_hash"] = gy_content_hash(
+            {key: value for key, value in compiled_payload.items() if key != "content_hash"}
+        )
     compiled_artifact_ref = cas.put_json(
-        compiled.model_dump(mode="json"),
+        compiled_payload,
         _options(
             kind="runtime.compiled_recursive_generation_cycle",
             schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
@@ -269,6 +283,12 @@ async def test_route_closure_rejects_complete_before_terminal_then_ignores_newer
     )
     store.create_job(job_id="job-acquisition", kind="acquisition", **common)
     store.complete_job(job_id="job-acquisition", run_id="run-ds15")
+
+    if unsupported_schema:
+        with pytest.raises(AcquisitionRouteClosureError) as exc_info:
+            loop.resolve_current_route(run_id="run-ds15")
+        assert exc_info.value.code == "compiled_run_invalid"
+        return
 
     closure = loop.resolve_current_route(run_id="run-ds15")
 

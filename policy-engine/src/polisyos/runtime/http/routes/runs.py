@@ -384,6 +384,7 @@ def _candidate_acquisition_history_projection(
     from polisyos.runtime.quality.generation_source import (
         GenerationSourceRepository,
         N4CandidateScenarioSourceRecordV3,
+        candidate_scenario_semantic_identity_hash,
     )
     from polisyos.runtime.quality.recursive_generation_cycle import RecursiveCycleNode
 
@@ -633,6 +634,7 @@ def _candidate_acquisition_history_projection(
             source_cycle = source_cycles[0]
             old_source_ref = source_cycle.simulation.candidate_simulation_n4_source_ref
             old_input_ref = source_cycle.simulation.candidate_simulation_n5_input_ref
+            old_source = None
             if (old_source_ref is None) != (old_input_ref is None):
                 raise ValueError("acquisition_reentry_old_candidate_source_incomplete")
             if old_source_ref is not None and old_input_ref is not None:
@@ -680,6 +682,44 @@ def _candidate_acquisition_history_projection(
                 != reentry_receipt.new_cycle.selected_candidate_ref
             ):
                 raise ValueError("acquisition_reentry_new_candidate_source_mismatch")
+
+            # Candidate IDs are truncated semantic digests. Reconcile the full
+            # identity and immutable occurrence lineage when both IDs match.
+            same_candidate = (
+                reentry_receipt.source_candidate_ref
+                == reentry_receipt.new_cycle.selected_candidate_ref
+            )
+            if same_candidate:
+                if old_source is None or old_source_ref is None:
+                    raise ValueError("acquisition_reentry_same_candidate_source_missing")
+                old_semantic_identity = candidate_scenario_semantic_identity_hash(
+                    stable_subject_ref=old_source.stable_subject_ref,
+                    proposal=old_source.proposal,
+                    candidate=old_source.candidate,
+                    profile=old_source.profile,
+                )
+                new_semantic_identity = candidate_scenario_semantic_identity_hash(
+                    stable_subject_ref=new_source.stable_subject_ref,
+                    proposal=new_source.proposal,
+                    candidate=new_source.candidate,
+                    profile=new_source.profile,
+                )
+                expected_origin_ref = old_source.origin_source_ref or old_source_ref
+                if (
+                    old_semantic_identity != old_source.semantic_identity_hash
+                    or new_semantic_identity != new_source.semantic_identity_hash
+                    or old_source.stable_subject_ref != new_source.stable_subject_ref
+                    or old_source.semantic_identity_hash != new_source.semantic_identity_hash
+                    or old_source.profile_selection_ref != new_source.profile_selection_ref
+                    or old_source.candidate.candidate_id != new_source.candidate.candidate_id
+                    or old_source.candidate_occurrence_hash == new_source.candidate_occurrence_hash
+                    or old_source.world_model_record_hash == new_source.world_model_record_hash
+                    or new_source.origin_source_ref is None
+                    or artifact_ref_identity_key(new_source.origin_source_ref)
+                    != artifact_ref_identity_key(expected_origin_ref)
+                ):
+                    raise ValueError("acquisition_reentry_same_candidate_lineage_mismatch")
+
             history_entries.append(
                 RunCandidateSimulationAcquisitionHistoryEntry(
                     route_receipt_ref=route_receipt_ref,

@@ -660,8 +660,8 @@ class AcquisitionActionService:
         )
 
         execution_bridge_installed = self._production_execution_bridge_installed()
-        execution_ready = self._production_execution_bridge_ready(closure)
         try:
+            execution_ready = self._production_execution_bridge_ready(closure)
             growth = (
                 self._production_execution_port.project_world_growth(closure)
                 if execution_bridge_installed
@@ -968,6 +968,7 @@ class AcquisitionActionService:
 
         from polisyos.runtime.quality.acquisition_executor import (
             LiveAcquisitionExecutionError,
+            SemanticEpochAdmissionResolutionError,
         )
 
         production_port = getattr(self, "_production_execution_port", None)
@@ -975,8 +976,12 @@ class AcquisitionActionService:
             raise AcquisitionActionServiceError("acquisition_execution_bridge_missing")
         try:
             production_port.prepare_route_execution(closure)
+        except AcquisitionActionServiceError:
+            raise
         except LiveAcquisitionExecutionError as exc:
             raise AcquisitionActionServiceError(exc.code) from exc
+        except (SemanticEpochAdmissionResolutionError, ValueError, OSError) as exc:
+            raise AcquisitionActionServiceError("acquisition_native_admission_unverified") from exc
 
     def _require_execution_port(self) -> AcquisitionExecutionPort:
         if self._execution_port is None:

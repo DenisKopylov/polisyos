@@ -377,7 +377,7 @@ class WorldBankWDIAcquisitionExecutionPort:
         self._world_growth_bridge = world_growth_bridge
 
     def require_route_ready(self, closure: VerifiedAcquisitionRouteClosure) -> None:
-        """Require a fresh live attempt or verified deferred evidence without side effects."""
+        """Require fresh transport, deferred admission, or a verified duplicate check."""
 
         bindings = resolve_world_bank_wdi_route_execution_bindings(
             closure=closure,
@@ -389,6 +389,8 @@ class WorldBankWDIAcquisitionExecutionPort:
         bridge = self._world_growth_bridge
         if bridge is not None and bridge.has_admission_attempt(closure):
             if bridge.has_deferred_admission(closure):
+                return
+            if bridge.project_growth(closure) is not None:
                 return
             self._raise_attempt_exhausted()
         if any(
@@ -434,8 +436,13 @@ class WorldBankWDIAcquisitionExecutionPort:
         self.require_route_ready(closure)
         bridge = self._world_growth_bridge
         if bridge is not None and bridge.has_admission_attempt(closure):
-            owner_refs, growth = bridge.resume_deferred_admission(closure)
-            return self._admission_result(closure, owner_refs, growth)
+            if bridge.has_deferred_admission(closure):
+                owner_refs, growth = bridge.resume_deferred_admission(closure)
+                return self._admission_result(closure, owner_refs, growth)
+            if bridge.project_growth(closure) is None:
+                self._raise_attempt_exhausted()
+            owner_refs = bridge.record_measured_no_growth(closure)
+            return self._admission_result(closure, owner_refs, None)
         cas_root = self._runtime_artifact_store_root()
         binding = self.reserve_route_binding(closure)
         self._claim_reserved_binding(binding)

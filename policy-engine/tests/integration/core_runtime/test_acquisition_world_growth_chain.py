@@ -476,31 +476,45 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case_impl(
     guarded_cas: bool,
     tenant_id: str = _SERVED_WDI_FIXTURE_TENANT_ID,
     cell_id: str = "cell-a",
+    generation_cycle_repo_root: Path | None = None,
 ):
     # This is a downstream owner-chain witness: persist_wdi_route seeds its
     # run through for_contract_testing. The protected-intent production
     # recursive-leaf boundary is exercised by the paired unit test.
+    artifact_store = None
     if guarded_cas:
-        from polisyos.core.artifacts.backends.config import (
-            with_ambient_ownership_enforcement_if_supported,
-        )
         from polisyos.runtime.http.resilience import guard_runtime_cas
-        from tests.unit.runtime.http import test_control_service_di as control_fixture
 
-        def build_guarded_store(path):
-            base_store = artifacts.FileSystemCAS(path)
-            ambient_store = with_ambient_ownership_enforcement_if_supported(base_store)
-            store = guard_runtime_cas(ambient_store)
-            request.addfinalizer(store.close)
-            return store
-
-        monkeypatch.setattr(control_fixture, "FileSystemCAS", build_guarded_store)
+        base_store = artifacts.FileSystemCAS(tmp_path / "control" / ".polisyos")
+        artifact_store = guard_runtime_cas(base_store.for_tenant(tenant_id, cell_id=cell_id))
+        request.addfinalizer(artifact_store.close)
     install_fixture_wdi_cost_basis(monkeypatch)
-    control = _build_control_service(tmp_path / "control")
+    control = _build_control_service(
+        tmp_path / "control",
+        artifact_store=artifact_store,
+    )
+    if generation_cycle_repo_root is not None:
+        # Use one real, isolated owner repo for recursive generation and the
+        # later WDI gateway. The existing fixture recipe binds the catalog
+        # bytes and supplies the required owner files in this scratch root.
+        from tests._helpers import acquisition_production
+        from tests._helpers.acquisition_epoch_production import (
+            production_admission_inputs,
+        )
+
+        authority, _ = acquisition_production._resolver(generation_cycle_repo_root)
+        production_admission_inputs(
+            tmp_path / "wdi" / "generation-inputs",
+            store=control._artifact_store,
+            authority=authority,
+            overlay_path=tmp_path / "wdi" / "overlay.duckdb",
+            epoch_history_root=tmp_path / "wdi" / "epochs",
+        )
     closure, _ = await persist_wdi_route(
         control,
         tenant_id=tenant_id,
         cell_id=cell_id,
+        generation_cycle_repo_root=generation_cycle_repo_root,
     )
     assert (closure.tenant_id, closure.cell_id) == (tenant_id, cell_id)
     run = closure.generation_run
@@ -553,8 +567,64 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case_impl(
     assert case.port.resume_reentry(closure, result.owner_receipt_refs) == ref
     assert case.port.recover_owned_result(closure) == result
     assert tuple(case.transport_calls) == before
-    with pytest.raises(AcquisitionActionServiceError, match="acquisition_live_attempt_exhausted"):
-        case.port.execute(closure)
+    growth_refs = tuple(
+        ref
+        for ref in result.owner_receipt_refs
+        if control._artifact_store.get_manifest(ref).kind
+        == "runtime_quality.acquisition_world_growth_receipt"
+    )
+    assert len(growth_refs) == 1
+    growth_ref = growth_refs[0]
+    attempt_pointer = case.bridge._growth_pointer(case.selected, create=False).with_suffix(
+        ".attempt.json"
+    )
+    attempt_ref = json.loads(attempt_pointer.read_text())["receipt_ref"]
+    overlay_path, _ = case.bridge._paths(case.selected, create=False)
+    reentry_pointer = overlay_path.parent / (growth_ref.removeprefix("sha256:") + ".reentry.json")
+    reentry_pointer_before = reentry_pointer.read_bytes()
+    reentry_ref = json.loads(reentry_pointer_before)["receipt_ref"]
+    reentry_bytes_before = control._artifact_store.get_bytes(reentry_ref)
+
+    no_growth = case.port.execute(closure)
+    assert no_growth.disposition == "quarantined_no_growth"
+    assert no_growth.admitted_observation_delta == 0
+    assert no_growth.overlay_admission_receipt_ref is None
+    assert no_growth.post_epoch_event_ref is None
+    assert set(no_growth.owner_receipt_refs) == set(result.owner_receipt_refs) | {
+        ref
+        for ref in no_growth.owner_receipt_refs
+        if control._artifact_store.get_manifest(ref).kind
+        == "runtime_quality.acquisition_world_growth_no_growth_receipt"
+    }
+    no_growth_refs = tuple(
+        ref
+        for ref in no_growth.owner_receipt_refs
+        if control._artifact_store.get_manifest(ref).kind
+        == "runtime_quality.acquisition_world_growth_no_growth_receipt"
+    )
+    assert len(no_growth_refs) == 1
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionWorldGrowthAttempt,
+        AcquisitionWorldGrowthNoGrowthReceipt,
+    )
+
+    no_growth_receipt = AcquisitionWorldGrowthNoGrowthReceipt.model_validate(
+        canon.from_canonical_bytes(control._artifact_store.get_bytes(no_growth_refs[0]))
+    )
+    attempt = AcquisitionWorldGrowthAttempt.model_validate(
+        canon.from_canonical_bytes(control._artifact_store.get_bytes(attempt_ref))
+    )
+    assert no_growth_receipt.selection == case.selected
+    assert no_growth_receipt.growth_receipt_ref == growth_ref
+    assert no_growth_receipt.attempt_ref == attempt_ref
+    assert no_growth_receipt.binding_id == attempt.binding_id
+    assert no_growth_receipt.live_evidence_refs == attempt.owner_receipt_refs
+    assert no_growth_receipt.before == no_growth_receipt.after
+    assert no_growth_receipt.admitted_observation_delta == 0
+    assert json.loads(attempt_pointer.read_text())["receipt_ref"] == attempt_ref
+    assert reentry_pointer.read_bytes() == reentry_pointer_before
+    assert control._artifact_store.get_bytes(reentry_ref) == reentry_bytes_before
+    assert tuple(case.transport_calls) == before
     # Exercise the real list/detail projection reader with the already verified port.
     service = object.__new__(AcquisitionActionService)
     service._execution_port = case.port
@@ -573,6 +643,33 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case_impl(
             service._projection(closure)
     finally:
         blob.write_bytes(native)
+    if guarded_cas:
+        from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+        from polisyos.core.security.tenant_context import tenant_scope
+
+        growth = case.port.project_world_growth(closure)
+        passport_ref = growth.activation.passport_ref
+        assert (
+            control._artifact_store.get_manifest(passport_ref).kind
+            == "epoch.acquisition_passport_snapshot"
+        )
+        assert control._artifact_store.get_bytes(passport_ref)
+        foreign_store = guard_runtime_cas(
+            artifacts.FileSystemCAS(tmp_path / "control" / ".polisyos").for_tenant(
+                "89b6f3a7-e34c-4ea7-9c01-9a8a9d801fe4",
+                cell_id=cell_id,
+            )
+        )
+        request.addfinalizer(foreign_store.close)
+        with (
+            tenant_scope(
+                None,
+                tenant_id="89b6f3a7-e34c-4ea7-9c01-9a8a9d801fe4",
+                cell_id=cell_id,
+            ),
+            pytest.raises(ArtifactOwnershipError),
+        ):
+            foreign_store.get_bytes(passport_ref)
     return SimpleNamespace(
         control=control,
         closure=closure,
@@ -590,6 +687,7 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case(
     guarded_cas: bool,
     tenant_id: str = _SERVED_WDI_FIXTURE_TENANT_ID,
     cell_id: str = "cell-a",
+    generation_cycle_repo_root: Path | None = None,
 ):
     if not guarded_cas:
         return await _run_actual_wdi_admits_delta_and_reenters_same_case_impl(
@@ -599,6 +697,7 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case(
             guarded_cas=False,
             tenant_id=tenant_id,
             cell_id=cell_id,
+            generation_cycle_repo_root=generation_cycle_repo_root,
         )
 
     from polisyos.core.security.tenant_context import tenant_scope
@@ -611,6 +710,7 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case(
             guarded_cas=True,
             tenant_id=tenant_id,
             cell_id=cell_id,
+            generation_cycle_repo_root=generation_cycle_repo_root,
         )
 
 
@@ -639,14 +739,15 @@ async def _admit_served_wdi_projection(
         CatalogAcquisitionOverlay,
     )
     from polisyos.runtime.quality.substrate_registry import DEFAULT_L1_DCAT_PATH
-    from tests._helpers import acquisition_chain
-    from tests.unit.data_forge.domains.catalog.knowledge import (
-        test_acquisition_authority as authority_fixture,
-    )
+    from tests._helpers import acquisition_chain, acquisition_production
 
-    original_baseline = authority_fixture._baseline
+    original_baseline = acquisition_production._baseline
+    prepared_baselines: set[Path] = set()
 
     def baseline_with_owner_rows(repo_path, *, license_id="CC-BY-4.0"):
+        expected_path = (Path(repo_path) / "catalog" / "catalog.duckdb").resolve()
+        if expected_path in prepared_baselines:
+            return expected_path
         baseline_path = original_baseline(repo_path, license_id=license_id)
         base_observations = (
             ("fixture-government-balance-2021", 2021, -18.4),
@@ -695,9 +796,10 @@ async def _admit_served_wdi_projection(
             ),
             encoding="utf-8",
         )
+        prepared_baselines.add(baseline_path.resolve())
         return baseline_path
 
-    monkeypatch.setattr(authority_fixture, "_baseline", baseline_with_owner_rows)
+    monkeypatch.setattr(acquisition_production, "_baseline", baseline_with_owner_rows)
 
     original_problem = cycle_fixtures._problem
 
@@ -775,6 +877,7 @@ async def _admit_served_wdi_projection(
         monkeypatch,
         request,
         guarded_cas=True,
+        generation_cycle_repo_root=tmp_path / "wdi" / "repo",
     )
 
     assert len(projections) == 1
@@ -804,6 +907,7 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
         CatalogAcquisitionOverlay,
         content_sha256,
     )
+    from polisyos.runtime.http.resilience import guard_runtime_cas
     from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
     from polisyos.runtime.quality.data_state_substrate import (
         ACQUIRED_DATA_STATE_LIMITATION_CODES,
@@ -822,7 +926,10 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
 
     with tenant_scope(None, tenant_id=closure.tenant_id, cell_id=closure.cell_id):
         case = served.case
-        store = served.control._artifact_store
+        store = guard_runtime_cas(
+            served.control._artifact_store.for_tenant(closure.tenant_id, closure.cell_id)
+        )
+        request.addfinalizer(store.close)
         growth = case.port.project_world_growth(closure)
         assert growth is not None
 

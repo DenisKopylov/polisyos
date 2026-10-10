@@ -19,7 +19,7 @@ import duckdb
 import pandas as pd
 import pytest
 
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
@@ -180,6 +180,32 @@ class _RevisedCycleWdiGrounding:
         )
 
 
+def resolve_completed_wdi_route(control, *, run_id: str, tenant_id: str, cell_id: str):
+    """Resolve one completed NL producer through the canonical acquisition route owner."""
+    closure = AcquisitionRouteLoop(
+        control_store=control._control_store,
+        artifact_store=control._artifact_store,
+        event_log=control._diagnostic_event_log,
+        core_source_resolver=control.resolve_completed_control_job_core_run_source,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    ).resolve_current_route(run_id=run_id)
+    request = AcquisitionRouteMutationRequest(
+        route_projection_hash=closure.route_id,
+        planner_report_hash=agent_action_content_hash(closure.planner_report),
+        replay_pins=AcquisitionRouteReplayPins(
+            source_job_id=closure.source_job_id,
+            compiled_ref=closure.compiled_ref,
+            compiled_content_hash=closure.compiled_content_hash,
+            terminal_event_id=closure.terminal_event_id,
+            design_problem_ref=closure.design_problem_ref,
+            cost_basis_hash=closure.cost_basis_hash,
+        ),
+        idempotency_key="served-acquisition-fixture",
+    )
+    return closure, request
+
+
 async def persist_wdi_route(
     control,
     *,
@@ -325,6 +351,15 @@ async def persist_wdi_route(
                 compiled.model_dump(mode="json"),
                 kind="runtime.compiled_recursive_generation_cycle",
                 schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+                tenant_context=(
+                    ArtifactTenantContextInfo(
+                        tenant_id=admission.scope.tenant_id,
+                        cell_id=admission.scope.cell_id,
+                    )
+                    if admission.scope.status == "established"
+                    and admission.scope.tenant_id is not None
+                    else None
+                ),
             )
             core_manifest_ref = control._finish_generation_run_context(
                 job=admission.job,
@@ -394,28 +429,12 @@ async def persist_wdi_route(
                 "compiled_recursive_generation_cycle_ref": compiled_ref,
             },
         )
-        closure = AcquisitionRouteLoop(
-            control_store=store,
-            artifact_store=control._artifact_store,
-            event_log=control._diagnostic_event_log,
-            core_source_resolver=(control.resolve_completed_control_job_core_run_source),
+        return resolve_completed_wdi_route(
+            control,
+            run_id=run_id,
             tenant_id=tenant_id,
             cell_id=cell_id,
-        ).resolve_current_route(run_id=run_id)
-        request = AcquisitionRouteMutationRequest(
-            route_projection_hash=closure.route_id,
-            planner_report_hash=agent_action_content_hash(closure.planner_report),
-            replay_pins=AcquisitionRouteReplayPins(
-                source_job_id=closure.source_job_id,
-                compiled_ref=closure.compiled_ref,
-                compiled_content_hash=closure.compiled_content_hash,
-                terminal_event_id=closure.terminal_event_id,
-                design_problem_ref=closure.design_problem_ref,
-                cost_basis_hash=closure.cost_basis_hash,
-            ),
-            idempotency_key="served-acquisition-fixture",
         )
-        return closure, request
 
 
 def intercepted_wdi_transport(

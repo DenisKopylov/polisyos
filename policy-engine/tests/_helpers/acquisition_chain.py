@@ -55,6 +55,70 @@ def load_served_wdi_generation_recording(
     )
 
 
+def controlled_served_wdi_generation_recording(
+    recording: dict[str, Any], *, outcome_variable: str
+) -> dict[str, Any]:
+    """Build the exact content-identified candidate recording used by seed and re-entry."""
+    import copy
+
+    from polisyos.pdc import gy_content_hash
+    from tools.quality.validation import (
+        check_layer3_gy_design_generation_contract as n4_contract,
+    )
+
+    controlled = copy.deepcopy(recording)
+    base_recording_id = str(recording.get("recording_id") or "recording")
+    base_content_hash = str(recording.get("recording_content_hash") or "")
+    responses = controlled.get("responses")
+    if not isinstance(responses, list):
+        raise ValueError("controlled_candidate_recording_responses_missing")
+    for index in (4, 8):
+        response = responses[index]
+        if not isinstance(response, dict):
+            raise ValueError("controlled_candidate_recording_response_invalid")
+        raw = response.get("raw_response")
+        if not isinstance(raw, str):
+            raise ValueError("controlled_candidate_recording_body_missing")
+        trinity = json.loads(raw)
+        intervention = next(
+            item
+            for item in trinity["policy_spec"]["interventions"]
+            if item.get("kind") == "procurement_shock_intensity"
+        )
+        intervention["kind"] = "budget_allocation_multiplier"
+        intervention["params"] = {"multiplier": 2}
+        intervention["notes"] = [
+            "do.target=government.balance sign=increase "
+            f"outcome={outcome_variable} "
+            f"effect_path=government.balance,{outcome_variable}"
+        ]
+        rewritten = json.dumps(trinity, sort_keys=True, separators=(",", ":"))
+        response["raw_response"] = rewritten
+        response["raw_response_hash"] = gy_content_hash(rewritten)
+
+    identity_seed = gy_content_hash(
+        {
+            "base_recording_id": base_recording_id,
+            "base_content_hash": base_content_hash,
+            "response_hashes": [
+                item.get("raw_response_hash") for item in responses if isinstance(item, dict)
+            ],
+            "outcome_variable": outcome_variable,
+        }
+    ).removeprefix("sha256:")[:20]
+    fixture_id = f"synthetic_served_wdi_n4_{identity_seed}"
+    controlled["fixture_id"] = fixture_id
+    controlled["recording_id"] = fixture_id
+    controlled["recording_source"] = "synthetic_controlled_overlay_of_recorded_capture"
+    controlled["derived_from_recording_id"] = base_recording_id
+    controlled["derived_from_content_hash"] = base_content_hash
+    controlled["recording_content_hash"] = gy_content_hash(
+        {key: value for key, value in controlled.items() if key != "recording_content_hash"}
+    )
+    n4_contract._validate_recording_fixture(controlled)
+    return controlled
+
+
 def make_wdi_port_case(
     tmp_path,
     monkeypatch,
@@ -156,9 +220,6 @@ def make_wdi_port_case(
     from polisyos.runtime.quality.generation_cycle import N4GenerationPort
 
     if candidate_scenario_generation:
-        import copy
-
-        from polisyos.pdc import gy_content_hash
         from polisyos.runtime.quality.design_generation import (
             generate_design_candidate_scenario_proposal_under_a,
         )
@@ -171,34 +232,11 @@ def make_wdi_port_case(
             if candidate_generation_recording is not None
             else load_served_wdi_generation_recording(generation_repo_root)
         )
-        controlled = copy.deepcopy(recording)
         recording_model_id = str(recording["model_id"])
-        responses = controlled.get("responses")
-        if not isinstance(responses, list):
-            raise ValueError("controlled_candidate_recording_responses_missing")
-        for index in (4, 8):
-            response = responses[index]
-            if not isinstance(response, dict):
-                raise ValueError("controlled_candidate_recording_response_invalid")
-            raw = response.get("raw_response")
-            if not isinstance(raw, str):
-                raise ValueError("controlled_candidate_recording_body_missing")
-            trinity = json.loads(raw)
-            intervention = next(
-                item
-                for item in trinity["policy_spec"]["interventions"]
-                if item.get("kind") == "procurement_shock_intensity"
-            )
-            intervention["kind"] = "budget_allocation_multiplier"
-            intervention["params"] = {"multiplier": 2}
-            intervention["notes"] = [
-                "do.target=government.balance sign=increase "
-                "outcome=global.tax_rate "
-                "effect_path=government.balance,global.tax_rate"
-            ]
-            rewritten = json.dumps(trinity, sort_keys=True, separators=(",", ":"))
-            response["raw_response"] = rewritten
-            response["raw_response_hash"] = gy_content_hash(rewritten)
+        controlled = controlled_served_wdi_generation_recording(
+            recording,
+            outcome_variable=closure.design_problem.outcome_of_interest.target_variable,
+        )
         recorded_client = n4_contract.RecordedGenerationReplayClient(controlled)
 
         async def fixture_candidates(port, problem, *, cycle_index):

@@ -84,8 +84,7 @@ def _resolve_source_cycle_problem_basis(
     if len(indexes) != len(set(indexes)):
         raise AcquisitionRouteClosureError("source_cycle_basis_chain_invalid")
     matching_source = tuple(
-        cycle for cycle in generation_run.cycles
-        if cycle.cycle_index == source_cycle.cycle_index
+        cycle for cycle in generation_run.cycles if cycle.cycle_index == source_cycle.cycle_index
     )
     if matching_source != (source_cycle,):
         raise AcquisitionRouteClosureError("source_cycle_not_in_generation_run")
@@ -99,17 +98,14 @@ def _resolve_source_cycle_problem_basis(
             key=lambda cycle: cycle.cycle_index,
         )
     )
-    if tuple(cycle.cycle_index for cycle in prefix) != tuple(
-        range(source_cycle.cycle_index + 1)
-    ):
+    if tuple(cycle.cycle_index for cycle in prefix) != tuple(range(source_cycle.cycle_index + 1)):
         raise AcquisitionRouteClosureError("source_cycle_basis_predecessor_missing")
 
     expected_basis = design_problem
     for cycle in prefix:
-        if (
-            cycle.design_problem_ref != design_problem_ref
-            or _cycle_basis_ref(cycle) != _problem_ref(expected_basis)
-        ):
+        if cycle.design_problem_ref != design_problem_ref or _cycle_basis_ref(
+            cycle
+        ) != _problem_ref(expected_basis):
             raise AcquisitionRouteClosureError("source_cycle_basis_chain_invalid")
         if cycle.cycle_index == source_cycle.cycle_index:
             return expected_basis
@@ -399,7 +395,6 @@ class AcquisitionRouteLoop:
             expected_schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
         )
         from polisyos.runtime.http.services.control.generation_cycle import (
-            COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
             CompiledRecursiveGenerationCycleRun,
         )
 
@@ -407,8 +402,6 @@ class AcquisitionRouteLoop:
             compiled = CompiledRecursiveGenerationCycleRun.model_validate(compiled_payload)
         except (TypeError, ValueError) as exc:
             raise AcquisitionRouteClosureError("compiled_run_invalid") from exc
-        if compiled.schema_version != COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION:
-            raise AcquisitionRouteClosureError("compiled_run_schema_mismatch")
         costed = [
             (leaf.cycle_run, cycle)
             for leaf in compiled.recursive_run.leaf_nodes
@@ -512,13 +505,9 @@ class AcquisitionRouteLoop:
         expected_schema_name: str,
     ) -> object:
         try:
-            selected_ref = (
-                ref if isinstance(ref, ArtifactRef) else ArtifactID.model_validate(ref)
-            )
+            selected_ref = ref if isinstance(ref, ArtifactRef) else ArtifactID.model_validate(ref)
             artifact_id = (
-                selected_ref.artifact_id
-                if isinstance(selected_ref, ArtifactRef)
-                else selected_ref
+                selected_ref.artifact_id if isinstance(selected_ref, ArtifactRef) else selected_ref
             )
             selected_id = str(artifact_id)
             if not self._artifact_store.has(selected_ref):

@@ -1,0 +1,219 @@
+{
+  "record_type": "morris_marker_removal_execution_handoff",
+  "record_date": "2026-10-11",
+  "evidence_state": "executed_source_bound_probes",
+  "run": {
+    "argv": [
+      ".venv/bin/python",
+      "-B",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/morris-marker-removal-harness-v5-20261010.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "base_commit": "19b0486608f0c134fcbff174c88d32fef82edafe",
+    "base_tree": "b193643df4dcc876b1ccb8202411db099610f79e",
+    "base_parent": "297b0557511234bb4b1bd3b09991cef0bd050a3f",
+    "exit_code": 0,
+    "wall_seconds": 28.736917624948546,
+    "child_timeout_seconds": 60,
+    "child_count": 6,
+    "child_timeouts": 0,
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMBA_NUM_THREADS": "1"
+    },
+    "input_fence": {
+      "path_count_before": 6159,
+      "path_count_after": 6159,
+      "same_paths": true,
+      "changed_paths": 0,
+      "capture_source_sha256": "080a695e7f712a31e30acb47654b27f87ba4f82e82d4981e3d67b0a34093ec88"
+    }
+  },
+  "source_checkpoints": {
+    "production_and_test_source_commit": {
+      "commit": "297b0557511234bb4b1bd3b09991cef0bd050a3f",
+      "tree": "ad9ecc1c4bf2acd57b187b5a2534aa9f3b2d3ffd",
+      "parent": "7e9d0912e014252260c217396ba50465392ab69a"
+    },
+    "executed_harness": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/morris-marker-removal-harness-v5-20261010.py",
+      "sha256": "dcc96f1a27448bcb7f8e3fa6b92c4581990f0d4cf89c4b7f451b76df1b8fd50f",
+      "checkpoint_commit": "e057fa0ae6b92fbc9a9722da3d61fc40b8233084",
+      "checkpoint_tree": "4bce2e4f40240b0346b40d7a14e15dabae90b305",
+      "checkpoint_parent": "19b0486608f0c134fcbff174c88d32fef82edafe",
+      "local_readback_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/morris-v5-harness-source-checkpoint-20261011/readback.json",
+      "local_readback_sha256": "f5431257d653f2e6717bb9c443407bedd19b10ab3b86f3b29f7cb22f33cf7a77",
+      "remote_readback_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/morris-v5-harness-source-checkpoint-20261011/remote-readback.json",
+      "remote_readback_sha256": "85c8dbb1592d3651f574ff878713f6b17d1567f201f2b8f42091c1a55dfada13",
+      "remote_sha_tree_match": true,
+      "remote_verified_changed_files": 1,
+      "remote_verified_exact_bytes": true
+    },
+    "six_frozen_source_inputs": {
+      "src/polisyos/foundry/methods/catalog/sensitivity/screening.py": "b9a2a2dfc1e70473047a48500e9da2eab2c9180e567e36935017657caa7973e2",
+      "tests/unit/foundry/methods/catalog/sensitivity/test_screening.py": "56f30b88836d86b3e811821f5bfae3d155fa9e185059e8da490d440fff0266f3",
+      "src/polisyos/foundry/methods/components/io.py": "79172d1619e3424d6282f0d5eaa89fdaf08d65d0de620b078562f1e7b16b86c9",
+      "src/polisyos/foundry/methods/backends/chain_executor.py": "ecb335acfa0cca4574b101d328317534d22320164f5730239a69d1c78261b7ed",
+      "src/polisyos/foundry/methods/backends/async_chain_executor.py": "3b75e619092347c74dd51a92ab4e46e67d966965426a0903ad124c2c34a19c51",
+      "tests/unit/foundry/methods/backends/test_backends.py": "0f4c2a3d615f9bf7e45d5dabcf5f6621fc407499901a50af791096d647c31548"
+    }
+  },
+  "result": {
+    "all_probe_receipts_valid": true,
+    "all_removals_detected": true,
+    "all_generic_probe_receipts_valid": true,
+    "generic_final_validator_removal_detected": true,
+    "all_coercion_probe_receipts_valid": true,
+    "recognized_coercion_failure_removal_detected": true,
+    "junit": {
+      "cases": 18,
+      "passed_intact_controls": 8,
+      "failed_expected_mutant_probes": 10,
+      "errors": 0,
+      "skipped": 0
+    },
+    "probes": [
+      {
+        "mutation": "slot_tensor_to_matrix",
+        "selector": "tests/unit/foundry/methods/catalog/sensitivity/test_screening.py::test_morris_dispatches_real_three_dimensional_chain",
+        "outcome": "detected: real selector rejected the mutated parameter_levels contract",
+        "return_code": 1,
+        "timed_out": false
+      },
+      {
+        "mutation": "remove_3d_effect_assignment",
+        "selector": "tests/unit/foundry/methods/catalog/sensitivity/test_screening.py::test_morris_dispatches_real_three_dimensional_chain",
+        "outcome": "detected: real selector rejected removal of 3D elementary-effect computation",
+        "return_code": 1,
+        "timed_out": false
+      },
+      {
+        "mutation": "validator_intact",
+        "selector": "tests/unit/foundry/methods/backends/test_backends.py::test_chain_rejects_incompatible_same_name_value_from_partial_fallback",
+        "test_cases": 6,
+        "outcome": "all six malformed sync/async inputs rejected before consumer dispatch",
+        "consumer_dispatch_count": 0,
+        "return_code": 0
+      },
+      {
+        "mutation": "remove_materialized_validator",
+        "selector": "tests/unit/foundry/methods/backends/test_backends.py::test_chain_rejects_incompatible_same_name_value_from_partial_fallback",
+        "test_cases": 6,
+        "outcome": "all six typed sync/async rejection assertions failed after real consumer dispatch",
+        "consumer_dispatch_count": 6,
+        "return_code": 1
+      },
+      {
+        "mutation": "coercion_intact",
+        "selector": "tests/unit/foundry/methods/backends/test_backends.py::test_chain_rejects_recognized_ragged_fallback_before_dispatch",
+        "test_cases": 2,
+        "outcome": "both ragged sync/async values rejected before consumer dispatch",
+        "consumer_dispatch_count": 0,
+        "return_code": 0
+      },
+      {
+        "mutation": "coercion_failure_returns_none",
+        "selector": "tests/unit/foundry/methods/backends/test_backends.py::test_chain_rejects_recognized_ragged_fallback_before_dispatch",
+        "test_cases": 2,
+        "outcome": "both ragged values reached the real consumer and failed outside the typed validation stage",
+        "consumer_dispatch_count": 2,
+        "return_code": 1
+      }
+    ]
+  },
+  "evidence_paths": {
+    "outer_command_json": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/morris-v5-real-chain-rank-coercion-marker-preserving-removals/command.json",
+    "outer_stdout": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/morris-v5-real-chain-rank-coercion-marker-preserving-removals/stdout.txt",
+    "outer_stdout_sha256": "a3a8e7a34064664c982edfa4de71d6aa0c3ea380120549cc14fd73562e05ae66",
+    "outer_stderr": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/morris-v5-real-chain-rank-coercion-marker-preserving-removals/stderr.txt",
+    "outer_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "nested_result_json": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/morris-marker-removal-harness-v5-20261010/run-20261010T235510Z-8208/result.json",
+    "nested_result_sha256": "a3a8e7a34064664c982edfa4de71d6aa0c3ea380120549cc14fd73562e05ae66",
+    "nested_junit_root": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/morris-marker-removal-harness-v5-20261010/run-20261010T235510Z-8208"
+  },
+  "decision_evidence": {
+    "p40_bucket": "SAME_CLASS_DEEPER",
+    "verified_extent": "The selected Morris 3D contracts reject both source-removal mutants. For supported array-like values at the final materialized-input boundary, intact sync/async validation rejects malformed values before consumer invocation; removing the final validator or treating a recognized coercion failure as absence produces actual consumer calls and fails the typed rejection assertions.",
+    "bounded_residual": {
+      "status": "not_established",
+      "scope": "Opaque multi-slot mappings and custom materializers without an exercised value-to-slot projection remain outside these probes.",
+      "closure_move": "Requires a generic source-of-truth projection for final materialized inputs or a bounded falsifier over every supported materializer shape."
+    },
+    "proposal_fields": {
+      "proposed_disposition": "limited",
+      "basis": "Behavioral removal evidence covers the named 3D Morris and selected supported array-like sync/async consumption paths; the opaque multi-slot/custom-materializer residual is not established."
+    },
+    "closure_ids": [],
+    "formal_closure_claimed": false
+  },
+  "prior_receipt_boundary": {
+    "v3_receipt": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/morris-v3-real-chain-marker-preserving-removals",
+    "v3_status": "preserved but invalid as property evidence: generated sitecustomize.py had a SyntaxError, so both child commands exited without applying the hook; V5 is the actual execution record.",
+    "v3_stdout_sha256": "a80b7958d9a613d2aa7f4555e99ce295737a4d632d5fb86a2cdf0dcf3583960e"
+  },
+  "slice": {
+    "base": "7e9d0912e014252260c217396ba50465392ab69a",
+    "candidate": "297b0557511234bb4b1bd3b09991cef0bd050a3f",
+    "tree": "ad9ecc1c4bf2acd57b187b5a2534aa9f3b2d3ffd",
+    "parents": [
+      "7e9d0912e014252260c217396ba50465392ab69a"
+    ],
+    "full_footprint_readback": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/materialized-array-inputs-implementation-checkpoint-20261010/readback.json",
+    "full_footprint_readback_sha256": "b02011e1cf14e532e2d116f3e05f4f1a1e77ee278ee61e1f318ae428860896fa",
+    "global_source_input_backend_freeze": "pending"
+  },
+  "companion_verification": {
+    "real_sync_async_consumers": {
+      "passed": 99,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "command_record": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/morris-final-consumption-v3-real-sync-async-consumers/command.json",
+      "command_sha256": "5e9d941aab7bc94f0d93d1e08d6f2cd3fe27286bf69fc7d4271b93d688191a58",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "tests/unit/foundry/methods/backends/test_backends.py",
+        "tests/unit/foundry/methods/test_linker.py",
+        "tests/unit/foundry/methods/test_components_bootstrap_adapter.py",
+        "tests/unit/foundry/methods/catalog/sensitivity/test_screening.py",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/morris-final-consumption-v3-real-sync-async-consumers/junit.xml"
+      ],
+      "head": "7e9d0912e014252260c217396ba50465392ab69a",
+      "wall_seconds": 17.391658707987517,
+      "stable_input_count": 6158,
+      "stdout_sha256": "0ff3c0184120a730edeb11fe86864e779ba0ffef42e7984b1645ccdea3096180",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "four_path_ruff": {
+      "command_record": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/morris-v3-full-four-path-ruff/command.json",
+      "command_sha256": "4e71429e92bbc94570499a6f35f7030a47c6f1245feddd1299526c6984a575fa",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/foundry/methods/components/io.py",
+        "src/polisyos/foundry/methods/backends/chain_executor.py",
+        "src/polisyos/foundry/methods/backends/async_chain_executor.py",
+        "tests/unit/foundry/methods/backends/test_backends.py",
+        "--output-format=json"
+      ],
+      "head": "7e9d0912e014252260c217396ba50465392ab69a",
+      "wall_seconds": 0.13684470893349499,
+      "stable_input_count": 7,
+      "stdout_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

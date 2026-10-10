@@ -126,11 +126,25 @@
             "test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal",
             "test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
           ]
+        },
+        {
+          "test_path": "tests/unit/data_forge/read_api/test_catalog_graph_builders.py",
+          "selectors": [
+            "test_country_normalizer_is_exported_by_catalog_read_api"
+          ]
+        },
+        {
+          "test_path": "tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+          "selectors": [
+            "test_catalog_run_profile_is_exported_from_core_contracts_facade"
+          ]
         }
       ]
     },
     "source_file_sha256": {
       "docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/test_installed_catalog_defaults.py": "668d45112a45648f89a548746688b24f54ffe8513f5dd48d136d7cd72b0fb9cb",
+      "tests/repo_quality/architecture/test_public_surface_export_resolution.py": "5bc483ddc2ff56b75d5b5766ead17b34b92adb5e10bb1777fe1baa52e77085c5",
+      "tests/unit/data_forge/read_api/test_catalog_graph_builders.py": "6493a8ecfe49e718839387940aadea42d4c0c38b594425291b4fb8009dbaa343",
       "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py": "f6640533c5821ab4257bff177b3e5536e37cd881a25e11175ea681829e408a63",
       "tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py": "b8f9227a18737490a539a70cbace221344a72e4935c6f28d9a7f35b65dc40f42",
       "tests/unit/foundry/methods/test_dependency_profile.py": "3435b4dd3df4d31546ea260d149764d67856c1a57ee25e20bd30583ddf1eb3ce",
@@ -138,8 +152,8 @@
       "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py": "7582073c6d5806e62a56c53740900be69cbf3dede414fb10762aed7e5d258b3e",
       "tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py": "37df9399ff0acc0d0fa845af9f9eaa81614163ae74a88c23a14ea49b1bfd4dfc"
     },
-    "selected_node_count": 125,
-    "selected_node_ids_sha256": "61189a3b41592600556a7d63dff970fd05358a406ee8598b7211f0f6535aafd8",
+    "selected_node_count": 127,
+    "selected_node_ids_sha256": "db4d5f6de32b75956418db780b50d043fc08b7c92a543b056731c34e3bdd873d",
     "selected_node_ids_sha256_algorithm": "sha256 of sorted unique UTF-8 node IDs joined with LF and one trailing LF",
     "selected_node_ids": [
       "docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/test_installed_catalog_defaults.py::test_installed_explicit_custom_path_semantics",
@@ -154,6 +168,8 @@
       "docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/test_installed_catalog_defaults.py::test_installed_unknown_resource_names_are_typed_refusals[other.yaml]",
       "docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/test_installed_catalog_defaults.py::test_missing_private_default_preserves_required_and_optional_policies",
       "docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/test_installed_catalog_defaults.py::test_real_six_owner_defaults_load_curated_content",
+      "tests/repo_quality/architecture/test_public_surface_export_resolution.py::test_catalog_run_profile_is_exported_from_core_contracts_facade",
+      "tests/unit/data_forge/read_api/test_catalog_graph_builders.py::test_country_normalizer_is_exported_by_catalog_read_api",
       "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_allows_asymmetric_output_input_stitch",
       "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_allows_chain_topology",
       "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_allows_human_verified_latent_bridge",
@@ -299,6 +315,18 @@
         "gcm": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py"
       },
       "worker_python": "CPython 3.12 with DoWhy 0.14 from the frozen workers/dowhy-014/uv.lock"
+    },
+    "read_api_country_normalizer": {
+      "test_path": "tests/unit/data_forge/read_api/test_catalog_graph_builders.py",
+      "selectors": [
+        "test_country_normalizer_is_exported_by_catalog_read_api"
+      ]
+    },
+    "core_contracts_catalog_run_profile_identity": {
+      "test_path": "tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+      "selectors": [
+        "test_catalog_run_profile_is_exported_from_core_contracts_facade"
+      ]
     }
   },
   "required_outcome": {

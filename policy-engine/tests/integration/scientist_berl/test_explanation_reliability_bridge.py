@@ -162,3 +162,121 @@ def _explanation_bundle(
             artifact_refs=["cas://berl/residuals"],
         ),
     )
+
+
+@pytest.mark.parametrize(
+    ("feature_dependence_policy", "method_id"),
+    [
+        ("marginal_interventional", "kernel_shap_marginal"),
+        ("conditional_observational", "kernel_shap_conditional"),
+    ],
+)
+def test_explanation_orchestrator_bundle_crosses_cas_into_existing_consumers(
+    tmp_path,
+    feature_dependence_policy: str,
+    method_id: str,
+) -> None:
+    from polisyos.berl import (
+        ExplanationOrchestrator,
+        ExplanationRequest,
+        load_explanation_bundle,
+        persist_explanation_bundle,
+    )
+    from polisyos.berl.contracts.schema import explanation_bundle_schema_id
+    from polisyos.core.artifacts import SchemaInfo
+    from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+    from polisyos.core.canon import CanonSpec
+    from polisyos.runtime.quality.explanation_reliability import (
+        build_berl_warrant_reliability_record,
+        evaluate_warrant_berl_reliability,
+    )
+
+    store_root = tmp_path / feature_dependence_policy
+    producer = ExplanationOrchestrator()
+
+    def model(row: dict[str, float]) -> float:
+        return row["x1"] + 2 * row["x2"]
+
+    request = ExplanationRequest(
+        prediction_id=f"prediction-{feature_dependence_policy}",
+        row_id="row-1",
+        x={"x1": 1.0, "x2": 1.0},
+        feature_names=("x1", "x2"),
+        methods=(method_id,),
+        feature_dependence_policy=feature_dependence_policy,
+        background_rows=(
+            {"x1": 0.0, "x2": 0.0},
+            {"x1": 1.0, "x2": 0.0},
+            {"x1": 0.0, "x2": 1.0},
+        ),
+        n_eval_perturbations=64,
+        residual_cap=0.01,
+        random_seed=7,
+        adapter_params={"max_exact_shap_features": 2},
+        artifact_refs=(
+            ("cas://self-attested/conditional-law-verified",)
+            if feature_dependence_policy == "conditional_observational"
+            else ()
+        ),
+    )
+
+    produced = producer.explain(model, request)
+    producer_store = FileSystemCAS(store_root)
+    producer_store.put_json(
+        produced.model_dump(mode="json", round_trip=True),
+        PutOptions(
+            kind="scientist.explanation_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=explanation_bundle_schema_id(),
+                version="0.9.0",
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    ref = persist_explanation_bundle(producer_store, produced)
+    loaded = load_explanation_bundle(FileSystemCAS(store_root), ref)
+    explanation_component = _explanation_component_for(loaded)
+
+    record = build_berl_warrant_reliability_record(
+        reliability_id=f"berl-{feature_dependence_policy}",
+        claim_id="claim-1",
+        explanation_bundle_ref=ref.model_dump_json(),
+        validation_thresholds={"max_p95_infidelity_upper_bound": 0.05},
+        explanation_bundle=loaded.model_dump(mode="json"),
+    )
+    record["explanation_bundle"] = loaded.model_dump(mode="json")
+    runtime_result = evaluate_warrant_berl_reliability(
+        {"warrant_reliability_records": [record]},
+        {
+            "claim_id": "claim-1",
+            "warrant_id": "warrant-1",
+            "berl_reliability_refs": [record["reliability_id"]],
+        },
+        claim_id="claim-1",
+    )
+
+    assert loaded.bundle_id == produced.bundle_id
+    assert ref.manifest_profile_sha256 is not None
+    assert "manifest_profile_sha256" in record["explanation_bundle_ref"]
+    if feature_dependence_policy == "marginal_interventional":
+        method = loaded.methods[0]
+        assert method.requested_method_id == "kernel_shap_marginal"
+        assert method.effective_method_id == "kernel_shap"
+        assert loaded.display_policy == "analyst_display"
+        assert explanation_component.status == "pass"
+        assert runtime_result.issues == ()
+    else:
+        method = loaded.methods[0]
+        assert method.scope == "diagnostic"
+        assert method.attributions == []
+        assert "no verified conditional law" in method.params["diagnostic"]
+        assert loaded.audit.artifact_refs == ["cas://self-attested/conditional-law-verified"]
+        assert explanation_component.status == "blocked"
+        assert any(
+            "conditional_feature_law_unverified" in blocker
+            for blocker in explanation_component.blockers
+        )
+        assert any(
+            "conditional_feature_law_unverified" in issue.message for issue in runtime_result.issues
+        )

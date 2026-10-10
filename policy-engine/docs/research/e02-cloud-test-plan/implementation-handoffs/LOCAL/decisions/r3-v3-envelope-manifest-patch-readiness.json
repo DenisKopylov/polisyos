@@ -1,0 +1,38 @@
+{
+  "base_label": "00954ff + previously read shared WIP bytes",
+  "design": {
+    "historical_versions": "Reconstructed expected manifests adopt the actual persisted v1/v2/v3 schema version before projection, retaining the Core historical projection rules and avoiding timestamp changes.",
+    "p40": "SAME_CLASS_DEEPER; widen the existing manifest identity check to the complete Core profile projection instead of adding another field-specific assertion.",
+    "profileless": "No explicit profile selector is still accepted only when the default persisted envelope projection matches the expected writer profile.",
+    "source_invariant": "Resolve the linked envelope view, bind exact selected bytes, rebuild its expected manifest with canonical Core API from writer options and expected context, reuse the persisted created_at and persisted manifest schema version, then compare canonical profile projections.",
+    "tests": "The red test writes actual same-schema, same-bytes envelope views with different tenant context and redirects the authority link to the foreign selected profile while retaining the payload/envelope bytes and schema markers."
+  },
+  "paths": {
+    "existing_r3_v3_patch_sha256": "460973918615c8f59dfdf7973e317c29b5d408d0118de4718f430b5d0fec50da",
+    "implementation_patch": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-v3-envelope-manifest-fix-00954ff.patch",
+    "implementation_patch_sha256": "f6a20e844d8308708c0a3b04828afde69f67fa45bfcc0f7fa202466ca83a5ce4",
+    "red_patch": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-v3-envelope-manifest-red-00954ff.patch",
+    "red_patch_sha256": "4dbecab20d197cb64efd7af2ce33e58ae35ea2b4657218e916ffb68e0267112a",
+    "target_after_in_memory_sha256": {
+      "src/polisyos/runtime/http/services/control/artifacts.py": "8e411d9d91452616a3a1f07037c2bfcb354c778df8f617f1b6a9295c592da4f8",
+      "tests/unit/runtime/quality/test_authority_reconciliation.py": "fb876c896f53b0caa5c76667f076ebab6f10fd111f0e7b29b76f92140e3274eb"
+    },
+    "target_source_sha256_before": {
+      "src/polisyos/runtime/http/services/control/artifacts.py": "a5543f4867ba166341cda1dc02b6c81eceef808da6b2f9b4f896c415cbbf3a6d",
+      "tests/_helpers/acquisition_production.py": "a01e4b527be21135abfaf4d07b4d77c538431937346cbabef09c3e7b4a2b14d3",
+      "tests/integration/core_runtime/test_acquisition_authority_served.py": "7430db9ece5f564c81d09b5e2d862fd1ac810fce7bca3b06e3bb535e0dc8c0d9",
+      "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py": "ab6cbd59aef5c43a02fbdbe1daba64cf4633279b7e4b22adf0dcaba6829a9388",
+      "tests/unit/runtime/quality/test_authority_reconciliation.py": "00c6fc11445b267b08caea0c9fb6d5fb38f0056202136983c791c9a940003482"
+    }
+  },
+  "sequence": [
+    "Apply and run the red-only authority manifest identity test (expected failure before implementation).",
+    "Apply implementation patch plus R3/V3 companions after the red-only patch, then run the authorized focused controls."
+  ],
+  "status": "patch_only_not_applied_not_tested",
+  "verification": {
+    "git_operations": [],
+    "target_files_written": [],
+    "tests_run": []
+  }
+}

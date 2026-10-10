@@ -4,6 +4,14 @@
   "commit_owner": "root",
   "branch": "codex/e02-unified-local-20261009",
   "one_level_delegation": true,
+  "current_root_application_lease": {
+    "as_of_candidate_commit": "eeb50362eafa39a218e24cea34dd2b39b1644700",
+    "writer": "root",
+    "subagent_mode": "patch-only author or read-only independent reviewer; no children",
+    "scope": "All necessary E02 source/test/schema/config/lock/generator companions across former module-owner boundaries",
+    "serialization": "Root applies shared source, export, schema and generator changes sequentially; one heavy slot and one numerical thread",
+    "previous_writer_entries": "Historical provenance; they do not prohibit the current root companion lease"
+  },
   "writers": {
     "i1_c05": {
       "scope": "C05 owner-bounded current-G structural composition; preserve G _resources/all exports; add generation_basis_matches_members for I4",

@@ -1,0 +1,535 @@
+{
+  "schema": "policyos.e02.composed_mac_current_source_replay_plan.v1",
+  "title": "External consumer and tool output ownership plan (R2 preparation)",
+  "created_on": "2026-10-10",
+  "status": "plan_only_output_binding_routes_not_execution_receipts",
+  "execution_mode": {
+    "purpose": "Use the existing canonical capture-plan DTO to derive unique, command-owned LOCAL/raw output roots for separately owned external invocations.",
+    "capture_cli_execution_compatible": false,
+    "reason": "The capture CLI profiles each selected command as policy-engine/.venv Python and its runtime grader only gives full behavioral/JUnit/origin semantics to pytest. C12 venv, browser-core Playwright, Docker/promtool, and Linux transport use different execution backends. This DTO is for root derivation/input-manifest binding only until each route has its owner-specific capture adapter.",
+    "no_execution_performed": true
+  },
+  "source_scope": {
+    "worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "product_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "final_commit": null,
+    "final_tree": null,
+    "freeze_rule": "Root supplies the exact final source freeze and binds unresolved commit/tree values in execution receipts. Bind this plan’s actual bytes and all direct route inputs in the shared manifest; do not rewrite the plan to inject future freeze identities. Historical receipts and candidate hashes are not final-source evidence."
+  },
+  "execution": {
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "concurrency": {
+      "max_parallel_commands": 1,
+      "numerical_threads": 1,
+      "pytest_workers": 1,
+      "xdist": false,
+      "command_order": "strictly sequential; separate owner slots must be coordinated by root",
+      "heavy_slot_owner": "root; C12, repository SOTA, and browser routes require separate explicit slot scheduling before execution",
+      "heavy_runs_allowed_now": false
+    },
+    "python_profile": "External per-route runtimes; all required Python, Node, browser, Docker/Promtool and Linux worker identities are not established for the final freeze and must be rebound by the route owner.",
+    "common_environment": {
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1",
+      "BLIS_NUM_THREADS": "1",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "output_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools",
+    "per_command_capture": {
+      "required_files": [
+        "outputs.stdout",
+        "outputs.stderr",
+        "outputs.metadata"
+      ],
+      "junit": "null for non-pytest external routes; this plan does not synthesize a JUnit result",
+      "ownership": "required_files names the outputs.stdout, outputs.stderr, and outputs.metadata roles; each command's explicit outputs paths determine the filenames. ENV uses stdout.txt, stderr.txt, and command.json under capture/. Inventory every regular file, symlink, and special entry below the declared root after execution; do not infer product PASS from zero process exit."
+    },
+    "freeze_input_manifest": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/freeze-input-sha256.json",
+      "status": "not_generated; root must bind final source/tree and then generate one shared manifest including this plan plus the R1/R4 base, supplement, and self-test plans.",
+      "coverage": "Exact direct route recipes/config/test files and model/runtime inputs named below, in addition to the root-owned full tracked Git freeze and raw source-manifest inputs. This is not a transitive import closure or an external-runtime profile receipt.",
+      "source_input_paths": [
+        "apps/runtime-dashboard/e2e/journeys/catalog-profile-source-bound.spec.ts",
+        "apps/runtime-dashboard/package.json",
+        "apps/runtime-dashboard/playwright.config.ts",
+        "apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+        "apps/runtime-dashboard/src/api/hooks/useLexSearchProfile.test.tsx",
+        "apps/runtime-dashboard/src/features/lex/routes/LexKnowledgeGraphPage.test.tsx",
+        "architecture/gates/repository_sota.toml",
+        "docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/environment-v2-falsifiers-readiness.md",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/c12-final-real-http-command-readiness.md",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/c12-real-http-output-scope.md",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/composed-task-denominator-reconciliation.md",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/dx0-native/sota-native-full-command-plan.md",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/browser-core-host-env.md",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/final-transport-plan-20261010.md",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/final-wave-readiness.md",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/profile-protocol-addendum.md",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/browser-core-install-receipt/browser-core-network-install.command.json",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/final-source-linux-wave.sh",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-manifest.json",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-recipe.md",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/timeout-plan.md",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/composed-mac-final-replay-plan-20261010-r2.json",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/composed-mac-final-supplement-plan-20261010-r2.json",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/asset-file-manifest.txt",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/package-origin-profile.txt",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/real_legal_http_witness.command.txt",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/real_legal_http_witness.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed_mac_capture.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed_mac_pytest_origin_plugin.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/env_manifest_adapter.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/environment_v2_falsifiers.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/browser-frozen-execution-recipe.md",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s3-empirical/raw/promtool-v2.50.0-e02-2026-10-10.txt",
+        "ops/observability/prometheus/alerts.yml",
+        "ops/observability/prometheus/prometheus.yml",
+        "ops/observability/prometheus/recording_rules.yml",
+        "ops/observability/prometheus/rules/audit_chain_alerts.yml",
+        "ops/observability/prometheus/rules/mtls-rules.yaml",
+        "ops/observability/prometheus/rules/runtime_operability_alerts.yml",
+        "ops/observability/prometheus/rules/scientist-alerts.yml",
+        "ops/observability/prometheus/slo_alerts.yml",
+        "ops/observability/prometheus/slo_recording_rules.yml",
+        "package.json",
+        "pnpm-lock.yaml",
+        "pnpm-workspace.yaml",
+        "tools/devx/workspace/repository_sota_closeout.py"
+      ],
+      "selected_test_paths": [],
+      "fixture_inputs": []
+    },
+    "commands": [
+      {
+        "id": "ENVIRONMENT_V2_FALSIFIERS",
+        "order": 1,
+        "phase": "light",
+        "command_type": "external_output_binding",
+        "backend": "host Python 3 / source-bound falsifier harness",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+        "argv": [
+          "python3",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/environment_v2_falsifiers.py",
+          "--repo-root",
+          ".",
+          "--baseline-observation",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/environment-v2-falsifiers/baseline-observation.json",
+          "--output-parent",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/environment-v2-falsifiers/harness"
+        ],
+        "environment": {
+          "OPENBLAS_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "VECLIB_MAXIMUM_THREADS": "1",
+          "BLIS_NUM_THREADS": "1",
+          "PYTHONDONTWRITEBYTECODE": "1"
+        },
+        "purpose": "Prepared binding for the source-bound environment-v2 falsifier harness. Root produces baseline-observation.json from the verified shared six-plan manifest and this external plan’s exact bytes, then stores the focused capture under capture/. The harness receives only the static baseline path and a new strict harness/ child. Current source still needs the owner-approved manifest-derived command-root admission before this route is executable; no run is claimed.",
+        "outputs": {
+          "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/environment-v2-falsifiers",
+          "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/environment-v2-falsifiers/capture/stdout.txt",
+          "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/environment-v2-falsifiers/capture/stderr.txt",
+          "junit": null,
+          "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/environment-v2-falsifiers/capture/command.json"
+        },
+        "plan_timeout_seconds": null,
+        "run_status_before_freeze": "UNRUN",
+        "prior_wall_time": {
+          "status": "UNMEASURED_FOR_THIS_ROOT",
+          "basis": "Historical receipts are not a current-source timing result."
+        },
+        "runtime_resolution": {
+          "status": "blocked_on_root_runtime_input",
+          "baseline_observation_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/environment-v2-falsifiers/baseline-observation.json",
+          "rule": "The root adapter writes the baseline only after the first final-source PASS, then the focused capture writes standard streams and command.json below capture/. Before harness launch, verify the baseline’s producer receipt and bytes, the shared six-plan manifest, and this external plan’s actual bytes. The harness argument is the static strict child harness/; the source-owned CLI admission bridge must accept that manifest-derived command root. The broad parent inventory includes baseline-observation.json, capture/, and harness/. Until the bridge is in the frozen source, retain this as binding-only and UNRUN."
+        },
+        "generated_side_effects": "The root adapter owns baseline-observation.json and the focused capture/ files; the harness creates its unique strict harness/ child containing control results, fixtures, streams, JSON readbacks, and refusal/error artifacts. Inventory every entry recursively below the broad parent without following symlinks; retain complete output bytes and record the baseline producer/byte identity. The harness child must be absent before launch; the baseline/capture children are expected to exist."
+      },
+      {
+        "id": "C12_REAL_LEGAL_HTTP",
+        "order": 2,
+        "phase": "heavy",
+        "command_type": "external_output_binding",
+        "backend": "C12 isolated Python 3.14.3 venv / pinned local E5 model",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/venv/bin/python",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/real_legal_http_witness.py",
+          "--case-root",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/c12-real-http/case"
+        ],
+        "environment": {
+          "OPENBLAS_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "VECLIB_MAXIMUM_THREADS": "1",
+          "BLIS_NUM_THREADS": "1",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "HF_HUB_OFFLINE": "1",
+          "TRANSFORMERS_OFFLINE": "1",
+          "TOKENIZERS_PARALLELISM": "false",
+          "PYTHONPATH": "src:."
+        },
+        "purpose": "Use the patched --case-root invocation from the C12 output-scope recipe. The common command root owns the case subtree and top-level stdout/stderr/metadata; the script keeps its existing read-only venv, HF cache, and nine-file model snapshot as inputs.",
+        "outputs": {
+          "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/c12-real-http",
+          "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/c12-real-http/stdout.bin",
+          "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/c12-real-http/stderr.bin",
+          "junit": null,
+          "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/c12-real-http/metadata.json"
+        },
+        "plan_timeout_seconds": null,
+        "run_status_before_freeze": "UNRUN",
+        "prior_wall_time": {
+          "status": "UNMEASURED_FOR_THIS_ROOT",
+          "basis": "Historical receipts are not a current-source timing result."
+        },
+        "runtime_resolution": {
+          "status": "requires_root_confirmation_of_patched_script_at_freeze",
+          "python_entrypoint": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/venv/bin/python",
+          "profile": "The readiness record reports Python 3.14.3 and 143 distributions; rebind the exact entrypoint, pyvenv.cfg, package inventory/origins, and nine model assets at final freeze. Historical versions are not a current profile."
+        },
+        "generated_side_effects": "Complete recursive inventory of case/ (including DuckDB corpus, embedding/index generations, runtime CAS/cache, result.json) plus command stdout/stderr/metadata. Read-only model assets and venv are inputs, not command outputs."
+      },
+      {
+        "id": "NATIVE_REPOSITORY_SOTA",
+        "order": 3,
+        "phase": "heavy",
+        "command_type": "external_output_binding",
+        "backend": "uv / repository SOTA aggregate and sequential child gates",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "argv": [
+          "uv",
+          "run",
+          "polisyos-tools",
+          "workspace",
+          "repository-sota-closeout",
+          "--output-json",
+          "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/native-sota/aggregate/report.json",
+          "--subprocess-receipt-dir",
+          "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/native-sota/aggregate/children"
+        ],
+        "environment": {
+          "OPENBLAS_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "VECLIB_MAXIMUM_THREADS": "1",
+          "BLIS_NUM_THREADS": "1",
+          "PYTHONDONTWRITEBYTECODE": "1"
+        },
+        "purpose": "Run the exact aggregate command in the native SOTA plan without contract-only or skip-generated flags. Capture aggregate streams, report JSON, every child receipt, and the complete command-produced child set.",
+        "outputs": {
+          "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/native-sota/aggregate",
+          "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/native-sota/aggregate/stdout.bin",
+          "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/native-sota/aggregate/stderr.bin",
+          "junit": null,
+          "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/native-sota/aggregate/metadata.json"
+        },
+        "plan_timeout_seconds": null,
+        "run_status_before_freeze": "UNRUN",
+        "prior_wall_time": {
+          "status": "UNMEASURED_FOR_THIS_ROOT",
+          "basis": "Historical receipts are not a current-source timing result."
+        },
+        "runtime_resolution": {
+          "status": "must_be_rebound_at_freeze",
+          "profile": "The prior 251.358 s guardrail timing is a planning signal, not this aggregate command timing; no final-source runtime profile or wall time is established."
+        },
+        "generated_side_effects": "The raw report and subprocess receipts are below this output root. The native command also writes _build/.tmp/last-mile artifacts outside LOCAL/raw; those require separate owner inventory and are not covered by this DTO root."
+      },
+      {
+        "id": "DOCS_ACCURACY_EXPLICIT",
+        "order": 4,
+        "phase": "light",
+        "command_type": "external_output_binding",
+        "backend": "uv / docs accuracy validator",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "argv": [
+          "uv",
+          "run",
+          "polisyos-tools",
+          "validation",
+          "check-docs-accuracy",
+          "--repo-root",
+          "."
+        ],
+        "environment": {
+          "OPENBLAS_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "VECLIB_MAXIMUM_THREADS": "1",
+          "BLIS_NUM_THREADS": "1",
+          "PYTHONDONTWRITEBYTECODE": "1"
+        },
+        "purpose": "Keep the separately named docs-accuracy invocation distinct from the aggregate SOTA command, whose freshness gate currently short-circuits on expiry before running it.",
+        "outputs": {
+          "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/docs-accuracy",
+          "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/docs-accuracy/stdout.bin",
+          "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/docs-accuracy/stderr.bin",
+          "junit": null,
+          "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/docs-accuracy/metadata.json"
+        },
+        "plan_timeout_seconds": null,
+        "run_status_before_freeze": "UNRUN",
+        "prior_wall_time": {
+          "status": "UNMEASURED_FOR_THIS_ROOT",
+          "basis": "Historical receipts are not a current-source timing result."
+        },
+        "runtime_resolution": "Use the final source freeze and record the validator output as its own route; this is not a SOTA aggregate green or an issuer decision.",
+        "generated_side_effects": "All generated files below outputs.directory belong to this command and require complete post-run inventory."
+      },
+      {
+        "id": "BROWSER_SOURCE_BOUND_JOURNEY",
+        "order": 5,
+        "phase": "heavy",
+        "command_type": "external_output_binding",
+        "backend": "Corepack/Playwright plus dedicated browser-core venv",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard",
+        "argv": [
+          "corepack",
+          "pnpm",
+          "exec",
+          "playwright",
+          "test",
+          "e2e/journeys/catalog-profile-source-bound.spec.ts",
+          "--project=chromium",
+          "--reporter=json",
+          "--trace=on",
+          "--output=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/browser-source-bound/test-results"
+        ],
+        "environment": {
+          "OPENBLAS_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "VECLIB_MAXIMUM_THREADS": "1",
+          "BLIS_NUM_THREADS": "1",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "CI": "1",
+          "POLISYOS_DASHBOARD_SOURCE_BOUND_PROFILE_FIXTURE": "1",
+          "UV_PROJECT_ENVIRONMENT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/browser-core-venv",
+          "UV_NO_SYNC": "1",
+          "UV_FROZEN": "1",
+          "PLAYWRIGHT_JSON_OUTPUT_FILE": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/browser-source-bound/playwright.json"
+        },
+        "purpose": "Use the frozen browser recipe with its dedicated browser-core venv, one Chromium worker, existing browser cache, and fresh 8000/5173 port checks. Retain JSON report, test-results/trace, full streams, and actual browser/API runtime profile.",
+        "outputs": {
+          "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/browser-source-bound",
+          "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/browser-source-bound/stdout.bin",
+          "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/browser-source-bound/stderr.bin",
+          "junit": null,
+          "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/browser-source-bound/metadata.json"
+        },
+        "plan_timeout_seconds": null,
+        "run_status_before_freeze": "UNRUN",
+        "prior_wall_time": {
+          "status": "UNMEASURED_FOR_THIS_ROOT",
+          "basis": "Historical receipts are not a current-source timing result."
+        },
+        "runtime_resolution": {
+          "status": "must_be_rebound_at_freeze",
+          "profile": "The prior browser-core install receipt is not the final source-bound runtime profile. Re-read Python/package inventory, Node/Corepack/pnpm/Playwright and Chromium versions; preserve the recipe PATH requirements without assuming its old values."
+        },
+        "generated_side_effects": "The declared raw root owns PLAYWRIGHT_JSON_OUTPUT_FILE, Playwright test-results, traces, and captured command streams. The configured fixture metadata path under apps/runtime-dashboard/_build/.tmp/fixture-runtime.json is outside LOCAL/raw and requires a separate exact inventory or explicit output-root extension before any completeness claim."
+      },
+      {
+        "id": "LEX_DASHBOARD_VITEST",
+        "order": 6,
+        "phase": "light",
+        "command_type": "external_output_binding",
+        "backend": "Corepack/pnpm Vitest",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard",
+        "argv": [
+          "corepack",
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "src/api/hooks/useLexSearchProfile.test.tsx",
+          "src/features/lex/routes/LexKnowledgeGraphPage.test.tsx"
+        ],
+        "environment": {
+          "OPENBLAS_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "VECLIB_MAXIMUM_THREADS": "1",
+          "BLIS_NUM_THREADS": "1",
+          "PYTHONDONTWRITEBYTECODE": "1"
+        },
+        "purpose": "Run the exact complementary Legal dashboard hook/page controls named by the denominator reconciliation note; this is not a replacement for the browser HTTP/UI journey or C12 producer-to-fresh-reader path.",
+        "outputs": {
+          "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/lex-dashboard-vitest",
+          "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/lex-dashboard-vitest/stdout.bin",
+          "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/lex-dashboard-vitest/stderr.bin",
+          "junit": null,
+          "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/lex-dashboard-vitest/metadata.json"
+        },
+        "plan_timeout_seconds": null,
+        "run_status_before_freeze": "UNRUN",
+        "prior_wall_time": {
+          "status": "UNMEASURED_FOR_THIS_ROOT",
+          "basis": "Historical receipts are not a current-source timing result."
+        },
+        "runtime_resolution": "Rebind the workspace Node/Corepack/pnpm/Vitest package identities at the final freeze; no current-source Vitest result is claimed.",
+        "generated_side_effects": "All generated files below outputs.directory belong to this command and require complete post-run inventory."
+      },
+      {
+        "id": "LINUX_SOURCE_TRANSPORT",
+        "order": 7,
+        "phase": "light",
+        "command_type": "external_output_binding",
+        "backend": "bash / isolated existing Linux host-transfer helper",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+        "argv": [
+          "bash",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/final-source-linux-wave.sh",
+          "transport",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "codex/e02-unified-local-20261009",
+          "ROOT_SUPPLIED_FULL_FREEZE_COMMIT",
+          "ROOT_SUPPLIED_FULL_FREEZE_TREE"
+        ],
+        "environment": {
+          "OPENBLAS_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "VECLIB_MAXIMUM_THREADS": "1",
+          "BLIS_NUM_THREADS": "1",
+          "PYTHONDONTWRITEBYTECODE": "1"
+        },
+        "purpose": "Use the prepared transport mode only after root supplies the exact attached checkout, branch, commit, and tree. The local command root owns the transport invocation streams/status; the script independently owns and verifies its remote worker destination.",
+        "outputs": {
+          "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/linux-transport",
+          "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/linux-transport/stdout.bin",
+          "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/linux-transport/stderr.bin",
+          "junit": null,
+          "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/linux-transport/metadata.json"
+        },
+        "plan_timeout_seconds": null,
+        "run_status_before_freeze": "UNRUN",
+        "prior_wall_time": {
+          "status": "UNMEASURED_FOR_THIS_ROOT",
+          "basis": "Historical receipts are not a current-source timing result."
+        },
+        "runtime_resolution": {
+          "status": "blocked_on_root_freeze_values",
+          "placeholders": [
+            "ROOT_SUPPLIED_FULL_FREEZE_COMMIT",
+            "ROOT_SUPPLIED_FULL_FREEZE_TREE"
+          ],
+          "rule": "Root supplies the exact final commit/tree at invocation and the capture receipt records those actual values. Checkout and branch are the already attached workspace values in argv; do not substitute old 7574/13e candidate identities."
+        },
+        "generated_side_effects": "Local RAW command output is recursively inventoried below this root. Remote bare-store/checkout and later Q2 /scratch receipts are owned by the Linux helper on the worker, outside this local RAW inventory; require that helper’s exact remote receipt and do not count its existence as a local source-manifest output root."
+      }
+    ]
+  },
+  "output_root_ownership": [
+    {
+      "command_id": "ENVIRONMENT_V2_FALSIFIERS",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/environment-v2-falsifiers",
+      "kind": "directory",
+      "ownership": "Complete recursive pipeline inventory, including the root-produced baseline-observation.json, focused capture/, and harness-produced harness/ child; each producer’s files remain separately attributable in command receipts.",
+      "state": "baseline-observation.json and capture/ are root-created before harness launch; harness/ child must be absent at preflight; full parent inventory captured after run; UNRUN"
+    },
+    {
+      "command_id": "C12_REAL_LEGAL_HTTP",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/c12-real-http",
+      "kind": "directory",
+      "ownership": "complete recursive per-command output inventory",
+      "state": "absent_at_execution_preflight; UNRUN"
+    },
+    {
+      "command_id": "NATIVE_REPOSITORY_SOTA",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/native-sota/aggregate",
+      "kind": "directory",
+      "ownership": "complete recursive per-command output inventory",
+      "state": "absent_at_execution_preflight; UNRUN"
+    },
+    {
+      "command_id": "DOCS_ACCURACY_EXPLICIT",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/docs-accuracy",
+      "kind": "directory",
+      "ownership": "complete recursive per-command output inventory",
+      "state": "absent_at_execution_preflight; UNRUN"
+    },
+    {
+      "command_id": "BROWSER_SOURCE_BOUND_JOURNEY",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/browser-source-bound",
+      "kind": "directory",
+      "ownership": "complete recursive per-command output inventory",
+      "state": "absent_at_execution_preflight; UNRUN"
+    },
+    {
+      "command_id": "LEX_DASHBOARD_VITEST",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/lex-dashboard-vitest",
+      "kind": "directory",
+      "ownership": "complete recursive per-command output inventory",
+      "state": "absent_at_execution_preflight; UNRUN"
+    },
+    {
+      "command_id": "LINUX_SOURCE_TRANSPORT",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/linux-transport",
+      "kind": "directory",
+      "ownership": "complete recursive per-command output inventory",
+      "state": "absent_at_execution_preflight; UNRUN"
+    }
+  ],
+  "deferred_or_external_routes": [
+    {
+      "route": "PROMTOOL_CURRENT_SOURCE_VALIDATION",
+      "state": "historical_receipt_only; no new command selected",
+      "evidence": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s3-empirical/raw/promtool-v2.50.0-e02-2026-10-10.txt",
+      "reason": "The transcript is a reconstructed historical run without execution-time source SHA; its container/volume names are already-used names and its config was copied into a persistent Docker volume. A fresh current-source run needs a new unique resource plan and an owner-approved exact Docker capture sequence. Do not count the old receipt as current-source validation."
+    },
+    {
+      "route": "REPO4",
+      "state": "invocation_not_established; not included as a command",
+      "reason": "The reviewed plan/recipe paths did not identify an exact route named repo4 or its output contract. No command or output root is guessed; root must bind the intended route before freeze if it is required."
+    },
+    {
+      "route": "LINUX_Q2_AND_REMOTE_HOST_RECEIPTS",
+      "state": "separate external worker owner/slot",
+      "evidence": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/final-transport-plan-20261010.md",
+      "reason": "Transport command streams have a local root above; Q2 outputs and transfer-side source/checkout receipts live on the isolated Linux worker (/scratch and /workspace), outside this product-root RAW DTO. They need the Linux helper’s exact per-attempt remote inventory and cannot be represented as local command output roots."
+    }
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P29",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "existing_pattern": "The main composed queue already derives output roots from validated command DTOs; this plan extends that reuse for separately owned tool routes without a blanket LOCAL/raw exclusion.",
+    "target_pattern": "One unique output directory per externally owned invocation, input-bound plan bytes, exact runtime parameters resolved before freeze, and complete produced-output inventory; no result status inferred from command markers or exit code alone.",
+    "limitations": [
+      "Current capture CLI cannot execute the external runtime routes; output binding is not an execution capability.",
+      "Environment-v2 baseline observation path, final freeze identities, and Linux checkout arguments remain unresolved runtime inputs.",
+      "Native SOTA _build outputs, browser fixture metadata, and Linux remote worker outputs are outside the local RAW roots and need their owner-specific inventory.",
+      "No current-source command result or formal closure is claimed."
+    ],
+    "acceptance_signal": "After root freezes the exact source and resolves inputs, every selected route has one non-overlapping output root that is absent before execution and recursively inventoried afterward; any unresolved external path/profile remains UNRUN or not_established."
+  },
+  "no_run_receipt": {
+    "commands_run": 0,
+    "tests_run": 0,
+    "assets_loaded": 0,
+    "docker_or_browser_started": false,
+    "linux_transport_performed": false,
+    "source_freeze": null,
+    "formal_closure_ids": []
+  }
+}

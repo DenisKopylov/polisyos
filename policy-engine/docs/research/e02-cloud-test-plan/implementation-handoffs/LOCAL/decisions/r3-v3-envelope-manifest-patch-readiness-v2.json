@@ -1,0 +1,17 @@
+{
+  "fix_patch_compatibility": "The existing source-fix-plus-R3/V3 patch remains sequentially applicable after this test-only patch; it does not edit this test file.",
+  "in_memory_test_sha256": "6a729543ce03d8b5b25751cbb64776ac1d8d36a3af0847e229ebf970a9427e7d",
+  "negative_property": "A real same-schema, same-content foreign tenant envelope profile is selected by the payload link. Before the source fix, the existing verifier should return successfully and the expected ValueError assertion should fail.",
+  "p40": "SAME_CLASS_DEEPER; the source fix compares the complete canonical profile projection.",
+  "patch_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-v3-envelope-manifest-red-00954ff-v2.patch",
+  "patch_sha256": "2f8b6d087592a2634cf25ec24d0dc3026e0a66c03aef772361a1bc9f1cc8ccc5",
+  "reason": "The first foreign view is the default sidecar and correctly returns a profileless ref. This corrected patch derives the canonical profile digest from the actual persisted default manifest, resolves it through get_manifest_by_profile, and constructs an explicit typed ref only after that readback.",
+  "status": "corrected_patch_only_not_applied_not_tested",
+  "supersedes": "raw/r3-v3-envelope-manifest-red-00954ff.patch",
+  "target_test_before_sha256": "00c6fc11445b267b08caea0c9fb6d5fb38f0056202136983c791c9a940003482",
+  "verification": {
+    "git_operations": [],
+    "target_files_written": [],
+    "tests_run": []
+  }
+}

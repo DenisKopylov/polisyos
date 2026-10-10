@@ -1,0 +1,35 @@
+# R1 current verification boundary — 2026-10-10
+
+## Deciding outputs
+
+The initial four-file invocation is recorded in `LOCAL/raw/r1-patch-verification-20261010/pytest.command.json`. It ran the complete `test_activity_worker.py`, `test_serialization_e02.py`, `test_async_executor_hardening.py`, and `test_skg_snapshot_replay.py` files: 87 cases, 85 passed, 2 failed, exit 1, 94.31 s wall. The only failures were `test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[stdlib|orjson]`, both stopping at `parent.poll(10.0)` without an outcome. The full stdout, stderr, and JUnit are retained there (SHA-256: stdout `fb9cec256cf64a4b2e42cb03dac421e366be19011832f1c2d5c960318be0790c`, stderr `1cb41b9348084992f587a6f38d084951106be140c66afb081bd02796a1bd37c7`, JUnit `70adbf4f5793e317cb6908b00317626389d92e6fc4929cadfe38872ee4fd68c7`). The stderr resource record reports 1,214,119,936 bytes maximum RSS, zero swaps, and zero signals; no OOM is established. Stdout records Python's multithreaded-fork warning.
+
+The first fresh-worker invocation is `LOCAL/raw/r1-fresh-worker-verification-20261010/pytest.command.json`. Both codec cases errored during pytest setup because its `--basetemp` directory had a missing parent (`_build/e02-repair-fixtures`). No child started; this is a harness-setup error, not a source result. Its complete outputs are retained (stdout `30f605e17798287d0649bc3396df34a202972d116beabb1bdccc129ac0af9cca`, stderr `83bf97379e1fd5f4758e581ca949d0ebc7d9aac82277eedfe13856c043b31d52`, JUnit `be7f96e160107e54500fc41c401e91a413fa6e2cd3d1020a4c764204418b0059`).
+
+The corrected fresh-worker command in `LOCAL/raw/r1-fresh-worker-verification-20261010-r2/pytest.command.json` ran the two cases against current test/helper hashes: **2 passed** (11.50 s pytest, 12.19 s measured wall, exit 0). Its full outputs are retained (stdout `fd02aef0fee8a6366a4ae31047a99a519745e45ba1f5adf6cfc11e0406a69daa`, stderr `b0738a91345c65711778861ef010a53de8bf62cda7c70e2119944974d32bd7b1`, JUnit `e671b4eca4de0a1778e79519fd9cb4af603469fddcf86b6715c55c3d642875e0`). The subsequent whole-file command in `LOCAL/raw/r1-completed-module-verification-20261010/pytest.command.json` ran all **32 serialization-module tests passed** (11.54 s pytest, 12.24 s measured wall, exit 0). Its full outputs are retained (stdout `823619bb80cb169d75cbe3bbb71214bb0a7b1d68d7266604e940e423eeb0b172`, stderr `ebebd7030d1bfb977daf5b751d671b551e538761fc3c1a1e67cae2f8b0166130`, JUnit `296cee45fef41231d6e7b3391d7187101ae844e7f654aa598d40d2ab970c91c5`). All command JSON files retain exact argv, cwd, exit, timing, and source digests.
+
+## Exact source boundary and composition limit
+
+Current SHA-256 values for the five R1 WIP test/helper paths are:
+
+- `tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py` — `3151d89c13ba2ae94c38331cc085e06164a430d535bcd800b4b4a15d8bbc849b`
+- `tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py` — `ea6579ebeafd7ef336ff2fe6af2cd3f5ceb87889952832c7185098226cde75ba`
+- `tests/unit/scientist/orchestration/engine/runner/decimal_worker_transport.py` — `771810e0295d1a75c39d7a101ff3bb8f595bce6b85022bae12746744a78d74fe`
+- `tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py` — `94b9cc60813d85b6a22e0f707d141d64d04ff2b219f13b3c2b4470a4219bf531`
+- `tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py` — `c2ada36e2a115f5b8a842459174a01e4c8f5e5c5938481bc73cf9ad970c2d194`
+
+The three files other than the serialization test/helper are byte-identical to the initial four-file command's recorded inputs and had no failure cases there. The current serialization test/helper hashes are bound to both successful current-source invocations above. This gives exact-source qualification for those prior results; it is not a rerun. In particular, the four-file command does not replace the still-pending composed **R1 all-14-plus-SKG** run; do not report final R1 closure from these receipts.
+
+## Worker property boundary, falsifier, and G choice
+
+On macOS the corrected test uses a fresh spawned **outer test process**, configures stdlib or orjson in that child, and calls the real `run_node_in_worker_sync` path with exact Decimal state/outcome checks. Its test-only custom node has `timeout_s=None`; it proves the untimed remote-worker wire and avoids forking pytest's multithreaded process. It does **not** prove a timed custom-node spawn. Linux's test branch retains `timeout_s=2.0` and the current timed fork route, but these macOS receipts did not execute that branch. The production spawn allowlist remains unchanged.
+
+The initial four-file JUnit also records two relevant controls as passes against the unchanged current `test_skg_snapshot_replay.py` hash: canonical `ResolveParametersNode` timed replay (`...current_live_replacement[timed]`, 6.046 s) and the well-formed non-allowlisted custom-ID refusal (`...refuses_unsupported_inputs_without_process_or_thread_fallback[custom_id]`, 0.164 s). The latter asserts the custom body does not run, no spawn `Process` starts, no thread fallback occurs, and CAS contents remain unchanged. This is the actual negative falsifier for broad custom-ID admission. An earlier diagnosis note predates that explicit `custom_id` case; its statement that this branch lacked a direct test is stale for the current source.
+
+The broader original criteria remain **not closed / G-pending**:
+
+- B14 (`docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md:363–373`): “Превышенный лимит не оставляет скрытую работу, которая меняет состояние после отказа. Успевший вычислитель не убивается только из-за неправильного ожидания передачи результата. Сохранение и очистка проверяются отдельно.”
+- B24 (`docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md:489–501`): “малый и большой результаты возвращаются; compute timeout действительно прекращает работу; авария во время отправки не создаёт успешный receipt. Проверяются очистка и точка фиксации результата.”
+- B40 (`docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md:752–768`): “объявленный достаточный бюджет не обрезается неучтённым helper-default; короткий лимит действительно соблюдается по согласованной семантике; время очереди/инициализации учитывается явно; после объявленной отмены нет недопустимой актуальной записи позднего результата. Для CPU-методов безопасность process-boundary проверяется отдельно.”
+
+P40 is **SAME_CLASS_DEEPER**: the additional codec/worker harness escape was handled by widening to one importable spawn-safe test fixture, not by per-codec patches. The bounded macOS timed contract remains canonical-node execution plus typed refusal for unsupported timed inputs. Arbitrary custom synchronous-node deadlines remain unsupported pending an explicit G choice: retain that bounded limitation, or define and verify a trusted, versioned executable-admission contract for spawned code. These passes do not enlarge the allowlist or establish B14/B24/B40 completion.

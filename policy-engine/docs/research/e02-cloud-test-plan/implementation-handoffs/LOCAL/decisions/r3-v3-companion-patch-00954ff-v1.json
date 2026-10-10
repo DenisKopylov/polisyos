@@ -1,0 +1,27 @@
+{
+  "after_sha256_in_memory": {
+    "tests/_helpers/acquisition_production.py": "b3d6d8f8aa6a666d33ff56aa284a3499e45cd677f965e7c686bb947d983d1806",
+    "tests/integration/core_runtime/test_acquisition_authority_served.py": "73991b22a09d76f0135a5b1f87f039430e4af2e13a92cf0364acc807df9927c4",
+    "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py": "60b0fa908796b6f073c4b4186fb83e52c13fdd5e860de5697b75a294d7a5bafa"
+  },
+  "authorized_paths": [
+    "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+    "tests/_helpers/acquisition_production.py",
+    "tests/integration/core_runtime/test_acquisition_authority_served.py"
+  ],
+  "base_label": "00954ff836642ca3c2dca4032fcd1b83019bdfd0",
+  "base_tree_label": "cf422a9a79c3ffd43bd09817edbcd806db1d7570",
+  "before_sha256": {
+    "tests/_helpers/acquisition_production.py": "a01e4b527be21135abfaf4d07b4d77c538431937346cbabef09c3e7b4a2b14d3",
+    "tests/integration/core_runtime/test_acquisition_authority_served.py": "7430db9ece5f564c81d09b5e2d862fd1ac810fce7bca3b06e3bb535e0dc8c0d9",
+    "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py": "ab6cbd59aef5c43a02fbdbe1daba64cf4633279b7e4b22adf0dcaba6829a9388"
+  },
+  "decision_note_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/r3-v3-companion-patch-00954ff-v1.md",
+  "decision_note_sha256": "97d3f3088d3c6557b064d7b879f913cf564cb4331b63dc08b33347a2c0244729",
+  "patch_bytes": 12112,
+  "patch_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-v3-companion-patch-00954ff-v1.patch",
+  "patch_sha256": "eec469a37d1a703c0498b99242ad58b92fe59c7ad1fcdb81633f66b3ca6d00c8",
+  "status": "unapplied_patch_only",
+  "target_files_written": [],
+  "tests_run": []
+}

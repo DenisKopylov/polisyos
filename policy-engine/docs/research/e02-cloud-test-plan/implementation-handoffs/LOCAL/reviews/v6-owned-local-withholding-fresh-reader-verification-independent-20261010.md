@@ -1,0 +1,15 @@
+# V6 fresh API owner-handoff independent review
+
+Reviewed patch `LOCAL/raw/v6-owned-local-withholding-fresh-reader-verification-20261010/v6-complete-api-owner-handoff.patch`, SHA-256 `8b71d2c2d72a4914178f58e77537278b695cbffa68c659dec71976c492d4d0fb`, and decision note SHA-256 `1b0fc8ac53e24bb9ea0190778bc25fed6a8b7d35c375ccd365494527eaa33150`. The unit-test preimage is `eb124217b23c0a6a9d71b0290497ca3f39be3190aabd6dd96fb8efff25e6db76`, matching the current file. No product or test files were changed; no test or Git command was run.
+
+## Verdict: GO for applying and rerunning the two fresh-reader tests
+
+Both retained failures occur before the GET: `create_runtime_api_app` calls `RuntimeServiceContainer.build`, which constructs `PromotionRuntime`; its constructor writes the verifier-provenance bytes through the guarded CAS. The blob already has `tenant-fixture/cell-fixture` claims, and the unscoped app constructor is correctly refused. The patch wraps only each app-construction call in that same fixture owner scope. It does not change the artifact, add an owner claim manually, bypass the CAS, or alter the following source/status assertions.
+
+The proposed scope is available at the write boundary. `create_runtime_api_app` synchronously builds the runtime container before it returns. The guarded CAS runs blocking calls in an executor using `contextvars.copy_context()` and `context.run`, so the fixture tenant/cell scope propagates to the `PromotionRuntime` write. Later, `TestClient` requests establish scope independently through the fixture identity claims and cell-router middleware. Thus the short construction context does not stand in for request authorization and does not need to remain active across TestClient startup or GET.
+
+The existing cross-owner negative remains intact: the source ref is loaded through a foreign tenant/cell CAS view and must raise `ArtifactOwnershipError`. The two test bodies still require the actual persisted source to resolve as `generation_unavailable`, preserve the historical L2 confidence-withheld limitation and withhold N4 child bindings; candidate N5 remains separately limited. The patch changes neither producer data nor public authority/status behavior.
+
+P40 classification: same class, one level deeper—owner context must be present when a fresh container reopens the same tenant-owned CAS. The patch handles both repeated fresh-app construction sites as one fixture boundary, rather than changing artifact ownership policy. Residual boundary: this demonstrates a fresh reader using the same fixture tenant/cell that owns the existing artifacts; it does not establish how a shared/global verifier artifact should be initialized across arbitrary tenants.
+
+The prior retained run remains the only execution evidence: both tests failed at container construction with `ArtifactOwnershipError` for verifier provenance `sha256:6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0`. The focused rerun is still required to verify that the context handoff fixes both tests and preserves their API and foreign-refusal controls.

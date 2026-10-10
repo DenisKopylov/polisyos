@@ -1,0 +1,13 @@
+# V6 whole API lifecycle owner scope — patch-only proposal
+
+The retained two-selector replay reaches `ControlPlaneService` during the `TestClient` lifespan, after `create_runtime_api_app` returns. The startup constructor for `N9PromotionEvidenceBridgeRepository` writes verifier provenance to the same fixture CAS and fails on the existing tenant-owned artifact because the `tenant_scope` around app construction is on the caller thread, while TestClient starts lifespan on its portal thread. This is the same owner-scope class at the next lifecycle boundary, not a new artifact-specific class.
+
+The proposed test-only helper wraps the app's existing `router.lifespan_context` and enters the exact declared fixture tenant/cell scope inside the lifespan task. It keeps the already-present construction scope, does not alter production ownership checks, artifact bytes, or store selection, and keeps the scope through shutdown. Both fresh-reader tests install the same wrapper. Existing request identity handling and explicit foreign-store negative checks remain untouched.
+
+This patch is intentionally unapplied and untested per the active instruction. Its narrow falsifier is the retained `N9PromotionEvidenceBridgeRepository` startup write: if the actual portal-task scope does not resolve to the fixture owner, the same two selectors remain red. The follow-up must also retain the existing foreign explicit-store refusal and fresh GET assertions; passing startup alone is not V6 closure.
+
+- Product/test source: `tests/unit/runtime/http/test_control_service_di.py` @ 02dd8e8b1618f57d6a51ec402f5562e93a0e103ad58f05f4dca49018308b556d (unchanged; patch only).
+- Proposed ignored patch: `docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-complete-owner-fresh-reader-verification-20261010/v6-whole-api-lifecycle-owner-scope.patch` SHA256 `0df7c4796d2461ca5d68c77b5c52a8e633e2f590fb630a53ea5d90ef36bf06a3`.
+- Deciding run: `LOCAL/raw/v6-complete-owner-fresh-reader-verification-20261010/command.json` SHA256 `bb2d4177144c16e70f99d15543135f884c2fe18ed2fe47e2b131c2d73d1cdd4e`; stdout `e687fc3dbf7628d2963340d4d23422edb410684dc55bf0fd61e99777305e83e1`; stderr `917f72d24fd26b3f4b10c061dc2e8191bc489f607abbe41d6601773a2eb81737`; JUnit `946af7f52d3a392e47821e1593c6f2598be418268f750696bb22c64e3290ed35`.
+- Run result: both fresh-reader selectors fail during lifespan startup; actual first failing write is fixed verifier provenance artifact `sha256:e00e692e91b23b51bda90298ad349be3e728020864dd20c35a975bb7e72c417f` from `N9PromotionEvidenceBridgeRepository`, with `ArtifactOwnershipError` because tenant owner is absent in that lifecycle task.
+- Scope: patch-only; no product edits, tests, Git operations, or assertion changes.

@@ -1,0 +1,762 @@
+{
+  "schema": "policyos.e02.composed_mac_light_gap_supplement.v1",
+  "title": "Composed Mac final-source supplemental queue (R2 preparation)",
+  "created_on": "2026-10-10",
+  "status": "plan_only_not_receipt",
+  "read_only_preparation": true,
+  "current_source_label": "Root-reported candidate 00954ff836642ca3c2dca4032fcd1b83019bdfd0 / tree cf422a9a79c3ffd43bd09817edbcd806db1d7570; R3/V3 canonical and integration companions, V6 root-client source/test, and Search source-guard source/test remain pending; final execution freeze is null.",
+  "base_plan": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/composed-mac-final-replay-plan-20261010-r2.json",
+  "product_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+  "execution_rule": "Root runs this 11-command supplement only after the final source freeze and one shared manifest binds the 19-command base, this supplement, both preserved historical plans, and the separately authored tool-self-test plan. Run sequentially in the existing single numerical lane. No commands below were run while preparing this supplement; separate C12/native/browser output roots require their own explicit plan bindings.",
+  "capture_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement",
+  "commands": [
+    {
+      "id": "I1_C05_MATERIAL_CURRENTNESS_AND_PROFILE_CONSUMERS",
+      "phase": "light",
+      "command_type": "pytest",
+      "backend": "product .venv / pytest",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "--color=no",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i1_c05_material_currentness_and_profile_consumers/junit.xml",
+        "tests/unit/data_forge/domains/catalog/batch/test_pipeline.py",
+        "tests/unit/data_forge/domains/catalog/knowledge/test_store.py",
+        "tests/unit/fabric/test_retrieval_service_catalog.py",
+        "tests/unit/remediation/test_dfi_03.py",
+        "tests/unit/remediation/test_dfk_02.py",
+        "tests/unit/data_forge/domains/catalog/batch/test_material_inputs.py::test_material_snapshot_binds_selection_presence_and_exact_cached_bytes",
+        "tests/unit/runtime/http/test_control_service_di.py::test_runtime_api_preserves_explicit_catalog_run_profile",
+        "tests/unit/runtime/http/test_control_service_di.py::test_control_service_forwards_catalog_profile_to_recursive_http_bridge",
+        "tests/unit/runtime/http/test_control_service_di.py::test_control_service_preserves_real_catalog_ownership",
+        "tests/unit/runtime/quality/test_promotion_sequence.py::test_real_measurement_root_resolves_and_binds_into_n9",
+        "tests/unit/runtime/quality/test_recursive_generation_cycle.py::test_real_leaf_result_survives_later_independent_sibling_failure",
+        "tests/repo_quality/tools/test_gy_d1_catalog_wiring.py::test_actual_constructor_resolves_catalog"
+      ],
+      "environment": {
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src"
+      },
+      "purpose": "Replay the complete focused C05 candidate test contour, adding exact cached-material bytes and non-overlapping profile propagation/constructor consumers. The full test_dfi_03.py module contains same-ID mutation refusal, unchanged/reusable session behavior, and WVS invalidation controls.",
+      "selected_targets": [
+        "tests/unit/data_forge/domains/catalog/batch/test_pipeline.py",
+        "tests/unit/data_forge/domains/catalog/knowledge/test_store.py",
+        "tests/unit/fabric/test_retrieval_service_catalog.py",
+        "tests/unit/remediation/test_dfi_03.py",
+        "tests/unit/remediation/test_dfk_02.py",
+        "tests/unit/data_forge/domains/catalog/batch/test_material_inputs.py::test_material_snapshot_binds_selection_presence_and_exact_cached_bytes",
+        "tests/unit/runtime/http/test_control_service_di.py::test_runtime_api_preserves_explicit_catalog_run_profile",
+        "tests/unit/runtime/http/test_control_service_di.py::test_control_service_forwards_catalog_profile_to_recursive_http_bridge",
+        "tests/unit/runtime/http/test_control_service_di.py::test_control_service_preserves_real_catalog_ownership",
+        "tests/unit/runtime/quality/test_promotion_sequence.py::test_real_measurement_root_resolves_and_binds_into_n9",
+        "tests/unit/runtime/quality/test_recursive_generation_cycle.py::test_real_leaf_result_survives_later_independent_sibling_failure",
+        "tests/repo_quality/tools/test_gy_d1_catalog_wiring.py::test_actual_constructor_resolves_catalog"
+      ],
+      "outputs": {
+        "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i1_c05_material_currentness_and_profile_consumers",
+        "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i1_c05_material_currentness_and_profile_consumers/stdout.bin",
+        "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i1_c05_material_currentness_and_profile_consumers/stderr.bin",
+        "junit": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i1_c05_material_currentness_and_profile_consumers/junit.xml",
+        "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i1_c05_material_currentness_and_profile_consumers/metadata.json"
+      },
+      "plan_timeout_seconds": null,
+      "run_status_before_freeze": "UNRUN",
+      "junit_interpretation": "Record PASS, FAIL, ERROR, SKIP separately; skipped required cases are UNRUN.",
+      "prior_wall_time": {
+        "status": "UNMEASURED",
+        "basis": "New supplemental current-candidate command; do not copy historical timings."
+      },
+      "bounded_limits": [
+        "The 14-path C05 roster receipt is a complete source-path census, not 13 independent production-supplier outcomes; only 4/14 paths matched the proposal exactly and 7/13 existing supplier blobs matched neither G nor C05 source (LOCAL/i1-c05/ready-files.json).",
+        "Local temporary catalog fixtures do not establish deployed source selection, effective auth/header currentness, or production profile refresh. Keep the tested Accept/header residual and _resources G-owned path explicit.",
+        "The three B13 profile selectors already in the base queue are deliberately omitted to avoid duplicate nodeids."
+      ]
+    },
+    {
+      "id": "I2_DFK_TWO_PATH_FULL_BEHAVIOR_AND_RELEASE_TOOLING",
+      "phase": "light",
+      "command_type": "pytest",
+      "backend": "product .venv / pytest",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "--color=no",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i2_dfk_two_path_full_behavior_and_release_tooling/junit.xml",
+        "tests/unit/remediation/test_dfk_01.py",
+        "tests/repo_quality/tools/test_release_notes_tooling.py::test_structured_compatibility_changes_render_into_release_notes"
+      ],
+      "environment": {
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src"
+      },
+      "purpose": "Replay the full DFK mechanism tests for staged/unstaged records, rename/copy paths, clean status, exact CLI dispatch, and JSON byte/surrogate handling; also exercise release-note rendering for the existing DFK public-tool fragment.",
+      "selected_targets": [
+        "tests/unit/remediation/test_dfk_01.py",
+        "tests/repo_quality/tools/test_release_notes_tooling.py::test_structured_compatibility_changes_render_into_release_notes"
+      ],
+      "outputs": {
+        "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i2_dfk_two_path_full_behavior_and_release_tooling",
+        "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i2_dfk_two_path_full_behavior_and_release_tooling/stdout.bin",
+        "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i2_dfk_two_path_full_behavior_and_release_tooling/stderr.bin",
+        "junit": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i2_dfk_two_path_full_behavior_and_release_tooling/junit.xml",
+        "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i2_dfk_two_path_full_behavior_and_release_tooling/metadata.json"
+      },
+      "plan_timeout_seconds": null,
+      "run_status_before_freeze": "UNRUN",
+      "junit_interpretation": "Record PASS, FAIL, ERROR, SKIP separately; skipped required cases are UNRUN.",
+      "prior_wall_time": {
+        "status": "UNMEASURED",
+        "basis": "New supplemental current-candidate command; do not copy historical timings."
+      },
+      "bounded_limits": [
+        "The surrogate test monkeypatches the collected name; it is not a native invalid-byte filesystem path. The Linux bad-\\xff filename witness remains a separate supported-platform run.",
+        "The release-note renderer is general; the actual DFK fragment is release-fragments/unreleased/2026-10-08-orch02-r2-c06-dfk-census.toml. Preserve its present migration limit: census output is not a retirement authorization.",
+        "Do not infer schema retirement, caller migration, archive membership, or non-UTF-8 support from this suite."
+      ]
+    },
+    {
+      "id": "I2_DFK_CURRENT_CANDIDATE_CLI_READBACK",
+      "phase": "light",
+      "command_type": "source_cli_readback",
+      "backend": "product .venv / public tools CLI",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "tools.cli",
+        "validation",
+        "schema-fqn-census",
+        "--output-format",
+        "json",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine"
+      ],
+      "environment": {
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:."
+      },
+      "purpose": "Read the public census against the final frozen candidate repository state; retain the full JSON stdout and stderr under ignored raw output.",
+      "selected_targets": [
+        "current product repository as selected by schema-fqn-census"
+      ],
+      "outputs": {
+        "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i2_dfk_current_candidate_cli_readback",
+        "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i2_dfk_current_candidate_cli_readback/stdout.bin",
+        "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i2_dfk_current_candidate_cli_readback/stderr.bin",
+        "junit": null,
+        "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i2_dfk_current_candidate_cli_readback/metadata.json"
+      },
+      "plan_timeout_seconds": null,
+      "run_status_before_freeze": "UNRUN",
+      "prior_wall_time": {
+        "status": "UNMEASURED",
+        "basis": "New current-candidate CLI readback."
+      },
+      "bounded_limits": [
+        "This is a read-only current worktree census, not a historical or installed-package closure proof.",
+        "The CLI derives two-path status from Git-visible state; ensure the final freeze manifest names the exact tree and retain its complete output."
+      ]
+    },
+    {
+      "id": "I3_INCREMENTAL_PROGRESS_OWNER_CONTROLS",
+      "phase": "light",
+      "command_type": "pytest",
+      "backend": "product .venv / pytest",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "--color=no",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i3_incremental_progress_owner_controls/junit.xml",
+        "tests/unit/fabric/data_plane/test_incremental.py"
+      ],
+      "environment": {
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src"
+      },
+      "purpose": "Add the direct incremental cursor owner suite not present in the composed plan, covering no cursor/default full read, source-bound advancement, incomplete/failure controls, invalid legacy versions, and refusal to promote unverified evidence.",
+      "selected_targets": [
+        "tests/unit/fabric/data_plane/test_incremental.py"
+      ],
+      "outputs": {
+        "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i3_incremental_progress_owner_controls",
+        "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i3_incremental_progress_owner_controls/stdout.bin",
+        "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i3_incremental_progress_owner_controls/stderr.bin",
+        "junit": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i3_incremental_progress_owner_controls/junit.xml",
+        "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i3_incremental_progress_owner_controls/metadata.json"
+      },
+      "plan_timeout_seconds": null,
+      "run_status_before_freeze": "UNRUN",
+      "junit_interpretation": "Record PASS, FAIL, ERROR, SKIP separately; skipped required cases are UNRUN.",
+      "prior_wall_time": {
+        "status": "UNMEASURED",
+        "basis": "New supplemental current-candidate command; do not copy historical timings."
+      },
+      "bounded_limits": [
+        "Reuse existing R2_POOL_STREAM_CLEANUP for the entire test_e02_c_streaming_oracle.py, which already includes B79 local HTTP ETag use, B80 two-source late-event retry, and B83 durable 24-hour restart/key controls; do not duplicate that file.",
+        "Current JSONL event_id/source_version properties are fixture-controlled. They do not establish an external source owner’s event/version identity contract; absent/ambiguous values are correctly treated as unsupported.",
+        "B79 local HTTP proves a request cursor reaches a controlled REST connector and no same-fixture cursor promotion; it does not establish production connector economics or source truth."
+      ]
+    },
+    {
+      "id": "I4_LEGAL_IMMUTABLE_INTENT_TO_FRESH_HTTP_READER",
+      "phase": "light",
+      "command_type": "pytest",
+      "backend": "product .venv / pytest",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "--color=no",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i4_legal_immutable_intent_to_fresh_http_reader/junit.xml",
+        "tests/unit/remediation/test_emb_03.py::test_same_assets_new_generation_requires_fresh_intent_and_fresh_reader",
+        "tests/unit/remediation/test_emb_03.py::test_producer_selected_intent_reaches_fresh_served_reader_with_typed_fallback",
+        "tests/unit/remediation/test_emb_03.py::test_producer_generation_reaches_native_http_with_typed_vector_modes",
+        "tests/unit/remediation/test_emb_03.py::test_current_generation_refuses_changed_projected_members_before_encode",
+        "tests/unit/remediation/test_emb_03.py::test_query_encoder_assets_must_match_before_encoding",
+        "tests/unit/runtime/http/services/test_lex_pipeline.py::test_search_lex_graph_preserves_valid_intent_and_typed_provider_refusal",
+        "tests/unit/runtime/http/services/test_lex_pipeline.py::test_get_lex_search_profile_reads_the_selected_fact_generation_snapshot",
+        "tests/unit/runtime/http/services/test_lex_pipeline.py::test_get_lex_search_profile_returns_typed_refusal_without_a_selected_generation",
+        "tests/unit/runtime/http/services/test_lex_pipeline.py::test_search_lex_graph_rejects_malformed_intent_and_keeps_text_results",
+        "tests/unit/runtime/http/services/test_lex_pipeline.py::test_search_lex_graph_treats_empty_present_intent_as_malformed",
+        "tests/unit/runtime/http/services/test_lex_pipeline.py::test_search_lex_graph_reports_malformed_present_intent_without_database",
+        "tests/unit/runtime/http/test_control_api.py::test_lex_search_preserves_truth_fields_through_api",
+        "tests/unit/runtime/http/test_control_api.py::test_lex_selected_profile_api_binds_search_and_refuses_same_bytes_with_wrong_generation"
+      ],
+      "environment": {
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src"
+      },
+      "purpose": "Exercise real Legal generation output and immutable selected intent across request, encoder/provider, native HTTP route, and fresh reader, including profile/member mismatch, absent/empty/malformed request fallback, typed refusal, and selected-profile readback. Catalog actual generation/member controls are in I1_C05_MATERIAL_CURRENTNESS_AND_PROFILE_CONSUMERS; this command adds Legal request/reader cases without repeating them.",
+      "selected_targets": [
+        "tests/unit/remediation/test_emb_03.py::test_same_assets_new_generation_requires_fresh_intent_and_fresh_reader",
+        "tests/unit/remediation/test_emb_03.py::test_producer_selected_intent_reaches_fresh_served_reader_with_typed_fallback",
+        "tests/unit/remediation/test_emb_03.py::test_producer_generation_reaches_native_http_with_typed_vector_modes",
+        "tests/unit/remediation/test_emb_03.py::test_current_generation_refuses_changed_projected_members_before_encode",
+        "tests/unit/remediation/test_emb_03.py::test_query_encoder_assets_must_match_before_encoding",
+        "tests/unit/runtime/http/services/test_lex_pipeline.py::test_search_lex_graph_preserves_valid_intent_and_typed_provider_refusal",
+        "tests/unit/runtime/http/services/test_lex_pipeline.py::test_get_lex_search_profile_reads_the_selected_fact_generation_snapshot",
+        "tests/unit/runtime/http/services/test_lex_pipeline.py::test_get_lex_search_profile_returns_typed_refusal_without_a_selected_generation",
+        "tests/unit/runtime/http/services/test_lex_pipeline.py::test_search_lex_graph_rejects_malformed_intent_and_keeps_text_results",
+        "tests/unit/runtime/http/services/test_lex_pipeline.py::test_search_lex_graph_treats_empty_present_intent_as_malformed",
+        "tests/unit/runtime/http/services/test_lex_pipeline.py::test_search_lex_graph_reports_malformed_present_intent_without_database",
+        "tests/unit/runtime/http/test_control_api.py::test_lex_search_preserves_truth_fields_through_api",
+        "tests/unit/runtime/http/test_control_api.py::test_lex_selected_profile_api_binds_search_and_refuses_same_bytes_with_wrong_generation"
+      ],
+      "outputs": {
+        "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i4_legal_immutable_intent_to_fresh_http_reader",
+        "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i4_legal_immutable_intent_to_fresh_http_reader/stdout.bin",
+        "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i4_legal_immutable_intent_to_fresh_http_reader/stderr.bin",
+        "junit": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i4_legal_immutable_intent_to_fresh_http_reader/junit.xml",
+        "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/i4_legal_immutable_intent_to_fresh_http_reader/metadata.json"
+      },
+      "plan_timeout_seconds": null,
+      "run_status_before_freeze": "UNRUN",
+      "junit_interpretation": "Record PASS, FAIL, ERROR, SKIP separately; skipped required cases are UNRUN.",
+      "prior_wall_time": {
+        "status": "UNMEASURED",
+        "basis": "New supplemental current-candidate command; do not copy historical timings."
+      },
+      "bounded_limits": [
+        "The encoder is a controlled deterministic fixture, not a deployed native model. No current tenant-scoped output-directory/auth route is established by this suite.",
+        "C12 review found Catalog refusal can be dropped by downstream result/tool/workspace projections; these selectors prove the graph/API refusal, not complete caller/audit refusal preservation.",
+        "Do not claim first-party dashboard caller coverage or production model/executable identity; the same-assets callable-swap case remains a declared residual and is not included as a false positive."
+      ]
+    },
+    {
+      "id": "Q1_CAN_MAPPING_RAW_IR_PROFILE_AND_VIEW",
+      "phase": "light",
+      "command_type": "pytest",
+      "backend": "product .venv / pytest",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "--color=no",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/q1_can_mapping_raw_ir_profile_and_view/junit.xml",
+        "tests/unit/core/artifacts/test_ir_adapter.py",
+        "tests/unit/core/artifacts/test_storage_protocol_boundaries.py"
+      ],
+      "environment": {
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src"
+      },
+      "purpose": "Replay the complete CAN adapter and storage-boundary family: typed mapping write options, malformed supplied mappings, exact raw CanonInfo presence before defaults, strict raw JSON/profile validation, decode/re-encode byte conformance, selector/view preservation, cache durable-owner forwarding, Core/IR tag-family refusal, and profileless-history refusal.",
+      "selected_targets": [
+        "tests/unit/core/artifacts/test_ir_adapter.py",
+        "tests/unit/core/artifacts/test_storage_protocol_boundaries.py"
+      ],
+      "outputs": {
+        "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/q1_can_mapping_raw_ir_profile_and_view",
+        "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/q1_can_mapping_raw_ir_profile_and_view/stdout.bin",
+        "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/q1_can_mapping_raw_ir_profile_and_view/stderr.bin",
+        "junit": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/q1_can_mapping_raw_ir_profile_and_view/junit.xml",
+        "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/q1_can_mapping_raw_ir_profile_and_view/metadata.json"
+      },
+      "plan_timeout_seconds": null,
+      "run_status_before_freeze": "UNRUN",
+      "junit_interpretation": "Record PASS, FAIL, ERROR, SKIP separately; skipped required cases are UNRUN.",
+      "prior_wall_time": {
+        "status": "UNMEASURED",
+        "basis": "New supplemental current-candidate command; do not copy historical timings."
+      },
+      "bounded_limits": [
+        "Core and IR retain separate reader tag allowlists even where the canon format/version strings match; this test does not unify law or add a persisted profile identity.",
+        "Profile-less historical artifacts remain refused. Migration/enrollment or reader-selected legacy mode is a G decision; no default is introduced.",
+        "Byte conformance to persisted options is not proof of producer-attested serializer choices when an option has no observable effect on these bytes (for example exclude_none with no nulls). Keep producer provenance not_established.",
+        "The earlier combined raw-conformance test replay had one cache put_json/remote-view-default-divergence failure and then passed on replay; classify it as a retained unexplained flake, not silently green. The isolated test_ir_adapter module is the narrow current slice."
+      ]
+    },
+    {
+      "id": "S1_LA023_SUPPORTED_TRAINING_AND_SIGNED_WEALTH_BOUNDARY",
+      "phase": "light",
+      "command_type": "pytest",
+      "backend": "product .venv / pytest",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "--color=no",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/s1_la023_supported_training_and_signed_wealth_boundary/junit.xml",
+        "tests/unit/remediation/test_plg_03.py::test_economics_training_updates_policy_and_produces_readable_artifact",
+        "tests/unit/remediation/test_plg_03.py::test_economics_training_supports_nonnegative_active_wealth_profile",
+        "tests/unit/remediation/test_plg_03.py::test_unsupported_composite_remains_bridge_pending",
+        "tests/unit/remediation/test_plg_02.py::test_train_with_labor_market_disabled_is_typed_bridge_pending",
+        "tests/unit/foundry/plugins/test_economic_profiles.py::test_real_progressive_tax_can_reach_signed_wealth_then_existing_gini_refuses"
+      ],
+      "environment": {
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src"
+      },
+      "purpose": "Recheck the real supported economics training/artifact positive, unsupported profile refusal, and the real tax→negative-active-wealth→existing classical Gini refusal boundary.",
+      "selected_targets": [
+        "tests/unit/remediation/test_plg_03.py::test_economics_training_updates_policy_and_produces_readable_artifact",
+        "tests/unit/remediation/test_plg_03.py::test_economics_training_supports_nonnegative_active_wealth_profile",
+        "tests/unit/remediation/test_plg_03.py::test_unsupported_composite_remains_bridge_pending",
+        "tests/unit/remediation/test_plg_02.py::test_train_with_labor_market_disabled_is_typed_bridge_pending",
+        "tests/unit/foundry/plugins/test_economic_profiles.py::test_real_progressive_tax_can_reach_signed_wealth_then_existing_gini_refuses"
+      ],
+      "outputs": {
+        "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/s1_la023_supported_training_and_signed_wealth_boundary",
+        "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/s1_la023_supported_training_and_signed_wealth_boundary/stdout.bin",
+        "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/s1_la023_supported_training_and_signed_wealth_boundary/stderr.bin",
+        "junit": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/s1_la023_supported_training_and_signed_wealth_boundary/junit.xml",
+        "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/s1_la023_supported_training_and_signed_wealth_boundary/metadata.json"
+      },
+      "plan_timeout_seconds": null,
+      "run_status_before_freeze": "UNRUN",
+      "junit_interpretation": "Record PASS, FAIL, ERROR, SKIP separately; skipped required cases are UNRUN.",
+      "prior_wall_time": {
+        "status": "UNMEASURED",
+        "basis": "New supplemental current-candidate command; do not copy historical timings."
+      },
+      "bounded_limits": [
+        "LA-023 is bound twice (PLG-02 and PLG-03) to the same original source span; keep both occurrences in the record, not two independent findings.",
+        "Signed wealth is not silently transformed or declared trainable. The current Gini error is not yet the requested typed bridge refusal; a new signed-wealth inequality law is a G choice.",
+        "The complete original train/evaluate/RNG/reset acceptance envelope is still not established by the bounded economics profile tests."
+      ]
+    },
+    {
+      "id": "S1_LA032_AGGREGATE_DEMOGRAPHY_SNAPSHOT",
+      "phase": "light",
+      "command_type": "pytest",
+      "backend": "product .venv / pytest",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "--color=no",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/s1_la032_aggregate_demography_snapshot/junit.xml",
+        "tests/unit/remediation/test_udf_05.py"
+      ],
+      "environment": {
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src"
+      },
+      "purpose": "Replay the whole existing aggregate reader suite for selected whole-snapshot layout, mixed/incomplete/corrupt/shape/missing-member refusal, optional donor behavior, and public read API controls.",
+      "selected_targets": [
+        "tests/unit/remediation/test_udf_05.py"
+      ],
+      "outputs": {
+        "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/s1_la032_aggregate_demography_snapshot",
+        "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/s1_la032_aggregate_demography_snapshot/stdout.bin",
+        "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/s1_la032_aggregate_demography_snapshot/stderr.bin",
+        "junit": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/s1_la032_aggregate_demography_snapshot/junit.xml",
+        "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/s1_la032_aggregate_demography_snapshot/metadata.json"
+      },
+      "plan_timeout_seconds": null,
+      "run_status_before_freeze": "UNRUN",
+      "junit_interpretation": "Record PASS, FAIL, ERROR, SKIP separately; skipped required cases are UNRUN.",
+      "prior_wall_time": {
+        "status": "UNMEASURED",
+        "basis": "New supplemental current-candidate command; do not copy historical timings."
+      },
+      "bounded_limits": [
+        "The fixed aggregate owner is covered; source-bound inventory/CAS and a real consumer composing separate scalar readers are not established in the current receipt.",
+        "Do not generalize the aggregate fix into a claim that every individually exported scalar reader is snapshot-bound; the reported falsifier requires a real caller that composes new targets with legacy priors."
+      ]
+    },
+    {
+      "id": "S1_LA036_CONDITIONAL_LAW_REFUSAL_AND_REAL_CONSUMERS",
+      "phase": "light",
+      "command_type": "pytest",
+      "backend": "product .venv / pytest",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "--color=no",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/s1_la036_conditional_law_refusal_and_real_consumers/junit.xml",
+        "tests/unit/remediation/test_ber_01.py",
+        "tests/unit/scientist/validation/test_phase5_preflight.py::test_preflight_runs_present_berl_input_and_ignores_success_marker",
+        "tests/unit/scientist/validation/test_phase5_preflight.py::test_preflight_blocks_unadmitted_feature_dependence_profiles",
+        "tests/unit/scientist/validation/test_phase5_preflight.py::test_preflight_preserves_typed_reason_for_malformed_profile",
+        "tests/unit/scientist/validation/test_phase5_preflight.py::test_preflight_blocks_method_policy_profile_mismatch",
+        "tests/unit/scientist/validation/test_phase5_preflight.py::test_preflight_fails_closed_when_actual_berl_validation_is_unavailable",
+        "tests/unit/runtime/quality/test_berl_warrant_reliability.py::test_warrant_reliability_refuses_unadmitted_feature_dependence_profiles",
+        "tests/integration/scientist_berl/test_explanation_reliability_bridge.py::test_scientist_preflight_uses_berl_validation_for_explanation_reliability"
+      ],
+      "environment": {
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src"
+      },
+      "purpose": "Recheck producer-level conditional refusal and existing explicit marginal behavior, then fresh Scientist Phase 5 and Runtime reliability consumers for marginal-positive/profile mismatch/malformed/unadmitted conditional law and unavailable-validator limitations.",
+      "selected_targets": [
+        "tests/unit/remediation/test_ber_01.py",
+        "tests/unit/scientist/validation/test_phase5_preflight.py::test_preflight_runs_present_berl_input_and_ignores_success_marker",
+        "tests/unit/scientist/validation/test_phase5_preflight.py::test_preflight_blocks_unadmitted_feature_dependence_profiles",
+        "tests/unit/scientist/validation/test_phase5_preflight.py::test_preflight_preserves_typed_reason_for_malformed_profile",
+        "tests/unit/scientist/validation/test_phase5_preflight.py::test_preflight_blocks_method_policy_profile_mismatch",
+        "tests/unit/scientist/validation/test_phase5_preflight.py::test_preflight_fails_closed_when_actual_berl_validation_is_unavailable",
+        "tests/unit/runtime/quality/test_berl_warrant_reliability.py::test_warrant_reliability_refuses_unadmitted_feature_dependence_profiles",
+        "tests/integration/scientist_berl/test_explanation_reliability_bridge.py::test_scientist_preflight_uses_berl_validation_for_explanation_reliability"
+      ],
+      "outputs": {
+        "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/s1_la036_conditional_law_refusal_and_real_consumers",
+        "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/s1_la036_conditional_law_refusal_and_real_consumers/stdout.bin",
+        "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/s1_la036_conditional_law_refusal_and_real_consumers/stderr.bin",
+        "junit": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/s1_la036_conditional_law_refusal_and_real_consumers/junit.xml",
+        "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/s1_la036_conditional_law_refusal_and_real_consumers/metadata.json"
+      },
+      "plan_timeout_seconds": null,
+      "run_status_before_freeze": "UNRUN",
+      "junit_interpretation": "Record PASS, FAIL, ERROR, SKIP separately; skipped required cases are UNRUN.",
+      "prior_wall_time": {
+        "status": "UNMEASURED",
+        "basis": "New supplemental current-candidate command; do not copy historical timings."
+      },
+      "bounded_limits": [
+        "There is no admitted conditional observed-feature-law producer. A valid conditional-law positive cannot be manufactured from a self-label or string ref.",
+        "The current Phase 5 and Runtime reliability conditionals use in-memory bundle payloads (some with a caller-supplied artifact-kind string); they do not persist/read a fixed-kind, application/json CAS ExplanationBundle through both consumers. Mark that original persisted-consumer criterion verification_missing/semantic_test_missing, not closed.",
+        "The shared consumer gate and producer behavior can refuse unsupported conditional requests; this does not close the producer→persisted artifact→fresh consumer chain."
+      ]
+    },
+    {
+      "id": "V4_V7_EMP01_SCOPE_AND_MEASUREMENT_SEMANTICS",
+      "phase": "light",
+      "command_type": "pytest",
+      "backend": "product .venv / pytest",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "--color=no",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/v4_v7_emp01_scope_and_measurement_semantics/junit.xml",
+        "tests/unit/remediation/test_emp_01.py::test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed",
+        "tests/unit/remediation/test_emp_01.py::test_scope_filter_excludes_other_regions_before_profile_limit",
+        "tests/unit/remediation/test_emp_01.py::test_cross_period_mixed_dataset_units_fail_closed",
+        "tests/unit/remediation/test_emp_01.py::test_non_country_region_refuses_country_code_binding",
+        "tests/unit/remediation/test_emp_01.py::test_owner_row_cap_refuses_truncated_profile",
+        "tests/unit/remediation/test_emp_01.py::test_empty_selected_profile_returns_no_profile_before_unit_binding"
+      ],
+      "environment": {
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src"
+      },
+      "purpose": "Cover B16 empirical owner scope before LIMIT, region/population filtering, mixed units, ambiguous jurisdiction, row-cap completeness, and truly empty scoped profile.",
+      "selected_targets": [
+        "tests/unit/remediation/test_emp_01.py::test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed",
+        "tests/unit/remediation/test_emp_01.py::test_scope_filter_excludes_other_regions_before_profile_limit",
+        "tests/unit/remediation/test_emp_01.py::test_cross_period_mixed_dataset_units_fail_closed",
+        "tests/unit/remediation/test_emp_01.py::test_non_country_region_refuses_country_code_binding",
+        "tests/unit/remediation/test_emp_01.py::test_owner_row_cap_refuses_truncated_profile",
+        "tests/unit/remediation/test_emp_01.py::test_empty_selected_profile_returns_no_profile_before_unit_binding"
+      ],
+      "outputs": {
+        "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/v4_v7_emp01_scope_and_measurement_semantics",
+        "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/v4_v7_emp01_scope_and_measurement_semantics/stdout.bin",
+        "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/v4_v7_emp01_scope_and_measurement_semantics/stderr.bin",
+        "junit": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/v4_v7_emp01_scope_and_measurement_semantics/junit.xml",
+        "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/v4_v7_emp01_scope_and_measurement_semantics/metadata.json"
+      },
+      "plan_timeout_seconds": null,
+      "run_status_before_freeze": "UNRUN",
+      "junit_interpretation": "Record PASS, FAIL, ERROR, SKIP separately; skipped required cases are UNRUN.",
+      "prior_wall_time": {
+        "status": "UNMEASURED",
+        "basis": "New supplemental current-candidate command; do not copy historical timings."
+      },
+      "bounded_limits": [
+        "These are controlled local catalog fixtures and mocked availability responses, not an external source owner or production EMP-01 distribution.",
+        "This scope/filter evidence does not make predictive interval coverage causal, treatment, transport, or policy-effect evidence."
+      ]
+    },
+    {
+      "id": "V4_V7_FORECAST_OWNER_PERSISTED_EVIDENCE_AND_S10_CONTROLS",
+      "phase": "light",
+      "command_type": "pytest",
+      "backend": "product .venv / pytest",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "--color=no",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/v4_v7_forecast_owner_persisted_evidence_and_s10_controls/junit.xml",
+        "tests/unit/remediation/test_frc_02_owner.py::test_real_ets_owner_persists_content_bound_predictive_evidence",
+        "tests/unit/remediation/test_frc_02_owner.py::test_real_ets_owner_persists_cas_bound_pair_in_report_metadata_and_manifest",
+        "tests/unit/remediation/test_frc_02_owner.py::test_same_ets_shape_uses_held_out_observations_for_suitability",
+        "tests/unit/remediation/test_frc_02_bridge.py::test_persisted_backtest_report_readback_produces_neutral_empirical_interval_hit_evidence",
+        "tests/unit/remediation/test_frc_02_bridge.py::test_observed_comparisons_change_empirical_admission_with_same_nominal_confidence",
+        "tests/unit/remediation/test_frc_02_bridge.py::test_nominal_confidence_without_observations_is_not_empirical_evidence",
+        "tests/unit/remediation/test_frc_02_bridge.py::test_persisted_self_attested_projection_cannot_override_observed_bounds",
+        "tests/unit/remediation/test_frc_02_bridge.py::test_forged_report_manifest_or_content_binding_is_refused_before_persistence_readback",
+        "tests/unit/remediation/test_frc_02_s10.py::test_same_ets_shape_with_different_held_out_observations_changes_s10_suitability",
+        "tests/unit/remediation/test_frc_02_s10.py::test_nominal_confidence_only_does_not_change_s10_suitability",
+        "tests/unit/remediation/test_frc_02_s10.py::test_predictive_denials_and_non_causal_family_survive_s10_projection",
+        "tests/unit/remediation/test_frc_02_s10.py::test_missing_wrong_kind_or_foreign_evidence_ref_fails_closed",
+        "tests/unit/remediation/test_frc_02_s10.py::test_corrupt_existing_evidence_bytes_fail_closed_at_gateway",
+        "tests/unit/remediation/test_frc_02_s10.py::test_method_or_rule_mismatch_in_persisted_evidence_fails_closed",
+        "tests/unit/remediation/test_frc_02_s10.py::test_temporal_role_mismatch_in_persisted_evidence_fails_closed",
+        "tests/unit/remediation/test_frc_01.py::test_missing_calibration_evidence_refs_stays_typed_blocked"
+      ],
+      "environment": {
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src"
+      },
+      "purpose": "Pair the real ETS/CAS producer controls with persisted BacktestReport recomputation and the production-named S10 gateway’s content-bound resolver tests, including same-nominal/different-outcome, fake/missing/wrong refs, malformed bytes, role/rule mismatch, and predictive-only denials. The base plan already replays the full test_frc_02_empirical_bridge.py including its real ForecastOwner→CAS case and typed refusal when semantic context is missing.",
+      "selected_targets": [
+        "tests/unit/remediation/test_frc_02_owner.py::test_real_ets_owner_persists_content_bound_predictive_evidence",
+        "tests/unit/remediation/test_frc_02_owner.py::test_real_ets_owner_persists_cas_bound_pair_in_report_metadata_and_manifest",
+        "tests/unit/remediation/test_frc_02_owner.py::test_same_ets_shape_uses_held_out_observations_for_suitability",
+        "tests/unit/remediation/test_frc_02_bridge.py::test_persisted_backtest_report_readback_produces_neutral_empirical_interval_hit_evidence",
+        "tests/unit/remediation/test_frc_02_bridge.py::test_observed_comparisons_change_empirical_admission_with_same_nominal_confidence",
+        "tests/unit/remediation/test_frc_02_bridge.py::test_nominal_confidence_without_observations_is_not_empirical_evidence",
+        "tests/unit/remediation/test_frc_02_bridge.py::test_persisted_self_attested_projection_cannot_override_observed_bounds",
+        "tests/unit/remediation/test_frc_02_bridge.py::test_forged_report_manifest_or_content_binding_is_refused_before_persistence_readback",
+        "tests/unit/remediation/test_frc_02_s10.py::test_same_ets_shape_with_different_held_out_observations_changes_s10_suitability",
+        "tests/unit/remediation/test_frc_02_s10.py::test_nominal_confidence_only_does_not_change_s10_suitability",
+        "tests/unit/remediation/test_frc_02_s10.py::test_predictive_denials_and_non_causal_family_survive_s10_projection",
+        "tests/unit/remediation/test_frc_02_s10.py::test_missing_wrong_kind_or_foreign_evidence_ref_fails_closed",
+        "tests/unit/remediation/test_frc_02_s10.py::test_corrupt_existing_evidence_bytes_fail_closed_at_gateway",
+        "tests/unit/remediation/test_frc_02_s10.py::test_method_or_rule_mismatch_in_persisted_evidence_fails_closed",
+        "tests/unit/remediation/test_frc_02_s10.py::test_temporal_role_mismatch_in_persisted_evidence_fails_closed",
+        "tests/unit/remediation/test_frc_01.py::test_missing_calibration_evidence_refs_stays_typed_blocked"
+      ],
+      "outputs": {
+        "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/v4_v7_forecast_owner_persisted_evidence_and_s10_controls",
+        "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/v4_v7_forecast_owner_persisted_evidence_and_s10_controls/stdout.bin",
+        "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/v4_v7_forecast_owner_persisted_evidence_and_s10_controls/stderr.bin",
+        "junit": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/v4_v7_forecast_owner_persisted_evidence_and_s10_controls/junit.xml",
+        "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/supplement/v4_v7_forecast_owner_persisted_evidence_and_s10_controls/metadata.json"
+      },
+      "plan_timeout_seconds": null,
+      "run_status_before_freeze": "UNRUN",
+      "junit_interpretation": "Record PASS, FAIL, ERROR, SKIP separately; skipped required cases are UNRUN.",
+      "prior_wall_time": {
+        "status": "UNMEASURED",
+        "basis": "New supplemental current-candidate command; do not copy historical timings."
+      },
+      "bounded_limits": [
+        "The S10 tests inject a canonical CAS resolver and construct the producer result for the gateway; they prove selected consumer mechanics but do not prove the runtime default wires that bridge.",
+        "The current full source census found no ForecastOwner call site and no empirical-evidence loader call site. No actual fresh grade/default HTTP projection is demonstrated; do not infer V4/V7 chain completion from independent producer/consumer tests.",
+        "Empirical calibration records remain predictive_only and carry causal/treatment/S10 denials. No source owner, current external observations, or causal authority is asserted.",
+        "The exact B32 and LA-051 source blocks and the B16 EMP-01 block remain not_adjudicated in coverage; preserve both LA-051 coverage occurrences.",
+        "The historical exact selector packet had 3 failures at the older source candidate, including the missing-reference reason control. Rebind these selectors to frozen current source and retain any current failures; historical receipt is not a current PASS."
+      ]
+    }
+  ],
+  "reuse_existing_without_duplicate": [
+    {
+      "group": "I3_B79_B80_B83_STREAMING_PROGRESS_AND_IDENTITY",
+      "existing_command_id": "R2_POOL_STREAM_CLEANUP",
+      "existing_selected_path": "tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+      "whole_file_selects": [
+        "test_b79_supported_rest_request_uses_the_persisted_etag_cursor (2 parameter values)",
+        "test_b80_two_source_failure_keeps_predecessors_and_retry_reads_late_event",
+        "test_b83_live_event_key_cap_refuses_without_eviction_and_retries_from_checkpoint",
+        "test_b83_nonempty_legacy_dedupe_keys_without_utc_time_refuse_before_rewind",
+        "test_b83_first_accepted_key_expires_at_utc_86400_seconds_after_restart",
+        "test_b83_missing_or_nonprimitive_event_version_refuses_without_fallback_writes",
+        "test_b83_horizon_scope_isolated_by_connector_dataset_and_partition"
+      ],
+      "supplemental_command_id": "I3_INCREMENTAL_PROGRESS_OWNER_CONTROLS",
+      "bounded_limit": "Fixture event_id/source_version names are not an independently admitted source-owner identity contract; B79’s HTTP endpoint is controlled local REST, not production-source evidence."
+    },
+    {
+      "group": "I4_CATALOG_GENERATION_MEMBER_CURRENTNESS",
+      "existing_supplemental_command_id": "I1_C05_MATERIAL_CURRENTNESS_AND_PROFILE_CONSUMERS",
+      "evidence": "Full C05 focused suite includes generation/member material reconciliation, same-ID mutation, unchanged/current cache/session and WVS controls; do not duplicate Catalog selectors in the Legal-specific group."
+    },
+    {
+      "group": "S1_C09_FIXED_KIND_MEDIA_CAS_RESPONSE_BASIS",
+      "existing_command_id": "S1_NATIVE_RESPONSE_BASIS",
+      "evidence": "Already selected in the base composed plan; it includes native response positive, fresh-reader recomputation, malformed/partial refusal, axis/unit controls, and actual CAS basis-mutation refusal."
+    },
+    {
+      "group": "V7_REAL_FORECASTOWNER_BRIDGE_REFUSAL",
+      "existing_command_id": "V7_PREDICTIVE_OWNER_BRIDGE_BOUNDARY",
+      "existing_selected_path": "tests/unit/remediation/test_frc_02_empirical_bridge.py",
+      "evidence": "The full file includes actual ForecastOwner→CAS/report→empirical bridge recomputation and explicit refusal when semantic context is unbound; it does not create the absent fresh default/HTTP consumer."
+    }
+  ],
+  "static_selector_verification": {
+    "method": "AST parse of test files and function names only; no pytest collection/import/run.",
+    "result": "Original supplement targets were present at R2 preparation; this delta adds the whole storage-protocol-boundary module. Recheck all paths and perform final-source AST/collection only after the freeze.",
+    "missing": []
+  },
+  "required_claim_boundaries": [
+    "No G closure, history migration, law, source-owner authority, production profile, external issuer/currentness, causal calibration, or deployment claim follows from this queue.",
+    "Prior counts, command timing and candidate source bytes are not current-source results; root rebinds exact inputs, output files, Python profile, and JUnit states at the final freeze.",
+    "I1/I2/I3/I4/S1/V4/V7 selectors are bounded local route witnesses; their status does not establish authentic external owners, active profiles, default HTTP adoption, or semantic law."
+  ],
+  "source_manifest_composition": {
+    "api": "composed_mac_capture.prepare_raw_source_manifest(..., additional_plan_paths=[...])",
+    "primary_plan": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/composed-mac-final-replay-plan-20261010-r2.json",
+    "additional_plan_paths": [
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/composed-mac-final-supplement-plan-20261010-r2.json",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/composed-mac-current-source-replay-plan-20261010.json",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-current-source-replay-plan-20261010/supplemental-light-gap-checks.json",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/composed-mac-tool-selftest-plan-20261010-r2.json"
+    ],
+    "reason": "Bind the new base and supplement bytes, both historical plans, and the separately authored tool-self-test plan so the shared manifest derives all five plan output-root sets by ownership. Old output bytes are inputs only; execution uses new absent non-overlapping roots. Separate C12/native/browser runs require their own declared output-root plan bindings. This is not a blanket raw-directory exclusion.",
+    "execution_freeze": "final commit/tree and the generated shared manifest file/content hashes remain null until root freeze."
+  }
+}

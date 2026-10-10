@@ -16,27 +16,27 @@ from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.registry import RegistryBundlePayload
 from polisyos.core.canon.canon_json import from_canonical_bytes
 from polisyos.core.canon.hashing import content_hash
-from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
-from polisyos.core.contracts.foundry import (
+from polisyos.core.contracts import (
+    DataSnapshot,
+    DataSnapshotRef,
     FoundryInputBindings,
     FoundryInputBindingsRef,
     Metrics,
+    ResearchIntent,
+    ResearchIntentRef,
     StateSnapshot,
     StateSnapshotRef,
+    TrinityBundleRef,
 )
-from polisyos.core.contracts.scholar import ResearchIntent, ResearchIntentRef
-from polisyos.core.contracts.trinity import TrinityBundleRef
 from polisyos.core.registry import load_registry_bundle_content
+from polisyos.ir import ArtifactRefModel, NormPack, TrinityBundle
 from polisyos.ir.governance.gate import (
     GATE_REQUEST_SCHEMA_VERSION,
     GateContext,
     GatePriority,
     GateRequest,
 )
-from polisyos.ir.loading.norm_pack import NormPack
-from polisyos.ir.registry.refs import ArtifactRefModel
-from polisyos.ir.trinity import TrinityBundle
-from polisyos.scholar.types import KnowledgeBundlePayloadV1
+from polisyos.scholar import KnowledgeBundlePayloadV1
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,

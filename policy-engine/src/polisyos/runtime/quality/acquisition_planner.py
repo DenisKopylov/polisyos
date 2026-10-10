@@ -3030,7 +3030,7 @@ def _captured_fabric_fetches(
 
     from polisyos.core import canon
     from polisyos.data_forge.read_api import catalog as catalog_read_api
-    from polisyos.fabric.retrieval.custody import FabricFetchReceipt
+    from polisyos.fabric.api import FabricFetchReceipt
 
     if not isinstance(catalog, catalog_read_api.DatasetCatalogGraph):
         raise ValueError("fabric_fetch_capture_catalog_owner_missing")

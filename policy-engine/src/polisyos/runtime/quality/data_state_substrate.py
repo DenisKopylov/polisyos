@@ -20,7 +20,7 @@ from typing import TYPE_CHECKING, Any, Literal
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
-    from polisyos.core.contracts.foundry import FoundryInputBindingRule
+    from polisyos.core.contracts import FoundryInputBindingRule
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
         ActivatedAcquisitionObservationProjection,
     )
@@ -82,9 +82,7 @@ canonical_epoch_bytes = core_contracts.canonical_epoch_bytes
 DATA_STATE_SUBSTRATE_SCHEMA_VERSION = "policyos.runtime.data_state_substrate.v1"
 ACQUIRED_DATA_STATE_SCHEMA_VERSION = "policyos.runtime.acquisition_data_state.v1"
 _DATA_FORGE_SNAPSHOT_PIPELINE = "ukraine"
-_DATA_FORGE_SNAPSHOT_ROLE = PIPELINE_BINDING_SURFACES[
-    _DATA_FORGE_SNAPSHOT_PIPELINE
-][0]
+_DATA_FORGE_SNAPSHOT_ROLE = PIPELINE_BINDING_SURFACES[_DATA_FORGE_SNAPSHOT_PIPELINE][0]
 ACQUIRED_DATA_STATE_LIMITATION_CODES = (
     "source_time_not_established",
     "source_to_target_measurement_contract_not_established",
@@ -205,9 +203,10 @@ class ControlledAcquisitionSlotBinding(_StrictModel):
     profile_selection_ref: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
     canonical_variable_id: str = Field(..., min_length=1)
     target_slot_id: str = Field(..., min_length=1)
-    source_to_target_semantics: Literal[
+    source_to_target_semantics: Literal["candidate_value_forwarded_without_conversion"] = (
         "candidate_value_forwarded_without_conversion"
-    ] = "candidate_value_forwarded_without_conversion"
+    )
+
 
 @dataclass(frozen=True)
 class DataStateMaterializationResult:
@@ -597,7 +596,7 @@ def materialize_acquired_observation_snapshot(
         DataStateSubstrateError: If the base snapshot, selected row, candidate
             mapping, or transaction time cannot be verified.
     """
-    from polisyos.core.contracts.foundry import FoundryInputBindingRule
+    from polisyos.core.contracts import FoundryInputBindingRule
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
         ActivatedAcquisitionObservationProjection,
         CatalogAcquisitionOverlay,
@@ -697,8 +696,7 @@ def materialize_acquired_observation_snapshot(
         and item.get("observation_id") == observation.observation_id
     ]
     if prior_rows and any(
-        item.get("row_content_sha256") != selected_row.row_content_sha256
-        for item in prior_rows
+        item.get("row_content_sha256") != selected_row.row_content_sha256 for item in prior_rows
     ):
         raise DataStateSubstrateError("acquisition_observation_identity_reused")
     if not prior_rows:
@@ -707,9 +705,7 @@ def materialize_acquired_observation_snapshot(
                 "observation_id": observation.observation_id,
                 "dataset_id": observation.dataset_id,
                 "row_content_sha256": selected_row.row_content_sha256,
-                "projection_content_sha256": (
-                    selected_projection.projection_content_sha256
-                ),
+                "projection_content_sha256": (selected_projection.projection_content_sha256),
                 "observation": observation.model_dump(mode="json"),
             }
         )
@@ -774,9 +770,7 @@ def materialize_acquired_observation_snapshot(
         canon_spec=CanonSpec(forbid_floats=False),
     )
     payload_content_hash = str(payload_ref.artifact_id)
-    snapshot_id = "gy-s1-acquisition-overlay-" + payload_content_hash.removeprefix(
-        "sha256:"
-    )[:20]
+    snapshot_id = "gy-s1-acquisition-overlay-" + payload_content_hash.removeprefix("sha256:")[:20]
     data_snapshot = DataSnapshot(
         data_ref=payload_ref,
         stats={
@@ -907,9 +901,7 @@ def build_acquired_observation_candidate_world(
     model_manifest = store.get_manifest(base_model_ref)
     if model_manifest.kind != "ir.model_spec" or not store.verify(base_model_ref).ok:
         raise DataStateSubstrateError("acquisition_base_model_spec_unverified")
-    model_spec = ModelSpec.model_validate(
-        from_canonical_bytes(store.get_bytes(base_model_ref))
-    )
+    model_spec = ModelSpec.model_validate(from_canonical_bytes(store.get_bytes(base_model_ref)))
     if (
         gy_content_hash(model_spec.model_dump(mode="json"))
         != base.simulation_model_ref.model_spec_hash
@@ -931,9 +923,7 @@ def build_acquired_observation_candidate_world(
     registry_bundle_ref = base_views.registry_bundle_ref
     base_bindings_ref = base_views.input_bindings_ref
     base_bindings = load_input_bindings(store, base_bindings_ref)
-    retained_rules = [
-        rule for rule in base_bindings.rules if rule.target_slot_id != selected_slot
-    ]
+    retained_rules = [rule for rule in base_bindings.rules if rule.target_slot_id != selected_slot]
     retained_rules.append(materialization.foundry_binding_rule)
 
     tx_time = transaction_time.astimezone(UTC).isoformat()
@@ -966,9 +956,7 @@ def build_acquired_observation_candidate_world(
             world_query_policy=base.fabric_world_ref.world_query_policy,
             provenance_manifest_ref=f"cas://{materialization.payload_content_hash.removeprefix('sha256:')}",
         ),
-        data_forge_snapshot_binding_path=(
-            materialization.data_forge_snapshot_binding_path
-        ),
+        data_forge_snapshot_binding_path=(materialization.data_forge_snapshot_binding_path),
         data_snapshot_ref=data_snapshot_ref,
         model_spec=model_spec,
         skg_causal_prior_ref=base.skg_causal_prior_ref,
@@ -1776,8 +1764,7 @@ def _write_data_forge_snapshot_binding(
     published_at: str = "2026-05-01T00:00:00+00:00",
     corpus_id: str = "ukraine-real-l4-data-state",
     builder_revision: str = (
-        "polisyos.runtime.quality.data_state_substrate."
-        "materialize_l4_data_state_snapshot"
+        "polisyos.runtime.quality.data_state_substrate.materialize_l4_data_state_snapshot"
     ),
     lineage_refs: Sequence[str] | None = None,
     claim_requirement_bindings: Sequence[Mapping[str, Any]] | None = None,

@@ -16,6 +16,7 @@ from polisyos.core.artifacts import ensure_ir_artifact_store, resolve_manifest_b
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.foundry.calibration.report import CalibrationReport
 from polisyos.foundry.uncertainty.protocol import PropagationResult, UncertaintyDecomposition
+from polisyos.ir import ArtifactRefModel
 from polisyos.ir.analytics.posterior_summary import (
     PosteriorPointRole,
     PosteriorSummaryRef,
@@ -37,7 +38,6 @@ from polisyos.ir.analytics.uncertainty import (
 )
 from polisyos.ir.artifacts import ArtifactStore, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
-from polisyos.ir.registry.refs import ArtifactRefModel
 
 if TYPE_CHECKING:
     from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator

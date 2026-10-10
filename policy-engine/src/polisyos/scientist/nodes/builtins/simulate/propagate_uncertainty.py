@@ -21,13 +21,13 @@ from polisyos.foundry.calibration.report import CalibrationReport
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher
 from polisyos.foundry.uncertainty.protocol import PropagationResult
+from polisyos.ir import ArtifactRefModel
 from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     load_uncertainty_envelope,
     persist_uncertainty_envelope,
 )
 from polisyos.ir.artifacts import get_json_artifact
-from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_PROPAGATION_REPORT_REF,
     ARTIFACT_SIMULATION_RESULT_REF,

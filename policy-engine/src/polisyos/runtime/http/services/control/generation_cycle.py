@@ -10,8 +10,10 @@ from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 
 from polisyos.core import artifacts, canon
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.contracts import ControlJobResponse  # noqa: TC001 - Pydantic DTO
-from polisyos.core.contracts.runtime import AgentPipelineCostEvent
+from polisyos.core.contracts import (
+    AgentPipelineCostEvent,
+    ControlJobResponse,
+)
 from polisyos.pdc import gy_artifact_self_identity_projection, gy_content_hash
 from polisyos.runtime.http.services.control.nl_pipeline import (
     build_design_problem_from_nl_request,

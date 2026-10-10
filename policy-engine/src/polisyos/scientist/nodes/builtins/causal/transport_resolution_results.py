@@ -6,6 +6,7 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING, Any
 
 from polisyos.data_forge.read_api.catalog import PStarZResult
+from polisyos.ir.analytics import CausalEffectReport, CausalGraphModel
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentCertificate,
     AlignmentCertificateType,
@@ -14,8 +15,6 @@ from polisyos.ir.analytics.alignment_certification import (
     compute_outer_objective,
     run_outer_search,
 )
-from polisyos.ir.analytics.causal import CausalEffectReport
-from polisyos.ir.analytics.causal_graph import CausalGraphModel
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.partial_identification import compute_manski_bounds
 from polisyos.ir.analytics.privacy_transportability import (

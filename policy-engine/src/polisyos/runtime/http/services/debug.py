@@ -18,7 +18,7 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.contracts.foundry import SimulationResult
+from polisyos.core.contracts import SimulationResult
 from polisyos.core.contracts.runtime import (
     AgentPipelineAttempt,
     AgentPipelineCostEvent,

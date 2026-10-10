@@ -8,15 +8,15 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.contracts.decision_validity import (
+from polisyos.core.contracts import (
+    DataSnapshot,
     DecisionBasisSection,
     DecisionDependencyKind,
     DecisionDependencyRef,
     DecisionTriggerSpec,
     DecisionTriggerType,
+    FreshnessMetadata,
 )
-from polisyos.core.contracts.fabric import DataSnapshot
-from polisyos.core.contracts.scholar import FreshnessMetadata
 from polisyos.ir.analytics.normative_arbitration import (
     NormativeArbitrationResult,
     load_normative_arbitration_result,

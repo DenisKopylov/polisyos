@@ -8,9 +8,7 @@ from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artif
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.contracts.fabric import DataSnapshot
-from polisyos.core.contracts.foundry import SimulationResult
-from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
+from polisyos.core.contracts import DataSnapshot, SimulationResult, UncertaintyEnvelopeRef
 from polisyos.ir.analytics.uncertainty import (
     load_simulation_result_uncertainty_admission,
     load_uncertainty_envelope,

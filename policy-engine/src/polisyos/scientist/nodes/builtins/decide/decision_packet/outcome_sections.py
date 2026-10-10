@@ -7,10 +7,12 @@ from datetime import UTC, datetime
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.contracts.distributional import DistributionalReportRef
-from polisyos.core.contracts.foundry import SimulationResult
+from polisyos.core.contracts import (
+    DistributionalReportRef,
+    SimulationResult,
+    UncertaintyEnvelopeRef,
+)
 from polisyos.core.contracts.scientist import DecisionMonitoringContractRef
-from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
 from polisyos.ir.analytics.abm_bridge import load_abm_alignment_report
 from polisyos.ir.analytics.abstraction import load_abstraction_certificate
 from polisyos.ir.analytics.backtest import load_backtest_report
@@ -162,7 +164,7 @@ def _build_hte_section(
     hte_ref = artifacts_index.get(ARTIFACT_HTE_RESULT_REF)
     if hte_ref is None:
         return None
-    from polisyos.core.contracts.hte import HTEResultRef
+    from polisyos.core.contracts import HTEResultRef
 
     payload: dict[str, object] = {"result_ref": str(hte_ref.artifact_id)}
     try:
@@ -210,7 +212,7 @@ def _build_targeting_section(
     recommendation_ref = artifacts_index.get(ARTIFACT_POLICY_RECOMMENDATION_REF)
     if recommendation_ref is None:
         return None
-    from polisyos.core.contracts.hte import PolicyRecommendationRef
+    from polisyos.core.contracts import PolicyRecommendationRef
 
     payload: dict[str, object] = {"recommendation_ref": str(recommendation_ref.artifact_id)}
     try:
@@ -255,7 +257,7 @@ def _build_backtest_section(
     backtest_ref = artifacts_index.get(ARTIFACT_BACKTEST_REPORT_REF)
     if backtest_ref is None:
         return None
-    from polisyos.core.contracts.backtest import BacktestReportRef
+    from polisyos.core.contracts import BacktestReportRef
 
     payload: dict[str, object] = {"report_ref": str(backtest_ref.artifact_id)}
     try:

@@ -26,7 +26,7 @@ from .lex_search_profile import (
 from .lex_search_projection import LexSearchResponse, LexSearchResultItem
 
 if TYPE_CHECKING:
-    from polisyos.lex.knowledge.store import LegalQueryProfile
+    from polisyos.lex.knowledge import LegalQueryProfile
     from polisyos.runtime.http.container import LegalQueryEncoderProvider
     from polisyos.runtime.http.execution_policy import RuntimePrincipal
 
@@ -39,7 +39,7 @@ def _legal_query_profiles_from_request(
     request: LexSearchRequest,
 ) -> tuple[LegalQueryProfile, ...]:
     """Convert exact request snapshots to immutable Legal owner profiles."""
-    from polisyos.lex.knowledge.store import LegalQueryProfile, LegalQueryProfileError
+    from polisyos.lex.knowledge import LegalQueryProfile, LegalQueryProfileError
 
     intent = request.query_generation_intent
     if intent is None:
@@ -272,7 +272,7 @@ class LexPipelineMixin:
         request_id: str | None = None,
     ) -> LexSearchProfileResponse:
         """Return the selected fact-generation snapshot for a search request."""
-        from polisyos.lex.knowledge.store import LegalQueryProfileError
+        from polisyos.lex.knowledge import LegalQueryProfileError
 
         try:
             intent = selected_legal_fact_query_intent(output_dir)
@@ -362,7 +362,7 @@ class LexPipelineMixin:
         """Search Lex facts, preserving text fallback and typed vector refusal."""
         db_path = Path(request.output_dir) / "lex_knowledge_graph.duckdb"
 
-        from polisyos.lex.knowledge.store import LegalQueryProfileError
+        from polisyos.lex.knowledge import LegalQueryProfileError
 
         profile_error: LegalQueryProfileError | None = None
         try:

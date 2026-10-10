@@ -7,7 +7,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core.contracts.control import ApiMeta, LegalQueryGenerationIntentV1
+from polisyos.core.contracts import ApiMeta, LegalQueryGenerationIntentV1
 
 LexSearchProfileRefusalCode = Literal[
     "query_profile_generation_unavailable",
@@ -59,7 +59,7 @@ def selected_legal_fact_query_intent(
     encoder before returning a vector result.
     """
     from polisyos.data_forge.read_api import legal as legal_read_api
-    from polisyos.lex.knowledge.store import LegalQueryProfile, LegalQueryProfileError
+    from polisyos.lex.knowledge import LegalQueryProfile, LegalQueryProfileError
 
     generation = legal_read_api.resolve_embedding_generation(
         Path(output_dir) / ".legal_embedding_generations" / "lex_fact_embeddings"

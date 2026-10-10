@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from polisyos.data_forge.domains.ukraine.models import BuildRootConfig
-    from polisyos.ir.observation.contracts import ObservationFamily
+    from polisyos.ir import ObservationFamily
 
 
 def _normalize_identity_key(value: object) -> str:

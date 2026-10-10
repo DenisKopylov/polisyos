@@ -20,6 +20,7 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.common.logger import get_logger
+from polisyos.ir import ArtifactRefModel
 from polisyos.ir.analytics.posterior_summary import (
     PosteriorPointRole,
     PosteriorSummaryV11,
@@ -38,7 +39,6 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintySource,
     build_composition_provenance,
 )
-from polisyos.ir.registry.refs import ArtifactRefModel
 
 from .config import PropagationConfig
 from .covariance import extract_std, has_unknown_dependency

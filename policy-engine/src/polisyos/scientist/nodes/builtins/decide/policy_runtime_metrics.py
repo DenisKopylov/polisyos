@@ -10,9 +10,8 @@ from pydantic import ValidationError
 
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.foundry.methods.catalog.optimization.protocols import AmbiguityCertificate
-from polisyos.ir.analytics.causal import CausalEffectReport
+from polisyos.ir.analytics import CausalEffectReport, DistributionalReport
 from polisyos.ir.analytics.cross_graph import CrossGraphEvidenceProfile, TransportStatus
-from polisyos.ir.analytics.distributional import DistributionalReport
 from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope, UncertaintyType
 from polisyos.scientist.policy_design.objectives import _normalize_policy_evaluation_vector
 

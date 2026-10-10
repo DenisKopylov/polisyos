@@ -17,6 +17,7 @@ from polisyos.berl.contracts.schema import (
 from polisyos.core.artifacts import ArtifactStore as CoreArtifactStore
 from polisyos.core.artifacts import ensure_ir_artifact_store
 from polisyos.core.canon import CanonSpec
+from polisyos.ir.analytics import ExplanationBundleRef
 from polisyos.ir.artifacts import (
     ArtifactStore as IRArtifactStore,
 )
@@ -25,7 +26,6 @@ from polisyos.ir.artifacts import (
     get_json_artifact,
     put_json_artifact,
 )
-from polisyos.ir.registry.refs import ExplanationBundleRef
 
 _EXPLANATION_BUNDLE_KIND = "scientist.explanation_bundle"
 _EXPLANATION_BUNDLE_SCHEMA_NAME = explanation_bundle_schema_id()

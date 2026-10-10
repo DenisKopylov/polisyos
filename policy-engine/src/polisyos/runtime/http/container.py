@@ -39,6 +39,7 @@ from polisyos.runtime.quality.cycle_substrate import (
 from polisyos.runtime.quality.design_axes.value_choice_provenance import NormativeAuthorityTrust
 from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from polisyos.scientist import (
+    BudgetState,
     ClaimLedgerOwnerPort,
     EpochClaimLifecycleBridgeService,
     build_default_claim_ledger_owner,
@@ -47,7 +48,6 @@ from polisyos.scientist import (
 from polisyos.scientist.governance.continuous import (
     PublicVerificationRecordPopulationProvider,
 )
-from polisyos.scientist.orchestration.engine.budget import BudgetState
 from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 

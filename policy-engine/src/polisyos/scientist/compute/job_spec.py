@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import content_hash
-from polisyos.ir.analytics.posterior_summary import PosteriorPointRole, PosteriorSummaryRef
+from polisyos.ir.analytics import PosteriorPointRole, PosteriorSummaryRef
 
 
 class JobSpec(BaseModel):

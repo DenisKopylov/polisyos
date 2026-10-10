@@ -11,14 +11,14 @@ import numpy as np
 from pydantic import ValidationError
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.ir import ArtifactRefModel, LeontiefIOBundle
+from polisyos.ir.analytics import GEUncertaintyBundleRef
 from polisyos.ir.analytics.welfare import (
     GEUncertaintyBundle,
     GEUncertaintyRepresentation,
     load_ge_uncertainty_bundle,
     persist_ge_uncertainty_bundle,
 )
-from polisyos.ir.observation.bundles import LeontiefIOBundle
-from polisyos.ir.registry.refs import ArtifactRefModel, GEUncertaintyBundleRef
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
 from .welfare_types import (

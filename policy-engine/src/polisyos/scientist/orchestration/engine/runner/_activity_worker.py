@@ -197,7 +197,7 @@ def run_node_task_in_timeout_worker_sync(
     nested timeout and requires the task's context metadata to identify the
     exact store and existing run trace.
     """
-    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.core.security import tenant_scope
 
     tenant_scope_meta = task.context_meta.get("tenant_scope")
     if not isinstance(tenant_scope_meta, dict):
@@ -483,7 +483,7 @@ def _build_timeout_worker_context(meta: dict[str, Any]) -> Any:
     from polisyos.core.observability import is_hpc_observability_enabled
     from polisyos.core.run.context import RunContext
     from polisyos.core.run.manifest import RunManifest
-    from polisyos.core.trace.sink import JsonlTraceSink
+    from polisyos.core.trace import JsonlTraceSink
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
     if set(meta) != {

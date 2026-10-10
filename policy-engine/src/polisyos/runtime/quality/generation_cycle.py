@@ -3135,7 +3135,7 @@ class JointSimulationPort:
             raise WorldModelRecordError("n5_runtime_store_not_established")
 
         from polisyos.core.artifacts.manifest import artifact_ref_identity_key
-        from polisyos.core.contracts.foundry import (
+        from polisyos.core.contracts import (
             ExecPlan,
             ExecPlanRef,
             FoundryInputBindingsRef,

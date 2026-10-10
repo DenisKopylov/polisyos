@@ -34,7 +34,7 @@ from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.components_bridge import bootstrap_method_registry_from_components
 from polisyos.foundry.methods.exceptions import MethodNotFoundError
 from polisyos.foundry.methods.registry import MethodRegistry
-from polisyos.ir.analytics.posterior_summary import PosteriorPointRole, PosteriorSummaryRef
+from polisyos.ir.analytics import PosteriorPointRole, PosteriorSummaryRef
 from polisyos.ir.governance.validation import ValidationIssue
 from polisyos.scientist.compute.job_spec import JobKey, JobResult, JobSpec
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path

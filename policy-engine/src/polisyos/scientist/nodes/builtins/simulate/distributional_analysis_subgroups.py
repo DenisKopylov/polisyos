@@ -10,7 +10,7 @@ from pydantic import ValidationError
 from polisyos.foundry.analysis.distributional import (
     build_geography_breakdown,
 )
-from polisyos.ir.analytics.distributional import (
+from polisyos.ir.analytics import (
     CohortDimension,
 )
 

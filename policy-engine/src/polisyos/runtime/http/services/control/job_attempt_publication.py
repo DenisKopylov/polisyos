@@ -11,7 +11,7 @@ from polisyos.core import artifacts, registry, run
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import content_hash as canonical_content_hash
 from polisyos.core.canon import to_canonical_bytes
-from polisyos.core.contracts.control import NaturalLanguageRunRequest
+from polisyos.core.contracts import NaturalLanguageRunRequest
 from polisyos.runtime.http.services.adapters.core_run import (
     derive_control_job_core_run_id,
     derive_core_run_dir,

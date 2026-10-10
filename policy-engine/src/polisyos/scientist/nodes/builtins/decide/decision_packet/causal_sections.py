@@ -8,7 +8,7 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.ir.analytics.causal import CausalEffectReport
+from polisyos.ir.analytics import CausalEffectReport
 from polisyos.ir.analytics.causal_ensemble import load_causal_model_ensemble
 from polisyos.ir.analytics.evidence_bundle import load_causal_evidence_bundle
 from polisyos.ir.analytics.kernel_causal import load_kernel_estimator_spec

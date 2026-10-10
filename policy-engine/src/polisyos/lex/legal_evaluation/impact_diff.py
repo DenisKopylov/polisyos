@@ -10,12 +10,12 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
+from polisyos.core.contracts import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.passes.legal_pass import LegalPass
 from polisyos.core.governance.passes.safety_pass import SafetyPass
 from polisyos.core.governance.profiles import ValidationProfile
-from polisyos.ir.loading.norm_pack import NormPack, RuleType
+from polisyos.ir import NormPack, RuleType
 from polisyos.ir.world.ids import stable_world_id_from_canon
 from polisyos.lex.normpack.diff import NormChangeType, NormDiff, diff_norm_packs
 

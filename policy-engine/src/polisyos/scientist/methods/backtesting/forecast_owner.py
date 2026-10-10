@@ -21,7 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_valida
 from polisyos.calibration import evaluate_continuous
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+from polisyos.core.contracts import DataSnapshot, DataSnapshotRef
 from polisyos.foundry.methods.artifacts import MethodArtifact, store_method_artifact
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.base import ComputeBackend

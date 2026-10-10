@@ -12,12 +12,12 @@ from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artif
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.canon import from_canonical_bytes
+from polisyos.ir.analytics import ExplanationBundleRef
 from polisyos.ir.governance.validation import (
     Phase5GateComponent,
     ValidationReport,
     persist_validation_report,
 )
-from polisyos.ir.registry.refs import ExplanationBundleRef
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DRIFT_READINESS_REF,
     ARTIFACT_EXPLANATION_BUNDLE_REF,
@@ -1068,7 +1068,7 @@ def _load_explanation_bundle_payload(ctx: ExecutionContext, reference: Any) -> d
     if not isinstance(reference_payload, Mapping):
         raise ValueError("explanation_bundle_ref_invalid")
 
-    from polisyos.berl.persistence import load_explanation_bundle
+    from polisyos.berl import load_explanation_bundle
 
     bundle = load_explanation_bundle(store, reference_payload)
     return bundle.model_dump(mode="json")

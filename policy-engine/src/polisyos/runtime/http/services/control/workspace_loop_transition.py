@@ -1380,7 +1380,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         state_payload: dict[str, Any],
     ) -> dict[str, Any]:
         """Resolve typed workflow inputs from their exact, content-verified CAS views."""
-        from polisyos.core.contracts.fabric import DataSnapshot
+        from polisyos.core.contracts import DataSnapshot
 
         payloads: dict[str, Any] = {}
         for slot, artifact_ref, expected_kind in self._typed_workflow_input_refs(state_payload):

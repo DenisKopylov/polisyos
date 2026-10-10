@@ -37,7 +37,7 @@ from polisyos.runtime.quality.adapter_contracts import (
 from polisyos.runtime.quality.design_problem import DesignProblem
 
 if TYPE_CHECKING:
-    from polisyos.core.contracts.fabric import DataSnapshotRef
+    from polisyos.core.contracts import DataSnapshotRef
     from polisyos.data_forge.read_api.catalog import DatasetSearchResponse
     from polisyos.fabric.retrieval.custody import ResolvedFabricFetch
     from polisyos.runtime.quality.substrate_registry import (
@@ -1186,7 +1186,7 @@ def persist_measurement_root_data_snapshot(
 
     _validate_resolved_measurement_root_evidence(evidence)
 
-    from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+    from polisyos.core.contracts import DataSnapshot, DataSnapshotRef
     from polisyos.fabric.retrieval.custody import FabricFetchReceipt
 
     payload_ref = evidence.payload.payload_ref

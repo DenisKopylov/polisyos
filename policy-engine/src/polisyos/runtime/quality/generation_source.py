@@ -24,7 +24,7 @@ from polisyos.core.artifacts.manifest import (
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.contracts.runtime import AgentPipelineCostEvent
+from polisyos.core.contracts import AgentPipelineCostEvent
 from polisyos.data_forge.domains.academic.knowledge.skg_versioning import (
     ConfidenceLayerVintage,
     _confidence_layer_vintage_for_sha256,

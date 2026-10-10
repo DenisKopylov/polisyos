@@ -10,10 +10,9 @@ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, ProducerInfo
 from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
-from polisyos.core.contracts.foundry import Metrics
-from polisyos.core.contracts.scientist import DiscoveryArtifactBundleRef, PriorKnowledgeBundleRef
+from polisyos.core.contracts import DiscoveryArtifactBundleRef, Metrics, PriorKnowledgeBundleRef
 from polisyos.foundry.methods.catalog.optimization.protocols import AmbiguityCertificate
-from polisyos.ir.analytics.causal import CausalEffectReport
+from polisyos.ir.analytics import CausalEffectReport
 from polisyos.ir.analytics.causal_discovery import LatentDiscoveryBundle
 from polisyos.ir.analytics.cross_graph import (
     CrossGraphEvidenceProfile,

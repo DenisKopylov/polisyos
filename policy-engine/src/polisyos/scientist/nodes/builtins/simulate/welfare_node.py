@@ -11,7 +11,7 @@ from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artif
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
-from polisyos.core.contracts.foundry import Metrics, SimulationResult, SimulationResultRef
+from polisyos.core.contracts import Metrics, SimulationResult, SimulationResultRef
 from polisyos.ir.analytics.welfare import (
     WelfareBundle,
     WelfareMethod,

@@ -13,7 +13,7 @@ from typing import Any, Literal, cast
 import numpy as np
 
 from polisyos.core.errors import ErrorCategory, PolicyOSError
-from polisyos.foundry.uncertainty.config import PropagationConfig
+from polisyos.foundry.uncertainty import PropagationConfig
 from polisyos.foundry.uncertainty.evaluation_failures import (
     EXCEPTION_CHAIN_EDGE_LIMIT,
     EXCEPTION_CHAIN_NODE_LIMIT,

@@ -10,7 +10,7 @@ from typing import Any, cast
 import numpy as np
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.foundry.uncertainty.config import PropagationConfig
+from polisyos.foundry.uncertainty import PropagationConfig
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope, persist_uncertainty_envelope
 from polisyos.ir.analytics.welfare import (
     WelfareMethod,

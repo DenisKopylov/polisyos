@@ -19,7 +19,7 @@ from polisyos.data_forge.read_api.catalog import DatasetRegistry, PStarZResult
 from polisyos.foundry.methods.catalog.causal.capabilities import (
     build_causal_capability_contract,
 )
-from polisyos.ir.analytics.causal import CausalEffectReport
+from polisyos.ir.analytics import CausalEffectReport
 from polisyos.ir.analytics.causal_capabilities import (
     CausalCapabilityContract,
     load_causal_capability_contract,

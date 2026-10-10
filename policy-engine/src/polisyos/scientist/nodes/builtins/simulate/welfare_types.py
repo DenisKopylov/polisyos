@@ -16,9 +16,7 @@ from polisyos.core.canon import CanonSpec
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.foundry.calibration.report import CalibrationCoordinateProjection
 from polisyos.foundry.uncertainty import extract_std as _extract_typed_std
-from polisyos.ir.analytics.dependence_structure import DependenceStructure
-from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
-from polisyos.ir.analytics.welfare import WelfareMethod
+from polisyos.ir.analytics import DependenceStructure, UncertaintyEnvelope, WelfareMethod
 from polisyos.ir.artifacts import get_json_artifact
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,

@@ -131,7 +131,7 @@ def _wire_model_types() -> dict[str, type[BaseModel]]:
     if _WIRE_MODEL_TYPES is None:
         from polisyos.core.artifacts.ids import ArtifactID
         from polisyos.core.artifacts.manifest import ArtifactRef
-        from polisyos.core.contracts.skip_blockers import SkippedNodeBlocker
+        from polisyos.core.contracts import SkippedNodeBlocker
         from polisyos.scientist.orchestration.engine.protocol import (
             NodeError,
             NodeEvent,
@@ -854,11 +854,11 @@ def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, An
     from polisyos.core.observability import get_metrics, get_tracer, is_hpc_observability_enabled
     from polisyos.core.run.context import RunContext
     from polisyos.core.run.manifest import RunManifest
-    from polisyos.core.security.tenant_context import (
+    from polisyos.core.security import (
         get_current_cell_id,
         get_current_tenant_id_or_none,
     )
-    from polisyos.core.trace.sink import JsonlTraceSink
+    from polisyos.core.trace import JsonlTraceSink
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
     if type(ctx) is not ExecutionContext:

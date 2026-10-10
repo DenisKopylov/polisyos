@@ -32,10 +32,11 @@ from polisyos.core.artifacts.ir_adapter import (
 )
 from polisyos.core.artifacts.manifest import artifact_ref_identity_key, input_ref_from_artifact_ref
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
-from polisyos.core.contracts.foundry import (
+from polisyos.core.contracts import (
     CompileRequest,
     CompileResult,
+    DataSnapshot,
+    DataSnapshotRef,
     ExecuteRequest,
     ExecuteResult,
     FoundryExecConfig,

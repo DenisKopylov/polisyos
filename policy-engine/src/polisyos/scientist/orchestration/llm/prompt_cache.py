@@ -553,7 +553,7 @@ class CachingLLMClient:
 
     def _ordinary_scope_key(self) -> tuple[str, ...]:
         try:
-            from polisyos.core.security.tenant_context import get_current_access_scope_or_none
+            from polisyos.core.security import get_current_access_scope_or_none
 
             scope = get_current_access_scope_or_none()
         except Exception:
@@ -575,7 +575,7 @@ class CachingLLMClient:
         if not isinstance(snapshot, Mapping):
             return None
         try:
-            from polisyos.core.security.tenant_context import get_current_access_scope_or_none
+            from polisyos.core.security import get_current_access_scope_or_none
 
             principal = get_current_access_scope_or_none()
         except Exception:

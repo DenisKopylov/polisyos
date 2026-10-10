@@ -17,7 +17,7 @@ from polisyos.core.artifacts.manifest import (
 )
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import fingerprint
-from polisyos.core.contracts.fabric import DataSnapshot
+from polisyos.core.contracts import DataSnapshot
 from polisyos.scientist.compute.job_spec import JobKey, JobSpec
 from polisyos.scientist.methods.search.controller import (
     SearchConfig,

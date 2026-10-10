@@ -13,7 +13,7 @@ import numpy as np
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.contracts.fabric import DataSnapshot
+from polisyos.core.contracts import DataSnapshot
 from polisyos.core.contracts.foundry import (
     EquilibriumMultiplicityReport,
     FeedbackSolveResult,
@@ -21,8 +21,8 @@ from polisyos.core.contracts.foundry import (
     SimulationResult,
 )
 from polisyos.foundry.calibration.report import CalibrationReport
+from polisyos.ir.analytics import EquilibriumMultiplicityWelfareAnnotation
 from polisyos.ir.analytics.dependence_structure import load_dependence_structure
-from polisyos.ir.analytics.phase4_dynamics import EquilibriumMultiplicityWelfareAnnotation
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope, load_uncertainty_envelope
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,

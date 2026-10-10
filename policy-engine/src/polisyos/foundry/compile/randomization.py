@@ -5,7 +5,7 @@ from __future__ import annotations
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.canon import content_hash
-from polisyos.core.contracts.foundry import ProgramGraph
+from polisyos.core.contracts import ProgramGraph
 
 TREASURY_SALTS_PROFILE = "randomization:treasury_salts_v1"
 

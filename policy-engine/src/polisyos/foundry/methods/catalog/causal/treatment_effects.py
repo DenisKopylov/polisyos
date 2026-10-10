@@ -28,7 +28,7 @@ from polisyos.foundry.methods.catalog.causal.tmle_core import (
     fit_tmle_ate,
     result_payload,
 )
-from polisyos.ir.analytics.causal import (
+from polisyos.ir.analytics import (
     CausalEffectReport,
     CausalMethod,
     EstimationStatus,

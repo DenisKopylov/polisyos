@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from typing import Any
 
 import numpy as np
@@ -57,6 +57,46 @@ def materialize_method_input(
     return dict(bound_inputs)
 
 
+def _validate_materialized_input_slots(
+    *, signature: MethodSignature, materialized_state: Any
+) -> None:
+    """Validate declared slot values visible in the state consumed by a method.
+
+    Graph-bound values are checked before materialization. This final check
+    covers supplied fallback or ambient values that bypass a graph binding.
+    Missing keys remain absent, preserving existing partial/default behavior.
+    """
+    slots = tuple(sorted(signature.input_slots, key=lambda item: item.name))
+    if not slots:
+        return
+
+    values: dict[str, Any] = {}
+    if isinstance(materialized_state, Mapping):
+        # A state mapping carries slot values only under their declared names.
+        # Unrelated ambient keys do not make an absent slot present.
+        values = {
+            slot.name: materialized_state[slot.name]
+            for slot in slots
+            if slot.name in materialized_state
+        }
+    elif len(slots) == 1:
+        # Single-slot methods may consume their value directly rather than a
+        # named state mapping.
+        values[slots[0].name] = materialized_state
+    else:
+        for slot in slots:
+            try:
+                values[slot.name] = getattr(materialized_state, slot.name)
+            except AttributeError:
+                continue
+
+    for slot in slots:
+        if slot.name in values:
+            validate_value_for_slot(
+                slot, values[slot.name], method_fqn=signature.fqn, label="input"
+            )
+
+
 def dematerialize_method_output(
     *,
     method_class: type,
@@ -105,13 +145,19 @@ def validate_value_for_slot(slot: SlotSpec, value: Any, *, method_fqn: str, labe
                 f"expected {slot.contract_id!r}, got {actual_contract!r}",
             )
 
-    if slot.shape:
+    try:
         arr = _as_array_like(value)
+    except _ArrayLikeCoercionError as exc:
+        raise MethodContractError(
+            method_fqn,
+            f"{label} slot '{slot.name}' could not be coerced to array data",
+        ) from exc
+
+    if slot.shape:
         if arr is not None:
             _validate_shape(slot=slot, arr=arr, method_fqn=method_fqn, label=label)
         return
 
-    arr = _as_array_like(value)
     if arr is None:
         return
     if slot.slot_type is SlotType.VECTOR and arr.ndim != 1:
@@ -190,13 +236,24 @@ def _validate_output_mapping(
         validate_value_for_slot(slot, value, method_fqn=signature.fqn, label="output")
 
 
+class _ArrayLikeCoercionError(ValueError):
+    """A recognized array-like value could not be converted for validation."""
+
+
 def _as_array_like(value: Any) -> np.ndarray | None:
-    if hasattr(value, "shape") and hasattr(value, "dtype"):
-        try:
-            return np.asarray(value)
-        except Exception:
-            return None
-    return None
+    """Apply the array coercion used by supported method consumers."""
+    if not (
+        isinstance(value, (Mapping, Sequence))
+        or hasattr(value, "__array__")
+        or (hasattr(value, "shape") and hasattr(value, "dtype"))
+    ):
+        return None
+    try:
+        return np.asarray(value)
+    except Exception as exc:
+        raise _ArrayLikeCoercionError(
+            f"recognized array-like value could not be coerced: {type(value).__name__}"
+        ) from exc
 
 
 def _validate_shape(*, slot: SlotSpec, arr: np.ndarray, method_fqn: str, label: str) -> None:

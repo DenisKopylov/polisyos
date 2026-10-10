@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import asyncio
+from decimal import Decimal
 from typing import Any, ClassVar
 
 import jax
 import jax.numpy as jnp
 import numpy as np
+import pandas as pd
 import pytest
 
 from polisyos.core.observability.determinism import DeterminismTier
@@ -23,6 +26,10 @@ from polisyos.foundry.methods import (
     execute_heterogeneous_chain,
 )
 from polisyos.foundry.methods.backends.adapters import adapt_state
+from polisyos.foundry.methods.backends.async_chain_executor import (
+    AsyncChainExecutionError,
+    AsyncChainExecutor,
+)
 from polisyos.foundry.methods.backends.bayesian_runner import (
     BayesianBackendUnavailableError,
     BayesianRunner,
@@ -39,7 +46,10 @@ from polisyos.foundry.methods.backends.runtime_fingerprint import (
     validate_observed_tolerance_budget_metrics,
 )
 from polisyos.foundry.methods.backends.solver_runner import SolverRunner
-from polisyos.foundry.methods.exceptions import BackendAdaptationError
+from polisyos.foundry.methods.exceptions import (
+    BackendAdaptationError,
+    MethodContractError,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -199,6 +209,146 @@ class _ConsumeSignal:
     @staticmethod
     def pure_step(state: Any, params: dict[str, Any]) -> float:
         return float(state) * float(params["factor"])
+
+
+class _EmitRankThreePayload:
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="emit_rank_three_payload",
+        namespace="tests.input_validation",
+        version="1.0.0",
+        input_slots=frozenset(),
+        output_slots=frozenset(
+            {
+                SlotSpec(
+                    name="payload",
+                    slot_type=SlotType.TENSOR,
+                    unit=Unit("payload", "value"),
+                    shape=("rows", "columns", "layers"),
+                )
+            }
+        ),
+        parameters=(),
+        fidelity=FidelityLevel.LOW,
+        complexity=ComplexityClass.O_1,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(description="emit rank-three payload")
+
+    @staticmethod
+    def pure_step(state: Any, params: dict[str, Any]) -> dict[str, Any]:
+        del state, params
+        return {"payload": np.arange(6.0).reshape(1, 2, 3)}
+
+
+class _EmitRankThreeListPayload(_EmitRankThreePayload):
+    @staticmethod
+    def pure_step(state: Any, params: dict[str, Any]) -> dict[str, Any]:
+        del state, params
+        return {"payload": [[[0.0, 1.0, 2.0], [3.0, 4.0, 5.0]]]}
+
+
+class _EmitRankThreeTuplePayload(_EmitRankThreePayload):
+    @staticmethod
+    def pure_step(state: Any, params: dict[str, Any]) -> dict[str, Any]:
+        del state, params
+        return {"payload": (((0.0, 1.0, 2.0), (3.0, 4.0, 5.0)),)}
+
+
+class _EmitUnrelatedMatrix:
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="emit_unrelated_matrix",
+        namespace="tests.input_validation",
+        version="1.0.0",
+        input_slots=frozenset(),
+        output_slots=frozenset(
+            {
+                SlotSpec(
+                    name="noise",
+                    slot_type=SlotType.MATRIX,
+                    unit=Unit("noise", "value"),
+                    shape=(1, 1),
+                )
+            }
+        ),
+        parameters=(),
+        fidelity=FidelityLevel.LOW,
+        complexity=ComplexityClass.O_1,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(description="emit unrelated matrix")
+
+    @staticmethod
+    def pure_step(state: Any, params: dict[str, Any]) -> dict[str, Any]:
+        del state, params
+        return {"noise": np.ones((1, 1))}
+
+
+class _ConsumeMatrixPayload:
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="consume_matrix_payload",
+        namespace="tests.input_validation",
+        version="1.0.0",
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    name="payload",
+                    slot_type=SlotType.MATRIX,
+                    unit=Unit("payload", "value"),
+                    shape=("rows", "columns"),
+                )
+            }
+        ),
+        output_slots=frozenset(
+            {SlotSpec(name="total", slot_type=SlotType.SCALAR, unit=Unit("total", "value"))}
+        ),
+        parameters=(),
+        fidelity=FidelityLevel.LOW,
+        complexity=ComplexityClass.O_1,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(description="consume matrix payload")
+
+    @staticmethod
+    def pure_step(state: Any, params: dict[str, Any]) -> dict[str, Any]:
+        del params
+        payload = state.get("payload", np.zeros((2, 2)))
+        return {"total": float(np.asarray(payload, dtype=float).sum())}
+
+
+class _ConsumeScalarPayload:
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="consume_scalar_payload",
+        namespace="tests.input_validation",
+        version="1.0.0",
+        input_slots=frozenset(
+            {SlotSpec(name="payload", slot_type=SlotType.SCALAR, unit=Unit("payload", "value"))}
+        ),
+        output_slots=frozenset(
+            {SlotSpec(name="total", slot_type=SlotType.SCALAR, unit=Unit("total", "value"))}
+        ),
+        parameters=(),
+        fidelity=FidelityLevel.LOW,
+        complexity=ComplexityClass.O_1,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(description="consume scalar payload")
+
+    @staticmethod
+    def pure_step(state: Any, params: dict[str, Any]) -> dict[str, Any]:
+        del params
+        return {"total": float(state["payload"])}
 
 
 class _BayesianEmitSignal:
@@ -666,3 +816,118 @@ def test_execute_heterogeneous_chain_routes_bound_slot_values():
 
     assert result.final_state == 9.0
     assert result.node_results[0][1].slot_outputs["signal"] == 3.0
+
+
+def _compose_input_validation_chain(
+    producer: type, consumer_method: type = _ConsumeMatrixPayload
+) -> tuple[Any, MethodRegistry, Any]:
+    registry = MethodRegistry.get_instance()
+    _register_method(producer)
+    _register_method(consumer_method)
+    composer = MethodComposer(registry=registry)
+    source = composer.add(producer.signature.fqn)
+    consumer = composer.add(consumer_method.signature.fqn)
+    link = composer.connect(source, consumer)
+    return composer.build(validate_semantics=False), registry, link
+
+
+def _execute_input_validation_chain(
+    executor_mode: str, chain: Any, registry: MethodRegistry, state: dict[str, Any]
+) -> Any:
+    if executor_mode == "sync":
+        return execute_heterogeneous_chain(chain, state=state, registry=registry)
+    return asyncio.run(AsyncChainExecutor(registry=registry).execute(chain, initial_state=state))
+
+
+@pytest.mark.parametrize("executor_mode", ("sync", "async"))
+@pytest.mark.parametrize(
+    "producer",
+    (
+        pytest.param(_EmitRankThreePayload, id="ndarray"),
+        pytest.param(_EmitRankThreeListPayload, id="nested-list"),
+        pytest.param(_EmitRankThreeTuplePayload, id="nested-tuple"),
+    ),
+)
+def test_chain_rejects_incompatible_same_name_value_from_partial_fallback(
+    executor_mode: str, producer: type
+) -> None:
+    chain, registry, link = _compose_input_validation_chain(producer)
+    assert link.binding_count == 0
+    assert "payload" in link.unconnected_inputs
+
+    if executor_mode == "sync":
+        with pytest.raises(MethodContractError, match="payload.*MATRIX.*ndim=3"):
+            _execute_input_validation_chain(executor_mode, chain, registry, {})
+        return
+
+    with pytest.raises(AsyncChainExecutionError) as raised:
+        _execute_input_validation_chain(executor_mode, chain, registry, {})
+    assert len(raised.value.node_errors) == 1
+    error = raised.value.node_errors[0].error
+    assert isinstance(error, MethodContractError)
+    assert "payload" in str(error)
+    assert "MATRIX" in str(error)
+    assert "ndim=3" in str(error)
+
+
+@pytest.mark.parametrize("executor_mode", ("sync", "async"))
+@pytest.mark.parametrize(
+    ("state", "expected_total"),
+    (
+        pytest.param({"payload": np.ones((2, 2))}, 4.0, id="ndarray-fallback"),
+        pytest.param({"payload": [[1.0, 1.0], [1.0, 1.0]]}, 4.0, id="nested-list-fallback"),
+        pytest.param({"payload": ((1.0, 1.0), (1.0, 1.0))}, 4.0, id="nested-tuple-fallback"),
+        pytest.param(
+            {"payload": pd.DataFrame([[1.0, 1.0], [1.0, 1.0]])},
+            4.0,
+            id="dataframe-fallback",
+        ),
+        pytest.param({}, 0.0, id="absent-slot-default"),
+        pytest.param({"unrelated": np.ones((1, 2, 3))}, 0.0, id="unrelated-ambient-is-absent"),
+    ),
+)
+def test_chain_preserves_valid_partial_fallback_and_absent_default(
+    executor_mode: str, state: dict[str, Any], expected_total: float
+) -> None:
+    chain, registry, link = _compose_input_validation_chain(_EmitUnrelatedMatrix)
+    assert link.binding_count == 0
+    assert "payload" in link.unconnected_inputs
+
+    result = _execute_input_validation_chain(executor_mode, chain, registry, state)
+
+    assert result.final_state["total"] == pytest.approx(expected_total)
+
+@pytest.mark.parametrize("executor_mode", ("sync", "async"))
+def test_chain_rejects_recognized_ragged_fallback_before_dispatch(executor_mode: str) -> None:
+    chain, registry, link = _compose_input_validation_chain(_EmitUnrelatedMatrix)
+    assert link.binding_count == 0
+    assert "payload" in link.unconnected_inputs
+    state = {"payload": [[1.0], [1.0, 2.0]]}
+
+    if executor_mode == "sync":
+        with pytest.raises(MethodContractError, match="payload.*could not be coerced"):
+            _execute_input_validation_chain(executor_mode, chain, registry, state)
+        return
+
+    with pytest.raises(AsyncChainExecutionError) as raised:
+        _execute_input_validation_chain(executor_mode, chain, registry, state)
+    assert len(raised.value.node_errors) == 1
+    error = raised.value.node_errors[0].error
+    assert isinstance(error, MethodContractError)
+    assert "payload" in str(error)
+    assert "could not be coerced" in str(error)
+
+
+@pytest.mark.parametrize("executor_mode", ("sync", "async"))
+def test_chain_preserves_unsupported_scalar_fallback(executor_mode: str) -> None:
+    chain, registry, link = _compose_input_validation_chain(
+        _EmitUnrelatedMatrix, _ConsumeScalarPayload
+    )
+    assert link.binding_count == 0
+    assert "payload" in link.unconnected_inputs
+
+    result = _execute_input_validation_chain(
+        executor_mode, chain, registry, {"payload": Decimal("4.25")}
+    )
+
+    assert result.final_state["total"] == pytest.approx(4.25)

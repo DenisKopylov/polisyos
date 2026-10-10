@@ -57,7 +57,11 @@ from polisyos.foundry.methods.backends.chain_executor import (
 )
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.protocol import MethodResult
-from polisyos.foundry.methods.components.io import materialize_method_input, validate_value_for_slot
+from polisyos.foundry.methods.components.io import (
+    _validate_materialized_input_slots,
+    materialize_method_input,
+    validate_value_for_slot,
+)
 from polisyos.foundry.methods.exceptions import MethodContractError
 from polisyos.foundry.methods.selection.registry import MethodRegistry, get_registry
 
@@ -437,6 +441,9 @@ class AsyncChainExecutor:
             signature=signature,
             bound_inputs=bound_inputs,
             fallback_state=state,
+        )
+        _validate_materialized_input_slots(
+            signature=signature, materialized_state=materialized_state
         )
 
         async def _run() -> MethodResult:

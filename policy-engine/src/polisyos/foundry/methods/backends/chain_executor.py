@@ -33,6 +33,7 @@ from polisyos.foundry.methods.backends.runtime_fingerprint import (
 )
 from polisyos.foundry.methods.base import ComputeBackend, _stable_digest
 from polisyos.foundry.methods.components.io import (
+    _validate_materialized_input_slots,
     dematerialize_method_output,
     materialize_method_input,
     validate_value_for_slot,
@@ -439,6 +440,9 @@ def _collect_node_inputs(
         signature=signature,
         bound_inputs=bound_inputs,
         fallback_state=current_context,
+    )
+    _validate_materialized_input_slots(
+        signature=signature, materialized_state=materialized_state
     )
     return method_class, materialized_state, signature, combined_params
 

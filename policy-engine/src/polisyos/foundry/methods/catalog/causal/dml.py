@@ -124,6 +124,22 @@ class DoubleMachineLearning:
     )
 
     @staticmethod
+    def materialize_input(
+        bound_inputs: Mapping[str, Any],
+        fallback_state: Any,
+    ) -> HTEObservationalData:
+        """Validate the structured HTE payload consumed by the estimator."""
+        if not bound_inputs:
+            payload = fallback_state
+        elif set(bound_inputs) == {"hte_data"}:
+            payload = bound_inputs["hte_data"]
+        else:
+            raise ValueError("double_ml accepts only the declared hte_data input")
+        if isinstance(payload, HTEObservationalData):
+            return payload
+        return HTEObservationalData.model_validate(payload)
+
+    @staticmethod
     def pure_step(state: HTEObservationalData, params: Mapping[str, Any]) -> dict[str, Any]:
         try:
             require_econml()

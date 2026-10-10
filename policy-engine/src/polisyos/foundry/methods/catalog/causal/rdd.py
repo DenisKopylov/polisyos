@@ -300,6 +300,27 @@ class RegressionDiscontinuity:
     )
 
     @staticmethod
+    def materialize_input(
+        bound_inputs: Mapping[str, Any],
+        fallback_state: Any,
+    ) -> RDDObservationalData:
+        """Merge graph-bound vectors with the existing typed RDD context.
+
+        The cutoff is part of RDDObservationalData because it defines treatment
+        assignment. It is never inferred or defaulted from the vectors.
+        """
+        if isinstance(fallback_state, RDDObservationalData):
+            payload = fallback_state.model_dump(mode="python")
+        elif isinstance(fallback_state, Mapping):
+            payload = dict(fallback_state)
+        elif fallback_state is None:
+            payload = {}
+        else:
+            raise TypeError("RDD input state must be RDDObservationalData or a mapping")
+        payload.update(bound_inputs)
+        return RDDObservationalData.model_validate(payload)
+
+    @staticmethod
     def pure_step(state: RDDObservationalData, params: Mapping[str, Any]) -> dict[str, Any]:
         data = (
             state

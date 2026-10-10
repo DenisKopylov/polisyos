@@ -22,6 +22,23 @@ from polisyos.foundry.methods.base import (
 )
 
 
+def _materialize_named_input_slot(
+    bound_inputs: Mapping[str, Any],
+    fallback_state: Any,
+    *,
+    slot_name: str,
+) -> Mapping[str, Any]:
+    """Keep a single bound input under its declared slot name for pure_step."""
+    if bound_inputs:
+        if set(bound_inputs) != {slot_name}:
+            raise ValueError(f"expected exactly the {slot_name!r} input slot")
+        return dict(bound_inputs)
+
+    if isinstance(fallback_state, Mapping) and slot_name in fallback_state:
+        return fallback_state
+    raise ValueError(f"fallback state must contain the {slot_name!r} input slot")
+
+
 def _result_slot() -> frozenset[SlotSpec]:
     return frozenset({SlotSpec("result", SlotType.SCALAR, Unit("result", "json"))})
 
@@ -70,6 +87,15 @@ class MonteCarloEstimator:
         when_not_to_use="Likelihood is tractable; too slow model for required ABC tolerance",
         output_interpretation="Posterior distribution over simulation parameters. ABC posterior: parameters that reproduce observed statistics within tolerance.",
     )
+
+    @staticmethod
+    def materialize_input(
+        bound_inputs: Mapping[str, Any], fallback_state: Any
+    ) -> Mapping[str, Any]:
+        """Preserve the declared ``samples`` name across chain execution."""
+        return _materialize_named_input_slot(
+            bound_inputs, fallback_state, slot_name="samples"
+        )
 
     @staticmethod
     def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
@@ -154,6 +180,15 @@ class BootstrapInferenceEstimator:
         typical_min_obs=30,
         output_interpretation="Bootstrap CI for sample mean. Bias = bootstrap mean - observed mean. Stable CI = sufficient bootstrap draws.",
     )
+
+    @staticmethod
+    def materialize_input(
+        bound_inputs: Mapping[str, Any], fallback_state: Any
+    ) -> Mapping[str, Any]:
+        """Preserve the declared ``data`` name across chain execution."""
+        return _materialize_named_input_slot(
+            bound_inputs, fallback_state, slot_name="data"
+        )
 
     @staticmethod
     def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:

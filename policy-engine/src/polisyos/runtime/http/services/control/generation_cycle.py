@@ -1052,6 +1052,7 @@ async def compile_and_run_recursive_generation_cycle(
     cycle_substrate_context_resolver: Callable[[DesignProblem], object | None] | None = None,
     candidate_simulation_currentness_resolver: Callable[[], bool] | None = None,
     root_n4_generation_port: N4GenerationPort | None = None,
+    root_n4_generation_client: object | None = None,
     n4_recursive_source: GenerationUnderAResult | None = None,
     generation_source_repository: GenerationSourceRepository | None = None,
     recursive_leaf_context_owner: RecursiveLeafContextOwner | None = None,
@@ -1294,6 +1295,7 @@ async def compile_and_run_recursive_generation_cycle(
 
             root_source_port = N4GenerationPort(
                 model_id=model_name,
+                llm_client=root_n4_generation_client,
                 repo_root=repo_root,
                 cycle_substrate_context=cycle_substrate_context,
                 producer_run_id=producer_run_id,

@@ -3,8 +3,10 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+from collections.abc import AsyncIterator
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
+from typing import Any
 from uuid import uuid4
 
 import pytest
@@ -116,6 +118,23 @@ def _fixture_claims() -> UserIdentityClaims:
         iat=1,
         jti="jwt-fixture",
     )
+
+
+def _install_fixture_tenant_lifespan(app: Any) -> None:
+    """Keep the fixture's declared owner active in the API lifespan task."""
+    from contextlib import asynccontextmanager
+
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    original_lifespan = app.router.lifespan_context
+
+    @asynccontextmanager
+    async def fixture_tenant_lifespan(application: Any) -> AsyncIterator[Any]:
+        with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+            async with original_lifespan(application) as lifespan_state:
+                yield lifespan_state
+
+    app.router.lifespan_context = fixture_tenant_lifespan
 
 
 def test_runtime_api_defaults_core_runs_root_to_cas_runs(tmp_path) -> None:
@@ -1963,14 +1982,13 @@ async def _run_controlled_simulate_only_job_fixture(
     tmp_path,
     *,
     proposal_source_persistence_failure: bool = False,
-    fail_second_sibling: bool = False,
+    local_sibling_mechanism_witness: bool = False,
 ) -> SimpleNamespace:
-    """Run a synthetic owner-bound N4 candidate through a served N5 request.
+    """Run the controlled candidate N5 path; sibling mode is local mechanism only.
 
-    The witness binds each observed N5 candidate to its same-run persisted N4
-    source and actual joint-engine request. It does not establish N5 source
-    resolution, real-data grounding, production profile admission, N9, S8, or
-    publication authority.
+    The local sibling mode duplicates the root problem under test-only node refs
+    to exercise persisted partial-checkpoint and fresh-GET behavior. Those refs
+    are not source-derived child designs and establish no V6 source-positive.
     """
     from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
     from polisyos.core.security import (
@@ -2040,7 +2058,12 @@ async def _run_controlled_simulate_only_job_fixture(
         recording,
         outcome_variable=outcome_variable,
     )
-    store = FileSystemCAS(tmp_path / ".polisyos")
+    # Scope the CAS before profile, source, and context writes so the fresh
+    # tenant-scoped reader resolves the same owner-bound artifacts.
+    store = FileSystemCAS(tmp_path / ".polisyos").for_tenant(
+        "tenant-fixture",
+        "cell-fixture",
+    )
     profile, model_declaration = _configured_procurement_profile(
         recorded_problem=problem,
         artifact_store=store,
@@ -2294,7 +2317,7 @@ async def _run_controlled_simulate_only_job_fixture(
         assert get_current_access_scope_or_none() is None
         assert verified_nl_job_scope is not None
         verified_scope_observations.append(verified_nl_job_scope)
-        if fail_second_sibling:
+        if local_sibling_mechanism_witness:
             for changed_scope in (
                 verified_nl_job_scope.model_copy(update={"tenant_id": "foreign-tenant"}),
                 verified_nl_job_scope.model_copy(
@@ -2375,11 +2398,11 @@ async def _run_controlled_simulate_only_job_fixture(
                 candidate_simulation_handoff=handoff,
             )
             run_args = list(args)
-            if fail_second_sibling:
+            if local_sibling_mechanism_witness:
                 graph = run_args[0]
                 root_ref = graph.root_design_ref
-                first_ref = f"{root_ref}#successful-sibling"
-                second_ref = f"{root_ref}#failed-sibling"
+                first_ref = f"{root_ref}#local-mechanism-successful-sibling"
+                second_ref = f"{root_ref}#local-mechanism-failed-sibling"
                 root_problem = run_kwargs["problems_by_node"][root_ref]
                 child_graph = derive_recursive_design_graph(
                     design_ref=root_ref,
@@ -2447,7 +2470,7 @@ async def _run_controlled_simulate_only_job_fixture(
         build_fixture_recursive_controller,
     )
 
-    if fail_second_sibling:
+    if local_sibling_mechanism_witness:
         original_compile = generation_cycle_service.compile_and_run_recursive_generation_cycle
 
         async def compile_with_sibling_budget(**kwargs):
@@ -2994,11 +3017,17 @@ async def test_fresh_run_details_get_projects_the_persisted_candidate_simulation
         "build_fixture_identity_claims",
         _fixture_claims,
     )
-    app = create_runtime_api_app(
-        cas_root=tmp_path / ".polisyos",
-        core_runs_root=tmp_path / ".polisyos" / "runs",
-        allow_fixture_identity=True,
-    )
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    # Container-owned immutable artifacts share the fixture CAS; initialize the
+    # fresh reader under the same declared tenant/cell owner as those writes.
+    with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+        app = create_runtime_api_app(
+            cas_root=tmp_path / ".polisyos",
+            core_runs_root=tmp_path / ".polisyos" / "runs",
+            allow_fixture_identity=True,
+        )
+    _install_fixture_tenant_lifespan(app)
     try:
         with TestClient(app) as client:
             response = client.get(f"/api/v1/runs/{core_run_id}")
@@ -3016,6 +3045,73 @@ async def test_fresh_run_details_get_projects_the_persisted_candidate_simulation
             )
             assert projection["artifact_status"] == "resolved"
             assert projection["run_id"] == core_run_id
+
+            # The actual selected historical L2 input is withheld. The public
+            # reader must retain that source limitation and expose no derived
+            # child profile bindings. The root candidate-scenario N5 below is a
+            # separate candidate-only path and is not a recursive child result.
+            compiled_json = json.loads(fixture.compiled_payload)
+            from polisyos.core.artifacts.manifest import ArtifactRef
+            from polisyos.core.artifacts.store import ArtifactOwnershipError
+            from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+            recursive_source_ref = ArtifactRef.model_validate(
+                compiled_json["n4_recursive_source_ref"]
+            )
+            recursive_source_scope = {
+                "run_id": str(fixture.job.run_id),
+                "expected_job_id": fixture.job.job_id,
+                "expected_tenant_id": "tenant-fixture",
+                "expected_cell_id": "cell-fixture",
+            }
+            recursive_repository = GenerationSourceRepository(fixture.service._artifact_store)
+            recursive_source = recursive_repository.load(
+                recursive_source_ref, **recursive_source_scope
+            )
+            assert recursive_source.generation_result.status == "generation_unavailable"
+            foreign_scope_store = fixture.service._artifact_store.for_tenant(
+                "tenant-foreign", "cell-foreign"
+            )
+            with pytest.raises(ArtifactOwnershipError):
+                GenerationSourceRepository(foreign_scope_store).load(
+                    recursive_source_ref, **recursive_source_scope
+                )
+            assert compiled_json["n4_recursive_source_result_status"] == "generation_unavailable"
+            assert compiled_json["n4_child_profile_status"] == "not_established"
+            assert compiled_json["n4_child_profile_limitation_code"] == (
+                "n4_recursive_source_generation_not_complete"
+            )
+            assert compiled_json.get("n4_child_profile_bindings", []) == []
+            assert projection["n4_recursive_source_ref"] == recursive_source_ref.model_dump(
+                mode="json"
+            )
+            assert projection["n4_recursive_source_status"] == "resolved"
+            assert projection["n4_recursive_source_result_status"] == "generation_unavailable"
+            assert projection["n4_child_profile_status"] == "not_established"
+            assert projection["n4_child_profile_limitation_code"] == (
+                "n4_recursive_source_generation_not_complete"
+            )
+            assert projection.get("n4_child_profile_bindings", []) == []
+
+            n5_input = fixture.n5_port_observations[0].input_record
+            n4_source = GenerationSourceRepository(
+                fixture.service._artifact_store
+            ).load_candidate_scenario_source_for_n5(
+                n5_input.n4_source_ref,
+                expected_run_id=str(fixture.job.run_id),
+                expected_job_id=fixture.job.job_id,
+                expected_tenant_id="tenant-fixture",
+                expected_cell_id="cell-fixture",
+            )
+            source_v1 = n4_source.source_record.source_record
+            assert source_v1.authority_purpose == "candidate_scenario_n5_only"
+            assert source_v1.k_ref_limitation_code == "historical_l2_confidence_withheld"
+            assert source_v1.l2_confidence_vintage is not None
+            assert source_v1.l2_confidence_vintage.snapshot_sha256 == (
+                "583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967"
+            )
+            assert source_v1.l2_confidence_forwarded is False
+            assert source_v1.credal_reference_payload is None
             assert projection["source_ref"] == compiled_refs[0]
             assert (
                 projection["source_content_hash"]
@@ -3038,7 +3134,6 @@ async def test_fresh_run_details_get_projects_the_persisted_candidate_simulation
 
             store = fixture.service._artifact_store
             from polisyos.core.artifacts.ids import ArtifactID
-            from polisyos.core.artifacts.manifest import ArtifactRef
 
             compiled_manifest = store.get_manifest(ArtifactRef.model_validate(compiled_refs[0]))
             assert compiled_manifest.tenant_context is not None
@@ -3066,17 +3161,21 @@ async def test_fresh_run_details_get_projects_the_persisted_candidate_simulation
 
 @pytest.mark.skipif(TestClient is None, reason="fastapi is not installed")
 @pytest.mark.asyncio
-async def test_fresh_run_details_get_keeps_n5_and_failed_sibling_checkpoint(
+async def test_fresh_run_details_get_keeps_local_n5_and_sibling_failure_checkpoint(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,
 ) -> None:
-    """Serve a persisted N5 result beside the exact V3 sibling failure checkpoint."""
+    """Serve the local N5/checkpoint mechanism witness through a fresh GET.
+
+    This is bounded checkpoint-mechanism evidence, not an N4-derived-child
+    source-positive or V6 completion.
+    """
     from polisyos.runtime.http import dev_identity_middleware
 
     fixture = await _run_controlled_simulate_only_job_fixture(
         monkeypatch,
         tmp_path,
-        fail_second_sibling=True,
+        local_sibling_mechanism_witness=True,
     )
     core_run_id = str(fixture.job.progress["core_run_id"])
     compiled_payload = json.loads(fixture.compiled_payload)
@@ -3084,10 +3183,12 @@ async def test_fresh_run_details_get_keeps_n5_and_failed_sibling_checkpoint(
     successful_node = next(
         node
         for node in recursive_payload["nodes"]
-        if node["node_ref"].endswith("#successful-sibling")
+        if node["node_ref"].endswith("#local-mechanism-successful-sibling")
     )
     failed_node = next(
-        node for node in recursive_payload["nodes"] if node["node_ref"].endswith("#failed-sibling")
+        node
+        for node in recursive_payload["nodes"]
+        if node["node_ref"].endswith("#local-mechanism-failed-sibling")
     )
     assert failed_node["failure"]["error_code"] == "controlled_second_sibling_failure"
     successful_cycle = successful_node["cycle_run"]
@@ -3119,11 +3220,17 @@ async def test_fresh_run_details_get_keeps_n5_and_failed_sibling_checkpoint(
         "build_fixture_identity_claims",
         _fixture_claims,
     )
-    app = create_runtime_api_app(
-        cas_root=tmp_path / ".polisyos",
-        core_runs_root=tmp_path / ".polisyos" / "runs",
-        allow_fixture_identity=True,
-    )
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    # Container-owned immutable artifacts share the fixture CAS; initialize the
+    # fresh reader under the same declared tenant/cell owner as those writes.
+    with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+        app = create_runtime_api_app(
+            cas_root=tmp_path / ".polisyos",
+            core_runs_root=tmp_path / ".polisyos" / "runs",
+            allow_fixture_identity=True,
+        )
+    _install_fixture_tenant_lifespan(app)
     try:
         with TestClient(app) as client:
             response = client.get(f"/api/v1/runs/{core_run_id}")

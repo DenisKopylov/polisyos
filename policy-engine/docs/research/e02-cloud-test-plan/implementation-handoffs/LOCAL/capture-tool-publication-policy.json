@@ -1,0 +1,103 @@
+{
+  "schema": "policyos.e02.local_slice_author_capture.v1",
+  "registered_handoff_admission": "NOT_ADMITTED: bounded author tooling capture; no registered environment or G acceptance claimed",
+  "slice_id": "capture-tool-publication-policy",
+  "slice_base": {
+    "commit": "36486a35e330d6b7b322cada5b30274128e1467a",
+    "tree": "ccbf5ebfc1ba433cd289d13b57d32271d9f8d427"
+  },
+  "candidate_source": {
+    "commit": "d0fa7eddb66e62d0f252aec743c7a40802e3244b",
+    "tree": "710fa5130cc26895a383e47e6a82c68f5542c978"
+  },
+  "parents": [
+    "36486a35e330d6b7b322cada5b30274128e1467a"
+  ],
+  "source_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/composed-mac-tool-selftest-plan-20261010-r4.json",
+      "git_blob": "b9d0d09103dc3c184a24c4752c1a5be218f8aa49",
+      "sha256": "0914c48ea61aab134f9e370f9c2bcd3bf82b214926d39ca75d0b964d0e73a282"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed_mac_capture.py",
+      "git_blob": "19297ec3b12dd7bd9cdb5eb75f3b294e04285e03",
+      "sha256": "66e80681f28094adab1f8488e15233e804cd14db072c1e65189c4828501e2cbd"
+    }
+  ],
+  "selected_input_profile_backend": {
+    "backend": "local candidate Python and real Git",
+    "profile": "configured ignore-policy path and actual frozen-source refusal"
+  },
+  "verification": [
+    {
+      "command": [
+        ".venv/bin/python",
+        "-B",
+        "-c",
+        "import importlib.util,pathlib,json,subprocess; p=pathlib.Path(\"docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed_mac_capture.py\"); s=importlib.util.spec_from_file_location(\"actual_capture_policy_control\",p); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); rows=[]; wrapper,plugin=m.CAPTURE_TOOL_REL_PATHS; exec(\"for path,wanted in [(wrapper,0),(plugin,0),(\\\"AGENTS.md\\\",1)]:\\n argv=[\\\"check-ignore\\\",\\\"--no-index\\\",\\\"--quiet\\\",\\\"--\\\",path]; r=m.run_git(argv,check=False); assert r.returncode==wanted; rows.append({\\\"argv\\\":argv,\\\"exit_code\\\":r.returncode,\\\"stdout\\\":r.stdout.decode(),\\\"stderr\\\":r.stderr.decode()})\"); legacy=m.run_git([\"check-ignore\",\"--quiet\",\"--\",wrapper],check=False); assert legacy.returncode==1; rows.append({\"legacy_tracking_proxy_exit\":legacy.returncode}); plan=m.PRODUCT_ROOT/\"docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/composed-mac-final-replay-plan-20261010-r3.json\"; manifest=m.PRODUCT_ROOT/\"docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-source-inputs-20261010-r3.json\"; refused=None; exec(\"try:\\n m.verify_branch_and_freeze(\\\"36486a35e330d6b7b322cada5b30274128e1467a\\\",\\\"ccbf5ebfc1ba433cd289d13b57d32271d9f8d427\\\",plan_path=plan,plan_sha256=\\\"4a825bbc495f13efacadc835c88d86da138fdf6f092d5952659ced2fe016164e\\\",expected_wrapper_sha256=\\\"66e80681f28094adab1f8488e15233e804cd14db072c1e65189c4828501e2cbd\\\",expected_plugin_sha256=\\\"02e43a40767d23f2e042ea8d1d0c4db3585b3697de38db50e79e6e8136175352\\\",source_manifest_path=manifest,source_manifest_sha256=\\\"7970844ff6b80b271dd41f699a249d6def66e54c2495996a91f3ad172e9be084\\\")\\nexcept m.CaptureError as exc:\\n refused=str(exc)\"); assert refused and refused.startswith(\"initial frozen-source/runtime identity failed:\"); facts=json.loads(refused.split(\": \",1)[1]); assert facts[\"status\"]==\"FAIL\" and facts[\"source\"][\"status\"]==\"FAIL\"; print(json.dumps({\"schema\":\"policyos.author_capture_tool_policy_controls.v1\",\"policy_commands\":rows,\"actual_changed_source_freeze_refusal\":refused,\"status\":\"PASS narrow controls; current changed source refused\"},sort_keys=True))"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "execution_head": "36486a35e330d6b7b322cada5b30274128e1467a",
+      "exit_code": 0,
+      "wall_seconds": 14.153545582899824,
+      "before_sha256": {
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed_mac_capture.py": "66e80681f28094adab1f8488e15233e804cd14db072c1e65189c4828501e2cbd"
+      },
+      "after_sha256": {
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed_mac_capture.py": "66e80681f28094adab1f8488e15233e804cd14db072c1e65189c4828501e2cbd"
+      },
+      "result": "PASS narrow controls: configured tracked/untracked tool policy; out-of-policy path; actual changed-source freeze refusal",
+      "full_deciding_output": [
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/capture-tool-publication-policy-controls-20261010/command.json",
+          "sha256": "26526dfab58d547e2b5f741e1a3b88b1ec7f88548ffe8566f7788bd9a7987a25",
+          "bytes": 3490
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/capture-tool-publication-policy-controls-20261010/stdout.txt",
+          "sha256": "f65a4092d62a8f17ee4e60a8f3e1ffe2fd26a5c4d545ef5278472f3d90eee770",
+          "bytes": 111915
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/capture-tool-publication-policy-controls-20261010/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ]
+    }
+  ],
+  "real_chain": "actual Git path-policy predicate -> tool admission -> unchanged source/tree/byte gate -> changed-source refusal",
+  "controls": {
+    "legacy_tracked_proxy_exit": 1,
+    "configured_tool_path_exits": [
+      0,
+      0
+    ],
+    "out_of_policy_path_exit": 1,
+    "actual_live_source_gate": "FAIL",
+    "actual_live_tool_hash_gate": "PASS",
+    "source_refusal_reasons": [
+      "TRACKED_WORKTREE_DIFF",
+      "RAW_IMPORT_SOURCE_MANIFEST_MISMATCH",
+      "LOCAL_EXECUTABLE_CONFIG_MANIFEST_MISMATCH"
+    ]
+  },
+  "consumer_surface": "frozen replay CLI and audit receipt; actual consumer queue remains UNRUN",
+  "limitations": [
+    "Prior R3 self-test was PASS on f679c64 tool; its full19 launch refused before first consumer because default Git check-ignore hid tracked files",
+    "Current tool hash/input freeze changed; prior self-test is not a receipt for this revision",
+    "Fresh R4 self-test and full R3 19+11 queue remain UNRUN"
+  ],
+  "independent_reviews": [{"path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/capture-tool-publication-policy-independent-20261010.md", "sha256": "8837548c458279096bb9f47f8b65f41a72d823672d979bfe6240dc970d161dd9", "bytes": 6621}],
+  "closure_ids": [],
+  "proposal_fields": {
+    "task_routes": [
+      "BOOT0",
+      "Q1",
+      "DX0"
+    ],
+    "finding_ids": [],
+    "outcome": "bounded_tooling_predicate_repair_only"
+  }
+}

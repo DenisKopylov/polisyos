@@ -1,0 +1,12 @@
+# V3 post-hoc CAS binding prototype (unrun)
+
+This ignored raw prototype is a distinct V3 of the candidate-only V4 reconciliation. V1 remains immutable and NO-GO for incomplete provenance joins. V2 remains immutable and NO-GO because its shared JSON writer stored schema version `0.1.0` while the declared V2 descriptor and envelope readers require `0.2.0`.
+The V2 independent review is pinned at `docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/econml-v4-cas-binding-v2-independent-20261011.md` (SHA-256 `9dfda613438ebac08ee22031be53d7092e8927f936bb317b153be5fc03d50df5`).
+
+V3 changes the generic artifact-writing boundary: both `_put_bytes` and `_put_json` require a complete typed `SchemaInfo` value. Neither generic helper invents or defaults a schema version. The profile descriptor writer supplies `SchemaInfo(name=PROFILE_SCHEMA, version=PROFILE_VERSION)`; the envelope writer supplies `SchemaInfo(name=ENVELOPE_SCHEMA, version=ENVELOPE_VERSION)`. The remaining byte-artifact calls also pass their complete, declared `0.1.0` schema values. The fresh reader continues to enforce the exact declared V3 versions. This keeps version selection at each producer call site and makes every shared writer path explicit.
+
+V3 is separately versioned (`0.3.0`) across profile/envelope kinds, schema names, payload identities, pointer identity, and producer identity. It retains the same pinned historical V4 execution record, profile-source checkpoints, four original CAS artifacts, and 22 payload refusal controls as V2. The actual historical worker method FQN (`causal.hte.double_ml_worker_prototype@0.2.0`) and profile ID are not relabeled. The V2 input artifacts remain read-only; the planned V3 output uses a new pointer/readback path and append-only writes to the same ignored CAS root.
+
+No CAS write, prototype import/execution, test, or fit has been performed for V3. The planned writer/reader commands are pending independent review. A successful future run would establish only a post-hoc candidate binding over those retained artifacts; it would not establish original producer-emitted binding, causal identification/calibration, the MATRIX-to-structured-HTE MethodJob slot ABI, external verification, or a product consumer.
+
+Pattern pass: P01/P02 producer and bridge completeness; P05/P15 candidate authority boundary; P29/P32/P37/P38 behavioral and provenance verification; P40 same-class deeper repair widened across both generic writer helpers and all their callers. Product capability remains incomplete.

@@ -1,0 +1,237 @@
+{
+  "schema": "candidate.econml.v4-posthoc-cas-binding-command-plan@0.3.0",
+  "status": "NOT_RUN_PENDING_INDEPENDENT_REVIEW",
+  "executor": "root-owned local candidate run after independent review",
+  "fit_or_worker_execution": false,
+  "product_source_mutation": false,
+  "execution_identity": {
+    "record_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/econml-macos-arm64-worker-prototype.json",
+    "record_sha256": "b6482af1701ddb2d44defee4fc39d8ee682b0672a599c0397d31551337ea16ab",
+    "execution_head": "297b0557511234bb4b1bd3b09991cef0bd050a3f",
+    "execution_tree": "ad9ecc1c4bf2acd57b187b5a2534aa9f3b2d3ffd",
+    "post_run_source_checkpoint_head": "19b0486608f0c134fcbff174c88d32fef82edafe",
+    "post_run_source_checkpoint_tree": "b193643df4dcc876b1ccb8202411db099610f79e",
+    "source_checkpoint_sha256": "54f5b03a181f2b443934d4ccf6693c9685de8561bed3aae27a1f07abed9dfee2",
+    "remote_source_checkpoint_sha256": "7b6b827288354289a5b48eff480cfb3ac4d5de1ef576d557436324a0a3391fe7",
+    "source_checkpoint_file_count": 9
+  },
+  "profile": {
+    "profile_id": "econml-0.16.0-py312-macos-arm64-v4-prototype",
+    "method_fqn": "causal.hte.double_ml_worker_prototype@0.2.0",
+    "lock_sha256": "5016a249a7dbe37ad22a3e0e15ab495b9e63a5a2d7c3f68cbcba04ad09fbfb0d",
+    "profile_artifact_count": 9,
+    "runtime_scopes": [
+      "method_runner_host",
+      "isolated_estimator_worker",
+      "backend_evidence"
+    ],
+    "host_worker_library_versions_are_compared_for_identity": false
+  },
+  "existing_cas": {
+    "root": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-mac-real-methodjob-cas-fresh-reader-prototype-v4/cas",
+    "read_only": false,
+    "input_artifacts": [
+      {
+        "role": "source",
+        "artifact_id": "sha256:b1d4e29a4dc5a77cb617572f087f497bfb50abae19f900f2b40e70e0f3c3b9dc",
+        "manifest_sha256": "66c0e7e7e58a89d7a3ddc4166f5effd21fd8d3a28e141a5a6d9858dab41443c3"
+      },
+      {
+        "role": "adapter",
+        "artifact_id": "sha256:3c22f5e16e3d21ffe5ef7e9ccd405f8474b48db6ff117eed861c48cad1ff1241",
+        "manifest_sha256": "b031f16516428da4dd7e1eba9b0ad9b5c372fa3327f7075da2120ea135cb62ba"
+      },
+      {
+        "role": "method_result",
+        "artifact_id": "sha256:436675a2a5440340ee9ef0c058fdfe01c4fb8282e778db880778ba9f9be45303",
+        "manifest_sha256": "563735986c2bd020eae495acf8af629f0615a8281824f32d158ccbd3c1fb2d5c"
+      },
+      {
+        "role": "method_evidence",
+        "artifact_id": "sha256:43cacb0bbf2a68939165b9d537de6d79949846afa7a3642dbede829e2b28d241",
+        "manifest_sha256": "897107e96098dcafef2bdd2575e9712484e7635ff148acfcc38a567529906778"
+      }
+    ],
+    "v4_input_artifacts_read_only": true,
+    "v3_output_mode": "append_only_same_cas_root"
+  },
+  "prototype_source": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/reconcile_v4_cas.py",
+    "sha256": "44116673642f46cd02627c9fabe69ce747db7cba3949b7e97167ce45253fd1ea",
+    "bytes": 56721,
+    "static_ast_parse": "PLANNED_NOT_RUN"
+  },
+  "design_note": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/DESIGN.md",
+    "sha256": "3f120abc35928d7b9480bc34f192394ee8c45e86e9d79d80cb360462c4599064"
+  },
+  "static_checks": [
+    {
+      "kind": "ast_parse",
+      "status": "PLANNED_NOT_RUN",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-c",
+        "import ast; from pathlib import Path; p=Path(\"docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/reconcile_v4_cas.py\"); ast.parse(p.read_text()); print(\"AST_PASS\", p, p.stat().st_size)"
+      ],
+      "scope": "syntax only; command intentionally not run during prototype preparation"
+    },
+    {
+      "kind": "ruff",
+      "status": "PLANNED_NOT_RUN",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "ruff.toml",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/reconcile_v4_cas.py"
+      ],
+      "scope": "static lint only; command intentionally not run during prototype preparation"
+    }
+  ],
+  "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+  "environment": {
+    "python": ".venv/bin/python",
+    "python_flag": "-B",
+    "PYTHONPATH": "not required; prototype inserts product src after deriving product root",
+    "worker_interpreter": "not invoked"
+  },
+  "commands": [
+    {
+      "id": "write_posthoc_candidate_binding",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/reconcile_v4_cas.py",
+        "write",
+        "--pointer",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/binding-ref.json"
+      ],
+      "stdout_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/write.stdout.txt",
+      "stderr_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/write.stderr.txt",
+      "expected_exit_code": 0,
+      "expected_status": "written_candidate_only_posthoc_binding",
+      "expected_cas_put_calls": 15,
+      "wall_seconds": null,
+      "status": "PLANNED_NOT_RUN",
+      "fresh_output_requirement": "pointer path must not exist or be a symlink"
+    },
+    {
+      "id": "fresh_process_validate_binding_and_refusals",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/reconcile_v4_cas.py",
+        "read",
+        "--pointer",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/binding-ref.json",
+        "--output",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/fresh-reader-output.json"
+      ],
+      "stdout_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/read.stdout.txt",
+      "stderr_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/read.stderr.txt",
+      "expected_exit_code": 0,
+      "expected_status": "fresh_process_candidate_binding_read_succeeded",
+      "required_refusals": [
+        "generic_reference_substitution",
+        "stale_sibling_profile",
+        "forged_self_authority_field",
+        "envelope_mirrored_foreign_execution_source",
+        "envelope_mirrored_false_local_checkpoint_digest",
+        "envelope_mirrored_false_remote_checkpoint_digest",
+        "envelope_source_ref_wrong_kind",
+        "envelope_source_ref_wrong_media_type",
+        "envelope_source_ref_wrong_profile",
+        "host_worker_scope_swap",
+        "descriptor_foreign_execution_source",
+        "descriptor_false_local_checkpoint_digest",
+        "descriptor_false_remote_checkpoint_digest",
+        "descriptor_asset_ref_wrong_kind",
+        "descriptor_asset_ref_wrong_media_type",
+        "descriptor_asset_ref_wrong_profile",
+        "nested_result_source_ref_wrong_kind",
+        "nested_result_source_ref_wrong_media_type",
+        "nested_result_source_ref_wrong_profile",
+        "nested_evidence_result_ref_wrong_kind",
+        "nested_evidence_result_ref_wrong_media_type",
+        "nested_evidence_result_ref_wrong_profile"
+      ],
+      "wall_seconds": null,
+      "status": "PLANNED_NOT_RUN",
+      "fresh_output_requirement": "readback output path must not exist or be a symlink"
+    }
+  ],
+  "writes": {
+    "only_raw_receipt_paths_and_existing_ignored_cas": true,
+    "v4_input_artifacts_modified": false,
+    "product_source_modified": false,
+    "fit_repeated": false,
+    "prototype_or_cas_execution_performed": false,
+    "v3_artifacts_additive": true
+  },
+  "limits": [
+    "not an original producer-emitted binding",
+    "candidate computation only; no causal identification or calibration claim",
+    "does not resolve the MATRIX-to-structured-HTE MethodJob slot ABI",
+    "no external signature or production-support claim",
+    "no product consumer is established by this local prototype"
+  ],
+  "v1_predecessor": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-20261011/reconcile_v4_cas.py",
+    "sha256": "8c9009a7244490d7213f6fd7c5d082c054b671c7bca878fe1afbe5fcae2bb630",
+    "review": "NO_GO_same_class_deeper_full_provenance_reference_join",
+    "v1_bytes_modified": false
+  },
+  "prototype_identity": {
+    "version": "0.3.0",
+    "envelope_kind": "candidate.econml.historical_methodjob_binding.v3",
+    "envelope_schema": "polisyos.candidate.EconMLHistoricalMethodJobBindingV3@0.3.0",
+    "profile_kind": "candidate.econml.worker_profile_reconciliation.v3",
+    "profile_schema": "polisyos.candidate.EconMLWorkerProfileReconciliationV3@0.3.0",
+    "writer_component": "candidate.econml_v4_posthoc_cas_reconciler_v3"
+  },
+  "binding_invariants": [
+    "ProfileDescriptor is reconstructed from the pinned execution record, verified local and remote checkpoint bytes, nine source files bound by the recorded footprint, and runtime evidence bound by the historical result.",
+    "Complete strict typed model and canonical payload equality are required for descriptor and envelope; no partial field whitelist is used.",
+    "Descriptor and envelope ArtifactRefs are independently derived from canonical content and checked over artifact_id, kind, media_type, and manifest_profile_sha256.",
+    "Nested result source_ref and evidence method_result_ref pass the same complete ArtifactRef comparator; extra keys and noncanonical optional-field shapes are refused.",
+    "Manifest inputs compare complete typed InputRef values, including selected profile and role.",
+    "Host, isolated worker, and backend evidence scopes remain separate; host/worker package inventories are not required to match.",
+    "Both shared byte and JSON artifact writers require a complete typed SchemaInfo; they contain no hard-coded or fallback schema version. All call sites provide complete schema values, and profile/envelope versions come from the declared constants.",
+    "V1 and V2 remain immutable and unrun for this candidate; V3 has a distinct candidate artifact/schema identity. No CAS write or V3 reader execution has occurred."
+  ],
+  "schema_version_expectations": [
+    {
+      "role": "worker_profile",
+      "kind": "candidate.econml.worker_profile_reconciliation.v3",
+      "schema": "polisyos.candidate.EconMLWorkerProfileReconciliationV3",
+      "version": "0.3.0"
+    },
+    {
+      "role": "binding_envelope",
+      "kind": "candidate.econml.historical_methodjob_binding.v3",
+      "schema": "polisyos.candidate.EconMLHistoricalMethodJobBindingV3",
+      "version": "0.3.0"
+    },
+    {
+      "role": "remaining_bytes_artifacts",
+      "version": "0.1.0",
+      "rule": "each call site supplies a complete SchemaInfo value"
+    }
+  ],
+  "source_change_summary": "V3 makes both shared byte/JSON writers require complete SchemaInfo; all writer call sites now supply schema name and version. Descriptor/envelope use their V3 schema-version constants. Historical method FQN, profile, inputs, data, and scientific configuration are unchanged.",
+  "v2_predecessor": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v2-20261011/reconcile_v4_cas.py",
+    "sha256": "2eb9293cf273d7a4a7fbdf26b92e95da5af165d1e16a62e4cd49b74ebfa2914f",
+    "design_sha256": "2e237ea57aa427ac461017bdc6b64f6a2a9ce95e663f7fb3d93db06ee8cb6992",
+    "corrected_command_plan_sha256": "b298dff2e2e6f738554e6fff77de2a1a0d67d4127ef528f67ef562cea7016f32",
+    "review": "NO_GO_same_class_deeper_generic_schema_version_default",
+    "v2_bytes_modified": false,
+    "v2_execution_performed": false,
+    "review_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/econml-v4-cas-binding-v2-independent-20261011.md",
+    "review_sha256": "9dfda613438ebac08ee22031be53d7092e8927f936bb317b153be5fc03d50df5"
+  }
+}

@@ -1,0 +1,414 @@
+{
+  "authority": "candidate_computation_only",
+  "candidate": {
+    "bridge_sha256": "3d2aa2c2997117dfeebd5d712017b5a243f733b3ba5acbe4318ea9adecb9c5e8",
+    "harness_sha256": "f59cda52d2178abc0eb3ef7d576ec186356aa0e2366a1cb47960baf94e166a6d",
+    "lock_sha256": "5016a249a7dbe37ad22a3e0e15ab495b9e63a5a2d7c3f68cbcba04ad09fbfb0d",
+    "method_fqn": "causal.hte.double_ml_worker_prototype@0.2.0",
+    "method_signature_sha256": "d7a98b743df9f1b5909c2eb07b5fc5dcac0fd4049d420eb4408c021aa5bb985e",
+    "profile_id": "econml-0.16.0-py312-macos-arm64-v4-prototype",
+    "selected_runtime": {
+      "dispatch_backend": "numpy",
+      "dispatch_selection_reason": "declared_backend",
+      "server": {
+        "implementation": "CPython",
+        "machine": "arm64",
+        "macos_version": "27.0.1",
+        "python_version": "3.14.3",
+        "sys_platform": "darwin"
+      },
+      "worker": {
+        "distributions": {
+          "cloudpickle": "3.1.2",
+          "econml": "0.16.0",
+          "formulaic": "1.2.2",
+          "interface-meta": "2.0.1",
+          "joblib": "1.6.0",
+          "lightgbm": "4.7.0",
+          "llvmlite": "0.50.0",
+          "narwhals": "2.27.1",
+          "numba": "0.68.0",
+          "numpy": "2.5.3",
+          "packaging": "26.3",
+          "pandas": "3.0.6",
+          "patsy": "1.0.3",
+          "python-dateutil": "2.9.0.post0",
+          "scikit-learn": "1.6.1",
+          "scipy": "1.18.1",
+          "shap": "0.48.0",
+          "six": "1.17.0",
+          "slicer": "0.0.8",
+          "sparse": "0.19.2",
+          "statsmodels": "0.15.0",
+          "threadpoolctl": "3.7.0",
+          "tqdm": "4.70.1",
+          "typing-extensions": "4.16.0",
+          "wrapt": "2.5.0"
+        },
+        "executable": "/Users/deniskopylov/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/bin/python3.12",
+        "implementation": "CPython",
+        "machine": "arm64",
+        "macos_version": "27.0.1",
+        "python_version": "3.12.12",
+        "sys_platform": "darwin"
+      },
+      "worker_distribution_count": 25,
+      "worker_estimator_fqn": "econml.dml.LinearDML"
+    },
+    "source_footprint": [
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/.python-version",
+        "role": "candidate worker Python version selector",
+        "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d"
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/README.md",
+        "role": "frozen pre-run profile documentation; FIT_UNRUN wording is superseded by this execution record",
+        "sha256": "16ade74cdf2f2dea8e31c09ed31c22bcca8fb416bceb7344e010ca680d588e7e"
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/__init__.py",
+        "role": "candidate profile package marker",
+        "sha256": "78c552cca6ab9fc4fdfd1ce7224334638b2151a764fc5581e2007420f56f6822"
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/bridge.py",
+        "role": "server-side worker profile and MethodJob bridge",
+        "sha256": "3d2aa2c2997117dfeebd5d712017b5a243f733b3ba5acbe4318ea9adecb9c5e8"
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/method_job_harness.py",
+        "role": "actual MethodJob/CAS/fresh-reader harness and controls",
+        "sha256": "f59cda52d2178abc0eb3ef7d576ec186356aa0e2366a1cb47960baf94e166a6d"
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/protocol.py",
+        "role": "worker request/response protocol",
+        "sha256": "8fac20b4d13dfeb4e53b9b1d5d8a58ffb2da060d22693bb61da0570fa1ddedc2"
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/pyproject.toml",
+        "role": "isolated worker profile package and dependencies",
+        "sha256": "bd25749dfdb5a7bcf8833d2c23916a823e61cdf09d874c336e033b599fb1c15b"
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/uv.lock",
+        "role": "frozen CPython 3.12 macOS arm64 worker dependency lock",
+        "sha256": "5016a249a7dbe37ad22a3e0e15ab495b9e63a5a2d7c3f68cbcba04ad09fbfb0d"
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/worker.py",
+        "role": "EconML LinearDML worker implementation",
+        "sha256": "39828653fe092413f140203a93854864b2c61fceca62fd54a6c5c478d7cc8855"
+      }
+    ],
+    "worker_plus_protocol_sha256": "85f4ef138921b012f99a16a611da547e30a135f19a5c27d1fb6b417c010222a8"
+  },
+  "evidence_paths": {
+    "canonical_record": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/econml-macos-arm64-worker-prototype.json",
+    "decision_note": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/econml-macos-arm64-worker-prototype-v4-20261010.md",
+    "historical_prerun_receipt": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/verification/receipt.json",
+    "raw_run_directory": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-mac-real-methodjob-cas-fresh-reader-prototype-v4"
+  },
+  "execution": {
+    "actual_backend_path": "Foundry MethodJob dispatch selected declared numpy backend; the selected worker process executed EconML LinearDML.",
+    "argv": [
+      ".venv/bin/python",
+      "-B",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/method_job_harness.py",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-mac-real-methodjob-cas-fresh-reader-prototype-v4/cas",
+      "f59cda52d2178abc0eb3ef7d576ec186356aa0e2366a1cb47960baf94e166a6d"
+    ],
+    "artifact_refs": [
+      {
+        "artifact_ref": {
+          "artifact_id": "sha256:b1d4e29a4dc5a77cb617572f087f497bfb50abae19f900f2b40e70e0f3c3b9dc",
+          "kind": "prototype.hte_observational_data",
+          "media_type": "application/json"
+        },
+        "blob_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-mac-real-methodjob-cas-fresh-reader-prototype-v4/cas/artifacts/sha256/b1/d4/b1d4e29a4dc5a77cb617572f087f497bfb50abae19f900f2b40e70e0f3c3b9dc.blob",
+        "blob_sha256": "b1d4e29a4dc5a77cb617572f087f497bfb50abae19f900f2b40e70e0f3c3b9dc",
+        "manifest_inputs": [],
+        "manifest_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-mac-real-methodjob-cas-fresh-reader-prototype-v4/cas/artifacts/sha256/b1/d4/b1d4e29a4dc5a77cb617572f087f497bfb50abae19f900f2b40e70e0f3c3b9dc.manifest.json",
+        "manifest_sha256": "66c0e7e7e58a89d7a3ddc4166f5effd21fd8d3a28e141a5a6d9858dab41443c3",
+        "role": "source",
+        "schema": {
+          "name": "prototype.HTEObservationalData",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "artifact_ref": {
+          "artifact_id": "sha256:3c22f5e16e3d21ffe5ef7e9ccd405f8474b48db6ff117eed861c48cad1ff1241",
+          "kind": "scientist.unified_dag_adapter",
+          "media_type": "application/json"
+        },
+        "blob_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-mac-real-methodjob-cas-fresh-reader-prototype-v4/cas/artifacts/sha256/3c/22/3c22f5e16e3d21ffe5ef7e9ccd405f8474b48db6ff117eed861c48cad1ff1241.blob",
+        "blob_sha256": "3c22f5e16e3d21ffe5ef7e9ccd405f8474b48db6ff117eed861c48cad1ff1241",
+        "manifest_inputs": [],
+        "manifest_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-mac-real-methodjob-cas-fresh-reader-prototype-v4/cas/artifacts/sha256/3c/22/3c22f5e16e3d21ffe5ef7e9ccd405f8474b48db6ff117eed861c48cad1ff1241.manifest.json",
+        "manifest_sha256": "b031f16516428da4dd7e1eba9b0ad9b5c372fa3327f7075da2120ea135cb62ba",
+        "role": "adapter",
+        "schema": {
+          "name": "polisyos.scientist.UnifiedDagAdapter",
+          "version": "0.1.0"
+        }
+      },
+      {
+        "artifact_ref": {
+          "artifact_id": "sha256:436675a2a5440340ee9ef0c058fdfe01c4fb8282e778db880778ba9f9be45303",
+          "kind": "scientist.method_result.causal.hte",
+          "media_type": "application/json"
+        },
+        "blob_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-mac-real-methodjob-cas-fresh-reader-prototype-v4/cas/artifacts/sha256/43/66/436675a2a5440340ee9ef0c058fdfe01c4fb8282e778db880778ba9f9be45303.blob",
+        "blob_sha256": "436675a2a5440340ee9ef0c058fdfe01c4fb8282e778db880778ba9f9be45303",
+        "manifest_inputs": [
+          {
+            "artifact_id": "sha256:b1d4e29a4dc5a77cb617572f087f497bfb50abae19f900f2b40e70e0f3c3b9dc",
+            "role": "input:hte_data"
+          }
+        ],
+        "manifest_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-mac-real-methodjob-cas-fresh-reader-prototype-v4/cas/artifacts/sha256/43/66/436675a2a5440340ee9ef0c058fdfe01c4fb8282e778db880778ba9f9be45303.manifest.json",
+        "manifest_sha256": "563735986c2bd020eae495acf8af629f0615a8281824f32d158ccbd3c1fb2d5c",
+        "role": "method_result",
+        "schema": {
+          "name": "polisyos.scientist.MethodResult",
+          "version": "0.1.0"
+        }
+      },
+      {
+        "artifact_ref": {
+          "artifact_id": "sha256:43cacb0bbf2a68939165b9d537de6d79949846afa7a3642dbede829e2b28d241",
+          "kind": "scientist.method_evidence",
+          "media_type": "application/json"
+        },
+        "blob_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-mac-real-methodjob-cas-fresh-reader-prototype-v4/cas/artifacts/sha256/43/ca/43cacb0bbf2a68939165b9d537de6d79949846afa7a3642dbede829e2b28d241.blob",
+        "blob_sha256": "43cacb0bbf2a68939165b9d537de6d79949846afa7a3642dbede829e2b28d241",
+        "manifest_inputs": [
+          {
+            "artifact_id": "sha256:436675a2a5440340ee9ef0c058fdfe01c4fb8282e778db880778ba9f9be45303",
+            "role": "method_result"
+          }
+        ],
+        "manifest_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-mac-real-methodjob-cas-fresh-reader-prototype-v4/cas/artifacts/sha256/43/ca/43cacb0bbf2a68939165b9d537de6d79949846afa7a3642dbede829e2b28d241.manifest.json",
+        "manifest_sha256": "897107e96098dcafef2bdd2575e9712484e7635ff148acfcc38a567529906778",
+        "role": "method_evidence",
+        "schema": {
+          "name": "polisyos.scientist.MethodExecutionEvidence",
+          "version": "0.1.0"
+        }
+      }
+    ],
+    "cas_root": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-mac-real-methodjob-cas-fresh-reader-prototype-v4/cas",
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "environment": {
+      "MKL_NUM_THREADS": "1",
+      "NUMBA_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "PYTHONPATH": "src"
+    },
+    "exit_code": 0,
+    "method_job_id": "job:81d7cc9123fe6824a9f87e376a08471091e8d1662e4448c44769aeb3c32fa1fa",
+    "outputs": {
+      "full_output_index": "command.json outputs map lists the complete CAS, manifest, lock, stdout, and stderr writes; this record references selected semantic artifacts without copying raw captures.",
+      "stderr": {
+        "bytes": 0,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-mac-real-methodjob-cas-fresh-reader-prototype-v4/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 2870,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-mac-real-methodjob-cas-fresh-reader-prototype-v4/stdout.txt",
+        "sha256": "f0db572c7f91dac982d392673fce26646e73bfc731dc90c52530468007062486"
+      }
+    },
+    "owner": "root",
+    "wall_seconds": 27.45524675003253
+  },
+  "fixture": {
+    "authority_note": "controlled repository fixture, not an independently issued observational dataset",
+    "data_sha256": "50e2046901039accd048451a3d7759c0bb7aee505a1b7d29370552cf6951896a",
+    "producer_function": "_synthetic_hte_data(n=400, seed=42)",
+    "producer_path": "tests/unit/foundry/methods/catalog/causal/test_hte_methods.py",
+    "producer_sha256": "0abb23a8e056aa7d77601647c2834945bfce7b97c67d3d9bd3b31dd2d19f6127",
+    "request_id": "58555d0c665d92b77b44c68080c5027d3d33b66396886a600196852c6970524e",
+    "request_sha256": "9893ae87238ad505d6aaf8436dcb0c285eecd0c929f3d9581dd8e9c47bc5281b",
+    "row_order_sha256": "27062dbb3a90ce7aa097f4bee5f61ee736b22131c02ae3fd701765864dfa440d",
+    "rows": 400,
+    "seed": 42,
+    "source_artifact_ref": {
+      "artifact_id": "sha256:b1d4e29a4dc5a77cb617572f087f497bfb50abae19f900f2b40e70e0f3c3b9dc",
+      "kind": "prototype.hte_observational_data",
+      "media_type": "application/json"
+    },
+    "source_content_sha256": "b1d4e29a4dc5a77cb617572f087f497bfb50abae19f900f2b40e70e0f3c3b9dc"
+  },
+  "limitations": [
+    "This is an experimental local Mac arm64 worker profile, not production backend support.",
+    "A successful MethodJob computation and exact same-input direct-fit equality do not establish causal identification, calibration, statistical accuracy, external validity, or policy admissibility.",
+    "The DGP RMSE and known sample ATE are diagnostics only; no accuracy threshold is claimed.",
+    "The frozen profile README and pre-run verification receipt retain their original pre-execution FIT_UNRUN status; this record is the separate post-run execution record and does not rewrite those historical captures.",
+    "No external scientific issuer attested causal truth; the source is the repository synthetic HTE fixture."
+  ],
+  "record_schema": "polisyos.econml_macos_arm64_worker_prototype.v1",
+  "record_status": "executed_candidate_computation_only",
+  "source_revision": {
+    "head": "297b0557511234bb4b1bd3b09991cef0bd050a3f",
+    "tree": "ad9ecc1c4bf2acd57b187b5a2534aa9f3b2d3ffd",
+    "product_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "run_command_record": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-mac-real-methodjob-cas-fresh-reader-prototype-v4/command.json",
+    "run_command_record_sha256": "b8bc85c2112a3c67e509c75a6c3abcdbe3670c1f67d7fd781f2b18867cca54c4"
+  },
+  "profile_source_checkpoint": {
+    "head": "19b0486608f0c134fcbff174c88d32fef82edafe",
+    "tree": "b193643df4dcc876b1ccb8202411db099610f79e",
+    "parent": "297b0557511234bb4b1bd3b09991cef0bd050a3f",
+    "readback": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-prototype-source-checkpoint-20261010/readback.json",
+    "readback_sha256": "54f5b03a181f2b443934d4ccf6693c9685de8561bed3aae27a1f07abed9dfee2",
+    "remote_readback": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-prototype-source-checkpoint-20261010/remote-readback.json",
+    "remote_readback_sha256": "7b6b827288354289a5b48eff480cfb3ac4d5de1ef576d557436324a0a3391fe7",
+    "relation_to_execution": "Post-run source checkpoint. Its nine listed profile files match the exact V4 profile source hashes used in the execution at source_revision.head; this checkpoint itself did not run the fit.",
+    "profile_source_count": 9
+  },
+  "verification": {
+    "diagnostic_only": {
+      "cate_rmse_against_dgp": 0.05343729401821093,
+      "known_sample_ate": 0.0014882616631714308
+    },
+    "direct_reference": {
+      "comparison": "separate direct LinearDML fit on the same serialized rows, estimator configuration, and seed; exact equality asserted for ATE, all CATE entries, and the ATE interval",
+      "configuration": {
+        "confidence_level": {
+          "_type": "float",
+          "repr": "0.94999999999999996"
+        },
+        "control_value": 0,
+        "cv_folds": 3,
+        "discrete_treatment": true,
+        "estimator_fqn": "econml.dml.LinearDML",
+        "model_t": "auto",
+        "model_y": "auto",
+        "treatment_value": 1
+      },
+      "reference": "exact_same_data_config_seed_match",
+      "worker_observed": {
+        "ate": {
+          "_type": "float",
+          "repr": "-0.02827941536086603"
+        },
+        "ate_ci_lower": {
+          "_type": "float",
+          "repr": "-0.10944755413574433"
+        },
+        "ate_ci_upper": {
+          "_type": "float",
+          "repr": "0.052888723414012268"
+        },
+        "cate_count": 400
+      }
+    },
+    "method_job_cas_fresh_reader": {
+      "fresh_reader_result_id": "sha256:436675a2a5440340ee9ef0c058fdfe01c4fb8282e778db880778ba9f9be45303",
+      "fresh_reader_rows": 400,
+      "fresh_reader_status": "passed",
+      "manifest_edges": {
+        "adapter_manifest_inputs": [],
+        "method_evidence_inputs": [
+          {
+            "artifact_id": "sha256:436675a2a5440340ee9ef0c058fdfe01c4fb8282e778db880778ba9f9be45303",
+            "role": "method_result"
+          }
+        ],
+        "method_result_inputs": [
+          {
+            "artifact_id": "sha256:b1d4e29a4dc5a77cb617572f087f497bfb50abae19f900f2b40e70e0f3c3b9dc",
+            "role": "input:hte_data"
+          }
+        ]
+      },
+      "method_evidence_id": "sha256:43cacb0bbf2a68939165b9d537de6d79949846afa7a3642dbede829e2b28d241",
+      "method_result_id": "sha256:436675a2a5440340ee9ef0c058fdfe01c4fb8282e778db880778ba9f9be45303",
+      "status": "candidate_computation_only"
+    },
+    "negative_controls": [
+      {
+        "context": "worker request carries a profile not selected by the server; protocol rejects it",
+        "observed_label": "unselected_profile_refused",
+        "outcome": "refused",
+        "sequence": 1
+      },
+      {
+        "context": "worker request carries the V3 method FQN and V3 profile; protocol rejects it",
+        "observed_label": "previous_profile_refused",
+        "outcome": "refused",
+        "sequence": 2
+      },
+      {
+        "context": "server profile asset check receives the V3 worker+protocol code digest",
+        "observed_label": "previous_code_digest_refused",
+        "outcome": "refused",
+        "sequence": 3
+      },
+      {
+        "context": "worker response substitutes an all-zero lock digest",
+        "observed_label": "lock_substitution_refused",
+        "outcome": "refused",
+        "sequence": 4
+      },
+      {
+        "context": "server profile asset check receives an all-zero bridge digest",
+        "observed_label": "bridge_substitution_refused",
+        "outcome": "refused",
+        "sequence": 5
+      },
+      {
+        "context": "worker response omits the required job_id field",
+        "observed_label": "malformed_response_refused",
+        "outcome": "refused",
+        "sequence": 6
+      },
+      {
+        "context": "worker result alteration is refused both with stale result digest and after recomputing that digest",
+        "observed_label": "substituted_result_refused",
+        "outcome": "refused",
+        "sequence": 7
+      },
+      {
+        "context": "request row IDs are permuted and request/data digests are recomputed; source order binding rejects it",
+        "observed_label": "row_permutation_refused",
+        "outcome": "refused",
+        "sequence": 8
+      },
+      {
+        "context": "fresh reader is pointed at the V3 profile directory while reading V4 artifacts",
+        "observed_label": "previous_profile_refused",
+        "outcome": "refused",
+        "sequence": 9
+      },
+      {
+        "context": "fresh reader is given the V3 harness digest for V4 artifacts",
+        "observed_label": "previous_harness_digest_refused",
+        "outcome": "refused",
+        "sequence": 10
+      }
+    ]
+  },
+  "slice": {
+    "base": "297b0557511234bb4b1bd3b09991cef0bd050a3f",
+    "candidate": "19b0486608f0c134fcbff174c88d32fef82edafe",
+    "tree": "b193643df4dcc876b1ccb8202411db099610f79e",
+    "parents": [
+      "297b0557511234bb4b1bd3b09991cef0bd050a3f"
+    ],
+    "scope": "exact nine-file experimental worker source checkpoint; global source/input/backend freeze pending"
+  },
+  "closure_ids": [],
+  "additional_verified_boundaries": {
+    "profile_ref": "Profile is bound by exact fields/files; no CAS profile-ref lineage is claimed by V4.",
+    "adapter_lineage": "The result manifest binds the source but does not bind the adapter artifact ref. A separate candidate envelope prototype is being prepared; it will not rewrite the V4 execution.",
+    "library_version_scopes": "MethodExecutionEvidence capture_versions describes the host NumpyRunner environment. Candidate binding describes the distinct isolated EconML worker environment. The two version inventories are not interchangeable and do not prove installed package byte identity.",
+    "structured_input_abi": "The wrapper computes with a structured HTE observational-data value under an existing MATRIX declaration. The V4 execution does not establish that structured value as a conforming typed MATRIX slot or close the original four HTE methods.",
+    "next_check": "Execute a separately identified source/profile/adapter/result/evidence reconciliation prototype with fresh-reader and substitution controls, then obtain G adjudication for the structured input contract."
+  }
+}

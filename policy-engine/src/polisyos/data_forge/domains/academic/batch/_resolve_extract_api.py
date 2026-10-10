@@ -6,10 +6,11 @@ import asyncio
 import gc
 import json
 import math
-import random
+import random as random
 import re
 import time
-from collections import defaultdict, deque
+from collections import defaultdict
+from collections import deque as deque
 from dataclasses import replace
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
@@ -21,25 +22,87 @@ from polisyos.common.logger import get_logger
 from polisyos.data_forge.domains.academic.batch._resolve_extract_contracts import (
     EligibilityDecision,
     EligibleItem,
-    ProviderResponse,
     ResolveExtractStats,
     WorkItem,
 )
+from polisyos.data_forge.domains.academic.batch._resolve_extract_contracts import (
+    ProviderResponse as ProviderResponse,
+)
+from polisyos.data_forge.domains.academic.batch._resolve_extract_io import (
+    _apply_doc_ready_payload,
+    _count_progress_state,
+    _jsonl_append,
+    _load_doc_routing,
+    _load_jsonl_from_offset,
+    _load_jsonl_grouped,
+    _load_jsonl_keyed,
+    _load_jsonl_lazy,
+    _load_metadata_cache,
+    _load_progress,
+    _percentile,
+    _persist_timeout_retry_queue,
+    _prefetch_priority,
+    _raise_if_task_failed,
+    _reset_output_paths,
+    _resolve_extract_artifacts,
+    _resolve_paper_kind,
+    _route_entry_for_lane,
+    _terminal_state,
+    _topic_id_for_row,
+    _topic_ids_for_row,
+    _topic_names_for_row,
+    _write_progress,
+)
+from polisyos.data_forge.domains.academic.batch._resolve_extract_providers import (
+    GonkaMultiKeyPool,
+    _await_provider_json,
+    _empty_provider_response,
+    _resolve_provider_watchdog_seconds,
+)
+from polisyos.data_forge.domains.academic.batch._resolve_extract_transformers import (
+    _apply_extraction_lane,
+    _apply_publish_gate,
+    _build_claim_inventory,
+    _build_numeric_rescue_prompt,
+    _build_streaming_evidence_bundle,
+    _build_track_b_prompt,
+    _build_track_c_prompt,
+    _deterministic_numeric_rescue_parameters,
+    _eligibility_gate,
+    _has_high_precision_numeric_parameter,
+    _merge_numeric_parameter_lists,
+    _needs_numeric_rescue,
+    _normalize_context_lane_result,
+    _post_resolve_priority,
+    _prompt_for_bundle,
+    _reconcile_tracks,
+    _to_claim_row,
+)
 from polisyos.data_forge.domains.academic.batch.article_extractor import (
-    _CLAIM_SENTENCE_RE,
-    _METHOD_SENTENCE_RE,
-    _RESULT_SENTENCE_RE,
+    _CLAIM_SENTENCE_RE as _CLAIM_SENTENCE_RE,
+)
+from polisyos.data_forge.domains.academic.batch.article_extractor import (
+    _METHOD_SENTENCE_RE as _METHOD_SENTENCE_RE,
+)
+from polisyos.data_forge.domains.academic.batch.article_extractor import (
+    _RESULT_SENTENCE_RE as _RESULT_SENTENCE_RE,
+)
+from polisyos.data_forge.domains.academic.batch.article_extractor import (
     _as_list,
-    _build_evidence_bundle,
     _normalize_context_attribute,
     _normalize_empirical_parameter,
     _normalize_extraction_payload,
     _normalize_moderation_edge,
     _normalized_text,
-    _parse_json_object,
     _to_work_record,
 )
-from polisyos.data_forge.domains.academic.batch.claim_ids import stable_claim_id
+from polisyos.data_forge.domains.academic.batch.article_extractor import (
+    _build_evidence_bundle as _build_evidence_bundle,
+)
+from polisyos.data_forge.domains.academic.batch.article_extractor import (
+    _parse_json_object as _parse_json_object,
+)
+from polisyos.data_forge.domains.academic.batch.claim_ids import stable_claim_id as stable_claim_id
 from polisyos.data_forge.domains.academic.batch.context_classifier import infer_context_from_article
 from polisyos.data_forge.domains.academic.batch.fulltext_resolver import (
     FullTextFetchResult,
@@ -47,36 +110,65 @@ from polisyos.data_forge.domains.academic.batch.fulltext_resolver import (
     fetch_full_text_result_for_work,
     reconstruct_abstract,
 )
-from polisyos.data_forge.domains.academic.batch.parser import extract_numerical_estimates
+from polisyos.data_forge.domains.academic.batch.parser import (
+    extract_numerical_estimates as extract_numerical_estimates,
+)
 from polisyos.data_forge.domains.academic.batch.prompts import (
-    CONTEXT_EXTRACTION_SCHEMA_HINT,
-    MODERATOR_EXTRACTION_SCHEMA_HINT,
+    CONTEXT_EXTRACTION_SCHEMA_HINT as CONTEXT_EXTRACTION_SCHEMA_HINT,
+)
+from polisyos.data_forge.domains.academic.batch.prompts import (
+    MODERATOR_EXTRACTION_SCHEMA_HINT as MODERATOR_EXTRACTION_SCHEMA_HINT,
+)
+from polisyos.data_forge.domains.academic.batch.prompts import (
     PAPER_CLASSIFICATION_PROMPT,
 )
 from polisyos.data_forge.domains.academic.knowledge.variable_canonizer import VariableCanonizer
-from polisyos.data_forge.domains.academic.openalex.priority_filter import should_process
+from polisyos.data_forge.domains.academic.openalex.priority_filter import (
+    should_process as should_process,
+)
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
 from polisyos.ir.analytics.literature import (
     ArticleExtractionResult,
-    CausalClaim,
-    ClaimType,
-    ContextAttribute,
     DesignFamily,
-    EvidenceParameter,
-    EvidenceSpan,
-    EvidenceStrength,
-    HeterogeneityResult,
-    ModerationEdge,
     PaperKind,
-    ParameterType,
     SourceBasis,
     TextQuality,
 )
+from polisyos.ir.analytics.literature import (
+    CausalClaim as CausalClaim,
+)
+from polisyos.ir.analytics.literature import (
+    ClaimType as ClaimType,
+)
+from polisyos.ir.analytics.literature import (
+    ContextAttribute as ContextAttribute,
+)
+from polisyos.ir.analytics.literature import (
+    EvidenceParameter as EvidenceParameter,
+)
+from polisyos.ir.analytics.literature import (
+    EvidenceSpan as EvidenceSpan,
+)
+from polisyos.ir.analytics.literature import (
+    EvidenceStrength as EvidenceStrength,
+)
+from polisyos.ir.analytics.literature import (
+    HeterogeneityResult as HeterogeneityResult,
+)
+from polisyos.ir.analytics.literature import (
+    ModerationEdge as ModerationEdge,
+)
+from polisyos.ir.analytics.literature import (
+    ParameterType as ParameterType,
+)
 
 if TYPE_CHECKING:
-    from pathlib import Path
 
     from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
+
+type _ProgressValue = (
+    str | int | float | bool | None | list[_ProgressValue] | dict[str, _ProgressValue]
+)
 
 logger = get_logger(__name__)
 
@@ -122,12 +214,14 @@ _STRONG_METHOD_PATTERNS: dict[str, re.Pattern[str]] = {
         r"\b(event study|dynamic treatment effects|lead[s]? and lag[s]?)\b", re.IGNORECASE
     ),
     DesignFamily.QUASI_EXPERIMENTAL_OTHER.value: re.compile(
-        r"\b(natural experiment|quasi[- ]experimental|exogenous shock|policy discontinuity|staggered adoption)\b",
+        r"\b(natural experiment|quasi[- ]experimental|exogenous shock|policy discontinuity|"
+        r"staggered adoption)\b",
         re.IGNORECASE,
     ),
 }
 _DOWNGRADE_PATTERNS = re.compile(
-    r"\b(correlation|associat(?:ion|ive)|cross[- ]sectional|ols only|ordinary least squares only|panel fixed effects only)\b",
+    r"\b(correlation|associat(?:ion|ive)|cross[- ]sectional|ols only|ordinary least squares only|"
+    r"panel fixed effects only)\b",
     re.IGNORECASE,
 )
 # Phrases that negate a downgrade keyword — e.g. "beyond mere correlation",
@@ -155,10 +249,14 @@ def _has_downgrade_signal(text: str) -> bool:
 # Excludes weak data-type terms (regression, panel data, OLS, admin data) that are
 # necessary but not sufficient for causal identification.
 _STRONG_IDENTIFICATION_RE = re.compile(
-    r"\b(randomi[sz]ed|random assignment|random lottery|field experiment|audit study|correspondence study|"
-    r"survey experiment|lab(?:oratory)? experiment|encouragement design|instrumental variable|2sls|tsls|"
-    r"difference.?in.?differences?|did\b|regression discontinuity|rdd\b|synthetic control|event study|"
-    r"natural experiment|quasi[- ]experimental|staggered adoption|staggered rollout|exogenous shock|"
+    r"\b(randomi[sz]ed|random assignment|random lottery|field experiment|audit study|"
+    r"correspondence study|"
+    r"survey experiment|lab(?:oratory)? experiment|encouragement design|instrumental variable|2sls|"
+    r"tsls|"
+    r"difference.?in.?differences?|did\b|regression discontinuity|rdd\b|synthetic control|event "
+    r"study|"
+    r"natural experiment|quasi[- ]experimental|staggered adoption|staggered rollout|exogenous "
+    r"shock|"
     r"propensity score|matching estimat\w+|causal forest|bunching design)\b",
     re.IGNORECASE,
 )
@@ -180,10 +278,14 @@ _METHOD_ONLY_RE = re.compile(
     re.IGNORECASE,
 )
 _EMPIRICAL_DATA_RE = re.compile(
-    r"\b(administrative data|registry data|register data|panel data|longitudinal data|survey data|census data|microdata|"
-    r"matched employer[- ]employee|linked data|transaction data|tax records?|firm-level data|household survey|"
-    r"personnel records?|field experiment|audit study|correspondence study|survey experiment|lab(?:oratory)? experiment|"
-    r"natural experiment|quasi[- ]experimental|policy reform|staggered adoption|staggered rollout)\b",
+    r"\b(administrative data|registry data|register data|panel data|longitudinal data|survey data|"
+    r"census data|microdata|"
+    r"matched employer[- ]employee|linked data|transaction data|tax records?|firm-level data|"
+    r"household survey|"
+    r"personnel records?|field experiment|audit study|correspondence study|survey experiment|"
+    r"lab(?:oratory)? experiment|"
+    r"natural experiment|quasi[- ]experimental|policy reform|staggered adoption|staggered "
+    r"rollout)\b",
     re.IGNORECASE,
 )
 _ACCESS_SHELL_RE = re.compile(
@@ -192,7 +294,8 @@ _ACCESS_SHELL_RE = re.compile(
     re.IGNORECASE,
 )
 _CONTEXT_CLASSIFICATION_RE = re.compile(
-    r"\b(governance|institutional(?: quality)?|institutions?|historical|history|geograph(?:ic|ical)|regional|"
+    r"\b(governance|institutional(?: quality)?|institutions?|historical|history|geograph(?:ic|"
+    r"ical)|regional|"
     r"cross-country|across countries|space and time|sustainable development|sdg|policy perspective|"
     r"administrative burden|development finance|context(?:ual)?|country comparison)\b",
     re.IGNORECASE,
@@ -203,7 +306,8 @@ _HETEROGENEITY_CLASSIFICATION_RE = re.compile(
     re.IGNORECASE,
 )
 _RESULT_CUE_RE = re.compile(
-    r"\b(we find|results show|effect on|impact on|increas\w*|decreas\w*|reduc\w*|rais\w*|improv\w*|lead(?:s|ing)? to|caus(?:e|es|ed|ing))\b",
+    r"\b(we find|results show|effect on|impact on|increas\w*|decreas\w*|reduc\w*|rais\w*|"
+    r"improv\w*|lead(?:s|ing)? to|caus(?:e|es|ed|ing))\b",
     re.IGNORECASE,
 )
 _PRECISION_RESULT_CUE_RE = re.compile(
@@ -218,7 +322,8 @@ _PRECISION_RESULT_CUE_RE = re.compile(
 )
 _DESCRIPTIVE_ONLY_RE = re.compile(
     r"\b("
-    r"descriptive study|descriptive analysis|cross[- ]sectional non[- ]analytic|frequency distribution|"
+    r"descriptive study|descriptive analysis|cross[- ]sectional non[- ]analytic|frequency "
+    r"distribution|"
     r"univariate analysis|bivariate analysis|most respondents|mostly good|mostly positive|"
     r"prevalence|awareness level|knowledge level|attitude level"
     r")\b",
@@ -431,10 +536,12 @@ _CONTEXT_EFFECT_ESTIMATE_RE = re.compile(
 )
 _CONTAMINATION_RE = re.compile(
     r"(?i)"
-    r"(accesses|citations|altmetric|explore all metrics|download pdf|view pdf|view abstract|cookie policy|"
+    r"(accesses|citations|altmetric|explore all metrics|download pdf|view pdf|view abstract|cookie "
+    r"policy|"
     r"accept cookies|cookie preferences|cookie consent|manage cookies|we use cookies|"
     r"all rights reserved|copyright \d{4}|doi\.org/\S+|https?://\S{20,}|research output|"
-    r"journal contributions|prodotti della ricerca|retrieved from https?://\S+|institutional login|sign in to access|"
+    r"journal contributions|prodotti della ricerca|retrieved from https?://\S+|institutional login|"
+    r"sign in to access|"
     r"download citation|export citation|cite this article|"
     r"published by (?:springer|elsevier|wiley|taylor|sage|oxford|cambridge|mdpi|frontiers)|"
     r"received:?\s*\d{1,2}\s+\w+\s+\d{4}.*?accepted:?\s*\d{1,2}\s+\w+\s+\d{4}|"
@@ -444,7 +551,8 @@ _CONTAMINATION_RE = re.compile(
     r"funding\s+(?:information|statement|this (?:work|research|study) was)|"
     r"declaration of (?:competing )?interests?|conflict of interest statement|"
     # -- publisher UI navigation chrome --
-    r"skip to (?:main content|content|navigation)|find a journal|publish with us|track your research|"
+    r"skip to (?:main content|content|navigation)|find a journal|publish with us|track your "
+    r"research|"
     r"saved research|search cart|advertisement log in|log in menu|"
     r"aims and scope|submit manuscript|save article|view saved|"
     # -- related articles / similar content --
@@ -518,8 +626,12 @@ Each empirical_parameters object:
   "value_qualitative": null,
   "confidence_interval": [ci_lower, ci_upper]|null,
   "std_error": number|null,
-  "unit": "percentage_points|percent|log_points|ratio|elasticity|odds_ratio|hazard_ratio|coefficient|usd|index|...",
-  "evidence_strength": "rct|quasi_natural|quasi_natural_event|panel_fe|structural|observational|cross_sectional|meta_analysis|theoretical|unknown",
+  "unit": \
+"percentage_points|percent|log_points|ratio|elasticity|odds_ratio|hazard_ratio|coefficient|usd|inde\
+x|...",
+  "evidence_strength": \
+"rct|quasi_natural|quasi_natural_event|panel_fe|structural|observational|cross_sectional|meta_analy\
+sis|theoretical|unknown",
   "geographic_scope": "country or region",
   "time_period": "e.g. 1990-2010"
 }
@@ -531,22 +643,30 @@ energy. digital. monetary. justice. climate. agriculture. urban. finance. gender
 agricultural. biotech. hospital. genetic. behavioral. soil. safety. antibiotic.
 nutrition. pharmaceutical. industrial. biological. chemical. ecological. medical.
 epidemiological. transport. housing. water. food. marine. forestry.
-Example: "photosynthesis" → "biological.photosynthesis", "drought_stress" → "environmental.drought_stress",
-"antibiotic_use" → "antibiotic.use", "soil_ph" → "soil.ph". NEVER output a bare variable without a domain prefix.
+Example: "photosynthesis" → "biological.photosynthesis", "drought_stress" → \
+"environmental.drought_stress",
+"antibiotic_use" → "antibiotic.use", "soil_ph" → "soil.ph". NEVER output a bare variable without a \
+domain prefix.
 
 {canonical_names_block}
 
 Each causal_claim object must use sentence IDs, not verbatim spans:
 {
   "claim_text": "short paper-grounded claim",
-  "claim_type": "causal_claim|associative|mechanism|review_summary|descriptive|normative|unclear|not_applicable",
+  "claim_type": \
+"causal_claim|associative|mechanism|review_summary|descriptive|normative|unclear|not_applicable",
   "cause_variable": "domain.snake_case_name (MUST have domain prefix, e.g. health.mortality)",
   "effect_variable": "domain.snake_case_name (MUST have domain prefix, e.g. economic.gdp_growth)",
   "direction": "positive|negative|null|mixed|ambiguous|non_linear",
   "claim_explicitness": "explicit|implicit|unclear",
-  "design_family_hint": "rct|iv|did|rdd|synthetic_control|event_study|quasi_experimental_other|panel_fe|ols|ols_cross_sectional|review_narrative|review_meta_analysis|theoretical|structural_model|unclear",
-  "effect_size": number|null (MUST be set if the paper reports ANY numeric magnitude for this claim),
-  "evidence_strength": "rct|quasi_natural|quasi_natural_event|panel_fe|structural|observational|cross_sectional|meta_analysis|theoretical|unknown",
+  "design_family_hint": \
+"rct|iv|did|rdd|synthetic_control|event_study|quasi_experimental_other|panel_fe|ols|ols_cross_secti\
+onal|review_narrative|review_meta_analysis|theoretical|structural_model|unclear",
+  "effect_size": number|null (MUST be set if the paper reports ANY numeric magnitude for this \
+claim),
+  "evidence_strength": \
+"rct|quasi_natural|quasi_natural_event|panel_fe|structural|observational|cross_sectional|meta_analy\
+sis|theoretical|unknown",
   "supporting_span_ids": ["c_01", "r_02"],
   "method_span_ids": ["m_01"],
   "source_basis": "fulltext|abstract_only",
@@ -577,27 +697,44 @@ Rules:
 - JSON only.
 - Use sentence IDs from the evidence bundle.
 - Do not include long explanations.
-- Include all unique supported candidate claims; do not duplicate the same (cause, effect, direction, supporting_span_ids) tuple.
+- Include all unique supported candidate claims; do not duplicate the same (cause, effect, \
+direction, supporting_span_ids) tuple.
 - Keep claims ordered by centrality/strength of evidence, strongest first.
-- If evidence is only associational or review-based, set claim_type accordingly instead of forcing causal_claim.
+- If evidence is only associational or review-based, set claim_type accordingly instead of forcing \
+causal_claim.
 - sample_size must be integer or null.
 - Numeric fields must be numeric, never words like high/medium/low.
-- empirical_parameters should capture ALL quantitative findings: regression coefficients, treatment effects,
-  elasticities, odds ratios, hazard ratios, marginal effects, quantified policy contrasts, percentage changes,
+- empirical_parameters should capture ALL quantitative findings: regression coefficients, \
+treatment effects,
+  elasticities, odds ratios, hazard ratios, marginal effects, quantified policy contrasts, \
+percentage changes,
   rates, proportions, or any numeric estimate from tables and results sections.
-  Also include coefficients from OLS, IV, DID, panel FE, and similar regressions — these ARE valid parameters.
-- CRITICAL: Scan all tables and results sections for numeric values. If a table has coefficients, effect sizes,
-  or treatment-control comparisons, extract them as parameters. Tables are a PRIMARY source of parameters.
-- If a paper reports regression results with coefficients and standard errors, extract ALL main coefficients as parameters.
-- If a paper reports only descriptive statistics without any regression or causal analysis, return empirical_parameters as [].
-- Each parameter MUST have at least a numeric value or value_range. Omit parameters that have no numbers.
-- When the paper reports uncertainty in forms like `95% CI [a, b]` or `(SE = x)`, copy it into confidence_interval/std_error.
-- Extract up to 12 strongest policy-relevant estimates. Prioritize parameters with standard errors or confidence intervals.
-- Do NOT include p-values, t-statistics, F-statistics, R-squared, sample sizes, or descriptive counts as parameter values.
-- IMPORTANT: For each causal_claim that has a numeric effect in the paper, also set effect_size to that number.
-  If the paper says "X increased Y by 15 percentage points", set effect_size=15 and extract a parameter with value=15.
-- For identification_strategy: only include if the paper has a clear causal identification strategy. Set null otherwise.
-- For heterogeneity_results: include only if the paper explicitly tests effect heterogeneity or moderation.
+  Also include coefficients from OLS, IV, DID, panel FE, and similar regressions — these ARE valid \
+parameters.
+- CRITICAL: Scan all tables and results sections for numeric values. If a table has coefficients, \
+effect sizes,
+  or treatment-control comparisons, extract them as parameters. Tables are a PRIMARY source of \
+parameters.
+- If a paper reports regression results with coefficients and standard errors, extract ALL main \
+coefficients as parameters.
+- If a paper reports only descriptive statistics without any regression or causal analysis, return \
+empirical_parameters as [].
+- Each parameter MUST have at least a numeric value or value_range. Omit parameters that have no \
+numbers.
+- When the paper reports uncertainty in forms like `95% CI [a, b]` or `(SE = x)`, copy it into \
+confidence_interval/std_error.
+- Extract up to 12 strongest policy-relevant estimates. Prioritize parameters with standard errors \
+or confidence intervals.
+- Do NOT include p-values, t-statistics, F-statistics, R-squared, sample sizes, or descriptive \
+counts as parameter values.
+- IMPORTANT: For each causal_claim that has a numeric effect in the paper, also set effect_size to \
+that number.
+  If the paper says "X increased Y by 15 percentage points", set effect_size=15 and extract a \
+parameter with value=15.
+- For identification_strategy: only include if the paper has a clear causal identification \
+strategy. Set null otherwise.
+- For heterogeneity_results: include only if the paper explicitly tests effect heterogeneity or \
+moderation.
 """.strip()
 
 _NUMERIC_RESCUE_SCHEMA_HINT = """
@@ -613,24 +750,33 @@ Each empirical_parameters object:
   "value_range": [number, number] | null,
   "confidence_interval": [number, number] | null,
   "std_error": number|null,
-  "unit": "unitless|elasticity|semi_elasticity|odds_ratio|risk_ratio|hazard_ratio|correlation_coefficient|standardized_effect|index_points|percentage_points|basis_points",
-  "evidence_strength": "rct|quasi_natural|quasi_natural_event|panel_fe|structural|observational|cross_sectional|meta_analysis|theoretical|unknown",
+  "unit": \
+"unitless|elasticity|semi_elasticity|odds_ratio|risk_ratio|hazard_ratio|correlation_coefficient|sta\
+ndardized_effect|index_points|percentage_points|basis_points",
+  "evidence_strength": \
+"rct|quasi_natural|quasi_natural_event|panel_fe|structural|observational|cross_sectional|meta_analy\
+sis|theoretical|unknown",
   "heterogeneity_note": "short note on what the estimate measures",
   "geographic_scope": "optional geography",
   "time_period": "optional period"
 }
 
 Rules:
-- Extract only true effect estimates, treatment effects, coefficients, elasticities, odds ratios, hazard ratios, or standardized effects.
+- Extract only true effect estimates, treatment effects, coefficients, elasticities, odds ratios, \
+hazard ratios, or standardized effects.
 - Prefer estimates with explicit uncertainty whenever the paper reports it.
 - When result snippets contain forms like `coefficient = 0.18 (SE = 0.04)` or
   `effect was 0.25 (95% CI [0.15, 0.45])`, copy both the point estimate and
   the uncertainty fields into the output.
-- Use exact variable names from the provided claim inventory when an estimate quantifies one of those claims.
-- Never include p-values, significance stars, standard errors by themselves, t-stats, z-stats, F-stats, R-squared, sample sizes, descriptive counts, or baseline means without a contrast.
+- Use exact variable names from the provided claim inventory when an estimate quantifies one of \
+those claims.
+- Never include p-values, significance stars, standard errors by themselves, t-stats, z-stats, \
+F-stats, R-squared, sample sizes, descriptive counts, or baseline means without a contrast.
 - If the paper reports significance but no effect magnitude, return an empty array.
-- If the estimate is dimensionless but clearly a coefficient/effect size, set unit to "unitless" or a more specific dimensionless unit.
-- Extract up to 8 policy-relevant estimates. Include all coefficients with standard errors or confidence intervals.
+- If the estimate is dimensionless but clearly a coefficient/effect size, set unit to "unitless" \
+or a more specific dimensionless unit.
+- Extract up to 8 policy-relevant estimates. Include all coefficients with standard errors or \
+confidence intervals.
 - Scan ALL tables for numeric coefficients, effect sizes, odds ratios, or treatment effects.
 """.strip()
 
@@ -776,7 +922,7 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
     _progress_dirty = 0
     _PROGRESS_FLUSH_INTERVAL = 200
 
-    def _mark_progress(work_id: str, state: str, **extra: Any) -> None:
+    def _mark_progress(work_id: str, state: str, **extra: _ProgressValue) -> None:
         item = progress.setdefault("items", {}).setdefault(work_id, {})
         if state not in {"retryable_failed", "permanent_failed"}:
             item.pop("error_class", None)
@@ -784,7 +930,7 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
         item.update({"state": state, **extra, "updated_at": datetime.now(UTC).isoformat()})
         progress["updated_at"] = datetime.now(UTC).isoformat()
 
-    async def _persist_progress(work_id: str, state: str, **extra: Any) -> None:
+    async def _persist_progress(work_id: str, state: str, **extra: _ProgressValue) -> None:
         nonlocal _progress_dirty
         async with progress_lock:
             _mark_progress(work_id, state, **extra)
@@ -840,7 +986,8 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
         _enqueue_count += 1
     if stream_doc_ready:
         logger.info(
-            "Streaming enqueue complete: {} items ready immediately, {} pending doc_normalize, {} skipped (already done)",
+            "Streaming enqueue complete: {} items ready immediately, {} pending doc_normalize, {} \
+skipped (already done)",
             _enqueue_count,
             len(pending_stream_items),
             _skip_count,
@@ -946,7 +1093,8 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
             for _ in range(fetch_workers_count):
                 await fetch_queue.put(None)
             logger.info(
-                "Streaming doc-ready producer finished: {} items queued downstream, {} items unavailable after doc_normalize",
+                "Streaming doc-ready producer finished: {} items queued downstream, {} items \
+unavailable after doc_normalize",
                 _enqueue_count,
                 unavailable_after_doc_normalize,
             )
@@ -1237,7 +1385,8 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
             getattr(pool, "theoretical_aggregate_rps", client_count * per_key_rps) or 0.0
         )
         logger.info(
-            "LLM dispatcher started, llm_workers={}, gonka_keys={}, per_key_rps={}, aggregate_rps_ceiling={}",
+            "LLM dispatcher started, llm_workers={}, gonka_keys={}, per_key_rps={}, \
+aggregate_rps_ceiling={}",
             llm_workers_count,
             client_count,
             round(per_key_rps, 3),
@@ -1284,7 +1433,8 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                     _bounce_log_counter += 1
                     if _bounce_log_counter % _bounce_log_interval == 1:
                         logger.info(
-                            "LLM dispatcher: bounce backpressure — {} items bouncing, topic {} inflight={}",
+                            "LLM dispatcher: bounce backpressure — {} items bouncing, topic {} \
+inflight={}",
                             len(_bounce_counts),
                             topic_id,
                             topic_inflight[topic_id],
@@ -1296,7 +1446,8 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                     )
                     continue
                 logger.warning(
-                    "LLM dispatcher: bounce limit ({}) reached for {}, forcing dispatch (topic={}, inflight={}, success={})",
+                    "LLM dispatcher: bounce limit ({}) reached for {}, forcing dispatch (topic={}, \
+inflight={}, success={})",
                     _BOUNCE_LIMIT,
                     _bk,
                     topic_id,
@@ -1919,7 +2070,8 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
         "numeric_rescue_failures": stats.numeric_rescue_failures,
         "numeric_rescue_parameters_added": stats.numeric_rescue_parameters_added,
         "deterministic_numeric_rescue_successes": stats.deterministic_numeric_rescue_successes,
-        "deterministic_numeric_rescue_parameters_added": stats.deterministic_numeric_rescue_parameters_added,
+        "deterministic_numeric_rescue_parameters_adde\
+d": stats.deterministic_numeric_rescue_parameters_added,
         "provider_timeout_count": int(stats.failure_class_counts.get("provider_timeout", 0)),
         "watchdog_timeout_count": int(stats.failure_class_counts.get("watchdog_timeout", 0)),
         "json_parse_failure_count": int(stats.failure_class_counts.get("json_parse_failure", 0)),

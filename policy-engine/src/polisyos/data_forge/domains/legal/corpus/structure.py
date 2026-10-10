@@ -50,6 +50,7 @@ from polisyos.ir.world.event import (
 from polisyos.ir.world.ids import doc_fragment_id
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from pathlib import Path
 
     from polisyos.core.artifacts.store import FileSystemCAS
@@ -118,7 +119,7 @@ def _ruleset_for(jurisdiction: str) -> _Ruleset:
     if jurisdiction == "UA":
         return _Ruleset(
             jurisdiction="UA",
-            article_re=re.compile(r"^\s*Статт(?:я|і)\s+(\d+)\b"),
+            article_re=re.compile('^\\s*Статт(?:я|\u0456)\\s+(\\d+)\\b'),
             part_re=re.compile(r"^\s*Частин(?:а|и)\s+(\d+)\b"),
         )
     if jurisdiction == "RU":
@@ -169,7 +170,7 @@ def _find_headers(
     *,
     range_start: int,
     range_end: int,
-    matcher,
+    matcher: Callable[[str], str | None],
 ) -> list[tuple[str, int]]:
     headers: list[tuple[str, int]] = []
     for line in lines:

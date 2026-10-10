@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
 def iter_openapi_operations(schema: dict[str, Any]) -> Iterator[tuple[str, str, dict[str, Any]]]:

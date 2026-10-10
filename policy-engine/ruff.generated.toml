@@ -48,6 +48,9 @@ allowed-confusables = [
 # in the touched file or an explicit per-file ignore here; blanket project-wide
 # ignores are intentionally left empty.
 
+[lint.flake8-type-checking]
+runtime-evaluated-base-classes = ["pydantic.BaseModel"]
+
 [lint.per-file-ignores]
 
 # Запрещаем print только в продакшн коде (src), разрешаем в скриптах и утилитах

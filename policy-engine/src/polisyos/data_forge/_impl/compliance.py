@@ -6,6 +6,8 @@ from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime
 from typing import Any
 
+type _SafeMetadataValue = str | int | float | bool | list[_SafeMetadataValue] | None
+
 PRIVACY_COMPLIANCE_REPORT_SCHEMA_VERSION = "policyos.privacy_compliance_report.v1"
 
 COMPLIANCE_OVERRIDE_REQUIRED_FIELDS = (
@@ -455,12 +457,14 @@ def _override_summary(override: Mapping[str, Any] | None) -> dict[str, Any]:
         "reviewer_identity": _clean_text(override.get("reviewer_identity")),
         "scope": _clean_text(override.get("scope")),
         "evidence_refs": [
-            ref for ref in (_clean_text(value) for value in _list(override.get("evidence_refs"))) if ref
+            ref
+            for ref in (_clean_text(value) for value in _list(override.get("evidence_refs")))
+            if ref
         ],
     }
 
 
-def _override_field_present(field: str, value: Any) -> bool:
+def _override_field_present(field: str, value: object) -> bool:
     if field == "evidence_refs":
         return bool([item for item in _list(value) if _clean_text(item)])
     return _clean_text(value) is not None
@@ -514,7 +518,7 @@ def _safe_metadata(source: Mapping[str, Any], keys: tuple[str, ...]) -> dict[str
     }
 
 
-def _safe_scalar_or_list(value: Any) -> Any | None:
+def _safe_scalar_or_list(value: object) -> _SafeMetadataValue:
     if value is None or isinstance(value, (bool, int, float)):
         return value
     if isinstance(value, str):
@@ -543,7 +547,7 @@ def _redaction_approved(status: str | None) -> bool:
     return status is not None and status.casefold() in _REDACTED_STATUSES
 
 
-def _bool_or_none(value: Any) -> bool | None:
+def _bool_or_none(value: object) -> bool | None:
     if isinstance(value, bool):
         return value
     if value is None:
@@ -556,11 +560,11 @@ def _bool_or_none(value: Any) -> bool | None:
     return None
 
 
-def _list(value: Any) -> list[Any]:
+def _list(value: object) -> list[object]:
     return value if isinstance(value, list) else []
 
 
-def _status(value: Any) -> str:
+def _status(value: object) -> str:
     text = str(value or "").strip().casefold()
     return {
         "ok": "pass",
@@ -571,7 +575,7 @@ def _status(value: Any) -> str:
     }.get(text, text)
 
 
-def _clean_text(value: Any) -> str | None:
+def _clean_text(value: object) -> str | None:
     if value is None:
         return None
     text = str(value).strip()

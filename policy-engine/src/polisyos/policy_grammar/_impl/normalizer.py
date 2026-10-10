@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import re
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.ir import governance, observation
 
-from .schema import PolicyGrammarIntent
+if TYPE_CHECKING:
+    from .schema import PolicyGrammarIntent
 
 IdentificationMode = observation.IdentificationMode
 ProblemDomain = governance.ProblemDomain

@@ -3,75 +3,40 @@
 from __future__ import annotations
 
 import asyncio
-import contextlib
-import csv
-import gzip
 import hashlib
-import io
 import json
-import math
 import os
 import re
-import time
-import zipfile
-from collections import OrderedDict, defaultdict, deque
+from collections import OrderedDict
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from importlib import import_module
-from itertools import islice
-from pathlib import Path
-from typing import TYPE_CHECKING, Any
-from urllib.parse import urlparse
+from typing import TYPE_CHECKING, Any, ParamSpec, TypeVar, cast
 
-import aiohttp
 import duckdb
-import pandas as pd
 
-from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
-    CatalogTransportDataset,
     CoreSourcesIngestStats,
     ObservationFetchKey,
-    ObservationFetchPayload,
     ObservationInsertStats,
     ObservationPlan,
     ObservationShard,
-    ObservationShardResult,
     ObservationWriteItem,
     SupportSketch,
-    WriterFlushState,
-    _ObservationRuntimeMetrics,
-    _SourceBudgetWindow,
 )
-from polisyos.data_forge.domains.catalog.batch.checkpoints import load_json, write_json
+from polisyos.data_forge.domains.catalog.batch.checkpoints import write_json
 from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
     country_scope_members,
-    iso2_to_iso3,
-    iso2_to_numeric,
-    normalize_country_code,
 )
-from polisyos.data_forge.domains.catalog.knowledge.proxy_penalties import metric_proxy_alignments
 from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
-    AlignmentMethod,
-    VariableAlignment,
-    align_semantic,
-    calibrate_alignment_confidence,
     load_seed_alignments,
 )
-from polisyos.data_forge.kernel.pipeline.manifests import write_raw_manifest, write_stage_manifest
 from polisyos.data_forge.read_api.academic import CANONICAL_VARIABLES
 from polisyos.fabric.connectors.base import (
     AsyncFetchLease,
-    ConnectionConfig,
     DatasetCapabilitySnapshot,
     FetchRequest,
-)
-from polisyos.fabric.connectors.profiles.models import SourceExecutionPolicy
-from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
-from polisyos.fabric.connectors.profiles.resolver import (
-    resolve_connection_config,
-    resolve_execution_policy,
 )
 from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
 from polisyos.fabric.connectors.sources.sdmx_source import SDMXSourceConnector
@@ -81,33 +46,111 @@ from polisyos.fabric.connectors.sources.who import WHOConnector
 from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 
 if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable, Iterable, Iterator
+    from pathlib import Path
+    from typing import Protocol
+
     from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
-    from polisyos.data_forge.domains.catalog.batch.core_sources.api import _resolve_profile_config
-    from polisyos.data_forge.domains.catalog.batch.core_sources.loaders import (
-        _existing_observation_ids,
-        _iter_chunked_values,
-        _load_wvs_bulk_duckdb,
-        _load_wvs_bulk_rows,
-        _merge_observation_stats,
-        _records_from_payload,
-        _wvs_legacy_indicators,
-    )
-    from polisyos.data_forge.domains.catalog.batch.core_sources.registry import (
-        _ensure_observation_index_compatibility,
-        _ensure_observation_provenance_columns,
-        _upsert_catalog_alignments,
-    )
-    from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (
-        _normalize_observation_row,
-        _observation_id,
-    )
+    from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import VariableAlignment
+    from polisyos.fabric.connectors.base import ConnectionConfig
+    from polisyos.fabric.connectors.profiles.models import SourceExecutionPolicy
+
+    class _ResolveProfileConfig(Protocol):
+        def __call__(self, profile_id: str) -> ConnectionConfig: ...
+
+    class _ExistingObservationIds(Protocol):
+        def __call__(
+            self, con: duckdb.DuckDBPyConnection, observation_ids: Iterable[str]
+        ) -> set[str]: ...
+
+    class _IterChunkedValues(Protocol):
+        def __call__[T](self, values: Iterable[T], chunk_size: int) -> Iterator[list[T]]: ...
+
+    class _LoadWvsBulkDuckdb(Protocol):
+        def __call__(
+            self,
+            indicators: list[str],
+            *,
+            country_scope: str = "core_blocking",
+            year_window: tuple[int, int] = (1981, 2023),
+        ) -> dict[str, list[dict[str, Any]]]: ...
+
+    class _LoadWvsBulkRows(Protocol):
+        def __call__(
+            self,
+            raw_variable: str,
+            *,
+            country_scope: str = "core_blocking",
+            year_window: tuple[int, int] | None = None,
+        ) -> list[dict[str, Any]]: ...
+
+    class _MergeObservationStats(Protocol):
+        def __call__(
+            self,
+            stats: CoreSourcesIngestStats,
+            inserted: ObservationInsertStats,
+            *,
+            source: str = "",
+        ) -> None: ...
+
+    class _RecordsFromPayload(Protocol):
+        def __call__(self, payload: object) -> list[dict[str, Any]]: ...
+
+    class _WvsLegacyIndicators(Protocol):
+        def __call__(self) -> dict[str, str]: ...
+
+    class _EnsureObservationIndexCompatibility(Protocol):
+        def __call__(self, con: duckdb.DuckDBPyConnection) -> None: ...
+
+    class _EnsureObservationProvenanceColumns(Protocol):
+        def __call__(self, con: duckdb.DuckDBPyConnection) -> None: ...
+
+    class _UpsertCatalogAlignments(Protocol):
+        def __call__(
+            self, con: duckdb.DuckDBPyConnection, alignments: list[VariableAlignment]
+        ) -> int: ...
+
+    class _NormalizeObservationRow(Protocol):
+        def __call__(
+            self, row: dict[str, Any]
+        ) -> tuple[str, int | None, int | None, int | None, float, str] | None: ...
+
+    class _ObservationId(Protocol):
+        def __call__(
+            self,
+            dataset_id: str,
+            raw_variable: str,
+            canonical_var: str,
+            country_code: str,
+            *,
+            year: int | None,
+            survey_year: int | None,
+            wave: int | None,
+            condition_json: str,
+        ) -> str: ...
+
+    _resolve_profile_config: _ResolveProfileConfig
+    _existing_observation_ids: _ExistingObservationIds
+    _iter_chunked_values: _IterChunkedValues
+    _load_wvs_bulk_duckdb: _LoadWvsBulkDuckdb
+    _load_wvs_bulk_rows: _LoadWvsBulkRows
+    _merge_observation_stats: _MergeObservationStats
+    _records_from_payload: _RecordsFromPayload
+    _wvs_legacy_indicators: _WvsLegacyIndicators
+    _ensure_observation_index_compatibility: _EnsureObservationIndexCompatibility
+    _ensure_observation_provenance_columns: _EnsureObservationProvenanceColumns
+    _upsert_catalog_alignments: _UpsertCatalogAlignments
+    _normalize_observation_row: _NormalizeObservationRow
+    _observation_id: _ObservationId
 
 logger = get_logger(__name__)
 
-__OWNER_BOUND_PROXIES: dict[str, Any] = {}
+__OWNER_BOUND_PROXIES: dict[str, object] = {}
+_P = ParamSpec("_P")
+_R = TypeVar("_R")
 
 
-def __resolve_implementation_dependency(name: str, owner: str) -> Any:
+def __resolve_implementation_dependency(name: str, owner: str) -> object:
     """Resolve a split-module dependency without facade-global injection."""
     override = globals().get(name)
     if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
@@ -116,11 +159,12 @@ def __resolve_implementation_dependency(name: str, owner: str) -> Any:
     return getattr(module, name)
 
 
-def __make_implementation_proxy(name: str, owner: str) -> Any:
+def __make_implementation_proxy(name: str, owner: str) -> Callable[_P, _R]:
     """Create a lazy, owner-bound compatibility callable for a split module."""
 
-    def __proxy(*args: Any, **kwargs: Any) -> Any:
-        return __resolve_implementation_dependency(name, owner)(*args, **kwargs)
+    def __proxy(*args: _P.args, **kwargs: _P.kwargs) -> _R:
+        target = cast("Callable[_P, _R]", __resolve_implementation_dependency(name, owner))
+        return target(*args, **kwargs)
 
     return __proxy
 
@@ -143,6 +187,33 @@ for __dependency_name, __dependency_owner in (
     __proxy = __make_implementation_proxy(__dependency_name, __dependency_owner)
     __OWNER_BOUND_PROXIES[__dependency_name] = __proxy
     globals().setdefault(__dependency_name, __proxy)
+
+# Bind owner protocols to the exact objects installed by setdefault, preserving
+# the compatibility and monkeypatch seam.
+_resolve_profile_config = cast("_ResolveProfileConfig", globals()["_resolve_profile_config"])
+_existing_observation_ids = cast(
+    "_ExistingObservationIds", globals()["_existing_observation_ids"]
+)
+_iter_chunked_values = cast("_IterChunkedValues", globals()["_iter_chunked_values"])
+_load_wvs_bulk_duckdb = cast("_LoadWvsBulkDuckdb", globals()["_load_wvs_bulk_duckdb"])
+_load_wvs_bulk_rows = cast("_LoadWvsBulkRows", globals()["_load_wvs_bulk_rows"])
+_merge_observation_stats = cast("_MergeObservationStats", globals()["_merge_observation_stats"])
+_records_from_payload = cast("_RecordsFromPayload", globals()["_records_from_payload"])
+_wvs_legacy_indicators = cast("_WvsLegacyIndicators", globals()["_wvs_legacy_indicators"])
+_ensure_observation_index_compatibility = cast(
+    "_EnsureObservationIndexCompatibility", globals()["_ensure_observation_index_compatibility"]
+)
+_ensure_observation_provenance_columns = cast(
+    "_EnsureObservationProvenanceColumns", globals()["_ensure_observation_provenance_columns"]
+)
+_upsert_catalog_alignments = cast(
+    "_UpsertCatalogAlignments", globals()["_upsert_catalog_alignments"]
+)
+_normalize_observation_row = cast(
+    "_NormalizeObservationRow", globals()["_normalize_observation_row"]
+)
+_observation_id = cast("_ObservationId", globals()["_observation_id"])
+
 
 _TRANSPORT_SOURCES = frozenset(
     {
@@ -324,7 +395,7 @@ def _iter_observation_write_item_batches(
     *,
     max_rows: int = _OBSERVATION_WRITER_TRANSACTION_ROWS,
     max_items: int = _OBSERVATION_WRITER_TRANSACTION_ITEMS,
-) -> Any:
+) -> Iterator[list[ObservationWriteItem]]:
     current: list[ObservationWriteItem] = []
     current_rows = 0
     normalized_max_rows = max(int(max_rows), 1)
@@ -368,7 +439,7 @@ class _ObservationFetchDeduper:
         self,
         key: ObservationFetchKey,
         *,
-        producer: Any,
+        producer: Callable[[], Awaitable[list[dict[str, Any]]]],
     ) -> list[dict[str, Any]]:
         async with self._lock:
             cached = self._cache.get(key)
@@ -421,7 +492,7 @@ class _ObservationCapabilityCache:
         self,
         key: str,
         *,
-        producer: Any,
+        producer: Callable[[], Awaitable[DatasetCapabilitySnapshot | None]],
     ) -> DatasetCapabilitySnapshot | None:
         async with self._lock:
             cached = self._cache.get(key)
@@ -534,7 +605,8 @@ class _ConnectorSessionCache:
         country_scope: str = "full_europe",
     ) -> list[dict[str, Any]]:
         cache = self.wvs_bulk_by_indicator
-        assert cache is not None
+        if cache is None:
+            raise RuntimeError("WVS bulk cache was not initialized")
         normalized = str(raw_variable or "").strip().upper()
         key = f"{normalized}|{country_scope}"
         if key not in cache:
@@ -595,7 +667,7 @@ def _serialize_observation_plan(plan: ObservationPlan) -> dict[str, Any]:
     }
 
 
-def _deserialize_observation_plan(payload: Any) -> ObservationPlan | None:
+def _deserialize_observation_plan(payload: object) -> ObservationPlan | None:
     if not isinstance(payload, dict):
         return None
     try:
@@ -639,7 +711,7 @@ def _serialize_observation_shard(shard: ObservationShard) -> dict[str, Any]:
     }
 
 
-def _deserialize_observation_shard(payload: Any) -> ObservationShard | None:
+def _deserialize_observation_shard(payload: object) -> ObservationShard | None:
     if not isinstance(payload, dict):
         return None
     plan = _deserialize_observation_plan(payload.get("plan"))
@@ -707,7 +779,7 @@ def _serialize_support_sketch(sketch: SupportSketch) -> dict[str, Any]:
     }
 
 
-def _deserialize_support_sketch(payload: Any) -> SupportSketch | None:
+def _deserialize_support_sketch(payload: object) -> SupportSketch | None:
     if not isinstance(payload, dict):
         return None
     plan = _deserialize_observation_plan(payload.get("plan"))
@@ -788,7 +860,7 @@ def _serialize_capability_snapshot(snapshot: DatasetCapabilitySnapshot) -> dict[
     return snapshot.model_dump(mode="json")
 
 
-def _deserialize_capability_snapshot(payload: Any) -> DatasetCapabilitySnapshot | None:
+def _deserialize_capability_snapshot(payload: object) -> DatasetCapabilitySnapshot | None:
     if not isinstance(payload, dict):
         return None
     try:
@@ -812,7 +884,7 @@ def _serialize_capability_snapshot_state(
     return {key: _serialize_capability_snapshot(snapshot) for key, snapshot in snapshots.items()}
 
 
-def _normalize_dimension_order(values: Any) -> tuple[str, ...]:
+def _normalize_dimension_order(values: Iterable[object] | None) -> tuple[str, ...]:
     return tuple(str(value).strip() for value in list(values or []) if str(value).strip())
 
 
@@ -897,7 +969,7 @@ def _serialize_async_fetch_lease(lease: AsyncFetchLease) -> dict[str, Any]:
     return lease.model_dump(mode="json")
 
 
-def _deserialize_async_fetch_lease(payload: Any) -> AsyncFetchLease | None:
+def _deserialize_async_fetch_lease(payload: object) -> AsyncFetchLease | None:
     if not isinstance(payload, dict):
         return None
     try:
@@ -1208,7 +1280,10 @@ def _insert_generic_observations(
     multi_slice_keys = sum(1 for ids in multi_slice_groups.values() if len(ids) > 1)
     if multi_slice_keys > 0:
         logger.warning(
-            "Observation plan {} {} {} produced {} multi-slice country/year keys; preserving condition-aware rows",
+            (
+                'Observation plan {} {} {} produced {} multi-slice country/year keys; p'
+                'reserving condition-aware rows'
+            ),
             plan.dataset_id,
             plan.raw_variable,
             plan.canonical_var,
@@ -1218,16 +1293,14 @@ def _insert_generic_observations(
     inserted = len(unique_rows) - len(existing_ids)
     replaced = len(existing_ids)
     insert_sql = (
-        "INSERT INTO ds_observations "
-        "(observation_id, dataset_id, raw_variable, canonical_var, country_code, "
-        "year, survey_year, wave, value, condition_json, acquisition_method, source_watermark, dataset_version) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
-        "ON CONFLICT(observation_id) DO UPDATE SET "
-        "value=EXCLUDED.value, "
-        "condition_json=EXCLUDED.condition_json, "
-        "acquisition_method=EXCLUDED.acquisition_method, "
-        "source_watermark=EXCLUDED.source_watermark, "
-        "dataset_version=EXCLUDED.dataset_version"
+        'INSERT INTO ds_observations (observation_id, dataset_id, raw_variable, c'
+        'anonical_var, country_code, year, survey_year, wave, value, condition_json, a'
+        'cquisition_method, source_watermark, dataset_version) VALUES (?, ?, ?, ?, ?, ?, ?'
+        ', ?, ?, ?, ?, ?, ?) ON CONFLICT(observation_id) DO UPDATE SET v'
+        'alue=EXCLUDED.value, condition_json=EXCLUDED.condition_json, a'
+        'cquisition_method=EXCLUDED.acquisition_method, s'
+        'ource_watermark=EXCLUDED.source_watermark, d'
+        'ataset_version=EXCLUDED.dataset_version'
     )
     for chunk in _iter_chunked_values(unique_rows.values(), _OBSERVATION_INSERT_BATCH_SIZE):
         con.executemany(

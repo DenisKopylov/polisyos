@@ -96,7 +96,9 @@ class _SubstrateRegistryStore(Protocol):
         """Load artifact bytes by id."""
         ...
 
-    def get_manifest(self, artifact_id: object) -> Any:
+    def get_manifest(
+        self, artifact_id: ArtifactID | ArtifactRef
+    ) -> core.artifacts.ArtifactManifest:
         """Load the manifest needed for lineage verification."""
         ...
 

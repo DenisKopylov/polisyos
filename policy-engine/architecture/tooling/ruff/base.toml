@@ -43,3 +43,6 @@ allowed-confusables = [
 # Suppression policy: new noqa/type-ignore entries require an ADR-style comment
 # in the touched file or an explicit per-file ignore here; blanket project-wide
 # ignores are intentionally left empty.
+
+[lint.flake8-type-checking]
+runtime-evaluated-base-classes = ["pydantic.BaseModel"]

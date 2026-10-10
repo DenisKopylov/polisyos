@@ -23,6 +23,7 @@ import sys
 import time
 import traceback
 from collections import defaultdict
+from collections.abc import Iterator
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -111,7 +112,7 @@ def read_json(path: Path, default: Any = None) -> Any:
         return default
 
 
-def iter_jsonl(path: Path, limit: int | None = None):
+def iter_jsonl(path: Path, limit: int | None = None) -> Iterator[object]:
     if not path.exists():
         return
     with path.open("r", encoding="utf-8") as fh:
@@ -162,8 +163,7 @@ def run_cmd(cmd: list[str], timeout: int | None = None, cwd: Path | None = None)
             cmd,
             cwd=str(cwd) if cwd else None,
             text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             timeout=timeout,
             check=False,
         )

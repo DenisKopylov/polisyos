@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from polisyos.core import contracts
 from polisyos.ir import governance, observation
 
-from .normalizer import NormalizedPolicyIntent
-from .schema import PolicyGrammarConceptSpineRefs
+if TYPE_CHECKING:
+    from .normalizer import NormalizedPolicyIntent
+    from .schema import PolicyGrammarConceptSpineRefs
 
 IdentificationMode = observation.IdentificationMode
 NormativeOutcomeChannel = governance.NormativeOutcomeChannel

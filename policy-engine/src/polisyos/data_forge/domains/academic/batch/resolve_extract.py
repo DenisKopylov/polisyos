@@ -7,22 +7,38 @@ from __future__ import annotations
 
 import inspect
 from functools import wraps
-from types import ModuleType
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
+
+if TYPE_CHECKING:
+    from types import ModuleType
 
 from polisyos.common.logger import get_logger
-from polisyos.data_forge.domains.academic.batch._resolve_extract_contracts import (
-    EligibilityDecision,
-    EligibleItem,
-    ProviderResponse,
-    ResolveExtractStats,
-    WorkItem,
-)
 from polisyos.data_forge.domains.academic.batch import (
     _resolve_extract_api as _api,
+)
+from polisyos.data_forge.domains.academic.batch import (
     _resolve_extract_io as _io,
+)
+from polisyos.data_forge.domains.academic.batch import (
     _resolve_extract_providers as _providers,
+)
+from polisyos.data_forge.domains.academic.batch import (
     _resolve_extract_transformers as _transformers,
+)
+from polisyos.data_forge.domains.academic.batch._resolve_extract_contracts import (
+    EligibilityDecision as EligibilityDecision,
+)
+from polisyos.data_forge.domains.academic.batch._resolve_extract_contracts import (
+    EligibleItem as EligibleItem,
+)
+from polisyos.data_forge.domains.academic.batch._resolve_extract_contracts import (
+    ProviderResponse as ProviderResponse,
+)
+from polisyos.data_forge.domains.academic.batch._resolve_extract_contracts import (
+    ResolveExtractStats as ResolveExtractStats,
+)
+from polisyos.data_forge.domains.academic.batch._resolve_extract_contracts import (
+    WorkItem as WorkItem,
 )
 
 logger = get_logger(__name__)

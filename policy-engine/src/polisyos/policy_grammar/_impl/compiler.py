@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from typing import TYPE_CHECKING
 
 from polisyos.core import artifacts, contracts
 
@@ -11,11 +12,13 @@ from .artifacts import persist_universal_policy_design_case
 from .authority import bind_authority_profile, status_for_authority_profile
 from .facets import FACET_NAMES, derive_facets
 from .normalizer import normalise_intent
-from .schema import (
-    CompiledUniversalPolicyDesignCaseArtifact,
-    PolicyGrammarConceptSpineRefs,
-    PolicyGrammarIntent,
-)
+
+if TYPE_CHECKING:
+    from .schema import (
+        CompiledUniversalPolicyDesignCaseArtifact,
+        PolicyGrammarConceptSpineRefs,
+        PolicyGrammarIntent,
+    )
 
 FileSystemCAS = artifacts.FileSystemCAS
 UniversalAuthorityProfile = contracts.UniversalAuthorityProfile

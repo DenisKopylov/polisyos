@@ -2,12 +2,38 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Protocol
+
+
+class _ControlPlaneJobAdmissionMetrics(Protocol):
+    """Metrics surface used by the admission event recorder."""
+
+    def record_control_plane_job_admission(
+        self,
+        *,
+        job_kind: str,
+        effective_profile: str,
+        status: str,
+        duration_seconds: float,
+    ) -> None: ...
+
+
+class _ControlPlaneJobExecutionMetrics(Protocol):
+    """Metrics surface used by the execution event recorder."""
+
+    def record_control_plane_job_execution(
+        self,
+        *,
+        job_kind: str,
+        status: str,
+        duration_seconds: float,
+        queue_lag_seconds: float,
+    ) -> None: ...
 
 
 def _record_control_plane_job_admission_metric(
     *,
-    metrics: Any,
+    metrics: _ControlPlaneJobAdmissionMetrics | None,
     job_kind: str,
     effective_profile: str,
     status: str,
@@ -25,7 +51,7 @@ def _record_control_plane_job_admission_metric(
 
 def _record_control_plane_job_execution_metric(
     *,
-    metrics: Any,
+    metrics: _ControlPlaneJobExecutionMetrics | None,
     job_kind: str,
     status: str,
     duration_seconds: float,

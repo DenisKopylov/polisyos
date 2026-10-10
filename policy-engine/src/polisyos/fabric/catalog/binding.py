@@ -22,8 +22,9 @@ from polisyos.fabric.connectors.contracts.schema import (
     normalize_unit_id,
 )
 
+from .contract import DataContract
+
 if TYPE_CHECKING:
-    from .contract import DataContract
     from .contract import DataType as ContractDataType
 
 

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
@@ -21,6 +20,8 @@ from polisyos.ddm.integration.events import (
 )
 
 if TYPE_CHECKING:
+    from datetime import datetime
+
     from polisyos.ddm.calibration.calibrate import CalibrationReport
     from polisyos.ddm.readiness.readiness_mapper import MetricBudgetPolicy
 

@@ -144,15 +144,16 @@ def __dir__() -> list[str]:
 
 
 __all__ = [
+    "COMPLIANCE_OVERRIDE_REQUIRED_FIELDS",
+    "DATA_FORGE_PROVENANCE_MANIFEST_FILE",
+    "DATA_FORGE_PROVENANCE_MANIFEST_SCHEMA_VERSION",
+    "PRIVACY_COMPLIANCE_REPORT_SCHEMA_VERSION",
     "ArtifactRef",
     "AssetDefinition",
     "AssetGroup",
     "AssetKey",
     "AssetSpec",
-    "COMPLIANCE_OVERRIDE_REQUIRED_FIELDS",
     "CompatibilityMode",
-    "DATA_FORGE_PROVENANCE_MANIFEST_FILE",
-    "DATA_FORGE_PROVENANCE_MANIFEST_SCHEMA_VERSION",
     "DataForgeError",
     "DataForgeValidationError",
     "DifferentialComparison",
@@ -161,7 +162,6 @@ __all__ = [
     "MaterializationContext",
     "OfficialSnapshotAnswer",
     "PIILevel",
-    "PRIVACY_COMPLIANCE_REPORT_SCHEMA_VERSION",
     "ProducerVersion",
     "QCCheck",
     "QCReport",

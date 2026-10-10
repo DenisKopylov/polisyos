@@ -536,7 +536,7 @@ def _source_from_contract_binding_finding(finding: Mapping[str, Any]) -> dict[st
     }
 
 
-def _refs_list(value: Any) -> list[str]:
+def _refs_list(value: object) -> list[str]:
     if value is None:
         return []
     if isinstance(value, str):
@@ -561,12 +561,12 @@ def _refs_list(value: Any) -> list[str]:
     return [text] if text else []
 
 
-def _first_ref(value: Any) -> str | None:
+def _first_ref(value: object) -> str | None:
     refs = _refs_list(value)
     return refs[0] if refs else None
 
 
-def _as_text(value: Any) -> str:
+def _as_text(value: object) -> str:
     return str(value or "").strip()
 
 

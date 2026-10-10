@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import hashlib
 import warnings
-from collections.abc import Iterable
-from typing import Literal, Protocol
+from typing import TYPE_CHECKING, Literal, Protocol
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 HashAlgorithm = Literal["sha256", "blake2b"]
 DeprecatedHashAlgorithm = Literal["sha1"]

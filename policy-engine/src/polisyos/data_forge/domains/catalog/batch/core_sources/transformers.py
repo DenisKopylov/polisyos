@@ -2,86 +2,44 @@
 
 from __future__ import annotations
 
-import asyncio
-import contextlib
-import csv
-import gzip
 import hashlib
-import io
 import json
 import math
 import os
 import re
-import time
-import zipfile
-from collections import OrderedDict, defaultdict, deque
-from dataclasses import dataclass, replace
-from datetime import UTC, datetime, timedelta
+from collections import OrderedDict
+from dataclasses import replace
+from datetime import UTC, datetime
 from importlib import import_module
-from itertools import islice
-from pathlib import Path
-from typing import TYPE_CHECKING, Any
-from urllib.parse import urlparse
+from typing import TYPE_CHECKING, Any, ParamSpec, TypeVar, cast
 
 import aiohttp
-import duckdb
-import pandas as pd
 
-from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
-from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
-    CatalogTransportDataset,
-    CoreSourcesIngestStats,
-    ObservationFetchKey,
-    ObservationFetchPayload,
-    ObservationInsertStats,
-    ObservationPlan,
-    ObservationShard,
-    ObservationShardResult,
-    ObservationWriteItem,
-    SupportSketch,
-    WriterFlushState,
-    _ObservationRuntimeMetrics,
-    _SourceBudgetWindow,
-)
-from polisyos.data_forge.domains.catalog.batch.checkpoints import load_json, write_json
 from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
-    country_scope_members,
     iso2_to_iso3,
     iso2_to_numeric,
     normalize_country_code,
 )
-from polisyos.data_forge.domains.catalog.knowledge.proxy_penalties import metric_proxy_alignments
-from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
-    AlignmentMethod,
-    VariableAlignment,
-    align_semantic,
-    calibrate_alignment_confidence,
-    load_seed_alignments,
-)
-from polisyos.data_forge.kernel.pipeline.manifests import write_raw_manifest, write_stage_manifest
 from polisyos.data_forge.read_api.academic import CANONICAL_VARIABLES
 from polisyos.fabric.connectors.base import (
-    AsyncFetchLease,
-    ConnectionConfig,
     DatasetCapabilitySnapshot,
     FetchRequest,
 )
-from polisyos.fabric.connectors.profiles.models import SourceExecutionPolicy
-from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
-from polisyos.fabric.connectors.profiles.resolver import (
-    resolve_connection_config,
-    resolve_execution_policy,
-)
-from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
-from polisyos.fabric.connectors.sources.sdmx_source import SDMXSourceConnector
-from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
-from polisyos.fabric.connectors.sources.unpd import UNPDConnector
-from polisyos.fabric.connectors.sources.who import WHOConnector
-from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 
 if TYPE_CHECKING:
+    import asyncio
+    from collections.abc import Callable, Iterable
+
+    from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+        ObservationPlan,
+        ObservationShard,
+    )
     from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
+
+    _infer_ilo_dimension_order: Callable[[str], tuple[str, ...]]
+    _normalize_dimension_order: Callable[[Iterable[object] | None], tuple[str, ...]]
+    _records_from_payload: Callable[[object], list[dict[str, Any]]]
 
 logger = get_logger(__name__)
 
@@ -203,10 +161,12 @@ _ILO_INFERRED_DIMENSION_TOKENS: frozenset[str] = frozenset(
 )
 
 
-__OWNER_BOUND_PROXIES: dict[str, Any] = {}
+__OWNER_BOUND_PROXIES: dict[str, object] = {}
+_P = ParamSpec("_P")
+_R = TypeVar("_R")
 
 
-def __resolve_implementation_dependency(name: str, owner: str) -> Any:
+def __resolve_implementation_dependency(name: str, owner: str) -> object:
     """Resolve a split-module dependency without facade-global injection."""
     override = globals().get(name)
     if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
@@ -215,23 +175,35 @@ def __resolve_implementation_dependency(name: str, owner: str) -> Any:
     return getattr(module, name)
 
 
-def __make_implementation_proxy(name: str, owner: str) -> Any:
+def __make_implementation_proxy(name: str, owner: str) -> Callable[_P, _R]:
     """Create a lazy, owner-bound compatibility callable for this module."""
 
-    def __proxy(*args: Any, **kwargs: Any) -> Any:
-        return __resolve_implementation_dependency(name, owner)(*args, **kwargs)
+    def __proxy(*args: _P.args, **kwargs: _P.kwargs) -> _R:
+        target = cast("Callable[_P, _R]", __resolve_implementation_dependency(name, owner))
+        return target(*args, **kwargs)
 
     return __proxy
 
 
-for __dependency_name, __dependency_owner in (
-    ("_infer_ilo_dimension_order", "writers"),
-    ("_normalize_dimension_order", "writers"),
-    ("_records_from_payload", "loaders"),
-):
-    __proxy = __make_implementation_proxy(__dependency_name, __dependency_owner)
-    __OWNER_BOUND_PROXIES[__dependency_name] = __proxy
-    globals().setdefault(__dependency_name, __proxy)
+def __bind_implementation_proxy(name: str, owner: str) -> Callable[_P, _R]:
+    """Bind a statically visible name to the existing lazy owner proxy."""
+    proxy = __make_implementation_proxy(name, owner)
+    __OWNER_BOUND_PROXIES[name] = proxy
+    return cast("Callable[_P, _R]", globals().setdefault(name, proxy))
+
+
+_infer_ilo_dimension_order = cast(
+    "Callable[[str], tuple[str, ...]]",
+    __bind_implementation_proxy("_infer_ilo_dimension_order", "writers"),
+)
+_normalize_dimension_order = cast(
+    "Callable[[Iterable[object] | None], tuple[str, ...]]",
+    __bind_implementation_proxy("_normalize_dimension_order", "writers"),
+)
+_records_from_payload = cast(
+    "Callable[[object], list[dict[str, Any]]]",
+    __bind_implementation_proxy("_records_from_payload", "loaders"),
+)
 
 
 
@@ -298,7 +270,7 @@ def _normalize_observation_row(
             raw_value = payload.pop(key)
             break
     if raw_value is None:
-        for key, value in list(payload.items()):
+        for key, _value in list(payload.items()):
             if "value" in key.lower():
                 raw_value = payload.pop(key)
                 break
@@ -347,7 +319,8 @@ async def _fetch_who_observations(
     iso3 = _to_iso3(country_code)
     url = f"https://ghoapi.azureedge.net/api/{indicator_id}"
     params = {
-        "$filter": f"SpatialDim eq '{iso3}' and TimeDim ge {int(start_year)} and TimeDim le {int(end_year)}",
+        "$filte\
+r": f"SpatialDim eq '{iso3}' and TimeDim ge {int(start_year)} and TimeDim le {int(end_year)}",
     }
     payload = await _http_get_json(url, params=params)
     return _records_from_payload(payload)
@@ -395,16 +368,18 @@ async def _http_get_json(
     *,
     params: dict[str, Any] | None = None,
     headers: dict[str, str] | None = None,
-) -> Any:
+) -> object:
     timeout = aiohttp.ClientTimeout(total=60)
     request_headers = {"Accept": "application/json"}
     if headers:
         request_headers.update(headers)
-    async with aiohttp.ClientSession(timeout=timeout, headers=request_headers) as session:
-        async with session.get(url, params=params) as resp:
-            if resp.status >= 400:
-                raise RuntimeError(f"HTTP {resp.status} for {url}")
-            return await resp.json(content_type=None)
+    async with (
+        aiohttp.ClientSession(timeout=timeout, headers=request_headers) as session,
+        session.get(url, params=params) as resp,
+    ):
+        if resp.status >= 400:
+            raise RuntimeError(f"HTTP {resp.status} for {url}")
+        return await resp.json(content_type=None)
 
 
 def _sdmx_filters_for_country(
@@ -660,7 +635,7 @@ def _rewrite_sdmx_requests_with_dimension_key(
     return rewritten
 
 
-def _load_json_dict(value: Any) -> dict[str, Any]:
+def _load_json_dict(value: object) -> dict[str, Any]:
     if isinstance(value, dict):
         return value
     if isinstance(value, str) and value.strip():
@@ -676,7 +651,7 @@ def _tokenize(text: str) -> set[str]:
     return {token for token in _TOKEN_RE.findall((text or "").lower()) if token}
 
 
-def _normalize_country_code(value: Any) -> str:
+def _normalize_country_code(value: object) -> str:
     return normalize_country_code(value)
 
 
@@ -708,7 +683,7 @@ def _filter_wvs_bulk_rows(
     return filtered
 
 
-def _extract_year(value: Any) -> int | None:
+def _extract_year(value: object) -> int | None:
     if value is None:
         return None
     if isinstance(value, int):
@@ -741,7 +716,7 @@ def _observation_id(
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:24]
 
 
-def _as_int(value: Any) -> int | None:
+def _as_int(value: object) -> int | None:
     if value is None:
         return None
     try:
@@ -750,7 +725,7 @@ def _as_int(value: Any) -> int | None:
         return None
 
 
-def _as_float(value: Any) -> float | None:
+def _as_float(value: object) -> float | None:
     if value is None:
         return None
     try:

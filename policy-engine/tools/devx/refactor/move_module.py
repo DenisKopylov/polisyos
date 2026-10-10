@@ -9,8 +9,11 @@ import difflib
 import json
 import subprocess
 import sys
-from collections.abc import Sequence
 from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 from pathlib import Path
 
 _BOOTSTRAP_REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -22,8 +25,9 @@ try:
 except ModuleNotFoundError:  # pragma: no cover - exercised in preflight environments.
     cst = None  # type: ignore[assignment]
 
-from tools.lib.fs import atomic_write_text
-from tools.lib.imports import repo_root_from
+# The repository-root bootstrap above must precede local tools imports.
+from tools.lib.fs import atomic_write_text  # noqa: E402
+from tools.lib.imports import repo_root_from  # noqa: E402
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
@@ -60,16 +64,20 @@ def _exported_names(source_path: Path) -> list[str]:
     tree = ast.parse(source_path.read_text(encoding="utf-8"), filename=str(source_path))
     exports: list[str] = []
     for node in tree.body:
-        if isinstance(node, ast.Assign) and any(
-            isinstance(target, ast.Name) and target.id == "__all__" for target in node.targets
+        if (
+            isinstance(node, ast.Assign)
+            and any(
+                isinstance(target, ast.Name) and target.id == "__all__"
+                for target in node.targets
+            )
+            and isinstance(node.value, (ast.Tuple, ast.List))
         ):
-            if isinstance(node.value, (ast.Tuple, ast.List)):
-                exports = [
-                    item.value
-                    for item in node.value.elts
-                    if isinstance(item, ast.Constant) and isinstance(item.value, str)
-                ]
-                break
+            exports = [
+                item.value
+                for item in node.value.elts
+                if isinstance(item, ast.Constant) and isinstance(item.value, str)
+            ]
+            break
     if exports:
         return sorted(dict.fromkeys(exports))
     names: list[str] = []
@@ -137,7 +145,8 @@ def _shim_source(
                 "",
                 "def __getattr__(name: str) -> Any:",
                 "    if name not in _LAZY_IMPORTS:",
-                f"        raise AttributeError(f\"module '{old_module}' has no attribute {{name!r}}\")",
+                f"        raise AttributeError(f\"module '{old_module}' "
+                f"has no attribute {{name!r}}\")",
                 "    module_name, attr_name = _LAZY_IMPORTS[name]",
                 "    value = getattr(importlib.import_module(module_name), attr_name)",
                 "    globals()[name] = value",
@@ -175,7 +184,8 @@ class _ImportRewriter(cst.CSTTransformer):  # type: ignore[misc]
         self.old_parent, self.old_leaf = old_module.rsplit(".", 1)
         self.new_parent, self.new_leaf = new_module.rsplit(".", 1)
 
-    def leave_ImportAlias(
+    # LibCST dispatches visitor callbacks by their exact method names.
+    def leave_ImportAlias(  # noqa: N802
         self,
         original_node: cst.ImportAlias,
         updated_node: cst.ImportAlias,
@@ -184,7 +194,7 @@ class _ImportRewriter(cst.CSTTransformer):  # type: ignore[misc]
             return updated_node
         return updated_node.with_changes(name=_parse_dotted_name(self.new_module))
 
-    def leave_ImportFrom(
+    def leave_ImportFrom(  # noqa: N802
         self,
         original_node: cst.ImportFrom,
         updated_node: cst.ImportFrom,
@@ -195,7 +205,7 @@ class _ImportRewriter(cst.CSTTransformer):  # type: ignore[misc]
             return updated_node
         return updated_node.with_changes(module=_parse_dotted_name(self.new_module))
 
-    def leave_SimpleStatementLine(
+    def leave_SimpleStatementLine(  # noqa: N802
         self,
         original_node: cst.SimpleStatementLine,
         updated_node: cst.SimpleStatementLine,

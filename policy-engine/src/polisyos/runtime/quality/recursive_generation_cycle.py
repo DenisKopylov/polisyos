@@ -20,7 +20,7 @@ from pydantic import (
     model_validator,
 )
 
-from polisyos.core.artifacts import ArtifactRef as CASArtifactRef  # noqa: TC001
+from polisyos.core.artifacts import ArtifactRef as CASArtifactRef
 from polisyos.pdc import (
     CompositionCertificate,
     EvalSafetyAdmissionChallenge,
@@ -78,9 +78,6 @@ if TYPE_CHECKING:
     from polisyos.core import contracts as core_contracts
     from polisyos.core.artifacts import ArtifactStore
     from polisyos.core.contracts.control import CatalogRunProfile
-    from polisyos.runtime.quality.candidate_simulation import (
-        CandidateSimulationContextHandoff,
-    )
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.evaluation_safety import EvalSafetyVerifierPort
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime

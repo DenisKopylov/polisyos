@@ -15,8 +15,9 @@ import json
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
-from polisyos.fabric.catalog.binding import MetricBinding
+from polisyos.fabric.catalog.binding import DataContractSchemaBinding, MetricBinding
 from polisyos.fabric.catalog.contract import (
     DataContract,
     DataContractCollection,
@@ -35,6 +36,12 @@ from polisyos.fabric.catalog.semantic import (
     SemanticEvaluationCase,
 )
 from polisyos.fabric.catalog.source_bindings import SourceBinding
+from polisyos.fabric.connectors.contracts.schema import (
+    DataSchema,
+    FieldSpec,
+    SchemaType,
+    SchemaVersion,
+)
 
 # =============================================================================
 # Fixtures
@@ -312,6 +319,43 @@ class TestMetricBinding:
         restored = MetricBinding.from_dict(data)
 
         assert restored == binding
+
+
+class TestDataContractSchemaBinding:
+    def test_nested_contract_binds_and_round_trips_as_a_typed_model(
+        self, sample_contracts: list[DataContract]
+    ) -> None:
+        contract = sample_contracts[0]
+        schema = DataSchema(
+            schema_id="test.metric_binding",
+            version=SchemaVersion(1, 0, 0),
+            fields=(FieldSpec(name="gdp", data_type=SchemaType.FLOAT64),),
+        )
+
+        binding = DataContractSchemaBinding.bind(contract, schema, "gdp")
+        restored = DataContractSchemaBinding.model_validate(binding.model_dump(mode="python"))
+
+        assert binding.schema_type == SchemaType.FLOAT64.value
+        assert binding.effective_unit_id == contract.unit
+        assert isinstance(restored.contract, DataContract)
+        assert restored.contract == contract
+
+    def test_nested_contract_rejects_unknown_fields(
+        self, sample_contracts: list[DataContract]
+    ) -> None:
+        contract = sample_contracts[0]
+        schema = DataSchema(
+            schema_id="test.metric_binding",
+            version=SchemaVersion(1, 0, 0),
+            fields=(FieldSpec(name="gdp", data_type=SchemaType.FLOAT64),),
+        )
+        payload = DataContractSchemaBinding.bind(contract, schema, "gdp").model_dump(
+            mode="python"
+        )
+        payload["contract"]["unexpected_contract_field"] = "not-declared"
+
+        with pytest.raises(ValidationError):
+            DataContractSchemaBinding.model_validate(payload)
 
 
 # =============================================================================

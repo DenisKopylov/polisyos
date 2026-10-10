@@ -10,73 +10,145 @@ from __future__ import annotations
 import inspect
 from contextlib import contextmanager
 from functools import wraps
-from types import ModuleType
-from typing import Any, Iterator
+from typing import TYPE_CHECKING, Any, Iterator
+
+if TYPE_CHECKING:
+    from types import ModuleType
 
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
-    CatalogTransportDataset,
+    CatalogTransportDataset as CatalogTransportDataset,
+)
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
     CoreSourcesIngestStats,
-    ObservationFetchKey,
-    ObservationFetchPayload,
-    ObservationInsertStats,
-    ObservationPlan,
-    ObservationShard,
-    ObservationShardResult,
-    ObservationWriteItem,
-    SupportSketch,
-    WriterFlushState,
-    _ObservationRuntimeMetrics,
-    _SourceBudgetWindow,
+)
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    ObservationFetchKey as ObservationFetchKey,
+)
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    ObservationFetchPayload as ObservationFetchPayload,
+)
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    ObservationInsertStats as ObservationInsertStats,
+)
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    ObservationPlan as ObservationPlan,
+)
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    ObservationShard as ObservationShard,
+)
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    ObservationShardResult as ObservationShardResult,
+)
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    ObservationWriteItem as ObservationWriteItem,
+)
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    SupportSketch as SupportSketch,
+)
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    WriterFlushState as WriterFlushState,
+)
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    _ObservationRuntimeMetrics as _ObservationRuntimeMetrics,
+)
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    _SourceBudgetWindow as _SourceBudgetWindow,
 )
 from polisyos.data_forge.domains.catalog.batch.core_sources import (
     api as _api,
+)
+from polisyos.data_forge.domains.catalog.batch.core_sources import (
     loaders as _loaders,
+)
+from polisyos.data_forge.domains.catalog.batch.core_sources import (
     registry as _registry,
+)
+from polisyos.data_forge.domains.catalog.batch.core_sources import (
     transformers as _transformers,
+)
+from polisyos.data_forge.domains.catalog.batch.core_sources import (
     validators as _validators,
+)
+from polisyos.data_forge.domains.catalog.batch.core_sources import (
     writers as _writers,
 )
-
 
 # Only names still used by the compatibility window are exported.  Every
 # entry names its owning leaf; no module-global census or broadcast is used.
 _BINDINGS: dict[str, tuple[ModuleType, str]] = {}
 for _module, _names in (
-    (_writers, """
-        _ConnectorSessionCache _capability_snapshot_cache_key _format_duckdb_memory_limit
-        _hydrate_support_sketch_dimension_orders _hydrate_work_package_dimension_orders
-        _infer_ilo_dimension_order _insert_generic_observations _legacy_ingest_observations
-        _support_sketch_id _upsert_legacy_registry_datasets _upsert_seed_alignments
-    """.split()),
-    (_validators, """
-        _append_shard_result _build_observation_shards _chunked_observation_requests
-        _load_observation_checkpoint_state _record_shard_result _split_shard_for_retry_async
-        _store_shard_result _year_windows
-    """.split()),
-    (_loaders, """
-        _bulk_country_values _existing_observation_ids _fetch_remote_bulk_rows
-        _filter_rows_by_series_constraints _iter_eurostat_bulk_records
-        _iter_ilo_bulk_records _iter_uis_bulk_records _load_wvs_bulk_rows
-        _merge_observation_stats _records_from_payload _seed_alignments_path _wvs_bulk_csv_path
-    """.split()),
-    (_registry, """
-        _build_catalog_alignments _build_catalog_observation_plans _build_support_sketches
-        _build_observation_shards_from_sketches _ensure_registry_tables
-        _limit_observation_plans _load_catalog_transport_datasets
-        _resolve_catalog_update_frequency _upsert_catalog_alignments
-    """.split()),
-    (_transformers, """
-        _as_float _as_int _canonicalize_observation_request_filters
-        _eurostat_filters_for_country _filters_to_tuple _normalize_observation_row
-        _observation_id _observation_payload_row_limit _rewrite_sdmx_requests_with_dimension_key
-        _shard_countries _to_iso3
-    """.split()),
-    (_api, """
-        _fetch_observation_rows
-        _ingest_catalog_observations _ingest_catalog_observations_parallel
-        _run_core_sources_ingest_async _resolve_profile_config _resolve_source_execution_policy
-        _TRANSPORT_SOURCES _OBSERVATION_INSERT_BATCH_SIZE _DEFAULT_OBSERVATION_YEAR_WINDOW
-    """.split()),
+    (_writers, [
+        "_ConnectorSessionCache",
+        "_capability_snapshot_cache_key",
+        "_format_duckdb_memory_limit",
+        "_hydrate_support_sketch_dimension_orders",
+        "_hydrate_work_package_dimension_orders",
+        "_infer_ilo_dimension_order",
+        "_insert_generic_observations",
+        "_legacy_ingest_observations",
+        "_support_sketch_id",
+        "_upsert_legacy_registry_datasets",
+        "_upsert_seed_alignments",
+    ]),
+    (_validators, [
+        "_append_shard_result",
+        "_build_observation_shards",
+        "_chunked_observation_requests",
+        "_load_observation_checkpoint_state",
+        "_record_shard_result",
+        "_split_shard_for_retry_async",
+        "_store_shard_result",
+        "_year_windows",
+    ]),
+    (_loaders, [
+        "_bulk_country_values",
+        "_existing_observation_ids",
+        "_fetch_remote_bulk_rows",
+        "_filter_rows_by_series_constraints",
+        "_iter_eurostat_bulk_records",
+        "_iter_ilo_bulk_records",
+        "_iter_uis_bulk_records",
+        "_load_wvs_bulk_rows",
+        "_merge_observation_stats",
+        "_records_from_payload",
+        "_seed_alignments_path",
+        "_wvs_bulk_csv_path",
+    ]),
+    (_registry, [
+        "_build_catalog_alignments",
+        "_build_catalog_observation_plans",
+        "_build_support_sketches",
+        "_build_observation_shards_from_sketches",
+        "_ensure_registry_tables",
+        "_limit_observation_plans",
+        "_load_catalog_transport_datasets",
+        "_resolve_catalog_update_frequency",
+        "_upsert_catalog_alignments",
+    ]),
+    (_transformers, [
+        "_as_float",
+        "_as_int",
+        "_canonicalize_observation_request_filters",
+        "_eurostat_filters_for_country",
+        "_filters_to_tuple",
+        "_normalize_observation_row",
+        "_observation_id",
+        "_observation_payload_row_limit",
+        "_rewrite_sdmx_requests_with_dimension_key",
+        "_shard_countries",
+        "_to_iso3",
+    ]),
+    (_api, [
+        "_fetch_observation_rows",
+        "_ingest_catalog_observations",
+        "_ingest_catalog_observations_parallel",
+        "_run_core_sources_ingest_async",
+        "_resolve_profile_config",
+        "_resolve_source_execution_policy",
+        "_TRANSPORT_SOURCES",
+        "_OBSERVATION_INSERT_BATCH_SIZE",
+        "_DEFAULT_OBSERVATION_YEAR_WINDOW",
+    ]),
 ):
     _BINDINGS.update({name: (_module, name) for name in _names})
 

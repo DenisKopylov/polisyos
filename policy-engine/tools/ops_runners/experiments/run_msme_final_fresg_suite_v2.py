@@ -23,6 +23,7 @@ import sys
 import time
 import traceback
 from collections import Counter, defaultdict
+from collections.abc import Iterator
 from concurrent import futures
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -126,7 +127,7 @@ def stage_result(ctx: dict[str, Any], stage: str, payload: dict[str, Any]) -> di
     return base.stage_result(ctx, stage, payload)
 
 
-def iter_jsonl(path: Path, limit: int | None = None):
+def iter_jsonl(path: Path, limit: int | None = None) -> Iterator[object]:
     yield from base.iter_jsonl(path, limit)
 
 
@@ -294,7 +295,7 @@ def causal_bootstrap_cell(args: tuple[str, str, int, int, int]) -> dict[str, Any
     failed = 0
     for _ in range(replicates):
         idx = rng.integers(0, rows, size=rows)
-        est, status = estimate_effect(method, data, idx)
+        est, _status = estimate_effect(method, data, idx)
         if math.isfinite(est):
             estimates.append(est)
         else:

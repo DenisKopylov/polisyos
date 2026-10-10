@@ -56,16 +56,18 @@ Each evaluation is keyed by both occurrence_pointer and sha256. Evidence refs
 must resolve to immutable Git blobs and explicitly bind the exact occurrence
 and evaluated candidate. A finding-level candidate proposal requires an
 explicit, matching disposition for every source occurrence of that ID. A
-proposed closed disposition additionally requires occurrence-specific property,
-actual-consumer, and negative evidence for every occurrence. This does not set
-formal_closure_ids; only a separate G adjudication can do that. B198's historical
-closed decision is immutable context here; a new proposal that reopens it needs
-an occurrence-specific defining-property counterexample.
+VERIFIED evaluation always requires occurrence-specific property, actual-consumer,
+and negative evidence, regardless of proposal disposition. A proposed closed
+disposition additionally requires VERIFIED state for every occurrence. This does
+not set formal_closure_ids; only a separate G adjudication can do that. B198's
+historical closed decision is immutable context here; a new proposal that reopens
+it needs an occurrence-specific defining-property counterexample.
 """
 
 from __future__ import annotations
 
 import argparse
+import ast
 import collections
 import copy
 import hashlib
@@ -79,11 +81,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Sequence
 
 SCHEMA = "policyos.e02.finding_proposals.v4"
 EVALUATION_SCHEMA = "policyos.e02.occurrence_evaluations.v4"
 SLICE_HANDOFF_SCHEMA = "policyos.e02.local_slice_handoff.v2"
+ENVIRONMENT_MANIFEST_SCHEMA = "policyos.e02.execution_environment_manifest.v1"
 OUTCOME_STATES = {
     "VERIFIED",
     "BOUNDED_LIMITATION",
@@ -169,12 +172,75 @@ def repo_root() -> Path:
 
 def git_bytes(root: Path, *args: str) -> bytes:
     """Read bytes from Git without a shell or working-tree substitution."""
-    return subprocess.check_output(["git", *args], cwd=root)  # noqa: S603, S607 -- read-only Git argv; no shell.
+    return git_run(root, *args, check=True, capture_output=True).stdout
 
 
 def git_text(root: Path, *args: str) -> str:
     """Read one Git result as UTF-8 text."""
     return git_bytes(root, *args).decode("utf-8").strip()
+
+
+def git_run(
+    root: Path,
+    *args: str,
+    check: bool = True,
+    capture_output: bool = False,
+    input: bytes | None = None,
+) -> subprocess.CompletedProcess[bytes]:
+    """Run one argv-only Git read with replacement objects disabled."""
+    require(bool(args) and all(isinstance(arg, str) for arg in args), "Git argv is invalid")
+    environment = os.environ.copy()
+    environment["GIT_NO_REPLACE_OBJECTS"] = "1"
+    try:
+        return subprocess.run(  # noqa: S603 -- fixed Git executable and argv; no shell.
+            ["git", "--no-replace-objects", *args],  # noqa: S607 -- global Git option disables replacement refs.
+            cwd=root,
+            env=environment,
+            check=check,
+            capture_output=capture_output,
+            input=input,
+        )
+    except subprocess.CalledProcessError as exc:
+        operation = args[0]
+        raise ValueError(f"Git read failed for {operation} (exit {exc.returncode})") from exc
+
+
+def has_active_git_grafts(graft_data: bytes) -> bool:
+    """Return whether the legacy graft file supplies any active parent rows."""
+    return any(
+        line.strip() and not line.lstrip().startswith(b"#") for line in graft_data.splitlines()
+    )
+
+
+def ensure_git_graph_authoritative(root: Path, *, label: str) -> None:
+    """Reject grafted or shallow graph views before relying on Git ancestry."""
+    shallow_state = git_text(root, "rev-parse", "--is-shallow-repository")
+    require(
+        shallow_state == "false",
+        f"{label} cannot establish complete Git ancestry in a shallow repository",
+    )
+    graft_path_value = git_text(root, "rev-parse", "--git-path", "info/grafts")
+    graft_path = Path(graft_path_value)
+    if not graft_path.is_absolute():
+        graft_path = root / graft_path
+    try:
+        graft_status = graft_path.lstat()
+    except FileNotFoundError:
+        return
+    except OSError as exc:
+        raise ValueError(f"{label} cannot inspect Git graft state") from exc
+    require(
+        not stat.S_ISLNK(graft_status.st_mode) and stat.S_ISREG(graft_status.st_mode),
+        f"{label} cannot establish ancestry through a non-regular Git graft path",
+    )
+    try:
+        graft_data = graft_path.read_bytes()
+    except OSError as exc:
+        raise ValueError(f"{label} cannot read Git graft state") from exc
+    require(
+        not has_active_git_grafts(graft_data),
+        f"{label} cannot establish Git ancestry while active grafts are present",
+    )
 
 
 def changes_from_name_status(output: bytes) -> list[tuple[str, str]]:
@@ -621,7 +687,8 @@ def validate_local_raw_output(
     *,
     candidate_source: dict[str, str],
     label: str,
-) -> None:
+    read_bytes: bool = False,
+) -> bytes | None:
     """Verify an explicitly ignored raw output against the frozen tree and local bytes."""
     validate_command_output_ref_shape(
         output_ref,
@@ -636,9 +703,11 @@ def validate_local_raw_output(
         == candidate_source["tree"],
         f"{label} candidate source tree does not resolve",
     )
-    committed_path = subprocess.run(  # noqa: S603 -- fixed Git command, no shell.
-        ["git", "cat-file", "-e", f"{candidate_source['commit']}:{path}"],  # noqa: S607
-        cwd=root,
+    committed_path = git_run(
+        root,
+        "cat-file",
+        "-e",
+        f"{candidate_source['commit']}:{path}",
         check=False,
         capture_output=True,
     )
@@ -646,17 +715,24 @@ def validate_local_raw_output(
         committed_path.returncode != 0,
         f"{label} ignored raw path is present in the candidate Git tree",
     )
-    indexed_path = subprocess.run(  # noqa: S603 -- fixed Git command, no shell.
-        ["git", "ls-files", "--error-unmatch", "--", path],  # noqa: S607
-        cwd=root,
+    indexed_path = git_run(
+        root,
+        "ls-files",
+        "--error-unmatch",
+        "--",
+        path,
         check=False,
         capture_output=True,
     )
     require(indexed_path.returncode != 0, f"{label} ignored raw path is tracked or staged")
 
-    ignore_result = subprocess.run(
-        ["git", "check-ignore", "-v", "-z", "--no-index", "--stdin"],  # noqa: S607
-        cwd=root,
+    ignore_result = git_run(
+        root,
+        "check-ignore",
+        "-v",
+        "-z",
+        "--no-index",
+        "--stdin",
         input=path.encode("utf-8") + b"\0",
         check=False,
         capture_output=True,
@@ -693,7 +769,7 @@ def validate_local_raw_output(
         frozen_ignore_bytes = git_bytes(
             root, "show", f"{candidate_source['commit']}:{ignore_source}"
         )
-    except (OSError, subprocess.CalledProcessError) as exc:
+    except (OSError, ValueError) as exc:
         raise ValueError(f"{label} ignore rule source is not frozen candidate input") from exc
     ignore_source_path = root.resolve(strict=True)
     for index, component in enumerate(ignore_source_parts):
@@ -727,6 +803,7 @@ def validate_local_raw_output(
         no_follow != 0,
         f"{label} platform cannot safely read an ignored raw output without following symlinks",
     )
+    actual_bytes: bytes | None = None
     try:
         descriptor = os.open(target, os.O_RDONLY | no_follow)
         with os.fdopen(descriptor, "rb") as stream:
@@ -743,10 +820,19 @@ def validate_local_raw_output(
                 == (opened_status.st_dev, opened_status.st_ino),
                 f"{label} ignored raw output path changed during local readback",
             )
-            actual_digest = hashlib.file_digest(stream, "sha256").hexdigest()
+            if read_bytes:
+                actual_bytes = stream.read(4 * 1024 * 1024 + 1)
+                require(
+                    len(actual_bytes) <= 4 * 1024 * 1024,
+                    f"{label} ignored raw JSON exceeds the 4 MiB bound",
+                )
+                actual_digest = sha256(actual_bytes)
+            else:
+                actual_digest = hashlib.file_digest(stream, "sha256").hexdigest()
     except OSError as exc:
         raise ValueError(f"{label} ignored raw output is unavailable: {path}") from exc
     require(actual_digest == output_ref["sha256"], f"{label} ignored raw output SHA-256 mismatch")
+    return actual_bytes
 
 
 def decision_refs_by_occurrence(
@@ -995,9 +1081,13 @@ def validate_slice_handoff(
             or (isinstance(command.get("command"), str) and command["command"].strip()),
             f"{label} slice handoff command needs argv or command: {path}/{index}",
         )
+        require(
+            isinstance(command.get("cwd"), str) and command["cwd"].strip(),
+            f"{label} slice handoff command needs a working directory: {path}/{index}",
+        )
         status = command.get("status")
         require(
-            status in COMMAND_OUTCOMES | {"UNRUN"},
+            isinstance(status, str) and status in COMMAND_OUTCOMES | {"UNRUN"},
             f"{label} slice handoff command status is invalid: {path}/{index}",
         )
         if status == "UNRUN":
@@ -1013,9 +1103,17 @@ def validate_slice_handoff(
                     candidate_source=artifact["candidate_source"],
                     label=f"{label} slice handoff {output_key}: {path}/{index}",
                 )
+    profile = artifact.get("backend_profile")
     require(
-        isinstance(artifact.get("backend_profile"), dict),
-        f"{label} slice handoff backend_profile must be an object: {path}",
+        isinstance(profile, dict)
+        and set(profile)
+        == {"backend_id", "profile_id", "environment_sha256", "environment_manifest_ref"},
+        f"{label} slice handoff backend_profile fields are incomplete or unknown: {path}",
+    )
+    validate_command_output_ref_shape(
+        profile["environment_manifest_ref"],
+        candidate_source=artifact["candidate_source"],
+        label=f"{label} backend environment manifest: {path}",
     )
     require(
         isinstance(artifact.get("chain"), dict) and bool(artifact["chain"]),
@@ -1092,9 +1190,13 @@ def complete_source_change_census(
         git_text(root, "rev-parse", f"{candidate_commit}^{{tree}}") == candidate_tree,
         "source-change census candidate tree mismatch",
     )
-    ancestry = subprocess.run(  # noqa: S603 -- read-only Git ancestry check; no shell.
-        ["git", "merge-base", "--is-ancestor", original_entry_commit, candidate_commit],  # noqa: S607
-        cwd=root,
+    ensure_git_graph_authoritative(root, label="source-change census")
+    ancestry = git_run(
+        root,
+        "merge-base",
+        "--is-ancestor",
+        original_entry_commit,
+        candidate_commit,
         check=False,
     )
     require(
@@ -1159,6 +1261,7 @@ def verify_source_descendant(
         re.fullmatch(r"[0-9a-f]{40}", descendant_commit) is not None,
         "report checkout commit must be a full SHA",
     )
+    ensure_git_graph_authoritative(root, label="source descendant")
     cache_key = (str(root.resolve()), frozen_commit, frozen_tree, descendant_commit)
     if cache_key in SOURCE_DESCENDANT_CACHE:
         return list(SOURCE_DESCENDANT_CACHE[cache_key])
@@ -1170,9 +1273,12 @@ def verify_source_descendant(
         git_text(root, "rev-parse", f"{frozen_commit}^{{tree}}") == frozen_tree,
         "frozen candidate tree does not match its commit",
     )
-    ancestor = subprocess.run(  # noqa: S603 -- read-only Git ancestry check; no shell.
-        ["git", "merge-base", "--is-ancestor", frozen_commit, descendant_commit],  # noqa: S607
-        cwd=root,
+    ancestor = git_run(
+        root,
+        "merge-base",
+        "--is-ancestor",
+        frozen_commit,
+        descendant_commit,
         check=False,
     )
     require(
@@ -1192,9 +1298,11 @@ def verify_source_descendant(
     changes = changes_from_name_status(output)
 
     def committed_payload(path: str) -> bytes | None:
-        exists = subprocess.run(  # noqa: S603 -- read-only Git object check; no shell.
-            ["git", "cat-file", "-e", f"{descendant_commit}:{path}"],  # noqa: S607
-            cwd=root,
+        exists = git_run(
+            root,
+            "cat-file",
+            "-e",
+            f"{descendant_commit}:{path}",
             check=False,
             capture_output=True,
         )
@@ -1214,10 +1322,16 @@ def verify_source_descendant(
 
 def worktree_changes(root: Path) -> list[tuple[str, str]]:
     """Collect complete staged, unstaged, and untracked paths with status."""
-    raw = subprocess.check_output(
-        ["git", "status", "--porcelain=v1", "-z", "--untracked-files=all"],  # noqa: S607
-        cwd=root,
+    raw = git_run(
+        root,
+        "status",
+        "--porcelain=v1",
+        "-z",
+        "--untracked-files=all",
+        check=True,
+        capture_output=True,
     )
+    raw = raw.stdout
     changes: list[tuple[str, str]] = []
     records = raw.decode("utf-8").split("\0")
     for record in records:
@@ -1363,6 +1477,364 @@ def canonical_json_sha256(value: object) -> str:
     return sha256(encoded)
 
 
+def load_canonical_json_object(data: bytes, *, label: str) -> dict[str, Any]:
+    """Decode a canonical JSON object while refusing duplicate keys and non-finite values."""
+
+    def unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, value in pairs:
+            require(key not in result, f"{label} JSON contains duplicate key: {key}")
+            result[key] = value
+        return result
+
+    def reject_constant(value: str) -> None:
+        raise ValueError(f"{label} JSON contains non-finite number {value}")
+
+    try:
+        value = json.loads(
+            data.decode("utf-8"),
+            object_pairs_hook=unique_object,
+            parse_constant=reject_constant,
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"{label} is not valid UTF-8 JSON") from exc
+    require(isinstance(value, dict), f"{label} must be a JSON object")
+    canonical = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode(
+        "utf-8"
+    )
+    require(
+        data == canonical,
+        f"{label} must use canonical JSON encoding without a trailing newline",
+    )
+    return value
+
+
+def normalized_environment_inputs(value: object, *, label: str) -> list[dict[str, Any]]:
+    """Return the complete, identity-sorted selected-input denominator."""
+    require(isinstance(value, list), f"{label} selected_inputs must be an array")
+    normalized: list[dict[str, Any]] = []
+    identities: set[str] = set()
+    for index, row in enumerate(value):
+        require(isinstance(row, dict), f"{label} selected input row is invalid: {index}")
+        identity = row.get("identity")
+        status = row.get("status")
+        require(
+            isinstance(identity, str) and identity.strip(),
+            f"{label} selected input identity is missing: {index}",
+        )
+        require(
+            identity not in identities,
+            f"{label} selected input identity is duplicated: {identity}",
+        )
+        identities.add(identity)
+        require(
+            isinstance(status, str) and status in {"available", "unavailable"},
+            f"{label} selected input status is invalid",
+        )
+        digest = row.get("sha256")
+        if status == "available":
+            require(
+                isinstance(digest, str) and re.fullmatch(r"[0-9a-f]{64}", digest) is not None,
+                f"{label} available input lacks its content hash: {index}",
+            )
+        else:
+            require(
+                digest is None,
+                f"{label} unavailable input must not claim content bytes: {index}",
+            )
+        normalized.append({"identity": identity, "status": status, "sha256": digest})
+    return sorted(normalized, key=lambda row: row["identity"])
+
+
+def validate_environment_manifest_bytes(
+    data: bytes,
+    handoff: dict[str, Any],
+    *,
+    candidate_source: dict[str, str],
+    label: str,
+) -> dict[str, Any]:
+    """Recompute and reconcile a canonical backend environment manifest."""
+    manifest = load_canonical_json_object(data, label=f"{label} environment manifest")
+    expected_fields = {
+        "schema",
+        "candidate_source",
+        "backend_id",
+        "profile_id",
+        "source_refs",
+        "runtime",
+        "platform",
+        "loaded_import_origins",
+        "environment_settings",
+        "command_runs",
+        "selected_inputs",
+        "selected_input_denominator_sha256",
+    }
+    require(
+        set(manifest) == expected_fields,
+        f"{label} environment manifest fields are incomplete or unknown",
+    )
+    profile = handoff.get("backend_profile")
+    require(isinstance(profile, dict), f"{label} backend_profile must be an object")
+    require(
+        set(profile)
+        == {"backend_id", "profile_id", "environment_sha256", "environment_manifest_ref"},
+        f"{label} backend_profile fields are incomplete or unknown",
+    )
+    require(
+        manifest.get("schema") == ENVIRONMENT_MANIFEST_SCHEMA,
+        f"{label} environment manifest schema mismatch",
+    )
+    require(
+        manifest.get("candidate_source") == candidate_source,
+        f"{label} environment manifest candidate source mismatch",
+    )
+    for key in ("backend_id", "profile_id"):
+        value = profile.get(key)
+        require(
+            isinstance(value, str) and value.strip(),
+            f"{label} backend profile {key} is missing",
+        )
+        require(manifest.get(key) == value, f"{label} environment manifest {key} mismatch")
+    digest = sha256(data)
+    require(
+        profile.get("environment_sha256") == digest,
+        f"{label} backend environment SHA-256 does not match the manifest bytes",
+    )
+    manifest_ref = profile.get("environment_manifest_ref")
+    require(isinstance(manifest_ref, dict), f"{label} environment manifest ref is missing")
+    require(
+        manifest_ref.get("sha256") == digest,
+        f"{label} environment manifest ref SHA-256 does not match its bytes",
+    )
+
+    runtime = manifest.get("runtime")
+    require(
+        isinstance(runtime, dict) and set(runtime) == {"implementation", "version", "executable"},
+        f"{label} environment runtime fields are incomplete or unknown",
+    )
+    require(
+        all(isinstance(value, str) and value.strip() for value in runtime.values()),
+        f"{label} environment runtime values must be non-empty strings",
+    )
+    platform = manifest.get("platform")
+    require(
+        isinstance(platform, dict) and set(platform) == {"system", "release", "machine"},
+        f"{label} environment platform fields are incomplete or unknown",
+    )
+    require(
+        all(isinstance(value, str) and value.strip() for value in platform.values()),
+        f"{label} environment platform values must be non-empty strings",
+    )
+
+    origins = manifest.get("loaded_import_origins")
+    require(
+        isinstance(origins, list) and bool(origins),
+        f"{label} loaded import origins are required",
+    )
+    origin_modules: set[str] = set()
+    for index, origin in enumerate(origins):
+        require(
+            isinstance(origin, dict) and set(origin) == {"module", "origin", "package_version"},
+            f"{label} loaded import origin fields are invalid: {index}",
+        )
+        module = origin.get("module")
+        require(
+            isinstance(module, str) and module.strip() and module not in origin_modules,
+            f"{label} loaded import origin module is missing or duplicated: {index}",
+        )
+        require(
+            all(
+                isinstance(origin.get(key), str) and origin[key].strip()
+                for key in ("origin", "package_version")
+            ),
+            f"{label} loaded import origin lacks its path or package version: {index}",
+        )
+        origin_modules.add(module)
+
+    settings = manifest.get("environment_settings")
+    require(isinstance(settings, dict), f"{label} environment_settings must be an object")
+    secret_name = re.compile(
+        r"(?:token|secret|password|credential|private[_-]?key|authorization)", re.I
+    )
+    for key, value in settings.items():
+        require(
+            isinstance(key, str) and key.strip(),
+            f"{label} environment setting name is invalid",
+        )
+        require(
+            secret_name.search(key) is None,
+            f"{label} environment setting appears to name secret material: {key}",
+        )
+        require(
+            value is None or isinstance(value, (str, bool, int)),
+            f"{label} environment setting must be a non-secret JSON scalar: {key}",
+        )
+
+    footprint = handoff.get("source_footprint")
+    require(isinstance(footprint, list), f"{label} source footprint is missing")
+    footprint_hashes = {
+        row.get("path"): row.get("sha256") for row in footprint if isinstance(row, dict)
+    }
+    source_refs = manifest.get("source_refs")
+    require(
+        isinstance(source_refs, list) and bool(source_refs),
+        f"{label} source refs are required",
+    )
+    source_paths: set[str] = set()
+    source_roles: set[str] = set()
+    for index, ref in enumerate(source_refs):
+        require(
+            isinstance(ref, dict) and set(ref) == {"path", "role", "sha256"},
+            f"{label} environment source ref fields are invalid: {index}",
+        )
+        path, role, source_digest = ref.get("path"), ref.get("role"), ref.get("sha256")
+        require(
+            isinstance(path, str) and path and path not in source_paths,
+            f"{label} environment source path is missing or duplicated: {index}",
+        )
+        require(
+            isinstance(role, str) and role in {"backend_recipe", "configuration", "lockfile"},
+            f"{label} environment source role is invalid: {index}",
+        )
+        require(
+            isinstance(source_digest, str)
+            and re.fullmatch(r"[0-9a-f]{64}", source_digest) is not None
+            and footprint_hashes.get(path) == source_digest,
+            f"{label} environment source ref is not bound to the candidate footprint: {path}",
+        )
+        source_paths.add(path)
+        source_roles.add(role)
+    require(
+        "backend_recipe" in source_roles and bool(source_roles & {"configuration", "lockfile"}),
+        f"{label} environment source refs must bind a backend recipe and a config or lockfile",
+    )
+
+    normalized_inputs = normalized_environment_inputs(
+        handoff.get("selected_inputs"), label=f"{label} handoff"
+    )
+    manifest_inputs = manifest.get("selected_inputs")
+    require(
+        manifest_inputs == normalized_inputs,
+        f"{label} environment manifest selected inputs differ from the handoff denominator",
+    )
+    require(
+        manifest.get("selected_input_denominator_sha256")
+        == canonical_json_sha256(normalized_inputs),
+        f"{label} environment selected-input denominator hash mismatch",
+    )
+
+    commands = handoff.get("commands")
+    command_runs = manifest.get("command_runs")
+    require(
+        isinstance(commands, list)
+        and isinstance(command_runs, list)
+        and len(command_runs) == len(commands),
+        f"{label} environment command rows do not cover the complete command denominator",
+    )
+    for index, (command, run) in enumerate(zip(commands, command_runs, strict=True)):
+        require(
+            isinstance(command, dict) and isinstance(run, dict),
+            f"{label} command row is invalid",
+        )
+        argv = command.get("argv")
+        command_text = command.get("command")
+        has_argv = (
+            isinstance(argv, list) and bool(argv) and all(isinstance(part, str) for part in argv)
+        )
+        has_command = isinstance(command_text, str) and bool(command_text.strip())
+        require(
+            has_argv != has_command,
+            f"{label} command must use exactly one argv or command form",
+        )
+        cwd = command.get("cwd")
+        require(isinstance(cwd, str) and cwd.strip(), f"{label} command cwd is required: {index}")
+        status = command.get("status")
+        expected_run: dict[str, Any] = {
+            "command_index": index,
+            "cwd": cwd,
+            "status": status,
+        }
+        if has_argv:
+            expected_run["argv"] = argv
+        else:
+            expected_run["command"] = command_text
+        if status == "UNRUN":
+            reason = command.get("unrun_reason")
+            require(
+                isinstance(reason, str) and reason.strip(),
+                f"{label} UNRUN command needs a reason",
+            )
+            expected_run["unrun_reason"] = reason
+        else:
+            require(
+                isinstance(status, str) and status in COMMAND_OUTCOMES,
+                f"{label} command status is invalid: {index}",
+            )
+            for output_key in ("stdout_ref", "stderr_ref"):
+                output_ref = command.get(output_key)
+                require(isinstance(output_ref, dict), f"{label} command {output_key} is missing")
+                expected_run[f"{output_key.removesuffix('_ref')}_sha256"] = output_ref.get("sha256")
+        require(
+            run == expected_run,
+            f"{label} environment command row differs from the handoff at index {index}",
+        )
+    return manifest
+
+
+def validate_backend_environment_manifest(
+    root: Path,
+    handoff: dict[str, Any],
+    *,
+    candidate_source: dict[str, str],
+    label: str,
+) -> dict[str, Any]:
+    """Read the source-bound ignored manifest and validate its exact bytes and contents."""
+    profile = handoff.get("backend_profile")
+    require(isinstance(profile, dict), f"{label} backend_profile must be an object")
+    manifest_ref = profile.get("environment_manifest_ref")
+    validate_command_output_ref_shape(
+        manifest_ref,
+        candidate_source=candidate_source,
+        label=f"{label} backend environment manifest",
+    )
+    require(
+        manifest_ref.get("storage") == LOCAL_RAW_STORAGE,
+        f"{label} environment manifest must be an available ignored LOCAL/raw artifact",
+    )
+    manifest_bytes = validate_local_raw_output(
+        root,
+        manifest_ref,
+        candidate_source=candidate_source,
+        label=f"{label} backend environment manifest",
+        read_bytes=True,
+    )
+    require(isinstance(manifest_bytes, bytes), f"{label} environment manifest bytes were not read")
+    return validate_environment_manifest_bytes(
+        manifest_bytes,
+        handoff,
+        candidate_source=candidate_source,
+        label=label,
+    )
+
+
+def require_verified_evidence_roles(
+    state: str,
+    evidence_refs: list[dict[str, Any]],
+    *,
+    label: str,
+) -> None:
+    """Require defining-property, real consumer, and negative evidence for VERIFIED."""
+    if state != "VERIFIED":
+        return
+    roles = {ref.get("role") for ref in evidence_refs}
+    required_roles = {"property_positive", "actual_consumer", "negative"}
+    require(
+        required_roles <= roles,
+        f"{label} VERIFIED evaluation needs occurrence-bound property-positive, actual-consumer, "
+        "and negative evidence regardless of proposal disposition",
+    )
+
+
 def pinned_file_ref(
     root: Path,
     *,
@@ -1440,9 +1912,13 @@ def validate_pinned_evidence_ref(
     require(resolved_blob == blob, f"{label} evidence Git blob mismatch")
     evidence_bytes = git_bytes(root, "show", f"{commit}:{path}")
     require(sha256(evidence_bytes) == digest, f"{label} evidence SHA-256 mismatch")
-    descendant = subprocess.run(  # noqa: S603 -- read-only Git ancestry check; no shell.
-        ["git", "merge-base", "--is-ancestor", candidate_source["commit"], commit],  # noqa: S607
-        cwd=root,
+    ensure_git_graph_authoritative(root, label=label)
+    descendant = git_run(
+        root,
+        "merge-base",
+        "--is-ancestor",
+        candidate_source["commit"],
+        commit,
         check=False,
     )
     require(
@@ -1513,14 +1989,18 @@ def load_sources(
 ) -> dict[str, Any]:
     """Load and reconcile the pinned source documents for the ledger."""
     current_head = git_text(root, "rev-parse", "HEAD")
-    branch_result = subprocess.run(
-        ["git", "symbolic-ref", "-q", "--short", "HEAD"],  # noqa: S607
-        cwd=root,
+    branch_result = git_run(
+        root,
+        "symbolic-ref",
+        "-q",
+        "--short",
+        "HEAD",
         capture_output=True,
         check=False,
-        text=True,
     )
-    current_branch = branch_result.stdout.strip() if branch_result.returncode == 0 else None
+    current_branch = (
+        branch_result.stdout.decode("utf-8").strip() if branch_result.returncode == 0 else None
+    )
     if frozen_report_checkout is None:
         report_checkout = {
             "commit": current_head,
@@ -1663,9 +2143,13 @@ def load_sources(
         git_text(root, "rev-parse", f"{original_entry_commit}^{{tree}}") == original_entry_tree,
         "BOOT0 original entry commit/tree mismatch",
     )
-    ancestry = subprocess.run(  # noqa: S603 -- read-only Git ancestry check; no shell.
-        ["git", "merge-base", "--is-ancestor", original_entry_commit, head],  # noqa: S607
-        cwd=root,
+    ensure_git_graph_authoritative(root, label="BOOT0 source")
+    ancestry = git_run(
+        root,
+        "merge-base",
+        "--is-ancestor",
+        original_entry_commit,
+        head,
         check=False,
     )
     require(
@@ -3365,6 +3849,7 @@ def validate_typed_slice_receipt(
         expected_candidate=candidate_source,
         label=label,
     )
+    validate_slice_source_relationships(root, artifact, label=label)
     command_statuses = {command["status"] for command in artifact["commands"]}
     if evaluation_state == "VERIFIED":
         require(
@@ -3421,6 +3906,12 @@ def validate_typed_slice_receipt(
         complete_census=complete_census,
         label=label,
     )
+    validate_backend_environment_manifest(
+        root,
+        artifact,
+        candidate_source=candidate_source,
+        label=label,
+    )
     profile = artifact.get("backend_profile", {})
     require(
         all(
@@ -3428,11 +3919,6 @@ def validate_typed_slice_receipt(
             for key in ("backend_id", "profile_id")
         ),
         f"{label} must name the actual backend and selected profile",
-    )
-    require(
-        isinstance(profile.get("environment_sha256"), str)
-        and re.fullmatch(r"[0-9a-f]{64}", profile["environment_sha256"]) is not None,
-        f"{label} must bind the backend environment fingerprint",
     )
     chain = artifact.get("chain", {})
     require(
@@ -3481,6 +3967,352 @@ def validate_typed_slice_receipt(
         label=label,
     )
     return artifact
+
+
+def parse_git_commit_header(commit_object: bytes, *, label: str) -> tuple[str, list[str]]:
+    """Read the tree and ordered parent identities from one Git commit object."""
+    require(isinstance(commit_object, bytes), f"{label} commit object must be bytes")
+    header, separator, _message = commit_object.partition(b"\n\n")
+    require(bool(separator), f"{label} commit object has no header/message boundary")
+    tree_values: list[str] = []
+    parent_values: list[str] = []
+    for header_line in header.splitlines():
+        if header_line.startswith(b"tree "):
+            try:
+                tree_values.append(header_line.removeprefix(b"tree ").decode("ascii"))
+            except UnicodeDecodeError as exc:
+                raise ValueError(f"{label} commit tree identity is not ASCII") from exc
+        elif header_line.startswith(b"parent "):
+            try:
+                parent_values.append(header_line.removeprefix(b"parent ").decode("ascii"))
+            except UnicodeDecodeError as exc:
+                raise ValueError(f"{label} commit parent identity is not ASCII") from exc
+    require(len(tree_values) == 1, f"{label} commit object must contain exactly one tree header")
+    require(
+        re.fullmatch(r"[0-9a-f]{40}", tree_values[0]) is not None,
+        f"{label} commit tree identity is invalid",
+    )
+    require(
+        all(re.fullmatch(r"[0-9a-f]{40}", parent) is not None for parent in parent_values),
+        f"{label} commit parent identity is invalid",
+    )
+    return tree_values[0], parent_values
+
+
+def git_commit_source(
+    root: Path,
+    source: object,
+    *,
+    label: str,
+) -> tuple[dict[str, str], list[str]]:
+    """Resolve a declared commit/tree pair and inspect its actual Git ancestry headers."""
+    identity = validate_candidate_source(root, source)
+    commit_object = git_bytes(root, "cat-file", "-p", identity["commit"])
+    object_tree, parent_ids = parse_git_commit_header(commit_object, label=label)
+    require(
+        object_tree == identity["tree"],
+        f"{label} commit object tree differs from its resolved source tree",
+    )
+    for parent_index, parent_id in enumerate(parent_ids):
+        try:
+            resolved_parent = git_text(root, "rev-parse", f"{parent_id}^{{commit}}")
+        except (OSError, ValueError) as exc:
+            raise ValueError(f"{label} actual Git parent is unavailable: {parent_index}") from exc
+        require(
+            resolved_parent == parent_id,
+            f"{label} actual Git parent does not resolve to the declared commit: {parent_index}",
+        )
+    return identity, parent_ids
+
+
+def validate_slice_source_relationships(
+    root: Path,
+    handoff: dict[str, Any],
+    *,
+    label: str,
+) -> dict[str, Any]:
+    """Bind slice base, candidate tree, and ordered parent claims to Git objects."""
+    ensure_git_graph_authoritative(root, label=label)
+    base_identity, _base_parents = git_commit_source(
+        root,
+        handoff.get("slice_base"),
+        label=f"{label} slice base",
+    )
+    candidate_identity, actual_parent_ids = git_commit_source(
+        root,
+        handoff.get("candidate_source"),
+        label=f"{label} candidate source",
+    )
+    declared_parent_ids = handoff.get("parents")
+    require(
+        isinstance(declared_parent_ids, list),
+        f"{label} parents must be an ordered array of actual Git parent IDs",
+    )
+    require(
+        declared_parent_ids == actual_parent_ids,
+        f"{label} parents do not equal the actual Git parent list in order",
+    )
+    ancestry = git_run(
+        root,
+        "merge-base",
+        "--is-ancestor",
+        base_identity["commit"],
+        candidate_identity["commit"],
+        check=False,
+    )
+    require(
+        ancestry.returncode == 0,
+        (
+            f"{label} slice base is not an ancestor of the candidate source"
+            if ancestry.returncode == 1
+            else f"{label} could not resolve slice-base ancestry (git exit {ancestry.returncode})"
+        ),
+    )
+    return {
+        "slice_base": base_identity,
+        "candidate_source": candidate_identity,
+        "candidate_parent_ids": actual_parent_ids,
+    }
+
+
+def git_read_boundary_self_check(
+    root: Path,
+    *,
+    candidate_source: dict[str, str],
+    original_entry: dict[str, str],
+) -> dict[str, Any]:
+    """Probe immutable Git reads, graph overlays, and missing-object failures."""
+    source_text = Path(__file__).read_text(encoding="utf-8")
+    syntax_tree = ast.parse(source_text)
+    git_subprocess_sites: list[tuple[str | None, str]] = []
+
+    def record_git_subprocess_calls(node: ast.AST, owner: str | None = None) -> None:
+        current_owner = owner
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            current_owner = node.name
+        if (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == "subprocess"
+            and node.func.attr in {"run", "check_output", "Popen"}
+        ):
+            git_subprocess_sites.append((current_owner, node.func.attr))
+        for child in ast.iter_child_nodes(node):
+            record_git_subprocess_calls(child, current_owner)
+
+    record_git_subprocess_calls(syntax_tree)
+    production_sites = [
+        site for site in git_subprocess_sites if site[0] != "git_read_boundary_self_check"
+    ]
+    require(
+        production_sites == [("git_run", "run")],
+        "Git subprocess reads must be centralized through git_run",
+    )
+
+    actual_commit_object = git_bytes(root, "cat-file", "-p", candidate_source["commit"])
+    _tree_id, actual_parents = parse_git_commit_header(
+        actual_commit_object,
+        label="self-check immutable Git object",
+    )
+    require(bool(actual_parents), "self-check needs a commit with an actual parent")
+    original_parent = actual_parents[0]
+    missing_parent = "0" * 40
+    require(
+        original_parent != missing_parent
+        and git_run(root, "cat-file", "-e", missing_parent, check=False).returncode != 0,
+        "self-check missing parent identity unexpectedly resolves",
+    )
+    forged_object = actual_commit_object.replace(
+        f"parent {original_parent}\n".encode("ascii"),
+        f"parent {missing_parent}\n".encode("ascii"),
+        1,
+    )
+    require(forged_object != actual_commit_object, "self-check could not forge a parent view")
+
+    real_run = subprocess.run
+    safe_git_calls: list[list[str]] = []
+    unsafe_git_calls: list[list[str]] = []
+
+    def replacement_view_spy(
+        argv: Sequence[str] | str,
+        *args: object,
+        **options: object,
+    ) -> subprocess.CompletedProcess[Any]:
+        command = list(argv) if isinstance(argv, (list, tuple)) else []
+        if command and command[0] == "git":
+            environment = options.get("env")
+            immutable = (
+                "--no-replace-objects" in command[1:]
+                and isinstance(environment, dict)
+                and environment.get("GIT_NO_REPLACE_OBJECTS") == "1"
+            )
+            if immutable:
+                safe_git_calls.append(command)
+            else:
+                unsafe_git_calls.append(command)
+                if command[1:] == ["cat-file", "-p", candidate_source["commit"]]:
+                    return subprocess.CompletedProcess(
+                        command,
+                        0,
+                        stdout=forged_object,
+                        stderr=b"",
+                    )
+        return real_run(argv, *args, **options)
+
+    unsafe_environment = os.environ.copy()
+    unsafe_environment.pop("GIT_NO_REPLACE_OBJECTS", None)
+    subprocess.run = replacement_view_spy
+    try:
+        replacement_view = subprocess.run(  # noqa: S603 -- deliberate unsafe-view self-check only.
+            ["git", "cat-file", "-p", candidate_source["commit"]],  # noqa: S607 -- synthetic spy probe, never executed as Git.
+            cwd=root,
+            env=unsafe_environment,
+            check=True,
+            capture_output=True,
+        )
+        require(
+            replacement_view.stdout == forged_object,
+            "self-check replacement-view spy did not produce its forged parent list",
+        )
+        immutable_object = git_bytes(root, "cat-file", "-p", candidate_source["commit"])
+        require(
+            immutable_object == actual_commit_object and immutable_object != forged_object,
+            "git_run accepted the synthetic replacement-object parent list",
+        )
+        census = complete_source_change_census(
+            root,
+            original_entry_commit=original_entry["commit"],
+            candidate_commit=candidate_source["commit"],
+            original_entry_tree=original_entry["tree"],
+            candidate_tree=candidate_source["tree"],
+        )
+        verify_source_descendant(
+            root,
+            frozen_commit=candidate_source["commit"],
+            frozen_tree=candidate_source["tree"],
+            descendant_commit=candidate_source["commit"],
+        )
+    finally:
+        subprocess.run = real_run
+
+    require(bool(safe_git_calls), "self-check did not exercise immutable Git reads")
+    require(
+        len(unsafe_git_calls) == 1,
+        "a source reader bypassed the immutable Git command wrapper",
+    )
+
+    original_git_text = git_text
+
+    def shallow_git_text(_root: Path, *args: str) -> str:
+        if args == ("rev-parse", "--is-shallow-repository"):
+            return "true"
+        return original_git_text(_root, *args)
+
+    globals()["git_text"] = shallow_git_text
+    try:
+        try:
+            ensure_git_graph_authoritative(root, label="self-check shallow repository")
+        except ValueError:
+            shallow_repository_rejected = True
+        else:
+            raise ValueError("self-check accepted shallow-repository ancestry")
+    finally:
+        globals()["git_text"] = original_git_text
+
+    def grafted_git_text(_root: Path, *args: str) -> str:
+        if args == ("rev-parse", "--is-shallow-repository"):
+            return "false"
+        if args == ("rev-parse", "--git-path", "info/grafts"):
+            return str(root / "AGENTS.md")
+        return original_git_text(_root, *args)
+
+    globals()["git_text"] = grafted_git_text
+    try:
+        try:
+            ensure_git_graph_authoritative(root, label="self-check active graft")
+        except ValueError:
+            active_grafts_rejected = True
+        else:
+            raise ValueError("self-check accepted an active Git graft row")
+    finally:
+        globals()["git_text"] = original_git_text
+    require(
+        not has_active_git_grafts(b"# inert comment\n \t\n")
+        and has_active_git_grafts(b"# comment\n" + b"1" * 40 + b" " + b"2" * 40 + b"\n"),
+        "self-check did not distinguish active from inert graft rows",
+    )
+
+    missing_commit = "0" * 40
+    try:
+        validate_candidate_source(
+            root,
+            {"commit": missing_commit, "tree": candidate_source["tree"]},
+        )
+    except ValueError:
+        missing_candidate_rejected = True
+    else:
+        raise ValueError("self-check accepted a missing candidate commit")
+
+    missing_base_handoff = {
+        "slice_base": {"commit": missing_commit, "tree": candidate_source["tree"]},
+        "candidate_source": candidate_source,
+        "parents": actual_parents,
+    }
+    try:
+        validate_slice_source_relationships(
+            root,
+            missing_base_handoff,
+            label="self-check missing slice base",
+        )
+    except ValueError:
+        missing_base_rejected = True
+    else:
+        raise ValueError("self-check accepted a missing slice-base object")
+
+    real_git_bytes = git_bytes
+
+    def missing_parent_git_bytes(_root: Path, *args: str) -> bytes:
+        payload = real_git_bytes(root, *args)
+        if args == ("cat-file", "-p", candidate_source["commit"]):
+            return forged_object
+        return payload
+
+    globals()["git_bytes"] = missing_parent_git_bytes
+    try:
+        try:
+            git_commit_source(
+                root,
+                candidate_source,
+                label="self-check missing actual parent",
+            )
+        except ValueError:
+            missing_parent_rejected = True
+        else:
+            raise ValueError("self-check accepted a missing actual parent object")
+    finally:
+        globals()["git_bytes"] = real_git_bytes
+
+    return {
+        "production_git_subprocess_calls_centralized": production_sites == [("git_run", "run")],
+        "immutable_git_reads_observed": len(safe_git_calls),
+        "synthetic_replacement_parent_view_demonstrated": replacement_view.stdout == forged_object,
+        "synthetic_replacement_parent_view_rejected": immutable_object == actual_commit_object,
+        "shallow_repository_rejected": shallow_repository_rejected,
+        "active_grafts_rejected": active_grafts_rejected,
+        "missing_candidate_normalized_to_value_error": missing_candidate_rejected,
+        "missing_slice_base_normalized_to_value_error": missing_base_rejected,
+        "missing_parent_normalized_to_value_error": missing_parent_rejected,
+        "complete_census_path_count": census["changed_paths"],
+        "graph_self_ancestry_delta_count": len(
+            verify_source_descendant(
+                root,
+                frozen_commit=candidate_source["commit"],
+                frozen_tree=candidate_source["tree"],
+                descendant_commit=candidate_source["commit"],
+            )
+        ),
+    }
 
 
 def validate_input_evidence_bindings(
@@ -3765,6 +4597,10 @@ def validate_execution_context(
         )
     backend_ref = evidence_refs[backend_index]
     require(
+        backend_ref.get("pointer") == "#/backend_profile",
+        "backend/profile evidence must identify the backend_profile object",
+    )
+    require(
         any(
             receipt_ref["path"] == backend_ref.get("path")
             and receipt_ref["commit"] == backend_ref.get("commit")
@@ -3986,6 +4822,7 @@ def validate_explicit_evaluation(
         label="evidence_refs",
         required=True,
     )
+    require_verified_evidence_roles(state, evidence, label="occurrence evaluation")
     execution_context = validate_execution_context(
         root,
         evaluation.get("execution_context"),
@@ -4772,6 +5609,15 @@ def self_check(ledger: dict[str, Any], snapshot: dict[str, Any]) -> dict[str, An
     """Probe explicit occurrence updates and reject count-preserving corruptions."""
     validate_ledger(ledger, snapshot)
     root = snapshot["repo_root"]
+    report_checkpoint = ledger["source_boundary"]["report_checkout"]
+    git_read_checks = git_read_boundary_self_check(
+        root,
+        candidate_source={
+            "commit": report_checkpoint["commit"],
+            "tree": report_checkpoint["tree"],
+        },
+        original_entry=snapshot["original_entry"],
+    )
     # The input-shape probe is deliberately synthetic: before the final source
     # freeze there is no candidate identity to bind. It proves only that the
     # import schema rejects malformed authority context; apply_evaluations
@@ -4902,6 +5748,14 @@ def self_check(ledger: dict[str, Any], snapshot: dict[str, Any]) -> dict[str, An
         "commit": report_checkpoint["commit"],
         "tree": report_checkpoint["tree"],
     }
+    original_entry = ledger["source_boundary"]["original_entry"]
+    slice_base_identity = {
+        "commit": original_entry["commit"],
+        "tree": original_entry["tree"],
+    }
+    candidate_parent_ids = git_text(
+        root, "show", "-s", "--format=%P", source_identity["commit"]
+    ).split()
     shared_occurrences = [
         {
             "finding_id": "probe-one",
@@ -4974,9 +5828,9 @@ def self_check(ledger: dict[str, Any], snapshot: dict[str, Any]) -> dict[str, An
     slice_handoff = {
         "schema": SLICE_HANDOFF_SCHEMA,
         "slice_id": "q0-crosswalk",
-        "slice_base": source_identity,
+        "slice_base": slice_base_identity,
         "candidate_source": source_identity,
-        "parents": [report_checkpoint["commit"]],
+        "parents": candidate_parent_ids,
         "source_footprint": [{"path": "policy-engine/tests/unit/example.py", "change": "M"}],
         "selected_inputs": [],
         "backend_profile": {"status": "named"},
@@ -5014,6 +5868,143 @@ def self_check(ledger: dict[str, Any], snapshot: dict[str, Any]) -> dict[str, An
     )
     require(
         accepted_slice_paths == [slice_path], "typed direct-child slice handoff was not recognized"
+    )
+    source_relationship = validate_slice_source_relationships(
+        root,
+        slice_handoff,
+        label="self-check candidate ancestry and ordered parents",
+    )
+    parent_mutation_rejected = False
+    wrong_parent_handoff = copy.deepcopy(slice_handoff)
+    wrong_parent_handoff["parents"] = ["0" * 40]
+    try:
+        validate_slice_source_relationships(
+            root,
+            wrong_parent_handoff,
+            label="self-check forged candidate parent",
+        )
+    except ValueError as exc:
+        parent_mutation_rejected = "actual Git parent" in str(exc)
+    if not parent_mutation_rejected:
+        raise ValueError("self-check accepted forged candidate parents")
+
+    wrong_candidate_tree_handoff = copy.deepcopy(slice_handoff)
+    wrong_candidate_tree_handoff["candidate_source"]["tree"] = "0" * 40
+    try:
+        validate_slice_source_relationships(
+            root,
+            wrong_candidate_tree_handoff,
+            label="self-check forged candidate tree",
+        )
+    except ValueError as exc:
+        candidate_tree_mutation_rejected = "candidate commit/tree" in str(exc)
+    else:
+        candidate_tree_mutation_rejected = False
+    if not candidate_tree_mutation_rejected:
+        raise ValueError("self-check accepted a candidate tree not owned by its commit")
+
+    wrong_slice_base_tree_handoff = copy.deepcopy(slice_handoff)
+    wrong_slice_base_tree_handoff["slice_base"]["tree"] = "0" * 40
+    try:
+        validate_slice_source_relationships(
+            root,
+            wrong_slice_base_tree_handoff,
+            label="self-check forged slice-base tree",
+        )
+    except ValueError as exc:
+        slice_base_tree_mutation_rejected = "candidate commit/tree" in str(exc)
+    else:
+        slice_base_tree_mutation_rejected = False
+    if not slice_base_tree_mutation_rejected:
+        raise ValueError("self-check accepted a slice-base tree not owned by its commit")
+
+    root_commit_ids = git_text(root, "rev-list", "--all", "--max-parents=0").splitlines()
+    require(bool(root_commit_ids), "self-check could not find a repository root commit")
+    root_candidate_ref = {
+        "commit": root_commit_ids[0],
+        "tree": git_text(root, "rev-parse", f"{root_commit_ids[0]}^{{tree}}"),
+    }
+    root_candidate, root_parent_ids = git_commit_source(
+        root,
+        root_candidate_ref,
+        label="self-check root candidate",
+    )
+    root_handoff = {
+        "slice_base": root_candidate,
+        "candidate_source": root_candidate,
+        "parents": root_parent_ids,
+    }
+    require(not root_parent_ids, "self-check root commit unexpectedly has parents")
+    validate_slice_source_relationships(
+        root, root_handoff, label="self-check parentless root commit"
+    )
+
+    unrelated_root = None
+    for root_commit in root_commit_ids:
+        ancestor_probe = git_run(
+            root,
+            "merge-base",
+            "--is-ancestor",
+            root_commit,
+            source_identity["commit"],
+            check=False,
+        )
+        require(
+            ancestor_probe.returncode in {0, 1},
+            "self-check could not resolve a repository root ancestry probe",
+        )
+        if ancestor_probe.returncode == 1:
+            unrelated_root = root_commit
+            break
+    require(unrelated_root is not None, "self-check needs an unrelated root for ancestry rejection")
+    unrelated_root_ref = {
+        "commit": unrelated_root,
+        "tree": git_text(root, "rev-parse", f"{unrelated_root}^{{tree}}"),
+    }
+    unrelated_base, _ = git_commit_source(
+        root,
+        unrelated_root_ref,
+        label="self-check unrelated root",
+    )
+    nonancestor_handoff = copy.deepcopy(slice_handoff)
+    nonancestor_handoff["slice_base"] = unrelated_base
+    try:
+        validate_slice_source_relationships(
+            root, nonancestor_handoff, label="self-check unrelated slice base"
+        )
+    except ValueError as exc:
+        nonancestor_base_rejected = "not an ancestor" in str(exc)
+    else:
+        nonancestor_base_rejected = False
+    if not nonancestor_base_rejected:
+        raise ValueError("self-check accepted a slice base outside candidate ancestry")
+
+    empty_tree_id = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+    empty_initial_header = (
+        f"tree {empty_tree_id}\nauthor Self Check <self-check@example.invalid> 0 +0000\n"
+        "committer Self Check <self-check@example.invalid> 0 +0000\n\n"
+    ).encode("ascii")
+    parsed_empty_tree, parsed_empty_parents = parse_git_commit_header(
+        empty_initial_header,
+        label="self-check empty initial commit header",
+    )
+    require(
+        parsed_empty_tree == empty_tree_id and parsed_empty_parents == [],
+        "self-check did not preserve an empty initial commit with no parents",
+    )
+    merge_parent_ids = ["1" * 40, "2" * 40]
+    merge_header = (
+        f"tree {'3' * 40}\nparent {merge_parent_ids[0]}\nparent {merge_parent_ids[1]}\n"
+        "author Self Check <self-check@example.invalid> 0 +0000\n"
+        "committer Self Check <self-check@example.invalid> 0 +0000\n\n"
+    ).encode("ascii")
+    parsed_merge_tree, parsed_merge_parents = parse_git_commit_header(
+        merge_header,
+        label="self-check ordered merge parents",
+    )
+    require(
+        parsed_merge_tree == "3" * 40 and parsed_merge_parents == merge_parent_ids,
+        "self-check did not preserve ordered merge parents",
     )
     raw_fixture_path = LOCAL_RAW_PREFIX + "pre-freeze-generated-checks/abi.stdout.txt"
     raw_fixture_digest = sha256((root / raw_fixture_path).read_bytes())
@@ -5732,6 +6723,21 @@ def self_check(ledger: dict[str, Any], snapshot: dict[str, Any]) -> dict[str, An
         "input_context_corruptions_rejected": input_context_rejections,
         "candidate_evaluations_written": 0,
         "typed_slice_handoff_probe_accepted": True,
+        "typed_slice_source_relation_candidate_parent_count": len(
+            source_relationship["candidate_parent_ids"]
+        ),
+        "typed_slice_forged_parent_rejected": parent_mutation_rejected,
+        "typed_slice_candidate_tree_mismatch_rejected": candidate_tree_mutation_rejected,
+        "typed_slice_base_tree_mismatch_rejected": slice_base_tree_mutation_rejected,
+        "typed_slice_nonancestor_base_rejected": nonancestor_base_rejected,
+        "typed_slice_root_commit_without_parents_accepted": not root_parent_ids,
+        "typed_slice_empty_initial_commit_header_accepted": (
+            parsed_empty_tree == empty_tree_id and parsed_empty_parents == []
+        ),
+        "typed_slice_ordered_merge_parent_header_accepted": (
+            parsed_merge_parents == merge_parent_ids
+        ),
+        "git_read_boundary_checks": git_read_checks,
         "ignored_local_raw_available_readback_accepted": True,
         "ignored_local_raw_mutations_rejected": ignored_raw_rejections,
         "ignored_local_raw_symlink_rejected": symlink_rejected,

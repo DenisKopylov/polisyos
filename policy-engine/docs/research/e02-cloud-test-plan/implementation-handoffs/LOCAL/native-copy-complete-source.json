@@ -1,0 +1,135 @@
+{
+  "schema": "policyos.e02.local_slice_handoff.v2",
+  "slice_id": "native-copy-complete-source",
+  "slice_base": {
+    "commit": "9194a65fb59355ceac35270c869f429efc7482d8",
+    "tree": "458098d5f516ebaed4436315dcdb12f440e217e4"
+  },
+  "candidate_source": {
+    "commit": "fa71f264c81c96ec8cbfca0a46baa949b79190b2",
+    "tree": "591ec7159484b06e0d7efe1ffad402761ec0c73c"
+  },
+  "parents": [
+    "9194a65fb59355ceac35270c869f429efc7482d8"
+  ],
+  "source_footprint": [
+    {
+      "path": "policy-engine/architecture/generated_artifacts.toml",
+      "git_blob": "91a1aeed3dfbaeecd930c45507a0a1832343ef49",
+      "sha256": "2283a5faa66061b66cad5870976dcefd92cb40d74658300d93590ee6fe3e97da"
+    },
+    {
+      "path": "policy-engine/docs/reference/generated-artifacts.md",
+      "git_blob": "28c264c8daa0797757dfa0626db0fb8c5dadebb7",
+      "sha256": "deecbccf3e7a3c324154ec4d88b6636bbfe266422e9ede696a1044539b4944f2"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_architecture_phase3.py",
+      "git_blob": "d2ebc4954f2049cc008f43e630a6afff0b2ad9c8",
+      "sha256": "2f6d7ba372dfa5297229ca86de3d737e1a88eec4734ad00290ce90b04e648965"
+    },
+    {
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "git_blob": "092245c272c1b4fef5073cbd3efc455d49fbb241",
+      "sha256": "ab19751f999d3ca5385eb4997e78855b2a551e5cbbf26bd0f78addc991af9031"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+      "git_blob": "a213208cf5ea11cc394ed35cca6de4da67abd9e4",
+      "sha256": "c5364ba8b2250075cf6557818490aad59a16f100b5266a07425d0b7842686793"
+    }
+  ],
+  "selected_input_profile_backend": {
+    "backend": "local macOS Python 3.14.0 candidate .venv",
+    "numerical_threads": 1,
+    "profile": "native phase3 source-copy behavioral fixtures",
+    "source_copy_families": "four native-output/default generated families from canonical manifest; other families retain existing paths"
+  },
+  "verification": [
+    {
+      "command": [
+        "/usr/bin/time",
+        "-l",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "--color=no",
+        "--basetemp=_build/e02-repair-fixtures/native-source-copy-complete-runtime-proof-verification-20261010",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-source-copy-complete-runtime-proof-verification-20261010/junit.xml",
+        "tests/repo_quality/tools/test_architecture_phase3.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "execution_head": "9194a65fb59355ceac35270c869f429efc7482d8",
+      "execution_source_before": {
+        "tools/devx/architecture/guardrails.py": "ab19751f999d3ca5385eb4997e78855b2a551e5cbbf26bd0f78addc991af9031",
+        "tools/quality/validation/check_trust_claim_posture.py": "c5364ba8b2250075cf6557818490aad59a16f100b5266a07425d0b7842686793",
+        "tests/repo_quality/tools/test_architecture_phase3.py": "2f6d7ba372dfa5297229ca86de3d737e1a88eec4734ad00290ce90b04e648965",
+        "architecture/generated_artifacts.toml": "2283a5faa66061b66cad5870976dcefd92cb40d74658300d93590ee6fe3e97da"
+      },
+      "execution_source_after": {
+        "tools/devx/architecture/guardrails.py": "ab19751f999d3ca5385eb4997e78855b2a551e5cbbf26bd0f78addc991af9031",
+        "tools/quality/validation/check_trust_claim_posture.py": "c5364ba8b2250075cf6557818490aad59a16f100b5266a07425d0b7842686793",
+        "tests/repo_quality/tools/test_architecture_phase3.py": "2f6d7ba372dfa5297229ca86de3d737e1a88eec4734ad00290ce90b04e648965",
+        "architecture/generated_artifacts.toml": "2283a5faa66061b66cad5870976dcefd92cb40d74658300d93590ee6fe3e97da"
+      },
+      "exit_code": 0,
+      "result": "69 PASS / 0 FAIL / 0 ERROR / 0 SKIP",
+      "wall_seconds": 223.19211979198735,
+      "full_deciding_output": [
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-source-copy-complete-runtime-proof-verification-20261010/command.json",
+          "sha256": "e81fe142046a268ad793e3ca38f9d14b9d71dccd727e1a926169f8937365dced",
+          "bytes": 2667
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-source-copy-complete-runtime-proof-verification-20261010/stdout.txt",
+          "sha256": "b7779380aabe7795d6a40a8d46d3060ff1c74aaab8e886ef84d07a3055987777",
+          "bytes": 818
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-source-copy-complete-runtime-proof-verification-20261010/stderr.txt",
+          "sha256": "59b884e0a7a952aaac5e6d7e36d0a82d559897624251e7c307c52a921bcac541",
+          "bytes": 777
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-source-copy-complete-runtime-proof-verification-20261010/junit.xml",
+          "sha256": "95ed77e11ec1ce43b93bd18a262cfe5b278755fa8db7091401c9f6396a73ec76",
+          "bytes": 11904
+        }
+      ]
+    }
+  ],
+  "real_chain": "canonical family input declarations -> measured trust scanner reads and directory contracts -> strict complete isolated source copy -> fresh child runtime with private pycache -> canonical measurement/output comparison -> freshness gate and audit output",
+  "adversarial_removal_controls": [
+    "unreadable traversal and symlink/FIFO refusal",
+    "source-shaped cache directories remain in the declared basis",
+    "resolved installed pnpm link/content drift and frozen-lock mismatch refusal",
+    "stale same-size/restored-mtime pyc: plain -B reads stale bytes; private PYTHONPYCACHEPREFIX reads new source; removing isolation while keeping markers fails the property",
+    "partial required measurements and child interruption remain non-green"
+  ],
+  "consumer_surface": "generated-artifact/native freshness CLI and canonical generated-artifacts reference",
+  "independent_reviews": [
+    "reviews/native-freshness-source-copy-v5-pycache-delta-independent-20261010.md",
+    "reviews/native-freshness-source-copy-v6-phase3-three-repairs-independent-20261010.md"
+  ],
+  "limitations": [
+    "Execution was source-qualified on the listed files at HEAD9194 with other E02 WIP present; this is not a complete composed freeze receipt.",
+    "Arbitrary ambient OS reads and change-then-restore between snapshots are not established.",
+    "Full native row gates, expiry issuer facts, repo gates and installed consumers remain pending.",
+    "No G acceptance or finding adjudication is claimed."
+  ],
+  "closure_ids": [],
+  "proposal_fields": {
+    "proposal_status": "limited",
+    "finding_ids": [
+      "B194"
+    ],
+    "scope": "source-copy/freshness evidence discipline only; no whole-finding closure"
+  }
+}

@@ -1772,9 +1772,11 @@ def verify_branch_and_freeze(
             f"tree mismatch: HEAD={head_tree}, frozen_commit_tree={frozen_tree}, supplied={tree}"
         )
     for tool_rel in CAPTURE_TOOL_REL_PATHS:
-        ignored = run_git(["check-ignore", "--quiet", "--", tool_rel], check=False)
+        # Check the configured path policy independently of source publication.
+        # A tracked tool still has to satisfy every frozen byte/clean-tree check.
+        ignored = run_git(["check-ignore", "--no-index", "--quiet", "--", tool_rel], check=False)
         if ignored.returncode != 0:
-            raise CaptureError(f"capture tool is not ignored by Git: {tool_rel}")
+            raise CaptureError(f"capture tool path is outside the configured ignore policy: {tool_rel}")
     identity = inspect_live_identity(
         commit, tree, plan_path, plan_sha256, expected_wrapper_sha256, expected_plugin_sha256,
         source_manifest_path, source_manifest_sha256,

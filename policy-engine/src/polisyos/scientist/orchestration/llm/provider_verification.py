@@ -8,11 +8,13 @@ import json
 import os
 import re
 import time
+from collections.abc import Mapping
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
+from urllib.error import HTTPError
 from urllib.parse import urlsplit, urlunsplit
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
@@ -126,6 +128,11 @@ class ProviderPreflightCheck(BaseModel):
     details: dict[str, Any] = Field(default_factory=dict)
     error: str | None = None
 
+    @model_validator(mode="before")
+    @classmethod
+    def _redact_report_urls(cls, value: Any) -> Any:
+        return _redact_preflight_report_urls(value)
+
 
 class ProviderPreflightReport(BaseModel):
     """Additive runtime preflight report persisted with canary/control evidence."""
@@ -145,6 +152,65 @@ class ProviderPreflightReport(BaseModel):
     cache_hit: bool = False
     api_key_env: str | None = None
     api_key_fingerprint: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _redact_report_urls(cls, value: Any) -> Any:
+        return _redact_preflight_report_urls(value)
+
+
+def _safe_preflight_report_url(url: str) -> str:
+    """Render a report-safe URL without userinfo, query, or fragment data."""
+    try:
+        parts = urlsplit(url)
+        hostname = parts.hostname
+        port = parts.port
+    except ValueError:
+        return "<redacted-url>"
+    if not parts.scheme or not parts.netloc or not hostname:
+        return "<redacted-url>"
+    if ":" in hostname and not hostname.startswith("["):
+        hostname = f"[{hostname}]"
+    netloc = hostname if port is None else f"{hostname}:{port}"
+    return urlunsplit((parts.scheme, netloc, parts.path, "", ""))
+
+
+_PREFLIGHT_URL_IN_TEXT = re.compile(r"(?i)\b[a-z][a-z0-9+.-]*://[^\s\"'<>]+")
+
+
+def _redact_preflight_report_urls(value: Any, *, field_name: str | None = None) -> Any:
+    """Recursively redact URL-bearing keys and values before a preflight model is exposed."""
+    if isinstance(value, Mapping):
+        sanitized: dict[Any, Any] = {}
+        for index, (key, item) in enumerate(value.items()):
+            safe_key = _redact_preflight_report_urls(key) if isinstance(key, str) else key
+            if safe_key in sanitized:
+                if not isinstance(safe_key, str):
+                    safe_key = f"{safe_key}#redacted-{index}"
+                else:
+                    base_key = safe_key
+                    suffix = 1
+                    while safe_key in sanitized:
+                        safe_key = f"{base_key}#redacted-{suffix}"
+                        suffix += 1
+            sanitized[safe_key] = _redact_preflight_report_urls(
+                item,
+                field_name=str(safe_key),
+            )
+        return sanitized
+    if isinstance(value, list):
+        return [_redact_preflight_report_urls(item, field_name=field_name) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_redact_preflight_report_urls(item, field_name=field_name) for item in value)
+    if isinstance(value, str):
+        normalized_field = (field_name or "").lower()
+        if normalized_field == "url" or normalized_field.endswith("_url"):
+            return _safe_preflight_report_url(value)
+        return _PREFLIGHT_URL_IN_TEXT.sub(
+            lambda match: _safe_preflight_report_url(match.group(0)),
+            value,
+        )
+    return value
 
 
 _PREFLIGHT_CACHE: dict[tuple[str, tuple[str, ...], str], tuple[float, ProviderPreflightReport]] = {}
@@ -258,7 +324,10 @@ def _looks_like_proxy_key(value: str) -> bool:
 
 
 def _provider_root_url(base_url: str) -> str:
-    parts = urlsplit(base_url.rstrip("/"))
+    try:
+        parts = urlsplit(base_url.rstrip("/"))
+    except ValueError:
+        return base_url.rstrip("/")
     path = parts.path.rstrip("/")
     if path.endswith("/v1"):
         path = path[:-3].rstrip("/")
@@ -267,6 +336,72 @@ def _provider_root_url(base_url: str) -> str:
 
 def _join_url(base_url: str, path: str) -> str:
     return f"{base_url.rstrip('/')}/{path.lstrip('/')}"
+
+
+def _validate_preflight_url(url: str) -> None:
+    """Require an absolute HTTP(S) provider endpoint without URL credentials."""
+    invalid_message = "Provider preflight URLs must be absolute HTTP(S) URLs without credentials"
+    if not url or url != url.strip() or any(character.isspace() for character in url):
+        raise ValueError(invalid_message)
+    try:
+        parts = urlsplit(url)
+        hostname = parts.hostname
+        _ = parts.port
+    except ValueError as exc:
+        raise ValueError(invalid_message) from exc
+    if (
+        parts.scheme.lower() not in {"http", "https"}
+        or not parts.netloc
+        or not hostname
+        or any(character.isspace() for character in hostname)
+        or parts.username is not None
+        or parts.password is not None
+    ):
+        raise ValueError(invalid_message)
+
+
+def _preflight_url_origin(url: str) -> tuple[str, str, int]:
+    _validate_preflight_url(url)
+    parts = urlsplit(url)
+    scheme = parts.scheme.lower()
+    port = parts.port
+    if port is None:
+        port = 443 if scheme == "https" else 80
+    return scheme, str(parts.hostname).lower(), port
+
+
+class _ProviderPreflightRedirectHandler(HTTPRedirectHandler):
+    """Follow provider endpoint redirects only while the origin remains fixed."""
+
+    def redirect_request(
+        self,
+        req: Request,
+        fp: Any,
+        code: int,
+        msg: str,
+        headers: Any,
+        newurl: str,
+    ) -> Request:
+        try:
+            target_origin = _preflight_url_origin(newurl)
+            request_origin = _preflight_url_origin(req.full_url)
+        except ValueError as exc:
+            raise HTTPError(
+                req.full_url,
+                code,
+                "provider preflight redirect target is not an absolute HTTP(S) URL",
+                headers,
+                fp,
+            ) from exc
+        if target_origin != request_origin:
+            raise HTTPError(
+                req.full_url,
+                code,
+                "provider preflight redirect changed origin",
+                headers,
+                fp,
+            )
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
 def _extract_model_ids(payload: Mapping[str, Any] | dict[str, Any]) -> list[str]:
@@ -336,9 +471,13 @@ async def _default_fetch_json(
     headers: dict[str, str] | None = None,
     timeout_s: float = 10.0,
 ) -> dict[str, Any]:
+    _validate_preflight_url(url)
+
     def _fetch() -> dict[str, Any]:
-        request = Request(url, headers=headers or {}, method="GET")
-        with urlopen(request, timeout=timeout_s) as response:
+        # Both URL-consuming calls are guarded by the absolute HTTP(S) check above.
+        request = Request(url, headers=headers or {}, method="GET")  # noqa: S310
+        opener = build_opener(_ProviderPreflightRedirectHandler())
+        with opener.open(request, timeout=timeout_s) as response:
             payload = response.read()
         parsed = json.loads(payload.decode("utf-8"))
         if not isinstance(parsed, dict):
@@ -446,6 +585,7 @@ async def run_provider_preflight(
     async def _run_json_check(name: str, url: str) -> dict[str, Any] | None:
         started = time.perf_counter()
         try:
+            _validate_preflight_url(url)
             payload = await fetch(url, headers=headers, timeout_s=timeout_s)
             if not isinstance(payload, dict):
                 raise RuntimeError(f"{name} returned non-object JSON")

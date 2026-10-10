@@ -2059,6 +2059,41 @@ def _avg_income_candidate() -> _Candidate:
     )
 
 
+def _controlled_avg_income_owner_profile() -> ValueDataProfile:
+    """Build the controlled, content-valid N8 owner profile used by unit witnesses."""
+    rows = []
+    for unit_index in range(3):
+        for period_id in range(4):
+            row_fields = {
+                "unit_id": f"unit_{unit_index}",
+                "period_id": period_id,
+                "outcome_value": float(period_id + unit_index),
+                "source_row_content_hashes": (_hash("a"),),
+            }
+            rows.append(
+                ValueOwnerRow(
+                    **row_fields,
+                    row_content_hash=gy_content_hash(row_fields),
+                )
+            )
+    rows_payload = [row.model_dump(mode="json") for row in rows]
+    profile_payload = {
+        "schema_version": "policyos.runtime.value_data_profile.v1",
+        "outcome": "avg_income",
+        "rows": rows_payload,
+        "owner_row_count": len(rows_payload),
+        "unit_count": 3,
+        "period_count": 4,
+        "available_data_modalities": ["panel", "tabular"],
+        "treatment_assignment_status": "owner_assignment_unresolved",
+        "owner_access_ref": "test://synthetic-n8-owner-profile",
+        "owner_rows_content_hash": gy_content_hash(rows_payload),
+    }
+    return ValueDataProfile.model_validate(
+        {**profile_payload, "content_hash": gy_content_hash(profile_payload)}
+    )
+
+
 def _pack_shaped_transport_context(
     *,
     problem: DesignProblem,
@@ -2502,34 +2537,105 @@ def test_runtime_value_hints_cannot_change_owner_data_terminal() -> None:
 
     assert forged.status == canonical.status == "value_blocked"
     assert forged.authority_blockers == canonical.authority_blockers == (
-        "treatment_assignment_not_owner_derived",
+        "acquire_data:value_owner_unit_binding_ambiguous",
     )
     assert forged.value_receipt is canonical.value_receipt is None
-    assert forged.acquisition_requirement is not None
-    assert canonical.acquisition_requirement is not None
-    assert forged.value_data_profile_content_hash == (
-        canonical.value_data_profile_content_hash
+    assert forged.acquisition_requirement is None
+    assert canonical.acquisition_requirement is None
+    assert forged.value_data_profile_content_hash is None
+    assert canonical.value_data_profile_content_hash is None
+
+
+def test_candidate_treatment_assignment_is_not_owner_world_knowledge(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Candidate assignment claims cannot promote a controlled owner profile."""
+    problem = _avg_income_problem()
+    base = _avg_income_candidate()
+    candidate = SimpleNamespace(
+        candidate_id=base.candidate_id,
+        atom=base.atom,
+        diversity_key=base.diversity_key,
+        treated_unit_ids=("AM",),
+        treatment_period=2020,
+        treatment_assignment_authority="owner_derived",
+        treatment_assignment_owner_ref="substrate_owner://invented",
+        treatment_assignment_content_hash=_hash("9"),
+    )
+    world = _world_record()
+    profile = _controlled_avg_income_owner_profile()
+    loaded_candidates: list[object] = []
+
+    def load_controlled_profile(
+        _gateway: RealValueOwnerGateway,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_record: object,
+    ) -> ValueDataProfile:
+        assert problem is problem_arg
+        assert world_record is world_arg
+        loaded_candidates.append(candidate)
+        return profile
+
+    problem_arg = problem
+    world_arg = world
+    gateway = RealValueOwnerGateway(repo_root=Path.cwd())
+    monkeypatch.setattr(
+        RealValueOwnerGateway,
+        "load_value_data_profile",
+        load_controlled_profile,
     )
 
-
-def test_candidate_treatment_assignment_is_not_owner_world_knowledge() -> None:
-    problem = _avg_income_problem()
-    candidate = _avg_income_candidate()
-    world = _world_record()
-
-    profile = RealValueOwnerGateway(repo_root=Path.cwd()).load_value_data_profile(
+    canonical_profile = gateway.load_value_data_profile(
+        candidate=base,
+        problem=problem,
+        world_record=world,
+    )
+    forged_profile = gateway.load_value_data_profile(
         candidate=candidate,
         problem=problem,
         world_record=world,
     )
 
-    assert isinstance(profile, ValueDataProfile)
+    assert canonical_profile is forged_profile is profile
     assert profile.outcome == "avg_income"
-    assert profile.owner_row_count == 64
-    assert profile.unit_count == 16
+    assert profile.owner_row_count == 12
+    assert profile.unit_count == 3
     assert profile.period_count == 4
     assert profile.treatment_assignment_status == "owner_assignment_unresolved"
     assert profile.content_hash.startswith("sha256:")
+    assert loaded_candidates == [base, candidate]
+
+    def observe(selected_candidate: object) -> ValuePortObservation:
+        simulation = _simulation(world, candidate_id=base.candidate_id)
+        return FoundryValuePort(
+            evaluation_context=_simulation_execution_context(
+                candidate=selected_candidate,
+                simulation=simulation,
+                problem=problem,
+            ),
+            owner_gateway=gateway,
+        )(
+            candidate=selected_candidate,
+            simulation=simulation,
+            problem=problem,
+            cycle_index=0,
+        )
+
+    canonical = observe(base)
+    forged = observe(candidate)
+
+    assert canonical.status == forged.status == "value_blocked"
+    assert canonical.authority_blockers == forged.authority_blockers == (
+        "treatment_assignment_not_owner_derived",
+    )
+    assert canonical.value_data_profile_content_hash == profile.content_hash
+    assert forged.value_data_profile_content_hash == profile.content_hash
+    assert canonical.value_receipt is forged.value_receipt is None
+    assert canonical.acquisition_requirement is not None
+    assert forged.acquisition_requirement is not None
+    assert loaded_candidates == [base, candidate, base, candidate]
 
 
 def test_shaped_owner_assignment_attestation_is_not_authority() -> None:
@@ -2790,37 +2896,7 @@ def test_n8_value_port_accepts_recomputed_foundry_receipt_context(
     candidate = _avg_income_candidate()
     problem = _avg_income_problem()
     world = _world_record()
-    rows = []
-    for unit_index in range(3):
-        for period_id in range(4):
-            row_fields = {
-                "unit_id": f"unit_{unit_index}",
-                "period_id": period_id,
-                "outcome_value": float(period_id + unit_index),
-                "source_row_content_hashes": (_hash("a"),),
-            }
-            rows.append(
-                ValueOwnerRow(
-                    **row_fields,
-                    row_content_hash=gy_content_hash(row_fields),
-                )
-            )
-    rows_payload = [row.model_dump(mode="json") for row in rows]
-    profile_payload = {
-        "schema_version": "policyos.runtime.value_data_profile.v1",
-        "outcome": "avg_income",
-        "rows": rows_payload,
-        "owner_row_count": len(rows_payload),
-        "unit_count": 3,
-        "period_count": 4,
-        "available_data_modalities": ["panel", "tabular"],
-        "treatment_assignment_status": "owner_assignment_unresolved",
-        "owner_access_ref": "test://synthetic-n8-owner-profile",
-        "owner_rows_content_hash": gy_content_hash(rows_payload),
-    }
-    profile = ValueDataProfile.model_validate(
-        {**profile_payload, "content_hash": gy_content_hash(profile_payload)}
-    )
+    profile = _controlled_avg_income_owner_profile()
 
     receipt_ref = CoreArtifactRef(
         artifact_id=CoreArtifactID(_hash("1")),

@@ -24,6 +24,7 @@ from polisyos.core.contracts.control import PromotionCandidate
 from polisyos.core.run.context import RunContext
 from polisyos.core.trace.record import TraceRecord
 from polisyos.fabric.catalog.source_selection_audit import build_fabric_source_selection_trace
+from polisyos.pdc import ArtifactRef as PDCArtifactRef
 from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 from polisyos.runtime.http.services.control import ControlPlaneService
@@ -1852,9 +1853,9 @@ class _DeterministicSpanSupportClient:
         )
 
 
-def _artifact_ref(kind: str, digit: str) -> ArtifactRef:
+def _artifact_ref(kind: str, digit: str) -> PDCArtifactRef:
     digest = "sha256:" + digit * 64
-    return ArtifactRef(
+    return PDCArtifactRef(
         artifact_id=digest,
         artifact_type=kind,
         content_hash=digest,

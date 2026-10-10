@@ -8,6 +8,7 @@ from typing import Any, ClassVar
 from uuid import uuid4
 
 import pytest
+
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     FidelityLevel,
@@ -18,13 +19,13 @@ from polisyos.foundry.methods.base import (
     SlotType,
     Unit,
 )
+from polisyos.foundry.methods.components.linker import LinkResult
 from polisyos.foundry.methods.composer import (
     CompositionDAG,
     MethodComposer,
     MethodNode,
 )
 from polisyos.foundry.methods.exceptions import CyclicDependencyError, MethodNotFoundError
-from polisyos.foundry.methods.components.linker import LinkResult
 from polisyos.foundry.methods.registry import MethodRegistry
 
 # =============================================================================

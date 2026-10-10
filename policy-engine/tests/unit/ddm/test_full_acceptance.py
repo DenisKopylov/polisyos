@@ -15,8 +15,8 @@ from polisyos.ddm.integration import (
     DataQualitySignal,
     DriftAndDegradationMonitor,
     MetricDirection,
-    MonitoringWindow,
     ModelRegistryReadinessRecord,
+    MonitoringWindow,
     PerformanceDegradationEvent,
     ReadinessState,
     ShiftDetectedEvent,
@@ -240,6 +240,8 @@ def test_full_acceptance_boundary_consumes_forwarded_contracts() -> None:
 
     from polisyos.ddm.contracts.events import (
         CalibrationValidityProjection as CanonicalCalibrationValidityProjection,
+    )
+    from polisyos.ddm.contracts.events import (
         ShiftDetectedEvent as CanonicalShiftDetectedEvent,
     )
     from polisyos.ddm.contracts.metric_budget import (
@@ -247,6 +249,8 @@ def test_full_acceptance_boundary_consumes_forwarded_contracts() -> None:
     )
     from polisyos.ddm.integration import (
         CalibrationValidityProjection as PublicCalibrationValidityProjection,
+    )
+    from polisyos.ddm.integration import (
         ShiftDetectedEvent as PublicShiftDetectedEvent,
     )
     from polisyos.ddm.readiness import MetricBudgetPolicy as PublicMetricBudgetPolicy

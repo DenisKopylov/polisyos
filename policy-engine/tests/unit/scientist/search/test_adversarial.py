@@ -7,7 +7,11 @@ import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
-from polisyos.scientist.methods.doe.designs import AdversarialPlan, AdversarialStrategy, ParameterSpec
+from polisyos.scientist.methods.doe.designs import (
+    AdversarialPlan,
+    AdversarialStrategy,
+    ParameterSpec,
+)
 from polisyos.scientist.methods.doe.stress_report import VulnerabilityType
 from polisyos.scientist.methods.search.adversarial import (
     NegatedCompositeObjective,
@@ -21,10 +25,6 @@ from polisyos.scientist.methods.search.objective import (
     ObjectiveValue,
     OptimizationDirection,
 )
-from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
-from polisyos.scientist.methods.search.strategies.random import RandomSearchStrategy
-from polisyos.scientist.methods.search.strategies.space import SearchSpace
-from polisyos.scientist.methods.search.strategies.types import ParameterBounds, PolicyCandidate
 from polisyos.scientist.methods.search.sentinels import (
     SentinelCandidate,
     SentinelKind,
@@ -32,6 +32,10 @@ from polisyos.scientist.methods.search.sentinels import (
     SentinelSet,
 )
 from polisyos.scientist.methods.search.stages import CorrelationTracker, StageResult
+from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
+from polisyos.scientist.methods.search.strategies.random import RandomSearchStrategy
+from polisyos.scientist.methods.search.strategies.space import SearchSpace
+from polisyos.scientist.methods.search.strategies.types import ParameterBounds, PolicyCandidate
 
 
 def _artifact_ref(seed: str) -> ArtifactRef:

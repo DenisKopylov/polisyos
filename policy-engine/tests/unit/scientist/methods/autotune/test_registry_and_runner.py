@@ -3,6 +3,8 @@ from __future__ import annotations
 import threading
 
 import pytest
+from pydantic import ConfigDict, Field
+
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.methods.autotune import (
@@ -25,7 +27,6 @@ from polisyos.scientist.methods.autotune.runtime import (
     PydanticMutationCodec,
     SequenceCandidateGenerator,
 )
-from pydantic import ConfigDict, Field
 
 
 class DummyMutationConfig(MutationArtifact):

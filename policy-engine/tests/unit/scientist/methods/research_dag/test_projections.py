@@ -2,9 +2,6 @@ from __future__ import annotations
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.agent.tools.registry import ToolCallResult
-from polisyos.scientist.orchestration.engine.executor import NodeRunRecord
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_CLAIMS_REF
 from polisyos.scientist.methods.research_dag.models import ResearchNodeType
 from polisyos.scientist.methods.research_dag.projections import (
     RESEARCH_DAG_FEATURE_FLAG,
@@ -12,6 +9,9 @@ from polisyos.scientist.methods.research_dag.projections import (
     project_tool_call_result_to_research_node,
     project_workflow_execution_to_research_dag,
 )
+from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_CLAIMS_REF
+from polisyos.scientist.orchestration.engine.executor import NodeRunRecord
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def _ref(suffix: str) -> ArtifactRef:

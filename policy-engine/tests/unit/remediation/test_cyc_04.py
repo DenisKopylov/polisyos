@@ -7,15 +7,6 @@ from typing import Any
 
 import pytest
 
-from polisyos.runtime.quality.generation_cycle import (
-    CandidateGroundingObservation,
-    CandidateSummary,
-    GenerationCycleController,
-    PromotionPortObservation,
-    SimulationPortObservation,
-    ValuePortObservation,
-    _n7_reentered_summaries,
-)
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
     CandidateLever,
@@ -29,6 +20,15 @@ from polisyos.runtime.quality.design_problem import (
     JurisdictionTimeSemantics,
     NLProvenance,
     OutcomeOfInterest,
+)
+from polisyos.runtime.quality.generation_cycle import (
+    CandidateGroundingObservation,
+    CandidateSummary,
+    GenerationCycleController,
+    PromotionPortObservation,
+    SimulationPortObservation,
+    ValuePortObservation,
+    _n7_reentered_summaries,
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 

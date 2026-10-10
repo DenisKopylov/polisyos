@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import pytest
-from polisyos.core.contracts.foundry import ExecPlanRef, ExecuteRequest
 from pydantic import ValidationError
+
+from polisyos.core.contracts.foundry import ExecPlanRef, ExecuteRequest
 
 
 def test_execute_request_requires_input_bindings_ref() -> None:

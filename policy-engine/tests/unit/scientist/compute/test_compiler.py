@@ -2,19 +2,23 @@ from decimal import Decimal
 
 import jax.numpy as jnp
 import pytest
+
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import CompileRequest
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry.execute.executor import ExecutionStrictness
-from polisyos.foundry.execute.executor import apply_state_delta_and_snapshot, execute_program_graph
+from polisyos.foundry.execute.executor import (
+    ExecutionStrictness,
+    apply_state_delta_and_snapshot,
+    execute_program_graph,
+)
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
-from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.model_layer.types import SelectorOperator
+from polisyos.ir.trinity import TrinityBundle
 
 
 def _bundle_with_subsidy(registry_bundle_ref: str, *, rate: Decimal) -> TrinityBundle:

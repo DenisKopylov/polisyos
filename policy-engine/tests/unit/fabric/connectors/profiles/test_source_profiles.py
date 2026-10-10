@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.fabric.connectors.profiles.models import SourceProfile
 from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
 from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
-from pydantic import ValidationError
 
 
 class TestSourceProfileModel:

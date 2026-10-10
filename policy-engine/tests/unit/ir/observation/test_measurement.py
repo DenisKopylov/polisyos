@@ -3,6 +3,8 @@ from __future__ import annotations
 from datetime import date
 
 import pytest
+
+from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.observation.contracts import (
     EntityScope,
     IdentificationMode,
@@ -22,7 +24,6 @@ from polisyos.ir.observation.measurement import (
     ShockCalendar,
     ShockCalendarEntry,
 )
-from polisyos.ir.model_layer.types import TimeFrequency
 
 
 def _record(**overrides) -> ObservationRecord:

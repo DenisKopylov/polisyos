@@ -5,6 +5,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
+
+from polisyos.runtime.quality.closeout_reader import build_can_i_closeout_verdict
 from polisyos.runtime.quality.graded_outcomes import (
     S1_GRADED_OUTCOME_SCHEMA_VERSION,
     GradedOutcomeEvidenceInput,
@@ -12,8 +14,6 @@ from polisyos.runtime.quality.graded_outcomes import (
     compose_graded_outcome,
     graded_outcome_closeout_record,
 )
-
-from polisyos.runtime.quality.closeout_reader import build_can_i_closeout_verdict
 from polisyos.runtime.quality.projection_semantics import (
     build_policy_design_case_projection_contract_fixture,
 )

@@ -9,14 +9,14 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core.canon import content_hash as compute_content_hash
+from polisyos.fabric.numerics.finite import ensure_probability
 from polisyos.fabric.quality.processing_guarantees import (
     ProcessingGuarantee,
     ProcessingGuaranteeContract,
     default_processing_contract_for_connector,
 )
-from polisyos.fabric.numerics.finite import ensure_probability
-from polisyos.ir.model_layer.canon import CanonSpec, to_canonical_bytes
 from polisyos.ir.connectors import ConnectorMetadataSpec
+from polisyos.ir.model_layer.canon import CanonSpec, to_canonical_bytes
 
 from .contract import CONTRACT_ID_PATTERN, ConnectorSchemaContract
 from .schema import DataSchema, FieldSpec, SchemaVersion

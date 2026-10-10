@@ -5,8 +5,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from benchmarks.advanced import common as advanced_common
 from benchmarks import run_parallel
+from benchmarks.advanced import common as advanced_common
 from benchmarks.run_parallel import SuiteJob, _pick_launchable_job
 
 

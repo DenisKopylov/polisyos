@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -9,11 +10,6 @@ from polisyos.scientist.methods.autotune.models import (
     BenchmarkSplit,
     persist_benchmark_evaluation,
 )
-from polisyos.scientist.policy_design.output import (
-    ReplayableAuditBundle,
-    persist_replayable_audit_bundle,
-)
-from polisyos.scientist.replay.verification import verify_and_persist_replay_bundle
 from polisyos.scientist.methods.search.adversarial import (
     PlatformMetaEvaluationReport,
     persist_platform_meta_evaluation_report,
@@ -23,6 +19,11 @@ from polisyos.scientist.methods.search.calibration_report import (
     persist_funnel_calibration_report,
 )
 from polisyos.scientist.methods.search.promotion_evidence import PromotionEvidenceBundle
+from polisyos.scientist.policy_design.output import (
+    ReplayableAuditBundle,
+    persist_replayable_audit_bundle,
+)
+from polisyos.scientist.replay.verification import verify_and_persist_replay_bundle
 
 
 def _ref(seed: str) -> ArtifactRef:

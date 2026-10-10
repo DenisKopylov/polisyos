@@ -9,11 +9,16 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.runtime import UniversalPolicyDesignCase
 from polisyos.ir.governance.policy_composition import PolicyLayerLevel
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
-from polisyos.ir.governance.problem_frame import NormativeOutcomeChannel, ProblemDomain, ProblemFrame
+from polisyos.ir.governance.problem_frame import (
+    NormativeOutcomeChannel,
+    ProblemDomain,
+    ProblemFrame,
+)
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.observation.contracts import IdentificationMode
 from polisyos.policy_grammar import (
+    UNIVERSAL_POLICY_DESIGN_CASE_ARTIFACT_KIND,
     PolicyGrammarCompiler,
     PolicyGrammarConceptSpineRefs,
     PolicyGrammarConsumerError,
@@ -23,7 +28,6 @@ from polisyos.policy_grammar import (
     load_universal_policy_design_case,
     require_compiled_universal_policy_design_case,
 )
-from polisyos.policy_grammar import UNIVERSAL_POLICY_DESIGN_CASE_ARTIFACT_KIND
 
 
 def test_compiler_emits_typed_facets_for_three_diverse_policy_intents() -> None:

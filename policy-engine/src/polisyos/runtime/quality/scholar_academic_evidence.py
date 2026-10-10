@@ -13,8 +13,10 @@ from polisyos.scholar import (
     SCHOLAR_ACADEMIC_EVIDENCE_SCHEMA_VERSION,
     build_scholar_academic_evidence_report,
     build_scholar_academic_evidence_report_from_web_bundle,
-    normalize_scholar_academic_evidence_report as _normalize_scholar_report,
     scholar_academic_evidence_required,
+)
+from polisyos.scholar import (
+    normalize_scholar_academic_evidence_report as _normalize_scholar_report,
 )
 
 SCHOLAR_ACADEMIC_EVIDENCE_BOUNDARY_SCHEMA_VERSION = (

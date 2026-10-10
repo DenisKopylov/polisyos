@@ -5,8 +5,10 @@ from decimal import Decimal
 from polisyos.ir.governance.policy_spec import InterventionSpec, ParameterSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ObjectiveSpec, ProblemDomain, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
-from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperator
+from polisyos.ir.trinity import TrinityBundle
+from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
+from polisyos.scientist.methods.search.transfer_context import TransferContext
 from polisyos.scientist.policy_design.objectives import (
     ConstraintStatus,
     ObjectiveChannelValue,
@@ -15,8 +17,6 @@ from polisyos.scientist.policy_design.objectives import (
     PolicyEvaluationVector,
 )
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema, TargetPopulationSpec
-from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
-from polisyos.scientist.methods.search.transfer_context import TransferContext
 
 
 def _candidate() -> PolicyCandidateSchema:

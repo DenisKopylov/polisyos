@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from scipy.stats import kstest
+
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
 from polisyos.foundry.uncertainty.quasi_mc import QuasiMCSampler
@@ -14,7 +16,6 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-from scipy.stats import kstest
 
 
 def _normal_env(point: float, std: float) -> UncertaintyEnvelope:

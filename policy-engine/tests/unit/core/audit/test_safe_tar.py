@@ -3,8 +3,9 @@ from __future__ import annotations
 import tarfile
 from io import BytesIO
 
-import polisyos.core.audit.safe_tar as safe_tar_module
 import pytest
+
+import polisyos.core.audit.safe_tar as safe_tar_module
 from polisyos.core.audit.safe_tar import safe_extract_tar
 
 

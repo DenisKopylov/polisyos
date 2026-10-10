@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from polisyos.ir.model_layer.canon import CanonViolation, content_hash, to_canonical_bytes
 from polisyos.ir.governance.schedule import schedule_range
 from polisyos.ir.kernel.mechanisms import resolve_mechanism_slots
+from polisyos.ir.model_layer.canon import CanonViolation, content_hash, to_canonical_bytes
 
 from ._trinity_mechanisms import (
     _collect_selector_fields,

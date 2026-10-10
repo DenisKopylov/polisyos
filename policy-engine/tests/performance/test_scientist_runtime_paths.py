@@ -3,6 +3,13 @@ from __future__ import annotations
 import asyncio
 
 import pytest
+from _helpers.scientist_runtime import (
+    build_execution_context,
+    build_initial_state,
+    build_linear_registry,
+    build_linear_workflow_spec,
+    default_actual_rows,
+)
 
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -13,6 +20,9 @@ from polisyos.scientist.methods.autotune.models import (
     PromotionPolicy,
 )
 from polisyos.scientist.methods.autotune.pareto import ParetoPromoter
+from polisyos.scientist.methods.search.controller import SearchConfig, SearchController
+from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
+from polisyos.scientist.methods.search.stopping import MaxIterations
 from polisyos.scientist.orchestration.engine.checkpoint import (
     CASCheckpointHook,
     create_checkpoint,
@@ -31,16 +41,6 @@ from polisyos.scientist.orchestration.llm.gateway_client import (
     GatewayUsage,
 )
 from polisyos.scientist.orchestration.llm.prompt_cache import InMemoryPromptCache
-from polisyos.scientist.methods.search.controller import SearchConfig, SearchController
-from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
-from polisyos.scientist.methods.search.stopping import MaxIterations
-from _helpers.scientist_runtime import (
-    build_execution_context,
-    build_initial_state,
-    build_linear_registry,
-    build_linear_workflow_spec,
-    default_actual_rows,
-)
 
 pytestmark = [pytest.mark.performance, pytest.mark.benchmark]
 

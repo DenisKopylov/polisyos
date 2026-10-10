@@ -4,10 +4,11 @@ from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
 
-import polisyos.core.observability.tracer as tracer_module
 import pytest
 from opentelemetry.sdk.trace.sampling import ALWAYS_OFF, ALWAYS_ON, Decision
 from opentelemetry.trace import SpanKind
+
+import polisyos.core.observability.tracer as tracer_module
 from polisyos.core.observability import get_tracer
 from polisyos.core.observability.config import OTelConfig
 from polisyos.core.observability.tracer import (

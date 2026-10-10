@@ -4,11 +4,12 @@ import json
 from typing import Any
 
 import pytest
-from polisyos.ir.model_layer.canon import CanonViolation, from_canonical_bytes
+from pydantic import TypeAdapter, ValidationError
+
 from polisyos.ir.governance.selector_expr import SelectorExpr
 from polisyos.ir.migrations.base import migrate_artifact, register_migration
+from polisyos.ir.model_layer.canon import CanonViolation, from_canonical_bytes
 from polisyos.ir.world.ids import claim_id_from_payload
-from pydantic import TypeAdapter, ValidationError
 
 try:
     from hypothesis import HealthCheck, given, settings

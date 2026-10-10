@@ -45,8 +45,9 @@ class TestCompilationStep:
             step.n_executor_nodes = 99  # type: ignore[misc]
 
     def test_extra_forbidden(self):
-        from polisyos.ir.analytics.evidence_bundle import CompilationStep
         from pydantic import ValidationError
+
+        from polisyos.ir.analytics.evidence_bundle import CompilationStep
 
         with pytest.raises(ValidationError):
             CompilationStep(
@@ -170,6 +171,7 @@ class TestCovariateBalanceReport:
 
     def test_compute_smd_balanced(self):
         import numpy as np
+
         from polisyos.ir.analytics.covariate_balance import compute_smd
 
         rng = np.random.default_rng(42)
@@ -183,6 +185,7 @@ class TestCovariateBalanceReport:
 
     def test_compute_smd_imbalanced(self):
         import numpy as np
+
         from polisyos.ir.analytics.covariate_balance import compute_smd
 
         Xt = np.ones((50, 1)) * 2.0  # mean=2

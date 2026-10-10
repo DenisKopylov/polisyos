@@ -5,10 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
+from polisyos.scientist.methods.search.judge_stack import PolicyPromotionResult
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
     _is_policy_mode,
@@ -21,12 +18,20 @@ from polisyos.scientist.nodes.builtins.decide.run_policy_translation import (
     _policy_build_input,
 )
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_DECISION_READINESS_CONTRACT_REF
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.policy_design.output import PolicyArtifactBuilder, PolicyBrief
 from polisyos.scientist.policy_design.translator import (
     TranslatorCompliancePass,
     TranslatorComplianceResult,
 )
-from polisyos.scientist.methods.search.judge_stack import PolicyPromotionResult
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_translator_compliance@1.0.0"),

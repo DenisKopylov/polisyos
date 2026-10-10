@@ -5,8 +5,8 @@ from __future__ import annotations
 import re
 from enum import Enum
 
-from polisyos.ir.loading.fact_log import Fact
 from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN
+from polisyos.ir.loading.fact_log import Fact
 from polisyos.ir.world.abi import EdgeKind, NodeKind
 from polisyos.ir.world.claim import Claim
 from polisyos.ir.world.conflict import ConflictSet

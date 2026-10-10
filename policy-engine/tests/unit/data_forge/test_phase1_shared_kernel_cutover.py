@@ -5,11 +5,12 @@ import tomllib
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 import polisyos.data_forge.kernel.io as kernel_io
 import polisyos.data_forge.kernel.pipeline.manifests as kernel_manifest
 import polisyos.data_forge.kernel.quality as kernel_quality
 import polisyos.data_forge.kernel.runtime as kernel_runtime
-import pytest
 from polisyos.data_forge.kernel.pipeline.config import (
     EnvSecretBackend,
     MappingSecretBackend,

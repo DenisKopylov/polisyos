@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins.compile.link_trinity import LinkTrinityNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_TRINITY_BUNDLE_REF,
     REPORT_LINK_REPORT_REF,
+)
+from polisyos.scientist.orchestration.engine.state_branching import (
+    branch_state as real_branch_state,
 )
 
 

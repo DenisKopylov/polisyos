@@ -6,6 +6,8 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.fabric.connectors.contracts import SourceFieldAccessPolicy
 from polisyos.fabric.evidence.decision_data import (
     AccessRef,
@@ -24,7 +26,6 @@ from polisyos.fabric.evidence.decision_data import (
     fabric_fact_to_quantity_value,
     to_runtime_quantity_value,
 )
-from pydantic import ValidationError
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 

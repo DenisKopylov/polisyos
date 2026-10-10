@@ -24,12 +24,12 @@ import numpy as np
 
 from polisyos.foundry.methods.backends.validated import VALIDATED_EXECUTION_PARAM_NAMES
 from polisyos.foundry.methods.base import MethodSignature
-from polisyos.foundry.methods.exceptions import CompilationError, ParameterValidationError
 from polisyos.foundry.methods.compiler.specialization import (
     BackendSpec,
     Specialization,
     build_specialization,
 )
+from polisyos.foundry.methods.exceptions import CompilationError, ParameterValidationError
 
 __all__ = [
     "CompilationCache",

@@ -11,17 +11,28 @@ from polisyos.core.contracts.scientist import (
     PolicyRequestFrameRef,
     SourceVerificationReportRef,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_JUDGE_VERDICT_REF,
     ARTIFACT_POLICY_OPTION_SET_REF,
     ARTIFACT_POLICY_REQUEST_FRAME_REF,
     ARTIFACT_SOURCE_VERIFICATION_REPORT_REF,
-    ARTIFACT_JUDGE_VERDICT_REF,
     ARTIFACT_VALIDATION_REPORT_REF,
     ARTIFACT_VERIFIED_POLICY_REPORT_REF,
+)
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
+from polisyos.scientist.validation.phase5_preflight import (
+    Phase5ArtifactPreflightInput,
+    Phase5ValidationBlocked,
+    enforce_phase5_publication,
+    run_phase5_artifact_preflight,
 )
 from polisyos.scientist.validation.policy_verified import (
     load_policy_option_set,
@@ -30,12 +41,6 @@ from polisyos.scientist.validation.policy_verified import (
     persist_verified_policy_report,
 )
 from polisyos.scientist.validation.policy_verified.service import build_verified_policy_report
-from polisyos.scientist.validation.phase5_preflight import (
-    Phase5ArtifactPreflightInput,
-    Phase5ValidationBlocked,
-    enforce_phase5_publication,
-    run_phase5_artifact_preflight,
-)
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_build_verified_policy_report@1.0.0"),

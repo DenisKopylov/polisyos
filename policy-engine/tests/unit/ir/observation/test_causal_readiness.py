@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.ir.observation.causal_readiness import (
     CausalReadinessBundle,
     InterferenceReadinessEntry,
@@ -8,7 +10,6 @@ from polisyos.ir.observation.causal_readiness import (
     StrategicResponseEntry,
 )
 from polisyos.ir.observation.contracts import ObservationFamily, StrategicResponseChannel
-from pydantic import ValidationError
 
 
 def test_interference_readiness_rejects_empty_dotted_path_segments() -> None:

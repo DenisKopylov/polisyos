@@ -4,14 +4,15 @@ from types import SimpleNamespace
 from uuid import uuid4
 
 import pytest
+
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
     FidelityLevel,
     MethodSignature,
 )
-from polisyos.foundry.methods.composer import CompositionDAG, MethodNode
 from polisyos.foundry.methods.compiler.plan_optimizer import ExecutionPlanOptimizer, MethodCostModel
+from polisyos.foundry.methods.composer import CompositionDAG, MethodNode
 
 
 def _make_signature(

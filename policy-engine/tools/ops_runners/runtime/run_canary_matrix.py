@@ -13,12 +13,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from polisyos.runtime.quality.closeout_compatibility import (
+    build_closeout_compatibility_record_from_bundle_dir,
+)
 from polisyos.runtime.quality.source_truth import (
     detect_source_truth_conflict,
     load_source_truth_lattice,
-)
-from polisyos.runtime.quality.closeout_compatibility import (
-    build_closeout_compatibility_record_from_bundle_dir,
 )
 from tools.ops_runners.runtime import canary_matrix
 

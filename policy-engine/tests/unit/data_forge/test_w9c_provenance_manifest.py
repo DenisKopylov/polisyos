@@ -8,12 +8,12 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pathlib import Path
 
-from polisyos.data_forge.kernel.pipeline.manifests import write_publish_manifest
-from polisyos.data_forge.kernel.snapshot import finalize_snapshot
 from polisyos.data_forge import (
     DATA_FORGE_PROVENANCE_MANIFEST_FILE,
     load_snapshot_provenance_manifest,
 )
+from polisyos.data_forge.kernel.pipeline.manifests import write_publish_manifest
+from polisyos.data_forge.kernel.snapshot import finalize_snapshot
 
 
 def _cas(char: str) -> str:

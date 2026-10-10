@@ -1,10 +1,5 @@
 """Defense-in-depth helpers for enforcing column-level authorization on fabric outputs."""
 
-from polisyos.fabric.security.adapters import (
-    FabricSecurityAdapter,
-    FabricSecurityContext,
-    get_fabric_security_adapter,
-)
 from polisyos.fabric.security.access_control import (
     AccessAuditEvent,
     DataClassification,
@@ -14,6 +9,11 @@ from polisyos.fabric.security.access_control import (
     classification_allowed,
     current_trace_id,
     normalize_classification,
+)
+from polisyos.fabric.security.adapters import (
+    FabricSecurityAdapter,
+    FabricSecurityContext,
+    get_fabric_security_adapter,
 )
 from polisyos.fabric.security.column_mask import (
     apply_requested_column_guard,

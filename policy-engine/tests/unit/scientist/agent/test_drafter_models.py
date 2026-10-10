@@ -7,6 +7,8 @@ from dataclasses import FrozenInstanceError
 from unittest.mock import patch
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.scientist.agent.drafter_models import (
     _SEVERITY_ORDER,
     FindingCategory,
@@ -17,7 +19,6 @@ from polisyos.scientist.agent.drafter_models import (
     _ConsolidationPayload,
     _CritiquePayload,
 )
-from pydantic import ValidationError
 
 # ---------------------------------------------------------------------------
 # Enums

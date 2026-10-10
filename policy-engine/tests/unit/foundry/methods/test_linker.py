@@ -5,6 +5,7 @@ Unit tests for Slot Linker and Compatibility Checker.
 from __future__ import annotations
 
 import pytest
+
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     FidelityLevel,
@@ -13,16 +14,16 @@ from polisyos.foundry.methods.base import (
     SlotType,
     Unit,
 )
-from polisyos.foundry.methods.exceptions import (
-    ShapeMismatchError,
-    SlotConnectionError,
-    UnitMismatchError,
-)
 from polisyos.foundry.methods.components.linker import (
     LinkerConfig,
     SlotLinker,
     check_linkable,
     link_methods,
+)
+from polisyos.foundry.methods.exceptions import (
+    ShapeMismatchError,
+    SlotConnectionError,
+    UnitMismatchError,
 )
 from polisyos.foundry.methods.types.checker import (
     IncompatibilityReason,

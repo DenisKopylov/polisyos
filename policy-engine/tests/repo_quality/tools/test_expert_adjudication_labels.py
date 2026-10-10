@@ -4,11 +4,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from polisyos.corpus import load_outcome_corpus_annotations
 from polisyos.corpus import (
     EXPERT_ADJUDICATION_SCHEMA_VERSION,
     build_expert_adjudication_useful_design_gate,
     evaluate_expert_adjudication_manifest,
+    load_outcome_corpus_annotations,
 )
 from tools.quality.validation import check_expert_adjudication_labels as checker
 

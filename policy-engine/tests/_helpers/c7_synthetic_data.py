@@ -13,6 +13,7 @@ from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.fabric import DataSnapshot, EvidenceBundle, EvidenceBundleRef
 from polisyos.foundry.methods.catalog.ml.protocols import SurvivalData
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
+from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.observation.contract_compilers import (
     BoundsEstimationCompileSpec,
     DynamicTreatmentCompileSpec,
@@ -50,7 +51,6 @@ from polisyos.ir.observation.contracts import (
     ObservationRecord,
     SourceConfidenceTier,
 )
-from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.scientist.methods.advanced import C7AdvancedInputs
 
 SEED = 20260328

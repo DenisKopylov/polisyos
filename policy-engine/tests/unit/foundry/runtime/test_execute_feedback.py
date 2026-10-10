@@ -36,8 +36,8 @@ from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.model_layer.model_spec import ModelSpec
-from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.model_layer.types import SelectorOperator
+from polisyos.ir.trinity import TrinityBundle
 
 
 def test_execute_supports_feedback_fixed_point_mode(tmp_path) -> None:

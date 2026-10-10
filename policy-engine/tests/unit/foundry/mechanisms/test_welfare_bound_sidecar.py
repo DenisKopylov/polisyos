@@ -4,6 +4,7 @@ from decimal import Decimal
 
 import jax.numpy as jnp
 import pytest
+
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
@@ -32,8 +33,8 @@ from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.model_layer.model_spec import ModelSpec
-from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.model_layer.types import SelectorOperator
+from polisyos.ir.trinity import TrinityBundle
 
 CTX_REF = "sha256:0000000000000000000000000000000000000000000000000000000000000000"
 

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import polisyos.ir.analytics as analytics
 import pytest
+
+import polisyos.ir.analytics as analytics
 from polisyos.ir import enumerate_ir_exports, get_ir_type
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.causal_rl import (

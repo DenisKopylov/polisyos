@@ -25,6 +25,9 @@ from polisyos.ir.observation.governance import (
     GovernancePassMappingRegistry,
     ObservationFamilyPolicyRegistry,
 )
+from polisyos.scientist.governance.pass_registry import load_governance_passes
+from polisyos.scientist.governance.pipeline import ValidationPipeline
+from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.methods.backtesting import (
     ABSTRACTION_LEAKAGE_SUITE_ID,
     MULTIPLICITY_DISCLOSURE_SUITE_ID,
@@ -41,9 +44,6 @@ from polisyos.scientist.methods.discovery.active import (
     DisambiguationAction,
     DisambiguationTarget,
 )
-from polisyos.scientist.governance.pass_registry import load_governance_passes
-from polisyos.scientist.governance.pipeline import ValidationPipeline
-from polisyos.scientist.governance.report import GovernanceReport
 
 
 class CalibrationPassResult(BaseModel):
@@ -207,7 +207,11 @@ class LessonCardPublisher:
     ) -> ArtifactRef | None:
         """Write a local lesson card when the bundle exposes a lesson registry."""
 
-        from polisyos.scientist.methods.search.lessons import LessonCard, LessonKind, LessonTrustLevel
+        from polisyos.scientist.methods.search.lessons import (
+            LessonCard,
+            LessonKind,
+            LessonTrustLevel,
+        )
         from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
 
         registry = bundle.lesson_registry

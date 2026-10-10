@@ -2,13 +2,15 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins.planning.expand_legal_source_pack import (
     ExpandLegalSourcePackNode,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_LEGAL_CANDIDATE_PACK_REF,
     ARTIFACT_LEGAL_SOURCE_PACK_REF,
+)
+from polisyos.scientist.orchestration.engine.state_branching import (
+    branch_state as real_branch_state,
 )
 
 

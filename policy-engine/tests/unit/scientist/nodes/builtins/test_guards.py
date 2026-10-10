@@ -5,13 +5,14 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.scientist.orchestration.engine.protocol import NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.guards import (
     StateMutationGuard,
     StateMutationViolation,
 )
+from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 _COUNTER = 0
 

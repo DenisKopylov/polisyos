@@ -5,11 +5,12 @@ from __future__ import annotations
 import sys
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.scientist.orchestration.engine.runner.config import (
     WorkflowRunnerConfig,
     build_workflow_runner,
 )
-from pydantic import ValidationError
 
 # ---------------------------------------------------------------------------
 # WorkflowRunnerConfig defaults

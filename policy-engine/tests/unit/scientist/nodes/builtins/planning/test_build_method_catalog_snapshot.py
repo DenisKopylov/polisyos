@@ -2,13 +2,15 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins.planning.build_method_catalog_snapshot import (
     BuildMethodCatalogSnapshotNode,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_CAPABILITY_CONTRACT_REF,
     ARTIFACT_METHOD_CATALOG_SNAPSHOT_REF,
+)
+from polisyos.scientist.orchestration.engine.state_branching import (
+    branch_state as real_branch_state,
 )
 
 

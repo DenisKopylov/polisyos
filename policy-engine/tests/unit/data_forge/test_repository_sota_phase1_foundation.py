@@ -8,9 +8,10 @@ import sys
 import tomllib
 from pathlib import Path
 
-import polisyos.data_forge as data_forge
 import pytest
 from pydantic import ValidationError
+
+import polisyos.data_forge as data_forge
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 ARCHITECTURE_ROOT = REPO_ROOT / "architecture"

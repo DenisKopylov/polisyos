@@ -11,19 +11,13 @@ import numpy as np
 import pytest
 
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.foundry.methods.base import (
-    ComplexityClass,
-    ComputeBackend,
-    FidelityLevel,
-    MethodSignature,
-)
 from polisyos.foundry.methods.backends.checkpointing import (
     ChainCheckpoint,
     CheckpointDigestMismatchError,
     CheckpointError,
+    CheckpointingChainExecutor,
     CheckpointLoadError,
     CheckpointSaveError,
-    CheckpointingChainExecutor,
     _compute_chain_digest,
 )
 from polisyos.foundry.methods.backends.protocol import (
@@ -35,6 +29,12 @@ from polisyos.foundry.methods.backends.validated import (
     ValidatedBound,
     ValidatedMethodFamily,
     ValidatedStatus,
+)
+from polisyos.foundry.methods.base import (
+    ComplexityClass,
+    ComputeBackend,
+    FidelityLevel,
+    MethodSignature,
 )
 from polisyos.foundry.methods.components.composer import (
     CompiledMethodChain,

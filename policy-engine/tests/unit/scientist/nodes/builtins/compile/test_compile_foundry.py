@@ -3,12 +3,14 @@ from __future__ import annotations
 from dataclasses import replace
 from unittest.mock import MagicMock, patch
 
-from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins.compile.compile_foundry import CompileFoundryNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_EXEC_PLAN_REF,
     INPUT_TRINITY_BUNDLE_REF,
     REPORT_COMPILE_REPORT_REF,
+)
+from polisyos.scientist.orchestration.engine.state_branching import (
+    branch_state as real_branch_state,
 )
 
 

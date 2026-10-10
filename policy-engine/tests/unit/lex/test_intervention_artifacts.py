@@ -3,10 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
-from polisyos.ir.observation.contracts import StrategicResponseChannel
 from polisyos.ir.model_layer.types import SelectorOperator
+from polisyos.ir.observation.contracts import StrategicResponseChannel
 from polisyos.lex import LexInterventionCompiler, LexProvisionMappingRegistry
 from polisyos.lex.intervention_artifacts import (
     load_intervention_knob_dictionary_entries,

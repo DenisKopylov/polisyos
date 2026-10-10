@@ -24,6 +24,7 @@ from polisyos.core.canon import (
     to_canonical_bytes,
 )
 
+from ..compiler.specialization import Specialization
 from ._fingerprint import (
     ARTIFACTS_VERSION,
     SOURCE_UNAVAILABLE,
@@ -34,7 +35,6 @@ from ._fingerprint import (
     compute_source_fingerprint,
     compute_source_hash,
 )
-from ..compiler.specialization import Specialization
 
 if TYPE_CHECKING:
     from ..base import MethodMetadata, MethodSignature

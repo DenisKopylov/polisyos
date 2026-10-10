@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.scholar import KnowledgeBundleRef, ResearchIntent, ResearchIntentRef
@@ -13,13 +14,13 @@ from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.scholar.freshness import build_freshness_metadata
 from polisyos.scholar.types import KnowledgeBundlePayloadV1
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.data.enrich_knowledge import EnrichKnowledgeNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_KNOWLEDGE_BUNDLE_REF,
     INPUT_RESEARCH_INTENT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 class _FakeScholar:

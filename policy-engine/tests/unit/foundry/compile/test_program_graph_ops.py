@@ -3,6 +3,7 @@ from __future__ import annotations
 from decimal import Decimal
 
 import pytest
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -22,8 +23,8 @@ from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.model_layer.model_spec import ModelSpec
-from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.model_layer.types import SelectorOperator
+from polisyos.ir.trinity import TrinityBundle
 
 
 def _put_trinity_bundle(store: FileSystemCAS, registry_bundle_ref: str) -> object:

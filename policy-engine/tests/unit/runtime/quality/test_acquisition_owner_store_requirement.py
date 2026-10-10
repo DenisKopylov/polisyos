@@ -67,8 +67,8 @@ def test_real_gateway_rejects_private_store_configuration_route(tmp_path: Path) 
 
 
 def test_default_production_gateway_requires_runtime_store(tmp_path: Path) -> None:
-    from polisyos.runtime.quality.generation_cycle import GenerationCycleController
     from polisyos.runtime.quality.design_problem import DesignProblem
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleController
 
     controller = GenerationCycleController(
         repo_root=tmp_path,

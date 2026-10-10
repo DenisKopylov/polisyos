@@ -16,6 +16,7 @@ from enum import Enum
 from pydantic import Field, model_validator
 
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
+from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.observation.contracts import (
     IdentificationMode,
     ObservationFamily,
@@ -26,7 +27,6 @@ from polisyos.ir.observation.governance import (
     DEFAULT_OBSERVATION_FAMILY_POLICY_REGISTRY,
     ObservationFamilyPolicyRegistry,
 )
-from polisyos.ir.model_layer.types import TimeFrequency
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 

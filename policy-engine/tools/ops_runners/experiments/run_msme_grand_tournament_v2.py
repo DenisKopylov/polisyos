@@ -959,11 +959,6 @@ def build_runtime_fabric_payloads(
         for row in top
     ]
     try:
-        from polisyos.fabric.evidence.decision_data import (
-            coverage_from_decision_data,
-            from_runtime_quantities,
-        )
-
         from polisyos.core.contracts.runtime import (
             LineageRef,
             QuantityUncertainty,
@@ -971,6 +966,10 @@ def build_runtime_fabric_payloads(
             TemporalRef,
             UnitRef,
             VerificationMetadata,
+        )
+        from polisyos.fabric.evidence.decision_data import (
+            coverage_from_decision_data,
+            from_runtime_quantities,
         )
 
         now = datetime.now(UTC).replace(microsecond=0)

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+
+from polisyos.scientist.methods.search.lessons import LessonCard, LessonKind
 from polisyos.scientist.orchestration.memory import (
     LessonApplicability,
     MemoryApplicabilityContext,
@@ -13,7 +15,6 @@ from polisyos.scientist.orchestration.memory import (
     format_warning_only_memory_context,
     retrieve_reflexive_lessons,
 )
-from polisyos.scientist.methods.search.lessons import LessonCard, LessonKind
 
 
 def _lesson(lesson_id: str = "lesson_a", **updates) -> LessonCard:

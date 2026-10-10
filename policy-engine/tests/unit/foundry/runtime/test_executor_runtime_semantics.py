@@ -5,6 +5,7 @@ from typing import ClassVar
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
@@ -27,9 +28,9 @@ from polisyos.core.contracts.foundry import (
 )
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry.execute.executor import ExecutionStrictness
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import (
+    ExecutionStrictness,
     apply_state_delta_and_snapshot,
     execute_program_graph,
     load_state_snapshot,

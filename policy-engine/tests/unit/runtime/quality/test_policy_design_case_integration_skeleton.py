@@ -8,12 +8,12 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pathlib import Path as PathType
 
-from polisyos.runtime.quality.projection_semantics import (
-    assert_policy_design_projection_not_authority,
-)
 from polisyos.runtime.quality.policy_design_case_integration_skeleton import (
     build_wave2_policy_design_case_walking_skeleton,
     persist_wave2_policy_design_case_walking_skeleton,
+)
+from polisyos.runtime.quality.projection_semantics import (
+    assert_policy_design_projection_not_authority,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[4]

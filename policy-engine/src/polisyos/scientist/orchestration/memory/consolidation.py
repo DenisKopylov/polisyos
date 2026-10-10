@@ -7,12 +7,12 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.scientist.methods.search.lessons import LessonCard, LessonRegistry
 from polisyos.scientist.orchestration.memory.contracts import (
     LessonApplicability,
     ReflexiveMemoryEvent,
     build_reflexive_memory_event,
 )
-from polisyos.scientist.methods.search.lessons import LessonCard, LessonRegistry
 
 
 class ConsolidatedLessonSet(BaseModel):

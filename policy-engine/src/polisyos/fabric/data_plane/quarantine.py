@@ -15,8 +15,8 @@ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.observability import get_metrics
-from polisyos.fabric.io.atomic import append_text_locked, file_lock
 from polisyos.fabric.data_plane.temporal import utc_now
+from polisyos.fabric.io.atomic import append_text_locked, file_lock
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping, Sequence

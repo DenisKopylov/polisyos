@@ -9,7 +9,10 @@ from polisyos.runtime.quality.scholar_academic_evidence import (
     build_scholar_academic_evidence_boundary_record,
     normalize_scholar_academic_evidence_report,
 )
-from polisyos.scholar import build_scholar_academic_evidence_report_from_web_bundle
+from polisyos.scholar import (
+    build_scholar_academic_evidence_report_from_web_bundle,
+    build_scholar_spine_evidence_binding,
+)
 from polisyos.scholar.search.models import (
     ClaimSupportLink,
     QueryGraph,
@@ -20,7 +23,6 @@ from polisyos.scholar.search.models import (
     SourceSnippet,
     WebEvidenceBundle,
 )
-from polisyos.scholar import build_scholar_spine_evidence_binding
 from polisyos.scholar_requirement import (
     ScholarSupportRequirementCompiler,
     ScholarSupportRequirementSpec,

@@ -12,8 +12,8 @@ from polisyos.foundry.execute.executor import put_state_snapshot
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
-from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.model_layer.types import SelectorOperator
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.workflows.builder import run_default_workflow

@@ -4,14 +4,15 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.scientist.methods.doe.analysis import _plan_to_salib_problem
 from polisyos.scientist.methods.doe.designs import (
     ParameterDist,
     ParameterSpec,
-    TriangularDistributionSpecV1,
     RunFailurePolicy,
     SensitivityMethod,
     SensitivityPlan,
+    TriangularDistributionSpecV1,
 )
 from polisyos.scientist.methods.doe.stress_report import VulnerabilityType
 

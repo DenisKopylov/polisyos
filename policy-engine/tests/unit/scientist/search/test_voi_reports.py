@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from decimal import Decimal
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.methods.search.funnel.types import CheapSignalVector, FunnelStageResult
 from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
 from polisyos.scientist.methods.search.voi_scheduler import (
@@ -15,6 +14,7 @@ from polisyos.scientist.methods.search.voi_scheduler import (
     persist_voi_run_report,
     scheduling_decision_to_voi_record,
 )
+from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 
 
 @dataclass

@@ -4,13 +4,13 @@ import json
 from pathlib import Path
 
 import pytest
+from _helpers.runtime_http import build_runtime_api_env
 
 from polisyos.data_forge.read_api.catalog import (
     load_catalog_readiness_package,
     load_catalog_shadow_bundle,
 )
 from polisyos.fabric.connectors.contracts import load_source_contracts
-from _helpers.runtime_http import build_runtime_api_env
 from tools.quality.validation import fabric_source_contracts
 
 pytestmark = pytest.mark.integration

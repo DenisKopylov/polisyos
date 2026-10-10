@@ -128,15 +128,18 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
     notes: list[str] = []
     try:
         from polisyos.core.artifacts.manifest import ArtifactRef
-        from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
         from polisyos.scientist.governance.human_review.models import ReviewRiskTier
-        from polisyos.scientist.governance.human_review.oversight_policy import HumanReviewRequirement
+        from polisyos.scientist.governance.human_review.oversight_policy import (
+            HumanReviewRequirement,
+        )
         from polisyos.scientist.governance.human_review.voi_escalation import (
             build_human_escalation_voi_decision,
             validate_human_escalation_voi_decision,
         )
-        from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_VOI_RUN_REPORT_REF
-        from polisyos.scientist.methods.search.funnel.types import CheapSignalVector, FunnelStageResult
+        from polisyos.scientist.methods.search.funnel.types import (
+            CheapSignalVector,
+            FunnelStageResult,
+        )
         from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
         from polisyos.scientist.methods.search.voi_calibration import (
             build_voi_calibration_report,
@@ -153,6 +156,8 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             build_adversarial_challenge_voi_decision,
             build_stop_search_voi_decision,
         )
+        from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_VOI_RUN_REPORT_REF
+        from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
     except Exception as exc:  # pragma: no cover - surfaced in payload.
         return False, [f"phase2_3_import_failed:{exc.__class__.__name__}:{exc}"]
 

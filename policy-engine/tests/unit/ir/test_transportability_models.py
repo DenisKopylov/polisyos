@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.ir.analytics.literature import (
     ArticleExtractionResult,
     CausalClaim,
@@ -14,7 +16,6 @@ from polisyos.ir.analytics.literature import (
     PaperKind,
     UncertaintyBudget,
 )
-from pydantic import ValidationError
 
 # ---------------------------------------------------------------------------
 # PaperKind enum

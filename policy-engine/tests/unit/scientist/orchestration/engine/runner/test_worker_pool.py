@@ -6,12 +6,13 @@ import asyncio
 from unittest.mock import patch
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.scientist.orchestration.engine.runner.worker_pool import (
     NodeTask,
     PoolCapacity,
     ResourceRequirements,
 )
-from pydantic import ValidationError
 
 
 def _make_task(**overrides) -> NodeTask:

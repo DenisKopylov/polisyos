@@ -25,7 +25,6 @@ from polisyos.ir.analytics.interference import InterferenceCertificate, NetworkI
 from polisyos.ir.analytics.transportability import TransportabilityResult
 from polisyos.ir.observation.bundles import BacktestPlanBundle
 from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
-from polisyos.scientist.methods.discovery.utility_judge import DownstreamUtilityReport
 from polisyos.scientist.governance.accountability import (
     GovernanceAccountabilityInput,
     build_governance_accountability_artifact,
@@ -46,6 +45,7 @@ from polisyos.scientist.governance.stress_scenarios import (
     StressScenarioResult,
     StressScenarioRunner,
 )
+from polisyos.scientist.methods.discovery.utility_judge import DownstreamUtilityReport
 
 
 class CalibrationValidationRunnerInput(BaseModel):
@@ -339,7 +339,11 @@ class CalibrationValidationLessonPublisher:
         bundle_input: CalibrationValidationRunnerInput,
         bundle: CalibrationValidationBundle,
     ) -> ArtifactRef | None:
-        from polisyos.scientist.methods.search.lessons import LessonCard, LessonKind, LessonTrustLevel
+        from polisyos.scientist.methods.search.lessons import (
+            LessonCard,
+            LessonKind,
+            LessonTrustLevel,
+        )
         from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
 
         registry = bundle_input.lesson_registry

@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
+from pydantic import ValidationError
+
 from polisyos.core.governance.passes.base import IssueSeverity
 from polisyos.scientist.governance.passes.schema_pass import SchemaPass
-from pydantic import ValidationError
 
 
 def _make_valid_ir(*, num_interventions: int = 2):

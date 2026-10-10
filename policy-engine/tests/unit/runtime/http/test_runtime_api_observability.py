@@ -5,11 +5,12 @@ import time
 from contextlib import contextmanager
 
 import pytest
+from polisyos_tests_runtime_http_conftest import build_runtime_api_env
+
 from polisyos.core.contracts.control import DataSourceBinding, WorkflowRunRequest
 from polisyos.core.observability import get_tracer
 from polisyos.runtime.http import container as runtime_container
 from polisyos.runtime.http.services.control import ControlPlaneService
-from polisyos_tests_runtime_http_conftest import build_runtime_api_env
 
 
 class _FakeTracer:

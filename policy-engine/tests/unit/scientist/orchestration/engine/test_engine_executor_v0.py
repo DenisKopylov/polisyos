@@ -4,17 +4,22 @@ import json
 import logging
 
 import pytest
-from polisyos.core.contracts.skip_blockers import SKIP_BLOCKER_REQUIRED_FIELDS
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.contracts.skip_blockers import SKIP_BLOCKER_REQUIRED_FIELDS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.scientist.orchestration.engine.builtins import builtin_nodes
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.errors import CycleDetectedError, UnknownNodeError
 from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.protocol import NodeEvent
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec

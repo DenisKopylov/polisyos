@@ -49,8 +49,8 @@ from polisyos.ir.model_layer.model_spec import (
     FidelityLevel,
     ModelSpec,
 )
-from polisyos.ir.trinity import TrinityBundle as IRTrinityBundle
 from polisyos.ir.model_layer.types import EntityType, OptimizationDirection
+from polisyos.ir.trinity import TrinityBundle as IRTrinityBundle
 
 # =============================================================================
 # Fixtures

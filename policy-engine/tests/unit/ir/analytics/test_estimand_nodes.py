@@ -1,6 +1,8 @@
 """Tests for the new EstimandAST node types: NuisanceNode, ExpectationNode, IntegralNode."""
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.ir.analytics.estimand import (
     DistributionDomain,
     DistributionLawNode,
@@ -18,7 +20,6 @@ from polisyos.ir.analytics.estimand import (
     SumNode,
     make_distribution_law_estimand,
 )
-from pydantic import ValidationError
 
 # ---------------------------------------------------------------------------
 # NuisanceNode

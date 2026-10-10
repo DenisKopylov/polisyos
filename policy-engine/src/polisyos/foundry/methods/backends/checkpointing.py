@@ -68,7 +68,6 @@ from uuid import UUID, uuid4
 import numpy as np
 
 from polisyos.core.observability import DeterminismTier
-from polisyos.foundry.methods.base import ComputeBackend, _stable_digest
 from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,
     _build_chain_reproducibility_contract,
@@ -85,6 +84,7 @@ from polisyos.foundry.methods.backends.validated import (
     ValidatedMethodFamily,
     ValidatedStatus,
 )
+from polisyos.foundry.methods.base import ComputeBackend, _stable_digest
 from polisyos.foundry.methods.selection.registry import MethodRegistry, get_registry
 
 __all__ = [

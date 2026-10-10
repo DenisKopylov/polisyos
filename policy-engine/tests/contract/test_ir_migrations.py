@@ -1,6 +1,5 @@
 import pytest
 
-from polisyos.ir.model_layer.canon import to_canonical_bytes
 from polisyos.ir.migrations import (
     IR_CURRENT_VERSION,
     CompatibilityMode,
@@ -9,6 +8,7 @@ from polisyos.ir.migrations import (
     migrate_policy_ir,
     negotiate_schema_version,
 )
+from polisyos.ir.model_layer.canon import to_canonical_bytes
 
 ZERO_REF = "sha256:" + "0" * 64
 

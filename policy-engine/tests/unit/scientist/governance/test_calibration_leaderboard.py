@@ -14,10 +14,6 @@ from polisyos.ir.analytics.interference import (
 )
 from polisyos.ir.analytics.strategic import StrategicFallbackMode
 from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
-from polisyos.scientist.methods.discovery.utility_judge import (
-    DownstreamUtilityReport,
-    HypothesisUtilityScore,
-)
 from polisyos.scientist.governance.backtest_matrix import (
     BacktestKind,
     BacktestKindResult,
@@ -32,6 +28,10 @@ from polisyos.scientist.governance.stress_scenarios import (
     StressScenarioComparison,
     StressScenarioKind,
     StressScenarioResult,
+)
+from polisyos.scientist.methods.discovery.utility_judge import (
+    DownstreamUtilityReport,
+    HypothesisUtilityScore,
 )
 
 

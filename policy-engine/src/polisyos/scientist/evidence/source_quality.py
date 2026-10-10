@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import urllib.parse
-from datetime import UTC, datetime
 from collections.abc import Mapping, Sequence
+from datetime import UTC, datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field

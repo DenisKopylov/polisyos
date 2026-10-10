@@ -12,8 +12,10 @@ from pathlib import Path
 import duckdb
 import pandas as pd
 import pytest
+
 from polisyos.data_forge.domains.catalog.batch import core_sources_ingest as core_ingest
 from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
+from polisyos.data_forge.domains.catalog.batch.core_sources import loaders, validators, writers
 from polisyos.data_forge.domains.catalog.batch.core_sources_ingest import (
     ObservationPlan,
     _build_catalog_observation_plans,
@@ -25,7 +27,6 @@ from polisyos.data_forge.domains.catalog.batch.core_sources_ingest import (
     _observation_payload_row_limit,
     run_core_sources_ingest,
 )
-from polisyos.data_forge.domains.catalog.batch.core_sources import loaders, validators, writers
 from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
 from polisyos.data_forge.domains.catalog.knowledge.types import DatasetRecord, DistributionRecord
 from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (

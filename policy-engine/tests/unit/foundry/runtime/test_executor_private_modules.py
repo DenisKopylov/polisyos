@@ -5,6 +5,8 @@ from decimal import Decimal
 import jax.numpy as jnp
 import numpy as np
 import pytest
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -76,7 +78,6 @@ from polisyos.ir.kernel import (
 )
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 from polisyos.ir.model_layer.types import SelectorOperator
-from pydantic import ValidationError
 
 
 def _program_ref() -> ProgramGraphRef:

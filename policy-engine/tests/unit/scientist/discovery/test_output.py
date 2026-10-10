@@ -1,5 +1,3 @@
-from polisyos.ir.registry.refs import ArtifactRefModel
-
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.causal_discovery import (
@@ -26,6 +24,7 @@ from polisyos.ir.analytics.causal_discovery import (
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
+from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.scientist.methods.discovery.aggregator import EvidenceWeightedAggregator
 from polisyos.scientist.methods.discovery.output import (
     DiscoveryArtifactBuilder,

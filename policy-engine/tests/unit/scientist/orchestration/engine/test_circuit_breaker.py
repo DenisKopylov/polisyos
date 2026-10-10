@@ -8,6 +8,8 @@ import time
 from unittest.mock import MagicMock, patch
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.scientist.orchestration.engine.circuit_breaker import (
     CircuitBreaker,
     CircuitBreakerConfig,
@@ -20,7 +22,6 @@ from polisyos.scientist.orchestration.engine.retry import (
     execute_with_retry_sync,
 )
 from polisyos.scientist.orchestration.engine.state import ExperimentState
-from pydantic import ValidationError
 
 
 @pytest.fixture

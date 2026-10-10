@@ -14,13 +14,13 @@ from typing import Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
-from polisyos.fabric.numerics.finite import ensure_non_negative_finite
 from polisyos.fabric.data_plane.temporal import (
     ensure_aware_utc,
     normalize_reference_datetime,
     utc_age,
     utc_now,
 )
+from polisyos.fabric.numerics.finite import ensure_non_negative_finite
 from polisyos.ir.connectors import ConnectorCapability
 
 from .report import FreshnessLevel, FreshnessStatus

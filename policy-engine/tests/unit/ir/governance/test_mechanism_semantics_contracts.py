@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.ir.governance.game_design import (
     BayesianTypeSpec,
     MechanismConstraintType,
@@ -22,7 +24,6 @@ from polisyos.ir.governance.mechanism_semantics import (
     MechanismUtilityModelKind,
     MechanismUtilityModelSpec,
 )
-from pydantic import ValidationError
 
 
 def _base_semantics(*, high_payment: str = "5") -> MechanismSemanticsSpec:

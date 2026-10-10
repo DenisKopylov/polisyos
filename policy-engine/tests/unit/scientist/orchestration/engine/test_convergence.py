@@ -5,6 +5,8 @@ from __future__ import annotations
 from decimal import Decimal
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.orchestration.engine.convergence import (
     ConvergenceConfig,
@@ -13,7 +15,6 @@ from polisyos.scientist.orchestration.engine.convergence import (
     ConvergenceStrategy,
     ConvergenceValidationError,
 )
-from pydantic import ValidationError
 
 # ---------------------------------------------------------------------------
 # Model validation

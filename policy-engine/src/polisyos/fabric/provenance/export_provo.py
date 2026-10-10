@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Any
 
 from polisyos.core.audit.prov_json import ProvJsonConverter
+from polisyos.fabric.data_plane.temporal import ensure_aware_utc
 from polisyos.fabric.provenance.core import (
     ProvenanceActivity,
     ProvenanceAgent,
@@ -13,7 +14,6 @@ from polisyos.fabric.provenance.core import (
     ProvenanceEdge,
     ProvenanceEntity,
 )
-from polisyos.fabric.data_plane.temporal import ensure_aware_utc
 
 PROV_CONTEXT = {
     "@context": {

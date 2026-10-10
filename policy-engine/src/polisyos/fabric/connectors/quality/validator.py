@@ -16,8 +16,8 @@ import pandas as pd
 
 from polisyos.common.logger import get_logger
 from polisyos.core.evaluation import ThresholdBand, ThresholdMapper, WeightedScorer
-from polisyos.fabric.numerics.finite import ensure_non_negative_finite, ensure_probability
 from polisyos.fabric.data_plane.tabular import require_dataframe
+from polisyos.fabric.numerics.finite import ensure_non_negative_finite, ensure_probability
 from polisyos.ir.connectors import QualityTier
 
 from .completeness import CompletenessAnalyzer, SamplingStrategy

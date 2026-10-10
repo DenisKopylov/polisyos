@@ -12,6 +12,7 @@ from typing import Any, NamedTuple
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     FidelityLevel,
@@ -29,17 +30,17 @@ from polisyos.foundry.methods.compiler import (
     get_global_cache,
     reset_global_cache,
 )
-from polisyos.foundry.methods.composer import (
-    MethodComposer,
-)
-from polisyos.foundry.methods.exceptions import ParameterValidationError
-from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.foundry.methods.compiler.specialization import (
     BackendSpec,
     ShapeSpec,
     build_specialization,
     compute_static_params_hash,
 )
+from polisyos.foundry.methods.composer import (
+    MethodComposer,
+)
+from polisyos.foundry.methods.exceptions import ParameterValidationError
+from polisyos.foundry.methods.registry import MethodRegistry
 
 # =============================================================================
 # Fixtures

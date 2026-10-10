@@ -5,13 +5,16 @@ from __future__ import annotations
 from unittest.mock import patch
 
 import pytest
-from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
+
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.causal.run_abm_consistency import (
     RunABMConsistencyCheckNode,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
+)
+from polisyos.scientist.orchestration.engine.state_branching import (
+    branch_state as real_branch_state,
 )
 
 

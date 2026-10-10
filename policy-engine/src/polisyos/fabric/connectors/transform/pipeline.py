@@ -25,8 +25,8 @@ from polisyos.core.pipeline import (
     PipelineCycleError,
     UnknownStageError,
 )
-from polisyos.fabric.connectors.contracts.schema import DataSchema
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
+from polisyos.fabric.connectors.contracts.schema import DataSchema
 
 __all__ = [
     "CompiledPipeline",

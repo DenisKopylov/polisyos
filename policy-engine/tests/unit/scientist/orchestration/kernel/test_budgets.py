@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.scientist.orchestration.kernel.budgets import (
     ComplexityBudget,
     ComputeBudget,
     EvidenceBudget,
     LegitimacyBudget,
 )
-from pydantic import ValidationError
 
 # ---------------------------------------------------------------------------
 # ComputeBudget

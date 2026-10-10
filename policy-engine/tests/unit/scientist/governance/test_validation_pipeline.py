@@ -2,18 +2,19 @@ import json
 from pathlib import Path
 
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
-from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
-from polisyos.ir.model_layer.model_spec import ModelSpec
-from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.model_layer.types import SelectorOperator
 from polisyos.core.governance.passes.base import (
     ComplianceIssue,
     IssueSeverity,
     PassContext,
     ValidatorPass,
 )
+from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.model_layer.model_spec import ModelSpec
+from polisyos.ir.model_layer.types import SelectorOperator
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.governance.pipeline import ValidationPipeline
 from polisyos.scientist.governance.profiles import ProfileLevel, ValidationProfile
 

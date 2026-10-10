@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.ir.analytics.actual_causality import (
     ContingencySet,
     HPResult,
@@ -11,7 +13,6 @@ from polisyos.ir.analytics.mediation_effects import (
     MediationDecomposition,
     PathSpecificQuery,
 )
-from pydantic import ValidationError
 
 
 def test_pns_result_rejects_value_above_pn_and_ps() -> None:

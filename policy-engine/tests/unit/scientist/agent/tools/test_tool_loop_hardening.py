@@ -8,6 +8,8 @@ from typing import Any
 from unittest.mock import AsyncMock
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.scientist.agent.tools.dependency_graph import ToolDependencyGraph
 from polisyos.scientist.agent.tools.registry import ToolCallResult, ToolRegistry
 from polisyos.scientist.agent.tools.schema import ToolDefinition
@@ -16,7 +18,6 @@ from polisyos.scientist.agent.tools.tool_loop import (
     _tool_backoff_delay,
     run_tool_loop,
 )
-from pydantic import ValidationError
 
 # ---------------------------------------------------------------------------
 # Fixtures

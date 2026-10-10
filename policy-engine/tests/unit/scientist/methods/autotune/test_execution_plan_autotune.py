@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.execution_plan import (
     ExecutionPlan,
@@ -12,6 +13,7 @@ from polisyos.core.contracts.execution_plan import (
 )
 from polisyos.foundry.methods import MethodRegistry
 from polisyos.foundry.methods.catalog.snapshot import build_method_catalog_snapshot
+from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.methods.autotune import (
     BenchmarkSplit,
     BenchmarkSplitManifest,
@@ -34,7 +36,6 @@ from polisyos.scientist.methods.autotune.execution_plan import (
     default_execution_plan_policy,
     execution_plan_search_loop_spec,
 )
-from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.orchestration.llm.cycle import preflight_execution_plan
 
 

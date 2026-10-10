@@ -22,6 +22,7 @@ from polisyos.fabric.connectors.federation.types import (
     MergeLogEntry,
 )
 from polisyos.fabric.evidence import persist_provenance_graph
+from polisyos.fabric.numerics.finite import ensure_probability
 from polisyos.fabric.provenance.core import (
     ActivityType,
     AgentType,
@@ -32,7 +33,6 @@ from polisyos.fabric.provenance.core import (
     ProvenanceCoreRef,
     ProvenanceEntity,
 )
-from polisyos.fabric.numerics.finite import ensure_probability
 
 _DETERMINISTIC_TIMESTAMP = datetime(1970, 1, 1, tzinfo=UTC)
 

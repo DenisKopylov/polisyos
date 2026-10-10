@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.scientist.methods.search.voi_models import (
     VOIDecisionRecord,
     VOIDecisionType,
@@ -8,7 +10,6 @@ from polisyos.scientist.methods.search.voi_models import (
     stable_voi_decision_id,
     validate_mandatory_gate_policy,
 )
-from pydantic import ValidationError
 
 
 def _decision(

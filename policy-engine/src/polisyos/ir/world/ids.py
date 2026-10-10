@@ -6,8 +6,8 @@ import re
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 
-from polisyos.ir.model_layer.canon import CanonViolation, content_hash, to_canonical_bytes
 from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN
+from polisyos.ir.model_layer.canon import CanonViolation, content_hash, to_canonical_bytes
 
 if TYPE_CHECKING:
     from polisyos.ir.loading.citations import FragmentLocator

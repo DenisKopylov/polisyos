@@ -2,12 +2,14 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins.decide.build_verified_policy_report import (
     BuildVerifiedPolicyReportNode,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_VERIFIED_POLICY_REPORT_REF,
+)
+from polisyos.scientist.orchestration.engine.state_branching import (
+    branch_state as real_branch_state,
 )
 
 

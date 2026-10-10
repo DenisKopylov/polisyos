@@ -19,11 +19,6 @@ from polisyos.runtime.quality.diagnostic_slos import (
     pass_observations_for_all_diagnostic_slos,
 )
 from polisyos.runtime.quality.human_review import build_human_review_calibration_report
-from polisyos.runtime.quality.tenant_cas_approval_governance import (
-    PASS1B_PDD_REQUIRED_SURFACES,
-    PASS1B_REQUIRED_CASE_BINDING_FIELDS,
-    build_pass1b_tenant_cas_approval_governance_record,
-)
 from polisyos.runtime.quality.phase_barriers import PhaseBarrierId, PhaseBarrierRecord
 from polisyos.runtime.quality.scorecard import (
     POLICY_DESIGN_CASE_RUNTIME_REF_KEYS,
@@ -32,6 +27,11 @@ from polisyos.runtime.quality.scorecard import (
     normalize_quality_evidence,
 )
 from polisyos.runtime.quality.semantic_binding import close_semantic_binding_ledger
+from polisyos.runtime.quality.tenant_cas_approval_governance import (
+    PASS1B_PDD_REQUIRED_SURFACES,
+    PASS1B_REQUIRED_CASE_BINDING_FIELDS,
+    build_pass1b_tenant_cas_approval_governance_record,
+)
 from tests._helpers.hds_quality import (
     attestation_material_refs,
     attestation_product_refs,

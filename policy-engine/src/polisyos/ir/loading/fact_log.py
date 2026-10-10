@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.ir.model_layer.canon import content_hash, to_canonical_bytes
 from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN, KernelModel, reject_float
+from polisyos.ir.model_layer.canon import content_hash, to_canonical_bytes
 
 if TYPE_CHECKING:
     from decimal import Decimal

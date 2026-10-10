@@ -4,6 +4,7 @@ from decimal import Decimal
 
 import jax.numpy as jnp
 import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
@@ -11,15 +12,18 @@ from polisyos.core.contracts.foundry import CompileRequest, Metrics, StateDelta
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry.execute.executor import ExecutionStrictness
-from polisyos.foundry.execute.executor import apply_state_delta_and_snapshot, execute_program_graph
+from polisyos.foundry.execute.executor import (
+    ExecutionStrictness,
+    apply_state_delta_and_snapshot,
+    execute_program_graph,
+)
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.model_layer.model_spec import ModelSpec
-from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.model_layer.types import SelectorOperator
+from polisyos.ir.trinity import TrinityBundle
 
 CTX_REF = "sha256:0000000000000000000000000000000000000000000000000000000000000000"
 

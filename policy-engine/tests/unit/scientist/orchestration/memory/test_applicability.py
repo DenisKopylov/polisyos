@@ -3,6 +3,9 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 
 import pytest
+from pydantic import ValidationError
+
+from polisyos.scientist.methods.search.lessons import LessonCard, LessonKind
 from polisyos.scientist.orchestration.memory import (
     LessonApplicability,
     MemoryApplicabilityContext,
@@ -10,8 +13,6 @@ from polisyos.scientist.orchestration.memory import (
     apply_reflexive_scope,
     evaluate_lesson_applicability,
 )
-from polisyos.scientist.methods.search.lessons import LessonCard, LessonKind
-from pydantic import ValidationError
 
 
 def _lesson(**updates) -> LessonCard:

@@ -80,6 +80,8 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
     sys.path.insert(0, str(repo_root / "src"))
     notes: list[str] = []
     try:
+        from pydantic import ValidationError
+
         from polisyos.scholar.search.models import (
             ClaimSupportLink,
             QueryGraph,
@@ -90,7 +92,6 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         )
         from polisyos.scientist.evidence.safe_fetch import evaluate_fetch_request
         from polisyos.scientist.evidence.source_quality import score_source_quality
-        from pydantic import ValidationError
     except Exception as exc:  # pragma: no cover - surfaced in gate payload.
         return False, [f"phase1_3_import_failed:{exc.__class__.__name__}:{exc}"]
 

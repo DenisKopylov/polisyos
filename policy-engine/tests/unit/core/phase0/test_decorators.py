@@ -5,8 +5,9 @@ from __future__ import annotations
 import asyncio
 from contextlib import contextmanager
 
-import polisyos.core.observability.decorators as decorators_module
 import pytest
+
+import polisyos.core.observability.decorators as decorators_module
 from polisyos.core.observability import traced
 
 

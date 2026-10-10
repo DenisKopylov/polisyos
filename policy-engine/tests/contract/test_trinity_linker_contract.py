@@ -2,9 +2,6 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from polisyos.ir.model_layer.model_spec import ModelSpec
-from polisyos.ir.registry.registry_fragments import RegistryBundle
-
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ConstraintSpec as ProblemConstraintSpec
 from polisyos.ir.governance.problem_frame import ObjectiveSpec, ProblemDomain, ProblemFrame
@@ -26,6 +23,8 @@ from polisyos.ir.kernel import (
 )
 from polisyos.ir.kernel.values import MoneyValue
 from polisyos.ir.linker import LinkIssueCode, link_trinity
+from polisyos.ir.model_layer.model_spec import ModelSpec
+from polisyos.ir.registry.registry_fragments import RegistryBundle
 from polisyos.ir.trinity import TrinityBundle
 
 CTX_REF = "sha256:" + "0" * 64

@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import pytest
-from polisyos.scientist.orchestration.engine.protocol import NodeEvent
+
 from polisyos.scientist.nodes.builtins import tracing as tracing_module
 from polisyos.scientist.nodes.builtins.tracing import inject_trace_context
+from polisyos.scientist.orchestration.engine.protocol import NodeEvent
 
 
 class TestInjectTraceContext:

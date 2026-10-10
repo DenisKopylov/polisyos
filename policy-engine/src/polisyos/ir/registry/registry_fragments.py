@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Annotated, Any, Literal
 
 from pydantic import Field
 
-from polisyos.ir.model_layer.canon import content_hash, to_canonical_bytes
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 from polisyos.ir.kernel.constraints import ConstraintRegistry
 from polisyos.ir.kernel.mechanisms import MechanismTypeRegistry
@@ -16,6 +15,7 @@ from polisyos.ir.kernel.selector_fields import SelectorFieldRegistry
 from polisyos.ir.kernel.slots import SlotRegistry
 from polisyos.ir.kernel.trust import TrustRegistry
 from polisyos.ir.kernel.units import UnitsRegistry
+from polisyos.ir.model_layer.canon import content_hash, to_canonical_bytes
 from polisyos.ir.model_layer.predicate import PredicateRegistry, PrivacyPolicyRegistry
 
 if TYPE_CHECKING:

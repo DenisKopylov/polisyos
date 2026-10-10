@@ -3,7 +3,7 @@ from __future__ import annotations
 from unittest.mock import patch
 
 import pytest
-from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
+
 from polisyos.scientist.nodes.builtins.planning.build_execution_plan import BuildExecutionPlanNode
 from polisyos.scientist.nodes.builtins.planning.build_method_catalog_snapshot import (
     BuildMethodCatalogSnapshotNode,
@@ -11,6 +11,9 @@ from polisyos.scientist.nodes.builtins.planning.build_method_catalog_snapshot im
 from polisyos.scientist.nodes.builtins.planning.run_preflight import RunPreflightNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_PREFLIGHT_REPORT_REF,
+)
+from polisyos.scientist.orchestration.engine.state_branching import (
+    branch_state as real_branch_state,
 )
 
 

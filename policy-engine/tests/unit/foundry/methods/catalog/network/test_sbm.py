@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import numpy as np
+from sklearn.metrics import adjusted_rand_score
+
 from polisyos.foundry.methods.causal import build_block_stratified_network_causal_data
 from polisyos.foundry.methods.network import EdgeListNetworkData, NetworkData
-from sklearn.metrics import adjusted_rand_score
 
 
 def _synthetic_sbm_graph(

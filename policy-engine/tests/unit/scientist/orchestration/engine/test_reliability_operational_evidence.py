@@ -5,9 +5,12 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 
 import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.run.context import RunContext
+from polisyos.scientist.evidence.provenance.run_dag import RunProvenanceDAG
+from polisyos.scientist.methods.search.stages import CorrelationTracker, StageResult
 from polisyos.scientist.orchestration.engine.checkpoint import (
     CASCheckpointHook,
     CheckpointGCPolicy,
@@ -19,7 +22,9 @@ from polisyos.scientist.orchestration.engine.metrics import (
     build_engine_metrics,
     get_metrics_exporter_health,
 )
-from polisyos.scientist.orchestration.engine.operational_monitoring import ScientistOperationalMonitor
+from polisyos.scientist.orchestration.engine.operational_monitoring import (
+    ScientistOperationalMonitor,
+)
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.retry import (
     RetryExhaustedError,
@@ -28,10 +33,10 @@ from polisyos.scientist.orchestration.engine.retry import (
 )
 from polisyos.scientist.orchestration.engine.runner.serialization import serialize_context_meta
 from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.llm.provider_verification import ProviderCapabilityVerification
-from polisyos.scientist.evidence.provenance.run_dag import RunProvenanceDAG
+from polisyos.scientist.orchestration.llm.provider_verification import (
+    ProviderCapabilityVerification,
+)
 from polisyos.scientist.replay.backend import list_dead_letters, replay_dead_letter
-from polisyos.scientist.methods.search.stages import CorrelationTracker, StageResult
 
 
 @dataclass

@@ -6,8 +6,8 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
+
 from polisyos.ir.analytics.causal_graph import CausalGraphModel
-from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.causal.run_causal_ensemble import (
     RunCausalEnsembleNode,
@@ -16,6 +16,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENSEMBLE_ENVELOPE_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
     ARTIFACT_CAUSAL_ENVELOPE_REF,
+)
+from polisyos.scientist.orchestration.engine.state_branching import (
+    branch_state as real_branch_state,
 )
 
 

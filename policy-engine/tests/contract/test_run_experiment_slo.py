@@ -4,8 +4,9 @@ import sys
 import types
 from contextlib import contextmanager
 
-import polisyos.scientist as scientist_api
 import pytest
+
+import polisyos.scientist as scientist_api
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 

@@ -3,6 +3,9 @@ from __future__ import annotations
 from datetime import date
 
 import pytest
+from pydantic import ValidationError
+
+from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.observation.contracts import (
     EntityScope,
     IdentificationMode,
@@ -13,8 +16,6 @@ from polisyos.ir.observation.contracts import (
     SourceConfidenceTier,
     StrategicResponseChannel,
 )
-from polisyos.ir.model_layer.types import TimeFrequency
-from pydantic import ValidationError
 
 
 def _record(**overrides) -> ObservationRecord:

@@ -8,6 +8,8 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.orchestration.engine.checkpoint import (
     CHECKPOINT_HISTORY_FILENAME,
@@ -22,7 +24,6 @@ from polisyos.scientist.orchestration.engine.checkpoint import (
     load_checkpoint_history,
     update_checkpoint_head,
 )
-from pydantic import ValidationError
 
 
 def _make_ref(aid: str | None = None) -> ArtifactRef:

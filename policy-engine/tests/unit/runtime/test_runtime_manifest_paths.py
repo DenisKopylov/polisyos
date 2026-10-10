@@ -1,7 +1,8 @@
 from pathlib import Path
 
-import polisyos.runtime.api as runtime_api
 import pytest
+
+import polisyos.runtime.api as runtime_api
 from polisyos.runtime.api import (
     RuntimeArtifactWrite,
     append_audit,

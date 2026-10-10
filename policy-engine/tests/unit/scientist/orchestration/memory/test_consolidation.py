@@ -1,8 +1,15 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.agent.reflexion_evaluator import ReflexionReplayEvaluation
+from polisyos.scientist.methods.search.lessons import (
+    LessonCard,
+    LessonKind,
+    LessonQuery,
+    LessonRegistry,
+)
 from polisyos.scientist.orchestration.memory import (
     LessonApplicability,
     assert_lesson_can_influence,
@@ -11,7 +18,6 @@ from polisyos.scientist.orchestration.memory import (
     consolidate_lessons,
     revoke_lesson,
 )
-from polisyos.scientist.methods.search.lessons import LessonCard, LessonKind, LessonQuery, LessonRegistry
 
 
 def _lesson(lesson_id: str, **updates) -> LessonCard:

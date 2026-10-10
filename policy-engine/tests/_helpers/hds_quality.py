@@ -25,9 +25,6 @@ from polisyos.runtime.quality.diagnostic_slos import (
 from polisyos.runtime.quality.external_client_surface import (
     EXTERNAL_CLIENT_SURFACE_SCHEMA_VERSION,
 )
-from polisyos.runtime.quality.tenant_cas_approval_governance import (
-    build_pass1b_tenant_cas_approval_governance_record,
-)
 from polisyos.runtime.quality.phase_barriers import PhaseBarrierId, PhaseBarrierRecord
 from polisyos.runtime.quality.policy_design_case import (
     POLICY_DESIGN_CASE_GOVERNANCE_RECORD_FAMILY_REQUIREMENTS,
@@ -50,6 +47,9 @@ from polisyos.runtime.quality.semantic_binding import (
     PRODUCER_SPINE_CONSUMER_COMPONENTS,
     PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION,
     SEMANTIC_BINDING_SCHEMA_VERSION,
+)
+from polisyos.runtime.quality.tenant_cas_approval_governance import (
+    build_pass1b_tenant_cas_approval_governance_record,
 )
 from polisyos.scholar import build_scholar_academic_evidence_report
 

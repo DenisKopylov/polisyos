@@ -18,6 +18,7 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
 
 # ---------------------------------------------------------------------------
@@ -675,8 +676,9 @@ class TestMissingDataCausalData:
         assert np.isnan(data.observed_data[5, 0])
 
     def test_shape_mismatch_raises_validation_error(self) -> None:
-        from polisyos.foundry.methods.catalog.causal.protocols import MissingDataCausalData
         from pydantic import ValidationError
+
+        from polisyos.foundry.methods.catalog.causal.protocols import MissingDataCausalData
 
         with pytest.raises((ValidationError, ValueError)):
             MissingDataCausalData(
@@ -688,8 +690,9 @@ class TestMissingDataCausalData:
             )
 
     def test_variable_names_mismatch_raises_validation_error(self) -> None:
-        from polisyos.foundry.methods.catalog.causal.protocols import MissingDataCausalData
         from pydantic import ValidationError
+
+        from polisyos.foundry.methods.catalog.causal.protocols import MissingDataCausalData
 
         with pytest.raises((ValidationError, ValueError)):
             MissingDataCausalData(

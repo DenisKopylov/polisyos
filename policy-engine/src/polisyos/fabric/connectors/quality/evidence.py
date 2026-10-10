@@ -8,8 +8,8 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from polisyos.core.canon import content_hash
-from polisyos.fabric.quality.quality import QualityIndicators
 from polisyos.fabric.numerics.finite import ensure_probability
+from polisyos.fabric.quality.quality import QualityIndicators
 
 from .report import DataQualityReport
 

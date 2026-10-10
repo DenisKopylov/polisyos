@@ -8,9 +8,6 @@ from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import Metrics
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.governance.human_review.audit import signature_for_decision
 from polisyos.scientist.governance.human_review.decisions import persist_review_decision
 from polisyos.scientist.governance.human_review.models import HumanReviewDecision, ReviewAction
@@ -18,6 +15,7 @@ from polisyos.scientist.governance.human_review.packets import (
     build_review_packet,
     persist_review_packet,
 )
+from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import (
     BuildDecisionPacketNode,
 )
@@ -30,6 +28,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_TRINITY_BUNDLE_REF,
     REPORT_GOVERNANCE_REPORT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def _ctx_and_state(

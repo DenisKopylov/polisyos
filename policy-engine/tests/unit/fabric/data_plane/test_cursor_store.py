@@ -7,6 +7,8 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.cursor import (
     CursorState,
@@ -20,7 +22,6 @@ from polisyos.fabric.data_plane.cursor_store import (
     CursorStore,
     CursorStoreError,
 )
-from pydantic import ValidationError
 
 if TYPE_CHECKING:
     from pathlib import Path

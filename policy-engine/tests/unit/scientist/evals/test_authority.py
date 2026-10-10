@@ -4,11 +4,12 @@ import hashlib
 from datetime import UTC, datetime, timedelta
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.evals.authority import BenchmarkAuthority, PromotionEvidenceRequest
 from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
-from pydantic import ValidationError
 
 
 def _ref(seed: str, *, kind: str = "scientist.benchmark_evaluation") -> ArtifactRef:

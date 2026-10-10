@@ -34,11 +34,11 @@ from polisyos.runtime.quality.graded_outcomes import (  # noqa: E402
     compose_graded_outcome,
     graded_outcome_closeout_record,
 )
-from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (  # noqa: E402
-    read_layer3_gx_pinned_case_id,
-)
 from polisyos.runtime.quality.projection_semantics import (  # noqa: E402
     build_policy_design_case_projection_contract_fixture,
+)
+from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (  # noqa: E402
+    read_layer3_gx_pinned_case_id,
 )
 from tools.quality.validation import build_policy_evidence_capability_index as builder  # noqa: E402
 from tools.quality.validation import run_universal_outcome_corpus as w12d  # noqa: E402

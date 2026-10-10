@@ -3,14 +3,23 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
 from polisyos.ir.observation.contracts import ObservationFamily
+from polisyos.scientist.governance.calibration import (
+    CalibrationGovernanceInput,
+    CalibrationGovernanceReport,
+    CalibrationGovernanceRunner,
+)
 from polisyos.scientist.methods.discovery.active import ActiveDisambiguationPlannerInput
-from polisyos.scientist.methods.discovery.aggregator import EdgeConfidenceEntry, EdgeConfidenceMatrix
+from polisyos.scientist.methods.discovery.aggregator import (
+    EdgeConfidenceEntry,
+    EdgeConfidenceMatrix,
+)
 from polisyos.scientist.methods.discovery.priors import (
     DisputedEdge,
     GraphPriorBundle,
@@ -32,11 +41,6 @@ from polisyos.scientist.methods.discovery.stability import (
 from polisyos.scientist.methods.discovery.utility_judge import (
     DownstreamUtilityReport,
     HypothesisUtilityScore,
-)
-from polisyos.scientist.governance.calibration import (
-    CalibrationGovernanceInput,
-    CalibrationGovernanceReport,
-    CalibrationGovernanceRunner,
 )
 from polisyos.scientist.methods.search.lessons import (
     LessonKind,

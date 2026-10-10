@@ -20,12 +20,12 @@ from polisyos.pdc import (
     SubDesignContract,
     gy_content_hash,
 )
-from polisyos.runtime.quality.evidence_independence import build_evidence_independence_map
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     CouplingEdge,
     CouplingGraph,
     compose_subdesigns,
 )
+from polisyos.runtime.quality.evidence_independence import build_evidence_independence_map
 from tests._helpers.hds_quality import sha
 
 RULE_REF = "policyos.gy.composition.test.v1"

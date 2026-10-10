@@ -3,17 +3,18 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.scientist.methods.research_dag.persistence import load_research_dag
+from polisyos.scientist.methods.research_dag.projections import RESEARCH_DAG_FEATURE_FLAG
+from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_RESEARCH_DAG_REF
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
-from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_RESEARCH_DAG_REF
-from polisyos.scientist.methods.research_dag.persistence import load_research_dag
-from polisyos.scientist.methods.research_dag.projections import RESEARCH_DAG_FEATURE_FLAG
 
 
 @pytest.mark.parametrize(

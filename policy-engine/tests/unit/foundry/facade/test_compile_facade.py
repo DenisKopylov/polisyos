@@ -33,8 +33,8 @@ from polisyos.ir.kernel import (
 )
 from polisyos.ir.linker import LinkIssueCode, LinkReport
 from polisyos.ir.model_layer.model_spec import FidelityLevel, ModelSpec
-from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.model_layer.types import SelectorOperator
+from polisyos.ir.trinity import TrinityBundle
 
 
 def _build_trinity_bundle(registry_bundle_ref: str) -> TrinityBundle:

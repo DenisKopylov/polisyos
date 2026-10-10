@@ -6,11 +6,8 @@ from dataclasses import dataclass
 
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.ir.analytics.causal import CausalEffectReport
-from polisyos.scientist.methods.doe.stress_report import Vulnerability, VulnerabilityType
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.governance.report import GovernanceReport
+from polisyos.scientist.methods.doe.stress_report import Vulnerability, VulnerabilityType
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
     _is_policy_mode,
@@ -21,6 +18,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_STRESS_TEST_REPORT_REF,
     REPORT_GOVERNANCE_REPORT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.objectives import ConstraintStatus, PolicyEvaluationVector
 
 _METADATA = ComponentMetadata(

@@ -7,14 +7,14 @@ from typing import Any
 
 import pytest
 
-from polisyos.runtime.quality.scorecard import (
-    build_quality_scorecard,
-    normalize_quality_evidence,
-)
 from polisyos.core.security.quality_gates import (
     SECURITY_ASSURANCE_REPORT_REF_KEY,
     SECURITY_REPORT_FILE,
     build_security_assurance_report,
+)
+from polisyos.runtime.quality.scorecard import (
+    build_quality_scorecard,
+    normalize_quality_evidence,
 )
 
 FIXTURE_DIR = Path(__file__).parent / "fixtures" / "policyos_abuse_cases"

@@ -5,6 +5,8 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
@@ -16,7 +18,6 @@ from polisyos.scientist.orchestration.engine.sub_workflow import (
     SubWorkflowNode,
 )
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
-from pydantic import ValidationError
 
 _FAKE_SHA = "sha256:" + "ab" * 32
 

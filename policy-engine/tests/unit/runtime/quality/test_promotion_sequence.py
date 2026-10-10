@@ -420,7 +420,7 @@ def test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow() -> None:
     assert receipt.status == "shadow"
     assert receipt.promotion_lane == "contract_testing"
     assert receipt.consumer_promotable is False
-    assert receipt.non_promotable_reason == "non_production_anchor_scope"
+    assert receipt.non_promotable_reason == "synthetic_input_cannot_grant_authority"
     assert receipt.authority_derivation_trace is None
     assert receipt.risk_spend.total_declared_delta == 0.0
     assert receipt.risk_spend.within_budget is True
@@ -2324,7 +2324,7 @@ def test_contract_testing_bind_receipt_is_intrinsically_non_promotable() -> None
     assert receipt.promoted is False
     assert receipt.promotion_lane == "contract_testing"
     assert receipt.consumer_promotable is False
-    assert receipt.non_promotable_reason == "non_production_anchor_scope"
+    assert receipt.non_promotable_reason == "synthetic_input_cannot_grant_authority"
 
 
 def test_scope_insufficient_obligation_does_not_vacuously_pass() -> None:

@@ -1,5 +1,6 @@
 {
-  "schema": "policyos.e02.local_slice_handoff.v2",
+  "schema": "policyos.e02.local_slice_author_capture.v1",
+  "registered_handoff_admission": "NOT_ADMITTED: complete execution-environment v1 is not supplied; partial observation requires the recorded G schema decision",
   "slice_id": "native-copy-complete-source",
   "slice_base": {
     "commit": "9194a65fb59355ceac35270c869f429efc7482d8",
@@ -40,7 +41,7 @@
     }
   ],
   "selected_input_profile_backend": {
-    "backend": "local macOS Python 3.14.0 candidate .venv",
+    "backend": "local macOS Python 3.14.3 candidate .venv",
     "numerical_threads": 1,
     "profile": "native phase3 source-copy behavioral fixtures",
     "source_copy_families": "four native-output/default generated families from canonical manifest; other families retain existing paths"
@@ -127,9 +128,8 @@
   "closure_ids": [],
   "proposal_fields": {
     "proposal_status": "limited",
-    "finding_ids": [
-      "B194"
-    ],
+    "finding_ids": [],
+    "task_routes": ["DX0"],
     "scope": "source-copy/freshness evidence discipline only; no whole-finding closure"
   }
 }

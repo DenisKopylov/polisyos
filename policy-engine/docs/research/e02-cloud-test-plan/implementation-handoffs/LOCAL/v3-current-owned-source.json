@@ -1,0 +1,242 @@
+{
+  "schema": "policyos.e02.local_slice_author_capture.v1",
+  "slice_id": "v3-current-owned-source",
+  "registered_handoff_admission": "NOT_ADMITTED: a complete v1 execution-environment manifest is not supplied; retained partial observation needs the recorded G schema choice",
+  "slice_base": {
+    "commit": "38cb234117e4cc00763f559c02eef080cef5fe1b",
+    "tree": "245268b34c00e1873f6b6e2f68949396fc591412"
+  },
+  "candidate_source": {
+    "commit": "3606d4ab9934efbf3792af664d168de39f03c9c6",
+    "tree": "28907965782280a7cc163117952f84c320bbc03a"
+  },
+  "parents": [
+    "38cb234117e4cc00763f559c02eef080cef5fe1b"
+  ],
+  "source_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+      "git_blob": "abcfa435c1910fb729996af8a6fe338ef2da01ca",
+      "sha256": "5660b1ef01c76fb1dc5129b7fa1e76a3b9e0471b9b44d91764b2c8eac34fa4b8"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/acquisition_action_service.py",
+      "git_blob": "a4c6645c028f272013c5591c0622ebeadd4e6f19",
+      "sha256": "d2d581dd640dad32757db03a82d6fac239984ddf250b71c66ef27b6ccd41f25e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/acquisition_surface_execution.py",
+      "git_blob": "a6a33139d1852cb719bb8d328e92540039a2b1ff",
+      "sha256": "613c3812f91f44c86c8a10fec1e14a84c36faaef69e1d8da1299fb22b3035a08"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/acquisition_route_loop.py",
+      "git_blob": "e3d47b50e47758afab8b2780a7dbac4188c53ce6",
+      "sha256": "de5b496862a76c60056bb4509df82d3f9be3bb75eacc46b079718edcaa0e8deb"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py",
+      "git_blob": "2fccd5551c5e64245504db483be0990ccf9d7cd6",
+      "sha256": "6d61de763861da173b3f9345016e16c070eb884d213a62f8b8d3799d17b81ce0"
+    },
+    {
+      "path": "policy-engine/tests/_helpers/acquisition_chain.py",
+      "git_blob": "ce8aff9555726a2c99f8efa5b164f150970412e4",
+      "sha256": "d63629772af08962f887d2d9fd69fede8261bbb6345948a7eb5ae57beeb8a92f"
+    },
+    {
+      "path": "policy-engine/tests/_helpers/acquisition_production.py",
+      "git_blob": "8334160807f7a46805bcb157b7839cf0a3fdd2e6",
+      "sha256": "895bd55772c481e88c9ed86daee91e799c4acb61b822ef34a4d20575bf1fc267"
+    },
+    {
+      "path": "policy-engine/tests/integration/core_runtime/test_acquisition_authority_served.py",
+      "git_blob": "96f3cbc993dbbcce8efc5b85d9c270a3f67ba55c",
+      "sha256": "b3db014769fc0c0dfaeb56ca72072a15440c1be3a8576aa2923740dd87b4c886"
+    },
+    {
+      "path": "policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py",
+      "git_blob": "492d8f9c955f7ab39cb9bdd9f2da300d3389e198",
+      "sha256": "d7a23bdb02099e4cc4de3643761a94bb837228bfb7b8032e484f42160a68c8b6"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_route_loop.py",
+      "git_blob": "94509feb6621e90d56878dff965c6addd0c4b89b",
+      "sha256": "b3df6a67f7d56a9299089ad414ade5166343c4f1e392908c1d40173d9fbebbcd"
+    }
+  ],
+  "selected_inputs": {
+    "scope": "portable controlled acquisition/CAS fixtures and actual WDI row; historical L2/currentness unknown stays limited",
+    "sources_before_after": {
+      "src/polisyos/runtime/http/routes/runs.py": "5660b1ef01c76fb1dc5129b7fa1e76a3b9e0471b9b44d91764b2c8eac34fa4b8",
+      "src/polisyos/runtime/http/services/acquisition_action_service.py": "d2d581dd640dad32757db03a82d6fac239984ddf250b71c66ef27b6ccd41f25e",
+      "src/polisyos/runtime/http/services/acquisition_surface_execution.py": "613c3812f91f44c86c8a10fec1e14a84c36faaef69e1d8da1299fb22b3035a08",
+      "src/polisyos/runtime/quality/acquisition_route_loop.py": "de5b496862a76c60056bb4509df82d3f9be3bb75eacc46b079718edcaa0e8deb",
+      "src/polisyos/runtime/quality/acquisition_world_growth.py": "6d61de763861da173b3f9345016e16c070eb884d213a62f8b8d3799d17b81ce0",
+      "tests/_helpers/acquisition_chain.py": "d63629772af08962f887d2d9fd69fede8261bbb6345948a7eb5ae57beeb8a92f",
+      "tests/_helpers/acquisition_production.py": "895bd55772c481e88c9ed86daee91e799c4acb61b822ef34a4d20575bf1fc267",
+      "tests/integration/core_runtime/test_acquisition_authority_served.py": "b3db014769fc0c0dfaeb56ca72072a15440c1be3a8576aa2923740dd87b4c886",
+      "tests/integration/core_runtime/test_acquisition_world_growth_chain.py": "d7a23bdb02099e4cc4de3643761a94bb837228bfb7b8032e484f42160a68c8b6",
+      "tests/unit/runtime/quality/test_acquisition_route_loop.py": "b3df6a67f7d56a9299089ad414ade5166343c4f1e392908c1d40173d9fbebbcd"
+    },
+    "full_source_input_backend_freeze": "pending final composed freeze"
+  },
+  "backend_profile": {
+    "backend": "local macOS locked runtime/ML .venv",
+    "python": "3.14.3",
+    "interpreter": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "numerical_threads": 1,
+    "observation_boundary": "argv/environment/source hashes captured; full import-distribution manifest is not claimed"
+  },
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/time",
+        "-l",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "--color=no",
+        "--basetemp=_build/e02-repair-fixtures/v3-custody-version-negative-controls-verification-20261010",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v3-custody-version-negative-controls-verification-20261010/junit.xml",
+        "tests/integration/core_runtime/test_acquisition_authority_served.py",
+        "tests/integration/core_runtime/test_acquisition_world_growth_chain.py",
+        "tests/unit/runtime/quality/test_acquisition_route_loop.py",
+        "-k",
+        "not test_served_acquisition_selects_committed_human_authority_and_reopens_worker"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "execution_head": "38cb234117e4cc00763f559c02eef080cef5fe1b",
+      "status": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 159.14011341589503,
+      "result": "15 PASS; one known served-positive criterion deliberately deselected only for this repair check",
+      "outputs": {
+        "command.json": {
+          "storage": "ignored_local_raw",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v3-custody-version-negative-controls-verification-20261010/command.json",
+          "sha256": "50150e0410ebfa56920a77914aea8d2d72ab053c3ef8655b7144065edd874880",
+          "bytes": 4563,
+          "availability": "available_local_readback",
+          "candidate_source": {
+            "commit": "3606d4ab9934efbf3792af664d168de39f03c9c6",
+            "tree": "28907965782280a7cc163117952f84c320bbc03a"
+          }
+        },
+        "stdout.txt": {
+          "storage": "ignored_local_raw",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v3-custody-version-negative-controls-verification-20261010/stdout.txt",
+          "sha256": "b2759360122f6818b6630c627e3d86695aa11864ce99000bda2a3167b9947ead",
+          "bytes": 722,
+          "availability": "available_local_readback",
+          "candidate_source": {
+            "commit": "3606d4ab9934efbf3792af664d168de39f03c9c6",
+            "tree": "28907965782280a7cc163117952f84c320bbc03a"
+          }
+        },
+        "stderr.txt": {
+          "storage": "ignored_local_raw",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v3-custody-version-negative-controls-verification-20261010/stderr.txt",
+          "sha256": "743f8c54ea28df659e80c1b1b463502574cb0ce324e0f48e3c6b75fee93aa364",
+          "bytes": 777,
+          "availability": "available_local_readback",
+          "candidate_source": {
+            "commit": "3606d4ab9934efbf3792af664d168de39f03c9c6",
+            "tree": "28907965782280a7cc163117952f84c320bbc03a"
+          }
+        },
+        "junit.xml": {
+          "storage": "ignored_local_raw",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v3-custody-version-negative-controls-verification-20261010/junit.xml",
+          "sha256": "30858756345e2e2ace0f81b8ac3cf19799437ee74f98395569e70cda984c4b29",
+          "bytes": 2973,
+          "availability": "available_local_readback",
+          "candidate_source": {
+            "commit": "3606d4ab9934efbf3792af664d168de39f03c9c6",
+            "tree": "28907965782280a7cc163117952f84c320bbc03a"
+          }
+        }
+      }
+    }
+  ],
+  "chain": {
+    "producer": "existing owned NL/acquisition and WDI producers",
+    "artifact": "typed compiled recursive cycle, acquisition movement/input snapshot and immutable native activation receipt in tenant CAS",
+    "bridge": "current route and complete candidate semantic subject identity; native admission verified before and after execution lock",
+    "consumer": "fresh acquisition GET/action reader and same-candidate limited world-growth reader",
+    "surface": "existing runtime HTTP DTO/API surfaces"
+  },
+  "controls": [
+    "unsupported typed compiled-cycle v5 persisted with valid CAS markers refuses; supported legacy v1 remains loadable",
+    "foreign owner/cell load refuses the same persisted ref",
+    "missing/corrupt immutable native activation emits typed HTTP refusal",
+    "unchanged admitted content preserves growth/reissue behavior without producer reentry; corrupt content/identity refuses"
+  ],
+  "consumer_surface": "actual WDI/CAS and guarded HTTP readers under declared fixture scope",
+  "limitations": [
+    "The ordinary served costed acquisition positive remains FAIL/held: actual compiled terminal is a_spec_gap with cgf_disposition_missing and zero costed routes.",
+    "Actual DataNeed prototype showed global metadata availability with zero observations and no country/year reconciliation; no scoped gap or exact canonical cost artifact was invented.",
+    "The positive remains selected in the final whole composed plan; this repair PASS cannot close its rows.",
+    "No production currentness, human issuer permission, causal calibration or independent G acceptance is established."
+  ],
+  "decision_refs": [
+    "decisions/v3-costed-route-actual-zero-gap-diagnosis-20261010.md",
+    "decisions/v3-candidate-data-need-prototype-20261010.md",
+    "decisions/v3-valid-input-alternatives-20261010.md"
+  ],
+  "independent_reviews": [
+    "reviews/v3-route-tenant-cas-independent-20261010.md",
+    "reviews/v3-same-candidate-independent-20261010.md"
+  ],
+  "proposal_ids": [
+    "B09",
+    "B12",
+    "B27",
+    "B28",
+    "LA-046"
+  ],
+  "proposal_occurrences": [
+    {
+      "finding_id": "B09",
+      "occurrence_pointer": "/findings/8/criterion_refs/0",
+      "criterion_sha256": "62b0ba80257fe40aee4e48fda73caf00a617fa55d29c54693185e6996b0ce64c"
+    },
+    {
+      "finding_id": "B12",
+      "occurrence_pointer": "/findings/31/criterion_refs/0",
+      "criterion_sha256": "06171b3b04ee5503cea6193347c3299e0016b1f54a96564e3dc5e439feb85798"
+    },
+    {
+      "finding_id": "B27",
+      "occurrence_pointer": "/findings/152/criterion_refs/0",
+      "criterion_sha256": "052dfe6a01330cee3d1975a69adaed578a7c1d3259c9c9889c09ce9e867ecc44"
+    },
+    {
+      "finding_id": "B28",
+      "occurrence_pointer": "/findings/153/criterion_refs/0",
+      "criterion_sha256": "24bde0d2e6c00856b28cf4cc5bc1be23c22e6395760df1a5c615bc74ab99b343"
+    },
+    {
+      "finding_id": "LA-046",
+      "occurrence_pointer": "/findings/270/criterion_refs/0",
+      "criterion_sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38"
+    },
+    {
+      "finding_id": "LA-046",
+      "occurrence_pointer": "/findings/270/criterion_refs/1",
+      "criterion_sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38"
+    }
+  ],
+  "formal_closure_ids": [],
+  "closure_ids": [],
+  "proposal_fields": {
+    "status": "limited",
+    "whole_criterion_outcomes": "Individual outcomes remain in the full occurrence report; no closure follows from this command."
+  }
+}

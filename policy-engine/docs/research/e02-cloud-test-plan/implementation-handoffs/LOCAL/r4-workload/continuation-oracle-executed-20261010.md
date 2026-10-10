@@ -24,3 +24,13 @@ The complete child captures, JUnit, source fixtures, plans, receipts and complet
 A later self-test-only wrapper companion remains under independent review. Rebind any executed helper delta before final freeze; this receipt does not name a future receipt SHA or the final source identity.
 
 `closure_ids=[]`; author proposals only.
+
+## Executed wrapper V4 delta
+
+The six controls were rerun at source anchor `9194a65fb59355ceac35270c869f429efc7482d8` with wrapper `8d4c418a7966915d45e5a4821e548fe6b80cce1cdf8fb81f7380e12b439f9454`, oracle `3adb2ebc1b2a4caca8a0f3a43c0a29b421adc2b9260f98eff869de85f63ecf31`, and origin plugin `02e43a40767d23f2e042ea8d1d0c4db3585b3697de38db50e79e6e8136175352`. The actual command exited 0 in 7.679 seconds; all three source hashes were unchanged. All six scenario outcomes above were preserved. This delta does not establish the separate full self-test or any product capability.
+
+Complete deciding output: `raw/continuation-oracle-v4-wrapper-verification-20261010/stdout.txt@33edfed00d98eb8d26262a9dc6ae07926fe3bd936bd01df7a4116af2fa9ae078` (110283 bytes); stderr is retained and empty. The same directory contains the exact argv, numerical/environment settings, before/after hashes and output inventory in `command.json`. Final composed replay and source/input/profile freeze remain pending.
+
+## Executed output-only binding admission delta
+
+All six continuation controls were executed again at source anchor `9194a65fb59355ceac35270c869f429efc7482d8` with wrapper `9a3e67d963d84c9475f9f9d04df14392501bb3c43d36cfe587b45485be15de81`, oracle `8f10420960a5482a13d6985e7dc1193de499b4afd31effc09bc8cb441dbcac7a`, and the unchanged `02e43a40767d23f2e042ea8d1d0c4db3585b3697de38db50e79e6e8136175352` origin plugin. Exact before/after hashes match. Exit 0, wall 9.482 seconds; all six recorded scenario outcomes remain the same. Complete deciding stdout is `raw/continuation-oracle-output-kind-wrapper-verification-20261010/stdout.txt@298ea210feb4e39ba57ca45552d1f0888696a2f2fcd9a8c8cda752aa77a41a32` (110283 bytes); the sibling command.json retains actual argv, environments and output inventory. This remains a harness-control receipt with synthetic source/profile admission, not product closure or the complete final self-test.

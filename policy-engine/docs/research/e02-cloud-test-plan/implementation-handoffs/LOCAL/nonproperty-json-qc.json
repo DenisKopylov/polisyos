@@ -1,0 +1,167 @@
+{
+  "record_type": "nonproperty-json-qc-handoff",
+  "schema_version": 1,
+  "recorded_on": "2026-10-10",
+  "delivery": {
+    "status": "committed_and_pushed",
+    "branch": "codex/e02-unified-local-20261009",
+    "remote_branch": "origin/codex/e02-unified-local-20261009",
+    "commit": "7e9d0912e014252260c217396ba50465392ab69a",
+    "tree": "e6c8f72be8f4e2279bbac46e0715643484ca6760",
+    "parent": "214e56201613f1098e9791aac4d7b4ec0f57c30e",
+    "footprint": {
+      "committed_path_count": 23,
+      "categories": [
+        "source",
+        "tests",
+        "README"
+      ],
+      "complete_path_and_byte_manifest": {
+        "path": "LOCAL/raw/nonproperty-json-qc-implementation-checkpoint-20261010/readback.json",
+        "sha256": "2711e338a9016e10d76c674f049cf644dc6dc7edbe48bfd6247ba6cdf8c50c7f"
+      },
+      "remote_byte_readback": {
+        "path": "LOCAL/raw/nonproperty-json-qc-implementation-checkpoint-20261010/remote-readback.json",
+        "sha256": "8f84a5dfad36c53a5e1fa27128c8e9d49c93738e610d9e79648d7bba955fe02d",
+        "verified_changed_files": 23,
+        "exact_changed_files_and_bytes": true
+      }
+    },
+    "formal_closure_ids": [],
+    "closure_policy": "Research proposals remain separate; this record does not map them to formal closure IDs."
+  },
+  "behavioral_validation": {
+    "selected_suite": {
+      "result": "passed",
+      "passed": 448,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "stable_input_count": 6158,
+      "wall_seconds": 50.70423479098827,
+      "command_record": {
+        "path": "LOCAL/raw/batched-blocking-focused-20261010/nonproperty-v9-full-json-qc-real-consumers-r3/command.json",
+        "sha256": "0a950bf0b87c2927ea9d7eb044f827a9d5c17623189e9feb08f1b0efcfa8ecb1"
+      },
+      "run_context": {
+        "head_at_invocation": "214e56201613f1098e9791aac4d7b4ec0f57c30e",
+        "cwd": "policy-engine",
+        "python_invocation": ".venv/bin/python -B -m pytest",
+        "environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMBA_NUM_THREADS": "1"
+        },
+        "capture_source_sha256": "080a695e7f712a31e30acb47654b27f87ba4f82e82d4981e3d67b0a34093ec88",
+        "source_qualification": "The recorded command ran from the product source checkout. Its before/after byte capture and the later commit/remote readbacks bind the tested source and test files to the 23-file delivery. This is not a packaged-wheel or production-payload test claim."
+      },
+      "outputs": {
+        "stdout": {
+          "path": "LOCAL/raw/batched-blocking-focused-20261010/nonproperty-v9-full-json-qc-real-consumers-r3/stdout.txt",
+          "bytes": 1300,
+          "sha256": "4cbd7ffd3cc6e510622513f93c825b5a6a6796d92200a01f8e013202ee01d91e"
+        },
+        "stderr": {
+          "path": "LOCAL/raw/batched-blocking-focused-20261010/nonproperty-v9-full-json-qc-real-consumers-r3/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "junit": {
+          "path": "LOCAL/raw/batched-blocking-focused-20261010/nonproperty-v9-full-json-qc-real-consumers-r3/junit.xml",
+          "bytes": 85549,
+          "sha256": "364ae335e15e48895931eff721675ce2cac87e5137903e0e9f14e144d51bc53f"
+        }
+      }
+    },
+    "ruff": {
+      "result": "passed",
+      "exit_code": 0,
+      "command_record": {
+        "path": "LOCAL/raw/batched-blocking-focused-20261010/nonproperty-v9-whole-implementation-footprint-ruff/command.json",
+        "sha256": "c45cfe4ce639c3e37197b0506d1f2c4c5d28692531393c2799926bb5e27112ae"
+      },
+      "invocation": ".venv/bin/python -B -m ruff check <21 Python paths> --output-format=json",
+      "denominator": {
+        "implementation_files": 23,
+        "python_paths_linted": 21,
+        "README_paths_not_linted": 2,
+        "additional_ruff_config_files_hash_checked": 3,
+        "before_after_stable_paths": 26,
+        "changed_paths": 0
+      },
+      "wall_seconds": 0.07719416602049023,
+      "stdout": {
+        "path": "LOCAL/raw/batched-blocking-focused-20261010/nonproperty-v9-whole-implementation-footprint-ruff/stdout.txt",
+        "bytes": 2,
+        "content": "[]",
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "stderr": {
+        "path": "LOCAL/raw/batched-blocking-focused-20261010/nonproperty-v9-whole-implementation-footprint-ruff/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "preserved_diagnostics": [
+    {
+      "stage": "initial_collection_attempt",
+      "result": "collection_error",
+      "exit_code": 2,
+      "wall_seconds": 8.842699875007384,
+      "stdout_path": "LOCAL/raw/batched-blocking-focused-20261010/nonproperty-v9-full-json-qc-real-consumers/stdout.txt",
+      "stdout_sha256": "3197ebba836b2752699ed904b9fe0d6b4708de884142e10247843cedb93423dd",
+      "disposition": "Preserved; not counted as a runtime pass or erased by the later rerun."
+    },
+    {
+      "stage": "r2_full_selected_suite",
+      "result": "failed",
+      "passed": 440,
+      "failed": 7,
+      "exit_code": 1,
+      "wall_seconds": 50.462898042052984,
+      "stdout_path": "LOCAL/raw/batched-blocking-focused-20261010/nonproperty-v9-full-json-qc-real-consumers-r2/stdout.txt",
+      "stdout_sha256": "7093d76bd85bfa978f98acc54b15e79590900dd9a056a037a9e59dd9d64c3866",
+      "disposition": "Preserved as the pre-repair deciding result; superseded only for current validation by r3."
+    },
+    {
+      "stage": "v1_edge_provenance_patch_review",
+      "result": "no_go",
+      "patch_sha256": "e0eb8e56e6cd4166aadc46e503aabdeb23d25553715f7a2e3c666e2cf18f5a0e",
+      "reason": "A missing-edge .get fallback still failed when a present stored value decoded from JSON null."
+    },
+    {
+      "stage": "v2_edge_provenance_patch_review",
+      "result": "scoped_go",
+      "patch_sha256": "5cffe72517500504decb0138af772f1a25ec4d201f0425db5857d329602bb2b7",
+      "review_record": "LOCAL/reviews/nonproperty-error-truth-v9-r2-fixes-v2-independent-20261010.md",
+      "review_sha256": "f61746fcee58da3a2a19ccf6a854c19a3e1b05070b001dc67cb40839f365752c",
+      "qualification": "Static proposal review plus apply-check, not a runtime pass or formal closure."
+    }
+  ],
+  "pattern_pass": {
+    "relevant_ids": [
+      "P35",
+      "P40",
+      "P41"
+    ],
+    "P35_denominator": "The source readback provides the complete 23-path implementation file/byte manifest. The Ruff command separately records 21 Python inputs and before/after hashes for those 23 implementation files plus 3 Ruff configs (26 stable paths total).",
+    "P40_classification": "The first provenance patch handled an absent edge row but not a JSON-null value in a present row. The v2 change widened the per-row intake and unknown-value projection. No direct SQL-NULL fixture was supplied; that branch remains not established below.",
+    "P41_source_binding": "The r3 command ran from base HEAD 214e562 with captured working-tree source bytes. The committed 23-file readback and remote byte readback bind the tested byte set to commit 7e9d091; this does not imply the test process ran at that commit HEAD."
+  },
+  "scope_and_limits": {
+    "tested_resources": "The selected tests use local controlled fixtures and source-worktree inputs; no production payload or packaged-wheel behavior is claimed.",
+    "sql_null_direct_fixture": "not_established: no direct SQL-NULL fixture was supplied. The committed behavioral fixture directly exercises JSON text null and an absent sibling row. The source branch maps SQL NULL to unknown, but no SQL-NULL runtime behavior is claimed.",
+    "remaining_formal_state": "No formal closure IDs are assigned by this handoff; any proposal mapping requires a separate decision."
+  },
+  "slice": {
+    "base": "214e56201613f1098e9791aac4d7b4ec0f57c30e",
+    "candidate": "7e9d0912e014252260c217396ba50465392ab69a",
+    "tree": "e6c8f72be8f4e2279bbac46e0715643484ca6760",
+    "parents": [
+      "214e56201613f1098e9791aac4d7b4ec0f57c30e"
+    ],
+    "source_status": "committed_slice; global source/input/backend freeze remains pending"
+  }
+}

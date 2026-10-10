@@ -1,0 +1,21 @@
+id = "2026-10-10-core-contracts-catalog-run-profile"
+title = "Expose CatalogRunProfile from the Core contracts facade"
+type = "changed"
+component = "core-contracts"
+owner = "team-platform"
+summary = "The stable polisyos.core.contracts facade now declares CatalogRunProfile in __all__ and resolves it to the existing Literal in control.py."
+evidence = [
+  "tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+]
+compatibility = "This is an additive Python export. The existing Literal object and its values are unchanged."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.contracts"
+migration = "Consumers can import CatalogRunProfile from polisyos.core.contracts; existing imports from polisyos.core.contracts.control remain valid."
+api = "CatalogRunProfile is available as a declared export on the existing Core contracts facade."
+limitations = "The public-surface inventory currently reports core.contracts exports as unknown because its conservative source reader does not resolve the starred chronology export. This change does not claim a complete export inventory or alter that reader."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/core/contracts/README.md",
+]
+runbook_docs = []

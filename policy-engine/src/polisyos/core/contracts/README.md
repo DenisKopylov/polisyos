@@ -14,6 +14,7 @@ models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`
 
 - **Typed refs** - every artifact family uses explicit `kind` and `media_type` checks.
 - **Runtime/control DTOs** - HTTP and orchestration payloads live here so routes stay thin.
+- **Catalog-run profile** - `control.py` defines `CatalogRunProfile`, the typed selector for catalog execution profiles; the stable `polisyos.core.contracts` facade re-exports the same type.
 - **Policy Design Case projections** - typed non-authoritative PDC views carry closeout truth,
   projection gaps, contested records, recourse pointers, deficits, and invariant summaries to API
   and generated-client consumers.

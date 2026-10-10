@@ -717,3 +717,11 @@ def test_complete_representation_does_not_grant_complete_inventory_verdict() -> 
         for item in guardrails._check_public_surface_contracts(inventory)
         if item.detail == "incomplete_exports"
     } == unknown
+
+
+def test_catalog_run_profile_is_exported_from_core_contracts_facade() -> None:
+    import polisyos.core.contracts as contracts
+    from polisyos.core.contracts.control import CatalogRunProfile as ControlCatalogRunProfile
+
+    assert "CatalogRunProfile" in contracts.__all__
+    assert contracts.CatalogRunProfile is ControlCatalogRunProfile

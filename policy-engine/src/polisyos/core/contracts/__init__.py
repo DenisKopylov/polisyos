@@ -1503,6 +1503,7 @@ __all__ = [
     "CapabilityResolverPort",
     "CapabilityResourceKind",
     "CapabilityTimeSemantics",
+    "CatalogRunProfile",
     "CausalAssumptionCardRef",
     "CausalDiscoveryReportRef",
     "CausalEffectReportRef",

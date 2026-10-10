@@ -113,6 +113,7 @@ class AuthorityArtifactIdentityContext:
     event_subject: str | None = None
     state_before: str | None = None
     state_after: str | None = "persisted"
+    manifest_canon: core_artifacts.CanonInfo | None = None
 
 
 def _make_artifact_ref(
@@ -210,7 +211,12 @@ def write_authority_artifact(
 ) -> AuthorityArtifactWriteResult:
     """Write a runtime authority artifact plus linked envelope/event records to CAS."""
 
-    canon_spec = canon_spec or CanonSpec()
+    if canon_spec is None:
+        canon_spec = CanonSpec()
+    elif not isinstance(canon_spec, CanonSpec):
+        raise TypeError("authority canon_spec must be a CanonSpec")
+    manifest_canon = _authority_manifest_canon(opts, canon_spec)
+    opts = replace(opts, canon=manifest_canon)
     payload_bytes = to_canonical_bytes(payload, canon_spec)
     payload_sha256 = content_hash(payload_bytes)
     cas_ref_value = f"sha256:{payload_sha256}"
@@ -260,6 +266,7 @@ def write_authority_artifact(
         event_subject=event_subject,
         state_before=state_before,
         state_after=state_after,
+        manifest_canon=manifest_canon,
     )
     expected_context, attestation_payload = _freeze_cas_writer_attestation_identity(
         expected_context,
@@ -541,8 +548,11 @@ def write_runtime_authority_artifact(
     """Write a runtime authority artifact and append its event to the durable log."""
 
     canon_spec = authority_fields.get("canon_spec")
-    if not isinstance(canon_spec, CanonSpec):
+    if canon_spec is None:
         canon_spec = CanonSpec()
+    elif not isinstance(canon_spec, CanonSpec):
+        raise TypeError("authority canon_spec must be a CanonSpec")
+    opts = replace(opts, canon=_authority_manifest_canon(opts, canon_spec))
     payload_sha256 = content_hash(to_canonical_bytes(payload, canon_spec))
     cas_ref_value = f"sha256:{payload_sha256}"
     expected_context = _identity_context_from_fields(opts, authority_fields)
@@ -616,9 +626,32 @@ def _existing_authority_result(
         verification = store.verify(artifact_id)
         envelope_ref = core_artifacts.resolve_authority_envelope_ref(store, authority)
         envelope_verification = store.verify(envelope_ref)
-        envelope = EvidenceAuthorityEnvelope.model_validate(
-            from_canonical_bytes(store.get_bytes(envelope_ref))
+        envelope_manifest = store.get_manifest(envelope_ref)
+        envelope_payload = store.get_bytes(envelope_ref)
+        envelope = EvidenceAuthorityEnvelope.model_validate(from_canonical_bytes(envelope_payload))
+        expected_envelope_opts = _authority_envelope_write_options(
+            opts,
+            inputs=list(expected_context.manifest_inputs),
+            tenant_id=expected_context.tenant_id,
+            cell_id=expected_context.cell_id,
+            same_input_closure=expected_context.same_input_closure,
         )
+        expected_manifest_canon = _authority_manifest_canon(
+            opts,
+            CanonSpec(),
+            expected_context=expected_context,
+        )
+        expected_envelope_opts = replace(expected_envelope_opts, canon=expected_manifest_canon)
+        expected_envelope_manifest = core_artifacts.expected_artifact_manifest_for_write(
+            artifact_id=envelope_ref.artifact_id,
+            data=envelope_payload,
+            opts=expected_envelope_opts,
+            created_at=envelope_manifest.created_at,
+        ).model_copy(update={"manifest_schema_version": envelope_manifest.manifest_schema_version})
+        if core_artifacts.artifact_manifest_profile_projection(
+            envelope_manifest
+        ) != core_artifacts.artifact_manifest_profile_projection(expected_envelope_manifest):
+            raise ValueError("existing authority envelope manifest identity mismatch")
         diagnostic_event_id = core_artifacts.ArtifactID.model_validate(
             authority.diagnostic_event_ref
         )
@@ -679,6 +712,7 @@ def _existing_authority_result(
         or manifest_producer.component != producer.component
         or manifest_producer.version != producer.version
         or manifest.inputs != list(expected_context.manifest_inputs)
+        or manifest.canon != expected_manifest_canon
         or manifest.tenant_context != expected_tenant
         or manifest.same_input_closure != expected_closure
         or manifest.governance != expected_context.manifest_governance
@@ -830,6 +864,7 @@ def _identity_context_from_fields(
         same_input_closure=closure,
         manifest_inputs=tuple(manifest_inputs),
         manifest_governance=_copy_governance(opts),
+        manifest_canon=_authority_manifest_canon(opts, CanonSpec()),
         input_refs=input_refs,
         effective_mode_ref=required("effective_mode_ref"),
         validation_status=required("validation_status"),
@@ -847,6 +882,30 @@ def _identity_context_from_fields(
         state_before=values.get("state_before"),
         state_after=values.get("state_after", "persisted"),
     )
+
+
+def _authority_manifest_canon(
+    opts: ArtifactWriteOptions,
+    canon_spec: CanonSpec,
+    *,
+    expected_context: AuthorityArtifactIdentityContext | None = None,
+) -> core_artifacts.CanonInfo:
+    """Resolve the producer-owned canonicalization metadata for one artifact view."""
+    option_canon = (
+        None if opts.canon is None else core_artifacts.CanonInfo.model_validate(opts.canon)
+    )
+    context_canon = (
+        None
+        if expected_context is None or expected_context.manifest_canon is None
+        else core_artifacts.CanonInfo.model_validate(expected_context.manifest_canon)
+    )
+    if option_canon is not None and context_canon is not None and option_canon != context_canon:
+        raise ValueError("authority manifest canonicalization identity mismatch")
+    if option_canon is not None:
+        return option_canon
+    if context_canon is not None:
+        return context_canon
+    return core_artifacts.CanonInfo.from_spec(canon_spec)
 
 
 def _require_producer(opts: ArtifactWriteOptions) -> ProducerInfo:

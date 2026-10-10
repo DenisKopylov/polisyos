@@ -6,11 +6,12 @@ from dataclasses import replace
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, ClassVar
 
 import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.contracts.control import CatalogRunProfile, DataResolveRequest
 from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot, MethodCatalogSnapshotRef
 from polisyos.core.llm.traced_client import TracedLLMClient
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
@@ -49,10 +50,21 @@ class _FakeMetric:
 
 
 class _FakeRetrievalService:
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        pass
+    instances: ClassVar[list[_FakeRetrievalService]] = []
 
-    def resolve(self, request: Any) -> Any:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.resolve_profile_calls: list[
+            tuple[CatalogRunProfile | None, CatalogRunProfile | None]
+        ] = []
+        self.instances.append(self)
+
+    def resolve(
+        self,
+        request: DataResolveRequest,
+        *,
+        run_profile: CatalogRunProfile | None = None,
+    ) -> Any:
+        self.resolve_profile_calls.append((request.catalog_run_profile, run_profile))
         return SimpleNamespace(
             fetch_plans=[{"id": "plan-1"}],
             telemetry={
@@ -339,11 +351,16 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
             source_profiles=empty_registry,
             binding_profiles=empty_registry,
             model_profiles=empty_registry,
+            catalog_run_profile="prod_full",
         ),
     )
+    _FakeRetrievalService.instances.clear()
     from polisyos.core.artifacts.manifest import ArtifactRef, ArtifactTenantContextInfo, SchemaInfo
     from polisyos.core.artifacts.store import PutOptions
     from polisyos.runtime.http.services.control import nl_pipeline as nl_pipeline_module
+    from polisyos.runtime.http.services.control.artifacts import (
+        verify_runtime_authority_artifact_identity,
+    )
 
     artifact_store = service._artifact_store
     original_put_json = artifact_store.put_json
@@ -354,6 +371,8 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
     authority_envelope_reads: list[object] = []
     authority_envelope_puts: list[ArtifactRef] = []
     authority_envelope_default_views: list[ArtifactRef] = []
+    authority_write_options = []
+    production_authority_envelope_reads: list[object] = []
     observed_authority_ids: set[str] = set()
 
     def _put_json_with_sibling_default(obj, write_options, canon_spec=None):
@@ -389,6 +408,18 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
     async def _run_blocking_with_sibling_manifest(function, *args, **kwargs):
         result = await original_run_blocking_async(function, *args, **kwargs)
         if function is nl_pipeline_module.write_runtime_authority_artifact:
+            writer_store, _event_log, _payload, writer_options = args
+            assert writer_store is artifact_store
+            readback = verify_runtime_authority_artifact_identity(
+                writer_store,
+                artifact_id=result.cas_ref.artifact_id,
+                opts=writer_options,
+                expected_context=result.identity_context,
+            )
+            assert readback.cas_ref == result.cas_ref
+            assert readback.authority_envelope_ref == result.authority_envelope_ref
+            assert readback.identity_context == result.identity_context
+            authority_write_options.append((result, writer_options))
             selected_ref = result.authority_envelope_ref
             selected_id = str(selected_ref.artifact_id)
             if selected_id not in observed_authority_ids:
@@ -401,7 +432,7 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
                         media_type=manifest.media_type,
                         schema=SchemaInfo(
                             name=manifest.artifact_schema.name,
-                            version=manifest.artifact_schema.version,
+                            version=f"{manifest.artifact_schema.version}.sibling",
                         ),
                         tenant_context=ArtifactTenantContextInfo(
                             tenant_id="tenant-sibling",
@@ -450,6 +481,88 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
             expected_outputs_payload=[],
             allow_mock_fallback=False,
         )
+        actual_retrieval_services = [
+            retrieval
+            for retrieval in _FakeRetrievalService.instances
+            if retrieval.resolve_profile_calls
+        ]
+        assert actual_retrieval_services
+        assert all(
+            request_profile == keyword_profile == "prod_full"
+            for retrieval in actual_retrieval_services
+            for request_profile, keyword_profile in retrieval.resolve_profile_calls
+        )
+        production_authority_envelope_reads[:] = authority_envelope_reads
+        assert authority_write_options and authority_envelope_pairs
+        first_result, first_options = authority_write_options[0]
+        first_selected_ref, first_sibling_ref = authority_envelope_pairs[0]
+        assert first_result.authority_envelope_ref == first_selected_ref
+        assert first_selected_ref.manifest_profile_sha256 is not None
+        assert first_sibling_ref.manifest_profile_sha256 is not None
+        assert (
+            first_selected_ref.manifest_profile_sha256 != first_sibling_ref.manifest_profile_sha256
+        )
+        default_ref = authority_envelope_default_views[0]
+        assert default_ref.artifact_id == first_selected_ref.artifact_id
+        assert default_ref.manifest_profile_sha256 is None
+        wrong_default_manifest = original_get_manifest(default_ref)
+        assert wrong_default_manifest.artifact_schema is not None
+        assert wrong_default_manifest.artifact_schema.version.endswith(".sibling")
+
+        def _verify_with_linked_profile(
+            result,
+            options,
+            profile_sha256,
+            *,
+            default_manifest_override=None,
+        ):
+            payload_manifest = original_get_manifest(result.cas_ref)
+            authority = payload_manifest.authority
+            assert authority is not None
+            linked_authority = authority.model_copy(
+                update={"authority_envelope_manifest_profile_sha256": profile_sha256}
+            )
+            linked_payload_manifest = payload_manifest.model_copy(
+                update={"authority": linked_authority}
+            )
+            envelope_id = str(result.authority_envelope_ref.artifact_id)
+
+            class _ManifestLinkStore:
+                def __getattr__(self, name):
+                    return getattr(artifact_store, name)
+
+                def get_manifest(self, selector):
+                    selector_id = str(getattr(selector, "artifact_id", selector))
+                    if selector_id == str(result.cas_ref.artifact_id):
+                        return linked_payload_manifest
+                    if (
+                        profile_sha256 is None
+                        and default_manifest_override is not None
+                        and selector_id == envelope_id
+                    ):
+                        return default_manifest_override
+                    return original_get_manifest(selector)
+
+            return verify_runtime_authority_artifact_identity(
+                _ManifestLinkStore(),
+                artifact_id=result.cas_ref.artifact_id,
+                opts=options,
+                expected_context=result.identity_context,
+            )
+
+        with pytest.raises(ValueError):
+            _verify_with_linked_profile(
+                first_result,
+                first_options,
+                first_sibling_ref.manifest_profile_sha256,
+            )
+        with pytest.raises(ValueError):
+            _verify_with_linked_profile(
+                first_result,
+                first_options,
+                None,
+                default_manifest_override=wrong_default_manifest,
+            )
     finally:
         service.close()
         monkeypatch.setattr(
@@ -517,13 +630,14 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
     assert authority_envelope_default_views
     assert authority_envelope_puts
     assert [selected for selected, _sibling in authority_envelope_pairs] == authority_envelope_puts
-    assert authority_envelope_reads == [selected for selected, _sibling in authority_envelope_pairs]
-    assert all(isinstance(ref, ArtifactRef) for ref in authority_envelope_reads)
+    assert production_authority_envelope_reads == [
+        selected for selected, _sibling in authority_envelope_pairs
+    ]
+    assert all(isinstance(ref, ArtifactRef) for ref in production_authority_envelope_reads)
     assert all(
         selected.artifact_id == sibling.artifact_id
-        and selected.kind == sibling.kind
-        and selected.media_type == sibling.media_type
-        and selected.manifest_profile_sha256 is not None
+        and selected.kind == sibling.kind == "runtime_quality.evidence_authority_envelope"
+        and selected.media_type == sibling.media_type == "application/json"
         and selected.manifest_profile_sha256 != sibling.manifest_profile_sha256
         for selected, sibling in authority_envelope_pairs
     )

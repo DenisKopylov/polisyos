@@ -8,7 +8,10 @@ from unittest.mock import patch
 import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.data_forge.read_api.catalog import build_slice0_fixture_catalog_graph
+from polisyos.data_forge.read_api.catalog import (
+    DatasetSearchResult,
+    build_slice0_fixture_catalog_graph,
+)
 from polisyos.foundry.methods.catalog.causal._id_contracts import RequiredDataSpec
 from polisyos.pdc import (
     ArtifactRef,
@@ -542,10 +545,30 @@ def test_slice0_rejects_agent_or_playbook_planner() -> None:
         loop.run_fixture("ua_msme_credit_worldbank_measurement", planner_kind="agent")
 
 
-def test_measurement_root_producer_resolves_catalog_and_persists_cas(tmp_path: Path) -> None:
+def test_measurement_root_producer_resolves_catalog_and_persists_cas(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from datetime import UTC, datetime
+
+    from polisyos.core import artifacts as core_artifacts
+    from polisyos.core import canon
+    from polisyos.runtime.http.services.control.artifacts import (
+        AuthorityArtifactIdentityContext,
+        verify_runtime_authority_artifact_identity,
+    )
+    from polisyos.runtime.quality import data_forge_binding
+    from polisyos.runtime.quality.authority import (
+        EvidenceAuthorityEnvelope,
+        GovernanceMetadata,
+        SameInputClosure,
+    )
+
     catalog = build_slice0_fixture_catalog_graph(tmp_path)
     store = FileSystemCAS(tmp_path / "cas")
     manifest = load_workspace_fixture_manifest("ua_msme_credit_worldbank_measurement")
+    source_time = datetime(2026, 10, 10, 12, tzinfo=UTC)
+    monkeypatch.setattr(data_forge_binding, "_utc_now", lambda: source_time)
 
     envelope = MeasurementRootProducer(artifact_store=store).produce_from_catalog(
         manifest,
@@ -563,6 +586,9 @@ def test_measurement_root_producer_resolves_catalog_and_persists_cas(tmp_path: P
     assert envelope.producer_operation["operation_id"] == "slice0.bind.catalog"
 
     payload = json.loads(store.get_bytes(envelope.payload_ref))
+    canonical_payload = canon.from_canonical_bytes(store.get_bytes(envelope.payload_ref))
+    payload_manifest = store.get_manifest(envelope.payload_ref)
+    assert payload_manifest.canon == core_artifacts.CanonInfo(forbid_floats=False)
     assert payload["data_requirement_spec"]["schema_version"] == "policyos.data_requirement_spec.v1"
     assert payload["source_contract_requirement"]["facet_values"]["connector"] == "worldbank.wdi"
     assert payload["source_contract_requirement"]["facet_values"]["variables"] == [
@@ -594,37 +620,44 @@ def test_measurement_root_producer_resolves_catalog_and_persists_cas(tmp_path: P
         "query_generation_context": {"state": "absent"},
     }
 
+    opts, identity = data_forge_binding._measurement_root_authority_configuration(
+        canonical_payload,
+        fabric_fetch_ref=None,
+        source_checked_at=None,
+    )
+    identity["same_input_closure"] = SameInputClosure.model_validate(identity["same_input_closure"])
+    identity["governance"] = GovernanceMetadata.model_validate(identity["governance"])
+    identity["input_refs"] = tuple(identity["input_refs"])
+    assert opts.canon == core_artifacts.CanonInfo(forbid_floats=False)
+    assert payload_manifest.authority is not None
+    envelope_ref = core_artifacts.resolve_authority_envelope_ref(
+        store,
+        payload_manifest.authority,
+    )
+    emitted = EvidenceAuthorityEnvelope.model_validate(
+        canon.from_canonical_bytes(store.get_bytes(envelope_ref))
+    )
+    context = AuthorityArtifactIdentityContext(
+        **identity,
+        manifest_inputs=tuple(opts.inputs or ()),
+        manifest_governance=opts.governance,
+        manifest_canon=opts.canon,
+        attestation_ref=emitted.attestation_ref,
+    )
+    fresh = verify_runtime_authority_artifact_identity(
+        store,
+        artifact_id=payload_manifest.artifact_id,
+        opts=opts,
+        expected_context=context,
+    )
+    assert fresh.cas_ref.artifact_id == payload_manifest.artifact_id
+
 
 def test_measurement_root_producer_rejects_fabricated_source_contract_before_cas(
     tmp_path: Path,
 ) -> None:
     manifest = load_workspace_fixture_manifest("ua_msme_credit_worldbank_measurement")
     store = FileSystemCAS(tmp_path / "cas")
-
-    class FakeRecord:
-        id = manifest.expected_catalog_binding_refs[0]
-        source = "worldbank"
-        execution_tier = "transport_ready"
-        connector_type = "worldbank.wdi"
-        search_mode = "vector"
-        vector_refusal_code = None
-
-        def model_dump(self, *, mode: str) -> dict[str, object]:
-            return {
-                "id": self.id,
-                "source": self.source,
-                "execution_tier": self.execution_tier,
-                "connector_type": self.connector_type,
-                "search_mode": self.search_mode,
-                "vector_refusal_code": self.vector_refusal_code,
-                "source_dataset_id": "",
-                "variables": [],
-                "coverage": {},
-                "quality": {},
-                "access": {},
-                "license": "",
-                "update_frequency": "",
-            }
 
     class FakeDistribution:
         def model_dump(self, *, mode: str) -> dict[str, object]:
@@ -635,8 +668,19 @@ def test_measurement_root_producer_rejects_fabricated_source_contract_before_cas
             }
 
     class FakeGraph:
-        def search_datasets(self, query: str, *, top_k: int, explain: bool) -> list[FakeRecord]:
-            return [FakeRecord()]
+        def search_datasets(
+            self, query: str, *, top_k: int, explain: bool
+        ) -> list[DatasetSearchResult]:
+            return [
+                DatasetSearchResult(
+                    id=manifest.expected_catalog_binding_refs[0],
+                    title="Fabricated World Bank binding",
+                    source="worldbank",
+                    execution_tier="transport_ready",
+                    connector_type="worldbank.wdi",
+                    search_mode="vector",
+                )
+            ]
 
         def get_distributions(self, dataset_id: str) -> list[FakeDistribution]:
             return [FakeDistribution()]
@@ -650,7 +694,9 @@ def test_measurement_root_producer_rejects_fabricated_source_contract_before_cas
             catalog_graph=FakeGraph(),
         )
 
-    assert not any(path.is_file() for path in (tmp_path / "cas").rglob("*"))
+    inventory = store.inventory_snapshot()
+    assert inventory.verdict == "pass"
+    assert inventory.entries == ()
 
 
 def test_connector_and_source_contract_admission_fail_closed() -> None:

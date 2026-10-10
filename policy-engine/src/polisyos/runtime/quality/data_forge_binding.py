@@ -651,6 +651,7 @@ def _measurement_root_authority_configuration(
         else str(payload.get("fixture_id") or "measurement-root")
     )
     profile = "gy_fabric_measurement" if fabric_fetch_ref is not None else "gy_slice0"
+    manifest_canon = artifacts.CanonInfo.from_spec(canon.CanonSpec(forbid_floats=False))
     opts = artifacts.PutOptions(
         kind="policyos.gy.measurement_root_payload",
         media_type="application/json",
@@ -660,6 +661,7 @@ def _measurement_root_authority_configuration(
             version="2.0.0" if fabric_fetch_ref is not None else "1.0.0",
         ),
         inputs=inputs,
+        canon=manifest_canon,
     )
     identity = {
         "evidence_id": f"gy-measurement-root-{gy_content_hash(payload).split(':')[-1][:16]}",
@@ -1001,6 +1003,7 @@ def resolve_fabric_measurement_root(
         **identity,
         manifest_inputs=tuple(opts.inputs or ()),
         manifest_governance=opts.governance,
+        manifest_canon=opts.canon,
         # This pointer is not trusted: the shared owner recomputes the complete
         # attestation payload from the expected context and checks its CAS bytes.
         attestation_ref=emitted_authority.attestation_ref,

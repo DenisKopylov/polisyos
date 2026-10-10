@@ -5,17 +5,22 @@ from datetime import UTC, datetime
 
 import pytest
 
+from polisyos.core.artifacts import artifact_manifest_profile_sha256
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
     ArtifactGovernanceInfo,
+    ArtifactRef,
+    ArtifactTenantContextInfo,
+    CanonInfo,
     InputRef,
     ProducerInfo,
     SchemaInfo,
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import from_canonical_bytes, to_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.runtime.http.services.control.artifacts import (
     AUTHORITY_ENVELOPE_ARTIFACT_KIND,
+    verify_runtime_authority_artifact_identity,
     write_authority_artifact,
     write_runtime_authority_artifact,
 )
@@ -235,6 +240,277 @@ def test_runtime_authority_writer_preserves_selected_envelope_profile_and_lineag
     )
 
     assert reused.authority_envelope_ref == first.authority_envelope_ref
+
+
+def test_runtime_authority_reader_rejects_same_schema_foreign_tenant_envelope_view(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    artifact_store = FileSystemCAS(tmp_path / "cas")
+    control_store = ControlPlaneStore(
+        backend="sqlite",
+        sqlite_path=tmp_path / "control.sqlite3",
+    )
+    event_log = RuntimeDiagnosticEventLog(
+        store=control_store,
+        artifact_store=artifact_store,
+    )
+    source_ref = artifact_store.put_json(
+        {"source": "foreign-manifest-profile-input"},
+        PutOptions(kind="runtime.input", media_type="application/json"),
+    )
+    opts = _opts(str(source_ref.artifact_id))
+    context = _runtime_context(str(source_ref.artifact_id))
+    original_put_json = artifact_store.put_json
+    foreign_refs = []
+
+    def _put_with_foreign_tenant_view(obj, write_options, canon_spec=None):
+        if write_options.kind == AUTHORITY_ENVELOPE_ARTIFACT_KIND and not foreign_refs:
+            foreign_options = replace(
+                write_options,
+                tenant_context=ArtifactTenantContextInfo(
+                    tenant_id="tenant-foreign",
+                    cell_id="cell-foreign",
+                ),
+            )
+            foreign_refs.append(original_put_json(obj, foreign_options, canon_spec))
+        return original_put_json(obj, write_options, canon_spec)
+
+    monkeypatch.setattr(artifact_store, "put_json", _put_with_foreign_tenant_view)
+    result = write_runtime_authority_artifact(
+        artifact_store,
+        event_log,
+        {"status": "pass", "claims": [{"claim_id": "claim-foreign-view-control"}]},
+        opts,
+        **context,
+    )
+
+    assert len(foreign_refs) == 1
+    foreign_default_ref = foreign_refs[0]
+    assert foreign_default_ref.artifact_id == result.authority_envelope_ref.artifact_id
+    foreign_default_manifest = artifact_store.get_manifest(foreign_default_ref)
+    foreign_profile = artifact_manifest_profile_sha256(foreign_default_manifest)
+    foreign_manifest = artifact_store.get_manifest_by_profile(
+        foreign_default_ref.artifact_id,
+        foreign_profile,
+    )
+    assert foreign_manifest == foreign_default_manifest
+    foreign_ref = ArtifactRef(
+        artifact_id=foreign_default_ref.artifact_id,
+        kind=foreign_manifest.kind,
+        media_type=foreign_manifest.media_type,
+        manifest_profile_sha256=foreign_profile,
+    )
+    assert artifact_store.get_bytes(foreign_ref) == artifact_store.get_bytes(
+        result.authority_envelope_ref
+    )
+    selected_manifest = artifact_store.get_manifest(result.authority_envelope_ref)
+    assert foreign_profile != artifact_manifest_profile_sha256(selected_manifest)
+    assert selected_manifest.kind == foreign_manifest.kind == AUTHORITY_ENVELOPE_ARTIFACT_KIND
+    assert selected_manifest.media_type == foreign_manifest.media_type == "application/json"
+    assert selected_manifest.artifact_schema is not None
+    assert foreign_manifest.artifact_schema == selected_manifest.artifact_schema
+    assert foreign_manifest.tenant_context == ArtifactTenantContextInfo(
+        tenant_id="tenant-foreign",
+        cell_id="cell-foreign",
+    )
+    assert selected_manifest.tenant_context == ArtifactTenantContextInfo(
+        tenant_id="tenant-1",
+        cell_id="cell-a",
+    )
+
+    original_get_manifest = artifact_store.get_manifest
+    payload_manifest = original_get_manifest(result.cas_ref)
+    assert payload_manifest.authority is not None
+    linked_authority = payload_manifest.authority.model_copy(
+        update={"authority_envelope_manifest_profile_sha256": foreign_profile}
+    )
+    linked_payload_manifest = payload_manifest.model_copy(update={"authority": linked_authority})
+
+    class _LinkedForeignManifestStore:
+        def __getattr__(self, name):
+            return getattr(artifact_store, name)
+
+        def get_manifest(self, selector):
+            selector_id = str(getattr(selector, "artifact_id", selector))
+            if selector_id == str(result.cas_ref.artifact_id):
+                return linked_payload_manifest
+            return original_get_manifest(selector)
+
+    with pytest.raises(ValueError, match="existing authority identity mismatch"):
+        verify_runtime_authority_artifact_identity(
+            _LinkedForeignManifestStore(),
+            artifact_id=result.cas_ref.artifact_id,
+            opts=opts,
+            expected_context=result.identity_context,
+        )
+
+
+def test_runtime_authority_writer_binds_effective_canon_to_fresh_reader(tmp_path) -> None:
+    artifact_store, event_log = _stores(tmp_path)
+    source_ref = artifact_store.put_json(
+        {"source": "effective-canon-input"},
+        PutOptions(kind="runtime.input", media_type="application/json"),
+    )
+    opts = _opts(str(source_ref.artifact_id))
+    context = _runtime_context(str(source_ref.artifact_id))
+    selected_spec = CanonSpec(forbid_floats=False)
+    selected_canon = CanonInfo.from_spec(selected_spec)
+
+    with pytest.raises(TypeError, match="authority canon_spec must be a CanonSpec"):
+        write_runtime_authority_artifact(
+            artifact_store,
+            event_log,
+            {"status": "malformed-canon-spec"},
+            opts,
+            **context,
+            canon_spec={"forbid_floats": False},
+        )
+
+    with pytest.raises(ValueError, match="forbid_floats"):
+        write_runtime_authority_artifact(
+            artifact_store,
+            event_log,
+            {"status": "malformed-canon-metadata"},
+            replace(opts, canon={"forbid_floats": "not-a-boolean"}),
+            **context,
+            canon_spec=selected_spec,
+        )
+
+    result = write_runtime_authority_artifact(
+        artifact_store,
+        event_log,
+        {"status": "pass", "claims": [{"claim_id": "custom-canon"}]},
+        opts,
+        **context,
+        canon_spec=selected_spec,
+    )
+    assert result.identity_context.manifest_canon == selected_canon
+    assert artifact_store.get_manifest(result.authority_envelope_ref).canon == selected_canon
+    reread = verify_runtime_authority_artifact_identity(
+        artifact_store,
+        artifact_id=result.cas_ref.artifact_id,
+        opts=opts,
+        expected_context=result.identity_context,
+    )
+    assert reread.cas_ref.artifact_id == result.cas_ref.artifact_id
+
+    override_store, override_log = _stores(tmp_path / "explicit-override")
+    override_source = override_store.put_json(
+        {"source": "explicit-canon-input"},
+        PutOptions(kind="runtime.input", media_type="application/json"),
+    )
+    override_opts = replace(
+        _opts(str(override_source.artifact_id)),
+        canon=CanonInfo(forbid_floats=True, exclude_none=False),
+    )
+    override_canon = CanonInfo(forbid_floats=True, exclude_none=False)
+    override_result = write_runtime_authority_artifact(
+        override_store,
+        override_log,
+        {"status": "pass", "claims": [{"claim_id": "explicit-canon"}]},
+        override_opts,
+        **_runtime_context(str(override_source.artifact_id)),
+        canon_spec=selected_spec,
+    )
+    assert override_result.identity_context.manifest_canon == override_canon
+    assert (
+        override_store.get_manifest(override_result.authority_envelope_ref).canon == override_canon
+    )
+    override_reread = verify_runtime_authority_artifact_identity(
+        override_store,
+        artifact_id=override_result.cas_ref.artifact_id,
+        opts=override_opts,
+        expected_context=override_result.identity_context,
+    )
+    assert override_reread.cas_ref.artifact_id == override_result.cas_ref.artifact_id
+
+
+def test_runtime_authority_reader_rejects_default_canon_envelope_view(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    artifact_store, event_log = _stores(tmp_path)
+    source_ref = artifact_store.put_json(
+        {"source": "forged-canon-profile-input"},
+        PutOptions(kind="runtime.input", media_type="application/json"),
+    )
+    opts = _opts(str(source_ref.artifact_id))
+    context = _runtime_context(str(source_ref.artifact_id))
+    selected_spec = CanonSpec(forbid_floats=False)
+    original_put_json = artifact_store.put_json
+    default_refs: list[ArtifactRef] = []
+
+    def _put_with_default_canon_view(obj, write_options, canon_spec=None):
+        if write_options.kind == AUTHORITY_ENVELOPE_ARTIFACT_KIND and not default_refs:
+            default_options = replace(
+                write_options,
+                canon=CanonInfo.from_spec(CanonSpec()),
+            )
+            default_refs.append(original_put_json(obj, default_options, canon_spec))
+        return original_put_json(obj, write_options, canon_spec)
+
+    monkeypatch.setattr(artifact_store, "put_json", _put_with_default_canon_view)
+    result = write_runtime_authority_artifact(
+        artifact_store,
+        event_log,
+        {"status": "pass", "claims": [{"claim_id": "canon-profile-control"}]},
+        opts,
+        **context,
+        canon_spec=selected_spec,
+    )
+    assert len(default_refs) == 1
+
+    default_manifest = artifact_store.get_manifest(default_refs[0])
+    default_profile = artifact_manifest_profile_sha256(default_manifest)
+    forged_manifest = artifact_store.get_manifest_by_profile(
+        default_refs[0].artifact_id,
+        default_profile,
+    )
+    forged_ref = ArtifactRef(
+        artifact_id=default_refs[0].artifact_id,
+        kind=forged_manifest.kind,
+        media_type=forged_manifest.media_type,
+        manifest_profile_sha256=default_profile,
+    )
+    selected_manifest = artifact_store.get_manifest(result.authority_envelope_ref)
+    assert artifact_store.verify(forged_ref).ok
+    assert artifact_store.get_bytes(forged_ref) == artifact_store.get_bytes(
+        result.authority_envelope_ref
+    )
+    assert forged_manifest.canon == CanonInfo.from_spec(CanonSpec())
+    assert selected_manifest.canon == CanonInfo.from_spec(selected_spec)
+    assert forged_manifest.kind == selected_manifest.kind == AUTHORITY_ENVELOPE_ARTIFACT_KIND
+    assert forged_manifest.media_type == selected_manifest.media_type == "application/json"
+    assert forged_manifest.artifact_schema == selected_manifest.artifact_schema
+    assert forged_manifest.tenant_context == selected_manifest.tenant_context
+    assert default_profile != artifact_manifest_profile_sha256(selected_manifest)
+
+    original_get_manifest = artifact_store.get_manifest
+    payload_manifest = original_get_manifest(result.cas_ref)
+    assert payload_manifest.authority is not None
+    forged_authority = payload_manifest.authority.model_copy(
+        update={"authority_envelope_manifest_profile_sha256": default_profile}
+    )
+    linked_payload_manifest = payload_manifest.model_copy(update={"authority": forged_authority})
+
+    class _LinkedDefaultCanonManifestStore:
+        def __getattr__(self, name):
+            return getattr(artifact_store, name)
+
+        def get_manifest(self, selector):
+            selector_id = str(getattr(selector, "artifact_id", selector))
+            if selector_id == str(result.cas_ref.artifact_id):
+                return linked_payload_manifest
+            return original_get_manifest(selector)
+
+    with pytest.raises(ValueError, match="existing authority identity mismatch"):
+        verify_runtime_authority_artifact_identity(
+            _LinkedDefaultCanonManifestStore(),
+            artifact_id=result.cas_ref.artifact_id,
+            opts=opts,
+            expected_context=result.identity_context,
+        )
 
 
 def test_runtime_authority_writer_links_cas_writer_attestation(tmp_path) -> None:

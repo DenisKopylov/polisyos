@@ -237,7 +237,10 @@ def test_backtest_replays_only_masked_bindings_with_distinct_real_foundry_replic
         item.role == "replica_cohort:masked_foundry_replicas" for item in report_manifest.inputs
     )
     assert report.degraded is True
-    assert "scientist_replica_projection_unsupported" in report.degraded_reasons
+    assert (
+        "masked_foundry_replicas: scientist_replica_projection_unsupported"
+        in fresh_report.degraded_reasons
+    )
     fresh_scenario = fresh_report.scenarios[0]
     assert fresh_scenario.metadata["replica_cohort_ref"] == cohort_ref
     fresh_cohort = from_canonical_bytes(fresh_reader.get_bytes(cohort_ref["artifact_id"]))
@@ -320,8 +323,12 @@ def test_backtest_retains_failed_real_foundry_replica_and_fresh_report_readback(
     assert len({item["run_id"] for item in replicas}) == 3
     assert [item["seed"] for item in replicas] == [31, 32, 33]
     assert all(item["workflow_report_ref"] for item in replicas)
-    assert "controlled_foundry_replica_failure" in replicas[1]["failure"]
+    assert "RuntimeError: controlled_foundry_replica_failure" in replicas[1]["failure"]
     assert replicas[1]["workflow_status"] == "fail"
+    assert any(
+        "controlled_foundry_replica_failure" in warning
+        for warning in fresh_report.metadata["warnings"]
+    )
     for replica in (replicas[0], replicas[2]):
         assert replica["simulation_result_ref"] is not None
         assert replica["metrics_ref"] is not None
@@ -391,6 +398,10 @@ def test_full_data_model_spec_fails_before_any_foundry_replica_executes(
         node["alias"] == "bind_foundry_inputs"
         and "ModelSpec data_snapshot_ref mismatch" in node["error"]["message"]
         for node in cohort["replicas"][0]["workflow_failures"]
+    )
+    assert "ModelSpec data_snapshot_ref mismatch" in cohort["replicas"][0]["failure"]
+    assert any(
+        "ModelSpec data_snapshot_ref mismatch" in warning for warning in report.metadata["warnings"]
     )
     assert report.degraded is True
     assert any(

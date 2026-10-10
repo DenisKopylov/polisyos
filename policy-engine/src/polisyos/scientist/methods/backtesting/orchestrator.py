@@ -194,6 +194,31 @@ class _BacktestReplicaFoundryPort:
             raise
 
 
+def _resolve_replica_failure(
+    adapter_failure: str | None,
+    workflow_failures: Sequence[Mapping[str, Any]],
+    fallback_failure: str | None,
+) -> str | None:
+    """Prefer a concrete execution or persisted node cause to status fallback."""
+    if adapter_failure:
+        return adapter_failure
+    for workflow_failure in workflow_failures:
+        error = workflow_failure.get("error")
+        if not isinstance(error, Mapping):
+            continue
+        code = error.get("code")
+        message = error.get("message")
+        clean_code = code if isinstance(code, str) and code.strip() else None
+        clean_message = message if isinstance(message, str) and message.strip() else None
+        if clean_code is not None and clean_message is not None:
+            return f"{clean_code}: {clean_message}"
+        if clean_message is not None:
+            return clean_message
+        if clean_code is not None:
+            return clean_code
+    return fallback_failure
+
+
 BacktestStoreFactory = Callable[[Path], BacktestStore]
 
 
@@ -729,7 +754,12 @@ class BacktestOrchestrator:
                 )
             except Exception as exc:
                 failure = f"{type(exc).__name__}: {exc}"
-                replica_foundry.failure = replica_foundry.failure or failure
+            if failure is not None:
+                failure = _resolve_replica_failure(
+                    adapter_failure=replica_foundry.failure,
+                    workflow_failures=workflow_failures,
+                    fallback_failure=failure,
+                )
             if replica_foundry.request is not None:
                 foundry_execute_count += 1
 

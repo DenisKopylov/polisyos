@@ -12,6 +12,8 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, ClassVar
 from uuid import uuid4
 
@@ -25,6 +27,7 @@ from polisyos.foundry.methods.artifacts import (
     MethodArtifact,
     MethodTiming,
     SlotBindingRecord,
+    _fingerprint,
     compute_source_fingerprint,
     compute_source_hash,
 )
@@ -139,6 +142,42 @@ def create_mock_method_class(
 # =============================================================================
 # Source Hash Tests
 # =============================================================================
+
+
+class TestSafeGitInvocation:
+    def test_uses_resolved_absolute_git_and_fixed_argv(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        fake_git = tmp_path / "tool-bin" / "git"
+        seen: dict[str, Any] = {}
+
+        def fake_run(command: list[str], **kwargs: Any) -> SimpleNamespace:
+            seen["command"] = command
+            seen["kwargs"] = kwargs
+            return SimpleNamespace(returncode=0, stdout="revision\n")
+
+        monkeypatch.setattr(_fingerprint.shutil, "which", lambda name: str(fake_git))
+        monkeypatch.setattr(_fingerprint.subprocess, "run", fake_run)
+        result = _fingerprint._safe_run(
+            ["git", "-C", str(tmp_path), "rev-parse", "HEAD"]
+        )
+
+        assert result == "revision"
+        assert seen["command"] == [
+            str(fake_git.resolve()), "-C", str(tmp_path), "rev-parse", "HEAD"
+        ]
+        assert seen["kwargs"]["shell"] is False
+
+    def test_refuses_non_git_command_without_execution(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr(
+            _fingerprint.subprocess,
+            "run",
+            lambda *_args, **_kwargs: pytest.fail("unexpected process execution"),
+        )
+
+        assert _fingerprint._safe_run(["python", "-c", "pass"]) is None
 
 
 class TestComputeSourceHash:

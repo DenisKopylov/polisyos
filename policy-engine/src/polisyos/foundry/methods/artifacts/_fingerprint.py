@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import ast
 import inspect
+import shutil
 import subprocess
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
@@ -78,13 +79,21 @@ def _hash_file(path: Path) -> str | None:
 
 
 def _safe_run(cmd: Sequence[str]) -> str | None:
+    if not cmd or cmd[0] != "git":
+        return None
+    git_executable = shutil.which("git")
+    if git_executable is None:
+        return None
     try:
-        result = subprocess.run(
-            list(cmd),
+        absolute_git = str(Path(git_executable).resolve())
+        # Internal call sites use fixed, read-only Git metadata argv; shell stays disabled.
+        result = subprocess.run(  # noqa: S603
+            [absolute_git, *cmd[1:]],
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
             text=True,
             check=False,
+            shell=False,
         )
     except (OSError, ValueError):
         return None

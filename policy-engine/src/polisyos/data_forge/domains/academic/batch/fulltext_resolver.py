@@ -15,10 +15,12 @@ from urllib.parse import quote, urljoin, urlparse
 import aiohttp
 
 from polisyos.common.logger import get_logger
+from polisyos.common.serialization import decode_json_object
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
 from polisyos.ir.analytics.literature import SourceBasis, TextQuality
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from pathlib import Path
 
     from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
@@ -625,31 +627,55 @@ def _build_resolved_cache_row(work: dict[str, Any], result: FullTextFetchResult)
     }
 
 
+def _iter_jsonl_objects(
+    path: Path, *, kind: str
+) -> Iterator[tuple[int, dict[str, Any]]]:
+    """Yield each supplied nonblank object row with its source line number."""
+    if not path.exists():
+        return
+    with path.open("rb") as fh:
+        for line_number, raw in enumerate(fh, start=1):
+            if not raw.strip():
+                continue
+            yield line_number, decode_json_object(
+                raw,
+                source=f"{path}:{line_number}",
+                kind=kind,
+            )
+
+
 def load_resolved_fulltext_cache(
     path: Path,
     *,
     ttl_days: int,
 ) -> dict[str, dict[str, Any]]:
-    """Load resolved fulltext cache."""
+    """Load resolved fulltext cache; malformed supplied rows are refused."""
     cache: dict[str, dict[str, Any]] = {}
-    if not path.exists():
-        return cache
-    with open(path, encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                row = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-            if not isinstance(row, dict):
-                continue
-            if not _is_cache_row_fresh(row, ttl_days=ttl_days):
-                continue
-            _store_resolved_cache_row(cache, row)
+    for _line_number, row in _iter_jsonl_objects(
+        path,
+        kind="resolved fulltext cache JSONL row",
+    ):
+        if not _is_cache_row_fresh(row, ttl_days=ttl_days):
+            continue
+        _store_resolved_cache_row(cache, row)
     return cache
 
+
+def _load_fulltext_metadata_cache(path: Path) -> dict[str, dict[str, Any]]:
+    """Load provider metadata rows using the producer's exact cache_key."""
+    cache: dict[str, dict[str, Any]] = {}
+    for line_number, row in _iter_jsonl_objects(
+        path,
+        kind="fulltext metadata-cache JSONL row",
+    ):
+        cache_key = str(row.get("cache_key") or "").strip()
+        if not cache_key:
+            raise ValueError(
+                f"fulltext metadata-cache JSONL row at {path}:{line_number} "
+                "has no non-empty 'cache_key'"
+            )
+        cache[cache_key] = row
+    return cache
 
 def _candidate_urls(work: dict[str, Any], *, max_candidates: int) -> list[_URLCandidate]:
     open_access = work.get("open_access") if isinstance(work.get("open_access"), dict) else {}
@@ -1724,18 +1750,13 @@ async def fetch_full_text_for_work(
 
 
 def _load_selected_works(path: Path) -> list[dict[str, Any]]:
-    rows: list[dict[str, Any]] = []
-    if not path.exists():
-        return rows
-    with open(path, encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if not line:
-                continue
-            row = json.loads(line)
-            if isinstance(row, dict):
-                rows.append(row)
-    return rows
+    return [
+        row
+        for _line_number, row in _iter_jsonl_objects(
+            path,
+            kind="selected-work JSONL row",
+        )
+    ]
 
 
 async def run_fulltext_resolve(config: AcademicBatchConfig) -> dict[str, int]:
@@ -1764,20 +1785,7 @@ async def run_fulltext_resolve(config: AcademicBatchConfig) -> dict[str, int]:
         config.resolved_fulltext_cache_path,
         ttl_days=config.fulltext_cache_ttl_days,
     )
-    if config.fulltext_metadata_cache_path.exists():
-        with open(config.fulltext_metadata_cache_path, encoding="utf-8") as fh:
-            for line in fh:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    row = json.loads(line)
-                except json.JSONDecodeError:
-                    continue
-                if isinstance(row, dict):
-                    key = str(row.get("cache_key") or "")
-                    if key:
-                        metadata_cache[key] = row
+    metadata_cache = _load_fulltext_metadata_cache(config.fulltext_metadata_cache_path)
 
     for row in rows:
         work = row.get("work")

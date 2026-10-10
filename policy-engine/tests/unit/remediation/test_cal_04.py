@@ -14,8 +14,8 @@ from polisyos.foundry.calibration import calibrator as calibrator_module
 from polisyos.foundry.calibration.calibrator import (
     Calibrator,
     CalibratorInputs,
-    _HessianReuseKey,
     _hessian_reuse_key_matches,
+    _HessianReuseKey,
     _select_lower_loss_state,
 )
 from polisyos.foundry.calibration.pure_executor import TrainableHandle
@@ -281,7 +281,8 @@ def test_real_jax_nonfinite_update_keeps_last_checked_state() -> None:
     # avoiding a resource-bearing run: sqrt(0) is finite but its derivative is
     # non-finite, so the produced optimizer state must remain unselected.
     value = jnp.asarray(0.0, dtype=jnp.float32)
-    objective = lambda x: jnp.square(jnp.sqrt(x))
+    def objective(x):
+        return jnp.square(jnp.sqrt(x))
     value_at_zero, gradient_at_zero = jax.value_and_grad(objective)(value)
 
     assert float(value_at_zero) == pytest.approx(0.0)
@@ -319,6 +320,32 @@ def test_real_calibrator_nonfinite_update_keeps_finite_last_state(
     assert any("Non-finite gradients" in item for item in report.diagnostics)
 
 
+def _concrete_key_tuple(root_key: object) -> tuple[int, ...] | None:
+    """Observe concrete keys; only JAX tracers lack a materialized host value."""
+    if isinstance(root_key, jax.core.Tracer):
+        return None
+    return tuple(int(value) for value in np.asarray(root_key).reshape(-1))
+
+
+def test_concrete_key_observer_does_not_treat_none_as_a_tracer() -> None:
+    with pytest.raises(TypeError):
+        _concrete_key_tuple(None)
+
+
+def test_concrete_key_capture_propagates_unexpected_conversion_errors(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Only traced values are skipped; broken concrete-key conversion must surface."""
+
+    def fail_conversion(*_args: object, **_kwargs: object) -> object:
+        raise RuntimeError("unexpected key conversion failure")
+
+    assert _concrete_key_tuple(jax.random.PRNGKey(0)) is not None
+    monkeypatch.setattr(np, "asarray", fail_conversion)
+    with pytest.raises(RuntimeError, match="unexpected key conversion failure"):
+        _concrete_key_tuple(object())
+
+
 def test_step_seeded_finalist_comparison_uses_one_final_replica(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -326,12 +353,9 @@ def test_step_seeded_finalist_comparison_uses_one_final_replica(
     concrete_keys: list[tuple[int, ...]] = []
 
     def seeded_scan(base_state, *, steps, root_key, bundle, metric_paths, controls_seq):
-        try:
-            concrete_keys.append(tuple(int(value) for value in np.asarray(root_key).reshape(-1)))
-        except Exception:
-            # The optimizer's value/grad trace may carry an abstract key.  The
-            # final candidate/baseline evaluations are concrete and recordable.
-            pass
+        concrete_key = _concrete_key_tuple(root_key)
+        if concrete_key is not None:
+            concrete_keys.append(concrete_key)
         noise = jax.random.normal(root_key, shape=())
         return base_state, {"objective": jnp.reshape(bundle.theta + noise, (1,))}
 
@@ -354,10 +378,9 @@ def test_fixed_seed_keeps_final_candidate_on_the_same_replica(
     concrete_keys: list[tuple[int, ...]] = []
 
     def seeded_scan(base_state, *, steps, root_key, bundle, metric_paths, controls_seq):
-        try:
-            concrete_keys.append(tuple(int(value) for value in np.asarray(root_key).reshape(-1)))
-        except Exception:
-            pass
+        concrete_key = _concrete_key_tuple(root_key)
+        if concrete_key is not None:
+            concrete_keys.append(concrete_key)
         noise = jax.random.normal(root_key, shape=())
         return base_state, {"objective": jnp.reshape(bundle.theta + noise, (1,))}
 

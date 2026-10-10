@@ -11,7 +11,11 @@ migration primitives. Keep domain logic out of this package.
 
 - `src/polisyos/common/__init__.py` for the lazy facade contract.
 - `src/polisyos/common/serialization.py` for canonical JSON helpers and
-  round-trip guarantees. It also owns extraction of syntactically valid JSON
+  round-trip guarantees. Its strict UTF-8 JSON-object decoder is the shared
+  persisted-record intake primitive. It refuses malformed/non-object input, non-finite or
+  overflowing numbers, and duplicate object keys at any depth. Valid JSON null and booleans remain
+  values for the owning typed consumer to validate.
+  It also owns extraction of syntactically valid JSON
   from LLM response text. Extraction produces a candidate value; downstream
   schema, grounding and authority checks remain mandatory. The former
   unregistered `common/llm_json.py` implementation is consolidated here.

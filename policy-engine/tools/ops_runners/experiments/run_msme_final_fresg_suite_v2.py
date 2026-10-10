@@ -1673,6 +1673,17 @@ Gamma grid: `{", ".join(map(str, gamma_grid))}`.
     )
 
 
+def _optional_module_available(module_name: str) -> bool:
+    """Return false only when the selected top-level optional module is absent."""
+    try:
+        __import__(module_name)
+    except ModuleNotFoundError as exc:
+        if exc.name != module_name:
+            raise
+        return False
+    return True
+
+
 def stage_15_frontier_optin(ctx: dict[str, Any]) -> dict[str, Any]:
     stage = "15_frontier_optin"
     out = ensure_dir(ctx["output_dir"] / stage)
@@ -1680,13 +1691,10 @@ def stage_15_frontier_optin(ctx: dict[str, Any]) -> dict[str, Any]:
     available = False
     lib = ""
     for candidate in ("pymc_bart", "bartpy"):
-        try:
-            __import__(candidate)
+        if _optional_module_available(candidate):
             available = True
             lib = candidate
             break
-        except Exception:
-            continue
     rng = np.random.default_rng(20260501)
     sectors = ["trade", "services", "manufacturing", "agriculture", "it"]
     rows = []

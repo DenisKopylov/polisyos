@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import math
 from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Literal, cast
+from typing import Any, Literal, NoReturn, cast
 
 from polisyos.common.logger import get_logger
 
@@ -281,6 +282,64 @@ def fast_json_dumps(value: Any, *, sort_keys: bool = False) -> str:
     return fast_json_dumps_bytes(value, sort_keys=sort_keys).decode("utf-8")
 
 
+def _reject_json_constant(value: str) -> NoReturn:
+    """Reject JavaScript-style non-finite constants outside the JSON number grammar."""
+    raise ValueError(f"Non-standard JSON numeric constant: {value}")
+
+
+def _parse_finite_json_float(value: str) -> float:
+    """Parse one JSON decimal number without accepting overflow to infinity."""
+    parsed = float(value)
+    if not math.isfinite(parsed):
+        raise ValueError("JSON number is outside the finite float range")
+    return parsed
+
+
+def _reject_duplicate_json_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    """Build one JSON object only when its decoded keys are unambiguous."""
+    payload: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in payload:
+            raise ValueError(f"Duplicate JSON object key: {key}")
+        payload[key] = value
+    return payload
+
+
+def decode_json_object(
+    raw: bytes | str,
+    *,
+    source: str,
+    kind: str = "JSON record",
+) -> dict[str, Any]:
+    """Decode one UTF-8 JSON object or refuse malformed supplied input.
+
+    Args:
+        raw: UTF-8 JSON bytes or text from a persisted source.
+        source: Human-readable source location for refusal diagnostics.
+        kind: Record or document label supplied by the owning reader.
+
+    Returns:
+        The decoded JSON object.
+
+    Raises:
+        ValueError: If the input is invalid UTF-8, malformed JSON, contains non-finite or
+            overflowing numbers or duplicate keys, or is not an object.
+    """
+    try:
+        text = raw.decode("utf-8") if isinstance(raw, bytes) else raw
+        payload = json.loads(
+            text,
+            object_pairs_hook=_reject_duplicate_json_keys,
+            parse_constant=_reject_json_constant,
+            parse_float=_parse_finite_json_float,
+        )
+    except (UnicodeDecodeError, ValueError) as exc:
+        raise ValueError(f"Malformed {kind} at {source}") from exc
+    if not isinstance(payload, dict):
+        raise ValueError(f"{kind} at {source} must be an object")
+    return payload
+
+
 def fast_json_loads(value: bytes | bytearray | memoryview | str) -> Any:
     """Deserialize JSON bytes/text with `orjson` when available and stdlib fallback otherwise."""
     if isinstance(value, str):
@@ -348,6 +407,7 @@ def _fenced_json_payloads(text: str) -> tuple[str, ...]:
         payloads.append(block)
     return tuple(payloads)
 
+
 __all__ = [
     "JsonDataVisitor",
     "SerializationCycleError",
@@ -355,6 +415,7 @@ __all__ = [
     "SerializationError",
     "SerializationPolicy",
     "UnsupportedSerializationError",
+    "decode_json_object",
     "extract_llm_json",
     "extract_llm_json_object",
     "fast_json_dumps",

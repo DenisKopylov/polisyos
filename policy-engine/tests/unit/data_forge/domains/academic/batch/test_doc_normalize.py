@@ -3,6 +3,8 @@ from __future__ import annotations
 import asyncio
 import json
 
+import pytest
+
 from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
 from polisyos.data_forge.domains.academic.batch.doc_normalize import run_doc_normalize
 from polisyos.data_forge.domains.academic.batch.fulltext_resolver import FullTextFetchResult
@@ -221,3 +223,33 @@ def test_doc_normalize_uses_grobid_when_pdf_source_is_available(tmp_path, monkey
         json.loads(line) for line in config.doc_tables_path.read_text(encoding="utf-8").splitlines()
     ]
     assert tables[0]["structure_source"] == "tei_figure_table"
+
+
+@pytest.mark.parametrize("raw", [b"[]\n", b"{bad json}\n", b"\xff\n"])
+def test_doc_normalize_resume_refuses_bad_substrate_without_mutation(
+    tmp_path, raw: bytes
+) -> None:
+    config = AcademicBatchConfig(snapshot_root=tmp_path / "snap", resume=True)
+    _write_jsonl(
+        config.selected_global_works_path,
+        [{"work_id": "W1", "work": {"id": "W1", "abstract": "Selected work."}}],
+    )
+    config.doc_substrate_path.parent.mkdir(parents=True, exist_ok=True)
+    config.doc_substrate_path.write_bytes(raw)
+
+    with pytest.raises(ValueError):
+        asyncio.run(run_doc_normalize(config))
+
+    assert config.doc_substrate_path.read_bytes() == raw
+
+
+def test_doc_normalize_refuses_non_object_selected_work_without_mutation(tmp_path) -> None:
+    config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
+    config.selected_global_works_path.parent.mkdir(parents=True, exist_ok=True)
+    config.selected_global_works_path.write_bytes(b"[]\n")
+    before = config.selected_global_works_path.read_bytes()
+
+    with pytest.raises(ValueError, match="must be an object"):
+        asyncio.run(run_doc_normalize(config))
+
+    assert config.selected_global_works_path.read_bytes() == before

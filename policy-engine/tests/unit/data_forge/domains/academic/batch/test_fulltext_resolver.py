@@ -6,11 +6,15 @@ import sys
 import types
 from dataclasses import dataclass
 
+import pytest
+
 import polisyos.data_forge.domains.academic.batch.fulltext_resolver as resolver
+from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
 from polisyos.data_forge.domains.academic.batch.fulltext_resolver import (
     fetch_full_text_result_for_work,
     load_resolved_fulltext_cache,
     reconstruct_abstract,
+    run_fulltext_resolve,
 )
 
 
@@ -580,3 +584,58 @@ def test_shared_resolved_cache_reuses_previous_result(tmp_path) -> None:
     assert second.cache_hit is True
     assert second.text == first.text
     assert any(attempt.attempt_kind == "shared_cache" for attempt in second.attempts)
+
+
+def test_resolved_fulltext_cache_rejects_malformed_or_nonobject_rows_without_mutation(
+    tmp_path,
+) -> None:
+    cache_path = tmp_path / "resolved.jsonl"
+    for supplied in (b"[]\n", b"{broken\n", bytes([255, 10])):
+        cache_path.write_bytes(supplied)
+        with pytest.raises(ValueError):
+            load_resolved_fulltext_cache(cache_path, ttl_days=30)
+        assert cache_path.read_bytes() == supplied
+
+
+def test_run_fulltext_resolve_refuses_nonobject_selected_rows_before_success(tmp_path) -> None:
+    config = AcademicBatchConfig(snapshot_root=tmp_path / "snapshot")
+    config.selected_global_works_path.parent.mkdir(parents=True, exist_ok=True)
+    supplied = b"[]\n"
+    config.selected_global_works_path.write_bytes(supplied)
+
+    with pytest.raises(ValueError, match="must be an object"):
+        asyncio.run(run_fulltext_resolve(config))
+
+    assert config.selected_global_works_path.read_bytes() == supplied
+    assert not config.fulltext_resolved_path.exists()
+
+
+@pytest.mark.parametrize(
+    ("cache_attribute", "supplied"),
+    [
+        ("resolved_fulltext_cache_path", b"[]\n"),
+        ("fulltext_metadata_cache_path", b'{"provider":"unpaywall"}\n'),
+    ],
+)
+def test_run_fulltext_resolve_refuses_corrupt_present_cache_before_fetch(
+    tmp_path, monkeypatch, cache_attribute: str, supplied: bytes
+) -> None:
+    config = AcademicBatchConfig(snapshot_root=tmp_path / "snapshot")
+    config.selected_global_works_path.parent.mkdir(parents=True, exist_ok=True)
+    config.selected_global_works_path.write_text(
+        json.dumps({"work_id": "W1", "work": {"id": "W1"}}) + "\n",
+        encoding="utf-8",
+    )
+    cache_path = getattr(config, cache_attribute)
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    cache_path.write_bytes(supplied)
+
+    async def unexpected_fetch(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("provider path must not run after malformed cache intake")
+
+    monkeypatch.setattr(resolver, "fetch_full_text_result_for_work", unexpected_fetch)
+    with pytest.raises(ValueError):
+        asyncio.run(run_fulltext_resolve(config))
+
+    assert cache_path.read_bytes() == supplied
+    assert not config.fulltext_resolved_path.exists()

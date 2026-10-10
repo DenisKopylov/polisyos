@@ -4,6 +4,7 @@ import asyncio
 import json
 
 import duckdb
+import pytest
 
 from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
 from polisyos.data_forge.domains.academic.batch.edge_synthesize import run_edge_synthesize
@@ -16,6 +17,7 @@ from polisyos.data_forge.domains.academic.batch.resolve_extract import (
 )
 from polisyos.data_forge.domains.academic.batch.resolve_finalize import (
     _link_parameter_to_claims,
+    _load_selected_rows,
     run_resolve_finalize,
 )
 from polisyos.data_forge.domains.academic.knowledge.skg_store import (
@@ -643,6 +645,16 @@ def test_edge_synthesize_builds_family_edges_and_review_queue(tmp_path) -> None:
         version_id = next_skg_version(con, description="test")
         con.execute(
             """
+            INSERT INTO ac_skg_edges(
+                edge_id, src, dst, direction, n_articles, article_refs,
+                evidence_strength, confidence, quality_signals_json
+            ) VALUES
+                ('e1', 'institutional_quality.rule_of_law', 'gdp_growth.real', 'positive',
+                 1, '["W1"]', 'quasi_natural', 0.82, 'null')
+            """
+        )
+        con.execute(
+            """
             INSERT INTO ac_skg_edge_evidence(
                 edge_id, claim_id, openalex_id, src, dst, direction,
                 evidence_strength, confidence, design_family, design_quality_tier, skg_version
@@ -669,11 +681,23 @@ def test_edge_synthesize_builds_family_edges_and_review_queue(tmp_path) -> None:
     con = duckdb.connect(str(config.db_path), read_only=True)
     try:
         row = con.execute(
-            "SELECT src_family, dst_family, n_articles, n_claims FROM ac_skg_family_edges"
+            "SELECT src_family, dst_family, n_articles, n_claims, "
+            "quality_signals_json FROM ac_skg_family_edges"
+        ).fetchone()
+        source_quality = con.execute(
+            "SELECT quality_signals_json FROM ac_skg_edges WHERE edge_id='e1'"
+        ).fetchone()
+        absent_sibling = con.execute(
+            "SELECT 1 FROM ac_skg_edges WHERE edge_id='e2'"
         ).fetchone()
     finally:
         con.close()
-    assert row == ("institutional_quality", "gdp_growth", 2, 2)
+    assert row[:4] == ("institutional_quality", "gdp_growth", 2, 2)
+    quality_signals = json.loads(row[4])
+    assert quality_signals["exact_edge_ids"] == ["e1", "e2"]
+    assert "synthetic" not in quality_signals
+    assert source_quality == ("null",)
+    assert absent_sibling is None
 
 
 def test_edge_synthesize_materializes_contested_edges(tmp_path) -> None:
@@ -718,6 +742,33 @@ def test_edge_synthesize_materializes_contested_edges(tmp_path) -> None:
     assert row == ("macro.tax", "macro.employment", "contested", "MIXED")
 
 
+def test_edge_synthesize_refuses_nonobject_quality_signals(tmp_path) -> None:
+    config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
+    with duckdb.connect(str(config.db_path)) as con:
+        ensure_skg_schema(con)
+        con.execute(
+            """
+            INSERT INTO ac_skg_edges(
+                edge_id, src, dst, direction, n_articles, article_refs,
+                evidence_strength, confidence, quality_signals_json
+            ) VALUES
+                ('bad-edge', 'macro.tax', 'macro.employment', 'positive',
+                 1, '["W1"]', 'quasi_natural', 0.82, '[]')
+            """
+        )
+        con.execute("CHECKPOINT")
+
+    with pytest.raises(ValueError, match=r"edge quality signals.*must be an object"):
+        run_edge_synthesize(config)
+
+    with duckdb.connect(str(config.db_path), read_only=True) as con:
+        assert con.execute(
+            "SELECT quality_signals_json FROM ac_skg_edges WHERE edge_id='bad-edge'"
+        ).fetchone() == ("[]",)
+    assert not config.edge_synthesis_report_path.exists()
+    assert not (config.manifests_dir / "edge_synthesize.json").exists()
+
+
 def test_provider_client_supports_fractional_rps() -> None:
     client = _ProviderClient(
         client_index=1,
@@ -748,3 +799,12 @@ def test_provider_watchdog_override_modes(tmp_path) -> None:
 
     config.article_provider_watchdog_seconds = -1
     assert _resolve_provider_watchdog_seconds(config) is None
+
+
+def test_selected_work_loader_refuses_nonobject_and_missing_exact_work_id(tmp_path) -> None:
+    path = tmp_path / "selected.jsonl"
+    for supplied in (b"[]\n", b'{"work":{"id":"W1"}}\n'):
+        path.write_bytes(supplied)
+        with pytest.raises(ValueError):
+            _load_selected_rows(path)
+        assert path.read_bytes() == supplied

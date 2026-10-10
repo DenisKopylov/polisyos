@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import json
+import math
 import random
 import re
 import statistics
@@ -10,12 +10,15 @@ import urllib.request
 from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import duckdb
 
 from polisyos.common.logger import get_logger
-from polisyos.data_forge.domains.academic.knowledge.canonical_seed import CANONICAL_VARIABLES
+from polisyos.common.serialization import decode_json_object
+from polisyos.data_forge.domains.academic.knowledge.canonical_seed import (
+    CANONICAL_VARIABLES,
+)
 from polisyos.data_forge.domains.academic.knowledge.runtime_canonical_registry import (
     runtime_canonical_names,
 )
@@ -28,6 +31,8 @@ from polisyos.data_forge.kernel.quality import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
 
 logger = get_logger(__name__)
@@ -126,6 +131,86 @@ def _line_count(path: Path) -> int:
         return sum(1 for _ in fh)
 
 
+def _require_json_fields(
+    payload: dict[str, object],
+    required_fields: tuple[str, ...],
+    *,
+    source: str,
+    kind: str,
+) -> None:
+    """Reject a present object that omits fields required by its producer contract."""
+    missing = tuple(field for field in required_fields if field not in payload)
+    if missing:
+        fields = ", ".join(missing)
+        raise ValueError(f"Malformed {kind} at {source}: missing required field(s) {fields}")
+
+
+def _finite_json_number(value: object) -> float | None:
+    """Return a finite numeric value, excluding booleans and non-number inputs."""
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        return None
+    try:
+        parsed = float(value)
+    except (OverflowError, ValueError):
+        return None
+    return parsed if math.isfinite(parsed) else None
+
+
+def _required_metric_value(
+    payload: dict[str, object],
+    field: str,
+    *,
+    value_kind: Literal["count", "percentage"],
+    source: str,
+    producer: str,
+) -> int | float:
+    """Validate one present producer metric without coercing invalid values to defaults."""
+    _require_json_fields(payload, (field,), source=source, kind=producer)
+    value = payload[field]
+    if value_kind == "count":
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+            raise ValueError(
+                f"Malformed {producer} at {source}: {field} must be a non-negative integer"
+            )
+        return value
+
+    percentage = _finite_json_number(value)
+    if percentage is None or not 0.0 <= percentage <= 100.0:
+        raise ValueError(
+            f"Malformed {producer} at {source}: {field} must be a finite percentage between 0 and 100"
+        )
+    return percentage
+
+
+def _load_json_object(
+    path: Path,
+    *,
+    kind: str,
+    required_fields: tuple[str, ...] = (),
+) -> dict[str, object]:
+    """Read a present JSON object without converting malformed content to absence."""
+    payload = decode_json_object(path.read_bytes(), source=str(path), kind=kind)
+    _require_json_fields(payload, required_fields, source=str(path), kind=kind)
+    return payload
+
+
+def _iter_jsonl_objects(
+    path: Path,
+    *,
+    kind: str,
+    required_fields: tuple[str, ...] = (),
+) -> Iterator[dict[str, object]]:
+    """Yield nonblank JSONL objects after validating their producer-required fields."""
+    with path.open("rb") as stream:
+        for line_number, raw in enumerate(stream, start=1):
+            if not raw.strip():
+                continue
+            source = f"{path}:{line_number}"
+            payload = decode_json_object(raw, source=source, kind=kind)
+            _require_json_fields(payload, required_fields, source=source, kind=kind)
+            yield payload
+
+
 def _latest_manifest(root: Path) -> Path | None:
     if not root.exists():
         return None
@@ -136,15 +221,33 @@ def _latest_manifest(root: Path) -> Path | None:
     return path if path.exists() else None
 
 
-def _stage_manifest_metrics(path: Path) -> dict[str, object]:
+def _stage_manifest_metrics(
+    path: Path,
+    *,
+    required_metrics: tuple[str, ...] = (),
+) -> dict[str, object]:
     if not path.exists():
         return {}
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return {}
+    payload = _load_json_object(
+        path,
+        kind="stage manifest",
+        required_fields=("metrics",),
+    )
+    if payload.get("kind") not in (None, "stage") or payload.get("stage") not in (
+        None,
+        path.stem,
+    ):
+        raise ValueError(f"Stage manifest at {path} has a mismatched stage identity")
     metrics = payload.get("metrics")
-    return dict(metrics) if isinstance(metrics, dict) else {}
+    if not isinstance(metrics, dict):
+        raise ValueError(f"Stage manifest at {path} must contain an object-valued metrics field")
+    _require_json_fields(
+        metrics,
+        required_metrics,
+        source=str(path),
+        kind="stage manifest metrics",
+    )
+    return dict(metrics)
 
 
 def _collect_raw_roots(config: AcademicBatchConfig) -> list[Path]:
@@ -166,19 +269,47 @@ def run_qc(
     started_at = datetime.now(UTC).isoformat()
     checks: list[QCCheck] = []
     metrics: dict[str, object] = {}
-    graph_load_metrics = _stage_manifest_metrics(config.manifests_dir / "graph_load.json")
-    metrics["json_validation_failures"] = int(
-        graph_load_metrics.get("json_validation_failures") or 0
-    )
-    checks.append(
-        QCCheck(
-            name="json_validation_failures",
-            passed=int(metrics["json_validation_failures"]) == 0,
-            value=int(metrics["json_validation_failures"]),
-            threshold=0,
-            severity="critical",
+    graph_load_manifest_path = config.manifests_dir / "graph_load.json"
+    if graph_load_manifest_path.exists():
+        graph_load_metrics = _stage_manifest_metrics(
+            graph_load_manifest_path,
+            required_metrics=("json_validation_failures",),
         )
-    )
+        json_validation_failures = _required_metric_value(
+            graph_load_metrics,
+            "json_validation_failures",
+            value_kind="count",
+            source=str(graph_load_manifest_path),
+            producer="graph-load stage metrics",
+        )
+        metrics["json_validation_failures"] = json_validation_failures
+        checks.append(
+            QCCheck(
+                name="json_validation_failures",
+                passed=json_validation_failures == 0,
+                value=json_validation_failures,
+                threshold=0,
+                severity="critical",
+            )
+        )
+    else:
+        graph_load_scheduled = "graph_load" in config.stages
+        metrics["json_validation_failures"] = None
+        checks.append(
+            QCCheck(
+                name="json_validation_failures",
+                passed=False,
+                value=None,
+                threshold=0,
+                severity="critical" if graph_load_scheduled else "warning",
+                message=(
+                    "Graph-load manifest is absent; JSON validation failures are not established"
+                    if graph_load_scheduled
+                    else "Graph-load was not scheduled; JSON validation failures are not applicable"
+                ),
+                status="not_established" if graph_load_scheduled else "not_applicable",
+            )
+        )
 
     # 1) Raw manifest count parity by source root.
     parity_failures = 0
@@ -187,10 +318,29 @@ def run_qc(
         manifest_path = _latest_manifest(root)
         if manifest_path is None:
             continue
-        with open(manifest_path, encoding="utf-8") as fh:
-            manifest = json.load(fh)
-        payload = Path(manifest.get("payload", ""))
-        declared = int(manifest.get("count", 0))
+        manifest = _load_json_object(
+            manifest_path,
+            kind="raw manifest",
+            required_fields=("payload", "count"),
+        )
+        if manifest.get("kind") not in (None, "raw"):
+            raise ValueError(f"Raw manifest at {manifest_path} has an unsupported kind")
+        payload_value = manifest.get("payload")
+        if not isinstance(payload_value, str) or not payload_value.strip():
+            raise ValueError(f"Raw manifest at {manifest_path} must include a payload path")
+        declared_value = manifest.get("count")
+        if (
+            isinstance(declared_value, bool)
+            or not isinstance(declared_value, int)
+            or declared_value < 0
+        ):
+            raise ValueError(f"Raw manifest at {manifest_path} must include a non-negative count")
+        payload = Path(payload_value)
+        if not payload.is_file():
+            raise ValueError(
+                f"Raw manifest at {manifest_path} references a missing payload file: {payload}"
+            )
+        declared = declared_value
         actual = _line_count(payload)
         if declared != actual:
             parity_failures += 1
@@ -220,47 +370,47 @@ def run_qc(
     approved_canonical_names = _approved_canonical_names(config)
 
     if config.merged_records_path.exists():
-        with open(config.merged_records_path, encoding="utf-8") as fh:
-            for line in fh:
-                line = line.strip()
-                if not line:
+        for row in _iter_jsonl_objects(
+            config.merged_records_path,
+            kind="merged-record JSONL row",
+        ):
+            total += 1
+            if not str(row.get("abstract", "")).strip():
+                empty_abstract += 1
+            extraction_mode = str(row.get("extraction_mode", "deterministic"))
+            extraction_modes[extraction_mode] = extraction_modes.get(extraction_mode, 0) + 1
+            is_resolve_extract = extraction_mode in {
+                "article_extract",
+                "resolve_extract",
+            }
+            metadata = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
+            if is_resolve_extract:
+                resolve_extract_count += 1
+                if str(metadata.get("source_basis") or "") == "abstract_only":
+                    abstract_fallback_docs += 1
+            estimates = row.get("estimates") if isinstance(row.get("estimates"), list) else []
+            for est in estimates:
+                if not is_resolve_extract:
                     continue
-                row = json.loads(line)
-                total += 1
-                if not str(row.get("abstract", "")).strip():
-                    empty_abstract += 1
-                extraction_mode = str(row.get("extraction_mode", "deterministic"))
-                extraction_modes[extraction_mode] = extraction_modes.get(extraction_mode, 0) + 1
-                is_resolve_extract = extraction_mode in {"article_extract", "resolve_extract"}
-                metadata = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
-                if is_resolve_extract:
-                    resolve_extract_count += 1
-                    if str(metadata.get("source_basis") or "") == "abstract_only":
-                        abstract_fallback_docs += 1
-                estimates = row.get("estimates") if isinstance(row.get("estimates"), list) else []
-                for est in estimates:
-                    if not is_resolve_extract:
-                        continue
-                    estimates_total += 1
-                    if not isinstance(est, dict) or not isinstance(est.get("value"), (int, float)):
-                        malformed_estimate_rows += 1
+                estimates_total += 1
+                estimate_value = est.get("value") if isinstance(est, dict) else None
+                if _finite_json_number(estimate_value) is None:
+                    malformed_estimate_rows += 1
 
-                claims = (
-                    row.get("causal_claims") if isinstance(row.get("causal_claims"), list) else []
+            claims = row.get("causal_claims") if isinstance(row.get("causal_claims"), list) else []
+            for claim in claims:
+                if not is_resolve_extract:
+                    continue
+                if not isinstance(claim, dict):
+                    continue
+                claims_total += 1
+                supporting_spans = (
+                    claim.get("supporting_spans")
+                    if isinstance(claim.get("supporting_spans"), list)
+                    else []
                 )
-                for claim in claims:
-                    if not is_resolve_extract:
-                        continue
-                    if not isinstance(claim, dict):
-                        continue
-                    claims_total += 1
-                    supporting_spans = (
-                        claim.get("supporting_spans")
-                        if isinstance(claim.get("supporting_spans"), list)
-                        else []
-                    )
-                    if supporting_spans:
-                        supporting_spans_total += 1
+                if supporting_spans:
+                    supporting_spans_total += 1
 
     # Compute canonical_claim_variable_pct from published_claims (canonicalized variables)
     published_claims_path = (
@@ -271,28 +421,21 @@ def run_qc(
     published_claims_for_canonical = 0
     canonical_claim_variables = 0
     if published_claims_path.exists():
-        with open(published_claims_path, encoding="utf-8") as fh:
-            for line in fh:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    row = json.loads(line)
-                except json.JSONDecodeError:
-                    continue
-                if not isinstance(row, dict):
-                    continue
-                published_claims_for_canonical += 1
-                cause = str(
-                    row.get("cause_text") or row.get("cause_variable") or row.get("cause") or ""
-                ).strip()
-                effect = str(
-                    row.get("effect_text") or row.get("effect_variable") or row.get("effect") or ""
-                ).strip()
-                if _is_canonical_variable(cause, approved_canonical_names):
-                    canonical_claim_variables += 1
-                if _is_canonical_variable(effect, approved_canonical_names):
-                    canonical_claim_variables += 1
+        for row in _iter_jsonl_objects(
+            published_claims_path,
+            kind="published-claim JSONL row",
+        ):
+            published_claims_for_canonical += 1
+            cause = str(
+                row.get("cause_text") or row.get("cause_variable") or row.get("cause") or ""
+            ).strip()
+            effect = str(
+                row.get("effect_text") or row.get("effect_variable") or row.get("effect") or ""
+            ).strip()
+            if _is_canonical_variable(cause, approved_canonical_names):
+                canonical_claim_variables += 1
+            if _is_canonical_variable(effect, approved_canonical_names):
+                canonical_claim_variables += 1
 
     empty_abs_pct = (100.0 * empty_abstract / total) if total else 0.0
     malformed_pct = (100.0 * malformed_estimate_rows / estimates_total) if estimates_total else 0.0
@@ -398,41 +541,41 @@ def run_qc(
         by_topic: dict[str, int] = {}
         topic_work_ids: set[str] = set()
         total_rows = 0
-        with open(config.selected_topic_works_path, encoding="utf-8") as fh:
-            for line in fh:
-                line = line.strip()
-                if not line:
-                    continue
-                row = json.loads(line)
-                topic_id = str(row.get("topic_id") or "")
-                work_id = str(row.get("work_id") or "")
-                if not topic_id or not work_id:
-                    continue
-                by_topic[topic_id] = by_topic.get(topic_id, 0) + 1
-                topic_work_ids.add(work_id)
-                total_rows += 1
+        for row in _iter_jsonl_objects(
+            config.selected_topic_works_path,
+            kind="selected-topic work JSONL row",
+            required_fields=("topic_id", "work_id"),
+        ):
+            topic_id = row["topic_id"]
+            work_id = row["work_id"]
+            if (
+                not isinstance(topic_id, str)
+                or not topic_id.strip()
+                or not isinstance(work_id, str)
+                or not work_id.strip()
+            ):
+                raise ValueError(
+                    f"Malformed selected-topic work row in {config.selected_topic_works_path}: "
+                    "topic_id and work_id must be non-empty strings"
+                )
+            by_topic[topic_id] = by_topic.get(topic_id, 0) + 1
+            topic_work_ids.add(work_id)
+            total_rows += 1
 
         global_selected_rows = 0
         global_selected_work_ids: set[str] = set()
         if config.selected_global_works_path.exists():
-            with open(config.selected_global_works_path, encoding="utf-8") as fh:
-                for line in fh:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    try:
-                        row = json.loads(line)
-                    except json.JSONDecodeError:
-                        continue
-                    if not isinstance(row, dict):
-                        continue
-                    work_id = str(row.get("work_id") or "").strip()
-                    if not work_id and isinstance(row.get("work"), dict):
-                        work_id = str(row["work"].get("id") or "").strip()
-                    if not work_id:
-                        continue
-                    global_selected_rows += 1
-                    global_selected_work_ids.add(work_id)
+            for row in _iter_jsonl_objects(
+                config.selected_global_works_path,
+                kind="selected-work JSONL row",
+            ):
+                work_id = str(row.get("work_id") or "").strip()
+                if not work_id and isinstance(row.get("work"), dict):
+                    work_id = str(row["work"].get("id") or "").strip()
+                if not work_id:
+                    continue
+                global_selected_rows += 1
+                global_selected_work_ids.add(work_id)
 
         selected_unique_works = (
             len(global_selected_work_ids) if global_selected_work_ids else len(topic_work_ids)
@@ -495,30 +638,23 @@ def run_qc(
         attempt_work_ids: list[str] = []
         zero_token_attempts = 0
         retryable_error_attempts = 0
-        with open(attempt_path, encoding="utf-8") as fh:
-            for line in fh:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    row = json.loads(line)
-                except json.JSONDecodeError:
-                    continue
-                if not isinstance(row, dict):
-                    continue
-                work_id = str(row.get("openalex_id") or row.get("work_id") or "").strip()
-                if work_id:
-                    attempt_work_ids.append(work_id)
-                prompt_tokens = int(row.get("token_count_prompt") or 0)
-                completion_tokens = int(row.get("token_count_completion") or 0)
-                if prompt_tokens == 0 and completion_tokens == 0:
-                    zero_token_attempts += 1
-                if str(row.get("llm_error_class") or "") in {
-                    "provider_http_429",
-                    "provider_http_5xx",
-                    "timeout",
-                }:
-                    retryable_error_attempts += 1
+        for row in _iter_jsonl_objects(
+            attempt_path,
+            kind="resolve-extract attempt JSONL row",
+        ):
+            work_id = str(row.get("openalex_id") or row.get("work_id") or "").strip()
+            if work_id:
+                attempt_work_ids.append(work_id)
+            prompt_tokens = int(row.get("token_count_prompt") or 0)
+            completion_tokens = int(row.get("token_count_completion") or 0)
+            if prompt_tokens == 0 and completion_tokens == 0:
+                zero_token_attempts += 1
+            if str(row.get("llm_error_class") or "") in {
+                "provider_http_429",
+                "provider_http_5xx",
+                "timeout",
+            }:
+                retryable_error_attempts += 1
         duplicate_attempts = len(attempt_work_ids) - len(set(attempt_work_ids))
         zero_token_share = (
             (zero_token_attempts / max(1, len(attempt_work_ids))) * 100.0
@@ -550,20 +686,13 @@ def run_qc(
 
     if final_results_path.exists():
         final_work_ids: list[str] = []
-        with open(final_results_path, encoding="utf-8") as fh:
-            for line in fh:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    row = json.loads(line)
-                except json.JSONDecodeError:
-                    continue
-                if not isinstance(row, dict):
-                    continue
-                work_id = str(row.get("openalex_id") or row.get("work_id") or "").strip()
-                if work_id:
-                    final_work_ids.append(work_id)
+        for row in _iter_jsonl_objects(
+            final_results_path,
+            kind="resolve-extract final-result JSONL row",
+        ):
+            work_id = str(row.get("openalex_id") or row.get("work_id") or "").strip()
+            if work_id:
+                final_work_ids.append(work_id)
         duplicate_final_rows = len(final_work_ids) - len(set(final_work_ids))
         metrics["resolve_final_rows"] = len(final_work_ids)
         metrics["resolve_final_duplicate_rows"] = duplicate_final_rows
@@ -584,13 +713,49 @@ def run_qc(
     # 4) LLM gate metrics (if manifest exists)
     if config.llm_gate_manifest_path.exists():
         try:
-            with open(config.llm_gate_manifest_path, encoding="utf-8") as fh:
-                gate = json.load(fh)
-            gate_metrics = gate.get("metrics", {}) if isinstance(gate, dict) else {}
-            llm_candidate_total = int(gate_metrics.get("llm_candidate_total", 0) or 0)
-            llm_sent_total = int(gate_metrics.get("llm_sent", 0) or 0)
-            llm_saved_pct = float(gate_metrics.get("llm_saved_pct", 100.0) or 0.0)
-            audit_miss_rate_pct = float(gate_metrics.get("audit_miss_rate_pct", 0.0) or 0.0)
+            gate = _load_json_object(
+                config.llm_gate_manifest_path,
+                kind="LLM gate manifest",
+                required_fields=("metrics",),
+            )
+            if gate.get("kind") not in (None, "llm_gate"):
+                raise ValueError(
+                    f"LLM gate manifest at {config.llm_gate_manifest_path} has wrong kind"
+                )
+            gate_metrics = gate.get("metrics")
+            if not isinstance(gate_metrics, dict):
+                raise ValueError(
+                    f"LLM gate manifest at {config.llm_gate_manifest_path} "
+                    "must contain an object-valued metrics field"
+                )
+            llm_candidate_total = _required_metric_value(
+                gate_metrics,
+                "llm_candidate_total",
+                value_kind="count",
+                source=str(config.llm_gate_manifest_path),
+                producer="LLM gate metrics",
+            )
+            llm_sent_total = _required_metric_value(
+                gate_metrics,
+                "llm_sent",
+                value_kind="count",
+                source=str(config.llm_gate_manifest_path),
+                producer="LLM gate metrics",
+            )
+            llm_saved_pct = _required_metric_value(
+                gate_metrics,
+                "llm_saved_pct",
+                value_kind="percentage",
+                source=str(config.llm_gate_manifest_path),
+                producer="LLM gate metrics",
+            )
+            audit_miss_rate_pct = _required_metric_value(
+                gate_metrics,
+                "audit_miss_rate_pct",
+                value_kind="percentage",
+                source=str(config.llm_gate_manifest_path),
+                producer="LLM gate metrics",
+            )
 
             metrics["llm_candidate_total"] = llm_candidate_total
             metrics["llm_sent_total"] = llm_sent_total
@@ -631,18 +796,13 @@ def run_qc(
     # 4b) article extraction cache idempotency.
     if config.article_extraction_cache_path.exists():
         cache_keys: list[str] = []
-        with open(config.article_extraction_cache_path, encoding="utf-8") as fh:
-            for line in fh:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    row = json.loads(line)
-                except json.JSONDecodeError:
-                    continue
-                key = row.get("cache_key")
-                if isinstance(key, str) and key:
-                    cache_keys.append(key)
+        for row in _iter_jsonl_objects(
+            config.article_extraction_cache_path,
+            kind="article-extraction cache JSONL row",
+        ):
+            key = row.get("cache_key")
+            if isinstance(key, str) and key:
+                cache_keys.append(key)
         unique_keys = len(set(cache_keys))
         duplicate_pct = (
             (100.0 * (len(cache_keys) - unique_keys) / max(1, len(cache_keys)))
@@ -688,51 +848,38 @@ def run_qc(
     published_tier4_share = 0.0
     if raw_claims_path.exists() or published_claims_path.exists():
         if raw_claims_path.exists():
-            with open(raw_claims_path, encoding="utf-8") as fh:
-                for line in fh:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    try:
-                        row = json.loads(line)
-                    except json.JSONDecodeError:
-                        continue
-                    if isinstance(row, dict):
-                        raw_claims_total += 1
-                        claim_id = str(row.get("claim_id") or "").strip()
-                        if claim_id:
-                            raw_claim_ids.append(claim_id)
-                        tier = str(row.get("design_quality_tier") or "").strip()
-                        if tier:
-                            raw_tier_counts[tier] += 1
-                        if bool(row.get("span_contamination_detected")):
-                            raw_contaminated += 1
+            for row in _iter_jsonl_objects(
+                raw_claims_path,
+                kind="raw-claim JSONL row",
+            ):
+                raw_claims_total += 1
+                claim_id = str(row.get("claim_id") or "").strip()
+                if claim_id:
+                    raw_claim_ids.append(claim_id)
+                tier = str(row.get("design_quality_tier") or "").strip()
+                if tier:
+                    raw_tier_counts[tier] += 1
+                if bool(row.get("span_contamination_detected")):
+                    raw_contaminated += 1
 
         if published_claims_path.exists():
-            with open(published_claims_path, encoding="utf-8") as fh:
-                for line in fh:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    try:
-                        row = json.loads(line)
-                    except json.JSONDecodeError:
-                        continue
-                    if not isinstance(row, dict):
-                        continue
-                    publishable_total += 1
-                    claim_id = str(row.get("claim_id") or "").strip()
-                    if claim_id:
-                        published_claim_ids.append(claim_id)
-                    tier = str(row.get("design_quality_tier") or "").strip()
-                    if tier:
-                        published_tier_counts[tier] += 1
-                    if bool(row.get("span_contamination_detected")):
-                        published_contaminated += 1
-                    if str(row.get("source_basis") or "") == "abstract_only":
-                        abstract_only_publishable += 1
-                    else:
-                        fulltext_publishable += 1
+            for row in _iter_jsonl_objects(
+                published_claims_path,
+                kind="published-claim JSONL row",
+            ):
+                publishable_total += 1
+                claim_id = str(row.get("claim_id") or "").strip()
+                if claim_id:
+                    published_claim_ids.append(claim_id)
+                tier = str(row.get("design_quality_tier") or "").strip()
+                if tier:
+                    published_tier_counts[tier] += 1
+                if bool(row.get("span_contamination_detected")):
+                    published_contaminated += 1
+                if str(row.get("source_basis") or "") == "abstract_only":
+                    abstract_only_publishable += 1
+                else:
+                    fulltext_publishable += 1
 
         publishable_share = (
             (publishable_total / max(1, raw_claims_total)) * 100.0 if raw_claims_total else 0.0
@@ -825,31 +972,21 @@ def run_qc(
     if config.fulltext_fetch_log_path.exists() or config.fulltext_resolved_path.exists():
         fetch_rows: list[dict[str, object]] = []
         if config.fulltext_fetch_log_path.exists():
-            with open(config.fulltext_fetch_log_path, encoding="utf-8") as fh:
-                for line in fh:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    try:
-                        row = json.loads(line)
-                    except json.JSONDecodeError:
-                        continue
-                    if isinstance(row, dict):
-                        fetch_rows.append(row)
+            fetch_rows.extend(
+                _iter_jsonl_objects(
+                    config.fulltext_fetch_log_path,
+                    kind="fulltext fetch-log JSONL row",
+                )
+            )
 
         final_rows: list[dict[str, object]] = []
         if config.fulltext_resolved_path.exists():
-            with open(config.fulltext_resolved_path, encoding="utf-8") as fh:
-                for line in fh:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    try:
-                        row = json.loads(line)
-                    except json.JSONDecodeError:
-                        continue
-                    if isinstance(row, dict):
-                        final_rows.append(row)
+            final_rows.extend(
+                _iter_jsonl_objects(
+                    config.fulltext_resolved_path,
+                    kind="resolved fulltext JSONL row",
+                )
+            )
 
         final_total = len(final_rows)
         usable_fulltext_resolved = sum(
@@ -949,7 +1086,10 @@ def run_qc(
             else 0.0
         )
         metrics["landing_page_pdf_recovery_rate"] = (
-            round((landing_page_pdf_recoveries / max(1, len(landing_page_attempts))) * 100.0, 3)
+            round(
+                (landing_page_pdf_recoveries / max(1, len(landing_page_attempts))) * 100.0,
+                3,
+            )
             if landing_page_attempts
             else 0.0
         )
@@ -983,28 +1123,21 @@ def run_qc(
     if config.article_extraction_results_path.exists():
         dropped_context_overlap = 0
         retained_context_attrs = 0
-        with open(config.article_extraction_results_path, encoding="utf-8") as fh:
-            for line in fh:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    row = json.loads(line)
-                except json.JSONDecodeError:
-                    continue
-                if not isinstance(row, dict):
-                    continue
-                diagnostics = (
-                    row.get("reconciliation_diagnostics")
-                    if isinstance(row.get("reconciliation_diagnostics"), dict)
-                    else {}
-                )
-                dropped_context_overlap += int(diagnostics.get("dropped_context_overlap", 0) or 0)
-                retained_context_attrs += (
-                    len(row.get("context_attributes") or [])
-                    if isinstance(row.get("context_attributes"), list)
-                    else 0
-                )
+        for row in _iter_jsonl_objects(
+            config.article_extraction_results_path,
+            kind="article-extraction result JSONL row",
+        ):
+            diagnostics = (
+                row.get("reconciliation_diagnostics")
+                if isinstance(row.get("reconciliation_diagnostics"), dict)
+                else {}
+            )
+            dropped_context_overlap += int(diagnostics.get("dropped_context_overlap", 0) or 0)
+            retained_context_attrs += (
+                len(row.get("context_attributes") or [])
+                if isinstance(row.get("context_attributes"), list)
+                else 0
+            )
 
         overlap_total = dropped_context_overlap + retained_context_attrs
         overlap_drop_rate = (
@@ -1408,67 +1541,157 @@ def run_qc(
             )
 
             edge_report_path = config.edge_synthesis_report_path
-            edge_report = {}
             if edge_report_path.exists():
-                try:
-                    edge_report = json.loads(edge_report_path.read_text(encoding="utf-8"))
-                except (OSError, json.JSONDecodeError):
-                    edge_report = {}
-            benchmark_report = {}
-            if config.benchmark_report_path.exists():
-                try:
-                    benchmark_report = json.loads(
-                        config.benchmark_report_path.read_text(encoding="utf-8")
-                    )
-                except (OSError, json.JSONDecodeError):
-                    benchmark_report = {}
-            canonization = edge_report.get("canonization") if isinstance(edge_report, dict) else {}
-            global_canonical_resolution_rate = float(
-                (canonization or {}).get("resolution_rate_pct") or 0.0
-            )
-            benchmark_metrics = (
-                benchmark_report.get("metrics")
-                if isinstance(benchmark_report.get("metrics"), dict)
-                else {}
-            )
-            runtime_demanded_canonical_resolution_rate = float(
-                benchmark_metrics.get("runtime_demanded_canonical_resolution_rate_pct")
-                or global_canonical_resolution_rate
-            )
-            metrics["runtime_demanded_canonical_resolution_rate_pct"] = round(
-                runtime_demanded_canonical_resolution_rate,
-                3,
-            )
-            metrics["global_canonical_resolution_rate_pct"] = round(
-                global_canonical_resolution_rate, 3
-            )
-            metrics["canonical_resolution_rate_pct"] = round(
-                runtime_demanded_canonical_resolution_rate, 3
-            )
-            checks.append(
-                QCCheck(
-                    name="canonical_resolution_rate_pct",
-                    passed=runtime_demanded_canonical_resolution_rate >= 90.0
-                    if benchmark_report
-                    else True,
-                    value=round(runtime_demanded_canonical_resolution_rate, 3),
-                    threshold=90.0,
-                    severity="critical",
+                edge_report = _load_json_object(
+                    edge_report_path,
+                    kind="edge-synthesis report",
+                    required_fields=("canonization",),
                 )
-            )
-            checks.append(
-                QCCheck(
+                canonization = edge_report["canonization"]
+                if not isinstance(canonization, dict):
+                    raise ValueError(
+                        f"Edge-synthesis report at {edge_report_path} "
+                        "must contain an object-valued canonization field"
+                    )
+                global_canonical_resolution_rate = _required_metric_value(
+                    canonization,
+                    "resolution_rate_pct",
+                    value_kind="percentage",
+                    source=str(edge_report_path),
+                    producer="edge-synthesis canonization metrics",
+                )
+                global_rate_check = QCCheck(
                     name="global_canonical_resolution_rate_pct",
-                    passed=global_canonical_resolution_rate >= 50.0
-                    if edge_report_path.exists()
-                    else True,
+                    passed=global_canonical_resolution_rate >= 50.0,
                     value=round(global_canonical_resolution_rate, 3),
                     threshold=50.0,
                     severity="warning",
                 )
+            else:
+                edge_report = {}
+                global_canonical_resolution_rate = None
+                edge_synthesis_scheduled = "edge_synthesize" in config.stages
+                global_rate_check = QCCheck(
+                    name="global_canonical_resolution_rate_pct",
+                    passed=False,
+                    value=None,
+                    threshold=50.0,
+                    severity="critical" if edge_synthesis_scheduled else "warning",
+                    message=(
+                        "Edge-synthesis report is absent; global canonical resolution is not established"
+                        if edge_synthesis_scheduled
+                        else "Edge synthesis was not scheduled; global canonical resolution is not applicable"
+                    ),
+                    status="not_established" if edge_synthesis_scheduled else "not_applicable",
+                )
+
+            if config.benchmark_report_path.exists():
+                benchmark_report = _load_json_object(
+                    config.benchmark_report_path,
+                    kind="benchmark report",
+                    required_fields=("metrics",),
+                )
+                if benchmark_report.get("kind") not in (None, "academic_benchmark"):
+                    raise ValueError(
+                        f"Benchmark report at {config.benchmark_report_path} "
+                        "has an unsupported kind"
+                    )
+                benchmark_metrics = benchmark_report["metrics"]
+                if not isinstance(benchmark_metrics, dict):
+                    raise ValueError(
+                        f"Benchmark report at {config.benchmark_report_path} "
+                        "must contain an object-valued metrics field"
+                    )
+                runtime_demanded_canonical_resolution_rate = _required_metric_value(
+                    benchmark_metrics,
+                    "runtime_demanded_canonical_resolution_rate_pct",
+                    value_kind="percentage",
+                    source=str(config.benchmark_report_path),
+                    producer="academic benchmark metrics",
+                )
+                canonical_rate_check = QCCheck(
+                    name="canonical_resolution_rate_pct",
+                    passed=runtime_demanded_canonical_resolution_rate >= 90.0,
+                    value=round(runtime_demanded_canonical_resolution_rate, 3),
+                    threshold=90.0,
+                    severity="critical",
+                )
+            else:
+                benchmark_report = {}
+                benchmark_metrics = {}
+                runtime_demanded_canonical_resolution_rate = None
+                benchmark_scheduled = "benchmark" in config.stages
+                canonical_rate_check = QCCheck(
+                    name="canonical_resolution_rate_pct",
+                    passed=False,
+                    value=None,
+                    threshold=90.0,
+                    severity="critical" if benchmark_scheduled else "warning",
+                    message=(
+                        "Benchmark report is absent; runtime-demanded canonical resolution is not established"
+                        if benchmark_scheduled
+                        else "Benchmark was not scheduled; runtime-demanded canonical resolution is not applicable"
+                    ),
+                    status="not_established" if benchmark_scheduled else "not_applicable",
+                )
+
+            metrics["runtime_demanded_canonical_resolution_rate_pct"] = (
+                round(runtime_demanded_canonical_resolution_rate, 3)
+                if runtime_demanded_canonical_resolution_rate is not None
+                else None
             )
+            metrics["global_canonical_resolution_rate_pct"] = (
+                round(global_canonical_resolution_rate, 3)
+                if global_canonical_resolution_rate is not None
+                else None
+            )
+            metrics["canonical_resolution_rate_pct"] = (
+                round(runtime_demanded_canonical_resolution_rate, 3)
+                if runtime_demanded_canonical_resolution_rate is not None
+                else None
+            )
+            checks.append(canonical_rate_check)
+            checks.append(global_rate_check)
         finally:
             con.close()
+    else:
+        edge_synthesis_scheduled = "edge_synthesize" in config.stages
+        benchmark_scheduled = "benchmark" in config.stages
+        metrics["global_canonical_resolution_rate_pct"] = None
+        metrics["runtime_demanded_canonical_resolution_rate_pct"] = None
+        metrics["canonical_resolution_rate_pct"] = None
+        checks.append(
+            QCCheck(
+                name="canonical_resolution_rate_pct",
+                passed=False,
+                value=None,
+                threshold=90.0,
+                severity="critical" if benchmark_scheduled else "warning",
+                message=(
+                    "Benchmark inputs are unavailable without the academic database; "
+                    "runtime-demanded canonical resolution is not established"
+                    if benchmark_scheduled
+                    else "Benchmark was not scheduled; runtime-demanded canonical resolution is not applicable"
+                ),
+                status="not_established" if benchmark_scheduled else "not_applicable",
+            )
+        )
+        checks.append(
+            QCCheck(
+                name="global_canonical_resolution_rate_pct",
+                passed=False,
+                value=None,
+                threshold=50.0,
+                severity="critical" if edge_synthesis_scheduled else "warning",
+                message=(
+                    "Edge-synthesis inputs are unavailable without the academic database; "
+                    "global canonical resolution is not established"
+                    if edge_synthesis_scheduled
+                    else "Edge synthesis was not scheduled; global canonical resolution is not applicable"
+                ),
+                status="not_established" if edge_synthesis_scheduled else "not_applicable",
+            )
+        )
 
     report = QCReport(scope="academic", checks=checks, metrics=metrics)
     write_qc_report(config.qc_report_path, report)

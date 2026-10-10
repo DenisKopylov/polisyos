@@ -9,6 +9,7 @@ from collections import Counter, defaultdict
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
+from polisyos.common.serialization import decode_json_object
 from polisyos.data_forge.domains.academic.batch.article_extractor import _to_work_record
 from polisyos.data_forge.domains.academic.batch.claim_ids import stable_claim_id
 from polisyos.data_forge.domains.academic.batch.resolve_extract import _to_claim_row
@@ -115,19 +116,23 @@ def _load_selected_rows(path: Path) -> dict[str, dict[str, Any]]:
     rows: dict[str, dict[str, Any]] = {}
     if not path.exists():
         return rows
-    with open(path, encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if not line:
+    with path.open("rb") as fh:
+        for line_number, raw in enumerate(fh, start=1):
+            if not raw.strip():
                 continue
-            row = json.loads(line)
-            if not isinstance(row, dict):
-                continue
+            row = decode_json_object(
+                raw,
+                source=f"{path}:{line_number}",
+                kind="selected-work JSONL row",
+            )
             work_id = str(row.get("work_id") or "").strip()
-            if work_id:
-                rows[work_id] = row
+            if not work_id:
+                raise ValueError(
+                    f"selected-work JSONL row at {path}:{line_number} "
+                    "has no non-empty 'work_id'"
+                )
+            rows[work_id] = row
     return rows
-
 
 def _load_attempts(path: Path) -> dict[str, list[ArticleExtractionResult]]:
     grouped: dict[str, list[ArticleExtractionResult]] = defaultdict(list)

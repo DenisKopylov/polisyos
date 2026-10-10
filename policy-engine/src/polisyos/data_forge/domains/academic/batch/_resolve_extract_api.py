@@ -31,6 +31,7 @@ from polisyos.data_forge.domains.academic.batch._resolve_extract_contracts impor
 from polisyos.data_forge.domains.academic.batch._resolve_extract_io import (
     _apply_doc_ready_payload,
     _count_progress_state,
+    _decode_json_object,
     _jsonl_append,
     _load_doc_routing,
     _load_jsonl_from_offset,
@@ -848,15 +849,15 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
 
     merged_rows: dict[str, dict[str, Any]] = {}
     index = 0
-    with open(selected_rows_path, encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if not line:
+    with open(selected_rows_path, "rb") as fh:
+        for line_number, raw in enumerate(fh, start=1):
+            if not raw.strip():
                 continue
             index += 1
-            row = json.loads(line)
-            if not isinstance(row, dict):
-                continue
+            _key, row = _decode_json_object(
+                raw, path=selected_rows_path, line_number=line_number,
+                kind="selected-work JSONL row",
+            )
             work = row.get("work") if isinstance(row.get("work"), dict) else {}
             if not isinstance(work, dict):
                 continue
@@ -920,7 +921,7 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
         topic_inflight.setdefault(topic_id, 0)
 
     _progress_dirty = 0
-    _PROGRESS_FLUSH_INTERVAL = 200
+    _progress_flush_interval = 200
 
     def _mark_progress(work_id: str, state: str, **extra: _ProgressValue) -> None:
         item = progress.setdefault("items", {}).setdefault(work_id, {})
@@ -935,7 +936,7 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
         async with progress_lock:
             _mark_progress(work_id, state, **extra)
             _progress_dirty += 1
-            if _progress_dirty >= _PROGRESS_FLUSH_INTERVAL or state in (
+            if _progress_dirty >= _progress_flush_interval or state in (
                 "published",
                 "raw_only",
                 "succeeded_nonempty",
@@ -1396,7 +1397,7 @@ aggregate_rps_ceiling={}",
         _bounce_counts: dict[str, int] = {}
         _bounce_log_interval = 2000
         _bounce_log_counter = 0
-        _BOUNCE_LIMIT = 200
+        _bounce_limit = 200
         while True:
             if (
                 fetch_done.is_set()
@@ -1429,7 +1430,7 @@ aggregate_rps_ceiling={}",
                 topic_success[topic_id] + topic_inflight[topic_id]
                 >= config.article_target_fulltext_per_topic
             ):
-                if _bounce_counts[_bk] < _BOUNCE_LIMIT:
+                if _bounce_counts[_bk] < _bounce_limit:
                     _bounce_log_counter += 1
                     if _bounce_log_counter % _bounce_log_interval == 1:
                         logger.info(
@@ -1448,7 +1449,7 @@ inflight={}",
                 logger.warning(
                     "LLM dispatcher: bounce limit ({}) reached for {}, forcing dispatch (topic={}, \
 inflight={}, success={})",
-                    _BOUNCE_LIMIT,
+                    _bounce_limit,
                     _bk,
                     topic_id,
                     topic_inflight[topic_id],
@@ -2193,29 +2194,34 @@ async def _run_targeted_extraction_pass(config: AcademicBatchConfig) -> dict[str
         return {"targeted_extraction_no_results": 1}
 
     papers_needing_targeted: list[dict[str, Any]] = []
-    for line in results_path.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            record = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-        claims = record.get("causal_claims") or []
-        claim_pairs = {
-            (
-                str(c.get("cause_variable") or "").replace(".", " ").replace("_", " ").lower(),
-                str(c.get("effect_variable") or "").replace(".", " ").replace("_", " ").lower(),
+    with open(results_path, "rb") as fh:
+        for line_number, raw in enumerate(fh, start=1):
+            if not raw.strip():
+                continue
+            _key, record = _decode_json_object(
+                raw,
+                path=results_path,
+                line_number=line_number,
+                kind="targeted-extraction result JSONL row",
             )
-            for c in claims
-        }
-        abstract = str(record.get("abstract") or record.get("title") or "").lower()
-        for cause, effect in demanded_pairs:
-            cause_tokens = set(cause.split())
-            effect_tokens = set(effect.split())
-            abstract_tokens = set(abstract.split())
-            if cause_tokens & abstract_tokens and effect_tokens & abstract_tokens:
-                if (cause, effect) not in claim_pairs:
+            claims = record.get("causal_claims") or []
+            claim_pairs = {
+                (
+                    str(c.get("cause_variable") or "").replace(".", " ").replace("_", " ").lower(),
+                    str(c.get("effect_variable") or "").replace(".", " ").replace("_", " ").lower(),
+                )
+                for c in claims
+            }
+            abstract = str(record.get("abstract") or record.get("title") or "").lower()
+            for cause, effect in demanded_pairs:
+                cause_tokens = set(cause.split())
+                effect_tokens = set(effect.split())
+                abstract_tokens = set(abstract.split())
+                if (
+                    cause_tokens & abstract_tokens
+                    and effect_tokens & abstract_tokens
+                    and (cause, effect) not in claim_pairs
+                ):
                     papers_needing_targeted.append(
                         {
                             "record": record,
@@ -2285,7 +2291,6 @@ async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | 
 
     cumulative_metrics: dict[str, float | int] = {}
     current_config = config
-    passes_run = 0
     for pass_index in range(max_followup_passes + 1):
         pass_metrics = await _run_resolve_extract_pass(current_config)
         cumulative_metrics = _merge_resolve_extract_metrics(
@@ -2293,11 +2298,11 @@ async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | 
             pass_metrics,
             first_pass=(pass_index == 0),
         )
-        passes_run += 1
+        # This zero-based index is the number of follow-up passes completed.
         progress = _load_progress(config.resolve_extract_progress_path)
         retryable_remaining = _count_progress_state(progress, "retryable_failed")
         if retryable_remaining == 0 or pass_index >= max_followup_passes:
-            cumulative_metrics["retry_followup_passes_run"] = max(0, passes_run - 1)
+            cumulative_metrics["retry_followup_passes_run"] = max(0, pass_index)
             cumulative_metrics["retryable_failures_remaining"] = retryable_remaining
             cumulative_metrics["final_succeeded_nonempty"] = _count_progress_state(
                 progress, "succeeded_nonempty"

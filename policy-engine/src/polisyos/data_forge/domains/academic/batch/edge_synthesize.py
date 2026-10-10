@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any
 
 import duckdb
 
+from polisyos.common.serialization import decode_json_object
 from polisyos.data_forge.domains.academic.batch._graph_staging import (
     DiskValues,
     GraphCapacityLimits,
@@ -463,7 +464,21 @@ def run_edge_synthesize(
         for edge_id, quality in query_rows(
             con, "SELECT edge_id,quality_signals_json FROM ac_skg_edges", store=staging
         ):
-            exact_provenance[str(edge_id)] = json.loads(quality or "{}")
+            edge_key = str(edge_id)
+            if quality is None:
+                exact_provenance[edge_key] = None
+            elif not isinstance(quality, str):
+                raise ValueError("graph_edge_quality_signals_malformed_json")
+            elif quality.strip() == "null":
+                exact_provenance[edge_key] = None
+            else:
+                exact_provenance[edge_key] = decode_json_object(
+                    quality,
+                    source=(
+                        f"{config.db_path}:ac_skg_edges[{edge_key}].quality_signals_json"
+                    ),
+                    kind="edge quality signals",
+                )
 
         version_row = con.execute(
             "SELECT COALESCE(MAX(version_id), 0) FROM ac_skg_versions"
@@ -573,10 +588,15 @@ def run_edge_synthesize(
                 if design_family:
                     payload["design_family_histogram"][str(design_family)] += 1
                 payload["exact_edge_ids"].add(str(edge_id))
+                source_quality_signals = exact_provenance.get(str(edge_id))
                 payload["synthetic_sources"].append(
                     True
                     if input_provenance["synthetic"] is True
-                    else exact_provenance[str(edge_id)].get("synthetic")
+                    else (
+                        source_quality_signals.get("synthetic")
+                        if source_quality_signals is not None
+                        else None
+                    )
                 )
 
         pair_totals = staging.groups("family_pairs", pair=True)

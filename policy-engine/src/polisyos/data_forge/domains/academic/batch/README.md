@@ -137,3 +137,17 @@ Each completed candidate graph includes the actual input/outcome bindings, artif
 hashes and recomputed staging-use StrangleReceipt. Synthetic ancestry cannot be
 removed by an enclosing caller's declaration. Raw extraction without verified
 adjudication still supplies no forwardable L2 confidence or governing authority.
+
+
+## QC persisted evidence
+
+QC validates persisted producer metrics by value, not only by field presence. Counts must be
+non-negative JSON integers (booleans and numeric strings are invalid); percentage fields must be
+finite numbers in the producer's 0–100 range. The shared persisted-record decoder also rejects
+non-standard non-finite constants, exponent overflow, and duplicate object keys. QC treats estimate
+values as finite, non-boolean numbers, with no universal effect-size bound added here. A present raw
+manifest must resolve to an existing payload file even when its declared count is zero. Missing
+reports for scheduled critical stages remain `not_established` with null values and fail the existing critical gate; reports for stages
+not scheduled are `not_applicable` with null values. The serialized QC report preserves these
+statuses, so an absent benchmark or edge report cannot be represented as a measured zero or borrow
+the other stage's rate.

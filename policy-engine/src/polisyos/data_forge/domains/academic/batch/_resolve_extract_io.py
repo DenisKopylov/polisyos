@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Any, cast
 import aiohttp as aiohttp
 
 from polisyos.common.logger import get_logger
+from polisyos.common.serialization import decode_json_object
 from polisyos.data_forge.domains.academic.batch._resolve_extract_contracts import (
     EligibilityDecision as EligibilityDecision,
 )
@@ -132,6 +133,7 @@ from polisyos.ir.analytics.literature import (
 
 if TYPE_CHECKING:
     import asyncio
+    from collections.abc import Iterator
     from pathlib import Path
 
     from polisyos.data_forge.domains.academic.batch._resolve_extract_contracts import (
@@ -515,7 +517,6 @@ _CONTEXT_EFFECT_ESTIMATE_RE = re.compile(
     r"(?:^|[_\.])(multiplier|effect|impact|estimate|coefficient)(?:$|[_\.])", re.IGNORECASE
 )
 _CONTAMINATION_RE = re.compile(
-    (
         '(?i)(accesses|citations|altmetric|explore all metrics|download pdf|view p'
         'df|view abstract|cookie policy|accept cookies|cookie preferences|cookie c'
         'onsent|manage cookies|we use cookies|all rights reserved|copyright \\'
@@ -539,7 +540,6 @@ _CONTAMINATION_RE = re.compile(
         '?:subscriptions?|access|repositor(?:y|ies))|subscribe to (?:this )'
         '?journal|@article\\{|issn\\s*=\\s*\\"|publisher\\s*=\\s*\\"|language\\s*=\\s*\\"|TY\\s'
         '+-\\s+JOUR|AU\\s+-\\s+|PY\\s+-\\s+|N2\\s+-\\s+)'
-    )
 )
 _CLAIM_REF_TAG_RE = re.compile(r"\[CLAIM_ID:([^\]]+)\]")
 _CONTEXT_SOFT_REJECTION_REASONS = frozenset({"review_like", "missing_empirical_cues"})
@@ -776,14 +776,21 @@ def _jsonl_append(path: Path, row: dict[str, Any]) -> None:
 def _load_progress(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {"version": 1, "updated_at": "", "items": {}}
-    try:
-        with open(path, encoding="utf-8") as fh:
-            loaded = json.load(fh)
-        if isinstance(loaded, dict) and isinstance(loaded.get("items"), dict):
-            return loaded
-    except Exception as exc:
-        logger.debug("Ignored exception: {}", exc)
-    return {"version": 1, "updated_at": "", "items": {}}
+    _key, loaded = _decode_json_object(
+        path.read_bytes(),
+        path=path,
+        location=f"{path} (progress document)",
+        kind="progress JSON document",
+    )
+    items = loaded.get("items")
+    if not isinstance(items, dict):
+        raise ValueError(f"Progress JSON document at {path} must contain an items object")
+    for work_id, item in items.items():
+        if not isinstance(item, dict):
+            raise ValueError(
+                f"Progress JSON document at {path} contains non-object item for {work_id!r}"
+            )
+    return loaded
 
 
 def _write_progress(path: Path, progress: dict[str, Any]) -> None:
@@ -800,23 +807,11 @@ def _write_progress(path: Path, progress: dict[str, Any]) -> None:
 
 
 def _load_metadata_cache(path: Path) -> dict[str, dict[str, Any]]:
-    if not path.exists():
-        return {}
     cache: dict[str, dict[str, Any]] = {}
-    with open(path, encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                row = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-            if not isinstance(row, dict):
-                continue
-            cache_key = str(row.get("cache_key") or "").strip()
-            if cache_key:
-                cache[cache_key] = row
+    for _offset, _line_number, cache_key, row in _iter_keyed_jsonl_rows(
+        path, key="cache_key"
+    ):
+        cache[cache_key] = row
     return cache
 
 
@@ -852,16 +847,10 @@ def _persist_timeout_retry_queue(config: AcademicBatchConfig, progress: dict[str
     if not isinstance(items, dict):
         return
     existing_queue: dict[str, dict[str, Any]] = {}
-    if config.timeout_retry_queue_path.exists():
-        for line in config.timeout_retry_queue_path.read_text(encoding="utf-8").splitlines():
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                entry = json.loads(line)
-                existing_queue[str(entry.get("work_id", ""))] = entry
-            except json.JSONDecodeError:
-                continue
+    for _offset, _line_number, work_id, entry in _iter_keyed_jsonl_rows(
+        config.timeout_retry_queue_path, key="work_id"
+    ):
+        existing_queue[work_id] = entry
     for work_id, value in items.items():
         if not isinstance(value, dict):
             continue
@@ -1203,49 +1192,91 @@ def _percentile(values: list[float], q: float) -> float:
     return ordered[idx]
 
 
-class _LazyJsonlDict:
-    """Memory-efficient JSONL lookup: builds an in-memory offset index
-    (key → byte offset) but reads the actual record from disk on demand.
+def _decode_json_object(
+    raw: bytes | str,
+    *,
+    path: Path,
+    key: str | None = None,
+    line_number: int | None = None,
+    offset: int | None = None,
+    location: str | None = None,
+    kind: str = "JSONL record",
+) -> tuple[str | None, dict[str, Any]]:
+    """Decode one supplied JSON object and require only a caller-declared key."""
+    if location is None:
+        location = (
+            f"{path}:{line_number}"
+            if line_number is not None
+            else f"{path} at byte offset {offset}"
+        )
+    payload = decode_json_object(raw, source=location, kind=kind)
+    if key is None:
+        return None, payload
+    row_key = str(payload.get(key) or "").strip()
+    if not row_key:
+        raise ValueError(f"{kind} at {location} has no non-empty {key!r}")
+    return row_key, payload
 
-    Supports ``__contains__``, ``get``, ``__setitem__``, ``__getitem__``
-    and ``pop`` so it can be used as a drop-in replacement for
-    ``dict[str, dict[str, Any]]`` in the resolve_extract pipeline.
-    """
+def _iter_keyed_jsonl_rows(
+    path: Path,
+    *,
+    key: str,
+) -> Iterator[tuple[int, int, str, dict[str, Any]]]:
+    """Yield validated keyed records; only a missing file and blank rows are empty."""
+    if not path.exists():
+        return
+    with path.open("rb") as fh:
+        line_number = 0
+        while True:
+            offset = fh.tell()
+            raw = fh.readline()
+            if not raw:
+                break
+            line_number += 1
+            if not raw.strip():
+                continue
+            row_key, payload = _decode_json_object(
+                raw,
+                path=path,
+                key=key,
+                line_number=line_number,
+            )
+            if row_key is None:
+                raise ValueError(f"Keyed JSONL reader for {path} produced no key")
+            yield offset, line_number, row_key, payload
+
+
+class _LazyJsonlDict:
+    """Memory-efficient JSONL lookup backed by an offset index."""
 
     def __init__(self, path: Path, *, key: str = "work_id") -> None:
         self._path = path
         self._key = key
-        self._index: dict[str, int] = {}  # key → byte offset
-        self._overrides: dict[str, dict[str, Any]] = {}  # runtime writes
+        self._index: dict[str, int] = {}
+        self._overrides: dict[str, dict[str, Any]] = {}
         self._deleted: set[str] = set()
-        if path.exists():
-            self._build_index()
+        for offset, _line_number, row_key, _payload in _iter_keyed_jsonl_rows(
+            path,
+            key=key,
+        ):
+            self._index[row_key] = offset
 
-    def _build_index(self) -> None:
-        with open(self._path, "rb") as fh:
-            while True:
-                offset = fh.tell()
-                raw = fh.readline()
-                if not raw:
-                    break
-                line = raw.strip()
-                if not line:
-                    continue
-                try:
-                    payload = json.loads(line)
-                except (json.JSONDecodeError, UnicodeDecodeError):
-                    continue
-                if not isinstance(payload, dict):
-                    continue
-                row_key = str(payload.get(self._key) or "").strip()
-                if row_key:
-                    self._index[row_key] = offset
-
-    def _read_at(self, offset: int) -> dict[str, Any]:
-        with open(self._path, "rb") as fh:
+    def _read_at(self, offset: int, key: str) -> dict[str, Any]:
+        with self._path.open("rb") as fh:
             fh.seek(offset)
             raw = fh.readline()
-        return json.loads(raw)
+        row_key, payload = _decode_json_object(
+            raw,
+            path=self._path,
+            key=self._key,
+            offset=offset,
+        )
+        if row_key != key:
+            raise ValueError(
+                f"Indexed JSONL record at {self._path} byte offset {offset} "
+                f"no longer matches key {key!r}"
+            )
+        return payload
 
     def __contains__(self, key: object) -> bool:
         if key in self._deleted:
@@ -1260,87 +1291,66 @@ class _LazyJsonlDict:
         offset = self._index.get(key)
         if offset is None:
             return default
-        try:
-            return self._read_at(offset)
-        except Exception:
-            return default
+        return self._read_at(offset, key)
 
     def __getitem__(self, key: str) -> dict[str, Any]:
         result = self.get(key)
         if result is None:
             raise KeyError(key)
-        return cast(dict[str, Any], result)
+        return cast("dict[str, Any]", result)
 
     def __setitem__(self, key: str, value: dict[str, Any]) -> None:
         self._overrides[key] = value
         self._deleted.discard(key)
 
     def pop(self, key: str, *args: object) -> object:
-        self._deleted.add(key)
+        if key in self._deleted:
+            if args:
+                return args[0]
+            raise KeyError(key)
         if key in self._overrides:
-            return self._overrides.pop(key)
+            value = self._overrides.pop(key)
+            self._deleted.add(key)
+            return value
         offset = self._index.get(key)
-        if offset is not None:
-            try:
-                return self._read_at(offset)
-            except Exception:
-                pass
-        if args:
-            return args[0]
-        raise KeyError(key)
+        if offset is None:
+            if args:
+                return args[0]
+            raise KeyError(key)
+        value = self._read_at(offset, key)
+        self._deleted.add(key)
+        return value
 
     def values(self) -> list[dict[str, Any]]:
         """Not used in hot path; provided for compatibility."""
         result: list[dict[str, Any]] = []
-        for k in self._index:
-            if k not in self._deleted:
-                v = self.get(k)
-                if v is not None:
-                    result.append(v)
+        for key in self._index:
+            if key not in self._deleted:
+                result.append(self.get(key))
         return result
 
 
 def _load_jsonl_keyed(path: Path, *, key: str = "work_id") -> dict[str, dict[str, Any]]:
     rows: dict[str, dict[str, Any]] = {}
-    if not path.exists():
-        return rows
-    with open(path, encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if not line:
-                continue
-            payload = json.loads(line)
-            if not isinstance(payload, dict):
-                continue
-            row_key = str(payload.get(key) or "").strip()
-            if row_key:
-                rows[row_key] = payload
+    for _offset, _line_number, row_key, payload in _iter_keyed_jsonl_rows(path, key=key):
+        rows[row_key] = payload
     return rows
 
 
 def _load_jsonl_lazy(path: Path, *, key: str = "work_id") -> _LazyJsonlDict:
-    """Memory-efficient alternative to ``_load_jsonl_keyed`` — builds
-    an offset index instead of loading all records into RAM."""
+    """Memory-efficient alternative to ``_load_jsonl_keyed`` — builds an offset index."""
     return _LazyJsonlDict(path, key=key)
 
 
-def _load_jsonl_grouped(path: Path, *, key: str = "work_id") -> dict[str, list[dict[str, Any]]]:
+def _load_jsonl_grouped(
+    path: Path,
+    *,
+    key: str = "work_id",
+) -> dict[str, list[dict[str, Any]]]:
     grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    if not path.exists():
-        return grouped
-    with open(path, encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if not line:
-                continue
-            payload = json.loads(line)
-            if not isinstance(payload, dict):
-                continue
-            row_key = str(payload.get(key) or "").strip()
-            if row_key:
-                grouped[row_key].append(payload)
+    for _offset, _line_number, row_key, payload in _iter_keyed_jsonl_rows(path, key=key):
+        grouped[row_key].append(payload)
     return grouped
-
 
 def _load_doc_routing(path: Path) -> dict[str, dict[str, dict[str, Any]]]:
     by_work: dict[str, dict[str, dict[str, Any]]] = {}
@@ -1372,7 +1382,7 @@ def _load_jsonl_from_offset(path: Path, offset: int) -> tuple[list[dict[str, Any
     file_size = path.stat().st_size
     if offset > file_size:
         offset = 0
-    with open(path, "rb") as fh:
+    with path.open("rb") as fh:
         fh.seek(offset)
         data = fh.read()
     if not data:
@@ -1383,16 +1393,18 @@ def _load_jsonl_from_offset(path: Path, offset: int) -> tuple[list[dict[str, Any
     chunk = data[: last_newline + 1]
     new_offset = offset + last_newline + 1
     rows: list[dict[str, Any]] = []
-    for raw_line in chunk.decode("utf-8", errors="ignore").splitlines():
-        line = raw_line.strip()
-        if not line:
+    row_offset = offset
+    for raw_line in chunk.splitlines(keepends=True):
+        if not raw_line.strip():
+            row_offset += len(raw_line)
             continue
-        try:
-            payload = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-        if isinstance(payload, dict):
-            rows.append(payload)
+        _row_key, payload = _decode_json_object(
+            raw_line,
+            path=path,
+            offset=row_offset,
+        )
+        rows.append(payload)
+        row_offset += len(raw_line)
     return rows, new_offset
 
 

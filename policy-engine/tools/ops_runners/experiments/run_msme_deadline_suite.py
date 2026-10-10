@@ -1071,12 +1071,16 @@ def read_jsonl_sample(
     rows: list[dict[str, Any]] = []
     if not path.exists():
         return rows
-    with path.open("r", encoding="utf-8", errors="replace") as f:
-        for line in f:
+    with path.open("r", encoding="utf-8") as f:
+        for line_number, line in enumerate(f, start=1):
+            if not line.strip():
+                continue
             try:
                 obj = json.loads(line)
-            except Exception:
-                continue
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"Malformed JSONL record at {path}:{line_number}") from exc
+            if not isinstance(obj, dict):
+                raise ValueError(f"JSONL record at {path}:{line_number} must be an object")
             if predicate is None or predicate(obj):
                 rows.append(obj)
                 if len(rows) >= limit:

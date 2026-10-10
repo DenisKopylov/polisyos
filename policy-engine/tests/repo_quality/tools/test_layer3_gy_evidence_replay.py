@@ -10,9 +10,12 @@ present.
 """
 from __future__ import annotations
 
+import builtins
 import json
+import sys
 from importlib import import_module
 from pathlib import Path
+from types import ModuleType, SimpleNamespace
 from typing import Any
 
 import pytest
@@ -26,6 +29,59 @@ PROD_CATALOG = (
     REPO_ROOT / "production_data" / "datasets_full_phase3full_20260327_183054"
     / "dataset_catalog.duckdb"
 )
+
+
+def _remove_loguru_sink_if_available() -> None:
+    try:
+        from loguru import logger
+    except ModuleNotFoundError as exc:
+        if exc.name != "loguru":
+            raise
+        return
+    logger.remove()
+
+
+def test_replay_logger_setup_tolerates_only_direct_package_absence(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original_import = builtins.__import__
+
+    def missing_loguru(name: str, *args: object, **kwargs: object) -> object:
+        if name == "loguru":
+            raise ModuleNotFoundError("No module named 'loguru'", name="loguru")
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", missing_loguru)
+    _remove_loguru_sink_if_available()
+
+
+def test_replay_logger_setup_propagates_transitive_import_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original_import = builtins.__import__
+
+    def missing_dependency(name: str, *args: object, **kwargs: object) -> object:
+        if name == "loguru":
+            raise ModuleNotFoundError("No module named 'loguru_backend'", name="loguru_backend")
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", missing_dependency)
+    with pytest.raises(ModuleNotFoundError) as captured:
+        _remove_loguru_sink_if_available()
+    assert captured.value.name == "loguru_backend"
+
+
+def test_replay_logger_setup_propagates_sink_removal_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def fail_remove() -> None:
+        raise RuntimeError("logger sink removal failed")
+
+    module = ModuleType("loguru")
+    module.logger = SimpleNamespace(remove=fail_remove)
+    monkeypatch.setitem(sys.modules, "loguru", module)
+    with pytest.raises(RuntimeError, match="logger sink removal failed"):
+        _remove_loguru_sink_if_available()
 
 
 def _canon() -> Any:
@@ -145,9 +201,11 @@ def test_search_evidence_hash_replays_against_catalog() -> None:
     sys.path.insert(0, str(REPO_ROOT / "src"))
     try:
         from loguru import logger as _l  # type: ignore
+    except ModuleNotFoundError as exc:
+        if exc.name != "loguru":
+            raise
+    else:
         _l.remove()
-    except Exception:
-        pass
     from polisyos.data_forge.domains.catalog.knowledge.search import DatasetCatalogGraph
 
     base = PROD_CATALOG.parent

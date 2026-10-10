@@ -11,6 +11,9 @@ from typing import TYPE_CHECKING, Any
 
 import aiohttp
 
+from polisyos.data_forge.domains.academic.batch._resolve_extract_io import (
+    _decode_json_object,
+)
 from polisyos.data_forge.domains.academic.batch.article_extractor import (
     _build_evidence_bundle,
     _normalized_text,
@@ -106,17 +109,14 @@ def _iter_jsonl_rows(path: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     if not path.exists():
         return rows
-    with open(path, encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if not line:
+    with open(path, "rb") as fh:
+        for line_number, raw in enumerate(fh, start=1):
+            if not raw.strip():
                 continue
-            try:
-                payload = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-            if isinstance(payload, dict):
-                rows.append(payload)
+            _key, payload = _decode_json_object(
+                raw, path=path, line_number=line_number
+            )
+            rows.append(payload)
     return rows
 
 
@@ -148,14 +148,14 @@ def _load_selected_rows(path: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     if not path.exists():
         return rows
-    with open(path, encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if not line:
+    with open(path, "rb") as fh:
+        for line_number, raw in enumerate(fh, start=1):
+            if not raw.strip():
                 continue
-            payload = json.loads(line)
-            if isinstance(payload, dict):
-                rows.append(payload)
+            _key, payload = _decode_json_object(
+                raw, path=path, line_number=line_number, kind="selected-work JSONL row"
+            )
+            rows.append(payload)
     return rows
 
 

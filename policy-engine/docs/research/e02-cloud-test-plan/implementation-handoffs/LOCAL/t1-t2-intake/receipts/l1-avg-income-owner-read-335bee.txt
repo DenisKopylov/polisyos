@@ -1,0 +1,7 @@
+catalog=production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb
+query_outcome=avg_income; selected_region='UA'; access_api=open_catalog_read_session
+typed_refusal=acquire_data:value_owner_unit_binding_ambiguous
+owner_access_ref=repo://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#variable/avg_income#measurement-unit-binding
+detail=owner observations do not carry a declared condition_json.unit over the selected profile; refusing to infer measurement units from dataset identity owner_access_ref=repo://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#variable/avg_income#measurement-unit-binding
+catalog_size_bytes_before=1320693760; after=1320693760
+catalog_mtime_ns_before=1774941646000000000; after=1774941646000000000

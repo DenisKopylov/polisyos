@@ -303,5 +303,27 @@
     "root": [
       "all canonical generators/locks/config, commit/push, completed peers only at agreed boundary; core/contracts __all__ ordering preserves set"
     ]
+  },
+  "coordination_epoch_20261010": {
+    "observed_commit": "4c591813507531d1bfc8c45a832662c00d8c86cd",
+    "observed_tree": "eec418d99c6fcc0948e2ddaeb9ce618fdc4a8f19",
+    "status": "pre_freeze; previous entries retain historical provenance",
+    "active_writers": {
+      "cas_contracts": "BERL persistence.py, facade, README, matching unit/integration tests and release; actual production-caller alternatives remain under investigation before further source writes",
+      "i4_c12": "Catalog knowledge/types.py and search.py, read_api/catalog.py additive lazy exports, runtime/quality/{data_forge_binding,semantic_binding,workspace/loop}.py, scientist/agent/knowledge_tools.py, matching tests and existing C12 release/README",
+      "custody_empirical": "tests/_helpers/runtime_http.py::_artifact_ref only; V4/V7 read-only source/custody assessment and LOCAL receipt",
+      "runtime_v1_v2": "actual HTTP control worker execution/completion/candidate publication boundary; exact paths announced before edits; excludes source-reader shim and active Catalog companions",
+      "t1_t2_intake": "test_served_unknown_target_scope.py::_MissingSchemaStore.get_manifest identity normalization only; production evaluation_safety.py remains read-only unless a demonstrated real reader defect is found",
+      "r4_workload": "ignored raw composed capture harness and origin plugin; per-command source/tool identity, explicit skip reasons and child-stream evidence; no product edits",
+      "root": "canonical generation, source/receipt commit boundaries, exact branch/remote readback; overlapping patches serialized"
+    },
+    "independent_reviewers": {
+      "composition_review": "BERL physical CAS/method identity slice; separate from its author",
+      "devx_review": "composed capture harness after author delta",
+      "i1_c05": "available for Catalog query-context independent review",
+      "numerical_semantics": "available for HTTP empirical/helper independent review"
+    },
+    "resources": "one heavy slot and one numerical thread; no heavy replay until code fixes, independent reviews and explicit source/input/backend freeze",
+    "bucket_rule": "P40: classify NEW_CLASS versus SAME_CLASS_DEEPER; a second same-class escape widens the mechanism or records and falsifies the smallest absent residual capability"
   }
 }

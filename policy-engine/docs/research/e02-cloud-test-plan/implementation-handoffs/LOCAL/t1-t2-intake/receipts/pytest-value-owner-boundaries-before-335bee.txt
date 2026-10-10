@@ -1,0 +1,27 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+__________ test_runtime_value_hints_cannot_change_owner_data_terminal __________
+tests/unit/runtime/quality/test_value_gate.py:2504: in test_runtime_value_hints_cannot_change_owner_data_terminal
+    assert forged.authority_blockers == canonical.authority_blockers == (
+E   AssertionError: assert ('acquire_dat...g_ambiguous',) == ('treatment_a...ner_derived',)
+E     
+E     At index 0 diff: 'acquire_data:value_owner_unit_binding_ambiguous' != 'treatment_assignment_not_owner_derived'
+E     Use -v to get more diff
+_______ test_candidate_treatment_assignment_is_not_owner_world_knowledge _______
+tests/unit/runtime/quality/test_value_gate.py:2520: in test_candidate_treatment_assignment_is_not_owner_world_knowledge
+    profile = RealValueOwnerGateway(repo_root=Path.cwd()).load_value_data_profile(
+src/polisyos/runtime/quality/generation_cycle.py:4355: in load_value_data_profile
+    profile = _load_value_data_profile_from_l1_dcat(
+src/polisyos/runtime/quality/generation_cycle.py:10194: in _load_value_data_profile_from_l1_dcat
+    raise ValueOwnerAccessError(
+E   polisyos.runtime.quality.generation_cycle.ValueOwnerAccessError: owner observations do not carry a declared condition_json.unit over the selected profile; refusing to infer measurement units from dataset identity owner_access_ref=repo://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#variable/avg_income#measurement-unit-binding
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_value_gate.py::test_runtime_value_hints_cannot_change_owner_data_terminal
+FAILED tests/unit/runtime/quality/test_value_gate.py::test_candidate_treatment_assignment_is_not_owner_world_knowledge

@@ -7,10 +7,12 @@ rootdir: /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyo
 configfile: pytest.ini
 plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
 asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
-collected 4 items
+collected 8 items
 
-tests/unit/data_forge/domains/catalog/knowledge/test_store.py ..         [ 50%]
-tests/unit/runtime/quality/test_workspace_loop.py ..                     [100%]
+tests/unit/data_forge/domains/catalog/knowledge/test_store.py ...        [ 37%]
+tests/unit/runtime/quality/test_semantic_binding.py ..                   [ 62%]
+tests/unit/runtime/quality/test_workspace_loop.py ..                     [ 87%]
+tests/unit/scientist/agent/tools/test_knowledge_tools_adapter.py .       [100%]
 
 =============================== warnings summary ===============================
 .venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
@@ -19,4 +21,4 @@ tests/unit/runtime/quality/test_workspace_loop.py ..                     [100%]
     warnings.warn(
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-======================== 4 passed, 2 warnings in 15.82s ========================
+======================== 8 passed, 2 warnings in 18.46s ========================

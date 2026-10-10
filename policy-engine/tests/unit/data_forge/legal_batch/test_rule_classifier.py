@@ -37,7 +37,7 @@ def test_rule_classifier_auto_extracts_table_threshold_row() -> None:
     result = classify_provision(
         "Ректор                              *        300",
         "Додаток N, рядок таблиці 1",
-        "СХЕМА посадових окладів",
+        "\u0421\u0425\u0415\u041c\u0410 посадових окладів",
     )
     assert result.action == "auto"
     assert result.auto_statements[0]["predicate"] == "sets_threshold"

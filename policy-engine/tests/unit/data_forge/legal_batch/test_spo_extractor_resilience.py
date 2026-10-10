@@ -59,7 +59,7 @@ def _doc(doc_id: str, text: str) -> NPADocument:
             status="Чинний",
             doc_type="Закон",
             name=f"Doc {doc_id}",
-            publisher=("ВРУ",),
+            publisher=("В\u0420\u0423",),
             number="1",
             publication=(),
             keywords=(),

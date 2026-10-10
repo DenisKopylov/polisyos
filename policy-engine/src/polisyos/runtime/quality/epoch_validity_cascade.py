@@ -24,13 +24,13 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon
 from polisyos.core import contracts as core_contracts
-from polisyos.core.contracts import EpochPerturbationClass  # noqa: TC001
+from polisyos.core.contracts import EpochPerturbationClass
 from polisyos.core.contracts.c4_persisted_profiles import (
     c4_framed_semantic_projection_digest,
 )
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.design_problem import DesignProblem
-from polisyos.runtime.quality.generation_cycle import CandidateSummary  # noqa: TC001
+from polisyos.runtime.quality.generation_cycle import CandidateSummary
 from polisyos.runtime.quality.semantic_epoch import (
     EpochHistoryEntry,
     SemanticEpochHistoryRepository,

@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Annotated, Literal, Protocol, Self
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 from pydantic_core import to_jsonable_python
 
-from polisyos.core import components as core_components  # noqa: TC001
+from polisyos.core import components as core_components
 from polisyos.pdc import (
     ArtifactRef,
     AuthorityBoundary,

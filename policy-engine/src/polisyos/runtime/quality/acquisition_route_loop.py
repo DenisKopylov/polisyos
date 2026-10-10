@@ -17,7 +17,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     load_planner_acquisition_cost_schedule,
     produce_acquisition_cost_basis_record,
 )
-from polisyos.runtime.quality.design_problem import DesignProblem  # noqa: TC001
+from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleRecord,
     GenerationCycleRun,

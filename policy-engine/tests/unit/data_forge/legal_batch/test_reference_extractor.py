@@ -7,7 +7,7 @@ def test_extract_references_detects_common_legal_patterns() -> None:
     text = (
         "Відповідно до статті 3 Закону України Про державний бюджет, "
         "а також Закон України від 12.10.2020 № 123-IX, "
-        "та постанови КМУ від 01.01.2021 № 10."
+        "та постанови \u041a\u041c\u0423 від 01.01.2021 № 10."
     )
     hits = extract_references(text=text, doc_id="doc1", anchor_path="art:1/pt:1")
     assert len(hits) >= 2

@@ -15,7 +15,7 @@ from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, TypeAdapter, m
 
 from polisyos.core import artifacts, canon
 from polisyos.pdc import AuthorityBoundary, Layer2ReadinessModel
-from polisyos.runtime.quality.confidence_ledger import (  # noqa: TC001 - Pydantic persisted envelope
+from polisyos.runtime.quality.confidence_ledger import (  # Pydantic persisted envelope
     N6DeploymentCurrentnessObservation,
 )
 from polisyos.runtime.quality.design_axes.blind_spot_firewalls import (

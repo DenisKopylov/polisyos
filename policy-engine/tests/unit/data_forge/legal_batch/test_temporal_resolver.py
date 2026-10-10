@@ -68,7 +68,7 @@ def test_parse_temporal_constraints_supports_relative_to_adoption_without_date_f
 def test_resolve_document_temporal_uses_publication_metadata_without_date_acc_fallback() -> None:
     envelope = resolve_document_temporal(
         {
-            "status": "Не набрав чинності",
+            "status": "\u041dе набрав чинності",
             "date_acc": "2024-01-15",
             "publication": ["Офіційний вісник України#10.02.2024#52#23"],
         },
@@ -85,7 +85,7 @@ def test_resolve_document_temporal_uses_publication_metadata_without_date_acc_fa
 def test_resolve_document_temporal_keeps_future_state_when_publication_anchor_is_missing() -> None:
     envelope = resolve_document_temporal(
         {
-            "status": "Не набрав чинності",
+            "status": "\u041dе набрав чинності",
             "date_acc": "2024-01-15",
             "publication": [],
         },

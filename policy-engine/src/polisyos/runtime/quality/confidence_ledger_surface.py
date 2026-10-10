@@ -16,7 +16,7 @@ from pydantic import (
 )
 
 from polisyos.core import canon
-from polisyos.pdc import PromotionObligationClass  # noqa: TC001
+from polisyos.pdc import PromotionObligationClass
 from polisyos.runtime.quality.confidence_ledger import (
     ConfidenceLedgerRegistry,
     ConfidenceLedgerSemanticReceiptProjection,

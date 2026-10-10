@@ -57,7 +57,7 @@ from polisyos.runtime.http.services.human_decision_contracts import (
 )
 from polisyos.runtime.http.step_up import JWTStepUpAssertionVerifier
 from polisyos.runtime.quality.acquisition_world_growth import (
-    AcquisitionWorldGrowthConfig,  # noqa: TC001 - Pydantic resolves deployment DTO annotations
+    AcquisitionWorldGrowthConfig,  # Pydantic resolves deployment DTO annotations
 )
 from polisyos.runtime.quality.epoch_deployment import (
     EpochDeployment,

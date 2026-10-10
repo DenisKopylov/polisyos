@@ -7,7 +7,7 @@ chronology owner, and projects only a freshly requalified persisted result.
 
 from __future__ import annotations
 
-from datetime import datetime  # noqa: TC003 - Pydantic resolves the source clock.
+from datetime import datetime  # Pydantic resolves the source clock.
 from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field

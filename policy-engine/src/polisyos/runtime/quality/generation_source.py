@@ -29,7 +29,7 @@ from polisyos.data_forge.domains.academic.knowledge.skg_versioning import (
     ConfidenceLayerVintage,
     _confidence_layer_vintage_for_sha256,
 )
-from polisyos.ir import TrinityBundle  # noqa: TC001
+from polisyos.ir import TrinityBundle
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality import design_generation as n4
 from polisyos.runtime.quality.candidate_simulation import (
@@ -41,7 +41,7 @@ from polisyos.runtime.quality.cycle_substrate import (
     CycleSubstrateContext,
     revalidate_cycle_substrate_context,
 )
-from polisyos.runtime.quality.design_problem import DesignProblem  # noqa: TC001
+from polisyos.runtime.quality.design_problem import DesignProblem
 
 if TYPE_CHECKING:
     from polisyos.runtime.quality.credal_reference import CredalReference

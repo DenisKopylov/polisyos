@@ -22,8 +22,8 @@ from polisyos.core.artifacts.backends.config import (
 from polisyos.core.artifacts.manifest import InputRef, ProducerInfo, SchemaInfo
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.data_requirement import (
-    PolicyGrammarConceptSpineRefs,  # noqa: TC001 - Pydantic resolves this field at runtime.
-    UniversalAuthorityProfile,  # noqa: TC001 - Pydantic resolves this field at runtime.
+    PolicyGrammarConceptSpineRefs,  # Pydantic resolves this field at runtime.
+    UniversalAuthorityProfile,  # Pydantic resolves this field at runtime.
 )
 from polisyos.pdc import (
     ArtifactRef,

@@ -8,7 +8,7 @@ from polisyos.data_forge.domains.legal.batch.reference_extractor import extract_
 
 def test_extract_references_preserves_full_target_and_structured_hints() -> None:
     text = (
-        "Внести зміни до Закону України Про дорожній рух від 01.01.2024 № 1234-IX. "
+        "Внести зміни до Закону України Про дорожній ру\u0445 від 01.01.2024 № 1234-IX. "
         "Відповідно до статті 5 цього Закону застосовуються загальні правила."
     )
 
@@ -38,7 +38,7 @@ def test_resolve_references_supports_number_date_and_self_reference(tmp_path) ->
             "anchor_path": "article:1",
             "source_span_start": 0,
             "source_span_end": 40,
-            "target_raw": "Закон України Про дорожній рух від 01.01.2024 № 1234-IX",
+            "target_raw": "Закон України Про дорожній ру\u0445 від 01.01.2024 № 1234-IX",
             "type": "law_number",
             "confidence": 0.95,
             "target_number": "1234-IX",
@@ -78,7 +78,7 @@ def test_resolve_references_supports_number_date_and_self_reference(tmp_path) ->
             },
             "law123": {
                 "reestr_code": "LAW-123",
-                "name": "Закон України Про дорожній рух",
+                "name": "Закон України Про дорожній ру\u0445",
                 "doc_type": "Закон України",
                 "date_acc": "2024-01-01",
                 "status": "active",
@@ -87,7 +87,7 @@ def test_resolve_references_supports_number_date_and_self_reference(tmp_path) ->
             },
             "law123_old": {
                 "reestr_code": "LAW-122",
-                "name": "Закон України Про дорожній рух",
+                "name": "Закон України Про дорожній ру\u0445",
                 "doc_type": "Закон України",
                 "date_acc": "2023-01-01",
                 "status": "inactive",

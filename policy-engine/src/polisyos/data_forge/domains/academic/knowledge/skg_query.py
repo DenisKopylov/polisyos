@@ -18,7 +18,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from polisyos.common.logger import get_logger
 
 # Pydantic resolves PreparedSKGReadReceipt.original_output_refs at runtime.
-from polisyos.core.artifacts.manifest import ArtifactRef  # noqa: TC001
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts import DataTrust, ValueOuterSet
 from polisyos.data_forge.domains.academic.knowledge.canonical_resolver import (
     CanonicalVariableResolver,

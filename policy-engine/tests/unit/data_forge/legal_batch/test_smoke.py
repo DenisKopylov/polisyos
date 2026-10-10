@@ -31,7 +31,7 @@ def test_select_smoke_candidates_prefers_diversity_and_cues() -> None:
         ),
         SmokeCandidate("doc3", "Order", "Наказ", "order", "чинний", (), 850, ("list",)),
         SmokeCandidate(
-            "doc4", "Resolution", "Постанова КМУ", "cabinet_resolution", "чинний", (), 800, ()
+            "doc4", "Resolution", "Постанова \u041a\u041c\u0423", "cabinet_resolution", "чинний", (), 800, ()
         ),
         SmokeCandidate(
             "doc5", "Regulation", "Положення", "regulation", "чинний", (), 780, ("appendix",)

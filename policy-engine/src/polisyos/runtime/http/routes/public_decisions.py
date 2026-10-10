@@ -9,7 +9,7 @@ from typing import Annotated, Literal
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from pydantic import BaseModel, ConfigDict
 
-from polisyos.core import artifacts  # noqa: TC001 - Pydantic resolves the public DTO at runtime.
+from polisyos.core import artifacts  # Pydantic resolves the public DTO at runtime.
 from polisyos.runtime.http.authorization import (
     ResourceBindingSource,
     ResourceBindingSpec,

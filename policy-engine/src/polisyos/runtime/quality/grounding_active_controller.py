@@ -31,7 +31,7 @@ from polisyos.runtime.quality.grounding_bind import (
     GroundingBindGate,
     GroundingDecisionCertificate,
 )
-from polisyos.runtime.quality.grounding_phrasing_defense import GroundingProxyGapRisk  # noqa: TC001
+from polisyos.runtime.quality.grounding_phrasing_defense import GroundingProxyGapRisk
 from polisyos.runtime.quality.grounding_relation import (
     RELATION_AXES,
     AxisWitnessProvider,

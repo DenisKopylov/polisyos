@@ -49,7 +49,7 @@ class _EnglishPlugin:
 
 def test_build_legal_unit_signals_marks_amendment_bundle_as_deterministic_only() -> None:
     signals = build_legal_unit_signals(
-        text='У статті 4 слова "центральний орган" замінити словами "уповноважений орган".',
+        text='\u0423 статті 4 слова "центральний орган" замінити словами "уповноважений орган".',
         struct_kind="enumeration_item",
         section_role="table_clause",
         fallback_allowed_for_reasoning=True,
@@ -97,7 +97,7 @@ def test_build_legal_unit_signals_marks_form_scaffold_as_search_only() -> None:
 
 def test_build_legal_unit_signals_rescues_appendix_requirement_bullet() -> None:
     signals = build_legal_unit_signals(
-        text="- виконувати усі вимоги сертифікації;",
+        text="- виконувати ус\u0456 вимоги сертифікації;",
         struct_kind="enumeration_item",
         section_role="catalog_item",
         fallback_allowed_for_reasoning=False,
@@ -194,7 +194,7 @@ def test_build_legal_unit_signals_marks_appendix_header_as_search_only() -> None
 
 def test_build_legal_unit_signals_demotes_appendix_reference_explanation_to_scaffold() -> None:
     signals = build_legal_unit_signals(
-        text="У графі 12 зазначаються реквізити документа відповідно до статті 5 цього Порядку.",
+        text="\u0423 графі 12 зазначаються реквізити документа відповідно до статті 5 цього Порядку.",
         struct_kind="paragraph",
         section_role="table_clause",
         fallback_allowed_for_reasoning=True,
@@ -227,7 +227,7 @@ def test_build_legal_unit_signals_routes_appendix_heavy_cnc_through_deterministi
 
 def test_build_legal_unit_signals_marks_amendment_wording_item_as_deterministic() -> None:
     signals = build_legal_unit_signals(
-        text='25. У додатках NN 1, 2, 4 слова "карбованці" замінити на слово "гривні".',
+        text='25. \u0423 додатках NN 1, 2, 4 слова "карбованці" замінити на слово "гривні".',
         struct_kind="enumeration_item",
         section_role="normative_unit",
         fallback_allowed_for_reasoning=True,
@@ -259,7 +259,7 @@ def test_build_legal_unit_signals_routes_amendment_packaging_leads_out_of_core_n
 
 def test_build_legal_unit_signals_marks_form_section_heading_as_search_only() -> None:
     signals = build_legal_unit_signals(
-        text="Вимоги щодо порядку підготовки і подання заяви, повідомлення та документів, що додаються до них",
+        text="Вимоги щодо порядку підготовки \u0456 подання заяви, повідомлення та документів, що додаються до них",
         struct_kind="paragraph",
         section_role="procedure",
         fallback_allowed_for_reasoning=True,
@@ -274,7 +274,7 @@ def test_build_legal_unit_signals_marks_form_section_heading_as_search_only() ->
 
 def test_build_legal_unit_signals_marks_fee_schedule_as_threshold_not_application() -> None:
     signals = build_legal_unit_signals(
-        text="1. Із заяв і скарг, що подаються до суду: а) із позивних заяв 5 відсотків ціни позову",
+        text="1. Із заяв \u0456 скарг, що подаються до суду: а) із позивних заяв 5 відсотків ціни позову",
         struct_kind="paragraph",
         section_role="table_clause",
         fallback_allowed_for_reasoning=True,
@@ -289,7 +289,7 @@ def test_build_legal_unit_signals_marks_fee_schedule_as_threshold_not_applicatio
 
 def test_build_legal_unit_signals_does_not_treat_bare_dopovnennia_as_amendment() -> None:
     signals = build_legal_unit_signals(
-        text="Якщо заява подається більше ніж однією особою, інформацію можна подавати окремо і посилатись на неї як на доповнення.",
+        text="Якщо заява подається більше ніж однією особою, інформацію можна подавати окремо \u0456 посилатись на неї як на доповнення.",
         struct_kind="enumeration_item",
         section_role="normative_unit",
         fallback_allowed_for_reasoning=True,
@@ -383,7 +383,7 @@ def test_build_legal_unit_signals_does_not_mark_treaty_temporal_clause_as_thresh
         section_role="normative_unit",
         fallback_allowed_for_reasoning=True,
         doc_family="treaty_protocol",
-        doc_title="Угода між Україною і Російською Федерацією",
+        doc_title="Угода між Україною \u0456 Російською Федерацією",
         citation_label="Стаття 1",
     )
 
@@ -413,7 +413,7 @@ def test_build_legal_unit_signals_keeps_incidental_approval_article_out_of_bundl
         text=(
             "Стаття 123. Доручення на провадження дій у справі про порушення митних правил "
             "Службова особа митного органу України має право доручити провадження окремих дій "
-            "службовій особі іншого митного органу України. Доручення повинно бути виконано "
+            "службовій особ\u0456 іншого митного органу України. Доручення повинно бути виконано "
             "у строк не більше п'яти днів з дня його одержання."
         ),
         struct_kind="article",
@@ -433,7 +433,7 @@ def test_build_legal_unit_signals_keeps_editorial_amendment_note_out_of_bundle()
         text=(
             "Стаття 2. Платником податку є особа, обсяг оподатковуваних операцій якої "
             "перевищував 600 неоподатковуваних мінімумів доходів громадян. "
-            "(статтю 2 доповнено пунктом 2.6 згідно із Законом України від 26.09.97 р. N 550/97-ВР)"
+            "(статтю 2 доповнено пунктом 2.6 згідно із Законом України від 26.09.97 р. N 550/97-В\u0420)"
         ),
         struct_kind="article",
         section_role="normative_unit",

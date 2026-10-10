@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts as core_artifacts
-from polisyos.data_forge.domains.ukraine.manifests import (  # noqa: TC001
+from polisyos.data_forge.domains.ukraine.manifests import (
     D5ReleaseHandoffRequest,
 )
 

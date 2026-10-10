@@ -28,7 +28,7 @@ from typing import TYPE_CHECKING, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.common.serialization import extract_llm_json
-from polisyos.ir import TrinityBundle  # noqa: TC001 - Pydantic resolves the persisted field type
+from polisyos.ir import TrinityBundle  # Pydantic resolves the persisted field type
 from polisyos.ir.analytics.interventions import (
     InterventionContext,
     NodeIntervention,
@@ -88,7 +88,7 @@ from polisyos.scientist.agent.formalizer import (
     LLMFormalizerAgent,
     trinity_bundle_formalizer_generator_path,
 )
-from polisyos.scientist.agent.protocols import (  # noqa: TC001 - Pydantic resolves field types
+from polisyos.scientist.agent.protocols import (  # Pydantic resolves field types
     CritiqueReport,
     DraftResult,
 )

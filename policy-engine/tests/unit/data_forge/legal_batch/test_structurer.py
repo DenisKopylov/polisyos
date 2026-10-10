@@ -231,7 +231,7 @@ def test_extract_provisions_marks_table_scaffold_and_decorative_rows_as_search_o
 def test_extract_provisions_marks_fragmented_multi_column_rows_as_search_only() -> None:
     text = """
 Додаток N
-бів категорії С * лів, обладна-  * бів категорії С   * бів категорії С    *бів будь-якої * 1 місяць на-
+бів категорії \u0421 * лів, обладна-  * бів категорії \u0421   * бів категорії \u0421    *бів будь-якої * 1 місяць на-
 """.strip()
 
     spans = extract_provisions(text, doc_name="Додаток до наказу")
@@ -308,7 +308,7 @@ def test_extract_provisions_marks_catalog_appendix_items_as_search_only() -> Non
 def test_extract_provisions_marks_appendix_heading_blocks_as_search_only() -> None:
     text = """
 Додаток 1
-СХЕМИ ОБОВ'ЯЗКОВОЇ СЕРТИФІКАЦІЇ ПІДІЙМАЛЬНИХ СПОРУД У СИСТЕМІ УкрСЕПРО
+СХЕМИ ОБОВ'ЯЗКОВОЇ СЕРТИФІКАЦІЇ ПІДІЙМАЛЬНИХ СПОРУД \u0423 СИСТЕМІ УкрСЕПРО
 
 Форма N 1
 ЖУРНАЛ РЕЄСТРАЦІЇ ВХІДНОЇ КОРЕСПОНДЕНЦІЇ
@@ -326,7 +326,7 @@ def test_extract_provisions_marks_placeholder_rows_and_stamps_as_search_only() -
 Додаток N
 Реєстраційний N __________
 "___" _____________ 199_ р.
-М. П.
+\u041c. П.
 """.strip()
 
     spans = extract_provisions(text, doc_name="Заява на одержання Свідоцтва")
@@ -363,14 +363,14 @@ def test_extract_provisions_marks_numeric_table_index_rows_as_search_only() -> N
 def test_extract_provisions_strict_catalog_docs_demote_cost_tables_to_search_only() -> None:
     text = """
 Додаток N
-Стаття витрат    *            Зміст і характеристика витрат
+Стаття витрат    *            Зміст \u0456 характеристика витрат
 5. Витрати на    витрати на перевезення працівників до місця роботи
 відрахування     на державне пенсійне страхування
 """.strip()
 
     spans = extract_provisions(
         text,
-        doc_name="Типове положення з планування, обліку і калькулювання собівартості продукції",
+        doc_name="Типове положення з планування, обліку \u0456 калькулювання собівартості продукції",
     )
 
     catalog_rows = [span for span in spans if span.struct_kind == "table_row"]

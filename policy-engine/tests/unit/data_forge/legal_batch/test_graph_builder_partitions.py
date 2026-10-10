@@ -320,7 +320,7 @@ def test_build_graph_populates_amendments_with_target_from_resolved_references(t
                     "anchor_path": "article:1",
                     "citation_label": "стаття 1",
                     "kind": "article",
-                    "text": "У статті 5 слова «старий текст» замінити словами «новий текст».",
+                    "text": "\u0423 статті 5 слова «старий текст» замінити словами «новий текст».",
                     "offset_start": 0,
                     "offset_end": 66,
                     "token_est": 12,
@@ -428,7 +428,7 @@ def test_build_graph_infers_amendment_target_from_doc_title_when_refs_missing(tm
                     "anchor_path": "article:1",
                     "citation_label": "стаття 1",
                     "kind": "article",
-                    "text": "У статті 5 слова «старий текст» замінити словами «новий текст».",
+                    "text": "\u0423 статті 5 слова «старий текст» замінити словами «новий текст».",
                     "offset_start": 0,
                     "offset_end": 66,
                     "token_est": 12,
@@ -532,7 +532,7 @@ def test_build_graph_infers_amendment_target_from_doc_title_with_changes_and_sup
         doc_metadata={
             "titleplus": {
                 "reestr_code": "903",
-                "name": 'Про внесення змін і доповнень до Закону України "Про базовий акт"',
+                "name": 'Про внесення змін \u0456 доповнень до Закону України "Про базовий акт"',
                 "doc_type": "Закон",
                 "date_acc": "2024-05-04",
                 "status": "active",
@@ -588,7 +588,7 @@ def test_build_graph_infers_amendment_target_from_doc_title_even_when_refs_are_s
                     "anchor_path": "article:1",
                     "citation_label": "стаття 1",
                     "kind": "article",
-                    "text": "У статті 5 слова «старий текст» замінити словами «новий текст».",
+                    "text": "\u0423 статті 5 слова «старий текст» замінити словами «новий текст».",
                     "offset_start": 0,
                     "offset_end": 66,
                     "token_est": 12,
@@ -1164,12 +1164,12 @@ def test_amendment_title_ignores_blank_title_candidates_and_prefers_exact_base()
 def test_amendment_title_infers_instruction_target_from_genitive_stem() -> None:
     doc_metadata = {
         "source-doc": {
-            "name": 'Про внесення змін і доповнень до Інструкції Національного банку України N 4 "Про організацію роботи з готівкового обігу установами банків України", затвердженої постановою Правління Національного банку України від 20.06.95 р. N 149',
+            "name": 'Про внесення змін \u0456 доповнень до Інструкції Національного банку України N 4 "Про організацію роботи з готівкового об\u0456\u0433у установами банків України", затвердженої постановою Правління Національного банку України від 20.06.95 р. N 149',
             "doc_type": "Постанова",
             "date_acc": "1997-10-13",
         },
         "instruction-doc": {
-            "name": 'Інструкція Національного банку України N 4 "Про організацію роботи з готівкового обігу установами банків України"',
+            "name": 'Інструкція Національного банку України N 4 "Про організацію роботи з готівкового об\u0456\u0433у установами банків України"',
             "doc_type": "Інструкція",
             "date_acc": "1995-06-20",
         },
@@ -1200,7 +1200,7 @@ def test_build_graph_infers_amendment_target_from_source_text_using_resolution_m
                     "anchor_path": "article:1",
                     "citation_label": "стаття 1",
                     "kind": "article",
-                    "text": 'У статті 5 Закону України "Про базовий акт" слова «старий текст» замінити словами «новий текст».',
+                    "text": '\u0423 статті 5 Закону України "Про базовий акт" слова «старий текст» замінити словами «новий текст».',
                     "offset_start": 0,
                     "offset_end": 102,
                     "token_est": 16,
@@ -1317,7 +1317,7 @@ def test_build_graph_skips_unresolved_amendment_signals_for_non_amendment_docs(t
                 "doc_type": "Закон України",
                 "date_acc": "03.04.1997",
                 "status": "Втратив чинність",
-                "number": "168/97-ВР",
+                "number": "168/97-В\u0420",
                 "publisher": ["Верховна Рада України"],
             }
         },
@@ -1339,7 +1339,7 @@ def test_build_graph_deduplicates_nested_single_target_amendments(tmp_path) -> N
     repeated = {
         "citation_label": "стаття 1",
         "kind": "article",
-        "text": "У статті 5 слова «старий текст» замінити словами «новий текст».",
+        "text": "\u0423 статті 5 слова «старий текст» замінити словами «новий текст».",
         "offset_start": 0,
         "offset_end": 66,
         "token_est": 12,
@@ -1596,7 +1596,7 @@ def test_build_graph_derives_clause_rows_and_reference_links_from_existing_artif
                     "anchor_path": "article:3",
                     "citation_label": "стаття 3",
                     "kind": "article",
-                    "text": "У разі потреби орган може звернутися до статті 5 цього Закону.",
+                    "text": "\u0423 разі потреби орган може звернутися до статті 5 цього Закону.",
                     "offset_start": 0,
                     "offset_end": 67,
                     "token_est": 12,
@@ -1633,7 +1633,7 @@ def test_build_graph_derives_clause_rows_and_reference_links_from_existing_artif
                             "norm_type": "permission",
                             "action_canon": "grants",
                             "norm_type_canon": "permission",
-                            "source_quote_uk": "У разі потреби орган може звернутися до статті 5 цього Закону.",
+                            "source_quote_uk": "\u0423 разі потреби орган може звернутися до статті 5 цього Закону.",
                             "source_quote_start": 0,
                             "source_quote_end": 67,
                             "trust_tier": "normative_fact",
@@ -1693,7 +1693,7 @@ def test_build_graph_derives_clause_rows_and_reference_links_from_existing_artif
         assert con.execute("SELECT COUNT(*) FROM lex_rule_links").fetchone()[0] == 1
         clause_row = con.execute("SELECT clause_type, text_uk FROM lex_rule_clauses").fetchone()
         assert clause_row[0] == "condition"
-        assert "У разі потреби" in clause_row[1]
+        assert "\u0423 разі потреби" in clause_row[1]
 
 
 def test_build_graph_emits_general_amendment_fallback_for_title_only_amendment_doc(

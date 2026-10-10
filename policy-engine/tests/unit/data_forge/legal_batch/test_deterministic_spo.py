@@ -31,7 +31,7 @@ def test_deterministic_spo_extracts_thresholds() -> None:
 
 def test_deterministic_spo_extracts_constitutional_declarative_and_defined_by_law_clauses() -> None:
     result = extract_deterministic_spo(
-        text="Стаття 4. В Україні існує єдине громадянство. Підстави набуття і припинення громадянства України визначаються законом.",
+        text="Стаття 4. В Україні існує єдине громадянство. Підстави набуття \u0456 припинення громадянства України визначаються законом.",
         citation_label="Стаття 4",
         doc_title="Конституція України",
     )
@@ -48,7 +48,7 @@ def test_deterministic_spo_extracts_constitutional_declarative_and_defined_by_la
 
 def test_deterministic_spo_extracts_constitutional_rights_and_guarantees() -> None:
     result = extract_deterministic_spo(
-        text="Стаття 55. Кожному гарантується право на оскарження в суді рішень органів державної влади. Кожен має право будь-якими не забороненими законом засобами захищати свої права і свободи.",
+        text="Стаття 55. Кожному гарантується право на оскарження в суді рішень органів державної влади. Кожен має право будь-якими не забороненими законом засобами захищати свої права \u0456 свободи.",
         citation_label="Стаття 55",
         doc_title="Конституція України",
     )
@@ -65,7 +65,7 @@ def test_deterministic_spo_extracts_constitutional_rights_and_guarantees() -> No
 def test_deterministic_spo_avoids_overmatching_long_non_constitutional_definitions() -> None:
     result = extract_deterministic_spo(
         text=(
-            "Стаття 3. Об'єктом оподаткування є прибуток, який визначається шляхом зменшення "
+            "Стаття 3. \u041eб'єктом оподаткування є прибуток, який визначається шляхом зменшення "
             "суми скоригованого валового доходу звітного періоду, визначеного згідно з пунктом "
             "4.3 цього Закону на суму валових витрат платника податку та амортизаційних відрахувань."
         ),
@@ -78,7 +78,7 @@ def test_deterministic_spo_avoids_overmatching_long_non_constitutional_definitio
 
 def test_deterministic_spo_extracts_compact_dash_definition_in_regular_law_article() -> None:
     result = extract_deterministic_spo(
-        text="Стаття 4. Валовий доход - загальна сума доходу платника податку від усіх видів діяльності, отриманого протягом звітного періоду.",
+        text="Стаття 4. Валовий доход - загальна сума доходу платника податку від ус\u0456\u0445 видів діяльності, отриманого протягом звітного періоду.",
         citation_label="Стаття 4",
         doc_title='Про внесення змін до Закону України "Про оподаткування прибутку підприємств"',
     )
@@ -154,7 +154,7 @@ def test_deterministic_spo_extracts_passive_procedure_clause() -> None:
 def test_deterministic_spo_extracts_rights_list_items() -> None:
     result = extract_deterministic_spo(
         text=(
-            "Адміністрація має право: запитувати і одержувати матеріали; "
+            "Адміністрація має право: запитувати \u0456 одержувати матеріали; "
             "користуватися банками даних; використовувати державні системи зв'язку."
         ),
         citation_label="Пункт 6",
@@ -218,7 +218,7 @@ def test_deterministic_spo_extracts_long_law_requirement_and_prohibition_clauses
 def test_family_retry_spo_extracts_amendment_wording_from_law_list_item() -> None:
     result = extract_family_retry_spo(
         text=(
-            '2. У статті 40: у частині першій слова "двох мінімальних розмірів '
+            '2. \u0423 статті 40: у частині першій слова "двох мінімальних розмірів '
             'заробітної плати" замінити словами "двох неоподатковуваних мінімумів доходів громадян".'
         ),
         citation_label="Пункт переліку 2",
@@ -354,7 +354,7 @@ def test_deterministic_spo_extracts_unitless_salary_threshold_row() -> None:
 
 def test_deterministic_spo_extracts_conditional_threshold_row() -> None:
     result = extract_deterministic_spo(
-        text="корисне навантаження не менш як 500 кг на дальність 300 км і більше",
+        text="корисне навантаження не менш як 500 кг на дальність 300 км \u0456 більше",
         citation_label="Таблиця, рядок 4",
         doc_title="Збірник тарифів",
         legal_unit_subtype="tariff_threshold_row",
@@ -383,7 +383,7 @@ def test_deterministic_spo_extracts_subtype_application_requirement() -> None:
 
 def test_deterministic_spo_extracts_amendment_wording_item() -> None:
     result = extract_deterministic_spo(
-        text='25. У додатках NN 1, 2, 4 слова "карбованці" замінити на слово "гривні".',
+        text='25. \u0423 додатках NN 1, 2, 4 слова "карбованці" замінити на слово "гривні".',
         citation_label="Пункт 25",
         doc_title="Про внесення змін",
         legal_unit_subtype="amendment_bundle",
@@ -398,7 +398,7 @@ def test_deterministic_spo_extracts_amendment_wording_item() -> None:
 
 def test_deterministic_spo_extracts_application_requirement_bullet() -> None:
     result = extract_deterministic_spo(
-        text="- виконувати усі вимоги сертифікації;",
+        text="- виконувати ус\u0456 вимоги сертифікації;",
         citation_label="Пункт 4",
         doc_title="Форма заявки",
         legal_unit_subtype="application_requirement",
@@ -450,7 +450,7 @@ def test_deterministic_spo_extracts_cnc_fallback_requirement_pattern() -> None:
 def test_deterministic_spo_extracts_cnc_fallback_prohibition_pattern() -> None:
     """Core normative clause fallback should catch prohibitions without article context."""
     result = extract_deterministic_spo(
-        text="Відповідальний працівник не має права допускати до роботи осіб без медичного огляду.",
+        text="Відповідальний працівник не має права допускати до роботи ос\u0456б без медичного огляду.",
         citation_label="Пункт 12",
         doc_title="Санітарні правила",
         legal_unit_subtype="core_normative_clause",
@@ -544,7 +544,7 @@ def test_deterministic_spo_extracts_application_requirement_impersonal_multi_sta
     result = extract_deterministic_spo(
         text=(
             "Якщо сторони, які подають заяву, вважають, що їх інтересам буде завдано шкоди, "
-            "можна подати цю інформацію окремо. Необхідно вказати вид інформації і пояснити, "
+            "можна подати цю інформацію окремо. Необхідно вказати вид інформації \u0456 пояснити, "
             "чому цю інформацію не потрібно розголошувати."
         ),
         citation_label="Пункт 8",
@@ -563,10 +563,10 @@ def test_deterministic_spo_extracts_application_requirement_impersonal_multi_sta
 def test_deterministic_spo_extracts_amendment_bundle_multistatement() -> None:
     result = extract_deterministic_spo(
         text=(
-            '1.1. У групі рахунків 100 назву рахунку 1002 А "Банкноти та монети" змінити на '
+            '1.1. \u0423 групі рахунків 100 назву рахунку 1002 \u0410 "Банкноти та монети" змінити на '
             '"Банкноти та монети в касі відділень банку". '
-            '1.2. У групі рахунків 110 увести рахунок 1102 А "Банківські метали у відділенні банку". '
-            '1.3. У групі рахунків 152 рахунок 1526 А "Пролонгована заборгованість" виключити.'
+            '1.2. \u0423 групі рахунків 110 увести рахунок 1102 \u0410 "Банківські метали у відділенні банку". '
+            '1.3. \u0423 групі рахунків 152 рахунок 1526 \u0410 "Пролонгована заборгованість" виключити.'
         ),
         citation_label="Пункт 1",
         doc_title="Про внесення змін до Плану рахунків",
@@ -744,7 +744,7 @@ def test_deterministic_spo_extracts_treaty_permission_and_temporal_tail() -> Non
             "обладнання на умовах та протягом строку дії Угоди."
         ),
         citation_label="Стаття 1",
-        doc_title="Угода між Україною і Російською Федерацією",
+        doc_title="Угода між Україною \u0456 Російською Федерацією",
         legal_unit_subtype="core_normative_clause",
         quality_family="treaty_protocol",
     )
@@ -800,7 +800,7 @@ def test_deterministic_spo_extracts_word_threshold_and_priority_permission_from_
 
 def test_deterministic_spo_extracts_vpravi_permission_from_core_clause() -> None:
     result = extract_deterministic_spo(
-        text="Ревізійна комісія вправі вимагати від посадових осіб товариства подання матеріалів.",
+        text="Ревізійна комісія вправі вимагати від посадових ос\u0456б товариства подання матеріалів.",
         citation_label="Стаття 63",
         doc_title="Закон України про господарські товариства",
         legal_unit_subtype="core_normative_clause",

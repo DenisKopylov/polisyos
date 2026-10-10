@@ -88,7 +88,7 @@ def test_build_spo_doc_routing_plan_caps_mega_catalog_and_disables_llm(tmp_path:
     )
     doc = _doc(
         doc_id="mega000000000001",
-        title="Про затвердження Списків виробництв, робіт, професій і посад",
+        title="Про затвердження Списків виробництв, робіт, професій \u0456 посад",
     )
     reasoning_spans = [
         _span(i, "Затвердити список виробництв та визначити порядок застосування.", kind="point")

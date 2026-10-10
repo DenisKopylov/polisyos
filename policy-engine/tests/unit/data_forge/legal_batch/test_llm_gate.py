@@ -91,7 +91,7 @@ def test_gate_respects_budget_cap() -> None:
         audit_max_miss_rate_pct=3.0,
     )
     features = build_gate_features(
-        text="Складна норма з цифрами 20% і численними посиланнями.",
+        text="Складна норма з цифрами 20% \u0456 численними посиланнями.",
         deterministic_confidence=0.2,
         reference_count=4,
         fallback_chunk=True,
@@ -139,13 +139,13 @@ def test_gate_prioritizes_treaty_article_with_legal_signal() -> None:
     )
     features = build_gate_features(
         text=(
-            "Стаття 1 Договірні Сторони будуть здійснювати і розвивати між собою "
+            "Стаття 1 Договірні Сторони будуть здійснювати \u0456 розвивати між собою "
             "рівноправні партнерські відносини для виконання цієї Угоди."
         ),
         deterministic_confidence=0.32,
         reference_count=0,
         fallback_chunk=False,
-        doc_title="Угода між Урядом України і Урядом Грузії про співробітництво",
+        doc_title="Угода між Урядом України \u0456 Урядом Грузії про співробітництво",
         citation_label="Стаття 1",
         struct_kind="article",
         section_role="normative_unit",
@@ -325,7 +325,7 @@ def test_gate_keeps_deterministic_only_route_out_of_llm() -> None:
         audit_max_miss_rate_pct=3.0,
     )
     features = build_gate_features(
-        text='У статті 4 слова "центральний орган" замінити словами "уповноважений орган".',
+        text='\u0423 статті 4 слова "центральний орган" замінити словами "уповноважений орган".',
         deterministic_confidence=0.22,
         reference_count=1,
         fallback_chunk=False,

@@ -9,7 +9,7 @@ validation cache. No offline DTO label or self-hash authenticates it.
 
 from __future__ import annotations
 
-from datetime import datetime  # noqa: TC003 - Pydantic resolves the public DTO field
+from datetime import datetime  # Pydantic resolves the public DTO field
 from enum import StrEnum
 from typing import Annotated, Literal, Self
 
@@ -29,7 +29,7 @@ from polisyos.runtime.http.services.governed_projections import (
     ProjectionFreshness,
     ProjectionSourceIdentity,
 )
-from polisyos.runtime.quality.confidence_ledger_surface import (  # noqa: TC001
+from polisyos.runtime.quality.confidence_ledger_surface import (
     ConfidenceLedgerRiskSpendProjection,
 )
 

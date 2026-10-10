@@ -25,7 +25,7 @@ from polisyos.foundry.methods.catalog.causal import ensure_causal_methods_regist
 from polisyos.foundry.methods.catalog.causal.protocols import NCMQueryData
 from polisyos.foundry.methods.catalog.simulation import ensure_simulation_methods_registered
 from polisyos.foundry.methods.selection.registry import MethodRegistry
-from polisyos.ir.analytics.ncm import NCMSpec  # noqa: TC001 - Pydantic validates at runtime.
+from polisyos.ir.analytics.ncm import NCMSpec  # Pydantic validates at runtime.
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     BoundaryCouplingKind,
@@ -33,7 +33,7 @@ from polisyos.runtime.quality.design_axes.coupling_composition import (
     CouplingRegimeClassification,
     classify_coupling,
 )
-from polisyos.runtime.quality.intervention_atom_binding import (  # noqa: TC001
+from polisyos.runtime.quality.intervention_atom_binding import (
     InterventionAtomBinding,
 )
 from polisyos.runtime.quality.world_model_record import (

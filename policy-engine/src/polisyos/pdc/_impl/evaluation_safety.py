@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from datetime import datetime  # noqa: TC003 - Pydantic resolves runtime annotations.
+from datetime import datetime  # Pydantic resolves runtime annotations.
 from typing import Annotated, Literal, Protocol
 from uuid import uuid4
 
@@ -24,9 +24,9 @@ from pydantic import (
 )
 from pydantic_core import to_jsonable_python
 
-from polisyos.core import components as core_components  # noqa: TC001
+from polisyos.core import components as core_components
 
-from .gy_waist import ArtifactRef  # noqa: TC001
+from .gy_waist import ArtifactRef
 
 Digest = Annotated[str, StringConstraints(pattern=r"^sha256:[0-9a-f]{64}$")]
 NamespacedEvalSafetyId = Annotated[

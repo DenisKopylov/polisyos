@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime  # noqa: TC003 - Pydantic resolves at runtime
+from datetime import datetime  # Pydantic resolves at runtime
 from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
@@ -19,7 +19,7 @@ from polisyos.runtime.http.services.control.nl_pipeline import (
     build_design_problem_from_nl_request,
 )
 from polisyos.runtime.quality.candidate_simulation import (
-    CandidateSimulationContextHandoff,  # noqa: TC001 - Pydantic model field
+    CandidateSimulationContextHandoff,  # Pydantic model field
 )
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     derive_recursive_design_graph,
@@ -37,7 +37,7 @@ from polisyos.runtime.quality.design_problem import (
     DesignProblem,
     DesignProblemAuthorityError,
 )
-from polisyos.runtime.quality.open_world_risk import (  # noqa: TC001
+from polisyos.runtime.quality.open_world_risk import (
     OpenWorldRiskPublicLimitation,
 )
 from polisyos.runtime.quality.promotion_sequence import CanonicalPromotionReceipt

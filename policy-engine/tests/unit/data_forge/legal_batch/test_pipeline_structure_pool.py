@@ -48,7 +48,7 @@ def test_process_structure_chunk_falls_back_to_thread_pool(
             reg_date="2026-01-02",
             reg_number="1/1",
         ),
-        text=("Додаток 1\nНайменування посад   Місячні посадові оклади\nРектор   300\n"),
+        text=("Додаток 1\n\u041dайменування посад   Місячні посадові оклади\n\u0420ектор   300\n"),
     )
 
     monkeypatch.setattr(
@@ -102,7 +102,7 @@ def test_process_structure_chunk_uses_thread_pool_for_stdin_main(
             reg_date="2026-01-02",
             reg_number="2/2",
         ),
-        text="Додаток 1\nТелефон            Телефакс                   Телекс\n",
+        text="Додаток 1\n\u0422елефон            Телефакс                   Телекс\n",
     )
 
     monkeypatch.setattr(

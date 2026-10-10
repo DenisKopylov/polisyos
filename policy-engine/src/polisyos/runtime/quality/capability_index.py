@@ -13,7 +13,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.core.contracts import (  # noqa: TC001
+from polisyos.core.contracts import (
     CapabilityResourceKind,
     CapabilityTimeSemantics,
 )

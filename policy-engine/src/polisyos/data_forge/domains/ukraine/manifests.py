@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.data_forge.domains.ukraine.models import StageId  # noqa: TC001
+from polisyos.data_forge.domains.ukraine.models import StageId
 from polisyos.data_forge.kernel.io import sha256_file
 
 if TYPE_CHECKING:

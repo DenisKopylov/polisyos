@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.core import artifacts  # noqa: TC001 - Pydantic resolves these fields at runtime.
+from polisyos.core import artifacts  # Pydantic resolves these fields at runtime.
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.credal_reference import (

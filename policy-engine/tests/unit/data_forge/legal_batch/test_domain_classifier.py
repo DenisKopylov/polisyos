@@ -4,7 +4,7 @@ from polisyos.data_forge.domains.legal.batch.domain_classifier import classify_d
 
 
 def test_classify_domains_returns_top_domain() -> None:
-    text = "Податок і бюджетний збір регулюються цим законом. Податок сплачується щомісяця."
+    text = "Податок \u0456 бюджетний збір регулюються цим законом. Податок сплачується щомісяця."
     result = classify_domains(text=text, doc_id="doc1")
     assert result.doc_id == "doc1"
     assert result.top_domain == "fiscal"

@@ -49,7 +49,7 @@ def test_extract_thresholds_from_text_skips_calendar_year_dates() -> None:
 
 def test_extract_thresholds_from_text_finds_scalar_limits() -> None:
     thresholds = extract_thresholds_from_text(
-        "корисне навантаження не менш як 500 кг на дальність 300 км і більше",
+        "корисне навантаження не менш як 500 кг на дальність 300 км \u0456 більше",
         applies_to="transport_condition",
     )
 

@@ -5,7 +5,7 @@ from polisyos.data_forge.domains.legal.batch.amendment_detector import detect_am
 
 def test_detect_amendments_keeps_act_context_in_replace_text_signal() -> None:
     amendments = detect_amendments(
-        'У статті 5 Закону України "Про базовий акт" слова «старий текст» замінити словами «новий текст».'
+        '\u0423 статті 5 Закону України "Про базовий акт" слова «старий текст» замінити словами «новий текст».'
     )
 
     assert len(amendments) == 1

@@ -6,7 +6,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core import contracts as core_contracts  # noqa: TC001 - Pydantic runtime type
+from polisyos.core import contracts as core_contracts  # Pydantic runtime type
 from polisyos.lex.knowledge import LegalFactResult
 
 

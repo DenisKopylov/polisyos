@@ -14,7 +14,10 @@ __all__ = [
 
 _EXPORTS: dict[str, tuple[str, str]] = {
     "AuthzMiddleware": ("polisyos.runtime.http.authz_middleware", "AuthzMiddleware"),
-    "CellRouterMiddleware": ("polisyos.runtime.http.cell_router_middleware", "CellRouterMiddleware"),
+    "CellRouterMiddleware": (
+        "polisyos.runtime.http.cell_router_middleware",
+        "CellRouterMiddleware",
+    ),
     "JWTAuthMiddleware": ("polisyos.runtime.http.jwt_auth_middleware", "JWTAuthMiddleware"),
     "TENANT_HEADER": ("polisyos.runtime.http.cell_router_middleware", "TENANT_HEADER"),
     "create_runtime_api_app": ("polisyos.runtime.http.app", "create_runtime_api_app"),

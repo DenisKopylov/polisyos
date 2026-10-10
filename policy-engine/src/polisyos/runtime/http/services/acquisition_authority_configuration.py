@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from hashlib import sha256
-from pathlib import Path  # noqa: TC003 - Pydantic resolves deployment DTO annotations
+from pathlib import Path  # Pydantic resolves deployment DTO annotations
 from typing import Literal, Self
 
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat

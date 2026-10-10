@@ -115,7 +115,7 @@ from polisyos.runtime.quality.graded_outcomes import (
     compose_graded_outcome,
 )
 from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (
-    Layer3GXPinnedRequest,  # noqa: TC001 - Pydantic resolves the actual nested request model.
+    Layer3GXPinnedRequest,  # Pydantic resolves the actual nested request model.
 )
 from polisyos.runtime.quality.semantic_binding import (
     GySemanticBenchmark,

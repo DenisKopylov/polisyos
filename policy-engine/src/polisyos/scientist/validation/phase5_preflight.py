@@ -17,6 +17,7 @@ from polisyos.ir.governance.validation import (
     ValidationReport,
     persist_validation_report,
 )
+from polisyos.ir.registry.refs import ExplanationBundleRef
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DRIFT_READINESS_REF,
     ARTIFACT_EXPLANATION_BUNDLE_REF,
@@ -83,7 +84,7 @@ _PHASE5_REF_HINTS = (
 class Phase5ArtifactPreflightInput:
     """Inputs for one analyst-facing artifact publication preflight."""
 
-    artifact_ref: ArtifactRef | str | None = None
+    artifact_ref: ArtifactRef | ExplanationBundleRef | str | None = None
     artifact_kind: str | None = None
     artifact_payload: Any | None = None
     generated_for: str | None = None
@@ -114,6 +115,15 @@ class Phase5EvidenceBundle:
     failed_refs: tuple[str, ...] = ()
 
 
+@dataclass(frozen=True)
+class _Phase5RefCandidate:
+    """Keep BERL's selected reference intact until its strict reader resolves it."""
+
+    reference: Any
+    ref_text: str
+    expected_kind: str | None = None
+
+
 class Phase5ValidationBlocked(RuntimeError):
     """Raised when an analyst-facing artifact fails the Phase-5 preflight."""
 
@@ -126,7 +136,7 @@ def build_phase5_validation_report(
     ctx: ExecutionContext,
     state: ExperimentState,
     *,
-    artifact_ref: ArtifactRef | str | None = None,
+    artifact_ref: ArtifactRef | ExplanationBundleRef | str | None = None,
     artifact_payload: Any | None = None,
     artifact_kind: str | None = None,
     advisor_result: Any | None = None,
@@ -206,7 +216,7 @@ def collect_phase5_evidence(
     ctx: ExecutionContext,
     state: ExperimentState,
     *,
-    artifact_ref: ArtifactRef | str | None = None,
+    artifact_ref: ArtifactRef | ExplanationBundleRef | str | None = None,
     artifact_payload: Any | None = None,
     artifact_kind: str | None = None,
 ) -> Phase5EvidenceBundle:
@@ -216,18 +226,40 @@ def collect_phase5_evidence(
     evidence_records: list[dict[str, Any]] = []
     loaded_refs: list[str] = []
     failed_refs: list[str] = []
-    candidates: dict[str, str] = {}
+    candidates: dict[str, _Phase5RefCandidate] = {}
+    expected_target_kind = (
+        "scientist.explanation_bundle"
+        if artifact_kind == "scientist.explanation_bundle"
+        else _expected_phase5_ref_kind("target_artifact", artifact_ref)
+    )
 
-    _add_ref_candidate(candidates, "target_artifact", artifact_ref)
+    _add_ref_candidate(
+        candidates, "target_artifact", artifact_ref, expected_kind=expected_target_kind
+    )
     for key, ref in getattr(state, "artifacts_index", {}).items():
         if _is_phase5_ref_key(key):
-            _add_ref_candidate(candidates, key, ref)
+            _add_ref_candidate(
+                candidates,
+                key,
+                ref,
+                expected_kind=_expected_phase5_ref_kind(key, ref),
+            )
     for key, ref in getattr(state, "reports_index", {}).items():
         if _is_phase5_ref_key(key):
-            _add_ref_candidate(candidates, key, ref)
+            _add_ref_candidate(
+                candidates,
+                key,
+                ref,
+                expected_kind=_expected_phase5_ref_kind(key, ref),
+            )
     for key, value in payload.items():
         if _is_phase5_ref_key(key):
-            _add_ref_candidate(candidates, key, value)
+            _add_ref_candidate(
+                candidates,
+                key,
+                value,
+                expected_kind=_expected_phase5_ref_kind(key, value),
+            )
     for key, value in state.params.items():
         if key in {
             "judge_verdict",
@@ -247,24 +279,37 @@ def collect_phase5_evidence(
                 }
             )
 
-    for role, ref_text in _collect_phase5_ref_candidates(payload):
-        candidates.setdefault(role, ref_text)
-
-    for role, ref_text in sorted(candidates.items()):
-        loaded = _load_ref_payload(ctx, ref_text)
-        if loaded is None:
-            if _ctx_store(ctx) is not None:
-                failed_refs.append(ref_text)
-            continue
-        loaded_refs.append(ref_text)
-        evidence_records.append(
-            {
-                "kind": "phase5.loaded_evidence",
-                "role": role,
-                "artifact_ref": ref_text,
-                "payload": loaded,
-            }
+    for role, reference in _collect_phase5_ref_candidates(payload):
+        _add_ref_candidate(
+            candidates,
+            role,
+            reference,
+            expected_kind=_expected_phase5_ref_kind(role, reference),
         )
+
+    for role, candidate in sorted(candidates.items()):
+        if candidate.expected_kind == "scientist.explanation_bundle":
+            try:
+                loaded = _load_explanation_bundle_payload(ctx, candidate.reference)
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                failed_refs.append(f"{candidate.ref_text} ({exc})")
+                continue
+        else:
+            loaded = _load_ref_payload(ctx, candidate.ref_text)
+            if loaded is None:
+                if _ctx_store(ctx) is not None:
+                    failed_refs.append(candidate.ref_text)
+                continue
+        loaded_refs.append(candidate.ref_text)
+        record = {
+            "kind": "phase5.loaded_evidence",
+            "role": role,
+            "artifact_ref": candidate.ref_text,
+            "payload": loaded,
+        }
+        if candidate.expected_kind == "scientist.explanation_bundle":
+            record["selected_artifact_ref"] = _reference_payload(candidate.reference)
+        evidence_records.append(record)
 
     if evidence_records:
         payload = dict(payload)
@@ -547,7 +592,7 @@ def _explanation_component(mappings: Iterable[Mapping[str, Any]]) -> Phase5GateC
     records = [
         record
         for record in mappings
-        if record.get("kind") == "scientist.explanation_bundle"
+        if (record.get("kind") == "scientist.explanation_bundle" and "bundle_id" in record)
         or "faithfulness_claim" in record
         or "bounded_infidelity" in record
     ]
@@ -925,28 +970,62 @@ def _is_phase5_ref_key(key: str) -> bool:
     )
 
 
-def _add_ref_candidate(candidates: dict[str, str], role: str, value: Any) -> None:
+def _add_ref_candidate(
+    candidates: dict[str, _Phase5RefCandidate],
+    role: str,
+    value: Any,
+    *,
+    expected_kind: str | None = None,
+) -> None:
+    if value is None or isinstance(value, list | tuple):
+        return
+    kind = _reference_kind(value)
+    required_kind = expected_kind or (
+        "scientist.explanation_bundle" if kind == "scientist.explanation_bundle" else None
+    )
     ref_text = _ref_to_artifact_id(value)
-    if ref_text:
-        candidates.setdefault(role, ref_text)
+    if ref_text is None and required_kind is None:
+        return
+    if ref_text is None:
+        ref_text = value if isinstance(value, str) else f"invalid:{role}"
+    candidates.setdefault(
+        role,
+        _Phase5RefCandidate(
+            reference=value,
+            ref_text=ref_text,
+            expected_kind=required_kind,
+        ),
+    )
 
 
-def _collect_phase5_ref_candidates(payload: Mapping[str, Any]) -> list[tuple[str, str]]:
-    refs: list[tuple[str, str]] = []
+def _expected_phase5_ref_kind(role: str, reference: Any) -> str | None:
+    """Resolve the fixed BERL kind from its declared Phase-5 slot or typed ref."""
+    if "explanation_bundle" in str(role).casefold() or (
+        _reference_kind(reference) == "scientist.explanation_bundle"
+    ):
+        return "scientist.explanation_bundle"
+    return None
+
+
+def _collect_phase5_ref_candidates(payload: Mapping[str, Any]) -> list[tuple[str, Any]]:
+    refs: list[tuple[str, Any]] = []
     for record in _walk_mappings(payload):
         for key, value in record.items():
             if not _is_phase5_ref_key(str(key)):
                 continue
             if isinstance(value, list | tuple):
-                for index, item in enumerate(value):
-                    ref_text = _ref_to_artifact_id(item)
-                    if ref_text:
-                        refs.append((f"{key}.{index}", ref_text))
+                refs.extend((f"{key}.{index}", item) for index, item in enumerate(value))
                 continue
-            ref_text = _ref_to_artifact_id(value)
-            if ref_text:
-                refs.append((str(key), ref_text))
+            refs.append((str(key), value))
     return refs
+
+
+def _reference_profile(value: Any) -> str | None:
+    if isinstance(value, Mapping):
+        profile = value.get("manifest_profile_sha256")
+    else:
+        profile = getattr(value, "manifest_profile_sha256", None)
+    return str(profile) if isinstance(profile, str) else None
 
 
 def _ref_to_artifact_id(value: Any) -> str | None:
@@ -979,6 +1058,37 @@ def _load_ref_payload(ctx: ExecutionContext, ref_text: str) -> Any | None:
         return from_canonical_bytes(store.get_bytes(artifact_id))
     except (OSError, RuntimeError, TypeError, ValueError):
         return None
+
+
+def _load_explanation_bundle_payload(ctx: ExecutionContext, reference: Any) -> dict[str, Any]:
+    store = _ctx_store(ctx)
+    if store is None:
+        raise ValueError("explanation_bundle_store_unavailable")
+    reference_payload = _reference_payload(reference)
+    if not isinstance(reference_payload, Mapping):
+        raise ValueError("explanation_bundle_ref_invalid")
+
+    from polisyos.berl.persistence import load_explanation_bundle
+
+    bundle = load_explanation_bundle(store, reference_payload)
+    return bundle.model_dump(mode="json")
+
+
+def _reference_payload(reference: Any) -> Any:
+    model_dump = getattr(reference, "model_dump", None)
+    if callable(model_dump):
+        return model_dump(mode="python")
+    if isinstance(reference, Mapping):
+        return dict(reference)
+    return reference
+
+
+def _reference_kind(reference: Any) -> str | None:
+    if isinstance(reference, Mapping):
+        kind = reference.get("kind")
+    else:
+        kind = getattr(reference, "kind", None)
+    return str(kind) if isinstance(kind, str) else None
 
 
 def _phase5_judge_verdict(
@@ -1083,13 +1193,20 @@ def _blocked_judge_verdict(reason: str) -> Any:
 
 
 def _input_refs_for_publication(
-    artifact_ref: ArtifactRef | str | None,
+    artifact_ref: ArtifactRef | ExplanationBundleRef | str | None,
     judge_verdict_ref: ArtifactRef | None,
 ) -> list[InputRef] | None:
     inputs: list[InputRef] = []
     artifact_id = _ref_to_artifact_id(artifact_ref)
     if artifact_id:
-        inputs.append(InputRef(artifact_id=ArtifactID.model_validate(artifact_id), role="artifact"))
+        manifest_profile_sha256 = _reference_profile(artifact_ref)
+        inputs.append(
+            InputRef(
+                artifact_id=ArtifactID.model_validate(artifact_id),
+                role="artifact",
+                manifest_profile_sha256=manifest_profile_sha256,
+            )
+        )
     if judge_verdict_ref is not None:
         inputs.append(InputRef(artifact_id=judge_verdict_ref.artifact_id, role="judge_verdict"))
     return inputs or None
@@ -1205,7 +1322,7 @@ def _path(payload: Mapping[str, Any], *keys: str) -> Any:
     return current
 
 
-def _artifact_ref_to_text(ref: ArtifactRef | str | None) -> str | None:
+def _artifact_ref_to_text(ref: ArtifactRef | ExplanationBundleRef | str | None) -> str | None:
     if ref is None:
         return None
     if isinstance(ref, str):

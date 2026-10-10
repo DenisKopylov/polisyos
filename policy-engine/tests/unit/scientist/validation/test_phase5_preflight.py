@@ -10,7 +10,10 @@ from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.ir.analytics.sensitivity import SensitivityAnalysisBundle
 from polisyos.ir.governance.validation import Phase5GateComponent, ValidationReport
-from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_FAIRNESS_AUDIT_REPORT_REF
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_EXPLANATION_BUNDLE_REF,
+    ARTIFACT_FAIRNESS_AUDIT_REPORT_REF,
+)
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.validation.phase5_preflight import (
@@ -243,6 +246,60 @@ def test_preflight_loads_fairness_ref_from_cas(tmp_path) -> None:
     assert report.verdict == "blocked"
     assert str(fairness_ref.artifact_id) in report.evidence_refs
     assert any(failure == "Fairness audit status is refuse." for failure in report.gate_failures)
+
+
+@pytest.mark.parametrize(
+    ("reference", "expected_error"),
+    [
+        ("not-an-artifact-ref", "explanation_bundle_ref_invalid"),
+        ("sha256:" + "1" * 64, "explanation_bundle_ref_invalid"),
+        (
+            {
+                "artifact_id": "sha256:" + "0" * 64,
+                "kind": "scientist.other_bundle",
+                "media_type": "application/json",
+            },
+            "explanation_bundle_ref_invalid",
+        ),
+        (
+            {
+                "artifact_id": "sha256:" + "0" * 64,
+                "kind": "scientist.explanation_bundle",
+                "media_type": "application/json",
+            },
+            "explanation_bundle_manifest_contract_mismatch",
+        ),
+        (
+            {
+                "artifact_id": "sha256:" + "0" * 64,
+                "kind": "scientist.explanation_bundle",
+                "media_type": "application/json",
+                "manifest_profile_sha256": "sha256:not-a-digest",
+            },
+            "explanation_bundle_ref_invalid",
+        ),
+    ],
+)
+def test_preflight_refuses_present_malformed_explanation_refs(
+    tmp_path, reference: object, expected_error: str
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    ctx = cast("ExecutionContext", SimpleNamespace(store=store))
+    report = build_phase5_validation_report(
+        ctx,
+        _state(),
+        artifact_payload={ARTIFACT_EXPLANATION_BUNDLE_REF: reference},
+        artifact_kind="scientist.decision_packet",
+    )
+
+    resolution = next(
+        component
+        for component in report.phase5_components
+        if component.name == "evidence_resolution"
+    )
+    assert resolution.status == "blocked"
+    failed_refs = report.normalized_payload["phase5"]["failed_evidence_refs"]
+    assert any(expected_error in str(item) for item in failed_refs)
 
 
 def test_preflight_blocks_underachieved_prior_sensitivity_tier() -> None:

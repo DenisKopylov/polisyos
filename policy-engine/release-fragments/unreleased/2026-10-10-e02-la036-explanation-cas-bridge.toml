@@ -3,17 +3,18 @@ title = "Add typed CAS persistence and loading for BERL explanation bundles"
 type = "added"
 component = "berl"
 owner = "team-runtime-quality"
-summary = "BERL now exposes a fixed-kind, versioned CAS writer and exact-view reader for ExplanationBundle. A producer-to-CAS-to-fresh-reader integration witness feeds the loaded bundle through the existing Phase-5 and warrant-reliability consumers; marginal identity is preserved and unsupported conditional evidence remains blocked."
+summary = "BERL now exposes a fixed-kind, versioned CAS writer and exact-view reader for ExplanationBundle, and Phase-5 can consume the full selected ref through its real preflight. The integration witness preserves marginal identity, selected-view lineage, and refusal of unsupported conditional evidence."
 evidence = [
   "tests/unit/berl/test_persistence.py",
+  "tests/unit/scientist/validation/test_phase5_preflight.py",
   "tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
 ]
-compatibility = "Additive public experimental exports. The existing in-memory ExplanationOrchestrator API is unchanged. Persisted artifacts use scientist.explanation_bundle, application/json, the existing generated ExplanationBundle schema identifier, and schema version 1.0.0; the reader requires a typed ref and validates its exact selected manifest view."
+compatibility = "The in-memory ExplanationOrchestrator API is unchanged. The Phase-5 preflight input additively accepts ExplanationBundleRef; a present manifest-profile digest selects that exact view and an omitted digest selects the immutable default manifest view. Both paths verify the actual selected manifest and payload against the BERL contract; a default whose schema or metadata differs is refused. Persisted artifacts use scientist.explanation_bundle, application/json, the existing generated ExplanationBundle schema identifier, and schema version 1.0.0."
 change_class = "python-public-api"
-surface_classification = "public_experimental: polisyos.berl CAS persistence and loading helpers"
-migration = "Call persist_explanation_bundle explicitly after producing a bundle, then pass its full ExplanationBundleRef to load_explanation_bundle when a fresh reader needs the persisted view. Preserve manifest_profile_sha256; do not reduce the ref to an artifact ID."
-api = "The writer and reader are additive facade exports. The reader refuses wrong kind, media, schema identity/version, malformed selected views, and incomplete persisted wire payloads before Pydantic defaults can fill missing fields."
-limitations = "No production call site currently wires ExplanationOrchestrator.explain to CAS; the tested route is an integration prototype and remains implemented_but_not_orchestrated. No verified conditional-law producer exists. Conditional bundles remain diagnostic, and declared refs or method assumptions do not verify a law."
+surface_classification = "public_experimental: polisyos.berl CAS persistence/loading and Phase-5 selected-view preflight input"
+migration = "Call persist_explanation_bundle explicitly after producing a bundle. For Phase-5, pass its full ExplanationBundleRef as artifact_ref; the preflight reloads the exact profile-selected view, or the fixed default view when the ref has no profile, and retains any supplied manifest_profile_sha256 in validation-report lineage. A profileless default ref is not evidence that a previously non-default selector was preserved; if the actual default manifest fails the BERL contract, preflight blocks. Same-kind/schema manifest views can differ in inputs, which the current BERL consumer does not independently bind; preserve the profile digest when that non-default lineage matters. Fresh direct readers should call load_explanation_bundle with the full ref. Do not reduce a selected ref to an artifact ID."
+api = "The writer and reader are additive facade exports. The Phase-5 input additionally accepts ExplanationBundleRef. The reader and Phase-5 consumer refuse wrong kind, media, schema identity/version, malformed selectors, mismatched selected views, and incomplete persisted wire payloads before Pydantic defaults can fill missing fields. A profileless ref resolves only the immutable default view and does not prove that an earlier non-default selector was preserved. Phase-5 keeps any supplied selected profile digest on the validation report input edge."
+limitations = "No production call site currently wires ExplanationOrchestrator.explain to CAS; the tested producer route remains implemented_but_not_orchestrated. The Runtime warrant-reliability validator still consumes an inline validated bundle mapping rather than resolving CAS refs. No verified conditional-law producer exists. Conditional bundles remain diagnostic, and declared refs or method assumptions do not verify a law."
 generated_client_compatibility = "not_applicable"
 migration_docs = ["src/polisyos/berl/README.md"]
 runbook_docs = []

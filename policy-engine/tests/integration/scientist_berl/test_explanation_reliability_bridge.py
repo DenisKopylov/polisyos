@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from types import SimpleNamespace
 from typing import TYPE_CHECKING, cast
 
 import pytest
@@ -23,7 +24,11 @@ from polisyos.berl.contracts.explanation_bundle import (
     ValidityReport,
 )
 from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.validation.phase5_preflight import build_phase5_validation_report
+from polisyos.scientist.validation.phase5_preflight import (
+    Phase5ArtifactPreflightInput,
+    build_phase5_validation_report,
+    run_phase5_artifact_preflight,
+)
 
 if TYPE_CHECKING:
     from polisyos.ir.governance.validation import Phase5GateComponent
@@ -171,10 +176,12 @@ def _explanation_bundle(
         ("conditional_observational", "kernel_shap_conditional"),
     ],
 )
+@pytest.mark.parametrize("preexisting_view", [False, True], ids=["empty-cas", "same-id-collision"])
 def test_explanation_orchestrator_bundle_crosses_cas_into_existing_consumers(
     tmp_path,
     feature_dependence_policy: str,
     method_id: str,
+    preexisting_view: bool,
 ) -> None:
     from polisyos.berl import (
         ExplanationOrchestrator,
@@ -184,12 +191,14 @@ def test_explanation_orchestrator_bundle_crosses_cas_into_existing_consumers(
     )
     from polisyos.berl.contracts.schema import explanation_bundle_schema_id
     from polisyos.core.artifacts import SchemaInfo
+    from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
     from polisyos.core.canon import CanonSpec
     from polisyos.runtime.quality.explanation_reliability import (
         build_berl_warrant_reliability_record,
         evaluate_warrant_berl_reliability,
     )
+    from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_EXPLANATION_BUNDLE_REF
 
     store_root = tmp_path / feature_dependence_policy
     producer = ExplanationOrchestrator()
@@ -222,21 +231,56 @@ def test_explanation_orchestrator_bundle_crosses_cas_into_existing_consumers(
 
     produced = producer.explain(model, request)
     producer_store = FileSystemCAS(store_root)
-    producer_store.put_json(
-        produced.model_dump(mode="json", round_trip=True),
-        PutOptions(
-            kind="scientist.explanation_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(
-                name=explanation_bundle_schema_id(),
-                version="0.9.0",
+    if preexisting_view:
+        producer_store.put_json(
+            produced.model_dump(mode="json", round_trip=True),
+            PutOptions(
+                kind="scientist.explanation_bundle",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name=explanation_bundle_schema_id(),
+                    version="0.9.0",
+                ),
             ),
-        ),
-        canon_spec=CanonSpec(forbid_floats=False),
-    )
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
     ref = persist_explanation_bundle(producer_store, produced)
     loaded = load_explanation_bundle(FileSystemCAS(store_root), ref)
     explanation_component = _explanation_component_for(loaded)
+
+    phase5_store = FileSystemCAS(store_root)
+    phase5_result = run_phase5_artifact_preflight(
+        cast("ExecutionContext", SimpleNamespace(store=phase5_store)),
+        ExperimentState(run_id=f"phase5-{feature_dependence_policy}"),
+        Phase5ArtifactPreflightInput(
+            artifact_ref=ref,
+            artifact_kind="scientist.explanation_bundle",
+            analyst_facing=False,
+        ),
+    )
+    phase5_explanation = next(
+        component
+        for component in phase5_result.validation_report.phase5_components
+        if component.name == "explanation"
+    )
+    state_ref_report = build_phase5_validation_report(
+        cast("ExecutionContext", SimpleNamespace(store=FileSystemCAS(store_root))),
+        ExperimentState(
+            run_id=f"phase5-state-ref-{feature_dependence_policy}",
+            artifacts_index={
+                ARTIFACT_EXPLANATION_BUNDLE_REF: ArtifactRef.model_validate(
+                    ref.model_dump(mode="python")
+                )
+            },
+        ),
+    )
+    state_ref_explanation = next(
+        component
+        for component in state_ref_report.phase5_components
+        if component.name == "explanation"
+    )
+    phase5_manifest = phase5_store.get_manifest(phase5_result.validation_ref.artifact_id)
+    explanation_lineage = next(item for item in phase5_manifest.inputs if item.role == "artifact")
 
     record = build_berl_warrant_reliability_record(
         reliability_id=f"berl-{feature_dependence_policy}",
@@ -257,14 +301,25 @@ def test_explanation_orchestrator_bundle_crosses_cas_into_existing_consumers(
     )
 
     assert loaded.bundle_id == produced.bundle_id
-    assert ref.manifest_profile_sha256 is not None
-    assert "manifest_profile_sha256" in record["explanation_bundle_ref"]
+    if preexisting_view:
+        assert ref.manifest_profile_sha256 is not None
+        assert producer_store.get_manifest(ref.artifact_id).artifact_schema.version == "0.9.0"
+        assert "manifest_profile_sha256" in record["explanation_bundle_ref"]
+    else:
+        assert ref.manifest_profile_sha256 is None
+        assert producer_store.get_manifest(ref.artifact_id).artifact_schema.version == "1.0.0"
+        assert "manifest_profile_sha256" not in record["explanation_bundle_ref"]
+    assert str(explanation_lineage.artifact_id) == str(ref.artifact_id)
+    assert explanation_lineage.manifest_profile_sha256 == ref.manifest_profile_sha256
     if feature_dependence_policy == "marginal_interventional":
         method = loaded.methods[0]
         assert method.requested_method_id == "kernel_shap_marginal"
         assert method.effective_method_id == "kernel_shap"
         assert loaded.display_policy == "analyst_display"
         assert explanation_component.status == "pass"
+        assert phase5_explanation.status == "pass", phase5_explanation.blockers
+        assert phase5_result.validation_report.verdict == "pass"
+        assert state_ref_explanation.status == "pass"
         assert runtime_result.issues == ()
     else:
         method = loaded.methods[0]
@@ -273,6 +328,9 @@ def test_explanation_orchestrator_bundle_crosses_cas_into_existing_consumers(
         assert "no verified conditional law" in method.params["diagnostic"]
         assert loaded.audit.artifact_refs == ["cas://self-attested/conditional-law-verified"]
         assert explanation_component.status == "blocked"
+        assert phase5_explanation.status == "blocked"
+        assert phase5_result.validation_report.verdict == "blocked"
+        assert state_ref_explanation.status == "blocked"
         assert any(
             "conditional_feature_law_unverified" in blocker
             for blocker in explanation_component.blockers
@@ -280,3 +338,42 @@ def test_explanation_orchestrator_bundle_crosses_cas_into_existing_consumers(
         assert any(
             "conditional_feature_law_unverified" in issue.message for issue in runtime_result.issues
         )
+
+    profileless_result = run_phase5_artifact_preflight(
+        cast("ExecutionContext", SimpleNamespace(store=FileSystemCAS(store_root))),
+        ExperimentState(run_id=f"phase5-profileless-{feature_dependence_policy}"),
+        Phase5ArtifactPreflightInput(
+            artifact_ref=ref.model_copy(update={"manifest_profile_sha256": None}),
+            artifact_kind="scientist.explanation_bundle",
+            analyst_facing=False,
+        ),
+    )
+    if preexisting_view:
+        assert any(
+            "explanation_bundle_manifest_contract_mismatch" in str(item)
+            for item in profileless_result.validation_report.normalized_payload["phase5"][
+                "failed_evidence_refs"
+            ]
+        )
+        assert profileless_result.validation_report.verdict == "blocked"
+    else:
+        assert (
+            profileless_result.validation_report.verdict == phase5_result.validation_report.verdict
+        )
+
+    wrong_profile_result = run_phase5_artifact_preflight(
+        cast("ExecutionContext", SimpleNamespace(store=FileSystemCAS(store_root))),
+        ExperimentState(run_id=f"phase5-corrupt-profile-{feature_dependence_policy}"),
+        Phase5ArtifactPreflightInput(
+            artifact_ref=ref.model_copy(update={"manifest_profile_sha256": f"sha256:{'0' * 64}"}),
+            artifact_kind="scientist.explanation_bundle",
+            analyst_facing=False,
+        ),
+    )
+    assert any(
+        "explanation_bundle_manifest_contract_mismatch" in str(item)
+        for item in wrong_profile_result.validation_report.normalized_payload["phase5"][
+            "failed_evidence_refs"
+        ]
+    )
+    assert wrong_profile_result.validation_report.verdict == "blocked"

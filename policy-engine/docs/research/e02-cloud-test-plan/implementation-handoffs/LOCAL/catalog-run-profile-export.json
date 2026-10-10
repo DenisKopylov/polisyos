@@ -1,0 +1,165 @@
+{
+  "schema": "policyos.e02.local_slice_author_capture.v1",
+  "registered_handoff_admission": "NOT_ADMITTED: complete execution-environment v1 is not supplied; partial observation requires G schema decision",
+  "slice_id": "catalog-run-profile-export",
+  "slice_base": {
+    "commit": "dc3071e8c700adda56fdc33eba90bdcce33db275",
+    "tree": "6469ee340b21a07dc16f3dc0c93473195e630336"
+  },
+  "candidate_source": {
+    "commit": "efc3fbe81a31000a968143755f7f4bbb7ff537b3",
+    "tree": "dca81aeae281107411f7d4a005ff9e1a5467ac49"
+  },
+  "parents": [
+    "dc3071e8c700adda56fdc33eba90bdcce33db275"
+  ],
+  "source_footprint": [
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "git_blob": "a23e8c9e13081fb728ec4dd40e92314caa37194f",
+      "sha256": "2f66b5677ac2df639d2d42f0e362e809ab4579603b6b11704b2dc4afd7f43df9"
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "git_blob": "2c9ef7de30fdd6e216e9a321d55716695bb2c571",
+      "sha256": "5c56a5d804867e2f24757f95db06a4e6e7b4e71eca3460699c7c813fc641364d"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-10-core-contracts-catalog-run-profile.toml",
+      "git_blob": "82994467faf31b67c05e38ad1c215ceaba69a80d",
+      "sha256": "fa2e3e3a042650f2aa01e6a72e0e1e83022fe8f05207d839092a490571d9672c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/README.md",
+      "git_blob": "d9e2165b5ed5b5e37bc16863a3f502dce86468cb",
+      "sha256": "527a5c693ced6ef71ad49791654c7480b3368caf7b9e571520f8283f1e3e1668"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "git_blob": "e98ee5b1d77da2023bfa7c9d04686103ab1844e7",
+      "sha256": "263a140bdce75e6e9ce2f6c6b31c3bff43b8c0a91a26fb886f59e6e8e8341e6e"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+      "git_blob": "c01d76f72feefdfbb8e06244e88265cd496e87cc",
+      "sha256": "5bc483ddc2ff56b75d5b5766ead17b34b92adb5e10bb1777fe1baa52e77085c5"
+    }
+  ],
+  "selected_input_profile_backend": {
+    "backend": "local macOS candidate .venv Python 3.14.3",
+    "profile": "existing Core control Literal facade export and architecture module tests",
+    "numerical_threads": 1
+  },
+  "verification": [
+    {
+      "command": [
+        "/usr/bin/time",
+        "-l",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "--color=no",
+        "--basetemp=_build/e02-repair-fixtures/catalog-run-profile-export-final-verification-20261010",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/catalog-run-profile-export-final-verification-20261010/junit.xml",
+        "tests/repo_quality/architecture/test_public_surface_export_resolution.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "execution_head": "dc3071e8c700adda56fdc33eba90bdcce33db275",
+      "exit_code": 0,
+      "result": "99 PASS / 0 FAIL / 0 ERROR / 0 SKIP",
+      "wall_seconds": 4.132907749968581,
+      "before_sha256": {
+        "src/polisyos/core/contracts/__init__.py": "263a140bdce75e6e9ce2f6c6b31c3bff43b8c0a91a26fb886f59e6e8e8341e6e",
+        "src/polisyos/core/contracts/README.md": "527a5c693ced6ef71ad49791654c7480b3368caf7b9e571520f8283f1e3e1668",
+        "tests/repo_quality/architecture/test_public_surface_export_resolution.py": "5bc483ddc2ff56b75d5b5766ead17b34b92adb5e10bb1777fe1baa52e77085c5",
+        "release-fragments/unreleased/2026-10-10-core-contracts-catalog-run-profile.toml": "fa2e3e3a042650f2aa01e6a72e0e1e83022fe8f05207d839092a490571d9672c"
+      },
+      "after_sha256": {
+        "src/polisyos/core/contracts/__init__.py": "263a140bdce75e6e9ce2f6c6b31c3bff43b8c0a91a26fb886f59e6e8e8341e6e",
+        "src/polisyos/core/contracts/README.md": "527a5c693ced6ef71ad49791654c7480b3368caf7b9e571520f8283f1e3e1668",
+        "tests/repo_quality/architecture/test_public_surface_export_resolution.py": "5bc483ddc2ff56b75d5b5766ead17b34b92adb5e10bb1777fe1baa52e77085c5",
+        "release-fragments/unreleased/2026-10-10-core-contracts-catalog-run-profile.toml": "fa2e3e3a042650f2aa01e6a72e0e1e83022fe8f05207d839092a490571d9672c"
+      },
+      "full_deciding_output": [
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/catalog-run-profile-export-final-verification-20261010/command.json",
+          "sha256": "47745502913bd02fcf56e9e5f19246cf3dc96a49ed3a22b18d24afd3ecc39238",
+          "bytes": 2764
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/catalog-run-profile-export-final-verification-20261010/stdout.txt",
+          "sha256": "20b810c9c4f0d5f4240582036e126e9aabdbe643e10fed66f4c3816d9984155e",
+          "bytes": 179
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/catalog-run-profile-export-final-verification-20261010/stderr.txt",
+          "sha256": "1029ce6b682f34a064e60aad1f95b1158dc07d98bcb243ed874cc8854e756076",
+          "bytes": 777
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/catalog-run-profile-export-final-verification-20261010/junit.xml",
+          "sha256": "5522e2cc04f47aeb59e7fb6b9cd79234293a0ac4da205b00e3e42e60071370f7",
+          "bytes": 20841
+        }
+      ]
+    },
+    {
+      "operation": "canonical render exact byte comparison; surgical regeneration only four generated lines",
+      "full_deciding_output": [
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/catalog-run-profile-generated-readback-20261010/stdout.txt",
+          "sha256": "13cd2b73ff39b916b01502d2eea136a30527a1cfc0c0c83e4948a691b24e73f2",
+          "bytes": 717
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/catalog-run-profile-generated-readback-20261010/drift.diff",
+          "sha256": "505563b42f7ddff290eeaeec0e4862b77f9eb3f4068361d77113b8f5ec22ef14",
+          "bytes": 55786
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/catalog-run-profile-generated-readback-20261010/surgical-regeneration.json",
+          "sha256": "8aedb681f03c2d5d986f64210038756a85e6daafab93271f761d5e761dc9cf6d",
+          "bytes": 651
+        }
+      ],
+      "result": "exact canonical JSON/Markdown bytes; unresolved chronology export stays unresolved"
+    }
+  ],
+  "real_chain": "existing .control Literal -> existing lazy facade resolver -> declared __all__ -> real import object identity -> consumer test; generator source digest/reason reflects same bytes",
+  "controls": "99 existing actual export resolution tests; additive identity assertion; no whole import-edge or dynamic chronology completeness claim",
+  "consumer_surface": "polisyos.core.contracts public facade and canonical generated inventory/reference",
+  "limitations": [
+    "Full architecture import denominator and star/lazy export resolution semantics remain separate decision.",
+    "No authority/currentness or whole E02 closure is established.",
+    "Initial render detected real own generated drift; surgical companions corrected it, preserved full diff."
+  ],
+  "decision_pointers": [
+    "decisions/architecture-companion-export-resolution-triage-20261010.md"
+  ],
+  "independent_reviews": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/catalog-run-profile-export-independent-20261010.md",
+      "sha256": "1af6062176fda9f45682038223aa3643b33b2c7fa634cb1b43a0eebbbb346646",
+      "bytes": 2923
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/catalog-run-profile-generated-companions-independent-20261010.md",
+      "sha256": "db059964b357e344e6985ae3b3d8b68961dfe3f28ad1543f1183f97a33bff2ae",
+      "bytes": 2341
+    }
+  ],
+  "closure_ids": [],
+  "proposal_fields": {
+    "task_ids": [
+      "DX0"
+    ],
+    "finding_ids": [],
+    "scope": "bounded additive facade repair; formal adjudication remains G"
+  }
+}

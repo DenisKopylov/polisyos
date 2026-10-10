@@ -25,6 +25,7 @@ from polisyos.foundry.methods.catalog.causal.protocols import (
     TimeSeriesCausalData,
 )
 from polisyos.ir.analytics.causal_queries import CausalQuery
+from polisyos.scientist.methods.discovery.artifact_refs import profile_bound_written_ref
 from polisyos.scientist.methods.discovery.portfolio import PortfolioCandidate, run_discovery_method
 from polisyos.scientist.methods.discovery.schema import (
     edge_key_for_edge,
@@ -255,7 +256,8 @@ def persist_bootstrap_stability_report(
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return BootstrapStabilityReportRef.model_validate(ref.model_dump(mode="json"))
+    typed_ref = BootstrapStabilityReportRef.model_validate(ref.model_dump(mode="json"))
+    return profile_bound_written_ref(store, typed_ref)
 
 
 def load_bootstrap_stability_report(

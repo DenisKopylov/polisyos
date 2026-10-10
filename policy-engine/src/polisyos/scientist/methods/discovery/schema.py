@@ -19,6 +19,7 @@ from polisyos.ir.analytics.causal_discovery import (
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel
 from polisyos.ir.registry.refs import CausalDiscoveryReportRef
+from polisyos.scientist.methods.discovery.artifact_refs import profile_bound_written_ref
 from polisyos.scientist.methods.discovery.latent_producers import produce_latent_discovery_bundle
 
 GRAPH_HYPOTHESIS_SCHEMA_NAME = "polisyos.scientist.methods.discovery.GraphHypothesis"
@@ -313,7 +314,8 @@ def persist_graph_hypothesis(
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return GraphHypothesisRef.model_validate(ref.model_dump(mode="json"))
+    typed_ref = GraphHypothesisRef.model_validate(ref.model_dump(mode="json"))
+    return profile_bound_written_ref(store, typed_ref)
 
 
 def load_graph_hypothesis(

@@ -10,7 +10,12 @@ from uuid import uuid4
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.scientist import (
@@ -59,6 +64,7 @@ from polisyos.scientist.methods.discovery.aggregator import (
     load_edge_confidence_matrix,
     persist_edge_confidence_matrix,
 )
+from polisyos.scientist.methods.discovery.artifact_refs import profile_bound_written_ref
 from polisyos.scientist.methods.discovery.portfolio import PortfolioRunnerConfig, PortfolioRunResult
 from polisyos.scientist.methods.discovery.priors import (
     GraphPriorBundle,
@@ -333,7 +339,17 @@ class DiscoveryArtifactBuilder:
             source.model_copy(update={"hypotheses": prepared_hypotheses}),
             hypothesis_refs,
         )
-        hypothesis_set_ref = persist_graph_hypothesis_set(store, hypothesis_set, inputs=inputs)
+        hypothesis_set_ref = persist_graph_hypothesis_set(
+            store,
+            hypothesis_set,
+            inputs=[
+                *inputs,
+                input_ref_from_artifact_ref(
+                    task_profile_ref,
+                    role="discovery_task_profile",
+                ),
+            ],
+        )
 
         edge_confidence_matrix_ref = persist_edge_confidence_matrix(
             store,
@@ -345,15 +361,40 @@ class DiscoveryArtifactBuilder:
             source.bootstrap_stability_report,
             inputs=inputs,
         )
+        utility_source_inputs = [
+            *inputs,
+            input_ref_from_artifact_ref(
+                task_profile_ref,
+                role="discovery_task_profile",
+            ),
+            input_ref_from_artifact_ref(
+                hypothesis_set_ref,
+                role="graph_hypothesis_set",
+            ),
+        ]
         downstream_utility_report_ref = persist_downstream_utility_report(
             store,
             source.downstream_utility_report,
-            inputs=inputs,
+            inputs=utility_source_inputs,
         )
         graph_prior_bundle_ref = persist_graph_prior_bundle(
             store,
             source.graph_prior_bundle,
-            inputs=inputs,
+            inputs=[
+                *inputs,
+                input_ref_from_artifact_ref(
+                    downstream_utility_report_ref,
+                    role="downstream_utility_report",
+                ),
+                input_ref_from_artifact_ref(
+                    edge_confidence_matrix_ref,
+                    role="edge_confidence_matrix",
+                ),
+                input_ref_from_artifact_ref(
+                    bootstrap_stability_report_ref,
+                    role="bootstrap_stability_report",
+                ),
+            ],
         )
         prior_knowledge_bundle_ref = persist_prior_knowledge_bundle(
             store,
@@ -445,7 +486,11 @@ class DiscoveryArtifactBuilder:
         inputs: list[InputRef],
     ) -> tuple[list[GraphHypothesis], dict[str, CausalDiscoveryReportRef]]:
         ir_inputs = [
-            IRInputRef(artifact_id=input_ref.artifact_id, role=input_ref.role)
+            IRInputRef(
+                artifact_id=input_ref.artifact_id,
+                role=input_ref.role,
+                manifest_profile_sha256=input_ref.manifest_profile_sha256,
+            )
             for input_ref in inputs
         ]
         if source.portfolio_result is None:
@@ -463,6 +508,7 @@ class DiscoveryArtifactBuilder:
                 candidate.source_report,
                 inputs=ir_inputs,
             )
+            ref = profile_bound_written_ref(store, ref)
             hypothesis = candidate.hypothesis.model_copy(
                 update={"source_discovery_report_ref": ref}
             )
@@ -503,6 +549,8 @@ class DiscoveryArtifactBuilder:
             ),
             metadata={
                 "n_hypotheses": len(source.hypotheses),
+                "run_id": source.run_id,
+                "task_id": source.task_id,
             },
         )
 
@@ -931,7 +979,8 @@ def _put_model(
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return ref_cls.model_validate(ref.model_dump(mode="json"))
+    typed_ref = ref_cls.model_validate(ref.model_dump(mode="json"))
+    return profile_bound_written_ref(store, typed_ref)
 
 
 def _load_model(

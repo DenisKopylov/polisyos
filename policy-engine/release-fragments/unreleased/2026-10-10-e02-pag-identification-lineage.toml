@@ -1,0 +1,24 @@
+id = "2026-10-10-e02-pag-identification-lineage"
+title = "Carry discovery identification limits into cross-graph governance"
+type = "changed"
+component = "scientist"
+owner = "team-scientist"
+summary = "GraphPriorBundle 1.1 retains supporting-hypothesis identification snapshots. The selected GraphPrior view links the utility report, edge-confidence matrix, and bootstrap stability report; the report and hypothesis set link selected task and hypothesis views. Cross-graph compilation replays the ordered-source aggregation and GraphPriorBuilder output, compares complete matrix and emitted-edge semantics, and recomputes identification on the same selected graph used by UtilityJudge. A differing raw/resolved basis remains not_established without a qualified translation proof; missing or mismatched source binding remains review-required, and STRICT emits a blocker."
+evidence = [
+  "src/polisyos/scientist/methods/discovery/priors.py",
+  "src/polisyos/scientist/methods/discovery/output.py",
+  "src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py",
+  "src/polisyos/scientist/governance/passes/cross_graph_evidence_pass.py",
+  "tests/unit/scientist/nodes/builtins/planning/test_compile_cross_graph_evidence.py",
+  "tests/unit/scientist/discovery/test_output.py",
+]
+compatibility = "GraphPriorBundle moves to schema 1.1 with an additive typed field. Schema 1.0 payloads still load with the field absent; those edges are retained as candidate needs but marked not_established and review-required rather than reported supported. CrossGraphEvidenceProfile wire schema and existing enum values do not change."
+change_class = "internal"
+surface_classification = "internal: discovery graph-prior and cross-graph artifacts; no HTTP or generated-client surface change."
+migration = "No stored-artifact rewrite is required. New graph-prior artifacts use schema 1.1; older artifacts remain readable and fail closed on missing hypothesis identification lineage."
+api = "The downstream utility score remains the ranking signal. GraphPriorBuilder snapshots per-hypothesis identification status, score, limitations, reasons, warnings, and blocking certificates. The output builder binds the selected task profile into the hypothesis-set lineage, the report binds its selected task and hypothesis-set views, and the GraphPrior view binds the selected report, edge-confidence matrix, and bootstrap stability report. Cross-graph compilation requires and records those exact views and payload hashes, recomputes the same selected-graph identification projection used by UtilityJudge, replays EvidenceWeightedAggregator from the ordered source hypotheses and selected reports, and compares the full persisted matrix. It then replays GraphPriorBuilder and compares complete emitted edge collections, weights, and summaries, retaining the producer's skeleton-wide contributor IDs. It records canonical digests for each contributing hypothesis's raw and report-selected graph; a differing basis is not established without a qualified translation proof, even if computed outcomes agree. Embedded snapshot labels alone never establish identified status. Missing, mismatched, misordered, or limited rows remain review-required; STRICT consumes that condition as a blocker and non-STRICT profiles retain the existing severity policy."
+limitations = "This preserves current candidate identification outputs and gates their unsupported use; it does not resolve PAG/CPDAG identification, prove all-completions validity, determine how expert review resolves a candidate, or establish a protected causal claim."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/methods/discovery/README.md"]
+runbook_docs = []

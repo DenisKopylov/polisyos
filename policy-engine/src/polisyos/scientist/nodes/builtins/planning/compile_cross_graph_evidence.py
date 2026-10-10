@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -113,6 +114,7 @@ _CROSS_GRAPH_IMPORT_RUNTIME_ERRORS = (
     ValueError,
     ValidationError,
 )
+_DISCOVERY_IDENTIFICATION_LIMITATION_REASON = "discovery_hypothesis_identification_limited"
 
 
 @dataclass(frozen=True)
@@ -423,6 +425,7 @@ def _augment_with_graph_prior(
 
         graph_prior_ref = GraphPriorBundleRef.model_validate(ref.model_dump(mode="json"))
         bundle = load_graph_prior_bundle(ctx.store, graph_prior_ref)
+        source_identification = _source_verified_identification_rows(ctx.store, graph_prior_ref, bundle)
     except _CROSS_GRAPH_IMPORT_RUNTIME_ERRORS as exc:
         diagnostics = [
             *profile.diagnostics,
@@ -438,11 +441,19 @@ def _augment_with_graph_prior(
 
     extra_needs = [
         *[
-            _assessment_from_prior_edge(edge, source_label="required")
+            _assessment_from_prior_edge(
+                edge,
+                source_label="required",
+                hypothesis_identification=source_identification,
+            )
             for edge in bundle.required_edges
         ],
         *[
-            _assessment_from_prior_edge(edge, source_label="high_confidence")
+            _assessment_from_prior_edge(
+                edge,
+                source_label="high_confidence",
+                hypothesis_identification=source_identification,
+            )
             for edge in bundle.high_confidence_edges
         ],
         *[
@@ -450,6 +461,7 @@ def _augment_with_graph_prior(
                 candidate,
                 dispute_id=disputed.dispute_id,
                 dispute_reasons=disputed.dispute_reasons,
+                hypothesis_identification=source_identification,
             )
             for disputed in bundle.disputed_edges
             for candidate in disputed.candidate_edges
@@ -485,7 +497,34 @@ def _augment_with_graph_prior(
     return enriched.model_copy(update={"summary": _rebuild_summary(enriched)})
 
 
-def _assessment_from_prior_edge(edge: Any, *, source_label: str) -> EvidenceNeedAssessment:
+def _assessment_from_prior_edge(
+    edge: Any,
+    *,
+    source_label: str,
+    hypothesis_identification: dict[str, Any],
+) -> EvidenceNeedAssessment:
+    identification_records, identification_limited = _hypothesis_identification_projection(
+        edge,
+        hypothesis_identification,
+    )
+    labels = [f"discovery_{source_label}"]
+    blocking_reasons: list[str] = []
+    diagnostics: list[CrossGraphDiagnostic] = []
+    recommended_actions = [f"preserve_{source_label}_discovery_edge"]
+    if identification_limited:
+        labels.append("discovery_limited")
+        blocking_reasons.append(_DISCOVERY_IDENTIFICATION_LIMITATION_REASON)
+        recommended_actions.append("review_discovery_hypothesis_identification_before_use")
+        diagnostics.append(
+            CrossGraphDiagnostic(
+                code="cross_graph.discovery_prior.identification_limited",
+                severity="warn",
+                message=(
+                    "Discovery edge support includes hypotheses without fully identified status."
+                ),
+                details={"hypothesis_identification": identification_records},
+            )
+        )
     need = EvidenceNeed(
         need_id=build_evidence_need_id(
             EvidenceNeedType.CAUSAL_EDGE_NEED,
@@ -499,18 +538,23 @@ def _assessment_from_prior_edge(edge: Any, *, source_label: str) -> EvidenceNeed
         source_path="scientist.discovery.graph_prior_bundle",
         cause=edge.src,
         effect=edge.dst,
-        labels=[f"discovery_{source_label}"],
+        labels=labels,
     )
+    diagnostics = [item.model_copy(update={"need_id": need.need_id}) for item in diagnostics]
     return EvidenceNeedAssessment(
         need=need,
         legal_status=LegalStatus.UNKNOWN,
         observability_status=ObservabilityStatus.UNKNOWN,
-        evidence_status=EvidenceStatus.SUPPORTED,
+        evidence_status=(
+            EvidenceStatus.INSUFFICIENT if identification_limited else EvidenceStatus.SUPPORTED
+        ),
         transport_status=TransportStatus.UNSUPPORTED,
         confidence=float(edge.presence_confidence),
-        requires_expert_review=False,
-        recommended_actions=[f"preserve_{source_label}_discovery_edge"],
+        requires_expert_review=identification_limited,
+        blocking_reasons=blocking_reasons,
+        recommended_actions=recommended_actions,
         provenance_refs=list(edge.provenance_refs),
+        diagnostics=diagnostics,
     )
 
 
@@ -519,7 +563,38 @@ def _assessment_from_disputed_candidate(
     *,
     dispute_id: str,
     dispute_reasons: list[str],
+    hypothesis_identification: dict[str, Any],
 ) -> EvidenceNeedAssessment:
+    identification_records, identification_limited = _hypothesis_identification_projection(
+        edge,
+        hypothesis_identification,
+    )
+    diagnostics = [
+        CrossGraphDiagnostic(
+            code="cross_graph.discovery_prior.disputed",
+            severity="warn",
+            message="Discovery surfaced a disputed causal edge that needs follow-up.",
+            details={"dispute_id": dispute_id, "reasons": list(dispute_reasons)},
+        )
+    ]
+    blocking_reasons: list[str] = []
+    recommended_actions = ["resolve_disputed_discovery_edge"]
+    if identification_limited:
+        blocking_reasons.append(_DISCOVERY_IDENTIFICATION_LIMITATION_REASON)
+        recommended_actions.append("review_discovery_hypothesis_identification_before_use")
+        diagnostics.append(
+            CrossGraphDiagnostic(
+                code="cross_graph.discovery_prior.identification_limited",
+                severity="warn",
+                message=(
+                    "Discovery edge support includes hypotheses without fully identified status."
+                ),
+                details={"hypothesis_identification": identification_records},
+            )
+        )
+    labels = ["discovery_disputed"]
+    if identification_limited:
+        labels.append("discovery_limited")
     need = EvidenceNeed(
         need_id=build_evidence_need_id(
             EvidenceNeedType.CAUSAL_EDGE_NEED,
@@ -533,8 +608,9 @@ def _assessment_from_disputed_candidate(
         source_path="scientist.discovery.graph_prior_bundle.disputed",
         cause=edge.src,
         effect=edge.dst,
-        labels=["discovery_disputed"],
+        labels=labels,
     )
+    diagnostics = [item.model_copy(update={"need_id": need.need_id}) for item in diagnostics]
     return EvidenceNeedAssessment(
         need=need,
         legal_status=LegalStatus.UNKNOWN,
@@ -543,18 +619,518 @@ def _assessment_from_disputed_candidate(
         transport_status=TransportStatus.UNSUPPORTED,
         confidence=float(edge.presence_confidence),
         requires_expert_review=True,
-        recommended_actions=["resolve_disputed_discovery_edge"],
+        blocking_reasons=blocking_reasons,
+        recommended_actions=recommended_actions,
         provenance_refs=list(edge.provenance_refs),
-        diagnostics=[
-            CrossGraphDiagnostic(
-                code="cross_graph.discovery_prior.disputed",
-                severity="warn",
-                need_id=need.need_id,
-                message="Discovery surfaced a disputed causal edge that needs follow-up.",
-                details={"dispute_id": dispute_id, "reasons": list(dispute_reasons)},
-            )
-        ],
+        diagnostics=diagnostics,
     )
+
+
+def _hypothesis_identification_projection(
+    edge: Any,
+    hypothesis_identification: dict[str, Any],
+) -> tuple[list[dict[str, Any]], bool]:
+    hypothesis_ids = list(edge.supporting_hypothesis_ids or [])
+    if not hypothesis_ids:
+        return [{"status": "not_established", "reason": "supporting_hypothesis_ids_missing"}], True
+
+    records: list[dict[str, Any]] = []
+    limited = False
+    for hypothesis_id in hypothesis_ids:
+        evidence = hypothesis_identification.get(hypothesis_id)
+        if evidence is None:
+            records.append(
+                {
+                    "hypothesis_id": hypothesis_id,
+                    "status": "not_established",
+                    "reason": "hypothesis_identification_record_missing",
+                }
+            )
+            limited = True
+            continue
+        payload = (
+            evidence.model_dump(mode="json")
+            if hasattr(evidence, "model_dump")
+            else dict(evidence)
+        )
+        records.append({"hypothesis_id": hypothesis_id, **payload})
+        if (
+            payload.get("verification_status") != "recomputed"
+            or payload.get("identification_status") != "identified"
+            or payload.get("identifiability_score", 0.0) < 1.0
+            or payload.get("limitations")
+            or payload.get("blocking_certificates")
+        ):
+            limited = True
+    return records, limited
+
+
+class _IdentificationSourceBindingFailure(ValueError):
+    """Stable reason that a persisted identification projection cannot be source-verified."""
+
+    def __init__(self, code: str) -> None:
+        super().__init__(code)
+        self.code = code
+
+
+def _source_verified_identification_rows(
+    store: Any,
+    graph_prior_ref: Any,
+    bundle: Any,
+) -> dict[str, dict[str, Any]]:
+    """Recompute each identification row from the exact report and source artifacts."""
+    try:
+        return _resolve_source_identification_rows(store, graph_prior_ref, bundle)
+    except _IdentificationSourceBindingFailure as exc:
+        reason = exc.code
+    except (AttributeError, KeyError):
+        reason = "source_artifact_shape_invalid"
+    except _CROSS_GRAPH_IMPORT_RUNTIME_ERRORS:
+        reason = "source_artifact_resolution_failed"
+
+    unverified: dict[str, dict[str, Any]] = {}
+    for hypothesis_id, evidence in bundle.hypothesis_identification.items():
+        payload = evidence.model_dump(mode="json")
+        unverified[hypothesis_id] = {
+            **payload,
+            "verification_status": "not_established",
+            "verification_reason": reason,
+            "source_refs": {"graph_prior_bundle": _ref_receipt(graph_prior_ref)},
+        }
+    return unverified
+
+
+def _resolve_source_identification_rows(
+    store: Any,
+    graph_prior_ref: Any,
+    bundle: Any,
+) -> dict[str, dict[str, Any]]:
+    """Resolve source lineage and recompute status with the current identification algorithm."""
+    from polisyos.core.contracts.scientist import (
+        BootstrapStabilityReportRef,
+        DiscoveryTaskProfileRef,
+        DownstreamUtilityReportRef,
+        EdgeConfidenceMatrixRef,
+        GraphHypothesisSetRef,
+    )
+    from polisyos.scientist.methods.discovery.aggregator import (
+        EDGE_CONFIDENCE_MATRIX_SCHEMA_NAME,
+        EvidenceWeightedAggregator,
+        load_edge_confidence_matrix,
+    )
+    from polisyos.scientist.methods.discovery.output import (
+        DISCOVERY_TASK_PROFILE_SCHEMA_NAME,
+        GRAPH_HYPOTHESIS_SET_SCHEMA_NAME,
+        load_discovery_task_profile,
+        load_graph_hypothesis_set,
+    )
+    from polisyos.scientist.methods.discovery.priors import (
+        GRAPH_PRIOR_BUNDLE_SCHEMA_NAME,
+        GraphPriorBuilder,
+    )
+    from polisyos.scientist.methods.discovery.schema import (
+        GRAPH_HYPOTHESIS_SCHEMA_NAME,
+        edge_key_for_edge,
+        load_graph_hypothesis,
+    )
+    from polisyos.scientist.methods.discovery.stability import (
+        BOOTSTRAP_STABILITY_REPORT_SCHEMA_NAME,
+        load_bootstrap_stability_report,
+    )
+    from polisyos.scientist.methods.discovery.utility_judge import (
+        DOWNSTREAM_UTILITY_REPORT_SCHEMA_NAME,
+        IDENTIFICATION_SOURCE_ALGORITHM_VERSION,
+        identify_hypothesis_identification_status,
+        load_downstream_utility_report,
+    )
+
+    if graph_prior_ref.manifest_profile_sha256 is None:
+        raise _IdentificationSourceBindingFailure("graph_prior_manifest_profile_missing")
+    graph_prior_manifest = store.get_manifest(graph_prior_ref)
+    _require_source_view(
+        graph_prior_ref,
+        graph_prior_manifest,
+        role="graph_prior_bundle",
+        name=GRAPH_PRIOR_BUNDLE_SCHEMA_NAME,
+        version="1.1",
+    )
+    if (
+        graph_prior_manifest.artifact_schema is None
+        or bundle.schema_version != graph_prior_manifest.artifact_schema.version
+    ):
+        raise _IdentificationSourceBindingFailure("graph_prior_bundle_schema_version_mismatch")
+    utility_report_ref = _typed_input_ref(
+        DownstreamUtilityReportRef,
+        _one_manifest_input(graph_prior_manifest.inputs, role="downstream_utility_report"),
+    )
+    edge_confidence_matrix_ref = _typed_input_ref(
+        EdgeConfidenceMatrixRef,
+        _one_manifest_input(graph_prior_manifest.inputs, role="edge_confidence_matrix"),
+    )
+    bootstrap_stability_report_ref = _typed_input_ref(
+        BootstrapStabilityReportRef,
+        _one_manifest_input(graph_prior_manifest.inputs, role="bootstrap_stability_report"),
+    )
+    edge_confidence_matrix_manifest = store.get_manifest(edge_confidence_matrix_ref)
+    bootstrap_stability_report_manifest = store.get_manifest(bootstrap_stability_report_ref)
+    _require_source_view(
+        edge_confidence_matrix_ref,
+        edge_confidence_matrix_manifest,
+        role="edge_confidence_matrix",
+        name=EDGE_CONFIDENCE_MATRIX_SCHEMA_NAME,
+        version="1.0",
+    )
+    _require_source_view(
+        bootstrap_stability_report_ref,
+        bootstrap_stability_report_manifest,
+        role="bootstrap_stability_report",
+        name=BOOTSTRAP_STABILITY_REPORT_SCHEMA_NAME,
+        version="1.0",
+    )
+    edge_confidence_matrix = load_edge_confidence_matrix(store, edge_confidence_matrix_ref)
+    bootstrap_stability_report = load_bootstrap_stability_report(
+        store,
+        bootstrap_stability_report_ref,
+    )
+    utility_report_manifest = store.get_manifest(utility_report_ref)
+    _require_source_view(
+        utility_report_ref,
+        utility_report_manifest,
+        role="downstream_utility_report",
+        name=DOWNSTREAM_UTILITY_REPORT_SCHEMA_NAME,
+        version="1.1",
+    )
+    utility_report = load_downstream_utility_report(store, utility_report_ref)
+    if utility_report.schema_version != "1.1":
+        raise _IdentificationSourceBindingFailure("utility_report_schema_not_source_bound")
+    if (
+        utility_report.metadata.get("identification_source_algorithm_version")
+        != IDENTIFICATION_SOURCE_ALGORITHM_VERSION
+    ):
+        raise _IdentificationSourceBindingFailure("identification_algorithm_version_mismatch")
+
+    task_profile_ref = _typed_input_ref(
+        DiscoveryTaskProfileRef,
+        _one_manifest_input(utility_report_manifest.inputs, role="discovery_task_profile"),
+    )
+    hypothesis_set_ref = _typed_input_ref(
+        GraphHypothesisSetRef,
+        _one_manifest_input(utility_report_manifest.inputs, role="graph_hypothesis_set"),
+    )
+    task_profile_manifest = store.get_manifest(task_profile_ref)
+    hypothesis_set_manifest = store.get_manifest(hypothesis_set_ref)
+    _require_source_view(
+        task_profile_ref,
+        task_profile_manifest,
+        role="discovery_task_profile",
+        name=DISCOVERY_TASK_PROFILE_SCHEMA_NAME,
+        version="1.0",
+    )
+    _require_source_view(
+        hypothesis_set_ref,
+        hypothesis_set_manifest,
+        role="graph_hypothesis_set",
+        name=GRAPH_HYPOTHESIS_SET_SCHEMA_NAME,
+        version="1.0",
+    )
+    linked_task_profile_ref = _typed_input_ref(
+        DiscoveryTaskProfileRef,
+        _one_manifest_input(hypothesis_set_manifest.inputs, role="discovery_task_profile"),
+    )
+    if (
+        linked_task_profile_ref.artifact_id != task_profile_ref.artifact_id
+        or linked_task_profile_ref.manifest_profile_sha256
+        != task_profile_ref.manifest_profile_sha256
+    ):
+        raise _IdentificationSourceBindingFailure("hypothesis_task_profile_input_mismatch")
+    task_profile = load_discovery_task_profile(store, task_profile_ref)
+    hypothesis_set = load_graph_hypothesis_set(store, hypothesis_set_ref)
+    if task_profile.causal_query is None:
+        raise _IdentificationSourceBindingFailure("causal_query_missing")
+    if (
+        hypothesis_set.metadata.get("run_id") != task_profile.run_id
+        or hypothesis_set.metadata.get("task_id") != task_profile.task_id
+    ):
+        raise _IdentificationSourceBindingFailure("hypothesis_task_profile_mismatch")
+
+    now = datetime.now(UTC)
+    source_manifests = [
+        task_profile_manifest,
+        hypothesis_set_manifest,
+        edge_confidence_matrix_manifest,
+        bootstrap_stability_report_manifest,
+    ]
+    all_manifests = [graph_prior_manifest, utility_report_manifest, *source_manifests]
+    if any(manifest.created_at > now for manifest in all_manifests):
+        raise _IdentificationSourceBindingFailure("source_manifest_time_invalid")
+    if utility_report_manifest.created_at > graph_prior_manifest.created_at:
+        raise _IdentificationSourceBindingFailure("source_manifest_time_order_invalid")
+    if any(manifest.created_at > utility_report_manifest.created_at for manifest in source_manifests):
+        raise _IdentificationSourceBindingFailure("source_manifest_time_order_invalid")
+
+    hypotheses: dict[str, Any] = {}
+    hypothesis_refs: dict[str, Any] = {}
+    hypothesis_manifests: dict[str, Any] = {}
+    for hypothesis_ref in hypothesis_set.graph_hypothesis_refs:
+        if hypothesis_ref.manifest_profile_sha256 is None:
+            raise _IdentificationSourceBindingFailure("hypothesis_manifest_profile_missing")
+        hypothesis_manifest = store.get_manifest(hypothesis_ref)
+        _require_source_view(
+            hypothesis_ref,
+            hypothesis_manifest,
+            role="graph_hypothesis",
+            name=GRAPH_HYPOTHESIS_SCHEMA_NAME,
+            version="1.0",
+        )
+        if hypothesis_manifest.created_at > utility_report_manifest.created_at:
+            raise _IdentificationSourceBindingFailure("source_manifest_time_order_invalid")
+        hypothesis = load_graph_hypothesis(store, hypothesis_ref)
+        if hypothesis.hypothesis_id in hypotheses:
+            raise _IdentificationSourceBindingFailure("hypothesis_id_duplicate")
+        hypotheses[hypothesis.hypothesis_id] = hypothesis
+        hypothesis_refs[hypothesis.hypothesis_id] = hypothesis_ref
+        hypothesis_manifests[hypothesis.hypothesis_id] = hypothesis_manifest
+
+    scores = {score.hypothesis_id: score for score in utility_report.scores}
+    if len(scores) != len(utility_report.scores):
+        raise _IdentificationSourceBindingFailure("utility_report_hypothesis_id_duplicate")
+    if set(scores) != set(hypotheses):
+        raise _IdentificationSourceBindingFailure("utility_report_hypothesis_set_mismatch")
+    if len(hypothesis_set.graph_hypothesis_refs) != len(hypotheses):
+        raise _IdentificationSourceBindingFailure("hypothesis_set_id_duplicate")
+
+    recomputed_matrix = EvidenceWeightedAggregator().aggregate(
+        list(hypotheses.values()),
+        bootstrap_stability_report,
+        utility_report,
+    )
+    if _canonical_payload_sha256(recomputed_matrix) != _canonical_payload_sha256(
+        edge_confidence_matrix
+    ):
+        raise _IdentificationSourceBindingFailure(
+            "edge_confidence_matrix_source_projection_mismatch"
+        )
+    expected_graph_prior = GraphPriorBuilder().build(recomputed_matrix, utility_report)
+    _require_graph_prior_source_projection(bundle, expected_graph_prior)
+
+    supported_hypothesis_ids = {
+        hypothesis_id
+        for edge in [
+            *expected_graph_prior.required_edges,
+            *expected_graph_prior.high_confidence_edges,
+            *expected_graph_prior.forbidden_edges,
+        ]
+        for hypothesis_id in (edge.supporting_hypothesis_ids or [])
+    }
+    supported_hypothesis_ids.update(
+        hypothesis_id
+        for disputed in expected_graph_prior.disputed_edges
+        for edge in disputed.candidate_edges
+        for hypothesis_id in (edge.supporting_hypothesis_ids or [])
+    )
+    expected_by_id: dict[str, dict[str, Any]] = {}
+    for hypothesis_id, score in scores.items():
+        hypothesis = hypotheses[hypothesis_id]
+        projection = identify_hypothesis_identification_status(
+            hypothesis,
+            task_profile.causal_query,
+        )
+        if (
+            score.identification_status != projection.identification_status
+            or float(score.identifiability_score) != projection.identifiability_score
+            or not set(projection.reasons).issubset(score.reasons)
+            or not set(projection.warnings).issubset(score.warnings)
+            or not set(projection.blocking_certificates).issubset(score.blocking_certificates)
+        ):
+            raise _IdentificationSourceBindingFailure("utility_report_source_projection_mismatch")
+
+        # Recompute the same selected graph that DownstreamUtilityJudge used.
+        # A raw/resolved basis difference remains unverified without a qualified translation proof.
+        raw_graph_sha256 = _graph_basis_sha256(hypothesis.graph)
+        report_graph = hypothesis.resolved_graph or hypothesis.graph
+        report_graph_sha256 = _graph_basis_sha256(report_graph)
+        source_projection = projection
+        source_graph_mismatch = (
+            hypothesis_id in supported_hypothesis_ids
+            and raw_graph_sha256 != report_graph_sha256
+        )
+
+        snapshot = bundle.hypothesis_identification.get(hypothesis_id)
+        report_limitations = [
+            reason
+            for reason in score.reasons
+            if reason.startswith("identifiability:") and reason != "identifiability:identified"
+        ]
+        if (
+            snapshot is None
+            or snapshot.identification_status != score.identification_status
+            or float(snapshot.identifiability_score) != float(score.identifiability_score)
+            or snapshot.limitations != report_limitations
+            or snapshot.reasons != score.reasons
+            or snapshot.warnings != score.warnings
+            or snapshot.blocking_certificates != score.blocking_certificates
+        ):
+            raise _IdentificationSourceBindingFailure("graph_prior_snapshot_mismatch")
+
+        source_reasons = (
+            list(source_projection.reasons) if source_graph_mismatch else list(score.reasons)
+        )
+        source_warnings = (
+            list(source_projection.warnings) if source_graph_mismatch else list(score.warnings)
+        )
+        source_blocking = (
+            list(source_projection.blocking_certificates)
+            if source_graph_mismatch
+            else list(score.blocking_certificates)
+        )
+        source_limitations = [
+            reason
+            for reason in source_reasons
+            if reason.startswith("identifiability:") and reason != "identifiability:identified"
+        ]
+        expected_by_id[hypothesis_id] = {
+            "identification_status": source_projection.identification_status,
+            "identifiability_score": source_projection.identifiability_score,
+            "limitations": source_limitations,
+            "reasons": source_reasons,
+            "warnings": source_warnings,
+            "blocking_certificates": source_blocking,
+            "reported_identification_status": projection.identification_status,
+            "verification_status": "not_established" if source_graph_mismatch else "recomputed",
+            "verification_reason": (
+                "aggregation_report_graph_basis_mismatch"
+                if source_graph_mismatch and raw_graph_sha256 != report_graph_sha256
+                else "aggregation_report_projection_mismatch"
+                if source_graph_mismatch
+                else "source_projection_matches_current_algorithm"
+            ),
+            "source_algorithm_version": IDENTIFICATION_SOURCE_ALGORITHM_VERSION,
+            "source_refs": {
+                "graph_prior_bundle": _ref_receipt(graph_prior_ref, graph_prior_manifest),
+                "utility_report": _ref_receipt(utility_report_ref, utility_report_manifest),
+                "graph_hypothesis_set": _ref_receipt(hypothesis_set_ref, hypothesis_set_manifest),
+                "discovery_task_profile": _ref_receipt(task_profile_ref, task_profile_manifest),
+                "graph_hypothesis": _ref_receipt(
+                    hypothesis_refs[hypothesis_id],
+                    hypothesis_manifests[hypothesis_id],
+                ),
+                "edge_confidence_matrix": _ref_receipt(
+                    edge_confidence_matrix_ref,
+                    edge_confidence_matrix_manifest,
+                ),
+                "bootstrap_stability_report": _ref_receipt(
+                    bootstrap_stability_report_ref,
+                    bootstrap_stability_report_manifest,
+                ),
+            },
+            "source_basis": {
+                "aggregation_graph_sha256": raw_graph_sha256,
+                "utility_report_graph_sha256": report_graph_sha256,
+                "edge_confidence_matrix_sha256": _ref_receipt(
+                    edge_confidence_matrix_ref,
+                    edge_confidence_matrix_manifest,
+                )["payload_sha256"],
+                "same_basis": raw_graph_sha256 == report_graph_sha256,
+            },
+            "recomputed_at": now.isoformat(),
+        }
+
+    return expected_by_id
+
+
+def _one_manifest_input(inputs: list[InputRef], *, role: str) -> InputRef:
+    matches = [item for item in inputs if item.role == role]
+    if len(matches) != 1:
+        raise _IdentificationSourceBindingFailure(f"{role}_input_missing_or_ambiguous")
+    return matches[0]
+
+
+def _typed_input_ref(ref_cls: type[Any], input_ref: InputRef) -> Any:
+    if input_ref.manifest_profile_sha256 is None:
+        raise _IdentificationSourceBindingFailure(f"{input_ref.role}_manifest_profile_missing")
+    return ref_cls.model_validate(
+        {
+            "artifact_id": str(input_ref.artifact_id),
+            "manifest_profile_sha256": input_ref.manifest_profile_sha256,
+        }
+    )
+
+
+def _require_source_view(
+    ref: Any,
+    manifest: Any,
+    *,
+    role: str,
+    name: str,
+    version: str,
+) -> None:
+    if ref.manifest_profile_sha256 is None:
+        raise _IdentificationSourceBindingFailure(f"{role}_manifest_profile_missing")
+    if (
+        manifest.artifact_id != ref.artifact_id
+        or manifest.kind != ref.kind
+        or manifest.media_type != ref.media_type
+    ):
+        raise _IdentificationSourceBindingFailure("source_manifest_ref_identity_mismatch")
+    _require_source_schema(manifest, name=name, version=version)
+
+
+def _require_source_schema(manifest: Any, *, name: str, version: str) -> None:
+    schema = manifest.artifact_schema
+    if schema is None or schema.name != name or schema.version != version:
+        raise _IdentificationSourceBindingFailure("source_artifact_schema_mismatch")
+
+
+def _canonical_payload_sha256(value: Any) -> str:
+    from hashlib import sha256
+
+    from polisyos.core.canon import CanonSpec, to_canonical_bytes
+
+    payload = value.model_dump(mode="json") if hasattr(value, "model_dump") else value
+    digest = sha256(to_canonical_bytes(payload, CanonSpec(forbid_floats=False))).hexdigest()
+    return f"sha256:{digest}"
+
+
+def _graph_basis_sha256(graph: Any) -> str:
+    return _canonical_payload_sha256(graph)
+
+
+def _require_graph_prior_source_projection(bundle: Any, expected: Any) -> None:
+    for field_name in (
+        "high_confidence_edges",
+        "disputed_edges",
+        "forbidden_edges",
+        "required_edges",
+        "equivalence_class_summary",
+        "downstream_utility_scores",
+        "warnings",
+    ):
+        if _canonical_payload_sha256(getattr(bundle, field_name)) != _canonical_payload_sha256(
+            getattr(expected, field_name)
+        ):
+            raise _IdentificationSourceBindingFailure("graph_prior_source_projection_mismatch")
+
+    for metadata_key in ("thresholds", "hypothesis_weights"):
+        if _canonical_payload_sha256(bundle.metadata.get(metadata_key)) != _canonical_payload_sha256(
+            expected.metadata.get(metadata_key)
+        ):
+            raise _IdentificationSourceBindingFailure("graph_prior_source_projection_mismatch")
+
+
+def _ref_receipt(ref: Any, manifest: Any | None = None) -> dict[str, Any]:
+    receipt = {
+        "artifact_id": str(ref.artifact_id),
+        "kind": ref.kind,
+        "media_type": ref.media_type,
+        "manifest_profile_sha256": ref.manifest_profile_sha256,
+    }
+    if manifest is not None:
+        schema = manifest.artifact_schema
+        receipt["payload_sha256"] = manifest.integrity.sha256
+        receipt["artifact_schema"] = (
+            None if schema is None else {"name": schema.name, "version": schema.version}
+        )
+    return receipt
 
 
 def _labeled_assessments(

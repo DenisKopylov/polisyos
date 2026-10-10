@@ -5,6 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.foundry.methods.catalog.causal.admg_ops import (
+    UnsupportedStaticADMGProfileError,
+)
 
 from . import artifacts as _artifacts
 
@@ -2408,6 +2411,21 @@ class CausalEngineIdentificationMixin:
                     if result.status == IdentificationStatus.HEDGE_FOUND:
                         return self._hedge_to_negative_cert(result)
                     return result
+        except UnsupportedStaticADMGProfileError as exc:
+            result = IdentificationResult(
+                status=IdentificationStatus.ORACLE_NEEDED,
+                estimand_ast=None,
+                hedge_certificate=None,
+                trace=[str(exc)],
+                required_distributions=[],
+                algorithm_version="static_profile_gate_v1",
+                metadata={"limitation_code": exc.limitation_code},
+            )
+            if effective_intervention_query is not None:
+                result = self._decorate_identification_result_with_intervention_query(
+                    result,
+                    effective_intervention_query,
+                )
         except Exception as exc:
             # Convert unexpected errors to NegativeCertificate
             return NegativeCertificate(
@@ -2488,8 +2506,10 @@ class CausalEngineIdentificationMixin:
             return self._hedge_to_negative_cert(result)
 
         # Convert mz-ID ORACLE_NEEDED + S-nodes to NegativeCertificate
-        if result.status == IdentificationStatus.ORACLE_NEEDED and (
-            (source_domains and len(source_domains) > 1) or (s_nodes and z_int)
+        if (
+            result.status == IdentificationStatus.ORACLE_NEEDED
+            and result.metadata.get("limitation_code") != "unsupported_static_admg_profile"
+            and ((source_domains and len(source_domains) > 1) or (s_nodes and z_int))
         ):
             return self._mz_id_failure_to_negative_cert(
                 result=result,

@@ -268,7 +268,10 @@ def test_static_profile_refuses_original_graph_before_surgery_rewrite_or_noop(
     graph, name, consumer
 ):
     before = graph.model_dump_json()
-    with pytest.raises(ValueError, match="Unsupported static ADMG profile: edge"):
+    with pytest.raises(
+        ops.UnsupportedStaticADMGProfileError,
+        match="Unsupported static ADMG profile: edge",
+    ):
         consumer(graph)
     assert graph.model_dump_json() == before
 
@@ -278,7 +281,10 @@ def test_id_refuses_before_pag_orientation_or_optimistic_commitment(policy):
     graph = _graph(
         [CausalEdge(src="Z", dst="Y", mark_src=EdgeMark.CIRCLE)], graph_type=GraphType.PAG
     ).model_copy(update={"pag_identification_policy": policy})
-    with pytest.raises(ValueError, match="Unsupported static ADMG profile"):
+    with pytest.raises(
+        ops.UnsupportedStaticADMGProfileError,
+        match="Unsupported static ADMG profile",
+    ):
         core.id_algorithm(treatment=frozenset({"Z"}), outcome=frozenset({"Y"}), graph=graph)
     # Raw endpoint/orientation utilities still accept this representation.
     oriented, _steps = apply_pag_orientation_rules(graph)

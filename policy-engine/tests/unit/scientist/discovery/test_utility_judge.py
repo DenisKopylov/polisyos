@@ -1,5 +1,14 @@
 import pytest
 
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
+from polisyos.foundry.methods.catalog.causal.causal_engine.identification import (
+    CausalEngineIdentificationMixin,
+)
+from polisyos.foundry.methods.catalog.causal.id_engine import (
+    IdentificationResult,
+    IdentificationStatus,
+)
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
     CausalMethod,
@@ -13,6 +22,7 @@ from polisyos.ir.analytics.causal_graph import (
 )
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
 from polisyos.ir.analytics.context import ContextProfile
+from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate
 from polisyos.ir.analytics.transportability import (
     SelectionDiagram,
     SNode,
@@ -37,6 +47,8 @@ from polisyos.scientist.methods.discovery.stability import (
 from polisyos.scientist.methods.discovery.utility_judge import (
     DownstreamUtilityJudge,
     UtilityJudgeInput,
+    load_downstream_utility_report,
+    persist_downstream_utility_report,
 )
 
 
@@ -68,8 +80,7 @@ def _pag_ambiguous_graph(*, metadata: dict | None = None) -> CausalGraphModel:
         graph_type=GraphType.PAG,
         nodes=["X", "Y"],
         edges=[
-            CausalEdge(src="X", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
-            CausalEdge(src="X", dst="Y", mark_src=EdgeMark.ARROW, mark_dst=EdgeMark.ARROW),
+            CausalEdge(src="X", dst="Y", mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.ARROW),
         ],
         discovery_method="fci",
         metadata=metadata or {},
@@ -118,7 +129,7 @@ def _success_effect_report() -> CausalEffectReport:
     )
 
 
-def test_identified_graph_outranks_pag_ambiguous_candidate_with_real_identification() -> None:
+def test_identified_graph_outranks_unresolved_pag_with_fresh_limited_report(tmp_path) -> None:
     identified = _hypothesis(
         hypothesis_id="identified",
         graph=_dag_graph(metadata={"structural_fit": 0.20}),
@@ -152,10 +163,49 @@ def test_identified_graph_outranks_pag_ambiguous_candidate_with_real_identificat
         )
     )
 
+    low_level = CausalEngine().identify(
+        treatment="X",
+        outcome="Y",
+        graph=_pag_ambiguous_graph(metadata={"structural_fit": 0.99}),
+    )
+    assert isinstance(low_level, IdentificationResult)
+    assert low_level.status is IdentificationStatus.ORACLE_NEEDED
+    assert low_level.metadata["limitation_code"] == "unsupported_static_admg_profile"
+
     assert [score.hypothesis_id for score in report.scores] == ["identified", "ambiguous"]
     assert report.scores[0].identification_status == "identified"
-    assert report.scores[1].identification_status == "pag_ambiguous"
+    assert report.scores[1].identification_status == "oracle_needed"
+    assert "identifiability:unsupported_static_admg_profile" in report.scores[1].reasons
     assert report.scores[1].composite_score <= report.scores[0].composite_score
+
+    writer = FileSystemCAS(tmp_path / "utility-report")
+    ref = persist_downstream_utility_report(writer, report)
+    fresh_report = load_downstream_utility_report(
+        FileSystemCAS(tmp_path / "utility-report"),
+        ref,
+    )
+    fresh_score = next(score for score in fresh_report.scores if score.hypothesis_id == "ambiguous")
+    assert fresh_score.identification_status == "oracle_needed"
+    assert "identifiability:unsupported_static_admg_profile" in fresh_score.reasons
+
+
+def test_untyped_identification_error_keeps_generic_negative_certificate(monkeypatch) -> None:
+    def fail_dispatch(*args, **kwargs):
+        raise ValueError("untyped_backend_error")
+
+    monkeypatch.setattr(
+        CausalEngineIdentificationMixin,
+        "_dispatch_static_identification",
+        fail_dispatch,
+    )
+    result = CausalEngine().identify(
+        treatment="X",
+        outcome="Y",
+        graph=_dag_graph(),
+    )
+
+    assert isinstance(result, NegativeCertificate)
+    assert result.blocking_type is BlockingType.MISSING_DISTRIBUTION
 
 
 def test_transport_context_changes_ranking_only_when_present(monkeypatch) -> None:

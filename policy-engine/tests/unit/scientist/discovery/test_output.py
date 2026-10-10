@@ -1,3 +1,4 @@
+from polisyos.core.artifacts import artifact_manifest_profile_sha256
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.causal_discovery import (
@@ -564,7 +565,33 @@ def test_discovery_artifact_builder_creates_full_bundle_with_typed_placeholders(
     reproducibility = load_reproducibility_report(store, bundle.reproducibility_report_ref)
     disambiguation = load_active_disambiguation_plan(store, bundle.active_disambiguation_plan_ref)
     audit = load_discovery_audit_bundle(store, bundle.discovery_audit_bundle_ref)
+    graph_prior_manifest = store.get_manifest(bundle.graph_prior_bundle_ref)
 
+    assert any(
+        input_ref.role == "downstream_utility_report"
+        and str(input_ref.artifact_id) == str(bundle.downstream_utility_report_ref.artifact_id)
+        for input_ref in graph_prior_manifest.inputs
+    )
+    assert bundle.graph_prior_bundle_ref.manifest_profile_sha256 is not None
+    assert bundle.graph_prior_bundle_ref.manifest_profile_sha256 == (
+        artifact_manifest_profile_sha256(graph_prior_manifest)
+    )
+    assert store.verify(bundle.graph_prior_bundle_ref).ok
+    utility_input = next(
+        input_ref
+        for input_ref in graph_prior_manifest.inputs
+        if input_ref.role == "downstream_utility_report"
+    )
+    assert utility_input.manifest_profile_sha256 == (
+        bundle.downstream_utility_report_ref.manifest_profile_sha256
+    )
+    assert utility_input.manifest_profile_sha256 is not None
+    utility_manifest = store.get_manifest(bundle.downstream_utility_report_ref)
+    assert all(
+        input_ref.manifest_profile_sha256 is not None
+        for input_ref in utility_manifest.inputs
+        if input_ref.role in {"discovery_task_profile", "graph_hypothesis_set"}
+    )
     assert bundle.prior_knowledge_bundle_ref is not None
     assert bundle.graph_prior_bundle_ref is not None
     assert task_profile.run_id == "R_discovery"

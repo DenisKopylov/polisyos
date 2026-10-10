@@ -21,6 +21,7 @@ from polisyos.ir.analytics.causal import CausalEffectReport, EstimationStatus
 from polisyos.ir.analytics.causal_queries import CausalQuery
 from polisyos.ir.analytics.negative_certificate import NegativeCertificate
 from polisyos.ir.analytics.transportability import SelectionDiagram, SNode, TransportabilityStatus
+from polisyos.scientist.methods.discovery.artifact_refs import profile_bound_written_ref
 from polisyos.scientist.methods.discovery.schema import (
     GraphHypothesis,
     edge_key_for_edge,
@@ -37,6 +38,7 @@ from polisyos.scientist.methods.search.artifact_minimality import (
 DOWNSTREAM_UTILITY_REPORT_SCHEMA_NAME = (
     "polisyos.scientist.methods.discovery.DownstreamUtilityReport"
 )
+IDENTIFICATION_SOURCE_ALGORITHM_VERSION = "causal_engine_identification_projection_v1"
 
 
 class UtilityJudgeConfig(BaseModel):
@@ -95,7 +97,7 @@ class DownstreamUtilityReport(ArtifactMinimalityMixin):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field(default="1.1", pattern=r"^\d+\.\d+$")
     artifact_functions: set[ArtifactFunction] = Field(
         default_factory=lambda: artifact_functions_field(
             ArtifactFunction.ROUTING,
@@ -166,6 +168,7 @@ class DownstreamUtilityJudge:
                 or bool(bundle.s_nodes),
                 "benchmark_reports_present": bool(bundle.benchmark_reports),
                 "channel_coverage": channel_coverage,
+                "identification_source_algorithm_version": IDENTIFICATION_SOURCE_ALGORITHM_VERSION,
                 "algebraic_summary": _algebraic_summary(ranked),
                 "dispute_summary": _dispute_summary(ranked, dispute_stats),
                 "shortlist_exclusions": shortlist_exclusions,
@@ -179,10 +182,15 @@ class DownstreamUtilityJudge:
         *,
         dispute_stats: _HypothesisDisputeStats,
     ) -> HypothesisUtilityScore:
-        ident_score, ident_status, ident_reasons, ident_warnings, blocking = _score_identifiability(
+        identification = identify_hypothesis_identification_status(
             hypothesis,
             bundle.causal_query,
         )
+        ident_score = identification.identifiability_score
+        ident_status = identification.identification_status
+        ident_reasons = list(identification.reasons)
+        ident_warnings = list(identification.warnings)
+        blocking = list(identification.blocking_certificates)
         algebraic_severity, algebraic_consistency = _algebraic_consistency(hypothesis)
         dispute_consistency = max(0.0, min(1.0, 1.0 - dispute_stats.disputed_edge_fraction))
         discovery_consistency_score = float(
@@ -281,7 +289,8 @@ def persist_downstream_utility_report(
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return DownstreamUtilityReportRef.model_validate(ref.model_dump(mode="json"))
+    typed_ref = DownstreamUtilityReportRef.model_validate(ref.model_dump(mode="json"))
+    return profile_bound_written_ref(store, typed_ref)
 
 
 def load_downstream_utility_report(
@@ -409,6 +418,39 @@ def _dispute_summary(
     }
 
 
+@dataclass(frozen=True)
+class HypothesisIdentificationProjection:
+    """Current source-code projection used by both scoring and downstream intake."""
+
+    identification_status: str
+    identifiability_score: float
+    reasons: tuple[str, ...]
+    warnings: tuple[str, ...]
+    blocking_certificates: tuple[str, ...]
+
+
+def identify_hypothesis_identification_status(
+    hypothesis: GraphHypothesis,
+    causal_query: CausalQuery,
+) -> HypothesisIdentificationProjection:
+    """Recompute one hypothesis identification result with the current causal engine.
+
+    The utility judge and graph-prior consumer call this same function so that
+    persisted score labels cannot substitute for the current source algorithm.
+    """
+    score, status, reasons, warnings, blocking = _score_identifiability(
+        hypothesis,
+        causal_query,
+    )
+    return HypothesisIdentificationProjection(
+        identification_status=status,
+        identifiability_score=score,
+        reasons=tuple(reasons),
+        warnings=tuple(warnings),
+        blocking_certificates=tuple(blocking),
+    )
+
+
 def _score_identifiability(
     hypothesis: GraphHypothesis,
     causal_query: CausalQuery,
@@ -445,6 +487,8 @@ def _score_identifiability(
             IdentificationStatus.ORACLE_NEEDED,
         }:
             reasons.append(f"identifiability:partial:{result.status.value}")
+            if result.metadata.get("limitation_code") == "unsupported_static_admg_profile":
+                reasons.append("identifiability:unsupported_static_admg_profile")
             return 0.5, result.status.value, reasons, warnings, blocking
         blocking.append(result.status.value)
         reasons.append(f"identifiability:failed:{result.status.value}")
@@ -565,11 +609,14 @@ def _build_shortlist(
 
 __all__ = [
     "DOWNSTREAM_UTILITY_REPORT_SCHEMA_NAME",
+    "IDENTIFICATION_SOURCE_ALGORITHM_VERSION",
     "DownstreamUtilityJudge",
     "DownstreamUtilityReport",
+    "HypothesisIdentificationProjection",
     "HypothesisUtilityScore",
     "UtilityJudgeConfig",
     "UtilityJudgeInput",
+    "identify_hypothesis_identification_status",
     "load_downstream_utility_report",
     "persist_downstream_utility_report",
 ]

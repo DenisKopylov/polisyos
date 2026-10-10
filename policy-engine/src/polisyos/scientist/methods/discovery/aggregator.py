@@ -12,6 +12,7 @@ from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.scientist import EdgeConfidenceMatrixRef
+from polisyos.scientist.methods.discovery.artifact_refs import profile_bound_written_ref
 from polisyos.scientist.methods.discovery.schema import (
     DiscoveryAlgorithmFamily,
     GraphHypothesis,
@@ -250,7 +251,8 @@ def persist_edge_confidence_matrix(
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return EdgeConfidenceMatrixRef.model_validate(ref.model_dump(mode="json"))
+    typed_ref = EdgeConfidenceMatrixRef.model_validate(ref.model_dump(mode="json"))
+    return profile_bound_written_ref(store, typed_ref)
 
 
 def load_edge_confidence_matrix(

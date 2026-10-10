@@ -91,6 +91,23 @@ class CrossGraphEvidencePass(ValidatorPass):
 
         for assessment in profile.needs:
             path = ["cross_graph", assessment.need.need_id]
+            if "discovery_hypothesis_identification_limited" in assessment.blocking_reasons:
+                issues.append(
+                    ComplianceIssue(
+                        pass_id=self.pass_id,
+                        path=path,
+                        message=(
+                            "A discovery-prior edge depends on hypotheses with limited or missing "
+                            "identification evidence."
+                        ),
+                        severity=severity,
+                        code="CROSS_GRAPH_DISCOVERY_IDENTIFICATION_LIMITED",
+                        suggestion=(
+                            "Review the retained hypothesis status and limitation before using "
+                            "this edge as decision support."
+                        ),
+                    )
+                )
             if assessment.legal_status is LegalStatus.PROHIBITED:
                 issues.append(
                     ComplianceIssue(

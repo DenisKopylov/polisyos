@@ -43,6 +43,15 @@ if TYPE_CHECKING:
 # Shared caches for immutable graph instances
 # ---------------------------------------------------------------------------
 
+class UnsupportedStaticADMGProfileError(ValueError):
+    """A graph cannot enter the resolved static ADMG inference profile.
+
+    This typed refusal is a limitation signal for higher-level consumers.
+    Low-level static algorithms continue to raise a ValueError subtype.
+    """
+
+    limitation_code = "unsupported_static_admg_profile"
+
 
 class CachedAdjacency:
     """Admit the resolved static profile and prepare its adjacency once."""
@@ -61,7 +70,7 @@ class CachedAdjacency:
 
         for edge in graph.edges:
             if edge.lag not in (None, 0):
-                raise ValueError(
+                raise UnsupportedStaticADMGProfileError(
                     "Unsupported static ADMG profile: "
                     f"edge {edge.src!r}–{edge.dst!r} has lag={edge.lag!r}; "
                     "resolve the temporal graph before static causal inference."
@@ -79,7 +88,7 @@ class CachedAdjacency:
                 bi[edge.dst].append(edge.src)
                 bi_set.add(frozenset({edge.src, edge.dst}))
             else:
-                raise ValueError(
+                raise UnsupportedStaticADMGProfileError(
                     "Unsupported static ADMG profile: "
                     f"edge {edge.src!r}–{edge.dst!r} has unresolved endpoints "
                     f"({edge.mark_src.value}, {edge.mark_dst.value}); "

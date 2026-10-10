@@ -16,6 +16,7 @@ from polisyos.scientist.methods.discovery.aggregator import (
     EdgeConfidenceEntry,
     EdgeConfidenceMatrix,
 )
+from polisyos.scientist.methods.discovery.artifact_refs import profile_bound_written_ref
 from polisyos.scientist.methods.discovery.utility_judge import DownstreamUtilityReport
 from polisyos.scientist.methods.search.artifact_minimality import (
     ArtifactFunction,
@@ -42,6 +43,19 @@ class PriorEdge(BaseModel):
     supporting_hypothesis_ids: list[str] = Field(default_factory=list)
     supporting_families: list[str] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
+
+
+class HypothesisIdentificationEvidence(BaseModel):
+    """Per-hypothesis identification status retained with discovery priors."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    identification_status: str = Field(min_length=1)
+    identifiability_score: float = Field(ge=0.0, le=1.0)
+    limitations: list[str] = Field(default_factory=list)
+    reasons: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    blocking_certificates: list[str] = Field(default_factory=list)
 
 
 class DisputedEdge(BaseModel):
@@ -92,7 +106,7 @@ class GraphPriorBundle(ArtifactMinimalityMixin):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field(default="1.1", pattern=r"^\d+\.\d+$")
     artifact_functions: set[ArtifactFunction] = Field(
         default_factory=lambda: artifact_functions_field(
             ArtifactFunction.ROUTING,
@@ -105,6 +119,9 @@ class GraphPriorBundle(ArtifactMinimalityMixin):
     required_edges: list[PriorEdge] = Field(default_factory=list)
     equivalence_class_summary: dict[str, Any] = Field(default_factory=dict)
     downstream_utility_scores: dict[str, float] = Field(default_factory=dict)
+    hypothesis_identification: dict[str, HypothesisIdentificationEvidence] = Field(
+        default_factory=dict
+    )
     warnings: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
@@ -212,6 +229,22 @@ class GraphPriorBuilder:
         utility_scores = {
             score.hypothesis_id: float(score.composite_score) for score in utility_report.scores
         }
+        hypothesis_identification = {
+            score.hypothesis_id: HypothesisIdentificationEvidence(
+                identification_status=score.identification_status,
+                identifiability_score=float(score.identifiability_score),
+                limitations=[
+                    reason
+                    for reason in score.reasons
+                    if reason.startswith("identifiability:")
+                    and reason != "identifiability:identified"
+                ],
+                reasons=list(score.reasons),
+                warnings=list(score.warnings),
+                blocking_certificates=list(score.blocking_certificates),
+            )
+            for score in utility_report.scores
+        }
         return GraphPriorBundle(
             high_confidence_edges=_dedupe_prior_edges(high_confidence),
             disputed_edges=disputed,
@@ -219,6 +252,7 @@ class GraphPriorBuilder:
             required_edges=_dedupe_prior_edges(required),
             equivalence_class_summary=dict(matrix.metadata.get("equivalence_class_summary") or {}),
             downstream_utility_scores=utility_scores,
+            hypothesis_identification=hypothesis_identification,
             warnings=sorted(set(warnings)),
             metadata={
                 "thresholds": {
@@ -252,7 +286,8 @@ def persist_graph_prior_bundle(
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return GraphPriorBundleRef.model_validate(ref.model_dump(mode="json"))
+    typed_ref = GraphPriorBundleRef.model_validate(ref.model_dump(mode="json"))
+    return profile_bound_written_ref(store, typed_ref)
 
 
 def load_graph_prior_bundle(
@@ -284,7 +319,8 @@ def persist_prior_knowledge_bundle(
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return PriorKnowledgeBundleRef.model_validate(ref.model_dump(mode="json"))
+    typed_ref = PriorKnowledgeBundleRef.model_validate(ref.model_dump(mode="json"))
+    return profile_bound_written_ref(store, typed_ref)
 
 
 def load_prior_knowledge_bundle(

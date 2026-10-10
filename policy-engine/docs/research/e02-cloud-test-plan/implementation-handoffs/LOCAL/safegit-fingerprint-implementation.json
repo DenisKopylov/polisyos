@@ -1,0 +1,163 @@
+{
+  "schema": "policyos.e02.local_slice_handoff.v1",
+  "recorded_on": "2026-10-11",
+  "slice_id": "safegit-fingerprint-implementation",
+  "slice_base": {
+    "commit": "a1f55dda723b5d31fc0934866553d6e9fa63d172",
+    "tree": "c3720ecb33d90089a6ae4a2c179e8386a42d2e86"
+  },
+  "candidate_source": {
+    "commit": "b3afc367519e4e7d36872b2e4c70b907f03246f8",
+    "tree": "809de9f5ad2574559f40673db14937ddaf45ff87"
+  },
+  "parents": [
+    "a1f55dda723b5d31fc0934866553d6e9fa63d172"
+  ],
+  "source_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+      "change": "M",
+      "git_blob": "ecce22dafecd0600b711fce4892ecb282288974c",
+      "sha256": "43c393952f185dcbc0c2cf7ce62225c065b7d8138cf26be5b9e82ee46acf149b"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_artifacts.py",
+      "change": "M",
+      "git_blob": "60c5a311422b99a27a855422c4cbea24da2164d9",
+      "sha256": "8cd23b1a481ece841ef1dd9f202ad41b68c8b09eb3ff59d9730116c3741e357f"
+    }
+  ],
+  "publication": {
+    "status": "remote_checkpoint_verified",
+    "verified_checkpoint": "b3afc367519e4e7d36872b2e4c70b907f03246f8",
+    "remote_tip": {
+      "commit": "259cba002b8227734f793b65e54625463579fb41",
+      "tree": "15362abfd369f2c2787d8adeeb579a9017c473ea"
+    },
+    "verified_changed_files": 2,
+    "exact_changed_files_and_bytes": true,
+    "readback": {
+      "path": "LOCAL/raw/safegit-fingerprint-implementation-checkpoint-20261011/remote-readback.json",
+      "sha256": "cee32a881d87b79eed9fa8ed8665d79240d470c45bde64db8a4aa9b9151154c5"
+    }
+  },
+  "selected_inputs": [
+    {
+      "profile": "Product source checkout; focused pytest command",
+      "selected_tests": [
+        "tests/unit/foundry/methods/test_artifacts.py",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py",
+        "tests/unit/fabric/test_data_catalog.py"
+      ],
+      "purpose": "Exercise the SafeGit artifact helper and selected artifact/catalog consumers; exact argv is retained in the command record below."
+    }
+  ],
+  "backend_profile": {
+    "cwd": "policy-engine",
+    "python_entrypoint": ".venv/bin/python",
+    "python_version": "not captured by this command",
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    },
+    "command_head": "6da1ef15e6dd6a65737b19c105497899436673b6",
+    "global_freeze": "pending"
+  },
+  "commands": [
+    {
+      "command_id": "native-eight-i001-artifact-and-public-consumers",
+      "status": "PASS",
+      "exit_code": 0,
+      "wrapper_wall_seconds": 8.2383746659616,
+      "pytest_result": {
+        "passed": 644,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reported_test_cases_by_file": {
+          "tests/unit/foundry/methods/test_artifacts.py": 26,
+          "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py": 559,
+          "tests/unit/fabric/test_data_catalog.py": 59
+        }
+      },
+      "source_capture": {
+        "captured_paths_unchanged": true,
+        "candidate_artifact_source_matches_before_and_after": true,
+        "candidate_artifact_test_matches_before_and_after": true,
+        "selected_test_not_captured_before": "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py",
+        "unbound_case_count": 559,
+        "qualification": "The full 644-case result is not fully source-bound: the ADMG test file has no pre-run hash in the capture. Its recorded HEAD blob equals its post-run current hash, but that does not establish its pre-run bytes."
+      },
+      "command_record": {
+        "path": "LOCAL/raw/batched-blocking-focused-20261010/native-eight-i001-artifact-and-public-consumers/command.json",
+        "sha256": "2819979c9ff0d885261f62aebd2c2c6f8fb78910edad220838e0d9ab1fe5c23e"
+      },
+      "outputs": {
+        "stdout": {
+          "path": "LOCAL/raw/batched-blocking-focused-20261010/native-eight-i001-artifact-and-public-consumers/stdout.txt",
+          "sha256": "77a166e68049b2a22cc00ade1f79bf0563343ad1375a8d5028c03f513b987880"
+        },
+        "stderr": {
+          "path": "LOCAL/raw/batched-blocking-focused-20261010/native-eight-i001-artifact-and-public-consumers/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "junit": {
+          "path": "LOCAL/raw/batched-blocking-focused-20261010/native-eight-i001-artifact-and-public-consumers/junit.xml",
+          "sha256": "daceba296f8ab10ee327af31db75a6f61db11c15c95eb9d69491a9cb760330ae"
+        },
+        "input_denominator_qualification": {
+          "path": "LOCAL/raw/batched-blocking-focused-20261010/native-eight-i001-artifact-and-public-consumers/test-input-denominator-qualification.json",
+          "sha256": "319b18ead2cb970230574832ab547aa2a62e8df3bb1be3f5af04ae7f2b7efff9"
+        }
+      }
+    }
+  ],
+  "chain": {
+    "producer": "Foundry artifact source fingerprint helper `_safe_run` invokes read-only Git metadata calls.",
+    "artifact": "The two-file source change constrains the executable and subprocess invocation behavior used by fingerprinting.",
+    "bridge": "Existing artifact fingerprint code calls the helper; this receipt covers the helper and its focused unit tests, not every artifact production path.",
+    "consumer": "`TestSafeGitInvocation` asserts the resolved absolute Git executable, fixed supplied argv, `shell=False`, and refusal of non-Git commands before process execution."
+  },
+  "controls": [
+    {
+      "case": "test_uses_resolved_absolute_git_and_fixed_argv",
+      "result": "PASS",
+      "property": "The subprocess receives the resolved Git executable and the requested metadata argv with shell execution disabled."
+    },
+    {
+      "case": "test_refuses_non_git_command_without_execution",
+      "result": "PASS",
+      "property": "A non-Git command returns no value and does not invoke subprocess.run."
+    }
+  ],
+  "consumer_surface": {
+    "path": "policy-engine/src/polisyos/foundry/methods/artifacts",
+    "qualification": "Source-tree artifact and selected consumer tests only; not a wheel or production runtime claim."
+  },
+  "limitations": [
+    "The positive SafeGit test uses a mocked subprocess to inspect argv and options; it does not claim an end-to-end hostile-PATH or real-repository execution test.",
+    "The 644-case aggregate passed, but 559 ADMG consumer cases are not fully source-bound because their selected test file was missing from the pre-run hash capture.",
+    "The command ran at HEAD 6da1ef15e6dd6a65737b19c105497899436673b6; only the two owned candidate files are affirmatively matched by their recorded pre/post bytes. This is not a final global source freeze.",
+    "The remote checkpoint is verified; no formal criterion closure is asserted."
+  ],
+  "decision_refs": [
+    {
+      "path": "LOCAL/raw/safegit-fingerprint-implementation-checkpoint-20261011/readback.json",
+      "sha256": "a34f7e395e93c3226b1094db4a7938be8f71671f89a60344db7d9914e25572df"
+    },
+    {
+      "path": "LOCAL/raw/safegit-fingerprint-implementation-checkpoint-20261011/remote-readback.json",
+      "sha256": "cee32a881d87b79eed9fa8ed8665d79240d470c45bde64db8a4aa9b9151154c5"
+    }
+  ],
+  "pattern_pass": [
+    "P29: behavioral argv/refusal controls were run; the full suite evidence is source-qualified rather than treated as a marker-only proof.",
+    "P35: the 644-case denominator was read from JUnit and split by selected test file; the 559-case prehash gap remains explicit.",
+    "P38: the tested property is executable/argv selection and refusal, not general subprocess safety; the negative control checks that refusal occurs before execution.",
+    "P41: the command HEAD differs from the candidate commit; owned source/test bytes are matched separately and the incomplete test-file capture is not called inherited or source-bound."
+  ],
+  "proposal_ids": [],
+  "formal_closure_ids": [],
+  "closure_ids": []
+}

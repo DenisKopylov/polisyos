@@ -1,0 +1,168 @@
+{
+  "schema": "policyos.e02.local_slice_handoff.v1",
+  "recorded_on": "2026-10-11",
+  "slice_id": "native-facade-export-implementation",
+  "slice_base": {
+    "commit": "b3afc367519e4e7d36872b2e4c70b907f03246f8",
+    "tree": "809de9f5ad2574559f40673db14937ddaf45ff87"
+  },
+  "candidate_source": {
+    "commit": "259cba002b8227734f793b65e54625463579fb41",
+    "tree": "15362abfd369f2c2787d8adeeb579a9017c473ea"
+  },
+  "parents": [
+    "b3afc367519e4e7d36872b2e4c70b907f03246f8"
+  ],
+  "source_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/fabric/identity/__init__.py",
+      "change": "M",
+      "git_blob": "af687a180b7c863f73ec76c977d938b386d1a25e",
+      "sha256": "a5829e723eb345fb2ab2c18a37b38ec48d2da27b648c7d08b18bd4b97e6aed14"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/__init__.py",
+      "change": "M",
+      "git_blob": "793508c9ecbffbada30b166f2f90813bc36eca00",
+      "sha256": "9ae6700b6b729744ab4fc283aca2848336943db237eea23dac20d18197efdb6a"
+    }
+  ],
+  "publication": {
+    "status": "remote_exact_tip_verified",
+    "remote_tip": {
+      "commit": "259cba002b8227734f793b65e54625463579fb41",
+      "tree": "15362abfd369f2c2787d8adeeb579a9017c473ea"
+    },
+    "verified_changed_files": 2,
+    "exact_changed_files_and_bytes": true,
+    "readback": {
+      "path": "LOCAL/raw/native-facade-export-implementation-checkpoint-20261011/remote-readback.json",
+      "sha256": "196c9574c2292da3b7464ad2b8115d07e88ce4fcdbbcee17df37bfe16dec66c1"
+    }
+  },
+  "selected_inputs": [
+    {
+      "profile": "Product source-tree imports with `PYTHONPATH=src`; controlled module import and identity check, not installed-wheel validation.",
+      "modules": [
+        "polisyos.fabric.identity",
+        "polisyos.fabric.identity.manifest",
+        "polisyos.fabric.identity.segment_manifest",
+        "polisyos.foundry.methods.artifacts",
+        "polisyos.foundry.methods.artifacts.parts",
+        "polisyos.foundry.methods.api"
+      ],
+      "source_state": "Command HEAD was the slice base b3afc367519e4e7d36872b2e4c70b907f03246f8; the two facade files in the working tree already had the exact candidate hashes and were equal before/after the run."
+    }
+  ],
+  "backend_profile": {
+    "cwd": "policy-engine",
+    "python_entrypoint": ".venv/bin/python",
+    "invocation": "python -B -c with PYTHONPATH=src",
+    "environment": {
+      "PYTHONPATH": "src",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMBA_NUM_THREADS": "1"
+    },
+    "captured_source_input_paths": 2756,
+    "captured_source_input_file_types": {
+      ".py": 2748,
+      ".pyi": 5,
+      ".toml": 2,
+      ".lock": 1
+    },
+    "captured_paths_unchanged_before_after": true,
+    "global_freeze": "pending"
+  },
+  "commands": [
+    {
+      "command_id": "current-full-export-identities-plus-implicit-manifest-20261011",
+      "status": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 5.629813125007786,
+      "command_head": "b3afc367519e4e7d36872b2e4c70b907f03246f8",
+      "result": {
+        "status": "PASS",
+        "binding_rows": 243,
+        "rows_by_surface": {
+          "foundry.artifacts": 13,
+          "foundry.api": 217,
+          "fabric.identity": 5,
+          "fabric.identity.manifest_star": 8
+        }
+      },
+      "command_record": {
+        "path": "LOCAL/raw/batched-blocking-focused-20261010/current-full-export-identities-plus-implicit-manifest-20261011/command.json",
+        "sha256": "630d35d76f37498b2c4e27bdc30c6d4f395a89974fe6b7aa2fce326c6cbefb2e"
+      },
+      "outputs": {
+        "stdout": {
+          "path": "LOCAL/raw/batched-blocking-focused-20261010/current-full-export-identities-plus-implicit-manifest-20261011/stdout.txt",
+          "sha256": "afd74c35ce2d7bc846a8766770b18ff6c6ff2973d803a08edcc81d666a8ac4e2"
+        },
+        "stderr": {
+          "path": "LOCAL/raw/batched-blocking-focused-20261010/current-full-export-identities-plus-implicit-manifest-20261011/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ],
+  "chain": {
+    "producer": "Canonical Foundry artifact/API and Fabric identity owner modules.",
+    "artifact": "Two package facades expose symbols whose objects are checked against their canonical owner objects.",
+    "bridge": "The actual Python imports resolve the public facade names and compare them to `parts`, `api._EXPORTS`, `manifest`, and `segment_manifest` owners.",
+    "consumer": "Source-tree callers importing these facades receive canonical object identities; this check does not exercise an installed wheel or another package surface."
+  },
+  "controls": [
+    {
+      "surface": "foundry.artifacts",
+      "rows": 13,
+      "property": "`artifacts.__all__` equals `parts.__all__`, and every facade export is the identical object from `parts`."
+    },
+    {
+      "surface": "foundry.api",
+      "rows": 217,
+      "property": "The declared export names match `api._EXPORTS`; each exported object is identical to its mapped canonical owner."
+    },
+    {
+      "surface": "fabric.identity",
+      "rows": 5,
+      "property": "Every declared identity export is identical to the manifest owner, except the segment writer which is checked against its segment owner."
+    },
+    {
+      "surface": "fabric.identity.manifest_star",
+      "rows": 8,
+      "property": "The implicit manifest export names are derived from the actual manifest `__all__` or actual public module names, then compared by object identity."
+    }
+  ],
+  "consumer_surface": {
+    "qualification": "Actual source-tree import/identity behavior for the named facades and owners; no import-order, wheel, production, or universal export-mechanism claim."
+  },
+  "limitations": [
+    "The 243 figure counts checked binding rows across four surfaces; it is not a count of unique symbols or a closure denominator.",
+    "The check asserts names and object identity, not package-variable insertion order preservation.",
+    "Only the two named facades and their selected owners are covered; this does not establish a wider import mechanism or installed-wheel behavior.",
+    "The command ran with HEAD at the base commit while the exact candidate facade bytes were present in the worktree and captured unchanged; the final global source freeze remains pending.",
+    "No formal criterion closure is asserted."
+  ],
+  "decision_refs": [
+    {
+      "path": "LOCAL/raw/native-facade-export-implementation-checkpoint-20261011/readback.json",
+      "sha256": "10e1a3bc8dd9eb58f979b814bee8f6c6fd8584a4dbb8c0aeca2a746233fd90f3"
+    },
+    {
+      "path": "LOCAL/raw/native-facade-export-implementation-checkpoint-20261011/remote-readback.json",
+      "sha256": "196c9574c2292da3b7464ad2b8115d07e88ce4fcdbbcee17df37bfe16dec66c1"
+    }
+  ],
+  "pattern_pass": [
+    "P29: the check imports and compares actual objects against canonical owners rather than accepting export markers alone.",
+    "P35: the 243-row result is derived from the complete selected output and broken down by surface; it is not described as a unique closure count.",
+    "P38: the tested property is owner-object identity for these names; insertion-order and package-wide behavior are explicitly outside the check.",
+    "P41: the runtime command HEAD is the slice base, while exact candidate facade bytes are independently captured before and after; global freeze remains pending."
+  ],
+  "proposal_ids": [],
+  "formal_closure_ids": [],
+  "closure_ids": []
+}

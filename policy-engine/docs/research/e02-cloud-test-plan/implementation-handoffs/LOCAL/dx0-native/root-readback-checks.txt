@@ -1,0 +1,13 @@
+COMMAND ['.venv/bin/python', '-m', 'pytest', 'tests/repo_quality/tools/test_tool_config_split.py', '-q']
+.....                                                                    [100%]
+EXIT 0
+COMMAND ['.venv/bin/python', '-m', 'tools.cli', 'workspace', 'tool-configs', '--check']
+EXIT 0
+COMMAND ['.venv/bin/python', '-m', 'ruff', 'check', 'tools/devx/workspace/tool_configs.py', 'tests/repo_quality/tools/test_tool_config_split.py']
+All checks passed!
+EXIT 0
+COMMAND ['.venv/bin/python', '-m', 'ruff', 'format', '--check', 'tools/devx/workspace/tool_configs.py', 'tests/repo_quality/tools/test_tool_config_split.py']
+2 files already formatted
+EXIT 0
+COMMAND ['git', 'diff', '--check', '--', 'architecture/tooling/ruff/base.toml', 'architecture/tooling/ruff/generated.toml', 'architecture/tooling/ruff/workspace_root.toml', 'architecture/tooling/tool_config_split.toml', 'ruff.toml', 'tools/devx/workspace/tool_configs.py', 'tests/repo_quality/tools/test_tool_config_split.py', 'docs/reference/generated-artifacts.md']
+EXIT 0

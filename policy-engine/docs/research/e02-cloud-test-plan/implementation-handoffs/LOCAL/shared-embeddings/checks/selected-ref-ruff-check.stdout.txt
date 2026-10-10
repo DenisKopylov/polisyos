@@ -1,0 +1,26 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/unit/ir/registry/test_refs.py:1:1
+   |
+ 1 | / from __future__ import annotations
+ 2 | |
+ 3 | | from dataclasses import dataclass
+ 4 | |
+ 5 | | import pytest
+ 6 | | from pydantic import BaseModel, ConfigDict, Field, ValidationError
+ 7 | |
+ 8 | | from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+ 9 | | from polisyos.core.artifacts.ir_adapter import ensure_ir_artifact_store
+10 | | from polisyos.core.artifacts.manifest import CanonInfo as CoreCanonInfo
+11 | | from polisyos.core.artifacts.manifest import SchemaInfo as CoreSchemaInfo
+12 | | from polisyos.core.artifacts.store import FileSystemCAS
+13 | | from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+14 | | from polisyos.ir.model_layer.canon import CanonViolation
+15 | | from polisyos.ir.artifacts.contracts import ArtifactID, normalize_artifact_ref
+16 | | from polisyos.ir.artifacts.io import get_json_artifact, put_json_artifact
+17 | | from polisyos.ir.registry.refs import ArtifactRefModel, StrategicPayoffTableRef
+   | |_______________________________________________________________________________^
+   |
+help: Organize imports
+
+Found 1 error.
+[*] 1 fixable with the `--fix` option.

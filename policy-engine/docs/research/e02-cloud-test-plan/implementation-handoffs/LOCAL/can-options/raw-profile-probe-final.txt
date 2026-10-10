@@ -1,0 +1,4 @@
+{'sidecar_raw_missing_max_depth': True, 'typed_manifest_filled_max_depth': 128, 'reader_accepted_incomplete_raw_profile': True, 'reader_accepted_numeric_float_under_forbid_floats': True, 'payload_bytes_preserved': True}
+{'profile_reencoder_refuses': 'float forbidden in canonical JSON'}
+{'same_name_version_core_tag_refused': "Unknown canonical _type: 'float_hex'"}
+{'profileless_history_refused': 'unsupported_ir_canon_profile'}

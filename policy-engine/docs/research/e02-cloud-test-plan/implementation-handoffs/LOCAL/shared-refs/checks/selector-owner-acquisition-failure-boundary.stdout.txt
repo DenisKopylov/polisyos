@@ -1,0 +1,196 @@
+FF                                                                       [100%]CHANGED_SELECTOR_HELPER_CALLS 0
+
+=================================== FAILURES ===================================
+_ test_real_owner_gateway_captures_catalog_plans_without_explore_or_execution __
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1555/test_real_owner_gateway_captur0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x144dfcc30>
+
+    def test_real_owner_gateway_captures_catalog_plans_without_explore_or_execution(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        from polisyos.core.contracts.control import FetchPlan, MetricCandidate
+        from polisyos.data_forge.read_api.catalog import build_slice0_fixture_catalog_graph
+        from polisyos.fabric.retrieval.executor import FetchExecutor
+        from polisyos.fabric.retrieval.service import RetrievalService
+        from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
+    
+        fixture_graph = build_slice0_fixture_catalog_graph(tmp_path / "fixture-catalog")
+    
+        class _OwnedFixtureGraph:
+            def __init__(self) -> None:
+                self.closed = False
+    
+            def resolve_metric_bindings(self, metric_name: str, *, top_k: int = 20):
+                assert not self.closed
+                return fixture_graph.resolve_metric_bindings(metric_name, top_k=top_k)
+    
+            def close(self) -> None:
+                self.closed = True
+                fixture_graph.close()
+    
+        owned_graph = _OwnedFixtureGraph()
+        opened_paths: list[tuple[Path, Path]] = []
+    
+        def _catalog_factory(db_path: Path, index_dir: Path) -> object:
+            opened_paths.append((db_path, index_dir))
+            return owned_graph
+    
+        def _unexpected_call(*args: object, **kwargs: object) -> None:
+            del args, kwargs
+            raise AssertionError("catalog plan capture must not explore or execute")
+    
+        monkeypatch.setattr(RetrievalService, "discover", _unexpected_call)
+        monkeypatch.setattr(FetchExecutor, "preview", _unexpected_call)
+        monkeypatch.setattr(FetchExecutor, "execute", _unexpected_call)
+    
+        base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
+        base_spec["requirement_id"] = "data-requirement:catalog-plan-capture"
+        base_spec["claim_id"] = "claim-catalog-plan-capture"
+        base_spec["required_data_families"] = (
+            "msme_credit_access",
+            "fixture_unresolved_metric",
+        )
+        gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
+        report = plan_requirement_gap_acquisition(
+            run_id="run-n7-catalog-plan-capture",
+            requirement_gaps=(gap,),
+            generated_at=datetime(2026, 7, 17, tzinfo=UTC),
+        )
+        gateway = RealAcquisitionOwnerGateway(
+            repo_root=tmp_path,
+            dataset_catalog_factory=_catalog_factory,
+            captured_at=datetime(2026, 7, 17, tzinfo=UTC),
+        )
+    
+>       artifact = gateway.acquire(
+            record=report.acquisition_records[0],
+            compiled_requirement_spec=base_spec,
+        )
+
+tests/unit/runtime/quality/test_acquisition_planner.py:1679: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/quality/acquisition_planner.py:1355: in acquire
+    return self._capture_fabric(record=record, spec=compiled_requirement_spec)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/acquisition_planner.py:1469: in _capture_fabric
+    response = service.resolve(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/fabric/retrieval/service.py:347: in resolve
+    catalog_plans, catalog_candidates = self._resolve_via_catalog(
+src/polisyos/fabric/retrieval/service.py:826: in _resolve_via_catalog
+    if not self._catalog_source_is_enabled(source_name, run_profile=run_profile):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/fabric/retrieval/service.py:282: in _catalog_source_is_enabled
+    return normalized in self._selected_catalog_source_ids(run_profile)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.fabric.retrieval.service.RetrievalService object at 0x144ea4c20>
+run_profile = None
+
+    def _selected_catalog_source_ids(self, run_profile: CatalogRunProfile | None) -> frozenset[str]:
+        if run_profile is None:
+>           raise _catalog_selection_error("catalog_run_profile_unresolved")
+E           polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection.CatalogSelectionError: catalog_run_profile_unresolved: catalog_run_profile_unresolved
+
+src/polisyos/fabric/retrieval/service.py:256: CatalogSelectionError
+_ test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_growth _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1555/test_real_owner_gateway_opt_in0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x144dff360>
+
+    def test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_growth(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """The explicit capture lane records real CAS refs and remains resolve-only for N7."""
+    
+        from polisyos.core import artifacts, canon
+        from polisyos.fabric.retrieval import custody
+        from polisyos.fabric.retrieval.custody import FabricFetchReceipt
+        from polisyos.fabric.retrieval.service import RetrievalService
+        from polisyos.runtime.http.resilience import guard_runtime_cas
+        from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
+    
+        capture_root = tmp_path / "runtime-cas"
+        runtime_store = guard_runtime_cas(
+            FileSystemCAS(capture_root).for_tenant("tenant-n7", cell_id="cell-a")
+        )
+        foreign_store = FileSystemCAS(capture_root).for_tenant("tenant-other", cell_id="cell-a")
+        services: list[RetrievalService] = []
+    
+        with build_recorded_file_fetch_owner(
+            tmp_path, canonicalize_catalog_source=True
+        ) as owner:
+    
+            def _catalog_factory(_db_path: Path, _index_dir: Path) -> object:
+                return owner.graph
+    
+            def _local_service_factory(
+                curated_dir: Path, store: object, graph: object
+            ) -> object:
+                assert store is runtime_store
+                service = RetrievalService(
+                    curated_dir=curated_dir,
+                    artifact_store=store,
+                    dataset_catalog=graph,
+                    providers=owner.providers,
+                )
+                services.append(service)
+                return service
+    
+            def _unexpected_replay(*args: object, **kwargs: object) -> None:
+                del args, kwargs
+                raise AssertionError("captured acceptance must not replay the source")
+    
+            monkeypatch.setattr(custody, "resolve_persisted_fetch", _unexpected_replay)
+    
+            base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
+            base_spec.update(
+                {
+                    "requirement_id": "data-requirement:fetch-capture",
+                    "claim_id": "claim-fetch-capture",
+                    "required_data_families": ("metric.test",),
+                    "metadata": {"fabric_capture_mode": "persisted_payload"},
+                }
+            )
+            gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
+            report = plan_requirement_gap_acquisition(
+                run_id="run-n7-fetch-capture",
+                requirement_gaps=(gap,),
+                generated_at=datetime(2026, 7, 17, tzinfo=UTC),
+            )
+            gateway = RealAcquisitionOwnerGateway(
+                repo_root=tmp_path,
+                dataset_catalog_factory=_catalog_factory,
+                retrieval_service_factory=_local_service_factory,
+                artifact_store=runtime_store,
+                captured_at=datetime(2026, 7, 17, tzinfo=UTC),
+            )
+    
+            artifact = gateway.acquire(
+                record=report.acquisition_records[0],
+                compiled_requirement_spec=base_spec,
+            )
+    
+>           assert artifact is not None
+E           assert None is not None
+
+tests/unit/runtime/quality/test_acquisition_planner.py:2003: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  polisyos.runtime.quality.acquisition_planner:acquisition_planner.py:1461 Fabric fetch capture refused: catalog_source_identity_unresolved: catalog_source_identity_unresolved
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_acquisition_planner.py::test_real_owner_gateway_captures_catalog_plans_without_explore_or_execution
+FAILED tests/unit/runtime/quality/test_acquisition_planner.py::test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_growth
+LOADED_POLISYOS_MODULES 1456
+MODULE_PATH_CENSUS /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/shared-refs/checks/selector-owner-acquisition-failure-loaded-modules.txt
+OUTSIDE_CANDIDATE []

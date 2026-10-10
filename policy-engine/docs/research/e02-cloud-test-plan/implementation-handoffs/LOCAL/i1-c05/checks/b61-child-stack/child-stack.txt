@@ -1,0 +1,2 @@
+child_entry pid=71832 ppid=71786 process_start_method=fork
+child_exit pid=71832

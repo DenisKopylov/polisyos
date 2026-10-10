@@ -1,0 +1,1785 @@
+....F...F..FF.FF............FFFFFFFFFFFFFFFF..                           [100%]
+=================================== FAILURES ===================================
+_________________ test_causal_query_result_artifact_roundtrip __________________
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_causal_query_result_artif0')
+
+    def test_causal_query_result_artifact_roundtrip(tmp_path) -> None:
+        store = FileSystemCAS(tmp_path)
+        query = CausalQuery(
+            query_type=QueryType.INTERVENTIONAL,
+            treatment_variable="X",
+            treatment_value=1.0,
+            outcome_variable="Y",
+            n_samples=128,
+        )
+        result = CausalQueryResult(
+            query=query,
+            result_mean=1.0,
+            result_std=0.1,
+            result_ci=(0.8, 1.2),
+            result_distribution=[0.9, 1.1, 1.0],
+            computation_time_seconds=0.1,
+        )
+    
+        ref = persist_causal_query_result(store, result)
+>       loaded = load_causal_query_result(store, ref)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_causal_queries_contract.py:118: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/causal_queries.py:626: in load_causal_query_result
+    payload = get_json_artifact(store, ref)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:148: in get_json_artifact
+    canon = _raw_manifest_canon(store, selector)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:122: in _raw_manifest_canon
+    manifest_bytes = get_manifest_bytes(selector)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.ownership._RootTransactionCoordinator object at 0x10cc74590>
+artifact_id = {'artifact_id': 'sha256:8b844fe41ef4c0b00acb8454273a9259e229688875f69a30978902503091a2a2', 'kind': 'ir.causal_query_result', 'media_type': 'application/json'}
+
+    @contextmanager
+    def artifact_lease(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        exclusive: bool,
+    ) -> Iterator[_ArtifactTransactionLease]:
+        """Hold root-shared then one stable artifact stripe in lock-order sequence."""
+        active = getattr(self._active, "leases", None)
+        if active is None:
+            active = {}
+            self._active.leases = active
+>       existing = active.get(artifact_id.hex)
+                              ^^^^^^^^^^^^^^^
+E       AttributeError: 'dict' object has no attribute 'hex'
+
+src/polisyos/core/artifacts/ownership.py:239: AttributeError
+___________________ test_structural_model_artifact_roundtrip ___________________
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_structural_model_artifact0')
+
+    def test_structural_model_artifact_roundtrip(tmp_path) -> None:
+        store = FileSystemCAS(tmp_path)
+        model = StructuralCausalModelSpec(
+            graph=_minimal_graph(),
+            mechanisms=[
+                NodeMechanism(
+                    variable="B",
+                    parents=["A"],
+                    family=MechanismFamily.LINEAR,
+                    source=MechanismSource.DATA_FITTED,
+                    family_params={"coef": 1.0},
+                ),
+                NodeMechanism(
+                    variable="C",
+                    parents=["B"],
+                    family=MechanismFamily.PARAMETRIC_PRIOR,
+                    source=MechanismSource.LITERATURE_PRIOR,
+                    family_params={"prior": {"B": {"mean": 0.5, "std": 0.2}}},
+                ),
+            ],
+            fitted=True,
+            fit_method="hybrid",
+            fit_metrics={"dowhy_available": 0.0},
+        )
+    
+        ref = persist_structural_causal_model_spec(store, model)
+>       loaded = load_structural_causal_model_spec(store, ref)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_structural_causal_model_contract.py:108: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/structural_causal_model.py:333: in load_structural_causal_model_spec
+    payload = get_json_artifact(store, ref)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:148: in get_json_artifact
+    canon = _raw_manifest_canon(store, selector)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:122: in _raw_manifest_canon
+    manifest_bytes = get_manifest_bytes(selector)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.ownership._RootTransactionCoordinator object at 0x12b91c550>
+artifact_id = {'artifact_id': 'sha256:df517ada23774f195c7a70b8e273a7bfc678dda4985db0973dc1e910d5ef340a', 'kind': 'ir.structural_causal_model_spec', 'media_type': 'application/json'}
+
+    @contextmanager
+    def artifact_lease(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        exclusive: bool,
+    ) -> Iterator[_ArtifactTransactionLease]:
+        """Hold root-shared then one stable artifact stripe in lock-order sequence."""
+        active = getattr(self._active, "leases", None)
+        if active is None:
+            active = {}
+            self._active.leases = active
+>       existing = active.get(artifact_id.hex)
+                              ^^^^^^^^^^^^^^^
+E       AttributeError: 'dict' object has no attribute 'hex'
+
+src/polisyos/core/artifacts/ownership.py:239: AttributeError
+_ test_actual_legacy_manifest_preserves_version_without_worker_authority[True] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_actual_legacy_manifest_pr0')
+explicit_version = True
+
+    @pytest.mark.parametrize("explicit_version", [True, False])
+    def test_actual_legacy_manifest_preserves_version_without_worker_authority(
+        tmp_path, explicit_version
+    ):
+        store = FileSystemCAS(tmp_path)
+        payload = StructuralCausalModelSpec(
+            schema_version="1.0", graph=_root_graph(), fit_method="manual"
+        ).model_dump(mode="json")
+        if not explicit_version:
+            payload.pop("schema_version")
+        raw = store.put_json(
+            payload,
+            PutOptions(
+                kind="ir.structural_causal_model_spec",
+                media_type="application/json",
+                schema=SchemaInfo(name="ir.structural_causal_model_spec", version="1.0"),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        ref = StructuralCausalModelSpecRef.model_validate(raw.model_dump(mode="json"))
+>       loaded = load_structural_causal_model_spec(FileSystemCAS(tmp_path), ref)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_structural_causal_model_versions.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/structural_causal_model.py:333: in load_structural_causal_model_spec
+    payload = get_json_artifact(store, ref)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:148: in get_json_artifact
+    canon = _raw_manifest_canon(store, selector)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:122: in _raw_manifest_canon
+    manifest_bytes = get_manifest_bytes(selector)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.ownership._RootTransactionCoordinator object at 0x12baac7d0>
+artifact_id = {'artifact_id': 'sha256:cd08237e0160995a0b61ac04f593e8019a26edc069b4bbe3975d7273a7ca14f0', 'kind': 'ir.structural_causal_model_spec', 'media_type': 'application/json'}
+
+    @contextmanager
+    def artifact_lease(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        exclusive: bool,
+    ) -> Iterator[_ArtifactTransactionLease]:
+        """Hold root-shared then one stable artifact stripe in lock-order sequence."""
+        active = getattr(self._active, "leases", None)
+        if active is None:
+            active = {}
+            self._active.leases = active
+>       existing = active.get(artifact_id.hex)
+                              ^^^^^^^^^^^^^^^
+E       AttributeError: 'dict' object has no attribute 'hex'
+
+src/polisyos/core/artifacts/ownership.py:239: AttributeError
+_ test_actual_legacy_manifest_preserves_version_without_worker_authority[False] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_actual_legacy_manifest_pr1')
+explicit_version = False
+
+    @pytest.mark.parametrize("explicit_version", [True, False])
+    def test_actual_legacy_manifest_preserves_version_without_worker_authority(
+        tmp_path, explicit_version
+    ):
+        store = FileSystemCAS(tmp_path)
+        payload = StructuralCausalModelSpec(
+            schema_version="1.0", graph=_root_graph(), fit_method="manual"
+        ).model_dump(mode="json")
+        if not explicit_version:
+            payload.pop("schema_version")
+        raw = store.put_json(
+            payload,
+            PutOptions(
+                kind="ir.structural_causal_model_spec",
+                media_type="application/json",
+                schema=SchemaInfo(name="ir.structural_causal_model_spec", version="1.0"),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        ref = StructuralCausalModelSpecRef.model_validate(raw.model_dump(mode="json"))
+>       loaded = load_structural_causal_model_spec(FileSystemCAS(tmp_path), ref)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_structural_causal_model_versions.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/structural_causal_model.py:333: in load_structural_causal_model_spec
+    payload = get_json_artifact(store, ref)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:148: in get_json_artifact
+    canon = _raw_manifest_canon(store, selector)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:122: in _raw_manifest_canon
+    manifest_bytes = get_manifest_bytes(selector)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.ownership._RootTransactionCoordinator object at 0x12c2403e0>
+artifact_id = {'artifact_id': 'sha256:e72ce8a9f2fb7dd954f6258e3ec450363436c7f332ea0c0d4731a166bafa56bc', 'kind': 'ir.structural_causal_model_spec', 'media_type': 'application/json'}
+
+    @contextmanager
+    def artifact_lease(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        exclusive: bool,
+    ) -> Iterator[_ArtifactTransactionLease]:
+        """Hold root-shared then one stable artifact stripe in lock-order sequence."""
+        active = getattr(self._active, "leases", None)
+        if active is None:
+            active = {}
+            self._active.leases = active
+>       existing = active.get(artifact_id.hex)
+                              ^^^^^^^^^^^^^^^
+E       AttributeError: 'dict' object has no attribute 'hex'
+
+src/polisyos/core/artifacts/ownership.py:239: AttributeError
+___________ test_new_manual_model_cas_envelope_uses_current_version ____________
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_new_manual_model_cas_enve0')
+
+    def test_new_manual_model_cas_envelope_uses_current_version(tmp_path):
+        store = FileSystemCAS(tmp_path)
+        model = StructuralCausalModelSpec(graph=_root_graph(), fit_method="manual")
+        ref = persist_structural_causal_model_spec(store, model)
+        assert store.get_manifest(ref.artifact_id).artifact_schema.version == "1.1"
+>       loaded = load_structural_causal_model_spec(FileSystemCAS(tmp_path), ref)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_structural_causal_model_versions.py:97: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/structural_causal_model.py:333: in load_structural_causal_model_spec
+    payload = get_json_artifact(store, ref)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:148: in get_json_artifact
+    canon = _raw_manifest_canon(store, selector)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:122: in _raw_manifest_canon
+    manifest_bytes = get_manifest_bytes(selector)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.ownership._RootTransactionCoordinator object at 0x12c240e90>
+artifact_id = {'artifact_id': 'sha256:6d503961b976865c305959a55d027957cef265ea2ac4010a5ff0b8d64e9a0911', 'kind': 'ir.structural_causal_model_spec', 'media_type': 'application/json'}
+
+    @contextmanager
+    def artifact_lease(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        exclusive: bool,
+    ) -> Iterator[_ArtifactTransactionLease]:
+        """Hold root-shared then one stable artifact stripe in lock-order sequence."""
+        active = getattr(self._active, "leases", None)
+        if active is None:
+            active = {}
+            self._active.leases = active
+>       existing = active.get(artifact_id.hex)
+                              ^^^^^^^^^^^^^^^
+E       AttributeError: 'dict' object has no attribute 'hex'
+
+src/polisyos/core/artifacts/ownership.py:239: AttributeError
+_________ test_actual_selected_gcm_producer_manifest_and_fresh_reader __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x12c2415b0>
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_actual_selected_gcm_produ0')
+
+    def test_actual_selected_gcm_producer_manifest_and_fresh_reader(monkeypatch, tmp_path):
+        interpreter = Path(
+            os.environ.get(
+                "POLISYOS_DOWHY_WORKER_PYTHON",
+                str(worker_bridge._worker_directory() / ".venv/bin/python"),
+            )
+        )
+>       assert interpreter.is_file(), "Genuine locked worker absent: no backend PASS"
+E       AssertionError: Genuine locked worker absent: no backend PASS
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/workers/dowhy-014/.venv/bin/python').is_file
+
+tests/unit/ir/test_structural_causal_model_versions.py:108: AssertionError
+_ test_authority_surface_loaders_reject_forged_persisted_payloads[calibration-SimulationCalibrationReceiptRef-load_simulation_calibration_receipt-ir.simulation_calibration_receipt-accepted] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_authority_surface_loaders0')
+surface = 'calibration'
+ref_type = <class 'polisyos.ir.registry.refs.SimulationCalibrationReceiptRef'>
+loader = <function load_simulation_calibration_receipt at 0x12b683e20>
+kind = 'ir.simulation_calibration_receipt', mutation = 'accepted'
+
+    @pytest.mark.parametrize(
+        ("surface", "ref_type", "loader", "kind", "mutation"),
+        [
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "accepted",
+            ),
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "source",
+            ),
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "tier",
+            ),
+            (
+                "bridge",
+                SimulationProofBridgeRef,
+                load_simulation_proof_bridge,
+                "ir.simulation_proof_bridge",
+                "calibration_status",
+            ),
+            (
+                "bridge",
+                SimulationProofBridgeRef,
+                load_simulation_proof_bridge,
+                "ir.simulation_proof_bridge",
+                "identified",
+            ),
+        ],
+    )
+    def test_authority_surface_loaders_reject_forged_persisted_payloads(
+        tmp_path,
+        surface,
+        ref_type,
+        loader,
+        kind,
+        mutation,
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        raw_ref = store.put_json(
+            _mutate_authority_surface(surface, mutation),
+            PutOptions(kind=kind, media_type="application/json"),
+        )
+        ref = ref_type.model_validate(raw_ref.model_dump(mode="json"))
+    
+        with pytest.raises(ValueError, match="producer/verifier"):
+>           loader(store, ref)
+
+tests/unit/ir/analytics/test_simulation_proof_bridge.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/simulation_proof_bridge.py:237: in load_simulation_calibration_receipt
+    payload = get_json_artifact(store, ref)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:148: in get_json_artifact
+    canon = _raw_manifest_canon(store, selector)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:122: in _raw_manifest_canon
+    manifest_bytes = get_manifest_bytes(selector)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.ownership._RootTransactionCoordinator object at 0x12bf35a90>
+artifact_id = {'artifact_id': 'sha256:6d777ed08e368bb2cd5396430cf8415bd31238d2a2f36de26a0de96e85d77800', 'kind': 'ir.simulation_calibration_receipt', 'media_type': 'application/json'}
+
+    @contextmanager
+    def artifact_lease(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        exclusive: bool,
+    ) -> Iterator[_ArtifactTransactionLease]:
+        """Hold root-shared then one stable artifact stripe in lock-order sequence."""
+        active = getattr(self._active, "leases", None)
+        if active is None:
+            active = {}
+            self._active.leases = active
+>       existing = active.get(artifact_id.hex)
+                              ^^^^^^^^^^^^^^^
+E       AttributeError: 'dict' object has no attribute 'hex'
+
+src/polisyos/core/artifacts/ownership.py:239: AttributeError
+_ test_authority_surface_loaders_reject_forged_persisted_payloads[calibration-SimulationCalibrationReceiptRef-load_simulation_calibration_receipt-ir.simulation_calibration_receipt-source] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_authority_surface_loaders1')
+surface = 'calibration'
+ref_type = <class 'polisyos.ir.registry.refs.SimulationCalibrationReceiptRef'>
+loader = <function load_simulation_calibration_receipt at 0x12b683e20>
+kind = 'ir.simulation_calibration_receipt', mutation = 'source'
+
+    @pytest.mark.parametrize(
+        ("surface", "ref_type", "loader", "kind", "mutation"),
+        [
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "accepted",
+            ),
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "source",
+            ),
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "tier",
+            ),
+            (
+                "bridge",
+                SimulationProofBridgeRef,
+                load_simulation_proof_bridge,
+                "ir.simulation_proof_bridge",
+                "calibration_status",
+            ),
+            (
+                "bridge",
+                SimulationProofBridgeRef,
+                load_simulation_proof_bridge,
+                "ir.simulation_proof_bridge",
+                "identified",
+            ),
+        ],
+    )
+    def test_authority_surface_loaders_reject_forged_persisted_payloads(
+        tmp_path,
+        surface,
+        ref_type,
+        loader,
+        kind,
+        mutation,
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        raw_ref = store.put_json(
+            _mutate_authority_surface(surface, mutation),
+            PutOptions(kind=kind, media_type="application/json"),
+        )
+        ref = ref_type.model_validate(raw_ref.model_dump(mode="json"))
+    
+        with pytest.raises(ValueError, match="producer/verifier"):
+>           loader(store, ref)
+
+tests/unit/ir/analytics/test_simulation_proof_bridge.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/simulation_proof_bridge.py:237: in load_simulation_calibration_receipt
+    payload = get_json_artifact(store, ref)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:148: in get_json_artifact
+    canon = _raw_manifest_canon(store, selector)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:122: in _raw_manifest_canon
+    manifest_bytes = get_manifest_bytes(selector)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.ownership._RootTransactionCoordinator object at 0x12bf36d50>
+artifact_id = {'artifact_id': 'sha256:9786660071f4741efca38c2205257890c18fd02522f28c117a70a299ca10e6ea', 'kind': 'ir.simulation_calibration_receipt', 'media_type': 'application/json'}
+
+    @contextmanager
+    def artifact_lease(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        exclusive: bool,
+    ) -> Iterator[_ArtifactTransactionLease]:
+        """Hold root-shared then one stable artifact stripe in lock-order sequence."""
+        active = getattr(self._active, "leases", None)
+        if active is None:
+            active = {}
+            self._active.leases = active
+>       existing = active.get(artifact_id.hex)
+                              ^^^^^^^^^^^^^^^
+E       AttributeError: 'dict' object has no attribute 'hex'
+
+src/polisyos/core/artifacts/ownership.py:239: AttributeError
+_ test_authority_surface_loaders_reject_forged_persisted_payloads[calibration-SimulationCalibrationReceiptRef-load_simulation_calibration_receipt-ir.simulation_calibration_receipt-tier] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_authority_surface_loaders2')
+surface = 'calibration'
+ref_type = <class 'polisyos.ir.registry.refs.SimulationCalibrationReceiptRef'>
+loader = <function load_simulation_calibration_receipt at 0x12b683e20>
+kind = 'ir.simulation_calibration_receipt', mutation = 'tier'
+
+    @pytest.mark.parametrize(
+        ("surface", "ref_type", "loader", "kind", "mutation"),
+        [
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "accepted",
+            ),
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "source",
+            ),
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "tier",
+            ),
+            (
+                "bridge",
+                SimulationProofBridgeRef,
+                load_simulation_proof_bridge,
+                "ir.simulation_proof_bridge",
+                "calibration_status",
+            ),
+            (
+                "bridge",
+                SimulationProofBridgeRef,
+                load_simulation_proof_bridge,
+                "ir.simulation_proof_bridge",
+                "identified",
+            ),
+        ],
+    )
+    def test_authority_surface_loaders_reject_forged_persisted_payloads(
+        tmp_path,
+        surface,
+        ref_type,
+        loader,
+        kind,
+        mutation,
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        raw_ref = store.put_json(
+            _mutate_authority_surface(surface, mutation),
+            PutOptions(kind=kind, media_type="application/json"),
+        )
+        ref = ref_type.model_validate(raw_ref.model_dump(mode="json"))
+    
+        with pytest.raises(ValueError, match="producer/verifier"):
+>           loader(store, ref)
+
+tests/unit/ir/analytics/test_simulation_proof_bridge.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/simulation_proof_bridge.py:237: in load_simulation_calibration_receipt
+    payload = get_json_artifact(store, ref)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:148: in get_json_artifact
+    canon = _raw_manifest_canon(store, selector)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:122: in _raw_manifest_canon
+    manifest_bytes = get_manifest_bytes(selector)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.ownership._RootTransactionCoordinator object at 0x12c2c49f0>
+artifact_id = {'artifact_id': 'sha256:ab6894024ed2005b23a21b14895ab9402558112a6525b2e4c8cc4e70b1f576b5', 'kind': 'ir.simulation_calibration_receipt', 'media_type': 'application/json'}
+
+    @contextmanager
+    def artifact_lease(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        exclusive: bool,
+    ) -> Iterator[_ArtifactTransactionLease]:
+        """Hold root-shared then one stable artifact stripe in lock-order sequence."""
+        active = getattr(self._active, "leases", None)
+        if active is None:
+            active = {}
+            self._active.leases = active
+>       existing = active.get(artifact_id.hex)
+                              ^^^^^^^^^^^^^^^
+E       AttributeError: 'dict' object has no attribute 'hex'
+
+src/polisyos/core/artifacts/ownership.py:239: AttributeError
+_ test_authority_surface_loaders_reject_forged_persisted_payloads[bridge-SimulationProofBridgeRef-load_simulation_proof_bridge-ir.simulation_proof_bridge-calibration_status] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_authority_surface_loaders3')
+surface = 'bridge'
+ref_type = <class 'polisyos.ir.registry.refs.SimulationProofBridgeRef'>
+loader = <function load_simulation_proof_bridge at 0x12b6a00f0>
+kind = 'ir.simulation_proof_bridge', mutation = 'calibration_status'
+
+    @pytest.mark.parametrize(
+        ("surface", "ref_type", "loader", "kind", "mutation"),
+        [
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "accepted",
+            ),
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "source",
+            ),
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "tier",
+            ),
+            (
+                "bridge",
+                SimulationProofBridgeRef,
+                load_simulation_proof_bridge,
+                "ir.simulation_proof_bridge",
+                "calibration_status",
+            ),
+            (
+                "bridge",
+                SimulationProofBridgeRef,
+                load_simulation_proof_bridge,
+                "ir.simulation_proof_bridge",
+                "identified",
+            ),
+        ],
+    )
+    def test_authority_surface_loaders_reject_forged_persisted_payloads(
+        tmp_path,
+        surface,
+        ref_type,
+        loader,
+        kind,
+        mutation,
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        raw_ref = store.put_json(
+            _mutate_authority_surface(surface, mutation),
+            PutOptions(kind=kind, media_type="application/json"),
+        )
+        ref = ref_type.model_validate(raw_ref.model_dump(mode="json"))
+    
+        with pytest.raises(ValueError, match="producer/verifier"):
+>           loader(store, ref)
+
+tests/unit/ir/analytics/test_simulation_proof_bridge.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/simulation_proof_bridge.py:272: in load_simulation_proof_bridge
+    payload = get_json_artifact(store, ref)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:148: in get_json_artifact
+    canon = _raw_manifest_canon(store, selector)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:122: in _raw_manifest_canon
+    manifest_bytes = get_manifest_bytes(selector)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.ownership._RootTransactionCoordinator object at 0x12c2c66d0>
+artifact_id = {'artifact_id': 'sha256:d387a9c1211c8f21958ec5a2f392fad94e206e5c9542967d3b9fd7bd0e9c45c2', 'kind': 'ir.simulation_proof_bridge', 'media_type': 'application/json'}
+
+    @contextmanager
+    def artifact_lease(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        exclusive: bool,
+    ) -> Iterator[_ArtifactTransactionLease]:
+        """Hold root-shared then one stable artifact stripe in lock-order sequence."""
+        active = getattr(self._active, "leases", None)
+        if active is None:
+            active = {}
+            self._active.leases = active
+>       existing = active.get(artifact_id.hex)
+                              ^^^^^^^^^^^^^^^
+E       AttributeError: 'dict' object has no attribute 'hex'
+
+src/polisyos/core/artifacts/ownership.py:239: AttributeError
+_ test_authority_surface_loaders_reject_forged_persisted_payloads[bridge-SimulationProofBridgeRef-load_simulation_proof_bridge-ir.simulation_proof_bridge-identified] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_authority_surface_loaders4')
+surface = 'bridge'
+ref_type = <class 'polisyos.ir.registry.refs.SimulationProofBridgeRef'>
+loader = <function load_simulation_proof_bridge at 0x12b6a00f0>
+kind = 'ir.simulation_proof_bridge', mutation = 'identified'
+
+    @pytest.mark.parametrize(
+        ("surface", "ref_type", "loader", "kind", "mutation"),
+        [
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "accepted",
+            ),
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "source",
+            ),
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "tier",
+            ),
+            (
+                "bridge",
+                SimulationProofBridgeRef,
+                load_simulation_proof_bridge,
+                "ir.simulation_proof_bridge",
+                "calibration_status",
+            ),
+            (
+                "bridge",
+                SimulationProofBridgeRef,
+                load_simulation_proof_bridge,
+                "ir.simulation_proof_bridge",
+                "identified",
+            ),
+        ],
+    )
+    def test_authority_surface_loaders_reject_forged_persisted_payloads(
+        tmp_path,
+        surface,
+        ref_type,
+        loader,
+        kind,
+        mutation,
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        raw_ref = store.put_json(
+            _mutate_authority_surface(surface, mutation),
+            PutOptions(kind=kind, media_type="application/json"),
+        )
+        ref = ref_type.model_validate(raw_ref.model_dump(mode="json"))
+    
+        with pytest.raises(ValueError, match="producer/verifier"):
+>           loader(store, ref)
+
+tests/unit/ir/analytics/test_simulation_proof_bridge.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/simulation_proof_bridge.py:272: in load_simulation_proof_bridge
+    payload = get_json_artifact(store, ref)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:148: in get_json_artifact
+    canon = _raw_manifest_canon(store, selector)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:122: in _raw_manifest_canon
+    manifest_bytes = get_manifest_bytes(selector)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.ownership._RootTransactionCoordinator object at 0x12c3153d0>
+artifact_id = {'artifact_id': 'sha256:eb30c07829d4e09dc85721f23820dfca4445b10f46922d7b75830d174c094ae4', 'kind': 'ir.simulation_proof_bridge', 'media_type': 'application/json'}
+
+    @contextmanager
+    def artifact_lease(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        exclusive: bool,
+    ) -> Iterator[_ArtifactTransactionLease]:
+        """Hold root-shared then one stable artifact stripe in lock-order sequence."""
+        active = getattr(self._active, "leases", None)
+        if active is None:
+            active = {}
+            self._active.leases = active
+>       existing = active.get(artifact_id.hex)
+                              ^^^^^^^^^^^^^^^
+E       AttributeError: 'dict' object has no attribute 'hex'
+
+src/polisyos/core/artifacts/ownership.py:239: AttributeError
+___ test_simulation_proof_bridge_defaults_to_scenario_without_causal_context ___
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_simulation_proof_bridge_d0')
+
+    def test_simulation_proof_bridge_defaults_to_scenario_without_causal_context(tmp_path) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        simulation_ref = store.put_json(
+            {"schema_version": "1.3", "notes": []},
+            PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+        )
+        metrics_ref = store.put_json(
+            {"values": {"loss": "1.0"}},
+            PutOptions(kind="foundry.metrics", media_type="application/json"),
+        )
+    
+>       output = build_simulation_proof_bridge_artifacts(
+            store,
+            run_id="R_bridge",
+            simulation_result_ref=simulation_ref,
+            metrics_ref=metrics_ref,
+        )
+
+tests/unit/ir/analytics/test_simulation_proof_bridge.py:376: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/simulation_proof_bridge.py:313: in build_simulation_proof_bridge_artifacts
+    bound_simulation_payload, simulation_intake_reasons = _load_truthfulness_owner_payload(
+src/polisyos/ir/analytics/simulation_proof_bridge.py:596: in _load_truthfulness_owner_payload
+    manifest = store.get_manifest(ref)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/ownership.py:239: in artifact_lease
+    existing = active.get(artifact_id.hex)
+                          ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ArtifactRefModel(artifact_id=ArtifactID(root='sha256:9055541c38bfc293a6f2e8475b5ecbda851f1d1e7bdea18e5da2c95267842853'), kind='foundry.simulation_result', media_type='application/json', manifest_profile_sha256=None)
+item = 'hex'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'ArtifactRefModel' object has no attribute 'hex'
+
+.venv/lib/python3.14/site-packages/pydantic/main.py:1026: AttributeError
+__ test_simulation_proof_bridge_rejects_method_execution_as_validity_evidence __
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_simulation_proof_bridge_r0')
+
+    def test_simulation_proof_bridge_rejects_method_execution_as_validity_evidence(
+        tmp_path,
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        simulation_ref = store.put_json(
+            {"schema_version": "1.3", "notes": []},
+            PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+        )
+        method_evidence_ref = store.put_json(
+            {
+                "authority_purpose": "method_execution",
+                "authoritative_for": ["execution_reproducibility"],
+                "may_not_use_for": ["governance_admissibility", "method_validity"],
+            },
+            PutOptions(
+                kind="scientist.method_evidence",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.scientist.MethodExecutionEvidence",
+                    version="0.1.0",
+                ),
+            ),
+        )
+    
+        with pytest.raises(ValueError, match="causal_validity_bundle_ref"):
+>           build_simulation_proof_bridge_artifacts(
+                store,
+                run_id="R_execution_is_not_validity",
+                simulation_result_ref=simulation_ref,
+                causal_validity_bundle_ref=method_evidence_ref,
+            )
+
+tests/unit/ir/analytics/test_simulation_proof_bridge.py:422: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/simulation_proof_bridge.py:313: in build_simulation_proof_bridge_artifacts
+    bound_simulation_payload, simulation_intake_reasons = _load_truthfulness_owner_payload(
+src/polisyos/ir/analytics/simulation_proof_bridge.py:596: in _load_truthfulness_owner_payload
+    manifest = store.get_manifest(ref)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/ownership.py:239: in artifact_lease
+    existing = active.get(artifact_id.hex)
+                          ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ArtifactRefModel(artifact_id=ArtifactID(root='sha256:9055541c38bfc293a6f2e8475b5ecbda851f1d1e7bdea18e5da2c95267842853'), kind='foundry.simulation_result', media_type='application/json', manifest_profile_sha256=None)
+item = 'hex'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'ArtifactRefModel' object has no attribute 'hex'
+
+.venv/lib/python3.14/site-packages/pydantic/main.py:1026: AttributeError
+_ test_simulation_proof_bridge_preserves_proof_but_does_not_inflate_real_foundry_output _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_simulation_proof_bridge_p0')
+
+    def test_simulation_proof_bridge_preserves_proof_but_does_not_inflate_real_foundry_output(
+        tmp_path,
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        simulation_ref, metrics_ref = _produce_real_foundry_simulation(store)
+        interface_mapping_ref = InterfaceMappingRef.model_validate(
+            store.put_json(
+                {"fragment_ids": ["sim"], "entries": []},
+                PutOptions(kind="ir.interface_mapping", media_type="application/json"),
+            ).model_dump(mode="json")
+        )
+        base_proof_ref = persist_proof_bundle(
+            store,
+            ProofBundle(
+                proof_status="identified",
+                proof_stratum="A0_trusted",
+                theorem_family="id_v1",
+                completeness_regime="complete",
+                implementation_coverage="declared-scope:id_v1",
+                composability_status="reusable",
+            ),
+        )
+>       output = build_simulation_proof_bridge_artifacts(
+            store,
+            run_id="R_identified",
+            simulation_result_ref=simulation_ref,
+            metrics_ref=metrics_ref,
+            interface_mapping_ref=interface_mapping_ref,
+            causal_query="P(Y|do(X))",
+            base_proof_bundle_ref=base_proof_ref,
+        )
+
+tests/unit/ir/analytics/test_simulation_proof_bridge.py:452: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/simulation_proof_bridge.py:313: in build_simulation_proof_bridge_artifacts
+    bound_simulation_payload, simulation_intake_reasons = _load_truthfulness_owner_payload(
+src/polisyos/ir/analytics/simulation_proof_bridge.py:596: in _load_truthfulness_owner_payload
+    manifest = store.get_manifest(ref)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/ownership.py:239: in artifact_lease
+    existing = active.get(artifact_id.hex)
+                          ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ArtifactRefModel(artifact_id=ArtifactID(root='sha256:7a406b48591c5fe2abc9d7175fe8a62ba6fb2d74f596162f642f04c9bf633c0c'), kind='foundry.simulation_result', media_type='application/json', manifest_profile_sha256=None)
+item = 'hex'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'ArtifactRefModel' object has no attribute 'hex'
+
+.venv/lib/python3.14/site-packages/pydantic/main.py:1026: AttributeError
+----------------------------- Captured stdout call -----------------------------
+2026-10-09 13:49:23 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.adaptive_agent@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['adaptive-agent', 'builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-09 13:49:23 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.income_tax@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'tax'] version=1.0.0
+2026-10-09 13:49:23 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.labor_market@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'labor', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-09 13:49:23 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.queue@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'queue', 'runtime', 'structural'] version=1.0.0
+2026-10-09 13:49:23 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.tax_subsidy@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'subsidy'] version=1.0.0
+_________ test_simulation_proof_bridge_rejects_wrong_kind_receipt_blob _________
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_simulation_proof_bridge_r1')
+
+    def test_simulation_proof_bridge_rejects_wrong_kind_receipt_blob(tmp_path) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        simulation_ref = store.put_json(
+            {
+                "truthfulness_receipt": TruthfulnessReceipt(
+                    runtime_truthfulness_tier=TruthfulnessTier.EXACT,
+                    truthfulness_scope=TruthfulnessScope.POSTERIOR,
+                ).model_dump(mode="json")
+            },
+            PutOptions(
+                kind="attacker.unverified_blob",
+                media_type="application/json",
+                schema=SchemaInfo(name="attacker.Blob", version="1.0"),
+                producer=ProducerInfo(component="attacker", version="1.0"),
+            ),
+        )
+    
+>       output = build_simulation_proof_bridge_artifacts(
+            store,
+            run_id="R_wrong_kind",
+            simulation_result_ref=simulation_ref,
+        )
+
+tests/unit/ir/analytics/test_simulation_proof_bridge.py:498: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/simulation_proof_bridge.py:313: in build_simulation_proof_bridge_artifacts
+    bound_simulation_payload, simulation_intake_reasons = _load_truthfulness_owner_payload(
+src/polisyos/ir/analytics/simulation_proof_bridge.py:596: in _load_truthfulness_owner_payload
+    manifest = store.get_manifest(ref)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/ownership.py:239: in artifact_lease
+    existing = active.get(artifact_id.hex)
+                          ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ArtifactRefModel(artifact_id=ArtifactID(root='sha256:0d0a4f42c69a1cdce075ad59592c4392e8718a6f1854391b54082c086b7a108f'), kind='attacker.unverified_blob', media_type='application/json', manifest_profile_sha256=None)
+item = 'hex'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'ArtifactRefModel' object has no attribute 'hex'
+
+.venv/lib/python3.14/site-packages/pydantic/main.py:1026: AttributeError
+________ test_simulation_proof_bridge_rejects_unprovenanced_owner_kind _________
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_simulation_proof_bridge_r2')
+
+    def test_simulation_proof_bridge_rejects_unprovenanced_owner_kind(tmp_path) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        simulation_ref = store.put_json(
+            {
+                "schema_version": "1.3",
+                "truthfulness_receipt": TruthfulnessReceipt(
+                    runtime_truthfulness_tier=TruthfulnessTier.EXACT,
+                    truthfulness_scope=TruthfulnessScope.POSTERIOR,
+                ).model_dump(mode="json"),
+            },
+            PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+        )
+    
+>       output = build_simulation_proof_bridge_artifacts(
+            store,
+            run_id="R_unprovenanced_kind",
+            simulation_result_ref=simulation_ref,
+        )
+
+tests/unit/ir/analytics/test_simulation_proof_bridge.py:523: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/simulation_proof_bridge.py:313: in build_simulation_proof_bridge_artifacts
+    bound_simulation_payload, simulation_intake_reasons = _load_truthfulness_owner_payload(
+src/polisyos/ir/analytics/simulation_proof_bridge.py:596: in _load_truthfulness_owner_payload
+    manifest = store.get_manifest(ref)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/ownership.py:239: in artifact_lease
+    existing = active.get(artifact_id.hex)
+                          ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ArtifactRefModel(artifact_id=ArtifactID(root='sha256:79fb85344666472563921d06b2c6be3e5da5887ba38f0808532b07a73af17211'), kind='foundry.simulation_result', media_type='application/json', manifest_profile_sha256=None)
+item = 'hex'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'ArtifactRefModel' object has no attribute 'hex'
+
+.venv/lib/python3.14/site-packages/pydantic/main.py:1026: AttributeError
+_ test_simulation_proof_bridge_rejects_impossible_receipt_in_typed_owner_payload _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_simulation_proof_bridge_r3')
+
+    def test_simulation_proof_bridge_rejects_impossible_receipt_in_typed_owner_payload(
+        tmp_path,
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        simulation_ref = store.put_json(
+            {
+                "schema_version": "1.3",
+                "exec_plan_ref": {
+                    "artifact_id": "sha256:" + "1" * 64,
+                    "kind": "foundry.exec_plan",
+                    "media_type": "application/json",
+                },
+                "metrics_ref": {
+                    "artifact_id": "sha256:" + "2" * 64,
+                    "kind": "foundry.metrics",
+                    "media_type": "application/json",
+                },
+                "truthfulness_receipt": TruthfulnessReceipt(
+                    runtime_truthfulness_tier=TruthfulnessTier.EXACT,
+                    truthfulness_scope=TruthfulnessScope.POSTERIOR,
+                ).model_dump(mode="json"),
+            },
+            PutOptions(
+                kind="foundry.simulation_result",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.core.SimulationResult", version="1.3"),
+                producer=ProducerInfo(component="foundry.fake", version="1.0"),
+                authority=ArtifactAuthorityInfo(
+                    authority_envelope_ref="sha256:" + "3" * 64,
+                    diagnostic_event_ref="sha256:" + "4" * 64,
+                    manifest_ref="cas-manifest://sha256:" + "5" * 64,
+                    payload_sha256="6" * 64,
+                ),
+            ),
+        )
+    
+>       output = build_simulation_proof_bridge_artifacts(
+            store,
+            run_id="R_impossible_receipt",
+            simulation_result_ref=simulation_ref,
+        )
+
+tests/unit/ir/analytics/test_simulation_proof_bridge.py:572: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/simulation_proof_bridge.py:313: in build_simulation_proof_bridge_artifacts
+    bound_simulation_payload, simulation_intake_reasons = _load_truthfulness_owner_payload(
+src/polisyos/ir/analytics/simulation_proof_bridge.py:596: in _load_truthfulness_owner_payload
+    manifest = store.get_manifest(ref)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/ownership.py:239: in artifact_lease
+    existing = active.get(artifact_id.hex)
+                          ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ArtifactRefModel(artifact_id=ArtifactID(root='sha256:c1fb2d89ed72d38d37b25ebc3c1d216665613e230f200bec7be1f815f9bde66d'), kind='foundry.simulation_result', media_type='application/json', manifest_profile_sha256=None)
+item = 'hex'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'ArtifactRefModel' object has no attribute 'hex'
+
+.venv/lib/python3.14/site-packages/pydantic/main.py:1026: AttributeError
+______ test_simulation_proof_bridge_rejects_sibling_metrics_receipt_blob _______
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_simulation_proof_bridge_r4')
+
+    def test_simulation_proof_bridge_rejects_sibling_metrics_receipt_blob(tmp_path) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        simulation_ref = store.put_json(
+            {"schema_version": "1.3", "notes": []},
+            PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+        )
+        metrics_ref = store.put_json(
+            {
+                "truthfulness_receipt": TruthfulnessReceipt(
+                    runtime_truthfulness_tier=TruthfulnessTier.EXACT,
+                    truthfulness_scope=TruthfulnessScope.POSTERIOR,
+                ).model_dump(mode="json")
+            },
+            PutOptions(kind="attacker.unverified_blob", media_type="application/json"),
+        )
+    
+>       output = build_simulation_proof_bridge_artifacts(
+            store,
+            run_id="R_metrics_wrong_kind",
+            simulation_result_ref=simulation_ref,
+            metrics_ref=metrics_ref,
+        )
+
+tests/unit/ir/analytics/test_simulation_proof_bridge.py:602: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/simulation_proof_bridge.py:313: in build_simulation_proof_bridge_artifacts
+    bound_simulation_payload, simulation_intake_reasons = _load_truthfulness_owner_payload(
+src/polisyos/ir/analytics/simulation_proof_bridge.py:596: in _load_truthfulness_owner_payload
+    manifest = store.get_manifest(ref)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/ownership.py:239: in artifact_lease
+    existing = active.get(artifact_id.hex)
+                          ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ArtifactRefModel(artifact_id=ArtifactID(root='sha256:9055541c38bfc293a6f2e8475b5ecbda851f1d1e7bdea18e5da2c95267842853'), kind='foundry.simulation_result', media_type='application/json', manifest_profile_sha256=None)
+item = 'hex'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'ArtifactRefModel' object has no attribute 'hex'
+
+.venv/lib/python3.14/site-packages/pydantic/main.py:1026: AttributeError
+______ test_simulation_proof_bridge_rejects_forged_caller_payload_receipt ______
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_simulation_proof_bridge_r5')
+
+    def test_simulation_proof_bridge_rejects_forged_caller_payload_receipt(tmp_path) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        simulation_ref = store.put_json(
+            {"schema_version": "1.3", "notes": []},
+            PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+        )
+        forged_payload = {
+            "schema_version": "1.3",
+            "notes": [],
+            "truthfulness_receipt": TruthfulnessReceipt(
+                runtime_truthfulness_tier=TruthfulnessTier.EXACT,
+                truthfulness_scope=TruthfulnessScope.POSTERIOR,
+            ).model_dump(mode="json"),
+        }
+    
+>       output = build_simulation_proof_bridge_artifacts(
+            store,
+            run_id="R_forged_payload",
+            simulation_result_ref=simulation_ref,
+            simulation_payload=forged_payload,
+        )
+
+tests/unit/ir/analytics/test_simulation_proof_bridge.py:630: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/simulation_proof_bridge.py:313: in build_simulation_proof_bridge_artifacts
+    bound_simulation_payload, simulation_intake_reasons = _load_truthfulness_owner_payload(
+src/polisyos/ir/analytics/simulation_proof_bridge.py:596: in _load_truthfulness_owner_payload
+    manifest = store.get_manifest(ref)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/ownership.py:239: in artifact_lease
+    existing = active.get(artifact_id.hex)
+                          ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ArtifactRefModel(artifact_id=ArtifactID(root='sha256:9055541c38bfc293a6f2e8475b5ecbda851f1d1e7bdea18e5da2c95267842853'), kind='foundry.simulation_result', media_type='application/json', manifest_profile_sha256=None)
+item = 'hex'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'ArtifactRefModel' object has no attribute 'hex'
+
+.venv/lib/python3.14/site-packages/pydantic/main.py:1026: AttributeError
+______ test_simulation_proof_bridge_rejects_forged_caller_metrics_payload ______
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_simulation_proof_bridge_r6')
+
+    def test_simulation_proof_bridge_rejects_forged_caller_metrics_payload(tmp_path) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        simulation_ref = store.put_json(
+            {"schema_version": "1.3", "notes": []},
+            PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+        )
+        metrics_ref = store.put_json(
+            {"values": {"loss": "1.0"}},
+            PutOptions(kind="foundry.metrics", media_type="application/json"),
+        )
+    
+>       output = build_simulation_proof_bridge_artifacts(
+            store,
+            run_id="R_forged_metrics_payload",
+            simulation_result_ref=simulation_ref,
+            metrics_ref=metrics_ref,
+            metrics_payload={"values": {"loss": "forged"}},
+        )
+
+tests/unit/ir/analytics/test_simulation_proof_bridge.py:654: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/simulation_proof_bridge.py:313: in build_simulation_proof_bridge_artifacts
+    bound_simulation_payload, simulation_intake_reasons = _load_truthfulness_owner_payload(
+src/polisyos/ir/analytics/simulation_proof_bridge.py:596: in _load_truthfulness_owner_payload
+    manifest = store.get_manifest(ref)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/ownership.py:239: in artifact_lease
+    existing = active.get(artifact_id.hex)
+                          ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ArtifactRefModel(artifact_id=ArtifactID(root='sha256:9055541c38bfc293a6f2e8475b5ecbda851f1d1e7bdea18e5da2c95267842853'), kind='foundry.simulation_result', media_type='application/json', manifest_profile_sha256=None)
+item = 'hex'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'ArtifactRefModel' object has no attribute 'hex'
+
+.venv/lib/python3.14/site-packages/pydantic/main.py:1026: AttributeError
+_____ test_simulation_proof_bridge_keeps_explicit_receipt_non_authorizing ______
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_simulation_proof_bridge_k0')
+
+    def test_simulation_proof_bridge_keeps_explicit_receipt_non_authorizing(tmp_path) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        bound_receipt = TruthfulnessReceipt(
+            runtime_truthfulness_tier=TruthfulnessTier.APPROXIMATE_CALIBRATED,
+            truthfulness_scope=TruthfulnessScope.POSTERIOR,
+            diagnostics={"source": "bound-runtime"},
+        )
+        simulation_ref = store.put_json(
+            {
+                "schema_version": "1.3",
+                "truthfulness_receipt": bound_receipt.model_dump(mode="json"),
+            },
+            PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+        )
+        self_attested = TruthfulnessReceipt(
+            runtime_truthfulness_tier=TruthfulnessTier.EXACT,
+            truthfulness_scope=TruthfulnessScope.POSTERIOR,
+            diagnostics={"source": "caller"},
+        )
+    
+>       output = build_simulation_proof_bridge_artifacts(
+            store,
+            run_id="R_explicit_mismatch",
+            simulation_result_ref=simulation_ref,
+            calibration_receipt=self_attested,
+        )
+
+tests/unit/ir/analytics/test_simulation_proof_bridge.py:688: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/simulation_proof_bridge.py:313: in build_simulation_proof_bridge_artifacts
+    bound_simulation_payload, simulation_intake_reasons = _load_truthfulness_owner_payload(
+src/polisyos/ir/analytics/simulation_proof_bridge.py:596: in _load_truthfulness_owner_payload
+    manifest = store.get_manifest(ref)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/ownership.py:239: in artifact_lease
+    existing = active.get(artifact_id.hex)
+                          ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ArtifactRefModel(artifact_id=ArtifactID(root='sha256:b99fa35e2ddb33686d70dbe6c2d5df84a0d7b1a2ac6975a3a1475ccb8150b513'), kind='foundry.simulation_result', media_type='application/json', manifest_profile_sha256=None)
+item = 'hex'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'ArtifactRefModel' object has no attribute 'hex'
+
+.venv/lib/python3.14/site-packages/pydantic/main.py:1026: AttributeError
+_______ test_simulation_proof_bridge_rejects_malformed_explicit_receipt ________
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1175/test_simulation_proof_bridge_r7')
+
+    def test_simulation_proof_bridge_rejects_malformed_explicit_receipt(tmp_path) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        simulation_ref = store.put_json(
+            {"schema_version": "1.3", "notes": []},
+            PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+        )
+    
+        with pytest.raises(ValueError, match="runtime_truthfulness_tier"):
+>           build_simulation_proof_bridge_artifacts(
+                store,
+                run_id="R_malformed_explicit",
+                simulation_result_ref=simulation_ref,
+                calibration_receipt={"runtime_truthfulness_tier": "forged-tier"},
+            )
+
+tests/unit/ir/analytics/test_simulation_proof_bridge.py:709: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/simulation_proof_bridge.py:313: in build_simulation_proof_bridge_artifacts
+    bound_simulation_payload, simulation_intake_reasons = _load_truthfulness_owner_payload(
+src/polisyos/ir/analytics/simulation_proof_bridge.py:596: in _load_truthfulness_owner_payload
+    manifest = store.get_manifest(ref)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/ownership.py:239: in artifact_lease
+    existing = active.get(artifact_id.hex)
+                          ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ArtifactRefModel(artifact_id=ArtifactID(root='sha256:9055541c38bfc293a6f2e8475b5ecbda851f1d1e7bdea18e5da2c95267842853'), kind='foundry.simulation_result', media_type='application/json', manifest_profile_sha256=None)
+item = 'hex'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'ArtifactRefModel' object has no attribute 'hex'
+
+.venv/lib/python3.14/site-packages/pydantic/main.py:1026: AttributeError
+=========================== short test summary info ============================
+FAILED tests/unit/ir/test_causal_queries_contract.py::test_causal_query_result_artifact_roundtrip
+FAILED tests/unit/ir/test_structural_causal_model_contract.py::test_structural_model_artifact_roundtrip
+FAILED tests/unit/ir/test_structural_causal_model_versions.py::test_actual_legacy_manifest_preserves_version_without_worker_authority[True]
+FAILED tests/unit/ir/test_structural_causal_model_versions.py::test_actual_legacy_manifest_preserves_version_without_worker_authority[False]
+FAILED tests/unit/ir/test_structural_causal_model_versions.py::test_new_manual_model_cas_envelope_uses_current_version
+FAILED tests/unit/ir/test_structural_causal_model_versions.py::test_actual_selected_gcm_producer_manifest_and_fresh_reader
+FAILED tests/unit/ir/analytics/test_simulation_proof_bridge.py::test_authority_surface_loaders_reject_forged_persisted_payloads[calibration-SimulationCalibrationReceiptRef-load_simulation_calibration_receipt-ir.simulation_calibration_receipt-accepted]
+FAILED tests/unit/ir/analytics/test_simulation_proof_bridge.py::test_authority_surface_loaders_reject_forged_persisted_payloads[calibration-SimulationCalibrationReceiptRef-load_simulation_calibration_receipt-ir.simulation_calibration_receipt-source]
+FAILED tests/unit/ir/analytics/test_simulation_proof_bridge.py::test_authority_surface_loaders_reject_forged_persisted_payloads[calibration-SimulationCalibrationReceiptRef-load_simulation_calibration_receipt-ir.simulation_calibration_receipt-tier]
+FAILED tests/unit/ir/analytics/test_simulation_proof_bridge.py::test_authority_surface_loaders_reject_forged_persisted_payloads[bridge-SimulationProofBridgeRef-load_simulation_proof_bridge-ir.simulation_proof_bridge-calibration_status]
+FAILED tests/unit/ir/analytics/test_simulation_proof_bridge.py::test_authority_surface_loaders_reject_forged_persisted_payloads[bridge-SimulationProofBridgeRef-load_simulation_proof_bridge-ir.simulation_proof_bridge-identified]
+FAILED tests/unit/ir/analytics/test_simulation_proof_bridge.py::test_simulation_proof_bridge_defaults_to_scenario_without_causal_context
+FAILED tests/unit/ir/analytics/test_simulation_proof_bridge.py::test_simulation_proof_bridge_rejects_method_execution_as_validity_evidence
+FAILED tests/unit/ir/analytics/test_simulation_proof_bridge.py::test_simulation_proof_bridge_preserves_proof_but_does_not_inflate_real_foundry_output
+FAILED tests/unit/ir/analytics/test_simulation_proof_bridge.py::test_simulation_proof_bridge_rejects_wrong_kind_receipt_blob
+FAILED tests/unit/ir/analytics/test_simulation_proof_bridge.py::test_simulation_proof_bridge_rejects_unprovenanced_owner_kind
+FAILED tests/unit/ir/analytics/test_simulation_proof_bridge.py::test_simulation_proof_bridge_rejects_impossible_receipt_in_typed_owner_payload
+FAILED tests/unit/ir/analytics/test_simulation_proof_bridge.py::test_simulation_proof_bridge_rejects_sibling_metrics_receipt_blob
+FAILED tests/unit/ir/analytics/test_simulation_proof_bridge.py::test_simulation_proof_bridge_rejects_forged_caller_payload_receipt
+FAILED tests/unit/ir/analytics/test_simulation_proof_bridge.py::test_simulation_proof_bridge_rejects_forged_caller_metrics_payload
+FAILED tests/unit/ir/analytics/test_simulation_proof_bridge.py::test_simulation_proof_bridge_keeps_explicit_receipt_non_authorizing
+FAILED tests/unit/ir/analytics/test_simulation_proof_bridge.py::test_simulation_proof_bridge_rejects_malformed_explicit_receipt

@@ -1,0 +1,44 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python3
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 23 items
+
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_mean_ci PASSED [  4%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_median_ci PASSED [  8%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_empty_values PASSED [ 13%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_zero_bootstrap_count_is_rejected PASSED [ 17%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_single_value PASSED [ 21%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_reproducibility PASSED [ 26%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_unknown_statistic_is_rejected_instead_of_defaulting_to_mean PASSED [ 30%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_two_dimensional_observations_refuse_before_callback_or_rng[metric] PASSED [ 34%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_two_dimensional_observations_refuse_before_callback_or_rng[scenario] PASSED [ 39%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_unknown_statistic_refuses_before_rng_construction PASSED [ 43%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_non_finite_observations_are_rejected[nan] PASSED [ 47%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_non_finite_observations_are_rejected[inf] PASSED [ 52%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_non_finite_statistic_output_is_rejected PASSED [ 56%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_callable_exception_type_is_preserved PASSED [ 60%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_executed_named_statistic_survives_consumer_readback[mean-3.0] PASSED [ 65%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_executed_named_statistic_survives_consumer_readback[median-0.0] PASSED [ 69%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_same_named_callables_keep_declared_identity_and_its_limit PASSED [ 73%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_invalid_callable_identity_is_rejected_before_statistic_execution[] PASSED [ 78%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_invalid_callable_identity_is_rejected_before_statistic_execution[  ] PASSED [ 82%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_invalid_callable_identity_is_rejected_before_statistic_execution[7] PASSED [ 86%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_named_statistic_cannot_be_relabelled_by_callable_identity PASSED [ 91%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapScenarioMetrics::test_produces_mae_and_rmse PASSED [ 95%]
+tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapScenarioMetrics::test_rmse_ci_bootstraps_rmse_directly PASSED [100%]
+
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 23 passed, 2 warnings in 4.62s ========================

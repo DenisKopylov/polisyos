@@ -1,0 +1,6 @@
+source_root=src/polisyos
+python_files=2707 parsed=2707 parse_errors=0
+produce_forecast_inputs_defs=[('src/polisyos/runtime/quality/generation_cycle.py', 4320), ('src/polisyos/runtime/quality/generation_cycle.py', 4423)]
+produce_forecast_inputs_call_sites=[]
+load_empirical_calibration_evidence_call_sites=[]
+runtime_http_python_files=116 forecast_or_empirical_evidence_mentions=[]

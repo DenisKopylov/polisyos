@@ -1,0 +1,1 @@
+git diff --check -- tests/unit/ddm/test_facade.py tests/unit/ddm/test_readiness_mapping.py

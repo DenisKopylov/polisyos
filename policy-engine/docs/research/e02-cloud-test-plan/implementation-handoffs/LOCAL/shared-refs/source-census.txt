@@ -1,0 +1,272 @@
+Slice base: 9e89dddfbcc3d8c44a421cc1fc143ec84f3753ae.
+Complete source denominator: base=2700 .py files, parsed=2700 (errors=0); current=2707 .py files, parsed=2707 (errors=0).
+Base selected-ref JSON loss: 124 `get_json_artifact(..., ref.artifact_id)`-shape calls across 68 source modules.
+Base selected-ref JSON loss sites (file:line, nearest function):
+  policy-engine/src/polisyos/calibration/forecast_bridge.py:574 load_empirical_calibration_evidence selector=validated_ref.artifact_id
+  policy-engine/src/polisyos/calibration/forecast_bridge.py:1014 _validate_and_load_reference selector=ref.artifact_id
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/composition_failure_cards.py:349 load_composition_failure_card_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/abm_bridge.py:168 load_abm_alignment_report selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/abstraction.py:784 load_finite_state_abstraction_map selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/abstraction.py:814 load_abstraction_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/alignment_certification.py:2551 load_variable_alignment_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/alignment_certification.py:2581 load_alignment_report selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/backtest.py:239 load_backtest_report selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/causal.py:386 load_causal_effect_report selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/causal.py:416 load_proof_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/causal.py:507 load_data_readiness_report selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/causal_capabilities.py:96 load_causal_capability_contract selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/causal_discovery.py:1014 load_causal_discovery_report selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/causal_discovery.py:1079 _hydrate_algebraic_constraint_payloads selector=algebraic.implied_constraints_ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/causal_discovery.py:1088 _hydrate_algebraic_constraint_payloads selector=algebraic.violated_constraints_ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/causal_ensemble.py:143 load_causal_model_ensemble selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/causal_graph.py:566 load_causal_graph_model selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/causal_queries.py:626 load_causal_query_result selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/cross_graph.py:1017 load_scm_fragment selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/cross_graph.py:1047 load_interface_mapping selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/cross_graph.py:1077 load_composition_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/cross_graph.py:1107 load_cross_graph_evidence_profile selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/decision_layer.py:120 load_optimization_ambiguity_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/decision_layer.py:150 load_social_weight_manifest selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/decision_layer.py:180 load_fiscal_feedback_link selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/dependence_structure.py:223 load_dependence_structure selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/dependent_sensitivity.py:435 load_dependent_sensitivity_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/dependent_sensitivity.py:467 load_dependent_sensitivity_result selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/distributional.py:160 _load_distributional_leaf selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/distributional.py:1477 load_distributional_bounds_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/distributional.py:1507 load_distributional_dual_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/distributional.py:1687 load_ordinal_poverty_report selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/distributional.py:1715 load_distributional_effect_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/distributional.py:1745 load_distributional_report selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/dp_robustness.py:788 load_dp_robustness_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/dual_certificate.py:810 load_dual_certificate_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/dynamic_causal_semantics.py:738 load_forecast_intervention_query selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/dynamic_causal_semantics.py:775 load_forecast_intervention_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/dynamic_regime.py:1427 load_continuous_time_query selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/dynamic_regime.py:1457 load_temporal_intervention_trajectory selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/dynamic_regime.py:1487 load_temporal_identification_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/dynamic_regime.py:1517 load_dynamic_treatment_regime selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/dynamic_regime.py:1547 load_effect_trajectory_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/endogenous_inequality.py:245 load_endogenous_group_inequality_decomposition_result selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/estimand.py:2073 load_estimand_ast selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/evidence_bundle.py:380 load_causal_evidence_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/fairness_audit_report.py:91 load_fairness_audit_report selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/forecasting_uncertainty.py:756 load_forecasting_uncertainty_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/frontier.py:1755 load_frontier_sketch selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/hte.py:351 load_hte_result selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/hte.py:381 load_policy_recommendation selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/interference.py:282 load_interaction_complex selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/interference.py:312 load_interference_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/interference.py:342 load_maup_invariance_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/interference.py:372 load_spatial_hodge_diagnostics selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/interventions.py:1271 load_intervention_query selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/interventions.py:1301 load_intervention_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/invariance.py:1159 load_regime_shift_identification_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/kernel_causal.py:289 load_kernel_estimator_spec selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/kernel_causal.py:319 load_operator_effect_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/latent_bridge_synthesis.py:843 load_latent_bridge_hypothesis selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/local_independence.py:415 load_local_independence_weighting_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/mechanism_design.py:728 load_mechanism_family_spec selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/mechanism_design.py:758 load_incentive_compatibility_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/mechanism_design.py:788 load_mechanism_welfare_loss_bound selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/metric_validation_report.py:127 load_metric_validation_report selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/microsim_calibration.py:196 load_microsim_calibration_report selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/mobility.py:284 load_mobility_report selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/ncm.py:467 load_ncm_spec selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/negative_certificate.py:920 load_negative_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/network_generative.py:83 load_causal_block_bridge selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/normative_arbitration.py:237 load_normative_arbitration_result selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/parameters.py:85 load_context_adaptive_parameter_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/partial_identification.py:732 load_bounds_tightening_log selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/partial_identification.py:772 load_bounds_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/phase4_dynamics.py:641 load_abm_result selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/phase4_dynamics.py:667 load_dynamic_microsim_validation_report selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/phase4_dynamics.py:693 load_temporal_graph_causal_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/phase4_dynamics.py:718 load_space_time_causal_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/privacy_transportability.py:848 load_privacy_aware_transport_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/proof_composability.py:425 load_proof_witness_index selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/proof_composability.py:457 load_proof_composability_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/proximal.py:490 load_proximal_identification_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/proximal.py:522 load_bridge_plausibility_report selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/recourse_manifold.py:887 load_intervention_cost_manifold selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/recourse_manifold.py:917 load_optimal_recourse_query selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/recourse_manifold.py:947 load_recourse_proof_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/recourse_manifold.py:977 load_feasibility_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/recourse_manifold.py:1007 load_recourse_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/recoverability.py:260 load_recoverability_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/recoverability.py:292 load_joint_decision_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/regime_shift_forecast.py:206 load_regime_shift_forecast_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/rough_path_semantics.py:236 load_rough_path_intervention_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/sensitivity.py:205 load_sensitivity_result selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/sensitivity.py:299 load_sensitivity_analysis_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/shift_diagnostics.py:512 load_shift_diagnostic_report selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/simulation_proof_bridge.py:237 load_simulation_calibration_receipt selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/simulation_proof_bridge.py:272 load_simulation_proof_bridge selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/simulation_proof_bridge.py:579 _load_payload selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/strategic.py:129 _load_strategic_leaf selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/strategic.py:2255 load_strategic_payoff_table selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/strategic.py:2285 load_strategic_scm selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/strategic.py:2315 load_strategic_response_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/structural_causal_model.py:333 load_structural_causal_model_spec selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/survey_quality.py:386 load_survey_quality_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/transportability.py:773 load_transportability_result selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/twin_network.py:262 load_twin_network_result selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/uncertainty.py:2141 load_uncertainty_envelope selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/welfare.py:393 load_channel_decomposition_artifact selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/welfare.py:425 load_ge_uncertainty_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/welfare.py:457 load_welfare_sample_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/welfare.py:489 load_welfare_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/welfare.py:775 _load_artifact_mapping selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/governance/validation.py:189 load_validation_report selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/observation/causal_execution.py:294 load_causal_execution_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/observation/causal_readiness.py:249 load_causal_readiness_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/scientist/validation/metrics.py:138 load_metric_observation_bundle selector=ref.artifact_id
+  policy-engine/src/polisyos/scientist/validation/verification/ic/conformance.py:31 _load_semantics selector=artifact_ref.artifact_id
+  policy-engine/src/polisyos/scientist/validation/verification/ic/conformance.py:416 load_ic_conformance_report selector=ref.artifact_id
+  policy-engine/src/polisyos/scientist/validation/verification/ic/service.py:187 _resolve_semantics selector=request.semantics_ref.artifact_id
+  policy-engine/src/polisyos/scientist/validation/verification/ic/service.py:2097 load_ic_report selector=ref.artifact_id
+  policy-engine/src/polisyos/scientist/validation/verification/ic/service.py:2122 load_ic_certificate selector=ref.artifact_id
+  policy-engine/src/polisyos/scientist/validation/verification/ic/service.py:2147 load_ic_negative_certificate selector=ref.artifact_id
+Current source JSON selector losses: 1; all sites:
+  policy-engine/src/polisyos/ir/analytics/uncertainty.py:2149 load_uncertainty_envelope selector=ref.artifact_id
+Base IR manifest selector losses: 6 across 5 modules.
+Base IR manifest loss sites:
+  policy-engine/src/polisyos/ir/analytics/causal_queries.py:627 load_causal_query_result selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/simulation_proof_bridge.py:596 _load_truthfulness_owner_payload selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/simulation_proof_bridge.py:689 _load_causal_validity_payload selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/structural_causal_model.py:334 load_structural_causal_model_spec selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/analytics/twin_network.py:263 load_twin_network_result selector=ref.artifact_id
+  policy-engine/src/polisyos/ir/passes/core.py:300 run selector=artifact_ref.artifact_id
+Current IR manifest selector losses: 0.
+Non-IR Core `get_manifest(..., ref.artifact_id)` sites remain: base=72, current=69; these are outside the granted IR manifest sites and were not edited.
+Current ArtifactRefModel descendants: 130 definitions; current put_json_artifact producer calls: 147.
+Current ArtifactRefModel descendants (file:line, class):
+  policy-engine/src/polisyos/calibration/forecast_bridge.py:221 EmpiricalCalibrationEvidenceRef
+  policy-engine/src/polisyos/ir/analytics/dependent_sensitivity.py:393 DependentSensitivityAnalysisBundleRef
+  policy-engine/src/polisyos/ir/analytics/dependent_sensitivity.py:400 DependentSensitivityResultRef
+  policy-engine/src/polisyos/ir/analytics/phase4_dynamics.py:194 _ABMExecPlanArtifactRef
+  policy-engine/src/polisyos/ir/analytics/phase4_dynamics.py:201 _ABMMetricsArtifactRef
+  policy-engine/src/polisyos/ir/analytics/phase4_dynamics.py:208 _ABMMetricObservationBundleArtifactRef
+  policy-engine/src/polisyos/ir/analytics/phase4_dynamics.py:217 _ABMStateSnapshotArtifactRef
+  policy-engine/src/polisyos/ir/analytics/phase4_dynamics.py:224 _ABMEnvironmentArtifactRef
+  policy-engine/src/polisyos/ir/analytics/phase4_dynamics.py:231 _ABMTraceSliceArtifactRef
+  policy-engine/src/polisyos/ir/analytics/phase4_dynamics.py:238 _ABMWelfareBoundArtifactRef
+  policy-engine/src/polisyos/ir/analytics/phase4_dynamics.py:245 _ABMFeedbackResultArtifactRef
+  policy-engine/src/polisyos/ir/analytics/phase4_dynamics.py:252 _ABMIdentifiabilityDiagnosticArtifactRef
+  policy-engine/src/polisyos/ir/analytics/phase4_dynamics.py:261 _ABMAttractorAnalysisArtifactRef
+  policy-engine/src/polisyos/ir/registry/refs.py:55 EvidenceBundleRef
+  policy-engine/src/polisyos/ir/registry/refs.py:62 UncertaintyEnvelopeRef
+  policy-engine/src/polisyos/ir/registry/refs.py:69 ForecastingUncertaintyBundleRef
+  policy-engine/src/polisyos/ir/registry/refs.py:76 ForecastInterventionQueryRef
+  policy-engine/src/polisyos/ir/registry/refs.py:83 ForecastInterventionCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:92 RegimeShiftForecastBundleRef
+  policy-engine/src/polisyos/ir/registry/refs.py:99 ABMResultRef
+  policy-engine/src/polisyos/ir/registry/refs.py:106 DynamicMicrosimValidationReportRef
+  policy-engine/src/polisyos/ir/registry/refs.py:115 TemporalGraphCausalCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:124 SpaceTimeCausalCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:131 GEUncertaintyBundleRef
+  policy-engine/src/polisyos/ir/registry/refs.py:138 WelfareBundleRef
+  policy-engine/src/polisyos/ir/registry/refs.py:145 SocialWeightManifestRef
+  policy-engine/src/polisyos/ir/registry/refs.py:152 WelfareSampleBundleRef
+  policy-engine/src/polisyos/ir/registry/refs.py:159 EstimandASTRef
+  policy-engine/src/polisyos/ir/registry/refs.py:166 KernelEstimatorSpecRef
+  policy-engine/src/polisyos/ir/registry/refs.py:173 OperatorEffectBundleRef
+  policy-engine/src/polisyos/ir/registry/refs.py:180 HTEResultRef
+  policy-engine/src/polisyos/ir/registry/refs.py:187 PolicyRecommendationRef
+  policy-engine/src/polisyos/ir/registry/refs.py:194 CausalEffectReportRef
+  policy-engine/src/polisyos/ir/registry/refs.py:201 ProofBundleRef
+  policy-engine/src/polisyos/ir/registry/refs.py:208 SimulationCalibrationReceiptRef
+  policy-engine/src/polisyos/ir/registry/refs.py:215 SimulationProofBridgeRef
+  policy-engine/src/polisyos/ir/registry/refs.py:222 FrontierSketchRef
+  policy-engine/src/polisyos/ir/registry/refs.py:229 DPRobustnessCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:236 DataReadinessReportRef
+  policy-engine/src/polisyos/ir/registry/refs.py:243 ShiftDiagnosticReportRef
+  policy-engine/src/polisyos/ir/registry/refs.py:250 SurveyQualityCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:257 MetricValidationReportRef
+  policy-engine/src/polisyos/ir/registry/refs.py:264 ValidationReportRef
+  policy-engine/src/polisyos/ir/registry/refs.py:271 FairnessAuditReportRef
+  policy-engine/src/polisyos/ir/registry/refs.py:278 SensitivityAnalysisBundleRef
+  policy-engine/src/polisyos/ir/registry/refs.py:285 ExplanationBundleRef
+  policy-engine/src/polisyos/ir/registry/refs.py:292 JudgeVerdictRef
+  policy-engine/src/polisyos/ir/registry/refs.py:299 DriftReadinessRef
+  policy-engine/src/polisyos/ir/registry/refs.py:306 MicrosimCalibrationReportRef
+  policy-engine/src/polisyos/ir/registry/refs.py:313 DependenceStructureRef
+  policy-engine/src/polisyos/ir/registry/refs.py:320 MobilityReportRef
+  policy-engine/src/polisyos/ir/registry/refs.py:327 BoundsBundleRef
+  policy-engine/src/polisyos/ir/registry/refs.py:334 BoundsTighteningLogRef
+  policy-engine/src/polisyos/ir/registry/refs.py:341 DualCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:348 ProximalIdentificationCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:357 BridgePlausibilityReportRef
+  policy-engine/src/polisyos/ir/registry/refs.py:364 LocalIndependenceWeightingCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:373 RecoverabilityCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:380 JointDecisionCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:387 NegativeCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:394 CausalGraphModelRef
+  policy-engine/src/polisyos/ir/registry/refs.py:401 LiteratureCausalPriorRef
+  policy-engine/src/polisyos/ir/registry/refs.py:408 CausalDiscoveryReportRef
+  policy-engine/src/polisyos/ir/registry/refs.py:415 RegimeShiftIdentificationCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:424 CausalSensitivityResultRef
+  policy-engine/src/polisyos/ir/registry/refs.py:431 ABMAlignmentReportRef
+  policy-engine/src/polisyos/ir/registry/refs.py:438 TransportabilityResultRef
+  policy-engine/src/polisyos/ir/registry/refs.py:445 PrivacyAwareTransportCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:454 CausalCapabilityContractRef
+  policy-engine/src/polisyos/ir/registry/refs.py:461 ContextAdaptiveParameterBundleRef
+  policy-engine/src/polisyos/ir/registry/refs.py:468 CrossGraphEvidenceProfileRef
+  policy-engine/src/polisyos/ir/registry/refs.py:475 SCMFragmentRef
+  policy-engine/src/polisyos/ir/registry/refs.py:482 VariableAlignmentCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:489 LatentBridgeHypothesisRef
+  policy-engine/src/polisyos/ir/registry/refs.py:496 AlignmentReportRef
+  policy-engine/src/polisyos/ir/registry/refs.py:503 InterfaceMappingRef
+  policy-engine/src/polisyos/ir/registry/refs.py:510 CausalBlockBridgeRef
+  policy-engine/src/polisyos/ir/registry/refs.py:517 CompositionCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:524 ProofWitnessIndexRef
+  policy-engine/src/polisyos/ir/registry/refs.py:531 ProofComposabilityCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:538 CompositionFailureCardBundleRef
+  policy-engine/src/polisyos/ir/registry/refs.py:545 StructuralCausalModelSpecRef
+  policy-engine/src/polisyos/ir/registry/refs.py:552 CausalQueryResultRef
+  policy-engine/src/polisyos/ir/registry/refs.py:559 ContinuousTimeQueryRef
+  policy-engine/src/polisyos/ir/registry/refs.py:566 TemporalInterventionTrajectoryRef
+  policy-engine/src/polisyos/ir/registry/refs.py:573 DynamicTreatmentRegimeRef
+  policy-engine/src/polisyos/ir/registry/refs.py:580 EffectTrajectoryBundleRef
+  policy-engine/src/polisyos/ir/registry/refs.py:587 TemporalIdentificationCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:596 RoughPathInterventionCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:605 InteractionComplexRef
+  policy-engine/src/polisyos/ir/registry/refs.py:612 InterferenceCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:619 MAUPInvarianceCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:626 SpatialHodgeDiagnosticsRef
+  policy-engine/src/polisyos/ir/registry/refs.py:633 InterventionCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:640 InterventionQueryRef
+  policy-engine/src/polisyos/ir/registry/refs.py:647 TwinNetworkResultRef
+  policy-engine/src/polisyos/ir/registry/refs.py:654 CausalModelEnsembleRef
+  policy-engine/src/polisyos/ir/registry/refs.py:661 DistributionalReportRef
+  policy-engine/src/polisyos/ir/registry/refs.py:668 ChannelDecompositionArtifactRef
+  policy-engine/src/polisyos/ir/registry/refs.py:675 DistributionalEffectBundleRef
+  policy-engine/src/polisyos/ir/registry/refs.py:682 EndogenousGroupInequalityDecompositionRef
+  policy-engine/src/polisyos/ir/registry/refs.py:691 OrdinalPovertyReportRef
+  policy-engine/src/polisyos/ir/registry/refs.py:698 DistributionalBoundsBundleRef
+  policy-engine/src/polisyos/ir/registry/refs.py:705 DistributionalDualCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:712 DistributionalProofArtifactRef
+  policy-engine/src/polisyos/ir/registry/refs.py:719 CausalAssumptionCardRef
+  policy-engine/src/polisyos/ir/registry/refs.py:726 StrategicPayoffTableRef
+  policy-engine/src/polisyos/ir/registry/refs.py:733 StrategicSCMRef
+  policy-engine/src/polisyos/ir/registry/refs.py:740 StrategicResponseBundleRef
+  policy-engine/src/polisyos/ir/registry/refs.py:747 MeanFieldEquilibriumCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:754 MechanismFamilySpecRef
+  policy-engine/src/polisyos/ir/registry/refs.py:761 IncentiveCompatibilityCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:770 MechanismWelfareLossBoundRef
+  policy-engine/src/polisyos/ir/registry/refs.py:777 OptimizationAmbiguityCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:784 FiscalFeedbackLinkRef
+  policy-engine/src/polisyos/ir/registry/refs.py:791 MeanFieldPerturbationSpecRef
+  policy-engine/src/polisyos/ir/registry/refs.py:798 MeanFieldMacroSimulationConfigRef
+  policy-engine/src/polisyos/ir/registry/refs.py:805 CausalReadinessBundleRef
+  policy-engine/src/polisyos/ir/registry/refs.py:812 CausalExecutionBundleRef
+  policy-engine/src/polisyos/ir/registry/refs.py:819 FiniteStateAbstractionMapRef
+  policy-engine/src/polisyos/ir/registry/refs.py:826 AbstractionCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:833 NormativeArbitrationResultRef
+  policy-engine/src/polisyos/ir/registry/refs.py:840 BacktestReportRef
+  policy-engine/src/polisyos/ir/registry/refs.py:847 NCMSpecRef
+  policy-engine/src/polisyos/ir/registry/refs.py:854 CounterfactualResultRef
+  policy-engine/src/polisyos/ir/registry/refs.py:861 InterventionCostManifoldRef
+  policy-engine/src/polisyos/ir/registry/refs.py:868 OptimalRecourseInterventionQueryRef
+  policy-engine/src/polisyos/ir/registry/refs.py:877 RecourseProofBundleRef
+  policy-engine/src/polisyos/ir/registry/refs.py:884 RecourseFeasibilityCertificateRef
+  policy-engine/src/polisyos/ir/registry/refs.py:891 OptimalRecourseInterventionBundleRef

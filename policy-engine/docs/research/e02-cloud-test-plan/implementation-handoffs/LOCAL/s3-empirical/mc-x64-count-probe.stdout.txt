@@ -1,0 +1,8 @@
+[default-x64-off]
+jax_enable_x64=False
+negative_draws=515
+[exit 0]
+[x64-on]
+jax_enable_x64=True
+negative_draws=508
+[exit 0]

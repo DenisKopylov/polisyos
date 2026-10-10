@@ -1,0 +1,43 @@
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py", line 4716, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py", line 4692, in main
+    probe_result = self_check(ledger, snapshot)
+  File "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py", line 3966, in self_check
+    accepted_slice_paths = require_typed_report_changes(
+        [("A", slice_path)],
+    ...<2 lines>...
+        expected_candidate=source_identity,
+    )
+  File "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py", line 799, in require_typed_report_changes
+    validate_report_artifact(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        path,
+        ^^^^^
+    ...<2 lines>...
+        expected_candidate=expected_candidate,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py", line 241, in validate_report_artifact
+    validate_slice_handoff(
+    ~~~~~~~~~~~~~~~~~~~~~~^
+        artifact,
+        ^^^^^^^^^
+    ...<3 lines>...
+        label=label,
+        ^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py", line 783, in validate_slice_handoff
+    decision_refs_by_occurrence(artifact, label=f"{label} slice handoff {path}")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py", line 652, in decision_refs_by_occurrence
+    require(key not in mapped,
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^
+            f"{label} decision mapping is duplicated for {key[0]}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py", line 156, in require
+    raise ValueError(message)
+ValueError: self-check exact slice report positive slice handoff policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q0-crosswalk.json decision mapping is duplicated for probe-one

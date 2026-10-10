@@ -1,0 +1,7 @@
+ua_count 4
+ua_unit_ids ['UA']
+pl_count 4
+pl_unit_ids ['PL']
+scope_hashes_differ True
+three_row_profile None
+three_row_is_not_complete_profile True

@@ -1,0 +1,2 @@
+Phase5 with shared law predicate removed: pass (property is discriminating)
+Warrant reliability with shared law predicate removed: pass (property is discriminating)

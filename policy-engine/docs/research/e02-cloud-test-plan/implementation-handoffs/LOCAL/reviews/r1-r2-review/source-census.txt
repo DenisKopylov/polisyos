@@ -1,0 +1,11 @@
+Target commit: 672f5514e2733a782b49a56425b67294928de78a
+Target tree:   8b41d7c743853588228381d4a9fc1f9c76046763
+Parent:        8e69d23ee61a640621a487243a59107f0d1f232f
+Committed changed paths: 53
+Tracked-tree denominator: 23,102 files total; 7,310 .py; 5 .pyi; 2,376 policy-engine/tests/unit/**/*.py.
+
+Complete target-tree lookup confirmed these evidence paths are absent:
+- policy-engine/tests/unit/scientist/orchestration/engine/test_producer_model_scope_oracle.py
+- policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py
+
+The target does include test_producer_validation_graph_oracle.py and test_transfer_import_fresh_process.py. The exact R1/R2 source/test paths inspected have no worktree diff from the target at review time. The worktree contains unrelated active edits; source statements below refer to git-show at the pinned target, not those other files.

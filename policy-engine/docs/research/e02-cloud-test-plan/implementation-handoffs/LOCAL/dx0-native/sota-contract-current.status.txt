@@ -1,0 +1,3 @@
+exit=1
+elapsed_seconds=2.041
+command=['uv', 'run', '--no-sync', 'polisyos-tools', 'workspace', 'repository-sota-closeout', '--contract-only', '--output-json', '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/dx0-native/sota-contract-current.json']

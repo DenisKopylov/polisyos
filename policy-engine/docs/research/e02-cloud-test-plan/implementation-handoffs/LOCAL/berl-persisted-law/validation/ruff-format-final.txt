@@ -1,0 +1,7 @@
+Would reformat: policy-engine/src/polisyos/berl/contracts/validation_rules.py
+Would reformat: policy-engine/src/polisyos/runtime/quality/explanation_reliability.py
+Would reformat: policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py
+Would reformat: policy-engine/tests/unit/berl/test_contracts.py
+Would reformat: policy-engine/tests/unit/runtime/quality/test_berl_warrant_reliability.py
+Would reformat: policy-engine/tests/unit/scientist/validation/test_phase5_preflight.py
+6 files would be reformatted, 1 file already formatted

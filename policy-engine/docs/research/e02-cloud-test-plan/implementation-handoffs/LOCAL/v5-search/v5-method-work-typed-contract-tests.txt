@@ -1,0 +1,15 @@
+........s.............                                                   [100%]
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_source_bound_methodjob_work_packet_supports_same_input_l3_to_l4_witness
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `BootstrapExecutionWork` - serialized value may not be as expected [field_name='bootstrap_execution', input_value={'schema_version': '1.0',...tion_status': 'partial'}, input_type=dict])
+    return self.__pydantic_serializer__.to_python(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py:391: native DR nuisance/tau fit uses the serialized numerical verification slot

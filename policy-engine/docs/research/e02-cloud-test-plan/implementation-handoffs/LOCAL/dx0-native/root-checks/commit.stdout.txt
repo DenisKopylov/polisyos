@@ -1,0 +1,3 @@
+[codex/e02-unified-local-20261009 a76bbfaef] fix(devx): derive Ruff profiles for both supported caller roots
+ 6 files changed, 944 insertions(+), 22 deletions(-)
+ create mode 100644 policy-engine/architecture/tooling/ruff/workspace_root.toml

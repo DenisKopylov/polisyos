@@ -1,0 +1,169 @@
+.F.F..FFF.                                                               [100%]
+=================================== FAILURES ===================================
+_________ test_read_api_imports_do_not_load_domain_or_legacy_internals _________
+
+    def test_read_api_imports_do_not_load_domain_or_legacy_internals() -> None:
+        for module_name in READ_API_MODULES:
+>           blocked = _blocked_modules_after_import(module_name)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+module_name = 'polisyos.data_forge.read_api.ukraine'
+
+    def _blocked_modules_after_import(module_name: str) -> list[str]:
+        script = f"""
+            import importlib
+            import json
+            import sys
+    
+            importlib.import_module({module_name!r})
+            blocked = sorted(
+                name
+                for name in sys.modules
+                if name.startswith({BLOCKED_IMPORT_PREFIXES!r})
+            )
+            print(json.dumps(blocked))
+            raise SystemExit(1 if blocked else 0)
+        """
+        result = _run_python(script)
+>       assert result.returncode == 0, result.stderr
+E       AssertionError: 
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/b...s", "polisyos.data_forge.kernel.pipeline.materialize", "polisyos.data_forge.kernel.pipeline.partitions"]\n', stderr='').returncode
+
+policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py:277: AssertionError
+_________ test_read_api_modules_do_not_eagerly_import_domain_internals _________
+
+    def test_read_api_modules_do_not_eagerly_import_domain_internals() -> None:
+        src_root = Path(__file__).resolve().parents[3] / "src" / "polisyos" / "data_forge"
+        for module_path in sorted((src_root / "read_api").glob("*.py")):
+            if module_path.name.startswith("_"):
+                continue
+            tree = ast.parse(module_path.read_text(encoding="utf-8"))
+            eager_imports = [
+                _import_name(node)
+                for node in tree.body
+                if isinstance(node, ast.Import | ast.ImportFrom)
+                and _import_name(node).startswith(
+                    ("polisyos.data_forge.domains", "polisyos.data_forge.kernel")
+                )
+            ]
+>           assert eager_imports == [], f"{module_path} eagerly imports internals: {eager_imports}"
+E           AssertionError: /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/data_forge/read_api/ukraine.py eagerly imports internals: ['polisyos.data_forge.domains.ukraine.manifests']
+E           assert ['polisyos.da...ne.manifests'] == []
+E             
+E             Left contains one more item: 'polisyos.data_forge.domains.ukraine.manifests'
+E             Use -v to get more diff
+
+policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py:95: AssertionError
+______ test_runtime_consumers_do_not_import_data_forge_internals_directly ______
+
+    def test_runtime_consumers_do_not_import_data_forge_internals_directly() -> None:
+        violations = _direct_import_violations(RUNTIME_ROOT, RUNTIME_BLOCKED_INTERNAL_PREFIXES)
+    
+>       assert violations == [], (
+            "runtime packages must depend on polisyos.data_forge.read_api.* rather than "
+            "Data Forge domain/kernel internals:\n" + "\n".join(violations)
+        )
+E       AssertionError: runtime packages must depend on polisyos.data_forge.read_api.* rather than Data Forge domain/kernel internals:
+E         src/polisyos/runtime/http/container.py:89: polisyos.data_forge.kernel.embeddings
+E         src/polisyos/runtime/http/container.py:108: polisyos.data_forge.kernel.embeddings
+E         src/polisyos/runtime/quality/acquisition_planner.py:1588: polisyos.data_forge.domains.academic.openalex.client
+E         src/polisyos/runtime/quality/data_state_substrate.py:45: polisyos.data_forge.kernel.pipeline.manifests
+E         src/polisyos/runtime/quality/data_state_substrate.py:46: polisyos.data_forge.kernel.snapshot
+E         src/polisyos/runtime/quality/data_state_substrate.py:24: polisyos.data_forge.domains.catalog.knowledge.overlay
+E         src/polisyos/runtime/quality/data_state_substrate.py:601: polisyos.data_forge.domains.catalog.knowledge.overlay
+E         src/polisyos/runtime/quality/design_generation.py:97: polisyos.data_forge.domains.academic.knowledge.skg_versioning
+E         src/polisyos/runtime/quality/design_generation.py:1192: polisyos.data_forge.domains.academic.knowledge.skg_versioning
+E         src/polisyos/runtime/quality/generation_cycle.py:11923: polisyos.data_forge.domains.catalog.knowledge.country_codes
+E         src/polisyos/runtime/quality/generation_cycle.py:10010: polisyos.data_forge.domains.catalog.knowledge.country_codes
+E         src/polisyos/runtime/quality/generation_source.py:27: polisyos.data_forge.domains.academic.knowledge.skg_versioning
+E         src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py:22: polisyos.data_forge.kernel.embeddings
+E         src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py:25: polisyos.data_forge.kernel.embeddings
+E       assert ['src/polisyo...overlay', ...] == []
+E         
+E         Left contains 14 more items, first extra item: 'src/polisyos/runtime/http/container.py:89: polisyos.data_forge.kernel.embeddings'
+E         Use -v to get more diff
+
+policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py:227: AssertionError
+______ test_runtime_consumers_do_not_import_legacy_read_facades_directly _______
+
+    def test_runtime_consumers_do_not_import_legacy_read_facades_directly() -> None:
+        violations = _direct_import_violations(RUNTIME_ROOT, RUNTIME_BLOCKED_LEGACY_READ_PREFIXES)
+    
+>       assert violations == [], (
+            "runtime packages must migrate read consumers to polisyos.data_forge.read_api.* "
+            "and keep legacy facades behind shims:\n" + "\n".join(violations)
+        )
+E       AssertionError: runtime packages must migrate read consumers to polisyos.data_forge.read_api.* and keep legacy facades behind shims:
+E         src/polisyos/runtime/http/services/control/lex_pipeline.py:23: polisyos.lex.knowledge.store
+E         src/polisyos/runtime/http/services/control/lex_pipeline.py:36: polisyos.lex.knowledge.store
+E         src/polisyos/runtime/http/services/control/lex_pipeline.py:349: polisyos.lex.knowledge.store
+E         src/polisyos/runtime/http/services/control/lex_search_projection.py:10: polisyos.lex.knowledge
+E         src/polisyos/runtime/quality/data_state_substrate.py:24: polisyos.data_forge.domains.catalog.knowledge.overlay
+E         src/polisyos/runtime/quality/data_state_substrate.py:601: polisyos.data_forge.domains.catalog.knowledge.overlay
+E         src/polisyos/runtime/quality/design_generation.py:97: polisyos.data_forge.domains.academic.knowledge.skg_versioning
+E         src/polisyos/runtime/quality/design_generation.py:1192: polisyos.data_forge.domains.academic.knowledge.skg_versioning
+E         src/polisyos/runtime/quality/generation_cycle.py:11923: polisyos.data_forge.domains.catalog.knowledge.country_codes
+E         src/polisyos/runtime/quality/generation_cycle.py:10010: polisyos.data_forge.domains.catalog.knowledge.country_codes
+E         src/polisyos/runtime/quality/generation_source.py:27: polisyos.data_forge.domains.academic.knowledge.skg_versioning
+E       assert ['src/polisyo...overlay', ...] == []
+E         
+E         Left contains 11 more items, first extra item: 'src/polisyos/runtime/http/services/control/lex_pipeline.py:23: polisyos.lex.knowledge.store'
+E         Use -v to get more diff
+
+policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py:236: AssertionError
+___ test_runtime_sources_do_not_reference_blocked_read_internals_dynamically ___
+
+    def test_runtime_sources_do_not_reference_blocked_read_internals_dynamically() -> None:
+        violations: list[str] = []
+        repo_root = Path(__file__).resolve().parents[3]
+    
+        for path in sorted(
+            item for item in RUNTIME_ROOT.rglob("*.py") if "__pycache__" not in item.parts
+        ):
+            text = path.read_text(encoding="utf-8")
+            relative_path = path.relative_to(repo_root).as_posix()
+            for fragment in RUNTIME_BLOCKED_SOURCE_FRAGMENTS:
+                if fragment in text:
+                    violations.append(f"{relative_path}: {fragment}")
+    
+>       assert violations == [], (
+            "runtime packages must not smuggle Data Forge internals or legacy read "
+            "facades through dynamic imports/string references:\n" + "\n".join(violations)
+        )
+E       AssertionError: runtime packages must not smuggle Data Forge internals or legacy read facades through dynamic imports/string references:
+E         src/polisyos/runtime/http/services/control/lex_pipeline.py: polisyos.lex.knowledge
+E         src/polisyos/runtime/http/services/control/lex_search_projection.py: polisyos.lex.knowledge
+E         src/polisyos/runtime/quality/acquisition_executor.py: polisyos.lex.knowledge
+E         src/polisyos/runtime/quality/acquisition_planner.py: polisyos.data_forge.domains
+E         src/polisyos/runtime/quality/credal_reference.py: polisyos.lex.knowledge
+E         src/polisyos/runtime/quality/data_state_substrate.py: polisyos.data_forge.domains
+E         src/polisyos/runtime/quality/data_state_substrate.py: polisyos.data_forge.kernel
+E         src/polisyos/runtime/quality/data_state_substrate.py: polisyos.data_forge.domains.catalog.knowledge
+E         src/polisyos/runtime/quality/design_generation.py: polisyos.data_forge.domains
+E         src/polisyos/runtime/quality/design_generation.py: polisyos.data_forge.domains.academic.knowledge
+E         src/polisyos/runtime/quality/generation_cycle.py: polisyos.data_forge.domains
+E         src/polisyos/runtime/quality/generation_cycle.py: polisyos.data_forge.domains.catalog.knowledge
+E         src/polisyos/runtime/quality/generation_source.py: polisyos.data_forge.domains
+E         src/polisyos/runtime/quality/generation_source.py: polisyos.data_forge.domains.academic.knowledge
+E         src/polisyos/runtime/quality/intervention_substrate.py: polisyos.lex.knowledge
+E         src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py: polisyos.data_forge.kernel
+E         src/polisyos/runtime/quality/proving_ground/pinned_route_demand_home.py: polisyos.data_forge.domains
+E         src/polisyos/runtime/quality/proving_ground/pinned_route_demand_home.py: polisyos.data_forge.domains.academic.knowledge
+E         src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py: polisyos.data_forge.kernel
+E         src/polisyos/runtime/quality/workspace/loop.py: polisyos.data_forge.domains
+E       assert ['src/polisyo...domains', ...] == []
+E         
+E         Left contains 20 more items, first extra item: 'src/polisyos/runtime/http/services/control/lex_pipeline.py: polisyos.lex.knowledge'
+E         Use -v to get more diff
+
+policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py:255: AssertionError
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py::test_read_api_imports_do_not_load_domain_or_legacy_internals
+FAILED policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py::test_read_api_modules_do_not_eagerly_import_domain_internals
+FAILED policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py::test_runtime_consumers_do_not_import_data_forge_internals_directly
+FAILED policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py::test_runtime_consumers_do_not_import_legacy_read_facades_directly
+FAILED policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py::test_runtime_sources_do_not_reference_blocked_read_internals_dynamically

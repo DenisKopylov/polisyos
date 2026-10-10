@@ -1,0 +1,8 @@
+COMMAND ['.venv/bin/python', '-m', 'ruff', 'check', 'src/polisyos/berl/service.py', 'src/polisyos/berl/adapters/shap_kernel.py', 'src/polisyos/foundry/uncertainty/aggregator.py', 'tests/unit/berl/test_adapters.py', 'tests/unit/berl/test_service.py', 'tests/unit/remediation/test_ber_01.py', 'tests/unit/remediation/test_uqs_01.py', 'tests/unit/foundry/uncertainty/test_aggregation_strategies.py']
+All checks passed!
+EXIT 0
+COMMAND ['.venv/bin/python', '-m', 'ruff', 'format', '--check', 'src/polisyos/berl/service.py', 'src/polisyos/berl/adapters/shap_kernel.py', 'src/polisyos/foundry/uncertainty/aggregator.py', 'tests/unit/berl/test_adapters.py', 'tests/unit/berl/test_service.py', 'tests/unit/remediation/test_ber_01.py', 'tests/unit/remediation/test_uqs_01.py', 'tests/unit/foundry/uncertainty/test_aggregation_strategies.py']
+8 files already formatted
+EXIT 0
+COMMAND ['git', 'diff', '--check', '--', 'src/polisyos/berl/README.md', 'src/polisyos/berl/service.py', 'src/polisyos/berl/adapters/shap_kernel.py', 'src/polisyos/foundry/uncertainty/README.md', 'src/polisyos/foundry/uncertainty/aggregator.py', 'tests/unit/berl/test_adapters.py', 'tests/unit/berl/test_service.py', 'tests/unit/remediation/test_ber_01.py', 'tests/unit/remediation/test_uqs_01.py', 'tests/unit/foundry/uncertainty/test_aggregation_strategies.py', 'release-fragments/unreleased/2026-10-09-e02-b200-unresolved-dependence.toml', 'release-fragments/unreleased/2026-10-09-e02-la036-conditional-refusal.toml']
+EXIT 0

@@ -1,0 +1,5 @@
+python3 -m pytest -q tests/repo_quality/tools/test_gcp_package_assets.py: exit 0, 11 passed
+bash -n ops/cloud/gcp/package_repo.sh: exit 0
+git diff --check -- ops/cloud/gcp/package_repo.sh tests/repo_quality/tools/test_gcp_package_assets.py: exit 0
+python3 -m ruff check tests/repo_quality/tools/test_gcp_package_assets.py: exit 0
+python3 -m ruff format --check tests/repo_quality/tools/test_gcp_package_assets.py: exit 0

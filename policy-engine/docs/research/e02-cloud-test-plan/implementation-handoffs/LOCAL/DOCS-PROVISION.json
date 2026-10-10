@@ -1,0 +1,39 @@
+{
+  "schema": "policyos.e02.local_environment_provision.v1",
+  "checkpoint": "00c200c2ec33786a80dd41209eca46a2539dac5c",
+  "recipe": [
+    "uv",
+    "sync",
+    "--frozen",
+    "--inexact",
+    "--extra",
+    "lint",
+    "--extra",
+    "test",
+    "--extra",
+    "runtime",
+    "--extra",
+    "ml",
+    "--extra",
+    "research",
+    "--extra",
+    "search-bo",
+    "--extra",
+    "docs"
+  ],
+  "offline_attempt": {
+    "exit_code": 1,
+    "reason": "babel==2.17.0 wheel absent from local cache; native offline mode refused download"
+  },
+  "ordinary_locked_attempt": {
+    "exit_code": 0,
+    "deciding_output": "Prepared18packages; Installed18packages; no existing dependency removals requested"
+  },
+  "lock_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+  "freeze_ref": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/environment/docs-provision-20261009/freeze.stdout.txt",
+    "sha256": "9d1d46f9a606e766e9c67ba21e936e089da3eb4f92b0ba3f671d10d3571fb67f"
+  },
+  "source_mutation": "none",
+  "claim_boundary": "Dependency availability only, not docs/native SOTA success."
+}

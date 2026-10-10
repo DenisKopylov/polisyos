@@ -1,0 +1,220 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+____ test_ir_adapter_mapping_write_options_preserve_every_core_option_field ____
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-698/test_ir_adapter_mapping_write_0')
+
+    def test_ir_adapter_mapping_write_options_preserve_every_core_option_field(tmp_path) -> None:
+        """A Mapping write projects every declared Core option into the durable manifest."""
+        exact_bytes = b'{"value":"mapping-options"}'
+        core_id = CoreArtifactRef.model_validate(
+            {
+                "artifact_id": "sha256:" + sha256(exact_bytes).hexdigest(),
+                "kind": "test.ir-mapping-options",
+                "media_type": "application/json",
+            }
+        ).artifact_id
+        options = ArtifactWriteOptions(
+            kind="test.ir-mapping-options",
+            media_type="application/json",
+            schema=CoreSchemaInfo(name="test.ir-mapping-options", version="1"),
+            producer=ProducerInfo(component="polisyos.tests.ir_adapter", version="1"),
+            env=EnvInfo(python="3.14", platform="test", deps_lock_hash="lock-hash"),
+            inputs=[CoreInputRef(artifact_id=core_id, role="source")],
+            canon=CoreCanonInfo(),
+            governance=ArtifactGovernanceInfo(classification="internal"),
+            tenant_context=ArtifactTenantContextInfo(tenant_id="tenant-a", cell_id="cell-a"),
+            same_input_closure=ArtifactSameInputClosureInfo(
+                closure_id="closure-a",
+                status="closed",
+                closure_sha256="1" * 64,
+                run_id="run-a",
+                job_id="job-a",
+                tenant_id="tenant-a",
+                cell_id="cell-a",
+                evidence_input_refs=(str(core_id),),
+            ),
+            authority=ArtifactAuthorityInfo(
+                authority_envelope_ref="sha256:" + "2" * 64,
+                diagnostic_event_ref="sha256:" + "3" * 64,
+                manifest_ref="cas-manifest://sha256:" + "4" * 64,
+                payload_sha256=sha256(exact_bytes).hexdigest(),
+            ),
+            warnings=[WarningRecord(code="retained", msg="keep this warning")],
+        )
+    
+        def model_payload(value):
+            if value is None:
+                return None
+            if isinstance(value, list):
+                return [model_payload(item) for item in value]
+            if hasattr(value, "model_dump"):
+                return value.model_dump(mode="python")
+            return value
+    
+        mapping_options = MappingProxyType(
+            {name: model_payload(value) for name, value in vars(options).items()}
+        )
+        assert isinstance(mapping_options, Mapping)
+    
+        store = FileSystemCAS(tmp_path / ".polisyos")
+>       ref = ensure_ir_artifact_store(store).put_json(
+            {"value": "mapping-options"}, mapping_options
+        )
+
+policy-engine/tests/unit/core/artifacts/test_ir_adapter.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+policy-engine/src/polisyos/core/artifacts/ir_adapter.py:98: in put_json
+    write_options = _coerce_write_options(opts)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/ir_adapter.py:69: in _coerce_write_options
+    payload = _coerce_payload(opts)
+              ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = mappingproxy({'kind': 'test.ir-mapping-options', 'media_type': 'application/json', 'schema': {'name': 'test.ir-mapping...4798d2db9f2b7c533c6aba4bb730e612b9257'}, 'warnings': [{'code': 'retained', 'msg': 'keep this warning', 'data': None}]})
+
+    def _coerce_payload(value: Any) -> dict[str, Any]:
+        if isinstance(value, dict):
+            return dict(value)
+        model_dump = getattr(value, "model_dump", None)
+        if callable(model_dump):
+            dumped = model_dump(mode="python")
+            if isinstance(dumped, dict):
+                return dict(dumped)
+        if hasattr(value, "__dict__"):
+            return dict(vars(value))
+>       raise TypeError(f"Cannot coerce {type(value)!r} into adapter payload")
+E       TypeError: Cannot coerce <class 'mappingproxy'> into adapter payload
+
+policy-engine/src/polisyos/core/artifacts/ir_adapter.py:33: TypeError
+_ test_ir_adapter_refuses_malformed_supplied_mapping_options[invalid_options0] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-698/test_ir_adapter_refuses_malfor0')
+invalid_options = {'kind': 'test.invalid-mapping', 'media_type': 'application/json', 'warnings': 'bad'}
+
+    @pytest.mark.parametrize(
+        "invalid_options",
+        [
+            {"kind": "test.invalid-mapping", "media_type": "application/json", "warnings": "bad"},
+            {
+                "kind": "test.invalid-mapping",
+                "media_type": "application/json",
+                "warnings": [object()],
+            },
+            {
+                "kind": "test.invalid-mapping",
+                "media_type": "application/json",
+                "unexpected": "silently discarded today",
+            },
+            {"kind": 1, "media_type": "application/json"},
+        ],
+    )
+    def test_ir_adapter_refuses_malformed_supplied_mapping_options(tmp_path, invalid_options) -> None:
+        """Supplied malformed option values cannot disappear into adapter defaults."""
+        store = FileSystemCAS(tmp_path / ".polisyos")
+    
+>       with pytest.raises((TypeError, ValueError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (<class 'TypeError'>, <class 'ValueError'>)
+
+policy-engine/tests/unit/core/artifacts/test_ir_adapter.py:182: Failed
+_ test_ir_adapter_refuses_malformed_supplied_mapping_options[invalid_options1] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-698/test_ir_adapter_refuses_malfor1')
+invalid_options = {'kind': 'test.invalid-mapping', 'media_type': 'application/json', 'warnings': [<object object at 0x10a67d900>]}
+
+    @pytest.mark.parametrize(
+        "invalid_options",
+        [
+            {"kind": "test.invalid-mapping", "media_type": "application/json", "warnings": "bad"},
+            {
+                "kind": "test.invalid-mapping",
+                "media_type": "application/json",
+                "warnings": [object()],
+            },
+            {
+                "kind": "test.invalid-mapping",
+                "media_type": "application/json",
+                "unexpected": "silently discarded today",
+            },
+            {"kind": 1, "media_type": "application/json"},
+        ],
+    )
+    def test_ir_adapter_refuses_malformed_supplied_mapping_options(tmp_path, invalid_options) -> None:
+        """Supplied malformed option values cannot disappear into adapter defaults."""
+        store = FileSystemCAS(tmp_path / ".polisyos")
+    
+>       with pytest.raises((TypeError, ValueError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (<class 'TypeError'>, <class 'ValueError'>)
+
+policy-engine/tests/unit/core/artifacts/test_ir_adapter.py:182: Failed
+_ test_ir_adapter_refuses_malformed_supplied_mapping_options[invalid_options2] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-698/test_ir_adapter_refuses_malfor2')
+invalid_options = {'kind': 'test.invalid-mapping', 'media_type': 'application/json', 'unexpected': 'silently discarded today'}
+
+    @pytest.mark.parametrize(
+        "invalid_options",
+        [
+            {"kind": "test.invalid-mapping", "media_type": "application/json", "warnings": "bad"},
+            {
+                "kind": "test.invalid-mapping",
+                "media_type": "application/json",
+                "warnings": [object()],
+            },
+            {
+                "kind": "test.invalid-mapping",
+                "media_type": "application/json",
+                "unexpected": "silently discarded today",
+            },
+            {"kind": 1, "media_type": "application/json"},
+        ],
+    )
+    def test_ir_adapter_refuses_malformed_supplied_mapping_options(tmp_path, invalid_options) -> None:
+        """Supplied malformed option values cannot disappear into adapter defaults."""
+        store = FileSystemCAS(tmp_path / ".polisyos")
+    
+>       with pytest.raises((TypeError, ValueError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (<class 'TypeError'>, <class 'ValueError'>)
+
+policy-engine/tests/unit/core/artifacts/test_ir_adapter.py:182: Failed
+_ test_ir_adapter_refuses_malformed_supplied_mapping_options[invalid_options3] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-698/test_ir_adapter_refuses_malfor3')
+invalid_options = {'kind': 1, 'media_type': 'application/json'}
+
+    @pytest.mark.parametrize(
+        "invalid_options",
+        [
+            {"kind": "test.invalid-mapping", "media_type": "application/json", "warnings": "bad"},
+            {
+                "kind": "test.invalid-mapping",
+                "media_type": "application/json",
+                "warnings": [object()],
+            },
+            {
+                "kind": "test.invalid-mapping",
+                "media_type": "application/json",
+                "unexpected": "silently discarded today",
+            },
+            {"kind": 1, "media_type": "application/json"},
+        ],
+    )
+    def test_ir_adapter_refuses_malformed_supplied_mapping_options(tmp_path, invalid_options) -> None:
+        """Supplied malformed option values cannot disappear into adapter defaults."""
+        store = FileSystemCAS(tmp_path / ".polisyos")
+    
+>       with pytest.raises((TypeError, ValueError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (<class 'TypeError'>, <class 'ValueError'>)
+
+policy-engine/tests/unit/core/artifacts/test_ir_adapter.py:182: Failed
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/core/artifacts/test_ir_adapter.py::test_ir_adapter_mapping_write_options_preserve_every_core_option_field
+FAILED policy-engine/tests/unit/core/artifacts/test_ir_adapter.py::test_ir_adapter_refuses_malformed_supplied_mapping_options[invalid_options0]
+FAILED policy-engine/tests/unit/core/artifacts/test_ir_adapter.py::test_ir_adapter_refuses_malformed_supplied_mapping_options[invalid_options1]
+FAILED policy-engine/tests/unit/core/artifacts/test_ir_adapter.py::test_ir_adapter_refuses_malformed_supplied_mapping_options[invalid_options2]
+FAILED policy-engine/tests/unit/core/artifacts/test_ir_adapter.py::test_ir_adapter_refuses_malformed_supplied_mapping_options[invalid_options3]

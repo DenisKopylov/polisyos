@@ -1,0 +1,25 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______ test_wrong_role_human_click_is_persisted_and_never_fires_effect ________
+tests/unit/runtime/quality/test_agent_action_authority.py:921: in test_wrong_role_human_click_is_persisted_and_never_fires_effect
+    gateway, _, _ = _prepare_gateway(
+tests/unit/runtime/quality/test_agent_action_authority.py:535: in _prepare_gateway
+    contract_ref = contract_ref_override or _persist_signed(
+tests/unit/runtime/quality/test_agent_action_authority.py:441: in _persist_signed
+    harness.store.sign_artifact(
+src/polisyos/core/artifacts/store.py:1755: in sign_artifact
+    return _sign_artifact(
+src/polisyos/core/artifacts/_signature_ops.py:165: in sign_artifact
+    write_signature(artifact_id, signature)
+src/polisyos/core/artifacts/store.py:1761: in <lambda>
+    write_signature=lambda selected_id, signature: self.put_signature(selected, signature),
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<stdin>:13: in observed
+    ???
+src/polisyos/core/artifacts/store.py:1638: in put_signature
+    raise ArtifactIntegrityError("immutable signature sidecar conflicts")
+E   polisyos.core.artifacts._integrity_ops.ArtifactIntegrityError: immutable signature sidecar conflicts
+----------------------------- Captured stdout call -----------------------------
+EXISTING_SIDECAR sha256:e019f0f227985020dd5794ff02a384346454d002e73007b59131e3965f644129 same_key= True same_signed_bytes= True old_signed_at= 2026-10-09T09:44:56.481545+00:00 new_signed_at= 2026-10-09T09:44:56.735279+00:00 identity_matches= True manifest_matches= True
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_agent_action_authority.py::test_wrong_role_human_click_is_persisted_and_never_fires_effect

@@ -1,0 +1,15 @@
+{
+  "schema": "policyos.e02.local_generated_output_attribution.v1",
+  "checkpoint": "a49909826cf87f164dae36c26b21fb5d188ca835",
+  "owner": "s3_empirical",
+  "write_command": ".venv/bin/python tools/devx/architecture/guardrails.py sync --skip-deep-import-baseline",
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+  "invoked_at_utc": "2026-10-09T13:21:53.823Z",
+  "output_mtime_utc": "2026-10-09T13:22:01Z",
+  "evidence": "LOCAL/raw/incidents/generated-ownership-20261009/state.json",
+  "files": [
+    "policy-engine/architecture/public_surface/inventory.json",
+    "policy-engine/docs/reference/public-surface.md"
+  ],
+  "resolution": "Source attribution confirmed by direct-agent tool log and corrected author acknowledgement. Preserve intermediate generated companions; root regenerates after source contracts stabilize. No reset, restore, history move or deletion. No final freeze or G acceptance."
+}

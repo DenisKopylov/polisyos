@@ -1,0 +1,68 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_real_workflow_selector_replays_saved_source_with_current_live_replacement[timed] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1374/test_real_workflow_selector_re0')
+mode = 'timed'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13e81f230>
+
+    @pytest.mark.parametrize("mode", ["sync", "timed", "async"])
+    def test_real_workflow_selector_replays_saved_source_with_current_live_replacement(
+        tmp_path: Path,
+        mode: Literal["sync", "timed", "async"],
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+            source, store, run, ctx, state, ref = _workflow_fixture(tmp_path)
+            selected = load_retained_skg_snapshot(store, ref)
+            replay_state = state.model_copy(update={"inputs": {SNAPSHOT_INPUT_KEY: ref}})
+            registry = NodeRegistry()
+            registry.register(ResolveParametersNode())
+            process_contexts: list[str | None] = []
+            get_context = mp.get_context
+    
+            def record_process_context(method: str | None = None):
+                process_contexts.append(method)
+                return get_context(method)
+    
+            monkeypatch.setattr(mp, "get_context", record_process_context)
+            result = _execute_workflow(mode, ctx, registry, replay_state)
+            if mode == "timed" and sys.platform == "darwin":
+                assert "spawn" in process_contexts
+                assert "fork" not in process_contexts
+>           assert result.report.status == "ok"
+E           AssertionError: assert 'fail' == 'ok'
+E             
+E             - ok
+E             + fail
+
+ctx        = ExecutionContext(store=<polisyos.core.artifacts.store.FileSystemCAS object at 0x13e83f9d0>, run=RunContext(store=<poli...one, memory=None, eval_safety_execution_context=None, eval_safety_verifier=None, epoch_certificate_issuance_owner=None)
+get_context = <bound method DefaultContext.get_context of <multiprocessing.context.DefaultContext object at 0x10af65be0>>
+mode       = 'timed'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13e81f230>
+process_contexts = ['spawn']
+record_process_context = <function test_real_workflow_selector_replays_saved_source_with_current_live_replacement.<locals>.record_process_context at 0x13e9e6140>
+ref        = ArtifactRef(artifact_id=ArtifactID(root='sha256:cf6928dcf5fe4db755bc6a07768d9dd05ecfaff5ccc613c0a587a895849e75a6'), ki...='application/json', manifest_profile_sha256='sha256:dc2d66a4da737ef9cafc383dc4cf0c953b052f39de37ea6b8aa2e292755e6726')
+registry   = <polisyos.scientist.orchestration.engine.registry.NodeRegistry object at 0x13e902cf0>
+replay_state = ExperimentState(schema_version='1.3', run_id='R_retained_skg', inputs={'skg_source_snapshot': ArtifactRef(artifact_id=...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+result     = WorkflowExecutionResult(state=_JournaledExperimentState(schema_version='1.3', run_id='R_retained_skg', inputs={'skg_so...4405abf9abbc116b2603b845b496'), kind='core.run_manifest', media_type='application/json', manifest_profile_sha256=None))
+run        = RunContext(store=<polisyos.core.artifacts.store.FileSystemCAS object at 0x13e83f9d0>, trace=<polisyos.core.trace.sink...._selector_re0/cas/runs/R_retained_skg/trace.jsonl'), _audit_sink=None, tenant_id=None, cell_id=None, access_scope=None)
+selected   = RetainedSKGSnapshot(schema_version='1.0', source_reference='duckdb:///private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40...anifest_profile_sha256='sha256:f15b727431d36300663b3d59d5238a45d3a83f45304e19ec71f8ab9fb7a8d7b9'), byte_size=536576),))
+source     = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1374/test_real_workflow_selector_re0/live.duckdb')
+state      = ExperimentState(schema_version='1.3', run_id='R_retained_skg', inputs={}, artifacts_index={'reconciled_causal_graph_re...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+store      = <polisyos.core.artifacts.store.FileSystemCAS object at 0x13e83f9d0>
+tmp_path   = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1374/test_real_workflow_selector_re0')
+
+tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py:463: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    retained-skg:executor.py:1545 Node resolve timed out
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py::test_real_workflow_selector_replays_saved_source_with_current_live_replacement[timed]
+1 failed, 2 warnings in 5.68s

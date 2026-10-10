@@ -1,0 +1,39 @@
+$ .venv/bin/python -m pytest tests/unit/foundry/uncertainty/test_monte_carlo_b194.py -q
+...................                                                      [100%]
+=============================== warnings summary ===============================
+tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_valid_delta_output_is_not_marked_missing_or_incomplete
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/api_util.py:83: DeprecationWarning: Passing arguments 'a', 'a_min' or 'a_max' to jax.numpy.clip is deprecated. Please use 'arr', 'min' or 'max' respectively instead.
+    ans = f(*py_args, **py_kwargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+[exit 0]
+
+$ .venv/bin/python -m pytest tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py tests/unit/ir/analytics/test_posterior_summary.py tests/unit/foundry/uncertainty/test_monte_carlo_b194.py -q
+......................................                                   [100%]
+=============================== warnings summary ===============================
+tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_valid_delta_output_is_not_marked_missing_or_incomplete
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/api_util.py:83: DeprecationWarning: Passing arguments 'a', 'a_min' or 'a_max' to jax.numpy.clip is deprecated. Please use 'arr', 'min' or 'max' respectively instead.
+    ans = f(*py_args, **py_kwargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+[exit 0]
+
+$ .venv/bin/python -m ruff check src/polisyos/foundry/calibration/uncertainty_adapter.py src/polisyos/foundry/uncertainty/monte_carlo.py src/polisyos/ir/api.py tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py tests/unit/foundry/uncertainty/test_monte_carlo_b194.py tests/unit/ir/analytics/test_posterior_summary.py tests/integration/foundry/uncertainty/test_posterior_summary_persistence.py
+All checks passed!
+
+[exit 0]
+
+$ .venv/bin/python -m ruff format --check tests/unit/ir/analytics/test_posterior_summary.py tests/integration/foundry/uncertainty/test_posterior_summary_persistence.py
+2 files already formatted
+
+[exit 0]
+
+$ .venv/bin/python -c 'import tomllib; from pathlib import Path; tomllib.loads(Path("release-fragments/unreleased/2026-10-09-e02-s3-posterior-summary-v11-consumer.toml").read_text())'
+
+[exit 0]
+
+$ git diff --check -- src/polisyos/foundry/calibration/uncertainty_adapter.py src/polisyos/foundry/uncertainty/monte_carlo.py src/polisyos/foundry/uncertainty/README.md src/polisyos/foundry/calibration/README.md src/polisyos/ir/api.py tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py tests/unit/foundry/uncertainty/test_monte_carlo_b194.py tests/unit/ir/analytics/test_posterior_summary.py tests/integration/foundry/uncertainty/test_posterior_summary_persistence.py release-fragments/unreleased/2026-10-09-e02-s3-posterior-summary-v11-consumer.toml
+
+[exit 0]

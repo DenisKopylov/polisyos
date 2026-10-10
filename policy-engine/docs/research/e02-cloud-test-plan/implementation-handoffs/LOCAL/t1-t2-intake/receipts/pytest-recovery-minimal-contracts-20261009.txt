@@ -1,0 +1,46 @@
+..............F                                                          [100%]
+=================================== FAILURES ===================================
+_ test_run_policy_blueprint_execute_refuses_without_typed_owner_commit_bridge __
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1231/test_run_policy_blueprint_exec0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1357c4510>
+
+    def test_run_policy_blueprint_execute_refuses_without_typed_owner_commit_bridge(
+        tmp_path,
+        monkeypatch,
+    ) -> None:
+        harness = _install_actual_runtime_node_dependencies(
+            monkeypatch,
+            tmp_path,
+            mode="normal",
+            revoke_permission_at_commit=True,
+        )
+    
+        outcome = runtime.RunPolicyBlueprintRuntimeNode().execute(
+            harness["ctx"],
+            harness["state"],
+        )
+    
+        assert outcome.status == "ok"
+        assert harness["backend_calls"] == ["full"]
+        assert harness["runner_calls"] == []
+        assert harness["owner_checks"] == []
+        assert harness["promotion_writes"] == []
+        assert "policy_promotion_result" not in outcome.state.params
+>       level6 = outcome.state.params["_funnel_outcome"]["stage_results"]["6"]
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: '6'
+
+tests/unit/remediation/test_fun_03.py:693: KeyError
+----------------------------- Captured stdout call -----------------------------
+2026-10-09 15:17:40.843 | ERROR    | polisyos.common.logger:_call:120 - ExpensiveStage workflow failed: Unsupported type for canonical JSON: <class 'tests.unit.remediation.test_fun_03._ControlledEvaluationVector'>
+
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_fun_03.py::test_run_policy_blueprint_execute_refuses_without_typed_owner_commit_bridge

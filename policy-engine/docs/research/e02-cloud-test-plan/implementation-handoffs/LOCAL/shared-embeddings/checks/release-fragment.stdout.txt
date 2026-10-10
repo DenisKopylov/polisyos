@@ -1,0 +1,1 @@
+valid TOML: release-fragments/unreleased/2026-10-09-e02-shared-embedding-identity.toml

@@ -1,0 +1,13 @@
+ERROR: found no collectors for /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/data_forge/kernel/test_encoder_identity.py::test_generation_matcher_recomputes_encoder_and_effective_intent
+
+
+==================================== ERRORS ====================================
+____ ERROR collecting tests/unit/data_forge/kernel/test_encoder_identity.py ____
+ImportError while importing test module '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/data_forge/kernel/test_encoder_identity.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+policy-engine/tests/unit/data_forge/kernel/test_encoder_identity.py:11: in <module>
+    from polisyos.data_forge.kernel.embeddings import (
+E   ImportError: cannot import name 'embedding_generation_matches_encoder' from 'polisyos.data_forge.kernel.embeddings' (/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/data_forge/kernel/embeddings.py)
+=========================== short test summary info ============================
+ERROR policy-engine/tests/unit/data_forge/kernel/test_encoder_identity.py

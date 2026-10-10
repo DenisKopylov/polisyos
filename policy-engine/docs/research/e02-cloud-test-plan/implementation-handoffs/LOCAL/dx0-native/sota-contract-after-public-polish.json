@@ -1,0 +1,416 @@
+{
+  "status": "failed",
+  "finding_count": 82,
+  "findings": [
+    {
+      "gate": "docs-freshness",
+      "message": "docs freshness exception baseline expired",
+      "detail": ""
+    },
+    {
+      "gate": "import-exceptions",
+      "message": "E-2026-04-LEX-FOUNDRY-001 expired",
+      "detail": "2026-07-01"
+    },
+    {
+      "gate": "import-exceptions",
+      "message": "E-2026-04-LEX-SCIENTIST-001 expired",
+      "detail": "2026-07-01"
+    },
+    {
+      "gate": "import-exceptions",
+      "message": "E-2026-05-DATA-FORGE-LEGAL-BATCH-LEX-001 expired",
+      "detail": "2026-07-30"
+    },
+    {
+      "gate": "import-exceptions",
+      "message": "E-2026-05-DATA-FORGE-LEGAL-BATCH-SCIENTIST-001 expired",
+      "detail": "2026-07-30"
+    },
+    {
+      "gate": "import-exceptions",
+      "message": "E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-FOUNDRY-001 expired",
+      "detail": "2026-07-30"
+    },
+    {
+      "gate": "import-exceptions",
+      "message": "E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-LEX-001 expired",
+      "detail": "2026-07-30"
+    },
+    {
+      "gate": "import-exceptions",
+      "message": "E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-SCIENTIST-001 expired",
+      "detail": "2026-07-30"
+    },
+    {
+      "gate": "import-exceptions",
+      "message": "E-2026-04-ACADEMIC-SCIENTIST-001 expired",
+      "detail": "2026-07-01"
+    },
+    {
+      "gate": "import-exceptions",
+      "message": "E-2026-04-IR-OBS-FOUNDRY-001 expired",
+      "detail": "2026-07-01"
+    },
+    {
+      "gate": "import-exceptions",
+      "message": "E-2026-04-IR-OBS-SCIENTIST-001 expired",
+      "detail": "2026-07-01"
+    },
+    {
+      "gate": "import-exceptions",
+      "message": "E-2026-04-IR-ANALYTICS-FOUNDRY-001 expired",
+      "detail": "2026-07-01"
+    },
+    {
+      "gate": "import-exceptions",
+      "message": "E-2026-04-IR-ANALYTICS-SCIENTIST-001 expired",
+      "detail": "2026-07-01"
+    },
+    {
+      "gate": "import-exceptions",
+      "message": "E-2026-04-IR-PANDAS-001 expired",
+      "detail": "2026-07-01"
+    },
+    {
+      "gate": "import-exceptions",
+      "message": "E-2026-04-IR-JAX-001 expired",
+      "detail": "2026-07-01"
+    },
+    {
+      "gate": "import-exceptions",
+      "message": "E-2026-04-FOUNDRY-SCIENTIST-001 expired",
+      "detail": "2026-07-01"
+    },
+    {
+      "gate": "import-exceptions",
+      "message": "E-2026-04-FOUNDRY-LEX-001 expired",
+      "detail": "2026-07-01"
+    },
+    {
+      "gate": "import-exceptions",
+      "message": "E-2026-04-FABRIC-WORLD-DEEP-001 expired",
+      "detail": "2026-07-01"
+    },
+    {
+      "gate": "import-exceptions",
+      "message": "E-2026-05-FOUNDRY-FABRIC-QUALITY-001 expired",
+      "detail": "2026-07-30"
+    },
+    {
+      "gate": "import-exceptions",
+      "message": "E-2026-05-IR-ANALYTICS-CORE-DYNAMICS-001 expired",
+      "detail": "2026-07-30"
+    },
+    {
+      "gate": "import-exceptions",
+      "message": "E-2026-05-IR-ANALYTICS-CORE-SIMULATION-PROOF-001 expired",
+      "detail": "2026-07-30"
+    },
+    {
+      "gate": "import-exceptions",
+      "message": "E-2026-04-IR-PASSES-FOUNDRY-KERNEL-LOWERING-001 expired",
+      "detail": "2026-07-01"
+    },
+    {
+      "gate": "complexity",
+      "message": "src/polisyos/lex/interventions.py expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "complexity",
+      "message": "src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py expired",
+      "detail": "2026-08-15"
+    },
+    {
+      "gate": "complexity",
+      "message": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py expired",
+      "detail": "2026-08-15"
+    },
+    {
+      "gate": "complexity",
+      "message": "src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py expired",
+      "detail": "2026-08-15"
+    },
+    {
+      "gate": "complexity",
+      "message": "src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py expired",
+      "detail": "2026-08-15"
+    },
+    {
+      "gate": "complexity",
+      "message": "src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py expired",
+      "detail": "2026-08-15"
+    },
+    {
+      "gate": "complexity",
+      "message": "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py expired",
+      "detail": "2026-08-15"
+    },
+    {
+      "gate": "complexity",
+      "message": "src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py expired",
+      "detail": "2026-08-15"
+    },
+    {
+      "gate": "complexity",
+      "message": "src/polisyos/scientist/nodes/builtins/governance/run_governance.py expired",
+      "detail": "2026-08-15"
+    },
+    {
+      "gate": "shims",
+      "message": "product-install-sh-to-workspace-bootstrap expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "shims",
+      "message": "product-migrate-py-to-tools-migrations expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "shims",
+      "message": "product-jax-bootstrap-to-workspace-vendor expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "shims",
+      "message": "repo-filter-topics-to-tools-research expired",
+      "detail": "2026-07-01"
+    },
+    {
+      "gate": "shims",
+      "message": "repo-organize-relevant-topics-to-tools-research expired",
+      "detail": "2026-07-01"
+    },
+    {
+      "gate": "shims",
+      "message": "imports-policy-config-relocation expired",
+      "detail": "2026-09-01"
+    },
+    {
+      "gate": "shims",
+      "message": "imports-exceptions-config-relocation expired",
+      "detail": "2026-09-01"
+    },
+    {
+      "gate": "shims",
+      "message": "imports-exceptions-registry-relocation expired",
+      "detail": "2026-09-01"
+    },
+    {
+      "gate": "shims",
+      "message": "imports-gate-baseline-relocation expired",
+      "detail": "2026-09-01"
+    },
+    {
+      "gate": "shims",
+      "message": "imports-gate-summary-relocation expired",
+      "detail": "2026-09-01"
+    },
+    {
+      "gate": "shims",
+      "message": "freeze-policy-relocation expired",
+      "detail": "2026-09-01"
+    },
+    {
+      "gate": "shims",
+      "message": "data-requirement-family-fallback-from-hardcoded-heuristic expired",
+      "detail": "2026-06-30"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "dynamic_imports expired",
+      "detail": "2026-08-04"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "berl-standalone-slo-deferred expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "calibration-ruff-package-ratchet expired",
+      "detail": "2026-10-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "calibration-standalone-slo-deferred expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "common-dependent-slo expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "ddm-standalone-slo-deferred expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "fabric-ruff-ratchet expired",
+      "detail": "2026-10-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "benchmarks-conftest-transition expired",
+      "detail": "2026-09-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "fabric.mirror_regression_exception expired",
+      "detail": "2026-06-15"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "fabric.strict_mirror_regression_exception expired",
+      "detail": "2026-06-15"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "foundry.mirror_regression_exception expired",
+      "detail": "2026-06-15"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "foundry.strict_mirror_regression_exception expired",
+      "detail": "2026-06-15"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "ir.mirror_regression_exception expired",
+      "detail": "2026-06-15"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "lex.strict_mirror_regression_exception expired",
+      "detail": "2026-06-15"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "runtime.mirror_regression_exception expired",
+      "detail": "2026-06-15"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "scientist.strict_mirror_regression_exception expired",
+      "detail": "2026-06-15"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "fabric-ruff-package-ratchet expired",
+      "detail": "2026-10-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "fabric-mypy-module-ratchet expired",
+      "detail": "2026-10-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "ir-ruff-package-ratchet expired",
+      "detail": "2026-10-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "ir-mypy-module-ratchet expired",
+      "detail": "2026-10-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "common expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "berl expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "ddm expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "calibration expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "security expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "common expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "berl expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "ddm expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "calibration expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "security expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "common expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "security expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "calibration expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "berl expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "ddm expired",
+      "detail": "2026-08-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "discovery sunset expired",
+      "detail": "2026-10-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "runtime sunset expired",
+      "detail": "2026-10-01"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "causal sunset expired",
+      "detail": "2026-06-15"
+    },
+    {
+      "gate": "phase6.5-exceptions",
+      "message": "errors sunset expired",
+      "detail": "2026-10-01"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+
+tests/unit/runtime/quality/test_acquisition_planner.py::test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs[tampered_receipt] 
+-------------------------------- live log call ---------------------------------
+WARNING  polisyos.runtime.quality.acquisition_planner:acquisition_planner.py:1461 Fabric fetch capture refused: Extra data: line 1 column 2751 (char 2750)
+PASSED                                                                   [ 33%]
+tests/unit/runtime/quality/test_acquisition_planner.py::test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs[missing_binding] 
+-------------------------------- live log call ---------------------------------
+WARNING  polisyos.runtime.quality.acquisition_planner:acquisition_planner.py:1461 Fabric fetch capture refused: sha256:7f8f1c146e1df65954c598a351260a0c6347fc045f5c0162bfbd5edf249d896e
+PASSED                                                                   [ 66%]
+tests/unit/runtime/quality/test_acquisition_planner.py::test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs[tampered_binding] 
+-------------------------------- live log call ---------------------------------
+WARNING  polisyos.runtime.quality.acquisition_planner:acquisition_planner.py:1461 Fabric fetch capture refused: Extra data: line 1 column 1880 (char 1879)
+PASSED                                                                   [100%]
+
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================ 3 passed, 74 deselected, 2 warnings in 13.19s =================

@@ -1,0 +1,14 @@
+COMMAND ['bash', '-n', 'ops/cloud/gcp/package_repo.sh']
+EXIT 0
+COMMAND ['.venv/bin/python', '-m', 'pytest', 'tests/repo_quality/tools/test_gcp_package_assets.py', '-q', '-o', 'addopts=']
+...........                                                              [100%]
+11 passed in 0.65s
+EXIT 0
+COMMAND ['.venv/bin/python', '-m', 'ruff', 'check', 'tests/repo_quality/tools/test_gcp_package_assets.py']
+All checks passed!
+EXIT 0
+COMMAND ['.venv/bin/python', '-m', 'ruff', 'format', '--check', 'tests/repo_quality/tools/test_gcp_package_assets.py']
+1 file already formatted
+EXIT 0
+COMMAND ['git', 'diff', '--check', '--', 'ops/cloud/gcp/package_repo.sh', 'tests/repo_quality/tools/test_gcp_package_assets.py']
+EXIT 0

@@ -1,0 +1,1469 @@
+............FF........                                                   [100%]
+=================================== FAILURES ===================================
+_ test_real_workflow_selector_replays_saved_source_with_current_live_replacement[timed] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1239/test_real_workflow_selector_re1')
+mode = 'timed'
+
+    @pytest.mark.parametrize("mode", ["sync", "timed", "async"])
+    def test_real_workflow_selector_replays_saved_source_with_current_live_replacement(
+        tmp_path: Path, mode: Literal["sync", "timed", "async"]
+    ) -> None:
+        with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+            source, store, run, ctx, state, ref = _workflow_fixture(tmp_path)
+            selected = load_retained_skg_snapshot(store, ref)
+            replay_state = state.model_copy(update={"inputs": {SNAPSHOT_INPUT_KEY: ref}})
+            registry = NodeRegistry()
+            registry.register(ResolveParametersNode())
+            result = _execute_workflow(mode, ctx, registry, replay_state)
+>           assert result.report.status == "ok"
+E           AssertionError: assert 'fail' == 'ok'
+E             
+E             - ok
+E             + fail
+
+tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py:449: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    retained-skg:executor.py:1545 Node resolve timed out
+_ test_real_workflow_selector_replays_saved_source_with_current_live_replacement[async] _
+
+process = <ForkProcess name='ForkProcess-2' parent=49330 closed daemon>
+result_queue = <polisyos.scientist.orchestration.engine.retry._WorkerResultChannel object at 0x13f142850>
+
+    async def _drain_result_async(
+        process: mp.Process,
+        result_queue: Any,
+        *,
+        compute_deadline: float,
+        completion_time: Any = None,
+    ) -> tuple[str, Any]:
+        """Async counterpart of :func:`_drain_result_sync`."""
+        while process.is_alive() and not _completion_before_deadline(
+            completion_time,
+            compute_deadline,
+        ):
+            try:
+>               result = result_queue.get_nowait()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/polisyos/scientist/orchestration/engine/retry.py:1594: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.scientist.orchestration.engine.retry._WorkerResultChannel object at 0x13f142850>
+
+    def get_nowait(self) -> tuple[str, Any]:
+        try:
+            chunk = os.read(self._reader.fileno(), 65536)
+        except BlockingIOError:
+            chunk = None
+        if chunk:
+            self._buffer.extend(chunk)
+        if self._size is None and len(self._buffer) >= 8:
+            self._size = int.from_bytes(self._buffer[:8], "big")
+            del self._buffer[:8]
+        if self._size is not None and len(self._buffer) >= self._size:
+            wire = json.loads(self._buffer[: self._size])
+            if not isinstance(wire, dict) or wire.get("encoding") not in {"bytes", "json"}:
+                raise ValueError("invalid worker result envelope")
+            data = wire["payload"]
+            if wire["encoding"] == "bytes":
+                data = base64.b64decode(data, validate=True)
+            status = wire["status"]
+            if not isinstance(status, str):
+                raise ValueError("invalid worker result status")
+            return status, data
+        if chunk == b"":
+            raise EOFError("worker result channel closed before a complete frame")
+>       raise queue.Empty
+E       _queue.Empty
+
+src/polisyos/scientist/orchestration/engine/retry.py:134: Empty
+
+During handling of the above exception, another exception occurred:
+
+fut = <coroutine object AsyncWorkflowExecutor.execute.<locals>._execute_tiers at 0x75a5a3bc10>
+timeout = 29.96570195897948
+
+    async def wait_for(fut, timeout):
+        """Wait for the single Future or coroutine to complete, with timeout.
+    
+        Coroutine will be wrapped in Task.
+    
+        Returns result of the Future or coroutine.  When a timeout occurs,
+        it cancels the task and raises TimeoutError.  To avoid the task
+        cancellation, wrap it in shield().
+    
+        If the wait is cancelled, the task is also cancelled.
+    
+        If the task suppresses the cancellation and returns a value instead,
+        that value is returned.
+    
+        This function is a coroutine.
+        """
+        # The special case for timeout <= 0 is for the following case:
+        #
+        # async def test_waitfor():
+        #     func_started = False
+        #
+        #     async def func():
+        #         nonlocal func_started
+        #         func_started = True
+        #
+        #     try:
+        #         await asyncio.wait_for(func(), 0)
+        #     except asyncio.TimeoutError:
+        #         assert not func_started
+        #     else:
+        #         assert False
+        #
+        # asyncio.run(test_waitfor())
+    
+    
+        if timeout is not None and timeout <= 0:
+            fut = ensure_future(fut)
+    
+            if fut.done():
+                return fut.result()
+    
+            await _cancel_and_wait(fut)
+            try:
+                return fut.result()
+            except exceptions.CancelledError as exc:
+                raise TimeoutError from exc
+    
+        async with timeouts.timeout(timeout):
+>           return await fut
+                   ^^^^^^^^^
+
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/tasks.py:488: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/orchestration/engine/async_executor.py:436: in _execute_tiers
+    record, state, node_failed = await self._run_single_node(
+src/polisyos/scientist/orchestration/engine/async_executor.py:1270: in _run_single_node
+    outcome, duration_ms, _cache_hit, cache_entry_ref = await self._execute_node(
+src/polisyos/scientist/orchestration/engine/async_executor.py:1929: in _execute_node
+    raw_outcome = await execute_with_retry_async(
+src/polisyos/scientist/orchestration/engine/retry.py:2095: in execute_with_retry_async
+    outcome = await _invoke(attempt_state)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/retry.py:2043: in _invoke
+    return await _execute_with_timeout_process_async(
+src/polisyos/scientist/orchestration/engine/retry.py:1812: in _execute_with_timeout_process_async
+    status, payload = await _drain_result_async(
+src/polisyos/scientist/orchestration/engine/retry.py:1601: in _drain_result_async
+    await asyncio.sleep(min(_PROCESS_RESULT_POLL_S, remaining))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+delay = 0.006778458948247135, result = None
+
+    async def sleep(delay, result=None):
+        """Coroutine that completes after a given time (in seconds)."""
+        if delay <= 0:
+            await __sleep0()
+            return result
+    
+        if math.isnan(delay):
+            raise ValueError("Invalid delay: NaN (not a number)")
+    
+        loop = events.get_running_loop()
+        future = loop.create_future()
+        h = loop.call_later(delay,
+                            futures._set_result_unless_cancelled,
+                            future, result)
+        try:
+>           return await future
+                   ^^^^^^^^^^^^
+E           asyncio.exceptions.CancelledError
+
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/tasks.py:702: CancelledError
+
+The above exception was the direct cause of the following exception:
+
+self = <polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor object at 0x140fa5400>
+workflow = WorkflowSpec(schema_version='1.0', workflow_id='retained_skg_real_selector', nodes=[NodeInvocation(alias='resolve', no...{}, depends_on=[], retry=None, timeout_s=None, condition=None)], required_binds=[], error_policy='fail_fast', notes=[])
+state = ExperimentState(schema_version='1.3', run_id='R_retained_skg', inputs={'skg_source_snapshot': ArtifactRef(artifact_id=...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+
+    async def execute(
+        self,
+        workflow: WorkflowSpec,
+        state: ExperimentState,
+    ) -> WorkflowExecutionResult:
+        _validate_aliases(workflow.nodes)
+        invocations = {inv.alias: inv for inv in workflow.nodes}
+        _validate_dependencies(invocations)
+    
+        for inv in workflow.nodes:
+            self._registry.get(inv.node_id)
+    
+        try:
+            _validate_producer_state(state)
+        except (TypeError, ValueError) as exc:
+            # Admission has not copied state, invoked a producer or persisted
+            # an unsupported graph. Return the public failure shape directly.
+            return WorkflowExecutionResult(
+                state=state,
+                report=WorkflowReport(
+                    workflow_id=workflow.workflow_id,
+                    run_id=state.run_id,
+                    error_policy=workflow.error_policy,
+                    status="fail",
+                    nodes=[
+                        NodeRunRecord(
+                            alias=inv.alias,
+                            node_id=str(inv.node_id),
+                            status="fail",
+                            duration_ms=0,
+                            error=NodeError(
+                                code="node.state_admission_failed",
+                                message=str(exc),
+                                details={
+                                    "type": type(exc).__name__,
+                                    "execution_state": "not_admitted",
+                                    "phase": "producer_state_admission",
+                                },
+                            ),
+                        )
+                        for inv in workflow.nodes
+                    ],
+                ),
+            )
+    
+        tiers = topo_sort_tiers(invocations)
+        self._require_atomic_tier_checkpoint(tiers)
+        seed_owner = object()
+        self._cache_seed_owner = seed_owner
+        self._cache = None
+        self._workflow_publication_operation = None
+        self._workflow_task = asyncio.current_task()
+        self._workflow_cancelling = (
+            self._workflow_task.cancelling() if self._workflow_task is not None else 0
+        )
+        workflow_started = time.perf_counter()
+        self._workflow_deadline = (
+            workflow_started + self._workflow_timeout_s
+            if self._workflow_timeout_s is not None
+            else None
+        )
+        owner_task = self._workflow_task
+        owner_cancelling = self._workflow_cancelling
+        checkpoint_budget = CheckpointPublicationBudget(
+            deadline_monotonic=self._workflow_deadline,
+            owner_is_current=lambda: self._cache_seed_owner is seed_owner,
+            caller_cancelled=lambda: (
+                owner_task is not None and owner_task.cancelling() > owner_cancelling
+            ),
+        )
+    
+        if SNAPSHOT_INPUT_KEY in state.inputs:
+            # Reuse the original queued/entered owner budget for this blocking
+            # verified input materialization. Timed/async replay does not add a
+            # prepared-reader ABI or a retained cache-proof claim.
+            state = await _run_checkpoint_blocking(
+                _bind_retained_workflow_input,
+                self._ctx,
+                state,
+                publication_budget=checkpoint_budget,
+                operation="skg_snapshot_input",
+            )
+            self._ctx.run.add_input(state.inputs[SNAPSHOT_INPUT_KEY])
+    
+        _validate_required_binds(workflow.required_binds, state)
+    
+        if self._ctx.metrics is not None:
+            self._ctx.metrics.record_workflow_state(
+                run_id=state.run_id,
+                workflow_id=workflow.workflow_id,
+                state="running",
+            )
+    
+        initial_state = snapshot_state(state)
+        workflow_ref = await self._persist_workflow_spec(workflow)
+        self._ctx.run.add_input(workflow_ref)
+        state_input_ref = await self._persist_state(initial_state)
+        self._ctx.run.add_input(state_input_ref)
+    
+        try:
+            cache, restored, restored_cp = await self._recover_cache(
+                run_id=state.run_id, deadline_monotonic=self._workflow_deadline
+            )
+            NodeResultCache._check_deadline(self._workflow_deadline)
+        except TimeoutError as exc:
+            raise WorkflowTimeoutError(
+                f"Workflow {workflow.workflow_id} exceeded timeout during cache recovery"
+            ) from exc
+        # The worker owns its cache until this uncancelled await accepts it.
+        # Cancellation cannot stop already-entered backend I/O; that worker's
+        # eventual private index must never become the current executor cache.
+        if self._cache_seed_owner is not seed_owner:
+            raise asyncio.CancelledError("cache recovery superseded")
+        self._cache = cache
+        if restored:
+            self._ctx.logger.info("Recovered %s cached node outcomes", restored)
+        if restored_cp:
+            self._ctx.logger.info("Recovered %s cached outcomes from checkpoint", restored_cp)
+    
+        records: list[NodeRunRecord] = []
+        failed: set[str] = set()
+        blocked: set[str] = set()
+        condition_skipped: set[str] = set()
+        completed_nodes: list[str] = []
+        workflow_fingerprint = compute_workflow_fingerprint(workflow)
+        abort = False
+    
+        async def _execute_tiers() -> None:
+            nonlocal state, abort
+            for tier_index, tier in enumerate(tiers):
+                if abort:
+                    for alias in tier:
+                        records.append(
+                            NodeRunRecord(
+                                alias=alias,
+                                node_id=str(invocations[alias].node_id),
+                                status="skip",
+                                duration_ms=0,
+                                skip_reason="upstream_failed",
+                                skip_blocker=_skip_blocker_for_engine_skip(
+                                    alias=alias,
+                                    node_id=str(invocations[alias].node_id),
+                                    skip_reason="upstream_failed",
+                                    missing_input="upstream_dependency",
+                                    phase="dependency_resolution",
+                                ),
+                            )
+                        )
+                        blocked.add(alias)
+                    continue
+    
+                runnable: list[str] = []
+                for alias in tier:
+                    inv = invocations[alias]
+                    if any(dep in failed or dep in blocked for dep in inv.depends_on):
+                        records.append(
+                            NodeRunRecord(
+                                alias=alias,
+                                node_id=str(inv.node_id),
+                                status="skip",
+                                duration_ms=0,
+                                skip_reason="upstream_failed",
+                                skip_blocker=_skip_blocker_for_engine_skip(
+                                    alias=alias,
+                                    node_id=str(inv.node_id),
+                                    skip_reason="upstream_failed",
+                                    missing_input="upstream_dependency",
+                                    phase="dependency_resolution",
+                                ),
+                            )
+                        )
+                        blocked.add(alias)
+                        self._ctx.run.emit(
+                            f"scientist.node.{alias}",
+                            "NODE_SKIP",
+                            metrics={"duration_ms": 0, "status_ok": 0},
+                        )
+                        continue
+    
+                    if inv.condition is not None:
+                        try:
+                            cond_result = evaluate_condition(inv.condition.expr, state)
+                        except ConditionSyntaxError as exc:
+                            self._ctx.logger.error(
+                                "Condition syntax error for node %s: %s",
+                                alias,
+                                exc,
+                            )
+                            cond_result = False
+    
+                        if not cond_result:
+                            if inv.condition.on_false == "fail":
+                                records.append(
+                                    NodeRunRecord(
+                                        alias=alias,
+                                        node_id=str(inv.node_id),
+                                        status="fail",
+                                        duration_ms=0,
+                                        error=NodeError(
+                                            code="node.condition_false",
+                                            message=f"Condition not met: {inv.condition.expr}",
+                                            details={
+                                                "expr": inv.condition.expr,
+                                                "on_false": "fail",
+                                            },
+                                        ),
+                                    )
+                                )
+                                failed.add(alias)
+                                self._ctx.run.emit(
+                                    f"scientist.node.{alias}",
+                                    "NODE_FAIL",
+                                    metrics={"duration_ms": 0, "status_ok": 0},
+                                )
+                            else:
+                                records.append(
+                                    NodeRunRecord(
+                                        alias=alias,
+                                        node_id=str(inv.node_id),
+                                        status="skip",
+                                        duration_ms=0,
+                                        skip_reason="condition_false",
+                                        skip_blocker=_skip_blocker_for_engine_skip(
+                                            alias=alias,
+                                            node_id=str(inv.node_id),
+                                            skip_reason="condition_false",
+                                            missing_input=inv.condition.expr,
+                                            phase="condition_evaluation",
+                                        ),
+                                    )
+                                )
+                                condition_skipped.add(alias)
+                                self._ctx.run.emit(
+                                    f"scientist.node.{alias}",
+                                    "NODE_SKIP",
+                                    metrics={"duration_ms": 0, "status_ok": 0},
+                                )
+                            continue
+    
+                    runnable.append(alias)
+    
+                if failed and workflow.error_policy == "fail_fast":
+                    abort = True
+    
+                if not runnable or abort:
+                    continue
+    
+                # Tier savepoint for rollback on failure
+                tier_savepoint = snapshot_state(state)
+                tier_started = time.perf_counter()
+    
+                if len(runnable) == 1:
+                    alias = runnable[0]
+                    record, state, node_failed = await self._run_single_node(
+                        alias,
+                        invocations[alias],
+                        state,
+                        workflow,
+                        workflow_fingerprint,
+                        completed_nodes,
+                        tier_index=tier_index,
+                        publication_budget=checkpoint_budget,
+                    )
+                    records.append(record)
+                    if node_failed:
+                        failed.add(alias)
+                        if workflow.error_policy == "fail_fast":
+                            state = tier_savepoint
+                            self._emit_rollback_compensation(
+                                workflow_id=workflow.workflow_id,
+                                run_id=state.run_id,
+                                tier_index=tier_index,
+                                failed_aliases=(alias,),
+                                completed_before_tier=tuple(completed_nodes),
+                                restored_state=state,
+                                reason="single_node_fail_fast",
+                            )
+                            abort = True
+                    elif record.status == "ok":
+                        completed_nodes.append(alias)
+                else:
+                    # Backpressure metrics
+                    if self._ctx.metrics is not None:
+                        self._ctx.metrics.record_backpressure(
+                            tier_index=tier_index,
+                            queued_tasks=len(runnable),
+                            active_tasks=0,
+                            workflow_id=workflow.workflow_id,
+                        )
+    
+                    (
+                        tier_records,
+                        state,
+                        tier_failed,
+                        tier_cache_entry_refs,
+                    ) = await self._run_parallel_tier(
+                        runnable,
+                        invocations,
+                        state,
+                        workflow,
+                        workflow_fingerprint,
+                        completed_nodes,
+                        tier_index=tier_index,
+                    )
+                    records.extend(tier_records)
+                    for alias in tier_failed:
+                        failed.add(alias)
+                    tier_completed = [rec.alias for rec in tier_records if rec.status == "ok"]
+                    if tier_failed and workflow.error_policy == "fail_fast":
+                        state = tier_savepoint
+                        self._emit_rollback_compensation(
+                            workflow_id=workflow.workflow_id,
+                            run_id=state.run_id,
+                            tier_index=tier_index,
+                            failed_aliases=tuple(sorted(tier_failed)),
+                            completed_before_tier=tuple(completed_nodes),
+                            restored_state=state,
+                            reason="parallel_tier_fail_fast",
+                        )
+                        abort = True
+                    elif tier_completed:
+                        completed_nodes.extend(tier_completed)
+                        checkpoint_alias = tier_completed[-1]
+                        state = await self._handle_tier_checkpoint(
+                            state,
+                            aliases=tier_completed,
+                            alias=checkpoint_alias,
+                            node_id=str(invocations[checkpoint_alias].node_id),
+                            completed_nodes=completed_nodes,
+                            workflow=workflow,
+                            workflow_fingerprint=workflow_fingerprint,
+                            cache_entry_refs_by_alias=tier_cache_entry_refs,
+                            publication_budget=checkpoint_budget,
+                        )
+    
+                tier_duration_ms = int((time.perf_counter() - tier_started) * 1000)
+                if self._ctx.metrics is not None:
+                    self._ctx.metrics.record_tier_completed(
+                        tier_index=tier_index,
+                        tier_size=len(runnable),
+                        duration_ms=tier_duration_ms,
+                        workflow_id=workflow.workflow_id,
+                    )
+    
+        async def _execute_readiness() -> None:
+            """Run the bounded, explicit-dependency readiness schedule.
+    
+            This path is intentionally narrower than the tier executor.  It
+            is selected only for continuation workflows without checkpoint or
+            provenance hooks, and only after declared unordered state access
+            has been proven disjoint.  Every successful completion is merged
+            before its successors are admitted, so a successor observes the
+            committed state of its explicit predecessors.
+            """
+            nonlocal state
+            order = list(invocations)
+            pending = set(order)
+            settled: set[str] = set()
+            running: dict[
+                str,
+                asyncio.Task[tuple[NodeOutcome, int, bool, ArtifactRef | None]],
+            ] = {}
+            launch_baselines: dict[str, ExperimentState] = {}
+            records_by_alias: dict[str, NodeRunRecord] = {}
+            tier_by_alias = {
+                alias: tier_index for tier_index, tier in enumerate(tiers) for alias in tier
+            }
+            tier_members = {tier_index: set(tier) for tier_index, tier in enumerate(tiers)}
+            tier_started_at: dict[int, float] = {}
+            tier_finished_at: dict[int, float] = {}
+    
+            def _skip_record(alias: str) -> NodeRunRecord:
+                invocation = invocations[alias]
+                return NodeRunRecord(
+                    alias=alias,
+                    node_id=str(invocation.node_id),
+                    status="skip",
+                    duration_ms=0,
+                    skip_reason="upstream_failed",
+                    skip_blocker=_skip_blocker_for_engine_skip(
+                        alias=alias,
+                        node_id=str(invocation.node_id),
+                        skip_reason="upstream_failed",
+                        missing_input="upstream_dependency",
+                        phase="dependency_resolution",
+                    ),
+                )
+    
+            try:
+                while pending or running:
+                    progressed = False
+    
+                    # Resolve known failed branches before admitting any new
+                    # work.  A skipped node remains a settled dependency, as
+                    # in the existing tier executor; only failures block its
+                    # descendants.
+                    for alias in order:
+                        if alias not in pending:
+                            continue
+                        if any(
+                            dep in failed or dep in blocked for dep in invocations[alias].depends_on
+                        ):
+                            pending.remove(alias)
+                            blocked.add(alias)
+                            settled.add(alias)
+                            records_by_alias[alias] = _skip_record(alias)
+                            self._ctx.run.emit(
+                                f"scientist.node.{alias}",
+                                "NODE_SKIP",
+                                metrics={"duration_ms": 0, "status_ok": 0},
+                            )
+                            progressed = True
+    
+                    ready = [
+                        alias
+                        for alias in order
+                        if alias in pending
+                        and all(dep in settled for dep in invocations[alias].depends_on)
+                        and not any(
+                            dep in failed or dep in blocked for dep in invocations[alias].depends_on
+                        )
+                    ]
+                    for alias in ready:
+                        if len(running) >= self._max_parallelism:
+                            break
+                        pending.remove(alias)
+                        tier_index = tier_by_alias[alias]
+                        tier_started_at.setdefault(tier_index, time.perf_counter())
+                        launch_baseline, execution_input = self._readiness_launch_pair(state)
+                        launch_baselines[alias] = launch_baseline
+                        running[alias] = asyncio.create_task(
+                            self._execute_node(
+                                alias,
+                                invocations[alias],
+                                execution_input,
+                                workflow,
+                                tier_index=tier_index,
+                            )
+                        )
+                        progressed = True
+    
+                    if running:
+                        done, _ = await asyncio.wait(
+                            tuple(running.values()),
+                            return_when=asyncio.FIRST_COMPLETED,
+                        )
+                        for alias in order:
+                            task = running.get(alias)
+                            if task is None or task not in done:
+                                continue
+                            del running[alias]
+                            launch_baseline = launch_baselines.pop(alias, None)
+                            outcome, duration_ms, _cache_hit, _cache_entry_ref = task.result()
+                            record = NodeRunRecord(
+                                alias=alias,
+                                node_id=str(invocations[alias].node_id),
+                                status=outcome.status,
+                                duration_ms=duration_ms,
+                                artifacts=list(outcome.artifacts),
+                                error=outcome.error,
+                                skip_reason=(
+                                    _outcome_skip_reason(outcome)
+                                    if outcome.status == "skip"
+                                    else None
+                                ),
+                                skip_blocker=_skip_blocker_for_outcome(
+                                    alias=alias,
+                                    node_id=str(invocations[alias].node_id),
+                                    outcome=outcome,
+                                ),
+                            )
+                            records_by_alias[alias] = record
+    
+                            if outcome.status == "ok":
+                                node = self._registry.get(invocations[alias].node_id)
+                                write_specs = list(node.spec.state_writes)
+                                try:
+                                    merge_outcome, merge_journal = self._prepare_readiness_outcome(
+                                        outcome,
+                                        launch_baseline,
+                                        write_specs,
+                                    )
+                                except StateReplayIncompatible as exc:
+                                    record.status = "fail"
+                                    record.error = NodeError(
+                                        code="node.readiness_state_write",
+                                        message=(
+                                            "Readiness completion changed state outside "
+                                            "its declared write paths"
+                                        ),
+                                        details={
+                                            "path": exc.path,
+                                            "reason": exc.reason,
+                                        },
+                                    )
+                                    failed.add(alias)
+                                else:
+                                    merge_result = merge_parallel_outcomes(
+                                        state,
+                                        {alias: merge_outcome},
+                                        {alias: write_specs},
+                                        conflict_policy=self._merge_conflict_policy,
+                                        mutation_journals={alias: merge_journal},
+                                    )
+                                    if merge_result.conflicts:
+                                        conflict_ref = await self._persist_parallel_merge_conflict(
+                                            workflow_id=workflow.workflow_id,
+                                            tier_index=tier_by_alias[alias],
+                                            conflicts=merge_result.conflict_details,
+                                            aliases=[alias],
+                                        )
+                                        record.status = "fail"
+                                        record.error = NodeError(
+                                            code="node.readiness_merge_conflict",
+                                            message=(
+                                                "Readiness completion produced a conflicting "
+                                                "state write"
+                                            ),
+                                            details={
+                                                "tier_index": tier_by_alias[alias],
+                                                "conflict_paths": [
+                                                    conflict.path
+                                                    for conflict in merge_result.conflict_details
+                                                ],
+                                                "conflict_policy": self._merge_conflict_policy.value,
+                                            },
+                                        )
+                                        if conflict_ref is not None:
+                                            record.artifacts.append(conflict_ref)
+                                        failed.add(alias)
+                                    else:
+                                        state = merge_result.state
+                                        settled.add(alias)
+                                        completed_nodes.append(alias)
+                            elif outcome.status == "fail":
+                                failed.add(alias)
+                            else:
+                                settled.add(alias)
+                                condition_skipped.add(alias)
+                            progressed = True
+    
+                    if not running and pending and not progressed:
+                        # topo_sort_tiers already rejects cycles.  Reaching
+                        # this branch means a future dependency state was not
+                        # represented by the explicit graph, so fail closed.
+                        raise RuntimeError("Readiness scheduler made no progress")
+    
+                terminal = settled | failed | blocked
+                for tier_index, members in tier_members.items():
+                    if not members or not members.issubset(terminal):
+                        continue
+                    started_at = tier_started_at.get(tier_index)
+                    if started_at is None:
+                        continue
+                    tier_finished_at[tier_index] = time.perf_counter()
+                if self._ctx.metrics is not None:
+                    for tier_index, members in tier_members.items():
+                        started_at = tier_started_at.get(tier_index)
+                        finished_at = tier_finished_at.get(tier_index)
+                        if started_at is None or finished_at is None:
+                            continue
+                        self._ctx.metrics.record_tier_completed(
+                            tier_index=tier_index,
+                            tier_size=len(members),
+                            duration_ms=int((finished_at - started_at) * 1000),
+                            workflow_id=workflow.workflow_id,
+                        )
+            finally:
+                if running:
+                    tasks = tuple(running.values())
+                    for task in tasks:
+                        task.cancel()
+                    await asyncio.gather(*tasks, return_exceptions=True)
+    
+            records.extend(records_by_alias[alias] for alias in order if alias in records_by_alias)
+    
+        # Execute tiers with optional workflow-level timeout
+        execution_body = (
+            _execute_readiness
+            if self._can_use_readiness_schedule(workflow, invocations)
+            else _execute_tiers
+        )
+        if self._workflow_deadline is not None:
+            try:
+                remaining = self._workflow_deadline - time.perf_counter()
+                if remaining <= 0:
+                    raise TimeoutError("workflow deadline exceeded before execution")
+>               await asyncio.wait_for(execution_body(), timeout=remaining)
+
+src/polisyos/scientist/orchestration/engine/async_executor.py:770: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/tasks.py:487: in wait_for
+    async with timeouts.timeout(timeout):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <Timeout [expired]>
+exc_type = <class 'asyncio.exceptions.CancelledError'>
+exc_val = CancelledError(), exc_tb = <traceback object at 0x13f0fab00>
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> bool | None:
+        assert self._state in (_State.ENTERED, _State.EXPIRING)
+    
+        if self._timeout_handler is not None:
+            self._timeout_handler.cancel()
+            self._timeout_handler = None
+    
+        if self._state is _State.EXPIRING:
+            self._state = _State.EXPIRED
+    
+            if self._task.uncancel() <= self._cancelling and exc_type is not None:
+                # Since there are no new cancel requests, we're
+                # handling this.
+                if issubclass(exc_type, exceptions.CancelledError):
+>                   raise TimeoutError from exc_val
+E                   TimeoutError
+
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/timeouts.py:114: TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1239/test_real_workflow_selector_re2')
+mode = 'async'
+
+    @pytest.mark.parametrize("mode", ["sync", "timed", "async"])
+    def test_real_workflow_selector_replays_saved_source_with_current_live_replacement(
+        tmp_path: Path, mode: Literal["sync", "timed", "async"]
+    ) -> None:
+        with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+            source, store, run, ctx, state, ref = _workflow_fixture(tmp_path)
+            selected = load_retained_skg_snapshot(store, ref)
+            replay_state = state.model_copy(update={"inputs": {SNAPSHOT_INPUT_KEY: ref}})
+            registry = NodeRegistry()
+            registry.register(ResolveParametersNode())
+>           result = _execute_workflow(mode, ctx, registry, replay_state)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py:448: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py:432: in _execute_workflow
+    return asyncio.run(
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/runners.py:204: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/runners.py:127: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/base_events.py:719: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor object at 0x140fa5400>
+workflow = WorkflowSpec(schema_version='1.0', workflow_id='retained_skg_real_selector', nodes=[NodeInvocation(alias='resolve', no...{}, depends_on=[], retry=None, timeout_s=None, condition=None)], required_binds=[], error_policy='fail_fast', notes=[])
+state = ExperimentState(schema_version='1.3', run_id='R_retained_skg', inputs={'skg_source_snapshot': ArtifactRef(artifact_id=...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+
+    async def execute(
+        self,
+        workflow: WorkflowSpec,
+        state: ExperimentState,
+    ) -> WorkflowExecutionResult:
+        _validate_aliases(workflow.nodes)
+        invocations = {inv.alias: inv for inv in workflow.nodes}
+        _validate_dependencies(invocations)
+    
+        for inv in workflow.nodes:
+            self._registry.get(inv.node_id)
+    
+        try:
+            _validate_producer_state(state)
+        except (TypeError, ValueError) as exc:
+            # Admission has not copied state, invoked a producer or persisted
+            # an unsupported graph. Return the public failure shape directly.
+            return WorkflowExecutionResult(
+                state=state,
+                report=WorkflowReport(
+                    workflow_id=workflow.workflow_id,
+                    run_id=state.run_id,
+                    error_policy=workflow.error_policy,
+                    status="fail",
+                    nodes=[
+                        NodeRunRecord(
+                            alias=inv.alias,
+                            node_id=str(inv.node_id),
+                            status="fail",
+                            duration_ms=0,
+                            error=NodeError(
+                                code="node.state_admission_failed",
+                                message=str(exc),
+                                details={
+                                    "type": type(exc).__name__,
+                                    "execution_state": "not_admitted",
+                                    "phase": "producer_state_admission",
+                                },
+                            ),
+                        )
+                        for inv in workflow.nodes
+                    ],
+                ),
+            )
+    
+        tiers = topo_sort_tiers(invocations)
+        self._require_atomic_tier_checkpoint(tiers)
+        seed_owner = object()
+        self._cache_seed_owner = seed_owner
+        self._cache = None
+        self._workflow_publication_operation = None
+        self._workflow_task = asyncio.current_task()
+        self._workflow_cancelling = (
+            self._workflow_task.cancelling() if self._workflow_task is not None else 0
+        )
+        workflow_started = time.perf_counter()
+        self._workflow_deadline = (
+            workflow_started + self._workflow_timeout_s
+            if self._workflow_timeout_s is not None
+            else None
+        )
+        owner_task = self._workflow_task
+        owner_cancelling = self._workflow_cancelling
+        checkpoint_budget = CheckpointPublicationBudget(
+            deadline_monotonic=self._workflow_deadline,
+            owner_is_current=lambda: self._cache_seed_owner is seed_owner,
+            caller_cancelled=lambda: (
+                owner_task is not None and owner_task.cancelling() > owner_cancelling
+            ),
+        )
+    
+        if SNAPSHOT_INPUT_KEY in state.inputs:
+            # Reuse the original queued/entered owner budget for this blocking
+            # verified input materialization. Timed/async replay does not add a
+            # prepared-reader ABI or a retained cache-proof claim.
+            state = await _run_checkpoint_blocking(
+                _bind_retained_workflow_input,
+                self._ctx,
+                state,
+                publication_budget=checkpoint_budget,
+                operation="skg_snapshot_input",
+            )
+            self._ctx.run.add_input(state.inputs[SNAPSHOT_INPUT_KEY])
+    
+        _validate_required_binds(workflow.required_binds, state)
+    
+        if self._ctx.metrics is not None:
+            self._ctx.metrics.record_workflow_state(
+                run_id=state.run_id,
+                workflow_id=workflow.workflow_id,
+                state="running",
+            )
+    
+        initial_state = snapshot_state(state)
+        workflow_ref = await self._persist_workflow_spec(workflow)
+        self._ctx.run.add_input(workflow_ref)
+        state_input_ref = await self._persist_state(initial_state)
+        self._ctx.run.add_input(state_input_ref)
+    
+        try:
+            cache, restored, restored_cp = await self._recover_cache(
+                run_id=state.run_id, deadline_monotonic=self._workflow_deadline
+            )
+            NodeResultCache._check_deadline(self._workflow_deadline)
+        except TimeoutError as exc:
+            raise WorkflowTimeoutError(
+                f"Workflow {workflow.workflow_id} exceeded timeout during cache recovery"
+            ) from exc
+        # The worker owns its cache until this uncancelled await accepts it.
+        # Cancellation cannot stop already-entered backend I/O; that worker's
+        # eventual private index must never become the current executor cache.
+        if self._cache_seed_owner is not seed_owner:
+            raise asyncio.CancelledError("cache recovery superseded")
+        self._cache = cache
+        if restored:
+            self._ctx.logger.info("Recovered %s cached node outcomes", restored)
+        if restored_cp:
+            self._ctx.logger.info("Recovered %s cached outcomes from checkpoint", restored_cp)
+    
+        records: list[NodeRunRecord] = []
+        failed: set[str] = set()
+        blocked: set[str] = set()
+        condition_skipped: set[str] = set()
+        completed_nodes: list[str] = []
+        workflow_fingerprint = compute_workflow_fingerprint(workflow)
+        abort = False
+    
+        async def _execute_tiers() -> None:
+            nonlocal state, abort
+            for tier_index, tier in enumerate(tiers):
+                if abort:
+                    for alias in tier:
+                        records.append(
+                            NodeRunRecord(
+                                alias=alias,
+                                node_id=str(invocations[alias].node_id),
+                                status="skip",
+                                duration_ms=0,
+                                skip_reason="upstream_failed",
+                                skip_blocker=_skip_blocker_for_engine_skip(
+                                    alias=alias,
+                                    node_id=str(invocations[alias].node_id),
+                                    skip_reason="upstream_failed",
+                                    missing_input="upstream_dependency",
+                                    phase="dependency_resolution",
+                                ),
+                            )
+                        )
+                        blocked.add(alias)
+                    continue
+    
+                runnable: list[str] = []
+                for alias in tier:
+                    inv = invocations[alias]
+                    if any(dep in failed or dep in blocked for dep in inv.depends_on):
+                        records.append(
+                            NodeRunRecord(
+                                alias=alias,
+                                node_id=str(inv.node_id),
+                                status="skip",
+                                duration_ms=0,
+                                skip_reason="upstream_failed",
+                                skip_blocker=_skip_blocker_for_engine_skip(
+                                    alias=alias,
+                                    node_id=str(inv.node_id),
+                                    skip_reason="upstream_failed",
+                                    missing_input="upstream_dependency",
+                                    phase="dependency_resolution",
+                                ),
+                            )
+                        )
+                        blocked.add(alias)
+                        self._ctx.run.emit(
+                            f"scientist.node.{alias}",
+                            "NODE_SKIP",
+                            metrics={"duration_ms": 0, "status_ok": 0},
+                        )
+                        continue
+    
+                    if inv.condition is not None:
+                        try:
+                            cond_result = evaluate_condition(inv.condition.expr, state)
+                        except ConditionSyntaxError as exc:
+                            self._ctx.logger.error(
+                                "Condition syntax error for node %s: %s",
+                                alias,
+                                exc,
+                            )
+                            cond_result = False
+    
+                        if not cond_result:
+                            if inv.condition.on_false == "fail":
+                                records.append(
+                                    NodeRunRecord(
+                                        alias=alias,
+                                        node_id=str(inv.node_id),
+                                        status="fail",
+                                        duration_ms=0,
+                                        error=NodeError(
+                                            code="node.condition_false",
+                                            message=f"Condition not met: {inv.condition.expr}",
+                                            details={
+                                                "expr": inv.condition.expr,
+                                                "on_false": "fail",
+                                            },
+                                        ),
+                                    )
+                                )
+                                failed.add(alias)
+                                self._ctx.run.emit(
+                                    f"scientist.node.{alias}",
+                                    "NODE_FAIL",
+                                    metrics={"duration_ms": 0, "status_ok": 0},
+                                )
+                            else:
+                                records.append(
+                                    NodeRunRecord(
+                                        alias=alias,
+                                        node_id=str(inv.node_id),
+                                        status="skip",
+                                        duration_ms=0,
+                                        skip_reason="condition_false",
+                                        skip_blocker=_skip_blocker_for_engine_skip(
+                                            alias=alias,
+                                            node_id=str(inv.node_id),
+                                            skip_reason="condition_false",
+                                            missing_input=inv.condition.expr,
+                                            phase="condition_evaluation",
+                                        ),
+                                    )
+                                )
+                                condition_skipped.add(alias)
+                                self._ctx.run.emit(
+                                    f"scientist.node.{alias}",
+                                    "NODE_SKIP",
+                                    metrics={"duration_ms": 0, "status_ok": 0},
+                                )
+                            continue
+    
+                    runnable.append(alias)
+    
+                if failed and workflow.error_policy == "fail_fast":
+                    abort = True
+    
+                if not runnable or abort:
+                    continue
+    
+                # Tier savepoint for rollback on failure
+                tier_savepoint = snapshot_state(state)
+                tier_started = time.perf_counter()
+    
+                if len(runnable) == 1:
+                    alias = runnable[0]
+                    record, state, node_failed = await self._run_single_node(
+                        alias,
+                        invocations[alias],
+                        state,
+                        workflow,
+                        workflow_fingerprint,
+                        completed_nodes,
+                        tier_index=tier_index,
+                        publication_budget=checkpoint_budget,
+                    )
+                    records.append(record)
+                    if node_failed:
+                        failed.add(alias)
+                        if workflow.error_policy == "fail_fast":
+                            state = tier_savepoint
+                            self._emit_rollback_compensation(
+                                workflow_id=workflow.workflow_id,
+                                run_id=state.run_id,
+                                tier_index=tier_index,
+                                failed_aliases=(alias,),
+                                completed_before_tier=tuple(completed_nodes),
+                                restored_state=state,
+                                reason="single_node_fail_fast",
+                            )
+                            abort = True
+                    elif record.status == "ok":
+                        completed_nodes.append(alias)
+                else:
+                    # Backpressure metrics
+                    if self._ctx.metrics is not None:
+                        self._ctx.metrics.record_backpressure(
+                            tier_index=tier_index,
+                            queued_tasks=len(runnable),
+                            active_tasks=0,
+                            workflow_id=workflow.workflow_id,
+                        )
+    
+                    (
+                        tier_records,
+                        state,
+                        tier_failed,
+                        tier_cache_entry_refs,
+                    ) = await self._run_parallel_tier(
+                        runnable,
+                        invocations,
+                        state,
+                        workflow,
+                        workflow_fingerprint,
+                        completed_nodes,
+                        tier_index=tier_index,
+                    )
+                    records.extend(tier_records)
+                    for alias in tier_failed:
+                        failed.add(alias)
+                    tier_completed = [rec.alias for rec in tier_records if rec.status == "ok"]
+                    if tier_failed and workflow.error_policy == "fail_fast":
+                        state = tier_savepoint
+                        self._emit_rollback_compensation(
+                            workflow_id=workflow.workflow_id,
+                            run_id=state.run_id,
+                            tier_index=tier_index,
+                            failed_aliases=tuple(sorted(tier_failed)),
+                            completed_before_tier=tuple(completed_nodes),
+                            restored_state=state,
+                            reason="parallel_tier_fail_fast",
+                        )
+                        abort = True
+                    elif tier_completed:
+                        completed_nodes.extend(tier_completed)
+                        checkpoint_alias = tier_completed[-1]
+                        state = await self._handle_tier_checkpoint(
+                            state,
+                            aliases=tier_completed,
+                            alias=checkpoint_alias,
+                            node_id=str(invocations[checkpoint_alias].node_id),
+                            completed_nodes=completed_nodes,
+                            workflow=workflow,
+                            workflow_fingerprint=workflow_fingerprint,
+                            cache_entry_refs_by_alias=tier_cache_entry_refs,
+                            publication_budget=checkpoint_budget,
+                        )
+    
+                tier_duration_ms = int((time.perf_counter() - tier_started) * 1000)
+                if self._ctx.metrics is not None:
+                    self._ctx.metrics.record_tier_completed(
+                        tier_index=tier_index,
+                        tier_size=len(runnable),
+                        duration_ms=tier_duration_ms,
+                        workflow_id=workflow.workflow_id,
+                    )
+    
+        async def _execute_readiness() -> None:
+            """Run the bounded, explicit-dependency readiness schedule.
+    
+            This path is intentionally narrower than the tier executor.  It
+            is selected only for continuation workflows without checkpoint or
+            provenance hooks, and only after declared unordered state access
+            has been proven disjoint.  Every successful completion is merged
+            before its successors are admitted, so a successor observes the
+            committed state of its explicit predecessors.
+            """
+            nonlocal state
+            order = list(invocations)
+            pending = set(order)
+            settled: set[str] = set()
+            running: dict[
+                str,
+                asyncio.Task[tuple[NodeOutcome, int, bool, ArtifactRef | None]],
+            ] = {}
+            launch_baselines: dict[str, ExperimentState] = {}
+            records_by_alias: dict[str, NodeRunRecord] = {}
+            tier_by_alias = {
+                alias: tier_index for tier_index, tier in enumerate(tiers) for alias in tier
+            }
+            tier_members = {tier_index: set(tier) for tier_index, tier in enumerate(tiers)}
+            tier_started_at: dict[int, float] = {}
+            tier_finished_at: dict[int, float] = {}
+    
+            def _skip_record(alias: str) -> NodeRunRecord:
+                invocation = invocations[alias]
+                return NodeRunRecord(
+                    alias=alias,
+                    node_id=str(invocation.node_id),
+                    status="skip",
+                    duration_ms=0,
+                    skip_reason="upstream_failed",
+                    skip_blocker=_skip_blocker_for_engine_skip(
+                        alias=alias,
+                        node_id=str(invocation.node_id),
+                        skip_reason="upstream_failed",
+                        missing_input="upstream_dependency",
+                        phase="dependency_resolution",
+                    ),
+                )
+    
+            try:
+                while pending or running:
+                    progressed = False
+    
+                    # Resolve known failed branches before admitting any new
+                    # work.  A skipped node remains a settled dependency, as
+                    # in the existing tier executor; only failures block its
+                    # descendants.
+                    for alias in order:
+                        if alias not in pending:
+                            continue
+                        if any(
+                            dep in failed or dep in blocked for dep in invocations[alias].depends_on
+                        ):
+                            pending.remove(alias)
+                            blocked.add(alias)
+                            settled.add(alias)
+                            records_by_alias[alias] = _skip_record(alias)
+                            self._ctx.run.emit(
+                                f"scientist.node.{alias}",
+                                "NODE_SKIP",
+                                metrics={"duration_ms": 0, "status_ok": 0},
+                            )
+                            progressed = True
+    
+                    ready = [
+                        alias
+                        for alias in order
+                        if alias in pending
+                        and all(dep in settled for dep in invocations[alias].depends_on)
+                        and not any(
+                            dep in failed or dep in blocked for dep in invocations[alias].depends_on
+                        )
+                    ]
+                    for alias in ready:
+                        if len(running) >= self._max_parallelism:
+                            break
+                        pending.remove(alias)
+                        tier_index = tier_by_alias[alias]
+                        tier_started_at.setdefault(tier_index, time.perf_counter())
+                        launch_baseline, execution_input = self._readiness_launch_pair(state)
+                        launch_baselines[alias] = launch_baseline
+                        running[alias] = asyncio.create_task(
+                            self._execute_node(
+                                alias,
+                                invocations[alias],
+                                execution_input,
+                                workflow,
+                                tier_index=tier_index,
+                            )
+                        )
+                        progressed = True
+    
+                    if running:
+                        done, _ = await asyncio.wait(
+                            tuple(running.values()),
+                            return_when=asyncio.FIRST_COMPLETED,
+                        )
+                        for alias in order:
+                            task = running.get(alias)
+                            if task is None or task not in done:
+                                continue
+                            del running[alias]
+                            launch_baseline = launch_baselines.pop(alias, None)
+                            outcome, duration_ms, _cache_hit, _cache_entry_ref = task.result()
+                            record = NodeRunRecord(
+                                alias=alias,
+                                node_id=str(invocations[alias].node_id),
+                                status=outcome.status,
+                                duration_ms=duration_ms,
+                                artifacts=list(outcome.artifacts),
+                                error=outcome.error,
+                                skip_reason=(
+                                    _outcome_skip_reason(outcome)
+                                    if outcome.status == "skip"
+                                    else None
+                                ),
+                                skip_blocker=_skip_blocker_for_outcome(
+                                    alias=alias,
+                                    node_id=str(invocations[alias].node_id),
+                                    outcome=outcome,
+                                ),
+                            )
+                            records_by_alias[alias] = record
+    
+                            if outcome.status == "ok":
+                                node = self._registry.get(invocations[alias].node_id)
+                                write_specs = list(node.spec.state_writes)
+                                try:
+                                    merge_outcome, merge_journal = self._prepare_readiness_outcome(
+                                        outcome,
+                                        launch_baseline,
+                                        write_specs,
+                                    )
+                                except StateReplayIncompatible as exc:
+                                    record.status = "fail"
+                                    record.error = NodeError(
+                                        code="node.readiness_state_write",
+                                        message=(
+                                            "Readiness completion changed state outside "
+                                            "its declared write paths"
+                                        ),
+                                        details={
+                                            "path": exc.path,
+                                            "reason": exc.reason,
+                                        },
+                                    )
+                                    failed.add(alias)
+                                else:
+                                    merge_result = merge_parallel_outcomes(
+                                        state,
+                                        {alias: merge_outcome},
+                                        {alias: write_specs},
+                                        conflict_policy=self._merge_conflict_policy,
+                                        mutation_journals={alias: merge_journal},
+                                    )
+                                    if merge_result.conflicts:
+                                        conflict_ref = await self._persist_parallel_merge_conflict(
+                                            workflow_id=workflow.workflow_id,
+                                            tier_index=tier_by_alias[alias],
+                                            conflicts=merge_result.conflict_details,
+                                            aliases=[alias],
+                                        )
+                                        record.status = "fail"
+                                        record.error = NodeError(
+                                            code="node.readiness_merge_conflict",
+                                            message=(
+                                                "Readiness completion produced a conflicting "
+                                                "state write"
+                                            ),
+                                            details={
+                                                "tier_index": tier_by_alias[alias],
+                                                "conflict_paths": [
+                                                    conflict.path
+                                                    for conflict in merge_result.conflict_details
+                                                ],
+                                                "conflict_policy": self._merge_conflict_policy.value,
+                                            },
+                                        )
+                                        if conflict_ref is not None:
+                                            record.artifacts.append(conflict_ref)
+                                        failed.add(alias)
+                                    else:
+                                        state = merge_result.state
+                                        settled.add(alias)
+                                        completed_nodes.append(alias)
+                            elif outcome.status == "fail":
+                                failed.add(alias)
+                            else:
+                                settled.add(alias)
+                                condition_skipped.add(alias)
+                            progressed = True
+    
+                    if not running and pending and not progressed:
+                        # topo_sort_tiers already rejects cycles.  Reaching
+                        # this branch means a future dependency state was not
+                        # represented by the explicit graph, so fail closed.
+                        raise RuntimeError("Readiness scheduler made no progress")
+    
+                terminal = settled | failed | blocked
+                for tier_index, members in tier_members.items():
+                    if not members or not members.issubset(terminal):
+                        continue
+                    started_at = tier_started_at.get(tier_index)
+                    if started_at is None:
+                        continue
+                    tier_finished_at[tier_index] = time.perf_counter()
+                if self._ctx.metrics is not None:
+                    for tier_index, members in tier_members.items():
+                        started_at = tier_started_at.get(tier_index)
+                        finished_at = tier_finished_at.get(tier_index)
+                        if started_at is None or finished_at is None:
+                            continue
+                        self._ctx.metrics.record_tier_completed(
+                            tier_index=tier_index,
+                            tier_size=len(members),
+                            duration_ms=int((finished_at - started_at) * 1000),
+                            workflow_id=workflow.workflow_id,
+                        )
+            finally:
+                if running:
+                    tasks = tuple(running.values())
+                    for task in tasks:
+                        task.cancel()
+                    await asyncio.gather(*tasks, return_exceptions=True)
+    
+            records.extend(records_by_alias[alias] for alias in order if alias in records_by_alias)
+    
+        # Execute tiers with optional workflow-level timeout
+        execution_body = (
+            _execute_readiness
+            if self._can_use_readiness_schedule(workflow, invocations)
+            else _execute_tiers
+        )
+        if self._workflow_deadline is not None:
+            try:
+                remaining = self._workflow_deadline - time.perf_counter()
+                if remaining <= 0:
+                    raise TimeoutError("workflow deadline exceeded before execution")
+                await asyncio.wait_for(execution_body(), timeout=remaining)
+            except TimeoutError as exc:
+>               raise WorkflowTimeoutError(
+                    f"Workflow {workflow.workflow_id} exceeded "
+                    f"timeout of {self._workflow_timeout_s}s",
+                    details={
+                        "execution_state": (
+                            "unknown" if self._workflow_publication_operation else "interrupted"
+                        ),
+                        "publication_operation": self._workflow_publication_operation,
+                    },
+                ) from exc
+E               polisyos.scientist.orchestration.engine.errors.WorkflowTimeoutError: Workflow retained_skg_real_selector exceeded timeout of 30.0s
+
+src/polisyos/scientist/orchestration/engine/async_executor.py:772: WorkflowTimeoutError
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py::test_real_workflow_selector_replays_saved_source_with_current_live_replacement[timed]
+tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py::test_real_workflow_selector_replays_saved_source_with_current_live_replacement[async]
+  /Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/multiprocessing/popen_fork.py:70: RuntimeWarning: os.fork() was called. os.fork() is incompatible with multithreaded code, and JAX is multithreaded, so this will likely lead to a deadlock.
+    self.pid = os.fork()
+
+tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py::test_real_workflow_selector_replays_saved_source_with_current_live_replacement[timed]
+tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py::test_real_workflow_selector_replays_saved_source_with_current_live_replacement[async]
+  /Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=49330) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py::test_real_workflow_selector_replays_saved_source_with_current_live_replacement[timed]
+FAILED tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py::test_real_workflow_selector_replays_saved_source_with_current_live_replacement[async]
+2 failed, 20 passed, 6 warnings in 73.25s (0:01:13)

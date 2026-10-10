@@ -1,0 +1,13 @@
+command=read-only traversal of package_repo.sh include_paths/should_skip selection
+source_paths=ops/cloud/gcp/package_repo.sh, hatch.toml [build.targets.wheel.force-include]
+fixed_roots=8
+hatch_force_include_roots=11
+unique_roots=19
+selected_members=4362
+regular_files=3906
+directories=456
+symlinks=0
+special_members=0
+missing_members=0
+force_include_sources=11/11 present
+freeze_limit=The census/admission preflight describe the filesystem graph observed before tarfile.open. The source tree must remain frozen through emission; this is not a concurrent mutation defense.

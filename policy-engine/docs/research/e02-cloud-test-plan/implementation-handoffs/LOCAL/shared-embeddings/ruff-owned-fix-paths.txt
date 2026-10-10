@@ -1,0 +1,7 @@
+src/polisyos/core/artifacts/ir_adapter.py
+src/polisyos/core/artifacts/protocol.py
+src/polisyos/foundry/calibration/identifiability.py
+tests/unit/core/artifacts/backends/test_caching_store.py
+tests/unit/core/artifacts/test_ir_adapter.py
+tests/unit/foundry/calibration/test_identifiability.py
+src/polisyos/core/artifacts/__init__.py

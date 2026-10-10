@@ -1,0 +1,6 @@
+python /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python
+polisyos.data_forge.domains.catalog.knowledge.search /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py
+polisyos.data_forge.domains.catalog.knowledge.store /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py
+polisyos.data_forge.domains.legal.batch.embedder /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py
+polisyos.runtime.http.services.control.lex_pipeline /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py
+polisyos.runtime.http.container /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/runtime/http/container.py

@@ -1,0 +1,2579 @@
+{
+  "path_enumerations": [
+    {
+      "matches": [
+        "ops/migrations/db/001_tenant_columns.sql",
+        "ops/migrations/db/002_tenant_backfill.sql",
+        "ops/migrations/db/003_rls_disable_rollback.sql",
+        "ops/migrations/db/003_rls_enable.sql",
+        "ops/migrations/db/004_roles_grants.sql"
+      ],
+      "pattern": "ops/migrations/db/*.sql",
+      "root": "."
+    },
+    {
+      "matches": [
+        "architecture/packages/berl.toml",
+        "architecture/packages/boundaries.toml",
+        "architecture/packages/calibration.toml",
+        "architecture/packages/common.toml",
+        "architecture/packages/core.toml",
+        "architecture/packages/data_forge.toml",
+        "architecture/packages/ddm.toml",
+        "architecture/packages/evidence.toml",
+        "architecture/packages/fabric.toml",
+        "architecture/packages/foundry-agent-sim-world.toml",
+        "architecture/packages/foundry.toml",
+        "architecture/packages/ir.toml",
+        "architecture/packages/layout.toml",
+        "architecture/packages/lex.toml",
+        "architecture/packages/method_requirement.toml",
+        "architecture/packages/obligation_graph.toml",
+        "architecture/packages/obligation_rules.toml",
+        "architecture/packages/participation_requirement.toml",
+        "architecture/packages/runtime.toml",
+        "architecture/packages/scholar.toml",
+        "architecture/packages/scientist.toml"
+      ],
+      "pattern": "*.toml",
+      "root": "architecture/packages"
+    },
+    {
+      "matches": [
+        "docs/brand/A11Y_CONTRAST.md",
+        "docs/brand/ATLAS_DESIGN_SYSTEM.md",
+        "docs/brand/ATLAS_SOURCE_OF_TRUTH.md",
+        "docs/brand/ATLAS_V4_ADOPTION.md",
+        "docs/brand/BUREAUCRATIC_RENDERING.md",
+        "docs/brand/CLI_STYLEGUIDE.md",
+        "docs/brand/COMPOSITION_RULES.md",
+        "docs/brand/EMAIL_TEMPLATES.md",
+        "docs/brand/GLYPH_SPECIFICATION.md",
+        "docs/brand/MOTION.md",
+        "docs/brand/PRINT_AND_EXPORT.md",
+        "docs/brand/PROVENANCE_INTERACTION.md",
+        "docs/brand/README.md",
+        "docs/brand/SOCIAL_TEMPLATES.md",
+        "docs/brand/TRUST_VIEW.md",
+        "docs/brand/TYPOGRAPHY_UA_RU.md",
+        "docs/brand/UNCERTAINTY_LANGUAGE.md",
+        "docs/brand/storybook-wave1-snapshot/EVIDENCE_BUNDLE.md",
+        "docs/brand/storybook-wave1-snapshot/README.md",
+        "docs/brand/storybook-wave1-snapshot/SESSION_RECORDING_SCRIPT.md"
+      ],
+      "pattern": "**/*.md",
+      "root": "docs/brand"
+    },
+    {
+      "matches": [
+        "docs/how-to/add-data-source.md",
+        "docs/how-to/add-public-facade.md",
+        "docs/how-to/add-runtime-route.md",
+        "docs/how-to/add-schema-backed-ir-type.md",
+        "docs/how-to/apply-github-governance.md",
+        "docs/how-to/author-measurement-instruments.md",
+        "docs/how-to/configure-governed-publication.md",
+        "docs/how-to/configure-lex-pipeline.md",
+        "docs/how-to/debug-failed-run.md",
+        "docs/how-to/deploy-runtime.md",
+        "docs/how-to/governed-public-record-v2-consumer-migration.md",
+        "docs/how-to/index.md",
+        "docs/how-to/install.md",
+        "docs/how-to/manage-generated-artifacts.md",
+        "docs/how-to/manage-schemas.md",
+        "docs/how-to/normative-generation-disposition-v2-migration.md",
+        "docs/how-to/onboarding/backend-engineer.md",
+        "docs/how-to/onboarding/domain-policy-reader.md",
+        "docs/how-to/onboarding/frontend-engineer.md",
+        "docs/how-to/onboarding/index.md",
+        "docs/how-to/onboarding/platform-ops-engineer.md",
+        "docs/how-to/onboarding/security-compliance-reviewer.md",
+        "docs/how-to/operate-ci-cd-platform.md",
+        "docs/how-to/post-refactor-migration.md",
+        "docs/how-to/release-policy.md",
+        "docs/how-to/review-rollouts.md",
+        "docs/how-to/run-benchmarks.md",
+        "docs/how-to/run-causal-analysis.md",
+        "docs/how-to/update-runtime-dashboard-api-client.md",
+        "docs/how-to/use-control-plane.md",
+        "docs/how-to/write-governance-pass.md"
+      ],
+      "pattern": "**/*.md",
+      "root": "docs/how-to"
+    },
+    {
+      "matches": [],
+      "pattern": "REPOSITORY_SOTA*.md",
+      "root": "docs/plans/active"
+    },
+    {
+      "matches": [
+        "docs/reference/api/artifacts.md",
+        "docs/reference/api/auth-tenant-model.md",
+        "docs/reference/api/control.md",
+        "docs/reference/api/error-semantics.md",
+        "docs/reference/api/index.md",
+        "docs/reference/api/migration-guide.md",
+        "docs/reference/api/runs.md",
+        "docs/reference/api/versioning.md",
+        "docs/reference/canonical-vocabulary-crosswalk.md",
+        "docs/reference/changelog.md",
+        "docs/reference/cli.md",
+        "docs/reference/compliance-evidence-map.md",
+        "docs/reference/configuration-env-registry.md",
+        "docs/reference/configuration-profiles.md",
+        "docs/reference/configuration.md",
+        "docs/reference/contributor-start-here.md",
+        "docs/reference/data-capability-requirements.md",
+        "docs/reference/data-forge/catalog-default-resources.md",
+        "docs/reference/data-lake-policy.md",
+        "docs/reference/dependency-platform.md",
+        "docs/reference/documentation-inventory.md",
+        "docs/reference/environment-matrix.md",
+        "docs/reference/fabric/best-in-class-inventory.md",
+        "docs/reference/fabric/connectors.md",
+        "docs/reference/fabric/data-plane.md",
+        "docs/reference/fabric/discovery-intelligence.md",
+        "docs/reference/fabric/index.md",
+        "docs/reference/fabric/lineage.md",
+        "docs/reference/fabric/observability-governance.md",
+        "docs/reference/fabric/processing-guarantees.md",
+        "docs/reference/fabric/product-api-integration.md",
+        "docs/reference/fabric/profiles.md",
+        "docs/reference/fabric/quality.md",
+        "docs/reference/fabric/resilience-implementation-guide.md",
+        "docs/reference/fabric/schema-compatibility.md",
+        "docs/reference/fabric/source-platform.md",
+        "docs/reference/fabric/time-travel.md",
+        "docs/reference/foundry/agent-sim.md",
+        "docs/reference/foundry/calibration.md",
+        "docs/reference/foundry/causal-engine-architecture.md",
+        "docs/reference/foundry/causal-installed-source-reconciliation.md",
+        "docs/reference/foundry/causal-neighbor-fixtures.md",
+        "docs/reference/foundry/causal-rdd-profile.md",
+        "docs/reference/foundry/causal-source-quality.md",
+        "docs/reference/foundry/causal-statistical-validity.md",
+        "docs/reference/foundry/compile-execute.md",
+        "docs/reference/foundry/demography.md",
+        "docs/reference/foundry/economic-baseline-profile.md",
+        "docs/reference/foundry/fiscal-calculation-dtype.md",
+        "docs/reference/foundry/frontier-methods.md",
+        "docs/reference/foundry/index.md",
+        "docs/reference/foundry/methods-catalog.md",
+        "docs/reference/foundry/numeric-guardrails.md",
+        "docs/reference/foundry/observability-reproducibility.md",
+        "docs/reference/foundry/phase0-acceptance.md",
+        "docs/reference/foundry/phase2-acceptance.md",
+        "docs/reference/foundry/randomization-profile.md",
+        "docs/reference/foundry/state.md",
+        "docs/reference/foundry/static-admg-profile.md",
+        "docs/reference/foundry/structural-causal-models.md",
+        "docs/reference/foundry/tmle-common-report.md",
+        "docs/reference/foundry/tmle-persisted-consumers.md",
+        "docs/reference/frontend/atlas-evidence-artifact.md",
+        "docs/reference/frontend/atlas-frontend-disposition-register.md",
+        "docs/reference/frontend/atlas-health-metrics.md",
+        "docs/reference/frontend/atlas-honesty-comprehension-protocol.md",
+        "docs/reference/frontend/atlas-live-application-audit.md",
+        "docs/reference/frontend/atlas-manual-at-maturity.md",
+        "docs/reference/frontend/atlas-phase-a-synthesis.md",
+        "docs/reference/frontend/atlas-surface-readiness-reconciliation.md",
+        "docs/reference/frontend/atlas-v15-adjudication.md",
+        "docs/reference/frontend/index.md",
+        "docs/reference/frontend/workspace-contract.md",
+        "docs/reference/generated-artifacts.md",
+        "docs/reference/index.md",
+        "docs/reference/ir/analytics.md",
+        "docs/reference/ir/causal-graph-cache-rows.md",
+        "docs/reference/ir/causal-identification-candidates.md",
+        "docs/reference/ir/compiler-pipeline.md",
+        "docs/reference/ir/distributional-proof-artifacts.md",
+        "docs/reference/ir/governance.md",
+        "docs/reference/ir/index.md",
+        "docs/reference/ir/interoperability.md",
+        "docs/reference/ir/observation.md",
+        "docs/reference/ir/problem-framing.md",
+        "docs/reference/ir/public-surface.md",
+        "docs/reference/ir/schema-catalog.md",
+        "docs/reference/ir/strategic-admissibility.md",
+        "docs/reference/ir/temporal-path-semantics.md",
+        "docs/reference/lex/batch-pipeline.md",
+        "docs/reference/lex/index.md",
+        "docs/reference/lex/interventions.md",
+        "docs/reference/lex/knowledge.md",
+        "docs/reference/lex/normpack.md",
+        "docs/reference/local-runtime-state.md",
+        "docs/reference/logging.md",
+        "docs/reference/merge-governance.md",
+        "docs/reference/operations/cas-storage.md",
+        "docs/reference/operations/core-runtime-closeout.md",
+        "docs/reference/operations/handoff-and-platform-review.md",
+        "docs/reference/operations/index.md",
+        "docs/reference/operations/infrastructure-split-compute.md",
+        "docs/reference/operations/observability-topology.md",
+        "docs/reference/operations/ops-baselines.md",
+        "docs/reference/operations/platform-acceptance-audit.md",
+        "docs/reference/operations/platform-architecture-diagrams.md",
+        "docs/reference/operations/retention-and-recovery.md",
+        "docs/reference/operations/slo-error-budget.md",
+        "docs/reference/ownership.md",
+        "docs/reference/policy-design-case-capability-ratchet.md",
+        "docs/reference/policy-design-case-evidence-paths.md",
+        "docs/reference/policy-design-case-failure-patterns.md",
+        "docs/reference/policy-design-case-layer3-analytics-search.md",
+        "docs/reference/policy-design-case-layer3-bounded-agent.md",
+        "docs/reference/policy-design-case-layer3-causal-forecast.md",
+        "docs/reference/policy-design-case-layer3-grounding-inventory.md",
+        "docs/reference/policy-design-case-layer3-legal-mandate-search.md",
+        "docs/reference/policy-design-case-layer3-promotion-gate.md",
+        "docs/reference/policy-design-case-layer3-proving-ground-conversion.md",
+        "docs/reference/policy-design-case-layer3-substrate-grounding.md",
+        "docs/reference/policy-design-case-operator-guide.md",
+        "docs/reference/policy-design-case-source-ownership.md",
+        "docs/reference/policy-design-case-structural-adr-registry.md",
+        "docs/reference/policy-design-causal-grounding-firewall-CGF-spec.md",
+        "docs/reference/policy-design-search-RACE-HOG-PODS-v3.2-spec.md",
+        "docs/reference/policy-operations-research-pipeline.md",
+        "docs/reference/public-surface.md",
+        "docs/reference/quality-gates.md",
+        "docs/reference/ratchet-policy.md",
+        "docs/reference/repository-hygiene.md",
+        "docs/reference/repository-topology.md",
+        "docs/reference/research-track-handoff-template.md",
+        "docs/reference/runtime/best-in-class-benchmarking.md",
+        "docs/reference/runtime/bureaucratic-rendering.md",
+        "docs/reference/runtime/calibration-ledger.md",
+        "docs/reference/runtime/cost-degradation-telemetry.md",
+        "docs/reference/runtime/counterfactual-layer.md",
+        "docs/reference/runtime/deterministic-replay.md",
+        "docs/reference/runtime/human-review-calibration.md",
+        "docs/reference/runtime/policy-diff.md",
+        "docs/reference/runtime/privacy-compliance-evidence.md",
+        "docs/reference/runtime/production-canary-matrix.md",
+        "docs/reference/runtime/production-data-quality.md",
+        "docs/reference/runtime/production-quality-approval.md",
+        "docs/reference/runtime/production-quality-maturity.md",
+        "docs/reference/runtime/production-resilience-matrix.md",
+        "docs/reference/runtime/provider-model-quality.md",
+        "docs/reference/runtime/quality-scorecard.md",
+        "docs/reference/runtime/quantity-values.md",
+        "docs/reference/runtime/run-cost-enforcement-gate.md",
+        "docs/reference/runtime/run-cost-proportionality-ledger.md",
+        "docs/reference/schemas.md",
+        "docs/reference/scientist/adversarial-challenge-factory.md",
+        "docs/reference/scientist/agent-capability-promotion.md",
+        "docs/reference/scientist/agent-search-reasoning.md",
+        "docs/reference/scientist/benchmark-authority.md",
+        "docs/reference/scientist/best-in-class-maturity.md",
+        "docs/reference/scientist/best-in-class-readiness.md",
+        "docs/reference/scientist/best-in-class-wave1-acceptance.md",
+        "docs/reference/scientist/best-in-class-wave2-acceptance.md",
+        "docs/reference/scientist/calibration-governance.md",
+        "docs/reference/scientist/causal-confidence-issue-preservation.md",
+        "docs/reference/scientist/causal-graph-intake.md",
+        "docs/reference/scientist/causal-selected-consumers.md",
+        "docs/reference/scientist/causal-validity-acceptance.md",
+        "docs/reference/scientist/causal-validity.md",
+        "docs/reference/scientist/causal.md",
+        "docs/reference/scientist/citation-faithfulness.md",
+        "docs/reference/scientist/claim-ledger.md",
+        "docs/reference/scientist/claim-support-semantics.md",
+        "docs/reference/scientist/claims.md",
+        "docs/reference/scientist/continuous-governance.md",
+        "docs/reference/scientist/decision-artifact-quality.md",
+        "docs/reference/scientist/decision-grade-compiler.md",
+        "docs/reference/scientist/deep-research-evidence.md",
+        "docs/reference/scientist/frontier-runtime.md",
+        "docs/reference/scientist/governance-accountability.md",
+        "docs/reference/scientist/governance-passes.md",
+        "docs/reference/scientist/human-oversight.md",
+        "docs/reference/scientist/index.md",
+        "docs/reference/scientist/latent-discovery-producers.md",
+        "docs/reference/scientist/nodes.md",
+        "docs/reference/scientist/phase0-acceptance.md",
+        "docs/reference/scientist/phase1-acceptance.md",
+        "docs/reference/scientist/phase3-acceptance.md",
+        "docs/reference/scientist/phase4-acceptance.md",
+        "docs/reference/scientist/proof-trace-composability.md",
+        "docs/reference/scientist/reflexive-memory.md",
+        "docs/reference/scientist/reliability-scorecard.md",
+        "docs/reference/scientist/remediation-status.md",
+        "docs/reference/scientist/research-dag-replay.md",
+        "docs/reference/scientist/research-dag.md",
+        "docs/reference/scientist/scientist-capability-inventory.md",
+        "docs/reference/scientist/source-quality-calibration.md",
+        "docs/reference/scientist/structural-causal-queries.md",
+        "docs/reference/scientist/system-pipeline-architecture.md",
+        "docs/reference/scientist/voi-scheduler.md",
+        "docs/reference/scientist/wave2-migration-notes.md",
+        "docs/reference/scientist/wave2-runtime-contracts.md",
+        "docs/reference/scientist/workflows.md",
+        "docs/reference/security-compliance.md",
+        "docs/reference/tools.md"
+      ],
+      "pattern": "**/*.md",
+      "root": "docs/reference"
+    },
+    {
+      "matches": [
+        "docs/runbooks/artifact-corruption-recovery.md",
+        "docs/runbooks/artifact-signing-sbom-failure.md",
+        "docs/runbooks/benchmark-regression-triage.md",
+        "docs/runbooks/broken-contract-generation.md",
+        "docs/runbooks/cache-rebuild-storm.md",
+        "docs/runbooks/canary-rollback-or-promotion-failure.md",
+        "docs/runbooks/cas-opa-outage.md",
+        "docs/runbooks/cloud-production-debugging.md",
+        "docs/runbooks/dependency-upgrade-regression.md",
+        "docs/runbooks/docs-publication-failure.md",
+        "docs/runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md",
+        "docs/runbooks/honest-diagnostics.md",
+        "docs/runbooks/idempotency-incident.md",
+        "docs/runbooks/index.md",
+        "docs/runbooks/key-rotation.md",
+        "docs/runbooks/lex-production-140k.md",
+        "docs/runbooks/local-production-debugging.md",
+        "docs/runbooks/migration-release-promotion.md",
+        "docs/runbooks/mutation-audit-investigation.md",
+        "docs/runbooks/policy-design-case-operator-triage.md",
+        "docs/runbooks/policy-design-case-rollout-rollback.md",
+        "docs/runbooks/production-quality-canary.md",
+        "docs/runbooks/production-quality-triage.md",
+        "docs/runbooks/replay-or-restore.md",
+        "docs/runbooks/retained-artifact-recovery.md",
+        "docs/runbooks/runtime-api-outage.md",
+        "docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md"
+      ],
+      "pattern": "**/*.md",
+      "root": "docs/runbooks"
+    },
+    {
+      "matches": [
+        "docs/tutorials/creating-governance-pass.md",
+        "docs/tutorials/first-policy-analysis.md",
+        "docs/tutorials/getting-started.md",
+        "docs/tutorials/index.md",
+        "docs/tutorials/writing-a-connector.md"
+      ],
+      "pattern": "**/*.md",
+      "root": "docs/tutorials"
+    },
+    {
+      "matches": [
+        "tools/ci/__init__.py",
+        "tools/ci/check_action_freshness.py",
+        "tools/ci/check_fabric_schema_registry.py",
+        "tools/ci/check_foundry_domain_coverage.py",
+        "tools/ci/check_phase7_ratchet.py",
+        "tools/ci/check_policyos_production_quality_best_in_class.py",
+        "tools/ci/check_scientist_benchmark_authority.py",
+        "tools/ci/check_scientist_best_in_class_phase1_0.py",
+        "tools/ci/check_scientist_best_in_class_phase1_1.py",
+        "tools/ci/check_scientist_best_in_class_phase1_2.py",
+        "tools/ci/check_scientist_best_in_class_phase1_3.py",
+        "tools/ci/check_scientist_best_in_class_phase1_4.py",
+        "tools/ci/check_scientist_best_in_class_phase1_6.py",
+        "tools/ci/check_scientist_best_in_class_phase2_0.py",
+        "tools/ci/check_scientist_best_in_class_phase2_1.py",
+        "tools/ci/check_scientist_best_in_class_phase2_2.py",
+        "tools/ci/check_scientist_best_in_class_phase2_3.py",
+        "tools/ci/check_scientist_best_in_class_phase2_4.py",
+        "tools/ci/check_scientist_best_in_class_phase2_5.py",
+        "tools/ci/check_scientist_best_in_class_phase2_6.py",
+        "tools/ci/check_scientist_best_in_class_phase2_7.py",
+        "tools/ci/check_scientist_best_in_class_wave1.py",
+        "tools/ci/check_scientist_best_in_class_wave2.py",
+        "tools/ci/check_scientist_phase0_gate.py",
+        "tools/ci/check_scientist_phase1_gate.py",
+        "tools/ci/check_scientist_phase2_gate.py",
+        "tools/ci/check_scientist_phase2_ratchet.py",
+        "tools/ci/check_scientist_reliability.py",
+        "tools/ci/check_workflow_policy.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/ci"
+    },
+    {
+      "matches": [
+        "tools/devx/architecture/__init__.py",
+        "tools/devx/architecture/guardrails.py",
+        "tools/devx/architecture/scaffold.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/devx/architecture"
+    },
+    {
+      "matches": [
+        "tools/devx/connectors/__init__.py",
+        "tools/devx/connectors/check_contracts.py",
+        "tools/devx/connectors/scaffold.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/devx/connectors"
+    },
+    {
+      "matches": [
+        "tools/devx/foundry/__init__.py",
+        "tools/devx/foundry/generate_stubs.py",
+        "tools/devx/foundry/sync_dependency_profile.py",
+        "tools/devx/foundry/update_signature_baseline.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/devx/foundry"
+    },
+    {
+      "matches": [
+        "tools/devx/workspace/__init__.py",
+        "tools/devx/workspace/_common.py",
+        "tools/devx/workspace/_repo_hygiene.py",
+        "tools/devx/workspace/acceptance_audit.py",
+        "tools/devx/workspace/benchmark_surfaces.py",
+        "tools/devx/workspace/bootstrap.py",
+        "tools/devx/workspace/ci_parity.py",
+        "tools/devx/workspace/clean_local_reports.py",
+        "tools/devx/workspace/core_runtime_basedpyright.py",
+        "tools/devx/workspace/core_runtime_closeout.py",
+        "tools/devx/workspace/core_runtime_long_soak.py",
+        "tools/devx/workspace/core_runtime_mypy.py",
+        "tools/devx/workspace/docs_style.py",
+        "tools/devx/workspace/doctor.py",
+        "tools/devx/workspace/format_check.py",
+        "tools/devx/workspace/lint_fast.py",
+        "tools/devx/workspace/lint_full.py",
+        "tools/devx/workspace/python_base_basedpyright.py",
+        "tools/devx/workspace/python_base_mypy.py",
+        "tools/devx/workspace/release_build_cache_lifecycle.py",
+        "tools/devx/workspace/remote_acceptance.py",
+        "tools/devx/workspace/repository_sota_closeout.py",
+        "tools/devx/workspace/runtime_surface.py",
+        "tools/devx/workspace/tool_configs.py",
+        "tools/devx/workspace/verify.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/devx/workspace"
+    },
+    {
+      "matches": [
+        "tools/ops_runners/calibration/__init__.py",
+        "tools/ops_runners/calibration/compare_shards.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/ops_runners/calibration"
+    },
+    {
+      "matches": [
+        "tools/ops_runners/cloud/__init__.py",
+        "tools/ops_runners/cloud/build_priority_manifests.py",
+        "tools/ops_runners/cloud/build_queue3_waves.py",
+        "tools/ops_runners/cloud/canonical_auto_approve.py",
+        "tools/ops_runners/cloud/check_progress.py",
+        "tools/ops_runners/cloud/deploy_to_server.py",
+        "tools/ops_runners/cloud/gcp_preflight.py",
+        "tools/ops_runners/cloud/merge_shards.py",
+        "tools/ops_runners/cloud/prepare_shards.py",
+        "tools/ops_runners/cloud/run_datasets_validation.py",
+        "tools/ops_runners/cloud/run_diagnostic.py",
+        "tools/ops_runners/cloud/run_lex_from_manifest.py",
+        "tools/ops_runners/cloud/run_pipeline.py",
+        "tools/ops_runners/cloud/run_remaining_stages.py",
+        "tools/ops_runners/cloud/setup_server.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/ops_runners/cloud"
+    },
+    {
+      "matches": [
+        "tools/ops_runners/data/__init__.py",
+        "tools/ops_runners/data/build_academic_gold_candidates.py",
+        "tools/ops_runners/data/build_expert_review_bundle.py",
+        "tools/ops_runners/data/generate_wvs_registry.py",
+        "tools/ops_runners/data/record_fixtures.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/ops_runners/data"
+    },
+    {
+      "matches": [
+        "tools/ops_runners/deploy/__init__.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/ops_runners/deploy"
+    },
+    {
+      "matches": [
+        "tools/ops_runners/experiments/__init__.py",
+        "tools/ops_runners/experiments/run_msme_deadline_suite.py",
+        "tools/ops_runners/experiments/run_msme_discovery_addendum_20260501.py",
+        "tools/ops_runners/experiments/run_msme_e2e_showcase.py",
+        "tools/ops_runners/experiments/run_msme_final_fresg_suite.py",
+        "tools/ops_runners/experiments/run_msme_final_fresg_suite_v2.py",
+        "tools/ops_runners/experiments/run_msme_final_fresg_suite_v3.py",
+        "tools/ops_runners/experiments/run_msme_final_v3_cloud_rerun.py",
+        "tools/ops_runners/experiments/run_msme_grand_tournament_v2.py",
+        "tools/ops_runners/experiments/run_policyos_real_e2e_cloud.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/ops_runners/experiments"
+    },
+    {
+      "matches": [
+        "tools/ops_runners/migrations/__init__.py",
+        "tools/ops_runners/migrations/contracts.py",
+        "tools/ops_runners/migrations/migrate.py",
+        "tools/ops_runners/migrations/migrate_duckdb_to_pg.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/ops_runners/migrations"
+    },
+    {
+      "matches": [
+        "tools/ops_runners/release/__init__.py",
+        "tools/ops_runners/release/build_release_notes.py",
+        "tools/ops_runners/release/check_compatibility_release_gates.py",
+        "tools/ops_runners/release/check_operability_release_gates.py",
+        "tools/ops_runners/release/check_release_artifact_sizes.py",
+        "tools/ops_runners/release/check_release_version.py",
+        "tools/ops_runners/release/evaluate_vuln_report.py",
+        "tools/ops_runners/release/run_release_canary.py",
+        "tools/ops_runners/release/stage_release_snapshot.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/ops_runners/release"
+    },
+    {
+      "matches": [
+        "tools/ops_runners/runtime/__init__.py",
+        "tools/ops_runners/runtime/archive_legacy_runs.py",
+        "tools/ops_runners/runtime/backfill_decision_validity.py",
+        "tools/ops_runners/runtime/canary_evidence.py",
+        "tools/ops_runners/runtime/canary_matrix.py",
+        "tools/ops_runners/runtime/check_runtime_api_contract.py",
+        "tools/ops_runners/runtime/export_runtime_openapi.py",
+        "tools/ops_runners/runtime/generate_runtime_client.py",
+        "tools/ops_runners/runtime/inventory_legacy_runs.py",
+        "tools/ops_runners/runtime/local_production_canary.py",
+        "tools/ops_runners/runtime/provider_quality_ledger.py",
+        "tools/ops_runners/runtime/quality_benchmark_authority.py",
+        "tools/ops_runners/runtime/quality_scenarios.py",
+        "tools/ops_runners/runtime/replay_canary_bundle.py",
+        "tools/ops_runners/runtime/run_canary_matrix.py",
+        "tools/ops_runners/runtime/runtime_state_cleanup.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/ops_runners/runtime"
+    },
+    {
+      "matches": [
+        "tools/ops_runners/ukraine_data/__init__.py",
+        "tools/ops_runners/ukraine_data/build_edr_identity_seed_candidates.py",
+        "tools/ops_runners/ukraine_data/build_p1_source_bindings.py",
+        "tools/ops_runners/ukraine_data/build_spending_contracts_procurement_proxy.py",
+        "tools/ops_runners/ukraine_data/fetch_p0_sources.py",
+        "tools/ops_runners/ukraine_data/fetch_p1_p2_public_sources.py",
+        "tools/ops_runners/ukraine_data/harvest_prozorro_contract_details.py",
+        "tools/ops_runners/ukraine_data/harvest_prozorro_contract_feed.py",
+        "tools/ops_runners/ukraine_data/harvest_spending_contracts_by_disposer.py",
+        "tools/ops_runners/ukraine_data/harvest_spending_daily.py",
+        "tools/ops_runners/ukraine_data/pre_shard_lex_corpus.py",
+        "tools/ops_runners/ukraine_data/server_bootstrap.py",
+        "tools/ops_runners/ukraine_data/validate_part_a.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/ops_runners/ukraine_data"
+    },
+    {
+      "matches": [
+        "tools/quality/ci/__init__.py",
+        "tools/quality/ci/check_action_freshness.py",
+        "tools/quality/ci/check_fabric_schema_registry.py",
+        "tools/quality/ci/check_foundry_domain_coverage.py",
+        "tools/quality/ci/check_phase7_ratchet.py",
+        "tools/quality/ci/check_workflow_policy.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/quality/ci"
+    },
+    {
+      "matches": [
+        "tools/quality/diagnostics/__init__.py",
+        "tools/quality/diagnostics/abi_diff.py",
+        "tools/quality/diagnostics/capture_env.py",
+        "tools/quality/diagnostics/check_perf_regression.py",
+        "tools/quality/diagnostics/check_scientist_node_version_bump.py",
+        "tools/quality/diagnostics/check_setup.py",
+        "tools/quality/diagnostics/check_state_reads.py",
+        "tools/quality/diagnostics/check_udf_perf.py",
+        "tools/quality/diagnostics/gen_schema.py",
+        "tools/quality/diagnostics/generate_ir_reference_catalog.py",
+        "tools/quality/diagnostics/generate_ir_schema.py",
+        "tools/quality/diagnostics/scan_fabric.py",
+        "tools/quality/diagnostics/verify_scm_v3.py",
+        "tools/quality/diagnostics/verify_scm_v3_fullspec.py",
+        "tools/quality/diagnostics/visualize_provenance.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/quality/diagnostics"
+    },
+    {
+      "matches": [
+        "tools/quality/lint/__init__.py",
+        "tools/quality/lint/check_scholar_imports.py",
+        "tools/quality/lint/collect_arch_metrics.py",
+        "tools/quality/lint/compare_baseline.py",
+        "tools/quality/lint/lint_connector_hardening.py",
+        "tools/quality/lint/lint_connectors.py",
+        "tools/quality/lint/lint_foundry.py",
+        "tools/quality/lint/lint_foundry_data_plane.py",
+        "tools/quality/lint/lint_imports.py",
+        "tools/quality/lint/lint_legacy_cutover.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/quality/lint"
+    },
+    {
+      "matches": [
+        "tools/quality/testing/__init__.py",
+        "tools/quality/testing/build_review_package.py",
+        "tools/quality/testing/check_fabric_exception_baseline.py",
+        "tools/quality/testing/check_playwright_quarantines.py",
+        "tools/quality/testing/local_integration_stack.py",
+        "tools/quality/testing/local_prod_debug_probe.py",
+        "tools/quality/testing/mutation.py",
+        "tools/quality/testing/pytest_workload_receipt.py",
+        "tools/quality/testing/repeat_pytest.py",
+        "tools/quality/testing/report_test_economics.py",
+        "tools/quality/testing/report_test_ratchets.py",
+        "tools/quality/testing/review_freeze.py",
+        "tools/quality/testing/run_timed_suite.py",
+        "tools/quality/testing/runtime_resilience_matrix.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/quality/testing"
+    },
+    {
+      "matches": [
+        "tools/quality/validation/__init__.py",
+        "tools/quality/validation/architecture_report_only_contracts.py",
+        "tools/quality/validation/build_honest_diagnostics_coverage.py",
+        "tools/quality/validation/build_policy_design_case_coverage.py",
+        "tools/quality/validation/build_policy_design_case_pass2_diagnostics.py",
+        "tools/quality/validation/build_policy_design_case_pass2_disposition.py",
+        "tools/quality/validation/build_policy_design_case_wave35a.py",
+        "tools/quality/validation/build_policy_design_case_wave35b.py",
+        "tools/quality/validation/build_policy_design_case_wave35c.py",
+        "tools/quality/validation/build_policy_design_case_wave35d.py",
+        "tools/quality/validation/build_policy_design_case_wave35e.py",
+        "tools/quality/validation/build_policy_design_case_wave35f_integrity.py",
+        "tools/quality/validation/build_policy_design_case_wave35g_backfill.py",
+        "tools/quality/validation/build_policy_design_case_wave35g_institutional_provenance.py",
+        "tools/quality/validation/build_policy_design_case_wave35g_memory_authority.py",
+        "tools/quality/validation/build_policy_design_case_wave35h_provenance.py",
+        "tools/quality/validation/build_policy_design_case_wave36_closeout.py",
+        "tools/quality/validation/build_policy_design_case_wave40_readiness.py",
+        "tools/quality/validation/build_policy_evidence_capability_index.py",
+        "tools/quality/validation/build_wave5_honest_diagnostics_evidence.py",
+        "tools/quality/validation/capture_layer3_gy_design_generation_replay.py",
+        "tools/quality/validation/check_can_i_closeout.py",
+        "tools/quality/validation/check_canonical_vocabulary_crosswalk.py",
+        "tools/quality/validation/check_ci_ratchets.py",
+        "tools/quality/validation/check_compilation_truthfulness.py",
+        "tools/quality/validation/check_critic_ensemble_diversity.py",
+        "tools/quality/validation/check_debt_ledger.py",
+        "tools/quality/validation/check_docs_accuracy.py",
+        "tools/quality/validation/check_docs_freshness_baseline.py",
+        "tools/quality/validation/check_docs_gate.py",
+        "tools/quality/validation/check_docs_lifecycle.py",
+        "tools/quality/validation/check_docstring_quality.py",
+        "tools/quality/validation/check_domain_coverage_breadth.py",
+        "tools/quality/validation/check_evidence_spine_connectivity.py",
+        "tools/quality/validation/check_evidence_spine_handoffs.py",
+        "tools/quality/validation/check_expert_adjudication_labels.py",
+        "tools/quality/validation/check_extension_examples.py",
+        "tools/quality/validation/check_grounding_active_controller_contract.py",
+        "tools/quality/validation/check_grounding_admission_contract.py",
+        "tools/quality/validation/check_grounding_benchmark_contract.py",
+        "tools/quality/validation/check_grounding_bind_contract.py",
+        "tools/quality/validation/check_grounding_credal_reference_contract.py",
+        "tools/quality/validation/check_grounding_phrasing_defense_contract.py",
+        "tools/quality/validation/check_grounding_refusal_sensitivity.py",
+        "tools/quality/validation/check_grounding_relation_contract.py",
+        "tools/quality/validation/check_gy_acquisition_assurance.py",
+        "tools/quality/validation/check_honest_diagnostics_proof_harness.py",
+        "tools/quality/validation/check_import_policy_projection.py",
+        "tools/quality/validation/check_layer3_artifact_surface_safety.py",
+        "tools/quality/validation/check_layer3_gy_acquisition_contract.py",
+        "tools/quality/validation/check_layer3_gy_acquisition_executor.py",
+        "tools/quality/validation/check_layer3_gy_agent_workflow_event_backing_audit.py",
+        "tools/quality/validation/check_layer3_gy_capability_coverage_matrix.py",
+        "tools/quality/validation/check_layer3_gy_catalog_fetch_audit.py",
+        "tools/quality/validation/check_layer3_gy_composition_artifacts.py",
+        "tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+        "tools/quality/validation/check_layer3_gy_connector_family_truth_audit.py",
+        "tools/quality/validation/check_layer3_gy_data_requirement_compiler_audit.py",
+        "tools/quality/validation/check_layer3_gy_data_state_substrate_contract.py",
+        "tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py",
+        "tools/quality/validation/check_layer3_gy_design_generation_contract.py",
+        "tools/quality/validation/check_layer3_gy_design_problem_contract.py",
+        "tools/quality/validation/check_layer3_gy_engine_census.py",
+        "tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py",
+        "tools/quality/validation/check_layer3_gy_foundry_breadth_audit.py",
+        "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+        "tools/quality/validation/check_layer3_gy_generation_cycle_contract.py",
+        "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "tools/quality/validation/check_layer3_gy_intervention_atom_binding_contract.py",
+        "tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py",
+        "tools/quality/validation/check_layer3_gy_joint_simulation_horizon_contract.py",
+        "tools/quality/validation/check_layer3_gy_knowledge_substrate_contract.py",
+        "tools/quality/validation/check_layer3_gy_lex_frontier_root_cause_audit.py",
+        "tools/quality/validation/check_layer3_gy_loop_artifacts.py",
+        "tools/quality/validation/check_layer3_gy_n10_cg1_l2_relation_census.py",
+        "tools/quality/validation/check_layer3_gy_n13a_acquisition_census.py",
+        "tools/quality/validation/check_layer3_gy_n13b_acquisition_contract.py",
+        "tools/quality/validation/check_layer3_gy_openalex_artifacts.py",
+        "tools/quality/validation/check_layer3_gy_p0_coverage_audit.py",
+        "tools/quality/validation/check_layer3_gy_p1_substrate_authority_audit.py",
+        "tools/quality/validation/check_layer3_gy_p2_semantic_evidence_quality_audit.py",
+        "tools/quality/validation/check_layer3_gy_phase2_artifacts.py",
+        "tools/quality/validation/check_layer3_gy_promotion_contract.py",
+        "tools/quality/validation/check_layer3_gy_runtime_surface_audit.py",
+        "tools/quality/validation/check_layer3_gy_second_domain_pack.py",
+        "tools/quality/validation/check_layer3_gy_source_contract_admissibility_audit.py",
+        "tools/quality/validation/check_layer3_gy_substrate_package_capability_inventory.py",
+        "tools/quality/validation/check_layer3_gy_value_gate_contract.py",
+        "tools/quality/validation/check_layer3_gy_value_outer_set_strangle_receipt.py",
+        "tools/quality/validation/check_layer3_gy_workflow_mode_truth_audit.py",
+        "tools/quality/validation/check_layer3_gy_world_model_record_contract.py",
+        "tools/quality/validation/check_layer3_time_source_authority.py",
+        "tools/quality/validation/check_layer3_workflow_failure_authority.py",
+        "tools/quality/validation/check_multilingual_locale_census.py",
+        "tools/quality/validation/check_package_import_gates.py",
+        "tools/quality/validation/check_policy_design_case_capability_ratchet.py",
+        "tools/quality/validation/check_policy_design_case_cluster_ownership_map.py",
+        "tools/quality/validation/check_policy_design_case_drift.py",
+        "tools/quality/validation/check_policy_design_case_formal_invariants.py",
+        "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+        "tools/quality/validation/check_policy_design_case_layer2_s1_graded_outcomes.py",
+        "tools/quality/validation/check_policy_design_case_layer2_s2_design_search.py",
+        "tools/quality/validation/check_policy_design_case_layer3_g0_readiness.py",
+        "tools/quality/validation/check_policy_design_case_layer3_g1_readiness.py",
+        "tools/quality/validation/check_policy_design_case_layer3_g2_readiness.py",
+        "tools/quality/validation/check_policy_design_case_layer3_g3_readiness.py",
+        "tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py",
+        "tools/quality/validation/check_policy_design_case_layer3_g5_readiness.py",
+        "tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py",
+        "tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py",
+        "tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py",
+        "tools/quality/validation/check_policy_design_case_layer3_gl_readiness.py",
+        "tools/quality/validation/check_policy_design_case_layer3_gx_hardening.py",
+        "tools/quality/validation/check_policy_design_case_pass1b_hardening.py",
+        "tools/quality/validation/check_policy_design_case_pass2_disposition.py",
+        "tools/quality/validation/check_policy_design_case_reuse_map.py",
+        "tools/quality/validation/check_policy_design_case_walking_skeleton.py",
+        "tools/quality/validation/check_policy_design_case_wave34_pass2.py",
+        "tools/quality/validation/check_policy_design_case_wave35f_integrity.py",
+        "tools/quality/validation/check_policy_design_case_wave35g_backfill.py",
+        "tools/quality/validation/check_policy_design_case_wave35h_provenance.py",
+        "tools/quality/validation/check_policy_design_case_wave36_closeout.py",
+        "tools/quality/validation/check_policy_design_case_wave40_readiness.py",
+        "tools/quality/validation/check_policy_design_formal_invariants.py",
+        "tools/quality/validation/check_production_data_scenario_contracts.py",
+        "tools/quality/validation/check_production_data_substrate_registry_contract.py",
+        "tools/quality/validation/check_production_invariant_registry.py",
+        "tools/quality/validation/check_production_invocation.py",
+        "tools/quality/validation/check_runtime_quality_schema_compatibility.py",
+        "tools/quality/validation/check_substrate_drift.py",
+        "tools/quality/validation/check_trust_claim_posture.py",
+        "tools/quality/validation/check_universal_corpus_annotations.py",
+        "tools/quality/validation/check_wave4_operational_closeout.py",
+        "tools/quality/validation/checkout_guard.py",
+        "tools/quality/validation/compare_honest_diagnostics_rebaseline.py",
+        "tools/quality/validation/compare_policy_design_case_rebaseline.py",
+        "tools/quality/validation/control_plane_supply_chain_contracts.py",
+        "tools/quality/validation/decomposition_preflight.py",
+        "tools/quality/validation/directory_health.py",
+        "tools/quality/validation/directory_hygiene_assets.py",
+        "tools/quality/validation/empty_namespace_gate.py",
+        "tools/quality/validation/execute_gy_n12_artifact_transition.py",
+        "tools/quality/validation/export_policy_evidence_capability_dcat.py",
+        "tools/quality/validation/export_policy_evidence_capability_prov.py",
+        "tools/quality/validation/fabric_best_in_class_inventory.py",
+        "tools/quality/validation/fabric_decision_data_coverage.py",
+        "tools/quality/validation/fabric_discovery_intelligence.py",
+        "tools/quality/validation/fabric_processing_guarantees.py",
+        "tools/quality/validation/fabric_product_integration.py",
+        "tools/quality/validation/fabric_schema_governance.py",
+        "tools/quality/validation/fabric_source_contracts.py",
+        "tools/quality/validation/fabric_wave2_strict_closure.py",
+        "tools/quality/validation/generate_adr_index.py",
+        "tools/quality/validation/generate_foundry_phase2_evidence.py",
+        "tools/quality/validation/generate_policy_evidence_capability_cards.py",
+        "tools/quality/validation/gy_acquisition_assurance_oracle.py",
+        "tools/quality/validation/gy_evidence_canon.py",
+        "tools/quality/validation/inspect_evidence_bundles.py",
+        "tools/quality/validation/inspect_policy_evidence_capability_index.py",
+        "tools/quality/validation/inventory_legacy_quality_evidence.py",
+        "tools/quality/validation/layer3_gy_acquisition_executor.py",
+        "tools/quality/validation/layer3_gy_confidence_ledger_contract.py",
+        "tools/quality/validation/layer3_gy_n13a_acquisition_census.py",
+        "tools/quality/validation/layer3_gy_n13b_acceptance.py",
+        "tools/quality/validation/layer3_gy_n13b_acquisition_contract.py",
+        "tools/quality/validation/layer3_gy_n13b_derivation_universality.py",
+        "tools/quality/validation/layer3_gy_n13b_reentry.py",
+        "tools/quality/validation/locale_census_independent.py",
+        "tools/quality/validation/name_collision_gate.py",
+        "tools/quality/validation/pass2_wave34_common.py",
+        "tools/quality/validation/production_quality_evidence_inventory.py",
+        "tools/quality/validation/rederive_layer3_gy_n10_cg1_l2_relation_census.py",
+        "tools/quality/validation/repository_best_in_class_phase0_7_inventory.py",
+        "tools/quality/validation/repository_last_mile_inventory.py",
+        "tools/quality/validation/repository_last_mile_shim_callers.py",
+        "tools/quality/validation/repository_structure_phase0.py",
+        "tools/quality/validation/repository_verification_inventory.py",
+        "tools/quality/validation/run_compilation_truthfulness_audit.py",
+        "tools/quality/validation/run_domain_coverage_critic_diversity_audit.py",
+        "tools/quality/validation/run_grounding_closeout_sweep.py",
+        "tools/quality/validation/run_layer2_s14_universality_battery.py",
+        "tools/quality/validation/run_policy_design_case_bundle_replay_inspection.py",
+        "tools/quality/validation/run_policy_design_case_cloud_one_lane_revalidation.py",
+        "tools/quality/validation/run_policy_design_case_local_validation_ladder.py",
+        "tools/quality/validation/run_policy_design_case_pass2_phase34_3.py",
+        "tools/quality/validation/run_policy_design_case_pass2_phase34_4.py",
+        "tools/quality/validation/run_policy_design_case_pass2_phase34_5.py",
+        "tools/quality/validation/run_policy_design_case_pass2_phase34_6.py",
+        "tools/quality/validation/run_policy_design_case_rollout_decision.py",
+        "tools/quality/validation/run_universal_compilation_integration_realism_check.py",
+        "tools/quality/validation/run_universal_outcome_corpus.py",
+        "tools/quality/validation/schema_fqn_census.py",
+        "tools/quality/validation/shared_grounding_world_cache.py",
+        "tools/quality/validation/trust_claim_posture_sources.py",
+        "tools/quality/validation/universality_preflight.py",
+        "tools/quality/validation/validate_foundry_phase0_closure.py",
+        "tools/quality/validation/validate_foundry_phase2_closure.py",
+        "tools/quality/validation/validate_phase_closure.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/quality/validation"
+    },
+    {
+      "matches": [
+        "tools/research/benchmarks/__init__.py",
+        "tools/research/benchmarks/bench_domain.py",
+        "tools/research/benchmarks/bench_simulation.py",
+        "tools/research/benchmarks/benchmark_lex_llm_steady_state.py",
+        "tools/research/benchmarks/benchmark_lex_llm_sweep.py",
+        "tools/research/benchmarks/build_release_summary.py",
+        "tools/research/benchmarks/harness.py",
+        "tools/research/benchmarks/metrics.py",
+        "tools/research/benchmarks/prepare_real_benchmark_data.py",
+        "tools/research/benchmarks/run_all.py",
+        "tools/research/benchmarks/run_local_sota_profile.py",
+        "tools/research/benchmarks/run_parallel.py",
+        "tools/research/benchmarks/suite_registry.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/research/benchmarks"
+    },
+    {
+      "matches": [
+        "tools/research/demos/__init__.py",
+        "tools/research/demos/run_export_demo.py",
+        "tools/research/demos/run_foundry_ws9_frontier_demo.py",
+        "tools/research/demos/run_laffer_demo.py",
+        "tools/research/demos/run_mechanism_design.py",
+        "tools/research/demos/run_udf_hybrid_demo.py",
+        "tools/research/demos/run_udf_query_demo.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/research/demos"
+    },
+    {
+      "matches": [
+        "tools/research/experiments/__init__.py",
+        "tools/research/experiments/filter_topics.py",
+        "tools/research/experiments/organize_relevant_topics.py"
+      ],
+      "pattern": "*.py",
+      "root": "tools/research/experiments"
+    }
+  ],
+  "path_probes": [
+    {
+      "operation": "exists",
+      "path": "."
+    },
+    {
+      "operation": "exists",
+      "path": ".github"
+    },
+    {
+      "operation": "exists",
+      "path": ".polisyos-tools/.timing.j5rx2ody.tmp"
+    },
+    {
+      "operation": "exists",
+      "path": ".polisyos-tools/timing.jsonl"
+    },
+    {
+      "operation": "exists",
+      "path": ".pre-commit-config.yaml"
+    },
+    {
+      "operation": "exists",
+      "path": "Dockerfile.reproducible"
+    },
+    {
+      "operation": "exists",
+      "path": "apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py"
+    },
+    {
+      "operation": "exists",
+      "path": "architecture/component_observability.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "architecture/exceptions/complexity.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "architecture/exceptions/docs_freshness.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "architecture/exceptions/guardrails.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "architecture/extension_points.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "architecture/generated_artifacts.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "architecture/imports/exceptions.md"
+    },
+    {
+      "operation": "exists",
+      "path": "architecture/imports/exceptions.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "architecture/imports/gate_baseline.txt"
+    },
+    {
+      "operation": "exists",
+      "path": "architecture/imports/gate_summary.json"
+    },
+    {
+      "operation": "exists",
+      "path": "architecture/imports/policy.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "architecture/module_size_budget.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "architecture/policies/freeze.md"
+    },
+    {
+      "operation": "exists",
+      "path": "architecture/policy_design_case/construct_registry_v1.yaml"
+    },
+    {
+      "operation": "exists",
+      "path": "architecture/public_surface/contract.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "architecture/runbook_coverage.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "architecture/runtime_state_layout.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "architecture/shims.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "architecture/tooling/static_analysis_overrides.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "cloud_deploy"
+    },
+    {
+      "operation": "exists",
+      "path": "deploy"
+    },
+    {
+      "operation": "exists",
+      "path": "docker"
+    },
+    {
+      "operation": "exists",
+      "path": "docs/adr/0174-policy-evidence-capability-graph.md"
+    },
+    {
+      "operation": "exists",
+      "path": "docs/adr/README.md"
+    },
+    {
+      "operation": "exists",
+      "path": "docs/plans/README.md"
+    },
+    {
+      "operation": "exists",
+      "path": "docs/plans/accepted/REPOSITORY_SOTA_PHASE_5_CLOSEOUT.md"
+    },
+    {
+      "operation": "exists",
+      "path": "docs/reference/contributor-start-here.md"
+    },
+    {
+      "operation": "exists",
+      "path": "docs/reference/quality-gates.md"
+    },
+    {
+      "operation": "exists",
+      "path": "docs/reference/repository-hygiene.md"
+    },
+    {
+      "operation": "exists",
+      "path": "docs/reference/repository-topology.md"
+    },
+    {
+      "operation": "exists",
+      "path": "docs/reference/tools.md"
+    },
+    {
+      "operation": "exists",
+      "path": "gcp"
+    },
+    {
+      "operation": "exists",
+      "path": "install.sh"
+    },
+    {
+      "operation": "exists",
+      "path": "jax_bootstrap.py"
+    },
+    {
+      "operation": "exists",
+      "path": "migrate.py"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/ci/templates/workflows/arch.yml"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/components/berl/slo.yaml"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/components/calibration/slo.yaml"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/components/common/slo.yaml"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/components/ddm/slo.yaml"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/components/security/slo.yaml"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/migrations/README.md"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/migrations/api_schemas/README.md"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/migrations/db/README.md"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/migrations/ir/README.md"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/migrations/migration-contracts.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/migrations/runtime_state/README.md"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/observability/otel/baseline.yaml"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/observability/prometheus/slo_alerts.yml"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/observability/prometheus/slo_recording_rules.yml"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/observability/slo"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/release/commit-policy.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/release/deployment-topology.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/release/promotion-gates.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/release/release-fragment-policy.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/runtime/runtime-contracts.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/security/gitleaks.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/security/osv-scanner.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/security/sbom.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/security/secrets-baseline.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "ops/security/trufflehog.yaml"
+    },
+    {
+      "operation": "exists",
+      "path": "pnpm-lock.yaml"
+    },
+    {
+      "operation": "exists",
+      "path": "pyproject.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "release-fragments/README.md"
+    },
+    {
+      "operation": "exists",
+      "path": "release-fragments/template.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "scripts"
+    },
+    {
+      "operation": "exists",
+      "path": "src"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/common/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/common/jax_env.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/core/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/core/artifacts/backends/gcs_store.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/core/artifacts/backends/s3_store.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/core/components/_cli_audit.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/core/components/_cli_lex.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/core/components/_cli_replay.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/core/components/_cli_scholar.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/core/components/bootstrap.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/core/components/discovery.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/core/contracts/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/core/discovery/base.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/core/evaluation/mcda_robustness.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/core/observability/config.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/core/security/audit_sink.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/core/security/db_backend.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/core/security/slsa/fulcio.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/corpus"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/data_forge/domains/academic/knowledge/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/data_forge/domains/legal/contracts.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/data_forge/domains/ukraine/server.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/data_requirement"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/data_requirement/compiler.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/evidence"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/fabric/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/fabric/connectors/discovery.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/fabric/connectors/testing/simulator.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/fabric/data_plane/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/fabric/data_plane/cli.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/fabric/data_plane/orchestrator.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/fabric/ingestion/ingestion.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/_registry.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/agent_sim/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/calibration/dp_ci.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/compile/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/contracts/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/coupling/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/execute/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/extensions/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/extensions/registry.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/methods/backends/runtime_fingerprint.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/methods/catalog/bayesian/advanced.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/methods/catalog/causal/_registry_boot.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/methods/catalog/causal/dagma_discovery.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/methods/catalog/causal/full_transport_bridge.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/methods/catalog/causal/sensitivity_metrics.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/methods/catalog/survey/causal_frontier_io.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/methods/cli/validator.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/methods/compiler/hot_reload.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/methods/discovery.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/methods/selection/cache.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/methods/selection/registry.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/plugins/discovery.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/foundry/validation/phase2_closure.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/ir/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/ir/analytics/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/ir/api.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/ir/governance/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/ir/observation/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/ir/schemas/catalog.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/legal_requirement"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/lex/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/lex/interventions.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/lex/knowledge/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/method_requirement"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/obligation_graph"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/obligation_rules"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/obligation_rules/catalog.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/participation_requirement"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/pdc"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/policy_grammar"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/runtime/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/runtime/http/services/control_plane_store.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/runtime/quality/capability_resolver.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/runtime/quality/intervention_substrate.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/runtime/quality/production_data_contract_index.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/runtime/quality/workspace/agent_proposal_bridge.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/schemas"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scholar/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scholar_requirement"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/_internal/compat.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/_internal/shims.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/agent/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/agent/code_verifier.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/compute/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/evidence/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/evidence/_shim.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/feedback/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/governance/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/governance/continuous/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/governance/pass_registry.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/methods/_compat.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/methods/advanced.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/methods/autotune/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/methods/backtesting/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/methods/causal/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/methods/search/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/run_policy_translation.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/nodes/builtins/governance/run_governance.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/orchestration/llm/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/orchestration/orchestrator/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/publishing/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/replay/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "src/polisyos/scientist/validation/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tests/repo_quality/architecture/test_repository_public_polish.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/benchmarks"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/calibration"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/ci/check_scientist_best_in_class_phase2_0.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/ci/check_scientist_best_in_class_phase2_1.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/ci/check_scientist_best_in_class_phase2_2.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/ci/check_scientist_best_in_class_phase2_3.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/ci/check_scientist_best_in_class_phase2_4.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/ci/check_scientist_best_in_class_phase2_5.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/ci/check_scientist_best_in_class_phase2_6.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/ci/check_scientist_best_in_class_phase2_7.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/ci/check_scientist_best_in_class_wave1.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/ci/check_scientist_best_in_class_wave2.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/cloud"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/data"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/devx/pyproject.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/devx/workspace/bootstrap.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/devx/workspace/ci_parity.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/devx/workspace/pyproject.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/devx/workspace/repository_sota_closeout.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/devx/workspace/verify.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/diagnostics"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/lib/compat.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/lib/runner.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/lint"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/ops_runners/cloud/gcp_preflight.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/ops_runners/experiments/run_msme_deadline_suite.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/ops_runners/experiments/run_msme_e2e_showcase.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/ops_runners/experiments/run_msme_final_fresg_suite_v2.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/ops_runners/experiments/run_msme_grand_tournament_v2.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/ops_runners/migrations/migrate.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/ops_runners/runtime_cli.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/pyproject.toml"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/quality/diagnostics/gen_schema.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/quality/lint/rules/__init__.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/release"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/research/experiments/filter_topics.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/research/experiments/organize_relevant_topics.py"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/runtime"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/testing"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/ukraine_data"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/validation"
+    },
+    {
+      "operation": "exists",
+      "path": "tools/workspace"
+    },
+    {
+      "operation": "exists",
+      "path": "uv.lock"
+    },
+    {
+      "operation": "is_dir",
+      "path": ".polisyos-tools"
+    },
+    {
+      "operation": "is_file",
+      "path": "tools/devx/workspace/repository_sota_closeout.py"
+    }
+  ],
+  "read_files": [
+    ".polisyos-tools/timing.jsonl",
+    ".pre-commit-config.yaml",
+    "architecture/baselines/ops.toml",
+    "architecture/component_observability.toml",
+    "architecture/control_plane_supply_chain.toml",
+    "architecture/exceptions/complexity.toml",
+    "architecture/exceptions/docs_freshness.toml",
+    "architecture/exceptions/guardrails.toml",
+    "architecture/exceptions/structure_remediation.toml",
+    "architecture/gates/repository_sota.toml",
+    "architecture/generated_artifacts.toml",
+    "architecture/imports/dynamic.toml",
+    "architecture/imports/exceptions.md",
+    "architecture/imports/exceptions.toml",
+    "architecture/module_size_budget.toml",
+    "architecture/name_registry.toml",
+    "architecture/packages/berl.toml",
+    "architecture/packages/boundaries.toml",
+    "architecture/packages/calibration.toml",
+    "architecture/packages/common.toml",
+    "architecture/packages/core.toml",
+    "architecture/packages/data_forge.toml",
+    "architecture/packages/ddm.toml",
+    "architecture/packages/evidence.toml",
+    "architecture/packages/fabric.toml",
+    "architecture/packages/foundry-agent-sim-world.toml",
+    "architecture/packages/foundry.toml",
+    "architecture/packages/ir.toml",
+    "architecture/packages/lex.toml",
+    "architecture/packages/method_requirement.toml",
+    "architecture/packages/obligation_graph.toml",
+    "architecture/packages/obligation_rules.toml",
+    "architecture/packages/participation_requirement.toml",
+    "architecture/packages/runtime.toml",
+    "architecture/packages/scholar.toml",
+    "architecture/packages/scientist.toml",
+    "architecture/policies/cross_cutting_concerns.toml",
+    "architecture/policies/directory_contracts.toml",
+    "architecture/public_surface/contract.toml",
+    "architecture/runbook_coverage.toml",
+    "architecture/shims.toml",
+    "architecture/tests/ratchets.toml",
+    "architecture/tests/topology.toml",
+    "architecture/tooling/mkdocs/generated.yml",
+    "architecture/tooling/static_analysis_overrides.toml",
+    "architecture/topology.toml",
+    "docs/brand/A11Y_CONTRAST.md",
+    "docs/brand/ATLAS_DESIGN_SYSTEM.md",
+    "docs/brand/ATLAS_SOURCE_OF_TRUTH.md",
+    "docs/brand/ATLAS_V4_ADOPTION.md",
+    "docs/brand/BUREAUCRATIC_RENDERING.md",
+    "docs/brand/CLI_STYLEGUIDE.md",
+    "docs/brand/COMPOSITION_RULES.md",
+    "docs/brand/EMAIL_TEMPLATES.md",
+    "docs/brand/GLYPH_SPECIFICATION.md",
+    "docs/brand/MOTION.md",
+    "docs/brand/PRINT_AND_EXPORT.md",
+    "docs/brand/PROVENANCE_INTERACTION.md",
+    "docs/brand/README.md",
+    "docs/brand/SOCIAL_TEMPLATES.md",
+    "docs/brand/TRUST_VIEW.md",
+    "docs/brand/TYPOGRAPHY_UA_RU.md",
+    "docs/brand/UNCERTAINTY_LANGUAGE.md",
+    "docs/brand/storybook-wave1-snapshot/EVIDENCE_BUNDLE.md",
+    "docs/brand/storybook-wave1-snapshot/README.md",
+    "docs/brand/storybook-wave1-snapshot/SESSION_RECORDING_SCRIPT.md",
+    "docs/how-to/add-data-source.md",
+    "docs/how-to/add-public-facade.md",
+    "docs/how-to/add-runtime-route.md",
+    "docs/how-to/add-schema-backed-ir-type.md",
+    "docs/how-to/apply-github-governance.md",
+    "docs/how-to/author-measurement-instruments.md",
+    "docs/how-to/configure-governed-publication.md",
+    "docs/how-to/configure-lex-pipeline.md",
+    "docs/how-to/debug-failed-run.md",
+    "docs/how-to/deploy-runtime.md",
+    "docs/how-to/governed-public-record-v2-consumer-migration.md",
+    "docs/how-to/index.md",
+    "docs/how-to/install.md",
+    "docs/how-to/manage-generated-artifacts.md",
+    "docs/how-to/manage-schemas.md",
+    "docs/how-to/normative-generation-disposition-v2-migration.md",
+    "docs/how-to/onboarding/backend-engineer.md",
+    "docs/how-to/onboarding/domain-policy-reader.md",
+    "docs/how-to/onboarding/frontend-engineer.md",
+    "docs/how-to/onboarding/index.md",
+    "docs/how-to/onboarding/platform-ops-engineer.md",
+    "docs/how-to/onboarding/security-compliance-reviewer.md",
+    "docs/how-to/operate-ci-cd-platform.md",
+    "docs/how-to/post-refactor-migration.md",
+    "docs/how-to/release-policy.md",
+    "docs/how-to/review-rollouts.md",
+    "docs/how-to/run-benchmarks.md",
+    "docs/how-to/run-causal-analysis.md",
+    "docs/how-to/update-runtime-dashboard-api-client.md",
+    "docs/how-to/use-control-plane.md",
+    "docs/how-to/write-governance-pass.md",
+    "docs/index.md",
+    "docs/plans/accepted/REPOSITORY_SOTA_PLAN.md",
+    "docs/reference/api/artifacts.md",
+    "docs/reference/api/auth-tenant-model.md",
+    "docs/reference/api/control.md",
+    "docs/reference/api/error-semantics.md",
+    "docs/reference/api/index.md",
+    "docs/reference/api/migration-guide.md",
+    "docs/reference/api/runs.md",
+    "docs/reference/api/versioning.md",
+    "docs/reference/canonical-vocabulary-crosswalk.md",
+    "docs/reference/changelog.md",
+    "docs/reference/cli.md",
+    "docs/reference/compliance-evidence-map.md",
+    "docs/reference/configuration-env-registry.md",
+    "docs/reference/configuration-profiles.md",
+    "docs/reference/configuration.md",
+    "docs/reference/contributor-start-here.md",
+    "docs/reference/data-capability-requirements.md",
+    "docs/reference/data-forge/catalog-default-resources.md",
+    "docs/reference/data-lake-policy.md",
+    "docs/reference/dependency-platform.md",
+    "docs/reference/documentation-inventory.md",
+    "docs/reference/environment-matrix.md",
+    "docs/reference/fabric/best-in-class-inventory.md",
+    "docs/reference/fabric/connectors.md",
+    "docs/reference/fabric/data-plane.md",
+    "docs/reference/fabric/discovery-intelligence.md",
+    "docs/reference/fabric/index.md",
+    "docs/reference/fabric/lineage.md",
+    "docs/reference/fabric/observability-governance.md",
+    "docs/reference/fabric/processing-guarantees.md",
+    "docs/reference/fabric/product-api-integration.md",
+    "docs/reference/fabric/profiles.md",
+    "docs/reference/fabric/quality.md",
+    "docs/reference/fabric/resilience-implementation-guide.md",
+    "docs/reference/fabric/schema-compatibility.md",
+    "docs/reference/fabric/source-platform.md",
+    "docs/reference/fabric/time-travel.md",
+    "docs/reference/foundry/agent-sim.md",
+    "docs/reference/foundry/calibration.md",
+    "docs/reference/foundry/causal-engine-architecture.md",
+    "docs/reference/foundry/causal-installed-source-reconciliation.md",
+    "docs/reference/foundry/causal-neighbor-fixtures.md",
+    "docs/reference/foundry/causal-rdd-profile.md",
+    "docs/reference/foundry/causal-source-quality.md",
+    "docs/reference/foundry/causal-statistical-validity.md",
+    "docs/reference/foundry/compile-execute.md",
+    "docs/reference/foundry/demography.md",
+    "docs/reference/foundry/economic-baseline-profile.md",
+    "docs/reference/foundry/fiscal-calculation-dtype.md",
+    "docs/reference/foundry/frontier-methods.md",
+    "docs/reference/foundry/index.md",
+    "docs/reference/foundry/methods-catalog.md",
+    "docs/reference/foundry/numeric-guardrails.md",
+    "docs/reference/foundry/observability-reproducibility.md",
+    "docs/reference/foundry/phase0-acceptance.md",
+    "docs/reference/foundry/phase2-acceptance.md",
+    "docs/reference/foundry/randomization-profile.md",
+    "docs/reference/foundry/state.md",
+    "docs/reference/foundry/static-admg-profile.md",
+    "docs/reference/foundry/structural-causal-models.md",
+    "docs/reference/foundry/tmle-common-report.md",
+    "docs/reference/foundry/tmle-persisted-consumers.md",
+    "docs/reference/frontend/atlas-evidence-artifact.md",
+    "docs/reference/frontend/atlas-frontend-disposition-register.md",
+    "docs/reference/frontend/atlas-health-metrics.md",
+    "docs/reference/frontend/atlas-honesty-comprehension-protocol.md",
+    "docs/reference/frontend/atlas-live-application-audit.md",
+    "docs/reference/frontend/atlas-manual-at-maturity.md",
+    "docs/reference/frontend/atlas-phase-a-synthesis.md",
+    "docs/reference/frontend/atlas-surface-readiness-reconciliation.md",
+    "docs/reference/frontend/atlas-v15-adjudication.md",
+    "docs/reference/frontend/index.md",
+    "docs/reference/frontend/workspace-contract.md",
+    "docs/reference/generated-artifacts.md",
+    "docs/reference/index.md",
+    "docs/reference/ir/analytics.md",
+    "docs/reference/ir/causal-graph-cache-rows.md",
+    "docs/reference/ir/causal-identification-candidates.md",
+    "docs/reference/ir/compiler-pipeline.md",
+    "docs/reference/ir/distributional-proof-artifacts.md",
+    "docs/reference/ir/governance.md",
+    "docs/reference/ir/index.md",
+    "docs/reference/ir/interoperability.md",
+    "docs/reference/ir/observation.md",
+    "docs/reference/ir/problem-framing.md",
+    "docs/reference/ir/public-surface.md",
+    "docs/reference/ir/schema-catalog.md",
+    "docs/reference/ir/strategic-admissibility.md",
+    "docs/reference/ir/temporal-path-semantics.md",
+    "docs/reference/lex/batch-pipeline.md",
+    "docs/reference/lex/index.md",
+    "docs/reference/lex/interventions.md",
+    "docs/reference/lex/knowledge.md",
+    "docs/reference/lex/normpack.md",
+    "docs/reference/local-runtime-state.md",
+    "docs/reference/logging.md",
+    "docs/reference/merge-governance.md",
+    "docs/reference/operations/cas-storage.md",
+    "docs/reference/operations/core-runtime-closeout.md",
+    "docs/reference/operations/handoff-and-platform-review.md",
+    "docs/reference/operations/index.md",
+    "docs/reference/operations/infrastructure-split-compute.md",
+    "docs/reference/operations/observability-topology.md",
+    "docs/reference/operations/ops-baselines.md",
+    "docs/reference/operations/platform-acceptance-audit.md",
+    "docs/reference/operations/platform-architecture-diagrams.md",
+    "docs/reference/operations/retention-and-recovery.md",
+    "docs/reference/operations/slo-error-budget.md",
+    "docs/reference/ownership.md",
+    "docs/reference/policy-design-case-capability-ratchet.md",
+    "docs/reference/policy-design-case-evidence-paths.md",
+    "docs/reference/policy-design-case-failure-patterns.md",
+    "docs/reference/policy-design-case-layer3-analytics-search.md",
+    "docs/reference/policy-design-case-layer3-bounded-agent.md",
+    "docs/reference/policy-design-case-layer3-causal-forecast.md",
+    "docs/reference/policy-design-case-layer3-grounding-inventory.md",
+    "docs/reference/policy-design-case-layer3-legal-mandate-search.md",
+    "docs/reference/policy-design-case-layer3-promotion-gate.md",
+    "docs/reference/policy-design-case-layer3-proving-ground-conversion.md",
+    "docs/reference/policy-design-case-layer3-substrate-grounding.md",
+    "docs/reference/policy-design-case-operator-guide.md",
+    "docs/reference/policy-design-case-source-ownership.md",
+    "docs/reference/policy-design-case-structural-adr-registry.md",
+    "docs/reference/policy-design-causal-grounding-firewall-CGF-spec.md",
+    "docs/reference/policy-design-search-RACE-HOG-PODS-v3.2-spec.md",
+    "docs/reference/policy-operations-research-pipeline.md",
+    "docs/reference/public-surface.md",
+    "docs/reference/quality-gates.md",
+    "docs/reference/ratchet-policy.md",
+    "docs/reference/repository-hygiene.md",
+    "docs/reference/repository-topology.md",
+    "docs/reference/research-track-handoff-template.md",
+    "docs/reference/runtime/best-in-class-benchmarking.md",
+    "docs/reference/runtime/bureaucratic-rendering.md",
+    "docs/reference/runtime/calibration-ledger.md",
+    "docs/reference/runtime/cost-degradation-telemetry.md",
+    "docs/reference/runtime/counterfactual-layer.md",
+    "docs/reference/runtime/deterministic-replay.md",
+    "docs/reference/runtime/human-review-calibration.md",
+    "docs/reference/runtime/policy-diff.md",
+    "docs/reference/runtime/privacy-compliance-evidence.md",
+    "docs/reference/runtime/production-canary-matrix.md",
+    "docs/reference/runtime/production-data-quality.md",
+    "docs/reference/runtime/production-quality-approval.md",
+    "docs/reference/runtime/production-quality-maturity.md",
+    "docs/reference/runtime/production-resilience-matrix.md",
+    "docs/reference/runtime/provider-model-quality.md",
+    "docs/reference/runtime/quality-scorecard.md",
+    "docs/reference/runtime/quantity-values.md",
+    "docs/reference/runtime/run-cost-enforcement-gate.md",
+    "docs/reference/runtime/run-cost-proportionality-ledger.md",
+    "docs/reference/schemas.md",
+    "docs/reference/scientist/adversarial-challenge-factory.md",
+    "docs/reference/scientist/agent-capability-promotion.md",
+    "docs/reference/scientist/agent-search-reasoning.md",
+    "docs/reference/scientist/benchmark-authority.md",
+    "docs/reference/scientist/best-in-class-maturity.md",
+    "docs/reference/scientist/best-in-class-readiness.md",
+    "docs/reference/scientist/best-in-class-wave1-acceptance.md",
+    "docs/reference/scientist/best-in-class-wave2-acceptance.md",
+    "docs/reference/scientist/calibration-governance.md",
+    "docs/reference/scientist/causal-confidence-issue-preservation.md",
+    "docs/reference/scientist/causal-graph-intake.md",
+    "docs/reference/scientist/causal-selected-consumers.md",
+    "docs/reference/scientist/causal-validity-acceptance.md",
+    "docs/reference/scientist/causal-validity.md",
+    "docs/reference/scientist/causal.md",
+    "docs/reference/scientist/citation-faithfulness.md",
+    "docs/reference/scientist/claim-ledger.md",
+    "docs/reference/scientist/claim-support-semantics.md",
+    "docs/reference/scientist/claims.md",
+    "docs/reference/scientist/continuous-governance.md",
+    "docs/reference/scientist/decision-artifact-quality.md",
+    "docs/reference/scientist/decision-grade-compiler.md",
+    "docs/reference/scientist/deep-research-evidence.md",
+    "docs/reference/scientist/frontier-runtime.md",
+    "docs/reference/scientist/governance-accountability.md",
+    "docs/reference/scientist/governance-passes.md",
+    "docs/reference/scientist/human-oversight.md",
+    "docs/reference/scientist/index.md",
+    "docs/reference/scientist/latent-discovery-producers.md",
+    "docs/reference/scientist/nodes.md",
+    "docs/reference/scientist/phase0-acceptance.md",
+    "docs/reference/scientist/phase1-acceptance.md",
+    "docs/reference/scientist/phase3-acceptance.md",
+    "docs/reference/scientist/phase4-acceptance.md",
+    "docs/reference/scientist/proof-trace-composability.md",
+    "docs/reference/scientist/reflexive-memory.md",
+    "docs/reference/scientist/reliability-scorecard.md",
+    "docs/reference/scientist/remediation-status.md",
+    "docs/reference/scientist/research-dag-replay.md",
+    "docs/reference/scientist/research-dag.md",
+    "docs/reference/scientist/scientist-capability-inventory.md",
+    "docs/reference/scientist/source-quality-calibration.md",
+    "docs/reference/scientist/structural-causal-queries.md",
+    "docs/reference/scientist/system-pipeline-architecture.md",
+    "docs/reference/scientist/voi-scheduler.md",
+    "docs/reference/scientist/wave2-migration-notes.md",
+    "docs/reference/scientist/wave2-runtime-contracts.md",
+    "docs/reference/scientist/workflows.md",
+    "docs/reference/security-compliance.md",
+    "docs/reference/tools.md",
+    "docs/runbooks/artifact-corruption-recovery.md",
+    "docs/runbooks/artifact-signing-sbom-failure.md",
+    "docs/runbooks/benchmark-regression-triage.md",
+    "docs/runbooks/broken-contract-generation.md",
+    "docs/runbooks/cache-rebuild-storm.md",
+    "docs/runbooks/canary-rollback-or-promotion-failure.md",
+    "docs/runbooks/cas-opa-outage.md",
+    "docs/runbooks/cloud-production-debugging.md",
+    "docs/runbooks/dependency-upgrade-regression.md",
+    "docs/runbooks/docs-publication-failure.md",
+    "docs/runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md",
+    "docs/runbooks/honest-diagnostics.md",
+    "docs/runbooks/idempotency-incident.md",
+    "docs/runbooks/index.md",
+    "docs/runbooks/key-rotation.md",
+    "docs/runbooks/lex-production-140k.md",
+    "docs/runbooks/local-production-debugging.md",
+    "docs/runbooks/migration-release-promotion.md",
+    "docs/runbooks/mutation-audit-investigation.md",
+    "docs/runbooks/policy-design-case-operator-triage.md",
+    "docs/runbooks/policy-design-case-rollout-rollback.md",
+    "docs/runbooks/production-quality-canary.md",
+    "docs/runbooks/production-quality-triage.md",
+    "docs/runbooks/replay-or-restore.md",
+    "docs/runbooks/retained-artifact-recovery.md",
+    "docs/runbooks/runtime-api-outage.md",
+    "docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md",
+    "docs/tutorials/creating-governance-pass.md",
+    "docs/tutorials/first-policy-analysis.md",
+    "docs/tutorials/getting-started.md",
+    "docs/tutorials/index.md",
+    "docs/tutorials/writing-a-connector.md",
+    "mkdocs.yml",
+    "ops/ci/templates/workflows/arch.yml",
+    "ops/components/index.toml",
+    "ops/migrations/migration-contracts.toml",
+    "ops/observability/otel/baseline.yaml",
+    "ops/release/commit-policy.toml",
+    "ops/release/release-fragment-policy.toml",
+    "ops/runtime/runtime-contracts.toml",
+    "ops/security/README.md",
+    "ops/security/osv-scanner.toml",
+    "ops/security/sbom.toml",
+    "ops/security/secrets-baseline.toml",
+    "tools/ci/check_policyos_production_quality_best_in_class.py",
+    "tools/ci/check_scientist_benchmark_authority.py",
+    "tools/ci/check_scientist_best_in_class_phase1_0.py",
+    "tools/ci/check_scientist_best_in_class_phase1_1.py",
+    "tools/ci/check_scientist_best_in_class_phase1_2.py",
+    "tools/ci/check_scientist_best_in_class_phase1_3.py",
+    "tools/ci/check_scientist_best_in_class_phase1_4.py",
+    "tools/ci/check_scientist_best_in_class_phase1_6.py",
+    "tools/ci/check_scientist_best_in_class_phase2_0.py",
+    "tools/ci/check_scientist_best_in_class_phase2_1.py",
+    "tools/ci/check_scientist_best_in_class_phase2_2.py",
+    "tools/ci/check_scientist_best_in_class_phase2_3.py",
+    "tools/ci/check_scientist_best_in_class_phase2_4.py",
+    "tools/ci/check_scientist_best_in_class_phase2_5.py",
+    "tools/ci/check_scientist_best_in_class_phase2_6.py",
+    "tools/ci/check_scientist_best_in_class_phase2_7.py",
+    "tools/ci/check_scientist_best_in_class_wave1.py",
+    "tools/ci/check_scientist_best_in_class_wave2.py",
+    "tools/ci/check_scientist_phase0_gate.py",
+    "tools/ci/check_scientist_phase1_gate.py",
+    "tools/ci/check_scientist_phase2_gate.py",
+    "tools/ci/check_scientist_phase2_ratchet.py",
+    "tools/ci/check_scientist_reliability.py",
+    "tools/devx/architecture/guardrails.py",
+    "tools/devx/architecture/scaffold.py",
+    "tools/devx/connectors/check_contracts.py",
+    "tools/devx/connectors/scaffold.py",
+    "tools/devx/foundry/generate_stubs.py",
+    "tools/devx/foundry/sync_dependency_profile.py",
+    "tools/devx/foundry/update_signature_baseline.py",
+    "tools/devx/workspace/_repo_hygiene.py",
+    "tools/devx/workspace/acceptance_audit.py",
+    "tools/devx/workspace/benchmark_surfaces.py",
+    "tools/devx/workspace/bootstrap.py",
+    "tools/devx/workspace/ci_parity.py",
+    "tools/devx/workspace/clean_local_reports.py",
+    "tools/devx/workspace/core_runtime_basedpyright.py",
+    "tools/devx/workspace/core_runtime_closeout.py",
+    "tools/devx/workspace/core_runtime_long_soak.py",
+    "tools/devx/workspace/core_runtime_mypy.py",
+    "tools/devx/workspace/docs_style.py",
+    "tools/devx/workspace/doctor.py",
+    "tools/devx/workspace/format_check.py",
+    "tools/devx/workspace/lint_fast.py",
+    "tools/devx/workspace/lint_full.py",
+    "tools/devx/workspace/python_base_basedpyright.py",
+    "tools/devx/workspace/python_base_mypy.py",
+    "tools/devx/workspace/release_build_cache_lifecycle.py",
+    "tools/devx/workspace/remote_acceptance.py",
+    "tools/devx/workspace/repository_sota_closeout.py",
+    "tools/devx/workspace/runtime_surface.py",
+    "tools/devx/workspace/tool_configs.py",
+    "tools/devx/workspace/verify.py",
+    "tools/ops_runners/calibration/compare_shards.py",
+    "tools/ops_runners/cloud/build_priority_manifests.py",
+    "tools/ops_runners/cloud/build_queue3_waves.py",
+    "tools/ops_runners/cloud/canonical_auto_approve.py",
+    "tools/ops_runners/cloud/check_progress.py",
+    "tools/ops_runners/cloud/deploy_to_server.py",
+    "tools/ops_runners/cloud/gcp_preflight.py",
+    "tools/ops_runners/cloud/merge_shards.py",
+    "tools/ops_runners/cloud/prepare_shards.py",
+    "tools/ops_runners/cloud/run_datasets_validation.py",
+    "tools/ops_runners/cloud/run_diagnostic.py",
+    "tools/ops_runners/cloud/run_lex_from_manifest.py",
+    "tools/ops_runners/cloud/run_pipeline.py",
+    "tools/ops_runners/cloud/run_remaining_stages.py",
+    "tools/ops_runners/cloud/setup_server.py",
+    "tools/ops_runners/data/build_academic_gold_candidates.py",
+    "tools/ops_runners/data/build_expert_review_bundle.py",
+    "tools/ops_runners/data/generate_wvs_registry.py",
+    "tools/ops_runners/data/record_fixtures.py",
+    "tools/ops_runners/experiments/run_msme_deadline_suite.py",
+    "tools/ops_runners/experiments/run_msme_discovery_addendum_20260501.py",
+    "tools/ops_runners/experiments/run_msme_e2e_showcase.py",
+    "tools/ops_runners/experiments/run_msme_final_fresg_suite.py",
+    "tools/ops_runners/experiments/run_msme_final_fresg_suite_v2.py",
+    "tools/ops_runners/experiments/run_msme_final_fresg_suite_v3.py",
+    "tools/ops_runners/experiments/run_msme_final_v3_cloud_rerun.py",
+    "tools/ops_runners/experiments/run_msme_grand_tournament_v2.py",
+    "tools/ops_runners/experiments/run_policyos_real_e2e_cloud.py",
+    "tools/ops_runners/migrations/contracts.py",
+    "tools/ops_runners/migrations/migrate.py",
+    "tools/ops_runners/migrations/migrate_duckdb_to_pg.py",
+    "tools/ops_runners/release/build_release_notes.py",
+    "tools/ops_runners/release/check_compatibility_release_gates.py",
+    "tools/ops_runners/release/check_operability_release_gates.py",
+    "tools/ops_runners/release/check_release_artifact_sizes.py",
+    "tools/ops_runners/release/check_release_version.py",
+    "tools/ops_runners/release/evaluate_vuln_report.py",
+    "tools/ops_runners/release/run_release_canary.py",
+    "tools/ops_runners/release/stage_release_snapshot.py",
+    "tools/ops_runners/runtime/archive_legacy_runs.py",
+    "tools/ops_runners/runtime/backfill_decision_validity.py",
+    "tools/ops_runners/runtime/canary_evidence.py",
+    "tools/ops_runners/runtime/canary_matrix.py",
+    "tools/ops_runners/runtime/check_runtime_api_contract.py",
+    "tools/ops_runners/runtime/export_runtime_openapi.py",
+    "tools/ops_runners/runtime/generate_runtime_client.py",
+    "tools/ops_runners/runtime/inventory_legacy_runs.py",
+    "tools/ops_runners/runtime/local_production_canary.py",
+    "tools/ops_runners/runtime/provider_quality_ledger.py",
+    "tools/ops_runners/runtime/quality_benchmark_authority.py",
+    "tools/ops_runners/runtime/quality_scenarios.py",
+    "tools/ops_runners/runtime/replay_canary_bundle.py",
+    "tools/ops_runners/runtime/run_canary_matrix.py",
+    "tools/ops_runners/runtime/runtime_state_cleanup.py",
+    "tools/ops_runners/ukraine_data/build_edr_identity_seed_candidates.py",
+    "tools/ops_runners/ukraine_data/build_p1_source_bindings.py",
+    "tools/ops_runners/ukraine_data/build_spending_contracts_procurement_proxy.py",
+    "tools/ops_runners/ukraine_data/fetch_p0_sources.py",
+    "tools/ops_runners/ukraine_data/fetch_p1_p2_public_sources.py",
+    "tools/ops_runners/ukraine_data/harvest_prozorro_contract_details.py",
+    "tools/ops_runners/ukraine_data/harvest_prozorro_contract_feed.py",
+    "tools/ops_runners/ukraine_data/harvest_spending_contracts_by_disposer.py",
+    "tools/ops_runners/ukraine_data/harvest_spending_daily.py",
+    "tools/ops_runners/ukraine_data/pre_shard_lex_corpus.py",
+    "tools/ops_runners/ukraine_data/server_bootstrap.py",
+    "tools/ops_runners/ukraine_data/validate_part_a.py",
+    "tools/quality/ci/check_action_freshness.py",
+    "tools/quality/ci/check_fabric_schema_registry.py",
+    "tools/quality/ci/check_foundry_domain_coverage.py",
+    "tools/quality/ci/check_phase7_ratchet.py",
+    "tools/quality/ci/check_workflow_policy.py",
+    "tools/quality/diagnostics/abi_diff.py",
+    "tools/quality/diagnostics/capture_env.py",
+    "tools/quality/diagnostics/check_perf_regression.py",
+    "tools/quality/diagnostics/check_scientist_node_version_bump.py",
+    "tools/quality/diagnostics/check_setup.py",
+    "tools/quality/diagnostics/check_state_reads.py",
+    "tools/quality/diagnostics/check_udf_perf.py",
+    "tools/quality/diagnostics/gen_schema.py",
+    "tools/quality/diagnostics/generate_ir_reference_catalog.py",
+    "tools/quality/diagnostics/generate_ir_schema.py",
+    "tools/quality/diagnostics/scan_fabric.py",
+    "tools/quality/diagnostics/verify_scm_v3.py",
+    "tools/quality/diagnostics/verify_scm_v3_fullspec.py",
+    "tools/quality/diagnostics/visualize_provenance.py",
+    "tools/quality/lint/check_scholar_imports.py",
+    "tools/quality/lint/collect_arch_metrics.py",
+    "tools/quality/lint/compare_baseline.py",
+    "tools/quality/lint/lint_connector_hardening.py",
+    "tools/quality/lint/lint_connectors.py",
+    "tools/quality/lint/lint_foundry.py",
+    "tools/quality/lint/lint_foundry_data_plane.py",
+    "tools/quality/lint/lint_imports.py",
+    "tools/quality/lint/lint_legacy_cutover.py",
+    "tools/quality/testing/build_review_package.py",
+    "tools/quality/testing/check_fabric_exception_baseline.py",
+    "tools/quality/testing/check_playwright_quarantines.py",
+    "tools/quality/testing/local_integration_stack.py",
+    "tools/quality/testing/local_prod_debug_probe.py",
+    "tools/quality/testing/mutation.py",
+    "tools/quality/testing/pytest_workload_receipt.py",
+    "tools/quality/testing/repeat_pytest.py",
+    "tools/quality/testing/report_test_economics.py",
+    "tools/quality/testing/report_test_ratchets.py",
+    "tools/quality/testing/review_freeze.py",
+    "tools/quality/testing/run_timed_suite.py",
+    "tools/quality/testing/runtime_resilience_matrix.py",
+    "tools/quality/validation/architecture_report_only_contracts.py",
+    "tools/quality/validation/build_honest_diagnostics_coverage.py",
+    "tools/quality/validation/build_policy_design_case_coverage.py",
+    "tools/quality/validation/build_policy_design_case_pass2_diagnostics.py",
+    "tools/quality/validation/build_policy_design_case_pass2_disposition.py",
+    "tools/quality/validation/build_policy_design_case_wave35a.py",
+    "tools/quality/validation/build_policy_design_case_wave35b.py",
+    "tools/quality/validation/build_policy_design_case_wave35c.py",
+    "tools/quality/validation/build_policy_design_case_wave35d.py",
+    "tools/quality/validation/build_policy_design_case_wave35e.py",
+    "tools/quality/validation/build_policy_design_case_wave35f_integrity.py",
+    "tools/quality/validation/build_policy_design_case_wave35g_backfill.py",
+    "tools/quality/validation/build_policy_design_case_wave35g_institutional_provenance.py",
+    "tools/quality/validation/build_policy_design_case_wave35g_memory_authority.py",
+    "tools/quality/validation/build_policy_design_case_wave35h_provenance.py",
+    "tools/quality/validation/build_policy_design_case_wave36_closeout.py",
+    "tools/quality/validation/build_policy_design_case_wave40_readiness.py",
+    "tools/quality/validation/build_policy_evidence_capability_index.py",
+    "tools/quality/validation/build_wave5_honest_diagnostics_evidence.py",
+    "tools/quality/validation/capture_layer3_gy_design_generation_replay.py",
+    "tools/quality/validation/check_can_i_closeout.py",
+    "tools/quality/validation/check_canonical_vocabulary_crosswalk.py",
+    "tools/quality/validation/check_ci_ratchets.py",
+    "tools/quality/validation/check_compilation_truthfulness.py",
+    "tools/quality/validation/check_critic_ensemble_diversity.py",
+    "tools/quality/validation/check_debt_ledger.py",
+    "tools/quality/validation/check_docs_accuracy.py",
+    "tools/quality/validation/check_docs_freshness_baseline.py",
+    "tools/quality/validation/check_docs_gate.py",
+    "tools/quality/validation/check_docs_lifecycle.py",
+    "tools/quality/validation/check_docstring_quality.py",
+    "tools/quality/validation/check_domain_coverage_breadth.py",
+    "tools/quality/validation/check_evidence_spine_connectivity.py",
+    "tools/quality/validation/check_evidence_spine_handoffs.py",
+    "tools/quality/validation/check_expert_adjudication_labels.py",
+    "tools/quality/validation/check_extension_examples.py",
+    "tools/quality/validation/check_grounding_active_controller_contract.py",
+    "tools/quality/validation/check_grounding_admission_contract.py",
+    "tools/quality/validation/check_grounding_benchmark_contract.py",
+    "tools/quality/validation/check_grounding_bind_contract.py",
+    "tools/quality/validation/check_grounding_credal_reference_contract.py",
+    "tools/quality/validation/check_grounding_phrasing_defense_contract.py",
+    "tools/quality/validation/check_grounding_refusal_sensitivity.py",
+    "tools/quality/validation/check_grounding_relation_contract.py",
+    "tools/quality/validation/check_gy_acquisition_assurance.py",
+    "tools/quality/validation/check_honest_diagnostics_proof_harness.py",
+    "tools/quality/validation/check_import_policy_projection.py",
+    "tools/quality/validation/check_layer3_artifact_surface_safety.py",
+    "tools/quality/validation/check_layer3_gy_acquisition_contract.py",
+    "tools/quality/validation/check_layer3_gy_acquisition_executor.py",
+    "tools/quality/validation/check_layer3_gy_agent_workflow_event_backing_audit.py",
+    "tools/quality/validation/check_layer3_gy_capability_coverage_matrix.py",
+    "tools/quality/validation/check_layer3_gy_catalog_fetch_audit.py",
+    "tools/quality/validation/check_layer3_gy_composition_artifacts.py",
+    "tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+    "tools/quality/validation/check_layer3_gy_connector_family_truth_audit.py",
+    "tools/quality/validation/check_layer3_gy_data_requirement_compiler_audit.py",
+    "tools/quality/validation/check_layer3_gy_data_state_substrate_contract.py",
+    "tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py",
+    "tools/quality/validation/check_layer3_gy_design_generation_contract.py",
+    "tools/quality/validation/check_layer3_gy_design_problem_contract.py",
+    "tools/quality/validation/check_layer3_gy_engine_census.py",
+    "tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py",
+    "tools/quality/validation/check_layer3_gy_foundry_breadth_audit.py",
+    "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+    "tools/quality/validation/check_layer3_gy_generation_cycle_contract.py",
+    "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+    "tools/quality/validation/check_layer3_gy_intervention_atom_binding_contract.py",
+    "tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py",
+    "tools/quality/validation/check_layer3_gy_joint_simulation_horizon_contract.py",
+    "tools/quality/validation/check_layer3_gy_knowledge_substrate_contract.py",
+    "tools/quality/validation/check_layer3_gy_lex_frontier_root_cause_audit.py",
+    "tools/quality/validation/check_layer3_gy_loop_artifacts.py",
+    "tools/quality/validation/check_layer3_gy_n10_cg1_l2_relation_census.py",
+    "tools/quality/validation/check_layer3_gy_n13a_acquisition_census.py",
+    "tools/quality/validation/check_layer3_gy_n13b_acquisition_contract.py",
+    "tools/quality/validation/check_layer3_gy_openalex_artifacts.py",
+    "tools/quality/validation/check_layer3_gy_p0_coverage_audit.py",
+    "tools/quality/validation/check_layer3_gy_p1_substrate_authority_audit.py",
+    "tools/quality/validation/check_layer3_gy_p2_semantic_evidence_quality_audit.py",
+    "tools/quality/validation/check_layer3_gy_phase2_artifacts.py",
+    "tools/quality/validation/check_layer3_gy_promotion_contract.py",
+    "tools/quality/validation/check_layer3_gy_runtime_surface_audit.py",
+    "tools/quality/validation/check_layer3_gy_second_domain_pack.py",
+    "tools/quality/validation/check_layer3_gy_source_contract_admissibility_audit.py",
+    "tools/quality/validation/check_layer3_gy_substrate_package_capability_inventory.py",
+    "tools/quality/validation/check_layer3_gy_value_gate_contract.py",
+    "tools/quality/validation/check_layer3_gy_value_outer_set_strangle_receipt.py",
+    "tools/quality/validation/check_layer3_gy_workflow_mode_truth_audit.py",
+    "tools/quality/validation/check_layer3_gy_world_model_record_contract.py",
+    "tools/quality/validation/check_layer3_time_source_authority.py",
+    "tools/quality/validation/check_layer3_workflow_failure_authority.py",
+    "tools/quality/validation/check_multilingual_locale_census.py",
+    "tools/quality/validation/check_package_import_gates.py",
+    "tools/quality/validation/check_policy_design_case_capability_ratchet.py",
+    "tools/quality/validation/check_policy_design_case_cluster_ownership_map.py",
+    "tools/quality/validation/check_policy_design_case_drift.py",
+    "tools/quality/validation/check_policy_design_case_formal_invariants.py",
+    "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+    "tools/quality/validation/check_policy_design_case_layer2_s1_graded_outcomes.py",
+    "tools/quality/validation/check_policy_design_case_layer2_s2_design_search.py",
+    "tools/quality/validation/check_policy_design_case_layer3_g0_readiness.py",
+    "tools/quality/validation/check_policy_design_case_layer3_g1_readiness.py",
+    "tools/quality/validation/check_policy_design_case_layer3_g2_readiness.py",
+    "tools/quality/validation/check_policy_design_case_layer3_g3_readiness.py",
+    "tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py",
+    "tools/quality/validation/check_policy_design_case_layer3_g5_readiness.py",
+    "tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py",
+    "tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py",
+    "tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py",
+    "tools/quality/validation/check_policy_design_case_layer3_gl_readiness.py",
+    "tools/quality/validation/check_policy_design_case_layer3_gx_hardening.py",
+    "tools/quality/validation/check_policy_design_case_pass1b_hardening.py",
+    "tools/quality/validation/check_policy_design_case_pass2_disposition.py",
+    "tools/quality/validation/check_policy_design_case_reuse_map.py",
+    "tools/quality/validation/check_policy_design_case_walking_skeleton.py",
+    "tools/quality/validation/check_policy_design_case_wave34_pass2.py",
+    "tools/quality/validation/check_policy_design_case_wave35f_integrity.py",
+    "tools/quality/validation/check_policy_design_case_wave35g_backfill.py",
+    "tools/quality/validation/check_policy_design_case_wave35h_provenance.py",
+    "tools/quality/validation/check_policy_design_case_wave36_closeout.py",
+    "tools/quality/validation/check_policy_design_case_wave40_readiness.py",
+    "tools/quality/validation/check_policy_design_formal_invariants.py",
+    "tools/quality/validation/check_production_data_scenario_contracts.py",
+    "tools/quality/validation/check_production_data_substrate_registry_contract.py",
+    "tools/quality/validation/check_production_invariant_registry.py",
+    "tools/quality/validation/check_production_invocation.py",
+    "tools/quality/validation/check_runtime_quality_schema_compatibility.py",
+    "tools/quality/validation/check_substrate_drift.py",
+    "tools/quality/validation/check_trust_claim_posture.py",
+    "tools/quality/validation/check_universal_corpus_annotations.py",
+    "tools/quality/validation/check_wave4_operational_closeout.py",
+    "tools/quality/validation/checkout_guard.py",
+    "tools/quality/validation/compare_honest_diagnostics_rebaseline.py",
+    "tools/quality/validation/compare_policy_design_case_rebaseline.py",
+    "tools/quality/validation/control_plane_supply_chain_contracts.py",
+    "tools/quality/validation/decomposition_preflight.py",
+    "tools/quality/validation/directory_health.py",
+    "tools/quality/validation/directory_hygiene_assets.py",
+    "tools/quality/validation/empty_namespace_gate.py",
+    "tools/quality/validation/execute_gy_n12_artifact_transition.py",
+    "tools/quality/validation/export_policy_evidence_capability_dcat.py",
+    "tools/quality/validation/export_policy_evidence_capability_prov.py",
+    "tools/quality/validation/fabric_best_in_class_inventory.py",
+    "tools/quality/validation/fabric_decision_data_coverage.py",
+    "tools/quality/validation/fabric_discovery_intelligence.py",
+    "tools/quality/validation/fabric_processing_guarantees.py",
+    "tools/quality/validation/fabric_product_integration.py",
+    "tools/quality/validation/fabric_schema_governance.py",
+    "tools/quality/validation/fabric_source_contracts.py",
+    "tools/quality/validation/fabric_wave2_strict_closure.py",
+    "tools/quality/validation/generate_adr_index.py",
+    "tools/quality/validation/generate_foundry_phase2_evidence.py",
+    "tools/quality/validation/generate_policy_evidence_capability_cards.py",
+    "tools/quality/validation/gy_acquisition_assurance_oracle.py",
+    "tools/quality/validation/gy_evidence_canon.py",
+    "tools/quality/validation/inspect_evidence_bundles.py",
+    "tools/quality/validation/inspect_policy_evidence_capability_index.py",
+    "tools/quality/validation/inventory_legacy_quality_evidence.py",
+    "tools/quality/validation/layer3_gy_acquisition_executor.py",
+    "tools/quality/validation/layer3_gy_confidence_ledger_contract.py",
+    "tools/quality/validation/layer3_gy_n13a_acquisition_census.py",
+    "tools/quality/validation/layer3_gy_n13b_acceptance.py",
+    "tools/quality/validation/layer3_gy_n13b_acquisition_contract.py",
+    "tools/quality/validation/layer3_gy_n13b_derivation_universality.py",
+    "tools/quality/validation/layer3_gy_n13b_reentry.py",
+    "tools/quality/validation/locale_census_independent.py",
+    "tools/quality/validation/name_collision_gate.py",
+    "tools/quality/validation/pass2_wave34_common.py",
+    "tools/quality/validation/production_quality_evidence_inventory.py",
+    "tools/quality/validation/rederive_layer3_gy_n10_cg1_l2_relation_census.py",
+    "tools/quality/validation/repository_best_in_class_phase0_7_inventory.py",
+    "tools/quality/validation/repository_last_mile_inventory.py",
+    "tools/quality/validation/repository_last_mile_shim_callers.py",
+    "tools/quality/validation/repository_structure_phase0.py",
+    "tools/quality/validation/repository_verification_inventory.py",
+    "tools/quality/validation/run_compilation_truthfulness_audit.py",
+    "tools/quality/validation/run_domain_coverage_critic_diversity_audit.py",
+    "tools/quality/validation/run_grounding_closeout_sweep.py",
+    "tools/quality/validation/run_layer2_s14_universality_battery.py",
+    "tools/quality/validation/run_policy_design_case_bundle_replay_inspection.py",
+    "tools/quality/validation/run_policy_design_case_cloud_one_lane_revalidation.py",
+    "tools/quality/validation/run_policy_design_case_local_validation_ladder.py",
+    "tools/quality/validation/run_policy_design_case_pass2_phase34_3.py",
+    "tools/quality/validation/run_policy_design_case_pass2_phase34_4.py",
+    "tools/quality/validation/run_policy_design_case_pass2_phase34_5.py",
+    "tools/quality/validation/run_policy_design_case_pass2_phase34_6.py",
+    "tools/quality/validation/run_policy_design_case_rollout_decision.py",
+    "tools/quality/validation/run_universal_compilation_integration_realism_check.py",
+    "tools/quality/validation/run_universal_outcome_corpus.py",
+    "tools/quality/validation/schema_fqn_census.py",
+    "tools/quality/validation/shared_grounding_world_cache.py",
+    "tools/quality/validation/trust_claim_posture_sources.py",
+    "tools/quality/validation/universality_preflight.py",
+    "tools/quality/validation/validate_foundry_phase0_closure.py",
+    "tools/quality/validation/validate_foundry_phase2_closure.py",
+    "tools/quality/validation/validate_phase_closure.py",
+    "tools/research/benchmarks/bench_domain.py",
+    "tools/research/benchmarks/bench_simulation.py",
+    "tools/research/benchmarks/benchmark_lex_llm_steady_state.py",
+    "tools/research/benchmarks/benchmark_lex_llm_sweep.py",
+    "tools/research/benchmarks/build_release_summary.py",
+    "tools/research/benchmarks/harness.py",
+    "tools/research/benchmarks/metrics.py",
+    "tools/research/benchmarks/prepare_real_benchmark_data.py",
+    "tools/research/benchmarks/run_all.py",
+    "tools/research/benchmarks/run_local_sota_profile.py",
+    "tools/research/benchmarks/run_parallel.py",
+    "tools/research/benchmarks/suite_registry.py",
+    "tools/research/demos/run_export_demo.py",
+    "tools/research/demos/run_foundry_ws9_frontier_demo.py",
+    "tools/research/demos/run_laffer_demo.py",
+    "tools/research/demos/run_mechanism_design.py",
+    "tools/research/demos/run_udf_hybrid_demo.py",
+    "tools/research/demos/run_udf_query_demo.py",
+    "tools/research/experiments/filter_topics.py",
+    "tools/research/experiments/organize_relevant_topics.py"
+  ],
+  "repository_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+  "schema": "policyos.e02.sota_contract_runtime_inputs.v1"
+}

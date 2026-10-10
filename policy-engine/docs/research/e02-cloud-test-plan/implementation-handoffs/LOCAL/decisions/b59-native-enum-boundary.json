@@ -1,0 +1,101 @@
+{
+  "decision_id": "B59-native-enum-mutation-boundary",
+  "status": "limited_pending_G_decision",
+  "class": {
+    "register": "P40",
+    "classification": "same producer-state mutation/admission class, one object layer deeper",
+    "disposition": "The native-enum compatibility repair does not close the original whole-property claim. Keep the fix and record the enum singleton mutation path as a bounded residual; do not mark B59 fully closed."
+  },
+  "property": {
+    "intended": "An admitted producer state can be copied and branched without arbitrary callbacks, and producer-visible changes remain isolated and journaled.",
+    "implemented_gate": "A static audit admits standard scalar-backed Enum/StrEnum members only when the metaclass, MRO, copy/reduction/attribute/scalar hooks, member storage, and exact scalar value pass. State admission depth follows the canonical state serialization envelope and tracked attachment path.",
+    "divergent_case": "Enum members are process-local singletons. After admission, assigning Domain.fiscal._value_ = 'contested' changes both the base and branched typed model and leaves the mutation journal empty. The producer-state gate measures admission/copy callback shape; it does not enforce enum member immutability or reconcile this write."
+  },
+  "observed_evidence": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b59-native-graph/native-producer-red.log",
+      "sha256": "0fa71a29ce232fdb9663f189aa6d37d6693e0e42fbeadc789f9624c635650783",
+      "result": "Before the repair, the maintained RunHierarchicalPolicySearchNode consumer failed at the policy_candidate_schema assignment because a real PolicyCandidateSchema contains native scalar-backed enums."
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b59-native-graph/native-hierarchical-green.log",
+      "sha256": "112fc57e805e34e39f3c89e4d799c86ad63b0e26e406156c9ce184e3987d1797",
+      "result": "After the repair, both previously failing maintained producer and Stage-B refusal selectors pass."
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b59-delta-producer-consumer.log",
+      "sha256": "cc38ed3d51433bee40ce584b24ce5ac9c82a0725046bb9a2accf25569d30b130",
+      "result": "A real hierarchical producer, typed PolicyCandidateSchema state, and _resolve_search_candidate consumer retain the model type, ProblemDomain enum, and candidate hash."
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b59-native-graph/native-enum-private-mutation-falsifier.log",
+      "sha256": "c1e196a1277ca1bb1f5e353310a011f8b85625ccb50f122254cbae06d81b434f",
+      "result": "Independent local typed-model probe preserves enum/model identity, then shows private _value_ mutation changes both base and branch with zero journal operations."
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b59-delta-enum-alias-typed-model.log",
+      "sha256": "a7c57ffd46ab16b49eada4952412998e76de0d7006b2aeb57148440aac40205f",
+      "result": "Independent custody probe confirms the same alias-mutation path with a typed BaseModel held in params."
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b59-native-graph/native-enum-depth-red.log",
+      "sha256": "a82a26a555f554137136ed09334ed386eaff6477c622e6468cd2facde0dbbc28",
+      "result": "Before depth correction, the over-canonical-boundary graph was admitted while the corresponding canonical-boundary positive passed."
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b59-native-graph/b59-boundary-tests-final.log",
+      "sha256": "23b49c5ac6e369d02ee176237f950a17650ef14000138112b1c46af7f8fd34bc",
+      "result": "Five boundary tests pass: native typed enums, copy/reduction/attribute/mutable-value refusals, exact canonical depth edge, and live parent-path accounting."
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b59-native-graph/b59-focused-final.log",
+      "sha256": "94b23cc82b31122422c985dfbb184b38330295191b6e07e44bfbad60d2be64dc",
+      "result": "The state-branching and producer-scope focused suite passed 98 tests; existing Pydantic and Torch warnings are retained in the full output."
+    }
+  ],
+  "source_hashes": [
+    {
+      "path": "src/polisyos/scientist/orchestration/engine/state_branching.py",
+      "sha256": "f38a82a6d61c37a0c2d94799ec5a16272d8acf1040334dfe7c80c0328cb45798"
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "sha256": "0919a7fd58885d25f0c2b0dd5b6b55efae68fd8806b2aebada3900a2b8ed8c28"
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+      "sha256": "7ed69a33cb1b73057179fb52d1f10df8788c5c957fe27c8b0bbffb28f84416c7"
+    },
+    {
+      "path": "src/polisyos/scientist/orchestration/engine/README.md",
+      "sha256": "13c86cf56b7a07efac3839769edcc3bd9602355873a0a51cacf2e54266ee363c"
+    },
+    {
+      "path": "release-fragments/unreleased/2026-10-09-e02-b59-producer-state-finite-admission.toml",
+      "sha256": "309a128492da7d6c4f2dacc9562f5e7119d7b4560803d2d6eef556cbc3296e7b"
+    }
+  ],
+  "G_options": [
+    {
+      "id": "retain-limited-readonly-atom-profile",
+      "mechanism": "Keep typed enum identity and preserve only the static builtin-hook/scalar audit. Treat enum members as read-only atomic candidate inputs by declared producer convention.",
+      "compatibility": "Preserves current PolicyCandidateSchema, Enum identity, serialization shape, and consumer behavior.",
+      "limitation": "The runtime has no mechanism that makes standard Enum members read-only. Private _value_ or added-attribute writes remain unjournaled and can affect aliases. This option accepts a limited, candidate-grade assumption; it cannot support protected or published claims under the original B59 property."
+    },
+    {
+      "id": "owner-enforced-immutable-enum-projection",
+      "mechanism": "Introduce a closed enum projection at the producer boundary and an owner-controlled typed-consumer bridge that admits only a read-only representation, with schema-specific reconstruction where required.",
+      "compatibility": "Requires a typed bridge and mutation semantics for PolicyCandidateSchema consumers. Reconstructing the current Enum class returns its shared singleton; a genuinely isolated read-only projection changes direct Enum identity/type behavior unless consumers are migrated.",
+      "required_verification": "Real hierarchical producer -> projected persisted state -> _resolve_search_candidate and downstream simulation/output-bundle consumers; mutation of the projected member must refuse before state/cache publication; identity/equality/API impact must be explicit."
+    },
+    {
+      "id": "process-isolated-producer-plus-owner-reconciliation",
+      "mechanism": "Run each producer invocation in a separate process boundary and compare its before/after canonical typed-state projection with the journal before accepting output; reject or explicitly journal enum changes, and prevent a mutated singleton from contaminating another invocation.",
+      "compatibility": "Can retain native typed Enum values inside each producer, but adds process startup/serialization cost and requires a parent-owned reconciliation bridge. A shared worker process is insufficient because enum singletons remain shared within it.",
+      "required_verification": "Two sequential and concurrent invocations with one producer mutating _value_ must not affect the other/base state; changed typed projection must not silently bypass cache replay; actual results must reconcile with declared write paths."
+    }
+  ],
+  "smallest_missing_capability": "An owner-enforced immutable enum value or a producer-result reconciliation boundary that detects state changes made through singleton member attributes. Current state_branching copy-on-write and mutation journaling have neither; deepcopy/copy of standard Enum members returns the same object.",
+  "decision_request": "Choose whether native Enum values are accepted only under the explicitly limited read-only candidate profile, or whether the runtime must add an owner-enforced projection/process-reconciliation mechanism before the original producer-state custody claim can be restored.",
+  "current_disposition": "Keep the compatibility and canonical-depth repairs. B59 remains limited/held for the original whole-property claim; do not describe admitted enum members as immutable, do not claim B59 fully closed, and do not widen scientific model/API types without the G decision."
+}

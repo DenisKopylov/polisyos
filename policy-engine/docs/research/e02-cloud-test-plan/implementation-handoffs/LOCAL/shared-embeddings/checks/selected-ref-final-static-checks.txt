@@ -1,0 +1,324 @@
+$ /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/core/artifacts/ir_adapter.py src/polisyos/core/artifacts/backends/caching_store.py src/polisyos/core/artifacts/backends/gcs_store.py src/polisyos/core/artifacts/backends/s3_store.py src/polisyos/core/artifacts/protocol.py src/polisyos/core/artifacts/store.py src/polisyos/core/contracts/epoch.py src/polisyos/ir/artifacts/contracts.py src/polisyos/ir/artifacts/io.py src/polisyos/ir/registry/refs.py src/polisyos/calibration/forecast_bridge.py src/polisyos/scientist/validation/epoch_certificate_issuance.py tests/unit/core/artifacts/backends/test_caching_store.py tests/unit/core/artifacts/backends/test_gcs_store.py tests/unit/core/artifacts/backends/test_s3_store.py tests/unit/core/artifacts/test_ir_adapter.py tests/unit/ir/registry/test_refs.py tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py tests/unit/scientist/validation/test_epoch_certificate_issuance.py
+exit=0
+stdout:
+All checks passed!
+
+stderr:
+
+
+$ /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/core/artifacts/ir_adapter.py src/polisyos/core/artifacts/backends/caching_store.py src/polisyos/core/artifacts/backends/gcs_store.py src/polisyos/core/artifacts/backends/s3_store.py src/polisyos/core/artifacts/protocol.py src/polisyos/core/artifacts/store.py src/polisyos/core/contracts/epoch.py src/polisyos/ir/artifacts/contracts.py src/polisyos/ir/artifacts/io.py src/polisyos/ir/registry/refs.py src/polisyos/calibration/forecast_bridge.py src/polisyos/scientist/validation/epoch_certificate_issuance.py tests/unit/core/artifacts/backends/test_caching_store.py tests/unit/core/artifacts/backends/test_gcs_store.py tests/unit/core/artifacts/backends/test_s3_store.py tests/unit/core/artifacts/test_ir_adapter.py tests/unit/ir/registry/test_refs.py tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py tests/unit/scientist/validation/test_epoch_certificate_issuance.py
+exit=1
+stdout:
+Would reformat: src/polisyos/calibration/forecast_bridge.py
+Would reformat: src/polisyos/core/contracts/epoch.py
+Would reformat: tests/unit/core/artifacts/backends/test_caching_store.py
+Would reformat: tests/unit/core/artifacts/backends/test_s3_store.py
+4 files would be reformatted, 15 files already formatted
+
+stderr:
+
+
+$ /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python -m ruff format --diff src/polisyos/core/artifacts/ir_adapter.py src/polisyos/core/artifacts/backends/caching_store.py src/polisyos/core/artifacts/backends/gcs_store.py src/polisyos/core/artifacts/backends/s3_store.py src/polisyos/core/artifacts/protocol.py src/polisyos/core/artifacts/store.py src/polisyos/core/contracts/epoch.py src/polisyos/ir/artifacts/contracts.py src/polisyos/ir/artifacts/io.py src/polisyos/ir/registry/refs.py src/polisyos/calibration/forecast_bridge.py src/polisyos/scientist/validation/epoch_certificate_issuance.py tests/unit/core/artifacts/backends/test_caching_store.py tests/unit/core/artifacts/backends/test_gcs_store.py tests/unit/core/artifacts/backends/test_s3_store.py tests/unit/core/artifacts/test_ir_adapter.py tests/unit/ir/registry/test_refs.py tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py tests/unit/scientist/validation/test_epoch_certificate_issuance.py
+exit=1
+stdout:
+--- src/polisyos/calibration/forecast_bridge.py
++++ src/polisyos/calibration/forecast_bridge.py
+@@ -185,6 +185,7 @@
+     }
+ )
+ 
++
+ class EvidenceArtifactRef(BaseModel):
+     """Typed CAS reference with the contract needed to verify provenance."""
+ 
+@@ -432,19 +433,14 @@
+         issues.extend(binding_issues)
+         issues.extend(provenance_issues)
+ 
+-    pass_rate = (
+-        recomputed_numerator / recomputed_denominator
+-        if recomputed_denominator
+-        else None
+-    )
++    pass_rate = recomputed_numerator / recomputed_denominator if recomputed_denominator else None
+     if context is not None and pass_rate is not None and pass_rate < context.calibration_threshold:
+         issues.append("calibration_floor_not_met")
+ 
+     failure_codes = _dedupe(issues)
+     context_bound = context is not None and not binding_issues and not provenance_issues
+-    empirical_observations_available = (
+-        recomputed_denominator > 0
+-        and not any(issue in _OBSERVATION_BLOCKERS for issue in failure_codes)
++    empirical_observations_available = recomputed_denominator > 0 and not any(
++        issue in _OBSERVATION_BLOCKERS for issue in failure_codes
+     )
+     floor_passed = bool(
+         context_bound
+@@ -464,12 +460,8 @@
+         method_ref=context.method_ref if context else None,
+         method_version=context.method_version if context else None,
+         rule_version_ref=context.rule_version_ref if context else None,
+-        authority_scope=(
+-            context.authority_scope if context else PREDICTIVE_AUTHORITY_SCOPE
+-        ),
+-        may_not_use_for=(
+-            context.may_not_use_for if context else PREDICTIVE_AUTHORITY_DENIALS
+-        ),
++        authority_scope=(context.authority_scope if context else PREDICTIVE_AUTHORITY_SCOPE),
++        may_not_use_for=(context.may_not_use_for if context else PREDICTIVE_AUTHORITY_DENIALS),
+         evidence_origin=context.evidence_origin if context else None,
+         calibration_threshold=context.calibration_threshold if context else None,
+         nominal_confidence_level=nominal_confidence_level,
+@@ -490,9 +482,7 @@
+         calibration_window_start=context.calibration_window_start if context else None,
+         calibration_window_end=context.calibration_window_end if context else None,
+         evidence_kind=(
+-            "observed_interval_comparisons"
+-            if recomputed_denominator
+-            else "unavailable"
++            "observed_interval_comparisons" if recomputed_denominator else "unavailable"
+         ),
+         empirical_observations_available=empirical_observations_available,
+         context_bound=context_bound,
+@@ -516,9 +506,7 @@
+     """Persist neutral evidence and return its typed CAS reference."""
+ 
+     if evidence.schema_version != EVIDENCE_SCHEMA_VERSION:
+-        raise ValueError(
+-            "legacy empirical calibration evidence must not be repersisted"
+-        )
++        raise ValueError("legacy empirical calibration evidence must not be repersisted")
+     expected = _reproduce_evidence(store, evidence)
+     if expected.schema_version != EVIDENCE_SCHEMA_VERSION:
+         raise ValueError("new empirical calibration evidence must use schema 1.1")
+@@ -604,16 +592,11 @@
+ 
+     expected = [
+         (str(evidence.report_ref.artifact_id), "backtest_report"),
+-        *(
+-            (str(ref.artifact_id), role)
+-            for role, ref in _context_refs(evidence)
+-        ),
++        *((str(ref.artifact_id), role) for role, ref in _context_refs(evidence)),
+     ]
+     actual = _manifest_input_edges(store, evidence_ref)
+     if sorted(actual) != sorted(expected):
+-        raise ValueError(
+-            "empirical evidence manifest input edge/role binding mismatch"
+-        )
++        raise ValueError("empirical evidence manifest input edge/role binding mismatch")
+ 
+ 
+ def _manifest_input_edges(
+@@ -659,9 +642,7 @@
+         expected_payload["schema_version"] = LEGACY_EVIDENCE_SCHEMA_VERSION
+         expected_payload["nominal_confidence_level"] = None
+     if expected_payload != evidence.model_dump(mode="json"):
+-        raise ValueError(
+-            "empirical evidence payload is not reproducible from its report"
+-        )
++        raise ValueError("empirical evidence payload is not reproducible from its report")
+     return expected
+ 
+ 
+@@ -725,9 +706,7 @@
+ 
+     _report_ref, report = _load_verified_report(store, evidence.report_ref)
+     if not report.model_spec_ref or not report.policy_spec_ref:
+-        raise ValueError(
+-            "persisted evidence context lacks a complete report model/policy pair"
+-        )
++        raise ValueError("persisted evidence context lacks a complete report model/policy pair")
+     return EmpiricalCalibrationContext.model_validate(
+         {
+             "model_spec_ref": report.model_spec_ref,
+@@ -867,9 +846,7 @@
+         (str(ref.artifact_id), role) for role, ref in _context_refs(context)
+     )
+     actual_context_edges = tuple(
+-        (artifact_id, role)
+-        for artifact_id, role in input_edges
+-        if role in _REFERENCE_INPUT_ROLES
++        (artifact_id, role) for artifact_id, role in input_edges if role in _REFERENCE_INPUT_ROLES
+     )
+     if sorted(actual_context_edges) != sorted(expected_context_edges):
+         issues.append("report_context_input_edges_mismatch")
+@@ -884,9 +861,7 @@
+         try:
+             payload = _validate_and_load_reference(store, ref, role=role)
+         except (FileNotFoundError, OSError, TypeError, ValueError):
+-            issues.extend(
+-                ("provenance_ref_unresolved", f"provenance_ref_invalid:{role}")
+-            )
++            issues.extend(("provenance_ref_unresolved", f"provenance_ref_invalid:{role}"))
+             continue
+         payloads.setdefault(role, []).append(payload)
+ 
+@@ -915,9 +890,7 @@
+             context,
+         )
+     )
+-    return _dedupe(issues), {
+-        role: tuple(values) for role, values in payloads.items()
+-    }
++    return _dedupe(issues), {role: tuple(values) for role, values in payloads.items()}
+ 
+ 
+ def _report_input_edges(
+@@ -936,9 +909,7 @@
+     except (FileNotFoundError, OSError, TypeError, ValueError):
+         return ()
+     raw_inputs = _field(manifest, "inputs")
+-    if not isinstance(raw_inputs, Sequence) or isinstance(
+-        raw_inputs, (str, bytes, bytearray)
+-    ):
++    if not isinstance(raw_inputs, Sequence) or isinstance(raw_inputs, (str, bytes, bytearray)):
+         return ()
+     relations: list[tuple[str, str]] = []
+     for raw_input in raw_inputs:
+@@ -1008,9 +979,7 @@
+         raise ValueError("evidence reference role mismatch")
+     _validate_reference_identity_contract(ref, role)
+     try:
+-        expected_kind, expected_schema_name, expected_schema_version = (
+-            REFERENCE_PROFILES[role]
+-        )
++        expected_kind, expected_schema_name, expected_schema_version = REFERENCE_PROFILES[role]
+     except KeyError as exc:
+         raise ValueError("unsupported evidence reference role") from exc
+     if ref.media_type != "application/json":
+@@ -1149,9 +1118,7 @@
+             issues.append("persisted_projection_incomplete")
+     if report.overall_coverage_probability is not None:
+         expected_overall = (
+-            recomputed_numerator / recomputed_denominator
+-            if recomputed_denominator
+-            else None
++            recomputed_numerator / recomputed_denominator if recomputed_denominator else None
+         )
+         if expected_overall is None or report.overall_coverage_probability != expected_overall:
+             issues.append("persisted_overall_coverage_mismatch")
+@@ -1372,9 +1339,7 @@
+                 target = str(key)
+                 if target in collected or target in plural:
+                     canonical = (
+-                        collected[target]
+-                        if target in collected
+-                        else collected[plural[target]]
++                        collected[target] if target in collected else collected[plural[target]]
+                     )
+                     canonical.extend(_as_text_sequence(child))
+                 else:
+@@ -1422,9 +1387,7 @@
+     if expected_path is None:
+         raise ValueError("unsupported evidence reference role")
+     if ref.identity_path != expected_path:
+-        raise ValueError(
+-            f"evidence reference identity path must be {expected_path!r} for {role}"
+-        )
++        raise ValueError(f"evidence reference identity path must be {expected_path!r} for {role}")
+     normalized = ref.identity_value.strip().casefold()
+     if (
+         normalized in _TRIVIAL_IDENTITY_VALUES
+@@ -1539,8 +1502,7 @@
+     markers = ("synthetic", "fixture", "self-attest", "self_attest", "self attest")
+     if isinstance(payload, Mapping):
+         return any(
+-            _payload_contains_forbidden_marker(key)
+-            or _payload_contains_forbidden_marker(value)
++            _payload_contains_forbidden_marker(key) or _payload_contains_forbidden_marker(value)
+             for key, value in payload.items()
+         )
+     if isinstance(payload, Sequence) and not isinstance(payload, (str, bytes, bytearray)):
+
+--- src/polisyos/core/contracts/epoch.py
++++ src/polisyos/core/contracts/epoch.py
+@@ -380,10 +380,7 @@
+     """Normalize the two artifact refs with the projection's frozen v1 serializer."""
+ 
+     if isinstance(value, ScopedSchemaRegimeProjection):
+-        payload = {
+-            name: getattr(value, name)
+-            for name in value.__class__.model_fields
+-        }
++        payload = {name: getattr(value, name) for name in value.__class__.model_fields}
+     else:
+         payload = dict(value)
+     if not include_hash:
+
+--- tests/unit/core/artifacts/backends/test_caching_store.py
++++ tests/unit/core/artifacts/backends/test_caching_store.py
+@@ -172,10 +172,9 @@
+         assert local.get_bytes(ref) == b"data"
+         assert remote.get_bytes(ref) == b"data"
+         assert store.get_manifest(ref).kind == "test"
+-        assert (
+-            ManifestLifecycle.profile_sha256(local.get_manifest(ref))
+-            == ManifestLifecycle.profile_sha256(remote.get_manifest(ref))
+-        )
++        assert ManifestLifecycle.profile_sha256(
++            local.get_manifest(ref)
++        ) == ManifestLifecycle.profile_sha256(remote.get_manifest(ref))
+ 
+     def test_put_bytes_no_write_through(self):
+         """write_through=False: only writes to local."""
+@@ -446,9 +445,7 @@
+             ),
+         )
+         assert local_ref.artifact_id == remote_ref.artifact_id
+-        local_profile_sha256 = ManifestLifecycle.profile_sha256(
+-            local.get_manifest(local_ref)
+-        )
++        local_profile_sha256 = ManifestLifecycle.profile_sha256(local.get_manifest(local_ref))
+         remote_profile_sha256 = ManifestLifecycle.profile_sha256(remote.get_manifest(remote_ref))
+         assert local_profile_sha256 != remote_profile_sha256
+         local_get_bytes = MagicMock(wraps=local.get_bytes)
+@@ -464,10 +461,7 @@
+         local_get_bytes.assert_not_called()
+         local_has_view.assert_called_once_with(remote_ref.artifact_id, remote_profile_sha256)
+         remote_get_bytes.assert_called_once()
+-        assert (
+-            remote_get_bytes.call_args.args[0].manifest_profile_sha256
+-            == remote_profile_sha256
+-        )
++        assert remote_get_bytes.call_args.args[0].manifest_profile_sha256 == remote_profile_sha256
+ 
+     def test_selected_remote_view_uses_matching_local_view_when_defaults_diverge(
+         self,
+@@ -854,9 +848,7 @@
+             remote,
+             "get_manifest_bytes",
+             lambda selected: (
+-                owner_manifest_reader(selected)
+-                if selected == pinned_ref
+-                else moved_default_bytes
++                owner_manifest_reader(selected) if selected == pinned_ref else moved_default_bytes
+             ),
+         )
+         signature_reader = MagicMock(wraps=remote.get_signature_bytes)
+
+--- tests/unit/core/artifacts/backends/test_s3_store.py
++++ tests/unit/core/artifacts/backends/test_s3_store.py
+@@ -19,9 +19,7 @@
+ 
+ class _FakeClientError(Exception):
+     def __init__(self, code: str, *, status_code: int | None = None) -> None:
+-        http_status = status_code or (
+-            404 if code in {"404", "NotFound", "NoSuchKey"} else 403
+-        )
++        http_status = status_code or (404 if code in {"404", "NotFound", "NoSuchKey"} else 403)
+         self.response = {
+             "Error": {"Code": code},
+             "ResponseMetadata": {"HTTPStatusCode": http_status},
+
+
+stderr:
+4 files would be reformatted, 15 files already formatted
+
+
+$ git diff --check -- src/polisyos/core/artifacts/ir_adapter.py src/polisyos/core/artifacts/backends/caching_store.py src/polisyos/core/artifacts/backends/gcs_store.py src/polisyos/core/artifacts/backends/s3_store.py src/polisyos/core/artifacts/protocol.py src/polisyos/core/artifacts/store.py src/polisyos/core/contracts/epoch.py src/polisyos/ir/artifacts/contracts.py src/polisyos/ir/artifacts/io.py src/polisyos/ir/registry/refs.py src/polisyos/calibration/forecast_bridge.py src/polisyos/scientist/validation/epoch_certificate_issuance.py tests/unit/core/artifacts/backends/test_caching_store.py tests/unit/core/artifacts/backends/test_gcs_store.py tests/unit/core/artifacts/backends/test_s3_store.py tests/unit/core/artifacts/test_ir_adapter.py tests/unit/ir/registry/test_refs.py tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py tests/unit/scientist/validation/test_epoch_certificate_issuance.py
+exit=0
+stdout:
+
+stderr:
+

@@ -1,0 +1,8 @@
+ENSURE_IR store=<class 'polisyos.scientist.orchestration.engine.retry._AttemptFacade'> adapted=<class 'polisyos.core.artifacts.ir_adapter.CoreToIRArtifactStoreAdapter'>
+CORE_ENTER method=get_manifest_bytes selector_type=<class 'polisyos.core.artifacts.manifest.ArtifactRef'> selector=ArtifactRef(artifact_id=ArtifactID(root='sha256:87c1fa8f0a4a162eaa8a0641db4ffdd10c05a178ab74f0215e1b2f14c23621b8'), kind='ir.causal_graph_model', media_type='application/json', manifest_profile_sha256=None)
+CORE_EXIT method=get_manifest_bytes
+CORE_ENTER method=get_bytes selector_type=<class 'polisyos.core.artifacts.manifest.ArtifactRef'> selector=ArtifactRef(artifact_id=ArtifactID(root='sha256:87c1fa8f0a4a162eaa8a0641db4ffdd10c05a178ab74f0215e1b2f14c23621b8'), kind='ir.causal_graph_model', media_type='application/json', manifest_profile_sha256=None)
+CORE_ENTER method=get_manifest selector_type=<class 'polisyos.core.artifacts.manifest.ArtifactRef'> selector=ArtifactRef(artifact_id=ArtifactID(root='sha256:87c1fa8f0a4a162eaa8a0641db4ffdd10c05a178ab74f0215e1b2f14c23621b8'), kind='ir.causal_graph_model', media_type='application/json', manifest_profile_sha256=None)
+CORE_EXIT method=get_manifest
+CORE_EXIT method=get_bytes
+ENSURE_IR store=<class 'polisyos.scientist.orchestration.engine.retry._AttemptFacade'> adapted=<class 'polisyos.core.artifacts.ir_adapter.CoreToIRArtifactStoreAdapter'>

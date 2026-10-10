@@ -1,0 +1,65 @@
+COMMAND ['/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python', '-m', 'ruff', 'format', '--check', 'src/polisyos/calibration/forecast_bridge.py', 'src/polisyos/core/artifacts/ir_adapter.py', 'src/polisyos/data_forge/domains/academic/batch/claim_adjudicator.py', 'src/polisyos/data_forge/domains/academic/knowledge/skg_identity_bridge.py', 'src/polisyos/data_forge/domains/catalog/knowledge/overlay.py', 'src/polisyos/data_forge/read_api/ukraine.py', 'src/polisyos/fabric/data_plane/orchestrator.py', 'src/polisyos/fabric/retrieval/custody.py', 'src/polisyos/foundry/_quickstart.py', 'src/polisyos/foundry/analysis/attractors.py', 'src/polisyos/foundry/calibration/identifiability.py', 'src/polisyos/foundry/validation/legal_correspondence.py', 'src/polisyos/foundry/validation/phase2_closure.py', 'src/polisyos/foundry/validation/release_acceptance.py', 'src/polisyos/foundry/welfare/bounds.py', 'src/polisyos/foundry/welfare/frontier_emitter.py', 'src/polisyos/foundry/welfare/social_weight_provenance.py', 'src/polisyos/pdc/_impl/layer2_design_search.py', 'src/polisyos/policy_grammar/_impl/artifacts.py', 'src/polisyos/runtime/http/routes/public_decisions.py', 'src/polisyos/runtime/http/services/acquisition_admission_bundle.py', 'src/polisyos/runtime/http/services/acquisition_authority_provider.py', 'src/polisyos/runtime/http/services/attractors.py', 'src/polisyos/runtime/http/services/control/artifacts.py', 'src/polisyos/runtime/http/services/run_paper_case_record.py', 'src/polisyos/runtime/quality/acquisition_executor.py', 'src/polisyos/runtime/quality/acquisition_planner.py', 'src/polisyos/runtime/quality/data_forge_binding.py', 'src/polisyos/runtime/quality/derived_observations.py', 'src/polisyos/runtime/quality/epoch_custody_audit.py', 'src/polisyos/runtime/quality/epoch_denominator_reconciliation.py', 'src/polisyos/runtime/quality/epoch_staleness_projection.py', 'src/polisyos/runtime/quality/epoch_transition_inputs.py', 'src/polisyos/runtime/quality/epoch_validity_cascade.py', 'src/polisyos/runtime/quality/generation_cycle.py', 'src/polisyos/runtime/quality/global_case_index.py', 'src/polisyos/runtime/quality/open_world_risk.py', 'src/polisyos/runtime/quality/production_grounding_calibration.py', 'src/polisyos/runtime/quality/workspace/scientist_node_adapters.py', 'src/polisyos/scientist/adapters/fabric_bridge.py', 'src/polisyos/scientist/agent/feasibility.py', 'src/polisyos/scientist/agent/persistent_memory.py', 'src/polisyos/scientist/agent/vector_memory.py', 'src/polisyos/scientist/compute/runner.py', 'src/polisyos/scientist/governance/blueprint_release.py', 'src/polisyos/scientist/governance/continuous/governed_public_record.py', 'src/polisyos/scientist/governance/human_review/decisions.py', 'src/polisyos/scientist/governance/human_review/effectiveness.py', 'src/polisyos/scientist/governance/human_review/packets.py', 'src/polisyos/scientist/governance/human_review/queue.py', 'src/polisyos/scientist/methods/autotune/claim_adjudication_runtime.py', 'src/polisyos/scientist/methods/discovery/aggregator.py', 'src/polisyos/scientist/methods/discovery/output.py', 'src/polisyos/scientist/methods/discovery/priors.py', 'src/polisyos/scientist/methods/discovery/schema.py', 'src/polisyos/scientist/methods/discovery/stability.py', 'src/polisyos/scientist/methods/discovery/utility_judge.py', 'src/polisyos/scientist/methods/research_dag/persistence.py', 'src/polisyos/scientist/methods/search/adversarial.py', 'src/polisyos/scientist/methods/search/funnel/orchestrator.py', 'src/polisyos/scientist/methods/search/judge_stack.py', 'src/polisyos/scientist/methods/search/promotion_evidence.py', 'src/polisyos/scientist/methods/search/readiness.py', 'src/polisyos/scientist/methods/search/strategies/transfer.py', 'src/polisyos/scientist/methods/search/voi_scheduler.py', 'src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py', 'src/polisyos/scientist/nodes/builtins/compile/link_trinity.py', 'src/polisyos/scientist/nodes/builtins/data/bind_foundry_inputs.py', 'src/polisyos/scientist/nodes/builtins/data/build_data_snapshot.py', 'src/polisyos/scientist/nodes/builtins/data/enrich_knowledge.py', 'src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py', 'src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py', 'src/polisyos/scientist/nodes/builtins/decide/decision_packet/validation.py', 'src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py', 'src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py', 'src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py', 'src/polisyos/scientist/nodes/builtins/governance/data_plane_gate.py', 'src/polisyos/scientist/nodes/builtins/governance/legal_check.py', 'src/polisyos/scientist/nodes/builtins/governance/run_governance.py', 'src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py', 'src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py', 'src/polisyos/scientist/nodes/builtins/planning/run_evaluator.py', 'src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py', 'src/polisyos/scientist/nodes/builtins/planning/run_preflight.py', 'src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py', 'src/polisyos/scientist/nodes/builtins/simulate/run_metric_validation.py', 'src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py', 'src/polisyos/scientist/orchestration/engine/checkpoint.py', 'src/polisyos/scientist/policy_design/adversary.py', 'src/polisyos/scientist/policy_design/output.py', 'src/polisyos/scientist/policy_design/phase3.py', 'src/polisyos/scientist/policy_design/schema.py', 'src/polisyos/scientist/replay/deterministic.py', 'src/polisyos/scientist/replay/verification.py', 'src/polisyos/scientist/validation/decision_validity.py', 'src/polisyos/scientist/validation/policy_verified/models.py', 'src/polisyos/scientist/validation/policy_verified/service.py', 'src/polisyos/scientist/validation/verification/ic/service.py', 'tests/unit/core/artifacts/test_ir_adapter.py', 'tests/unit/scientist/policy_design/test_phase3_decision_layer.py']
+EXIT 1
+STDOUT:
+Would reformat: src/polisyos/calibration/forecast_bridge.py
+Would reformat: src/polisyos/core/artifacts/ir_adapter.py
+Would reformat: src/polisyos/data_forge/domains/academic/batch/claim_adjudicator.py
+Would reformat: src/polisyos/data_forge/domains/catalog/knowledge/overlay.py
+Would reformat: src/polisyos/data_forge/read_api/ukraine.py
+Would reformat: src/polisyos/fabric/retrieval/custody.py
+Would reformat: src/polisyos/foundry/_quickstart.py
+Would reformat: src/polisyos/foundry/analysis/attractors.py
+Would reformat: src/polisyos/foundry/validation/legal_correspondence.py
+Would reformat: src/polisyos/foundry/validation/release_acceptance.py
+Would reformat: src/polisyos/foundry/welfare/bounds.py
+Would reformat: src/polisyos/foundry/welfare/frontier_emitter.py
+Would reformat: src/polisyos/foundry/welfare/social_weight_provenance.py
+Would reformat: src/polisyos/pdc/_impl/layer2_design_search.py
+Would reformat: src/polisyos/runtime/http/services/acquisition_admission_bundle.py
+Would reformat: src/polisyos/runtime/http/services/control/artifacts.py
+Would reformat: src/polisyos/runtime/http/services/run_paper_case_record.py
+Would reformat: src/polisyos/runtime/quality/acquisition_planner.py
+Would reformat: src/polisyos/runtime/quality/data_forge_binding.py
+Would reformat: src/polisyos/runtime/quality/derived_observations.py
+Would reformat: src/polisyos/runtime/quality/epoch_custody_audit.py
+Would reformat: src/polisyos/runtime/quality/epoch_staleness_projection.py
+Would reformat: src/polisyos/runtime/quality/epoch_validity_cascade.py
+Would reformat: src/polisyos/runtime/quality/generation_cycle.py
+Would reformat: src/polisyos/runtime/quality/global_case_index.py
+Would reformat: src/polisyos/runtime/quality/open_world_risk.py
+Would reformat: src/polisyos/scientist/governance/blueprint_release.py
+Would reformat: src/polisyos/scientist/governance/continuous/governed_public_record.py
+Would reformat: src/polisyos/scientist/governance/human_review/decisions.py
+Would reformat: src/polisyos/scientist/governance/human_review/effectiveness.py
+Would reformat: src/polisyos/scientist/governance/human_review/packets.py
+Would reformat: src/polisyos/scientist/governance/human_review/queue.py
+Would reformat: src/polisyos/scientist/methods/discovery/output.py
+Would reformat: src/polisyos/scientist/methods/discovery/stability.py
+Would reformat: src/polisyos/scientist/methods/discovery/utility_judge.py
+Would reformat: src/polisyos/scientist/methods/search/funnel/orchestrator.py
+Would reformat: src/polisyos/scientist/methods/search/promotion_evidence.py
+Would reformat: src/polisyos/scientist/methods/search/readiness.py
+Would reformat: src/polisyos/scientist/methods/search/strategies/transfer.py
+Would reformat: src/polisyos/scientist/nodes/builtins/compile/link_trinity.py
+Would reformat: src/polisyos/scientist/nodes/builtins/data/bind_foundry_inputs.py
+Would reformat: src/polisyos/scientist/nodes/builtins/data/build_data_snapshot.py
+Would reformat: src/polisyos/scientist/nodes/builtins/data/enrich_knowledge.py
+Would reformat: src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py
+Would reformat: src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py
+Would reformat: src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py
+Would reformat: src/polisyos/scientist/nodes/builtins/governance/data_plane_gate.py
+Would reformat: src/polisyos/scientist/nodes/builtins/governance/legal_check.py
+Would reformat: src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py
+Would reformat: src/polisyos/scientist/nodes/builtins/planning/run_preflight.py
+Would reformat: src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py
+Would reformat: src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py
+Would reformat: src/polisyos/scientist/policy_design/output.py
+Would reformat: src/polisyos/scientist/policy_design/phase3.py
+Would reformat: src/polisyos/scientist/replay/deterministic.py
+Would reformat: src/polisyos/scientist/validation/decision_validity.py
+Would reformat: src/polisyos/scientist/validation/policy_verified/models.py
+Would reformat: src/polisyos/scientist/validation/policy_verified/service.py
+Would reformat: tests/unit/scientist/policy_design/test_phase3_decision_layer.py
+59 files would be reformatted, 41 files already formatted
+
+PATH_COUNT 100

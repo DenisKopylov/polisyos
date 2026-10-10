@@ -1,0 +1,196 @@
+F.                                                                       [100%]
+=================================== FAILURES ===================================
+________ test_normalize_artifact_ref_uses_the_strict_shared_ref_schema _________
+
+    def test_normalize_artifact_ref_uses_the_strict_shared_ref_schema() -> None:
+        legacy = ArtifactRefModel(
+            artifact_id="sha256:" + "1" * 64,
+            kind="ir.example",
+            media_type="application/json",
+        )
+        selected = {
+            "artifact_id": "sha256:" + "2" * 64,
+            "kind": "ir.example",
+            "media_type": "application/json",
+            "manifest_profile_sha256": "sha256:" + "3" * 64,
+        }
+    
+        assert normalize_artifact_ref(legacy) == dict(legacy)
+        assert normalize_artifact_ref(selected) == selected
+        with pytest.raises(ValidationError):
+            normalize_artifact_ref({**selected, "selection_hint": "unknown"})
+    
+        class PropertySelectorWithExtraField:
+            def __init__(self) -> None:
+                self.artifact_id = legacy.artifact_id
+                self.kind = legacy.kind
+                self.media_type = legacy.media_type
+    
+            @property
+            def selection_hint(self) -> str:
+                return "must not be dropped"
+    
+        class MappingSelectorWithExtraField(dict[str, object]):
+            @property
+            def selection_hint(self) -> str:
+                return "must not be dropped from a mapping"
+    
+        class ModelSelectorWithExcludedExtra(BaseModel):
+            model_config = ConfigDict(extra="forbid")
+    
+            artifact_id: object
+            kind: str
+            media_type: str
+            manifest_profile_sha256: str | None = None
+            selection_hint: str = Field(exclude=True)
+    
+        class ExtendedArtifactRef(ArtifactRefModel):
+            selection_hint: str
+    
+        @dataclass(frozen=True)
+        class DataclassSelector:
+            artifact_id: object
+            kind: str
+            media_type: str
+            manifest_profile_sha256: str | None = None
+    
+        class SlotsSelector:
+            __slots__ = ("artifact_id", "kind", "media_type")
+    
+            def __init__(self) -> None:
+                self.artifact_id = legacy.artifact_id
+                self.kind = legacy.kind
+                self.media_type = legacy.media_type
+    
+        @dataclass(frozen=True)
+        class DataclassSelectorWithExtra:
+            artifact_id: object
+            kind: str
+            media_type: str
+            manifest_profile_sha256: str | None
+            selection_hint: str
+    
+        for selector in (
+            PropertySelectorWithExtraField(),
+            MappingSelectorWithExtraField(selected),
+            ModelSelectorWithExcludedExtra(
+                artifact_id=legacy.artifact_id,
+                kind=legacy.kind,
+                media_type=legacy.media_type,
+                selection_hint="excluded from model_dump",
+            ),
+            ExtendedArtifactRef(
+                **legacy.model_dump(mode="python"),
+                selection_hint="extra mapping field",
+            ),
+        ):
+            with pytest.raises(TypeError, match="unexpected field"):
+                normalize_artifact_ref(selector)
+    
+        with pytest.raises(TypeError, match="unexpected field"):
+            normalize_artifact_ref(
+>               DataclassSelectorWithExtra(
+                    **legacy.model_dump(mode="python"),
+                    selection_hint="extra",
+                )
+            )
+E           TypeError: test_normalize_artifact_ref_uses_the_strict_shared_ref_schema.<locals>.DataclassSelectorWithExtra.__init__() missing 1 required positional argument: 'manifest_profile_sha256'
+
+tests/unit/ir/registry/test_refs.py:170: TypeError
+
+During handling of the above exception, another exception occurred:
+
+    def test_normalize_artifact_ref_uses_the_strict_shared_ref_schema() -> None:
+        legacy = ArtifactRefModel(
+            artifact_id="sha256:" + "1" * 64,
+            kind="ir.example",
+            media_type="application/json",
+        )
+        selected = {
+            "artifact_id": "sha256:" + "2" * 64,
+            "kind": "ir.example",
+            "media_type": "application/json",
+            "manifest_profile_sha256": "sha256:" + "3" * 64,
+        }
+    
+        assert normalize_artifact_ref(legacy) == dict(legacy)
+        assert normalize_artifact_ref(selected) == selected
+        with pytest.raises(ValidationError):
+            normalize_artifact_ref({**selected, "selection_hint": "unknown"})
+    
+        class PropertySelectorWithExtraField:
+            def __init__(self) -> None:
+                self.artifact_id = legacy.artifact_id
+                self.kind = legacy.kind
+                self.media_type = legacy.media_type
+    
+            @property
+            def selection_hint(self) -> str:
+                return "must not be dropped"
+    
+        class MappingSelectorWithExtraField(dict[str, object]):
+            @property
+            def selection_hint(self) -> str:
+                return "must not be dropped from a mapping"
+    
+        class ModelSelectorWithExcludedExtra(BaseModel):
+            model_config = ConfigDict(extra="forbid")
+    
+            artifact_id: object
+            kind: str
+            media_type: str
+            manifest_profile_sha256: str | None = None
+            selection_hint: str = Field(exclude=True)
+    
+        class ExtendedArtifactRef(ArtifactRefModel):
+            selection_hint: str
+    
+        @dataclass(frozen=True)
+        class DataclassSelector:
+            artifact_id: object
+            kind: str
+            media_type: str
+            manifest_profile_sha256: str | None = None
+    
+        class SlotsSelector:
+            __slots__ = ("artifact_id", "kind", "media_type")
+    
+            def __init__(self) -> None:
+                self.artifact_id = legacy.artifact_id
+                self.kind = legacy.kind
+                self.media_type = legacy.media_type
+    
+        @dataclass(frozen=True)
+        class DataclassSelectorWithExtra:
+            artifact_id: object
+            kind: str
+            media_type: str
+            manifest_profile_sha256: str | None
+            selection_hint: str
+    
+        for selector in (
+            PropertySelectorWithExtraField(),
+            MappingSelectorWithExtraField(selected),
+            ModelSelectorWithExcludedExtra(
+                artifact_id=legacy.artifact_id,
+                kind=legacy.kind,
+                media_type=legacy.media_type,
+                selection_hint="excluded from model_dump",
+            ),
+            ExtendedArtifactRef(
+                **legacy.model_dump(mode="python"),
+                selection_hint="extra mapping field",
+            ),
+        ):
+            with pytest.raises(TypeError, match="unexpected field"):
+                normalize_artifact_ref(selector)
+    
+>       with pytest.raises(TypeError, match="unexpected field"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'unexpected field'
+E         Actual message: "test_normalize_artifact_ref_uses_the_strict_shared_ref_schema.<locals>.DataclassSelectorWithExtra.__init__() missing 1 required positional argument: 'manifest_profile_sha256'"
+
+tests/unit/ir/registry/test_refs.py:168: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/ir/registry/test_refs.py::test_normalize_artifact_ref_uses_the_strict_shared_ref_schema

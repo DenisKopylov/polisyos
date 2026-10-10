@@ -1,0 +1,68 @@
+........................................................................ [ 67%]
+.................................F.                                      [100%]
+=================================== FAILURES ===================================
+____ test_manifest_input_resolution_preserves_selected_profile_on_fresh_cas ____
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1210/test_manifest_input_resolution0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10be5a8b0>
+
+    def test_manifest_input_resolution_preserves_selected_profile_on_fresh_cas(
+        tmp_path, monkeypatch
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        payload = b'{"stable":"payload"}'
+        kind = "test.backtest.selected_input"
+        default_ref = store.put_bytes(
+            payload,
+            ArtifactWriteOptions(
+                kind=kind,
+                media_type="application/json",
+                schema=CoreSchemaInfo(name=kind, version="1.0"),
+                canon=CoreCanonInfo(max_depth=0),
+            ),
+        )
+        selected_ref = store.put_bytes(
+            payload,
+            ArtifactWriteOptions(
+                kind=kind,
+                media_type="application/json",
+                schema=CoreSchemaInfo(name=kind, version="2.0"),
+                canon=CoreCanonInfo(max_depth=8),
+            ),
+        )
+        assert selected_ref.artifact_id == default_ref.artifact_id
+        assert selected_ref.manifest_profile_sha256 is not None
+    
+        selectors = []
+        get_manifest = store.get_manifest
+    
+        def record_manifest(selector):
+            selectors.append(selector)
+            return get_manifest(selector)
+    
+        monkeypatch.setattr(store, "get_manifest", record_manifest)
+        input_ref = {
+            "artifact_id": str(selected_ref.artifact_id),
+            "role": "selected_source",
+            "manifest_profile_sha256": selected_ref.manifest_profile_sha256,
+        }
+        normalized = orchestrator_module._resolve_manifest_inputs(store, [input_ref])
+    
+        assert normalized is not None
+        assert normalized[0].manifest_profile_sha256 == selected_ref.manifest_profile_sha256
+        assert len(selectors) >= 2
+>       assert selectors[0] == selected_ref.artifact_id
+E       AssertionError: assert ArtifactID(ro...acb8f0d104ca') == ArtifactID(ro...acb8f0d104ca')
+E         
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/backtesting/test_backtesting.py:187: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/backtesting/test_backtesting.py::test_manifest_input_resolution_preserves_selected_profile_on_fresh_cas

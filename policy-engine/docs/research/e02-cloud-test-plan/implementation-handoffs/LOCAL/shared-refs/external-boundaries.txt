@@ -1,0 +1,757 @@
+Base/current source denominator current: 2707 .py paths parsed; external source=2516; imported IR store-API definitions=283; actual imported API calls=302 across 71 files.
+API definitions (module:function:first-arg):
+  polisyos.ir.analytics.abm_bridge.load_abm_alignment_report(store, ...)
+  polisyos.ir.analytics.abm_bridge.persist_abm_alignment_report(store, ...)
+  polisyos.ir.analytics.abstraction.load_abstraction_certificate(store, ...)
+  polisyos.ir.analytics.abstraction.load_finite_state_abstraction_map(store, ...)
+  polisyos.ir.analytics.abstraction.persist_abstraction_certificate(store, ...)
+  polisyos.ir.analytics.abstraction.persist_finite_state_abstraction_map(store, ...)
+  polisyos.ir.analytics.alignment_certification.load_alignment_report(store, ...)
+  polisyos.ir.analytics.alignment_certification.load_variable_alignment_certificate(store, ...)
+  polisyos.ir.analytics.alignment_certification.persist_alignment_report(store, ...)
+  polisyos.ir.analytics.alignment_certification.persist_variable_alignment_certificate(store, ...)
+  polisyos.ir.analytics.backtest.load_backtest_report(store, ...)
+  polisyos.ir.analytics.backtest.persist_backtest_report(store, ...)
+  polisyos.ir.analytics.causal.load_causal_effect_report(store, ...)
+  polisyos.ir.analytics.causal.load_data_readiness_report(store, ...)
+  polisyos.ir.analytics.causal.load_proof_bundle(store, ...)
+  polisyos.ir.analytics.causal.persist_causal_effect_report(store, ...)
+  polisyos.ir.analytics.causal.persist_data_readiness_report(store, ...)
+  polisyos.ir.analytics.causal.persist_proof_bundle(store, ...)
+  polisyos.ir.analytics.causal_capabilities.load_causal_capability_contract(store, ...)
+  polisyos.ir.analytics.causal_capabilities.persist_causal_capability_contract(store, ...)
+  polisyos.ir.analytics.causal_discovery._hydrate_algebraic_constraint_payloads(store, ...)
+  polisyos.ir.analytics.causal_discovery._materialize_algebraic_constraint_payloads(store, ...)
+  polisyos.ir.analytics.causal_discovery.load_causal_discovery_report(store, ...)
+  polisyos.ir.analytics.causal_discovery.persist_causal_discovery_report(store, ...)
+  polisyos.ir.analytics.causal_ensemble.load_causal_model_ensemble(store, ...)
+  polisyos.ir.analytics.causal_ensemble.persist_causal_model_ensemble(store, ...)
+  polisyos.ir.analytics.causal_graph.load_causal_graph_model(store, ...)
+  polisyos.ir.analytics.causal_graph.persist_causal_graph_model(store, ...)
+  polisyos.ir.analytics.causal_queries.load_causal_query_result(store, ...)
+  polisyos.ir.analytics.causal_queries.persist_causal_query_result(store, ...)
+  polisyos.ir.analytics.cross_graph.load_composition_certificate(store, ...)
+  polisyos.ir.analytics.cross_graph.load_cross_graph_evidence_profile(store, ...)
+  polisyos.ir.analytics.cross_graph.load_interface_mapping(store, ...)
+  polisyos.ir.analytics.cross_graph.load_scm_fragment(store, ...)
+  polisyos.ir.analytics.cross_graph.persist_composition_certificate(store, ...)
+  polisyos.ir.analytics.cross_graph.persist_cross_graph_evidence_profile(store, ...)
+  polisyos.ir.analytics.cross_graph.persist_interface_mapping(store, ...)
+  polisyos.ir.analytics.cross_graph.persist_scm_fragment(store, ...)
+  polisyos.ir.analytics.decision_layer.load_fiscal_feedback_link(store, ...)
+  polisyos.ir.analytics.decision_layer.load_optimization_ambiguity_certificate(store, ...)
+  polisyos.ir.analytics.decision_layer.load_social_weight_manifest(store, ...)
+  polisyos.ir.analytics.decision_layer.persist_fiscal_feedback_link(store, ...)
+  polisyos.ir.analytics.decision_layer.persist_optimization_ambiguity_certificate(store, ...)
+  polisyos.ir.analytics.decision_layer.persist_social_weight_manifest(store, ...)
+  polisyos.ir.analytics.dependence_structure.load_dependence_structure(store, ...)
+  polisyos.ir.analytics.dependence_structure.persist_dependence_structure(store, ...)
+  polisyos.ir.analytics.dependent_sensitivity.load_dependent_sensitivity_bundle(store, ...)
+  polisyos.ir.analytics.dependent_sensitivity.load_dependent_sensitivity_result(store, ...)
+  polisyos.ir.analytics.dependent_sensitivity.persist_dependent_sensitivity_bundle(store, ...)
+  polisyos.ir.analytics.dependent_sensitivity.persist_dependent_sensitivity_result(store, ...)
+  polisyos.ir.analytics.distributional._load_distributional_leaf(store, ...)
+  polisyos.ir.analytics.distributional._persist_distributional_leaf(store, ...)
+  polisyos.ir.analytics.distributional.load_causal_assumption_card(store, ...)
+  polisyos.ir.analytics.distributional.load_discrete_distribution_summary(store, ...)
+  polisyos.ir.analytics.distributional.load_distributional_bounds_bundle(store, ...)
+  polisyos.ir.analytics.distributional.load_distributional_dual_certificate(store, ...)
+  polisyos.ir.analytics.distributional.load_distributional_effect_bundle(store, ...)
+  polisyos.ir.analytics.distributional.load_distributional_proof_artifact(store, ...)
+  polisyos.ir.analytics.distributional.load_distributional_report(store, ...)
+  polisyos.ir.analytics.distributional.load_ordinal_poverty_report(store, ...)
+  polisyos.ir.analytics.distributional.load_ot_coupling_summary(store, ...)
+  polisyos.ir.analytics.distributional.load_quantile_shift_summary(store, ...)
+  polisyos.ir.analytics.distributional.load_subgroup_distribution_comparison(store, ...)
+  polisyos.ir.analytics.distributional.load_tail_risk_delta_summary(store, ...)
+  polisyos.ir.analytics.distributional.persist_causal_assumption_card(store, ...)
+  polisyos.ir.analytics.distributional.persist_discrete_distribution_summary(store, ...)
+  polisyos.ir.analytics.distributional.persist_distributional_bounds_bundle(store, ...)
+  polisyos.ir.analytics.distributional.persist_distributional_dual_certificate(store, ...)
+  polisyos.ir.analytics.distributional.persist_distributional_effect_bundle(store, ...)
+  polisyos.ir.analytics.distributional.persist_distributional_proof_artifact(store, ...)
+  polisyos.ir.analytics.distributional.persist_distributional_report(store, ...)
+  polisyos.ir.analytics.distributional.persist_ordinal_poverty_report(store, ...)
+  polisyos.ir.analytics.distributional.persist_ot_coupling_summary(store, ...)
+  polisyos.ir.analytics.distributional.persist_quantile_shift_summary(store, ...)
+  polisyos.ir.analytics.distributional.persist_subgroup_distribution_comparison(store, ...)
+  polisyos.ir.analytics.distributional.persist_tail_risk_delta_summary(store, ...)
+  polisyos.ir.analytics.dp_robustness.load_dp_robustness_certificate(store, ...)
+  polisyos.ir.analytics.dp_robustness.persist_dp_robustness_certificate(store, ...)
+  polisyos.ir.analytics.dual_certificate.hydrate_bounds_bundle_with_dual_certificate(store, ...)
+  polisyos.ir.analytics.dual_certificate.load_dual_certificate_bundle(store, ...)
+  polisyos.ir.analytics.dual_certificate.persist_dual_certificate_bundle(store, ...)
+  polisyos.ir.analytics.dynamic_causal_semantics.load_forecast_intervention_certificate(store, ...)
+  polisyos.ir.analytics.dynamic_causal_semantics.load_forecast_intervention_query(store, ...)
+  polisyos.ir.analytics.dynamic_causal_semantics.persist_forecast_intervention_certificate(store, ...)
+  polisyos.ir.analytics.dynamic_causal_semantics.persist_forecast_intervention_query(store, ...)
+  polisyos.ir.analytics.dynamic_regime.load_continuous_time_query(store, ...)
+  polisyos.ir.analytics.dynamic_regime.load_dynamic_treatment_regime(store, ...)
+  polisyos.ir.analytics.dynamic_regime.load_effect_trajectory_bundle(store, ...)
+  polisyos.ir.analytics.dynamic_regime.load_temporal_identification_certificate(store, ...)
+  polisyos.ir.analytics.dynamic_regime.load_temporal_intervention_trajectory(store, ...)
+  polisyos.ir.analytics.dynamic_regime.persist_continuous_time_query(store, ...)
+  polisyos.ir.analytics.dynamic_regime.persist_dynamic_treatment_regime(store, ...)
+  polisyos.ir.analytics.dynamic_regime.persist_effect_trajectory_bundle(store, ...)
+  polisyos.ir.analytics.dynamic_regime.persist_temporal_identification_certificate(store, ...)
+  polisyos.ir.analytics.dynamic_regime.persist_temporal_intervention_trajectory(store, ...)
+  polisyos.ir.analytics.endogenous_inequality.load_endogenous_group_inequality_decomposition_result(store, ...)
+  polisyos.ir.analytics.endogenous_inequality.persist_endogenous_group_inequality_decomposition_result(store, ...)
+  polisyos.ir.analytics.estimand.load_estimand_ast(store, ...)
+  polisyos.ir.analytics.estimand.persist_estimand_ast(store, ...)
+  polisyos.ir.analytics.evidence_bundle.load_causal_evidence_bundle(store, ...)
+  polisyos.ir.analytics.evidence_bundle.persist_causal_evidence_bundle(store, ...)
+  polisyos.ir.analytics.fairness_audit_report.load_fairness_audit_report(store, ...)
+  polisyos.ir.analytics.fairness_audit_report.persist_fairness_audit_report(store, ...)
+  polisyos.ir.analytics.forecasting_uncertainty.load_forecasting_uncertainty_bundle(store, ...)
+  polisyos.ir.analytics.forecasting_uncertainty.persist_forecasting_uncertainty_bundle(store, ...)
+  polisyos.ir.analytics.frontier.load_frontier_sketch(store, ...)
+  polisyos.ir.analytics.frontier.persist_frontier_sketch(store, ...)
+  polisyos.ir.analytics.hte.load_hte_result(store, ...)
+  polisyos.ir.analytics.hte.load_policy_recommendation(store, ...)
+  polisyos.ir.analytics.hte.persist_hte_result(store, ...)
+  polisyos.ir.analytics.hte.persist_policy_recommendation(store, ...)
+  polisyos.ir.analytics.interference.load_interaction_complex(store, ...)
+  polisyos.ir.analytics.interference.load_interference_certificate(store, ...)
+  polisyos.ir.analytics.interference.load_maup_invariance_certificate(store, ...)
+  polisyos.ir.analytics.interference.load_spatial_hodge_diagnostics(store, ...)
+  polisyos.ir.analytics.interference.persist_interaction_complex(store, ...)
+  polisyos.ir.analytics.interference.persist_interference_certificate(store, ...)
+  polisyos.ir.analytics.interference.persist_maup_invariance_certificate(store, ...)
+  polisyos.ir.analytics.interference.persist_spatial_hodge_diagnostics(store, ...)
+  polisyos.ir.analytics.interventions.load_intervention_certificate(store, ...)
+  polisyos.ir.analytics.interventions.load_intervention_query(store, ...)
+  polisyos.ir.analytics.interventions.persist_intervention_certificate(store, ...)
+  polisyos.ir.analytics.interventions.persist_intervention_query(store, ...)
+  polisyos.ir.analytics.invariance.load_regime_shift_identification_certificate(store, ...)
+  polisyos.ir.analytics.invariance.persist_regime_shift_identification_certificate(store, ...)
+  polisyos.ir.analytics.kernel_causal.load_kernel_estimator_spec(store, ...)
+  polisyos.ir.analytics.kernel_causal.load_operator_effect_bundle(store, ...)
+  polisyos.ir.analytics.kernel_causal.persist_kernel_estimator_spec(store, ...)
+  polisyos.ir.analytics.kernel_causal.persist_operator_effect_bundle(store, ...)
+  polisyos.ir.analytics.latent_bridge_synthesis.load_latent_bridge_hypothesis(store, ...)
+  polisyos.ir.analytics.latent_bridge_synthesis.persist_latent_bridge_hypothesis(store, ...)
+  polisyos.ir.analytics.literature.load_article_extraction_result(store, ...)
+  polisyos.ir.analytics.literature.load_literature_causal_prior(store, ...)
+  polisyos.ir.analytics.literature.persist_article_extraction_result(store, ...)
+  polisyos.ir.analytics.literature.persist_literature_causal_prior(store, ...)
+  polisyos.ir.analytics.local_independence.load_local_independence_weighting_certificate(store, ...)
+  polisyos.ir.analytics.local_independence.persist_local_independence_weighting_certificate(store, ...)
+  polisyos.ir.analytics.mechanism_design.load_incentive_compatibility_certificate(store, ...)
+  polisyos.ir.analytics.mechanism_design.load_mechanism_family_spec(store, ...)
+  polisyos.ir.analytics.mechanism_design.load_mechanism_welfare_loss_bound(store, ...)
+  polisyos.ir.analytics.mechanism_design.persist_incentive_compatibility_certificate(store, ...)
+  polisyos.ir.analytics.mechanism_design.persist_mechanism_family_spec(store, ...)
+  polisyos.ir.analytics.mechanism_design.persist_mechanism_welfare_loss_bound(store, ...)
+  polisyos.ir.analytics.metric_validation_report.load_metric_validation_report(store, ...)
+  polisyos.ir.analytics.metric_validation_report.persist_metric_validation_report(store, ...)
+  polisyos.ir.analytics.microsim_calibration.load_microsim_calibration_report(store, ...)
+  polisyos.ir.analytics.microsim_calibration.persist_microsim_calibration_report(store, ...)
+  polisyos.ir.analytics.mobility.load_mobility_report(store, ...)
+  polisyos.ir.analytics.mobility.persist_mobility_report(store, ...)
+  polisyos.ir.analytics.ncm.load_ncm_spec(store, ...)
+  polisyos.ir.analytics.ncm.load_ncm_spec_selected_view(store, ...)
+  polisyos.ir.analytics.ncm.persist_ncm_spec(store, ...)
+  polisyos.ir.analytics.ncm.persist_ncm_spec_selected_view(store, ...)
+  polisyos.ir.analytics.negative_certificate.load_negative_certificate(store, ...)
+  polisyos.ir.analytics.negative_certificate.persist_negative_certificate(store, ...)
+  polisyos.ir.analytics.network_generative.load_causal_block_bridge(store, ...)
+  polisyos.ir.analytics.network_generative.persist_causal_block_bridge(store, ...)
+  polisyos.ir.analytics.normative_arbitration.load_normative_arbitration_result(store, ...)
+  polisyos.ir.analytics.normative_arbitration.persist_normative_arbitration_result(store, ...)
+  polisyos.ir.analytics.parameters.load_context_adaptive_parameter_bundle(store, ...)
+  polisyos.ir.analytics.parameters.persist_context_adaptive_parameter_bundle(store, ...)
+  polisyos.ir.analytics.partial_identification.hydrate_bounds_bundle_with_tightening_log(store, ...)
+  polisyos.ir.analytics.partial_identification.load_bounds_bundle(store, ...)
+  polisyos.ir.analytics.partial_identification.load_bounds_tightening_log(store, ...)
+  polisyos.ir.analytics.partial_identification.persist_bounds_bundle(store, ...)
+  polisyos.ir.analytics.partial_identification.persist_bounds_tightening_log(store, ...)
+  polisyos.ir.analytics.phase4_dynamics.load_abm_result(store, ...)
+  polisyos.ir.analytics.phase4_dynamics.load_dynamic_microsim_validation_report(store, ...)
+  polisyos.ir.analytics.phase4_dynamics.load_space_time_causal_certificate(store, ...)
+  polisyos.ir.analytics.phase4_dynamics.load_temporal_graph_causal_certificate(store, ...)
+  polisyos.ir.analytics.phase4_dynamics.persist_abm_result(store, ...)
+  polisyos.ir.analytics.phase4_dynamics.persist_dynamic_microsim_validation_report(store, ...)
+  polisyos.ir.analytics.phase4_dynamics.persist_space_time_causal_certificate(store, ...)
+  polisyos.ir.analytics.phase4_dynamics.persist_temporal_graph_causal_certificate(store, ...)
+  polisyos.ir.analytics.privacy_transportability.load_privacy_aware_transport_certificate(store, ...)
+  polisyos.ir.analytics.privacy_transportability.persist_privacy_aware_transport_certificate(store, ...)
+  polisyos.ir.analytics.proof_composability.load_proof_composability_certificate(store, ...)
+  polisyos.ir.analytics.proof_composability.load_proof_witness_index(store, ...)
+  polisyos.ir.analytics.proof_composability.persist_proof_composability_certificate(store, ...)
+  polisyos.ir.analytics.proof_composability.persist_proof_witness_index(store, ...)
+  polisyos.ir.analytics.proximal.load_bridge_plausibility_report(store, ...)
+  polisyos.ir.analytics.proximal.load_proximal_identification_certificate(store, ...)
+  polisyos.ir.analytics.proximal.persist_bridge_plausibility_report(store, ...)
+  polisyos.ir.analytics.proximal.persist_proximal_identification_certificate(store, ...)
+  polisyos.ir.analytics.recourse_manifold.load_feasibility_certificate(store, ...)
+  polisyos.ir.analytics.recourse_manifold.load_intervention_cost_manifold(store, ...)
+  polisyos.ir.analytics.recourse_manifold.load_optimal_recourse_query(store, ...)
+  polisyos.ir.analytics.recourse_manifold.load_recourse_bundle(store, ...)
+  polisyos.ir.analytics.recourse_manifold.load_recourse_proof_bundle(store, ...)
+  polisyos.ir.analytics.recourse_manifold.persist_feasibility_certificate(store, ...)
+  polisyos.ir.analytics.recourse_manifold.persist_intervention_cost_manifold(store, ...)
+  polisyos.ir.analytics.recourse_manifold.persist_optimal_recourse_query(store, ...)
+  polisyos.ir.analytics.recourse_manifold.persist_recourse_bundle(store, ...)
+  polisyos.ir.analytics.recourse_manifold.persist_recourse_proof_bundle(store, ...)
+  polisyos.ir.analytics.recoverability.load_joint_decision_certificate(store, ...)
+  polisyos.ir.analytics.recoverability.load_recoverability_certificate(store, ...)
+  polisyos.ir.analytics.recoverability.persist_joint_decision_certificate(store, ...)
+  polisyos.ir.analytics.recoverability.persist_recoverability_certificate(store, ...)
+  polisyos.ir.analytics.regime_shift_forecast.load_regime_shift_forecast_bundle(store, ...)
+  polisyos.ir.analytics.regime_shift_forecast.persist_regime_shift_forecast_bundle(store, ...)
+  polisyos.ir.analytics.rough_path_semantics.load_rough_path_intervention_certificate(store, ...)
+  polisyos.ir.analytics.rough_path_semantics.persist_rough_path_intervention_certificate(store, ...)
+  polisyos.ir.analytics.sensitivity.load_sensitivity_analysis_bundle(store, ...)
+  polisyos.ir.analytics.sensitivity.load_sensitivity_result(store, ...)
+  polisyos.ir.analytics.sensitivity.persist_sensitivity_analysis_bundle(store, ...)
+  polisyos.ir.analytics.sensitivity.persist_sensitivity_result(store, ...)
+  polisyos.ir.analytics.shift_diagnostics.load_shift_diagnostic_report(store, ...)
+  polisyos.ir.analytics.shift_diagnostics.persist_shift_diagnostic_report(store, ...)
+  polisyos.ir.analytics.simulation_proof_bridge._load_causal_validity_payload(store, ...)
+  polisyos.ir.analytics.simulation_proof_bridge._load_payload(store, ...)
+  polisyos.ir.analytics.simulation_proof_bridge._load_truthfulness_owner_payload(store, ...)
+  polisyos.ir.analytics.simulation_proof_bridge.build_simulation_proof_bridge_artifacts(store, ...)
+  polisyos.ir.analytics.simulation_proof_bridge.load_simulation_calibration_receipt(store, ...)
+  polisyos.ir.analytics.simulation_proof_bridge.load_simulation_proof_bridge(store, ...)
+  polisyos.ir.analytics.simulation_proof_bridge.persist_simulation_calibration_receipt(store, ...)
+  polisyos.ir.analytics.simulation_proof_bridge.persist_simulation_proof_bridge(store, ...)
+  polisyos.ir.analytics.strategic._load_strategic_leaf(store, ...)
+  polisyos.ir.analytics.strategic._persist_strategic_leaf(store, ...)
+  polisyos.ir.analytics.strategic.load_equilibrium_selection_summary(store, ...)
+  polisyos.ir.analytics.strategic.load_equilibrium_set_summary(store, ...)
+  polisyos.ir.analytics.strategic.load_mean_field_equilibrium_certificate(store, ...)
+  polisyos.ir.analytics.strategic.load_mean_field_macro_simulation_config(store, ...)
+  polisyos.ir.analytics.strategic.load_mean_field_mass_conservation_report(store, ...)
+  polisyos.ir.analytics.strategic.load_mean_field_perturbation_spec(store, ...)
+  polisyos.ir.analytics.strategic.load_mean_field_solver_residual_report(store, ...)
+  polisyos.ir.analytics.strategic.load_performative_shift_summary(store, ...)
+  polisyos.ir.analytics.strategic.load_post_adaptation_policy_value_summary(store, ...)
+  polisyos.ir.analytics.strategic.load_strategic_closure_summary(store, ...)
+  polisyos.ir.analytics.strategic.load_strategic_component_bounds_summary(store, ...)
+  polisyos.ir.analytics.strategic.load_strategic_decomposition_certificate(store, ...)
+  polisyos.ir.analytics.strategic.load_strategic_decomposition_failure_card(store, ...)
+  polisyos.ir.analytics.strategic.load_strategic_payoff_table(store, ...)
+  polisyos.ir.analytics.strategic.load_strategic_response_bundle(store, ...)
+  polisyos.ir.analytics.strategic.load_strategic_scm(store, ...)
+  polisyos.ir.analytics.strategic.persist_equilibrium_selection_summary(store, ...)
+  polisyos.ir.analytics.strategic.persist_equilibrium_set_summary(store, ...)
+  polisyos.ir.analytics.strategic.persist_mean_field_equilibrium_certificate(store, ...)
+  polisyos.ir.analytics.strategic.persist_mean_field_macro_simulation_config(store, ...)
+  polisyos.ir.analytics.strategic.persist_mean_field_mass_conservation_report(store, ...)
+  polisyos.ir.analytics.strategic.persist_mean_field_perturbation_spec(store, ...)
+  polisyos.ir.analytics.strategic.persist_mean_field_solver_residual_report(store, ...)
+  polisyos.ir.analytics.strategic.persist_performative_shift_summary(store, ...)
+  polisyos.ir.analytics.strategic.persist_post_adaptation_policy_value_summary(store, ...)
+  polisyos.ir.analytics.strategic.persist_strategic_closure_summary(store, ...)
+  polisyos.ir.analytics.strategic.persist_strategic_component_bounds_summary(store, ...)
+  polisyos.ir.analytics.strategic.persist_strategic_decomposition_certificate(store, ...)
+  polisyos.ir.analytics.strategic.persist_strategic_decomposition_failure_card(store, ...)
+  polisyos.ir.analytics.strategic.persist_strategic_payoff_table(store, ...)
+  polisyos.ir.analytics.strategic.persist_strategic_response_bundle(store, ...)
+  polisyos.ir.analytics.strategic.persist_strategic_scm(store, ...)
+  polisyos.ir.analytics.structural_causal_model.load_structural_causal_model_spec(store, ...)
+  polisyos.ir.analytics.structural_causal_model.persist_structural_causal_model_spec(store, ...)
+  polisyos.ir.analytics.survey_quality.load_survey_quality_certificate(store, ...)
+  polisyos.ir.analytics.survey_quality.persist_survey_quality_certificate(store, ...)
+  polisyos.ir.analytics.transportability.load_transportability_result(store, ...)
+  polisyos.ir.analytics.transportability.persist_transportability_result(store, ...)
+  polisyos.ir.analytics.twin_network.load_twin_network_result(store, ...)
+  polisyos.ir.analytics.twin_network.persist_twin_network_result(store, ...)
+  polisyos.ir.analytics.uncertainty._normalized_artifact_reference(store, ...)
+  polisyos.ir.analytics.uncertainty.load_simulation_result_uncertainty_admission(store, ...)
+  polisyos.ir.analytics.uncertainty.load_uncertainty_envelope(store, ...)
+  polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope(store, ...)
+  polisyos.ir.analytics.welfare._load_artifact_mapping(store, ...)
+  polisyos.ir.analytics.welfare.build_channel_decomposition_ref(store, ...)
+  polisyos.ir.analytics.welfare.load_channel_decomposition_artifact(store, ...)
+  polisyos.ir.analytics.welfare.load_ge_uncertainty_bundle(store, ...)
+  polisyos.ir.analytics.welfare.load_welfare_bundle(store, ...)
+  polisyos.ir.analytics.welfare.load_welfare_sample_bundle(store, ...)
+  polisyos.ir.analytics.welfare.persist_channel_decomposition_artifact(store, ...)
+  polisyos.ir.analytics.welfare.persist_ge_uncertainty_bundle(store, ...)
+  polisyos.ir.analytics.welfare.persist_welfare_bundle(store, ...)
+  polisyos.ir.analytics.welfare.persist_welfare_sample_bundle(store, ...)
+  polisyos.ir.artifacts.io._raw_manifest_canon(store, ...)
+  polisyos.ir.artifacts.io.get_json_artifact(store, ...)
+  polisyos.ir.artifacts.io.put_json_artifact(store, ...)
+  polisyos.ir.artifacts.lineage.build_artifact_lineage_graph(store, ...)
+  polisyos.ir.governance.phase1.build_phase1_gate_summary(artifact_store, ...)
+  polisyos.ir.governance.validation.load_validation_report(store, ...)
+  polisyos.ir.governance.validation.persist_validation_report(store, ...)
+  polisyos.ir.observation.causal_execution.load_causal_execution_bundle(store, ...)
+  polisyos.ir.observation.causal_execution.persist_causal_execution_bundle(store, ...)
+  polisyos.ir.observation.causal_readiness.load_causal_readiness_bundle(store, ...)
+  polisyos.ir.observation.causal_readiness.persist_causal_readiness_bundle(store, ...)
+Call counts by first argument:
+   30 artifact_store
+    1 cas
+  160 ctx.store
+    9 ir_store
+   27 self._artifact_store
+   18 self._store
+    6 self.store
+   51 store
+Call counts by API function:
+    1 build_channel_decomposition_ref
+    1 build_simulation_proof_bridge_artifacts
+    2 get_json_artifact
+    3 hydrate_bounds_bundle_with_dual_certificate
+    2 load_abm_alignment_report
+    4 load_abstraction_certificate
+    1 load_alignment_report
+    3 load_backtest_report
+    4 load_bounds_bundle
+    1 load_causal_capability_contract
+    2 load_causal_discovery_report
+    3 load_causal_effect_report
+    1 load_causal_evidence_bundle
+   10 load_causal_graph_model
+    2 load_causal_model_ensemble
+    1 load_causal_query_result
+    1 load_causal_readiness_bundle
+    2 load_channel_decomposition_artifact
+    1 load_composition_certificate
+    1 load_context_adaptive_parameter_bundle
+    6 load_cross_graph_evidence_profile
+    4 load_data_readiness_report
+    1 load_dependence_structure
+    1 load_distributional_effect_bundle
+    5 load_distributional_report
+    1 load_dynamic_microsim_validation_report
+    1 load_equilibrium_selection_summary
+    1 load_equilibrium_set_summary
+    2 load_finite_state_abstraction_map
+    1 load_fiscal_feedback_link
+    1 load_forecasting_uncertainty_bundle
+    1 load_ge_uncertainty_bundle
+    1 load_hte_result
+    1 load_incentive_compatibility_certificate
+    2 load_interface_mapping
+    1 load_kernel_estimator_spec
+    1 load_latent_bridge_hypothesis
+    1 load_literature_causal_prior
+    2 load_mean_field_equilibrium_certificate
+    1 load_mean_field_macro_simulation_config
+    1 load_mean_field_perturbation_spec
+    1 load_mechanism_welfare_loss_bound
+    1 load_metric_validation_report
+    2 load_microsim_calibration_report
+    1 load_mobility_report
+    2 load_normative_arbitration_result
+    2 load_optimization_ambiguity_certificate
+    1 load_ordinal_poverty_report
+    3 load_performative_shift_summary
+    1 load_policy_recommendation
+    2 load_post_adaptation_policy_value_summary
+    2 load_proof_bundle
+    1 load_sensitivity_result
+    4 load_simulation_result_uncertainty_admission
+    1 load_strategic_closure_summary
+    1 load_strategic_decomposition_failure_card
+    2 load_strategic_payoff_table
+    3 load_strategic_response_bundle
+    1 load_strategic_scm
+    4 load_structural_causal_model_spec
+    1 load_survey_quality_certificate
+    1 load_temporal_intervention_trajectory
+    1 load_transportability_result
+   12 load_uncertainty_envelope
+    3 load_welfare_bundle
+    1 persist_abm_alignment_report
+    2 persist_abstraction_certificate
+    2 persist_alignment_report
+    2 persist_backtest_report
+    7 persist_bounds_bundle
+    1 persist_bridge_plausibility_report
+    1 persist_causal_assumption_card
+    2 persist_causal_capability_contract
+    1 persist_causal_discovery_report
+    3 persist_causal_effect_report
+    1 persist_causal_evidence_bundle
+    1 persist_causal_execution_bundle
+   10 persist_causal_graph_model
+    1 persist_causal_model_ensemble
+    1 persist_causal_query_result
+    1 persist_causal_readiness_bundle
+    2 persist_composition_certificate
+    1 persist_context_adaptive_parameter_bundle
+    1 persist_continuous_time_query
+    2 persist_cross_graph_evidence_profile
+    3 persist_data_readiness_report
+    5 persist_dependence_structure
+    2 persist_discrete_distribution_summary
+    1 persist_distributional_bounds_bundle
+    1 persist_distributional_dual_certificate
+    1 persist_distributional_effect_bundle
+    3 persist_distributional_proof_artifact
+    1 persist_distributional_report
+    2 persist_dynamic_microsim_validation_report
+    2 persist_dynamic_treatment_regime
+    1 persist_effect_trajectory_bundle
+    2 persist_equilibrium_selection_summary
+    1 persist_equilibrium_set_summary
+    1 persist_estimand_ast
+    2 persist_finite_state_abstraction_map
+    1 persist_fiscal_feedback_link
+    1 persist_forecasting_uncertainty_bundle
+    1 persist_frontier_sketch
+    1 persist_ge_uncertainty_bundle
+    1 persist_hte_result
+    2 persist_incentive_compatibility_certificate
+    2 persist_interface_mapping
+    1 persist_intervention_certificate
+    2 persist_intervention_query
+    1 persist_joint_decision_certificate
+    1 persist_latent_bridge_hypothesis
+    1 persist_literature_causal_prior
+    1 persist_mean_field_equilibrium_certificate
+    1 persist_mean_field_macro_simulation_config
+    1 persist_mean_field_mass_conservation_report
+    1 persist_mean_field_solver_residual_report
+    2 persist_mechanism_family_spec
+    2 persist_mechanism_welfare_loss_bound
+    1 persist_metric_validation_report
+    2 persist_microsim_calibration_report
+    7 persist_mobility_report
+    4 persist_negative_certificate
+    1 persist_normative_arbitration_result
+    1 persist_optimization_ambiguity_certificate
+    1 persist_ordinal_poverty_report
+    1 persist_ot_coupling_summary
+    1 persist_performative_shift_summary
+    1 persist_policy_recommendation
+    1 persist_post_adaptation_policy_value_summary
+    4 persist_proof_bundle
+    1 persist_proof_composability_certificate
+    1 persist_proof_witness_index
+    1 persist_proximal_identification_certificate
+    1 persist_quantile_shift_summary
+    2 persist_recoverability_certificate
+    2 persist_scm_fragment
+    1 persist_sensitivity_analysis_bundle
+    1 persist_sensitivity_result
+    1 persist_social_weight_manifest
+    1 persist_space_time_causal_certificate
+    1 persist_strategic_closure_summary
+    2 persist_strategic_component_bounds_summary
+    1 persist_strategic_decomposition_certificate
+    1 persist_strategic_decomposition_failure_card
+    3 persist_strategic_payoff_table
+    1 persist_strategic_response_bundle
+    7 persist_strategic_scm
+    1 persist_structural_causal_model_spec
+    1 persist_subgroup_distribution_comparison
+    1 persist_survey_quality_certificate
+    1 persist_tail_risk_delta_summary
+    1 persist_temporal_graph_causal_certificate
+    1 persist_temporal_intervention_trajectory
+    3 persist_transportability_result
+    6 persist_uncertainty_envelope
+    1 persist_validation_report
+    1 persist_welfare_bundle
+    1 persist_welfare_sample_bundle
+    2 put_json_artifact
+Exact boundaries: file:line function(first arg name) => expression
+  policy-engine/src/polisyos/calibration/forecast_bridge.py:777 polisyos.ir.analytics.backtest.load_backtest_report(store, ...) => store
+  policy-engine/src/polisyos/fabric/claims/conflicts/resolve.py:684 polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope(store, ...) => cas
+  policy-engine/src/polisyos/fabric/entity_resolution/store.py:60 polisyos.ir.artifacts.io.get_json_artifact(store, ...) => self._store
+  policy-engine/src/polisyos/fabric/entity_resolution/store.py:137 polisyos.ir.artifacts.io.get_json_artifact(store, ...) => self._store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:1419 polisyos.ir.analytics.proof_composability.persist_proof_composability_certificate(store, ...) => store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:1134 polisyos.ir.analytics.survey_quality.load_survey_quality_certificate(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:3277 polisyos.ir.analytics.evidence_bundle.persist_causal_evidence_bundle(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:3296 polisyos.ir.analytics.proof_composability.persist_proof_witness_index(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:3379 polisyos.ir.analytics.causal.persist_proof_bundle(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:4299 polisyos.ir.analytics.dynamic_regime.load_temporal_intervention_trajectory(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:4574 polisyos.ir.analytics.dynamic_regime.persist_temporal_intervention_trajectory(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:4595 polisyos.ir.analytics.dynamic_regime.persist_continuous_time_query(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:4640 polisyos.ir.analytics.causal.persist_proof_bundle(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:4752 polisyos.ir.analytics.dynamic_regime.persist_effect_trajectory_bundle(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:2680 polisyos.ir.analytics.interventions.persist_intervention_query(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:2701 polisyos.ir.analytics.interventions.persist_intervention_certificate(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:2716 polisyos.ir.analytics.frontier.persist_frontier_sketch(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:2727 polisyos.ir.analytics.proximal.persist_bridge_plausibility_report(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:2738 polisyos.ir.analytics.proximal.persist_proximal_identification_certificate(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:2749 polisyos.ir.analytics.recoverability.persist_recoverability_certificate(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:2778 polisyos.ir.analytics.recoverability.persist_joint_decision_certificate(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:3385 polisyos.ir.analytics.dual_certificate.hydrate_bounds_bundle_with_dual_certificate(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:3390 polisyos.ir.analytics.partial_identification.persist_bounds_bundle(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:3423 polisyos.ir.analytics.causal.persist_data_readiness_report(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:3438 polisyos.ir.analytics.negative_certificate.persist_negative_certificate(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:4590 polisyos.ir.analytics.dynamic_regime.persist_dynamic_treatment_regime(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:2693 polisyos.ir.analytics.interventions.persist_intervention_query(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py:2761 polisyos.ir.analytics.recoverability.persist_recoverability_certificate(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/dynamic_graph_dscm.py:1565 polisyos.ir.analytics.phase4_dynamics.persist_temporal_graph_causal_certificate(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/space_time_dscm.py:1434 polisyos.ir.analytics.phase4_dynamics.persist_space_time_causal_certificate(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/strategic.py:1732 polisyos.ir.analytics.strategic.persist_strategic_closure_summary(store, ...) => store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/strategic.py:1733 polisyos.ir.analytics.strategic.persist_equilibrium_set_summary(store, ...) => store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/strategic.py:1777 polisyos.ir.analytics.strategic.persist_post_adaptation_policy_value_summary(store, ...) => store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/strategic.py:1982 polisyos.ir.analytics.strategic.persist_strategic_response_bundle(store, ...) => store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/strategic.py:1745 polisyos.ir.analytics.strategic.persist_equilibrium_selection_summary(store, ...) => store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/strategic.py:1764 polisyos.ir.analytics.strategic.persist_performative_shift_summary(store, ...) => store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/strategic.py:1863 polisyos.ir.analytics.strategic.persist_strategic_decomposition_certificate(store, ...) => store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/strategic.py:1878 polisyos.ir.analytics.strategic.persist_strategic_decomposition_failure_card(store, ...) => store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/strategic.py:1885 polisyos.ir.analytics.strategic.persist_equilibrium_selection_summary(store, ...) => store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/strategic.py:1892 polisyos.ir.analytics.strategic.persist_strategic_component_bounds_summary(store, ...) => store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/strategic.py:1899 polisyos.ir.analytics.strategic.persist_strategic_component_bounds_summary(store, ...) => store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/strategic.py:1960 polisyos.ir.analytics.strategic.persist_mean_field_equilibrium_certificate(store, ...) => store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/strategic.py:1919 polisyos.ir.analytics.strategic.persist_mean_field_solver_residual_report(store, ...) => store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/strategic.py:1928 polisyos.ir.analytics.strategic.persist_mean_field_mass_conservation_report(store, ...) => store
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/strategic.py:1940 polisyos.ir.analytics.strategic.persist_mean_field_macro_simulation_config(store, ...) => store
+  policy-engine/src/polisyos/foundry/methods/catalog/distributional/mobility.py:809 polisyos.ir.analytics.mobility.persist_mobility_report(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/distributional/mobility.py:1184 polisyos.ir.analytics.mobility.persist_mobility_report(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/distributional/mobility.py:1539 polisyos.ir.analytics.mobility.persist_mobility_report(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/distributional/mobility.py:1764 polisyos.ir.analytics.mobility.persist_mobility_report(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/distributional/mobility.py:1880 polisyos.ir.analytics.mobility.persist_mobility_report(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/distributional/mobility.py:1087 polisyos.ir.analytics.partial_identification.persist_bounds_bundle(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/distributional/mobility.py:1412 polisyos.ir.analytics.partial_identification.persist_bounds_bundle(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/distributional/mobility.py:1688 polisyos.ir.analytics.partial_identification.persist_bounds_bundle(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/distributional/mobility_latent_adapter.py:115 polisyos.ir.analytics.mobility.persist_mobility_report(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/econometrics/dynamic_panel.py:1114 polisyos.ir.analytics.dependence_structure.persist_dependence_structure(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/econometrics/mobility_latent.py:1551 polisyos.ir.analytics.mobility.persist_mobility_report(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/microsim/advanced.py:2323 polisyos.ir.analytics.phase4_dynamics.load_dynamic_microsim_validation_report(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/microsim/advanced.py:2344 polisyos.ir.analytics.phase4_dynamics.persist_dynamic_microsim_validation_report(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/microsim/advanced.py:2304 polisyos.ir.analytics.phase4_dynamics.persist_dynamic_microsim_validation_report(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/microsim/calibration.py:1285 polisyos.ir.analytics.microsim_calibration.persist_microsim_calibration_report(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/microsim/inverse.py:1846 polisyos.ir.analytics.microsim_calibration.persist_microsim_calibration_report(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/microsim/static.py:64 polisyos.ir.analytics.microsim_calibration.load_microsim_calibration_report(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/simulation/demography.py:136 polisyos.ir.analytics.microsim_calibration.load_microsim_calibration_report(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/spatial/advanced.py:78 polisyos.ir.analytics.dependence_structure.persist_dependence_structure(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/spatial/analysis.py:114 polisyos.ir.analytics.dependence_structure.persist_dependence_structure(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/survey/causal_frontier.py:56 polisyos.ir.artifacts.io.put_json_artifact(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/survey/causal_frontier.py:672 polisyos.ir.analytics.dependence_structure.persist_dependence_structure(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/survey/dr.py:1936 polisyos.ir.analytics.survey_quality.persist_survey_quality_certificate(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/survey/estimation.py:59 polisyos.ir.artifacts.io.put_json_artifact(store, ...) => artifact_store
+  policy-engine/src/polisyos/foundry/methods/catalog/survey/estimation.py:1602 polisyos.ir.analytics.dependence_structure.persist_dependence_structure(store, ...) => artifact_store
+  policy-engine/src/polisyos/runtime/http/services/mobility.py:134 polisyos.ir.analytics.mobility.load_mobility_report(store, ...) => self._store
+  policy-engine/src/polisyos/runtime/http/services/mobility.py:144 polisyos.ir.analytics.partial_identification.load_bounds_bundle(store, ...) => self._store
+  policy-engine/src/polisyos/runtime/http/services/mobility.py:114 polisyos.ir.analytics.partial_identification.persist_bounds_bundle(store, ...) => self._store
+  policy-engine/src/polisyos/scientist/cross_graph/compiler.py:2055 polisyos.ir.analytics.latent_bridge_synthesis.persist_latent_bridge_hypothesis(store, ...) => artifact_store
+  policy-engine/src/polisyos/scientist/cross_graph/compiler.py:2039 polisyos.ir.analytics.latent_bridge_synthesis.load_latent_bridge_hypothesis(store, ...) => artifact_store
+  policy-engine/src/polisyos/scientist/governance/backtest_matrix.py:242 polisyos.ir.analytics.backtest.persist_backtest_report(store, ...) => self._store
+  policy-engine/src/polisyos/scientist/governance/blueprint_release.py:1233 polisyos.ir.analytics.abstraction.persist_finite_state_abstraction_map(store, ...) => self._store
+  policy-engine/src/polisyos/scientist/governance/blueprint_release.py:1241 polisyos.ir.analytics.abstraction.persist_abstraction_certificate(store, ...) => self._store
+  policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py:136 polisyos.ir.analytics.uncertainty.load_simulation_result_uncertainty_admission(store, ...) => store
+  policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py:164 polisyos.ir.analytics.uncertainty.load_uncertainty_envelope(store, ...) => store
+  policy-engine/src/polisyos/scientist/governance/passes/literature_gate_pass.py:133 polisyos.ir.analytics.causal_graph.load_causal_graph_model(store, ...) => store
+  policy-engine/src/polisyos/scientist/governance/passes/literature_gate_pass.py:159 polisyos.ir.analytics.cross_graph.load_cross_graph_evidence_profile(store, ...) => store
+  policy-engine/src/polisyos/scientist/governance/passes/strategic_response_pass.py:336 polisyos.ir.analytics.strategic.load_strategic_response_bundle(store, ...) => store
+  policy-engine/src/polisyos/scientist/governance/passes/strategic_response_pass.py:368 polisyos.ir.analytics.strategic.load_performative_shift_summary(store, ...) => store
+  policy-engine/src/polisyos/scientist/governance/passes/strategic_response_pass.py:383 polisyos.ir.analytics.strategic.load_mean_field_equilibrium_certificate(store, ...) => store
+  policy-engine/src/polisyos/scientist/governance/passes/transportability_required_pass.py:231 polisyos.ir.analytics.causal.load_causal_effect_report(store, ...) => store
+  policy-engine/src/polisyos/scientist/governance/passes/transportability_required_pass.py:255 polisyos.ir.analytics.cross_graph.load_cross_graph_evidence_profile(store, ...) => store
+  policy-engine/src/polisyos/scientist/governance/passes/transportability_required_pass.py:337 polisyos.ir.analytics.transportability.load_transportability_result(store, ...) => store
+  policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py:454 polisyos.ir.analytics.abstraction.load_abstraction_certificate(store, ...) => store
+  policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py:467 polisyos.ir.analytics.abm_bridge.load_abm_alignment_report(store, ...) => store
+  policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py:394 polisyos.ir.analytics.strategic.load_strategic_response_bundle(store, ...) => store
+  policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py:406 polisyos.ir.analytics.strategic.load_equilibrium_set_summary(store, ...) => store
+  policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py:422 polisyos.ir.analytics.strategic.load_post_adaptation_policy_value_summary(store, ...) => store
+  policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py:412 polisyos.ir.analytics.strategic.load_equilibrium_selection_summary(store, ...) => store
+  policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py:417 polisyos.ir.analytics.strategic.load_performative_shift_summary(store, ...) => store
+  policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py:401 polisyos.ir.analytics.strategic.load_strategic_closure_summary(store, ...) => store
+  policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py:197 polisyos.ir.analytics.cross_graph.load_composition_certificate(store, ...) => ir_store
+  policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py:205 polisyos.ir.analytics.alignment_certification.load_alignment_report(store, ...) => ir_store
+  policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py:211 polisyos.ir.analytics.cross_graph.load_interface_mapping(store, ...) => ir_store
+  policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py:147 polisyos.ir.analytics.causal_graph.persist_causal_graph_model(store, ...) => ir_store
+  policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py:149 polisyos.ir.analytics.cross_graph.persist_scm_fragment(store, ...) => ir_store
+  policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py:163 polisyos.ir.analytics.alignment_certification.persist_alignment_report(store, ...) => ir_store
+  policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py:164 polisyos.ir.analytics.cross_graph.persist_interface_mapping(store, ...) => ir_store
+  policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py:228 polisyos.ir.analytics.causal_graph.load_causal_graph_model(store, ...) => ir_store
+  policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py:238 polisyos.ir.analytics.cross_graph.load_interface_mapping(store, ...) => ir_store
+  policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py:685 polisyos.ir.analytics.forecasting_uncertainty.persist_forecasting_uncertainty_bundle(store, ...) => self._store
+  policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py:696 polisyos.ir.analytics.forecasting_uncertainty.load_forecasting_uncertainty_bundle(store, ...) => self._store
+  policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py:888 polisyos.ir.analytics.backtest.load_backtest_report(store, ...) => self._store
+  policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py:282 polisyos.ir.analytics.backtest.persist_backtest_report(store, ...) => self._store
+  policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py:529 polisyos.ir.analytics.uncertainty.load_simulation_result_uncertainty_admission(store, ...) => self._store
+  policy-engine/src/polisyos/scientist/methods/causal/execution.py:71 polisyos.ir.analytics.dual_certificate.hydrate_bounds_bundle_with_dual_certificate(store, ...) => self.store
+  policy-engine/src/polisyos/scientist/methods/causal/execution.py:89 polisyos.ir.analytics.partial_identification.persist_bounds_bundle(store, ...) => self.store
+  policy-engine/src/polisyos/scientist/methods/causal/readiness.py:508 polisyos.ir.analytics.transportability.persist_transportability_result(store, ...) => self.store
+  policy-engine/src/polisyos/scientist/methods/causal/readiness.py:560 polisyos.ir.analytics.strategic.persist_strategic_payoff_table(store, ...) => self.store
+  policy-engine/src/polisyos/scientist/methods/causal/readiness.py:653 polisyos.ir.analytics.strategic.persist_strategic_scm(store, ...) => self.store
+  policy-engine/src/polisyos/scientist/methods/causal/validity.py:772 polisyos.ir.analytics.causal_graph.persist_causal_graph_model(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/methods/causal/validity.py:838 polisyos.ir.analytics.causal_graph.load_causal_graph_model(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/methods/discovery/output.py:1403 polisyos.ir.analytics.causal_discovery.load_causal_discovery_report(store, ...) => store
+  policy-engine/src/polisyos/scientist/methods/discovery/output.py:456 polisyos.ir.analytics.causal_discovery.persist_causal_discovery_report(store, ...) => store
+  policy-engine/src/polisyos/scientist/methods/search/funnel/level2_causal.py:390 polisyos.ir.analytics.causal.persist_proof_bundle(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/scientist/methods/search/funnel/level2_causal.py:399 polisyos.ir.analytics.negative_certificate.persist_negative_certificate(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/scientist/methods/search/funnel/level2_causal.py:405 polisyos.ir.analytics.causal.persist_data_readiness_report(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/scientist/methods/search/funnel/level2_causal.py:415 polisyos.ir.analytics.dual_certificate.hydrate_bounds_bundle_with_dual_certificate(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/scientist/methods/search/funnel/level2_causal.py:420 polisyos.ir.analytics.partial_identification.persist_bounds_bundle(store, ...) => self._artifact_store
+  policy-engine/src/polisyos/scientist/methods/search/judge_stack.py:509 polisyos.ir.analytics.causal.load_proof_bundle(store, ...) => self._store
+  policy-engine/src/polisyos/scientist/methods/search/judge_stack.py:533 polisyos.ir.analytics.partial_identification.load_bounds_bundle(store, ...) => self._store
+  policy-engine/src/polisyos/scientist/methods/search/judge_stack.py:679 polisyos.ir.analytics.causal.load_data_readiness_report(store, ...) => self._store
+  policy-engine/src/polisyos/scientist/methods/search/judge_stack.py:1528 polisyos.ir.analytics.causal.persist_data_readiness_report(store, ...) => self._store
+  policy-engine/src/polisyos/scientist/methods/search/judge_stack.py:2076 polisyos.ir.analytics.causal.load_data_readiness_report(store, ...) => store
+  policy-engine/src/polisyos/scientist/methods/search/judge_stack.py:2085 polisyos.ir.analytics.causal.load_proof_bundle(store, ...) => store
+  policy-engine/src/polisyos/scientist/methods/search/judge_stack.py:2097 polisyos.ir.analytics.partial_identification.load_bounds_bundle(store, ...) => store
+  policy-engine/src/polisyos/scientist/methods/search/readiness.py:247 polisyos.ir.analytics.causal.load_data_readiness_report(store, ...) => self._store
+  policy-engine/src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py:617 polisyos.ir.analytics.abstraction.load_abstraction_certificate(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py:707 polisyos.ir.analytics.strategic.persist_strategic_payoff_table(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py:743 polisyos.ir.analytics.strategic.load_strategic_payoff_table(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py:420 polisyos.ir.analytics.strategic.persist_strategic_scm(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py:373 polisyos.ir.analytics.strategic.persist_strategic_scm(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py:388 polisyos.ir.analytics.strategic.persist_strategic_scm(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py:280 polisyos.ir.analytics.literature.persist_literature_causal_prior(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py:285 polisyos.ir.analytics.causal_graph.persist_causal_graph_model(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/counterfactual_identification_gate.py:167 polisyos.ir.observation.causal_readiness.load_causal_readiness_bundle(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py:610 polisyos.ir.analytics.cross_graph.persist_composition_certificate(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py:438 polisyos.ir.analytics.negative_certificate.persist_negative_certificate(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py:314 polisyos.ir.analytics.cross_graph.persist_scm_fragment(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py:908 polisyos.ir.analytics.cross_graph.persist_composition_certificate(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py:426 polisyos.ir.analytics.causal_graph.persist_causal_graph_model(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py:784 polisyos.ir.analytics.alignment_certification.persist_alignment_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py:785 polisyos.ir.analytics.cross_graph.persist_interface_mapping(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py:826 polisyos.ir.analytics.causal_graph.persist_causal_graph_model(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py:1085 polisyos.ir.analytics.causal_graph.persist_causal_graph_model(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py:257 polisyos.ir.analytics.parameters.persist_context_adaptive_parameter_bundle(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py:342 polisyos.ir.analytics.parameters.load_context_adaptive_parameter_bundle(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py:402 polisyos.ir.analytics.cross_graph.load_cross_graph_evidence_profile(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py:189 polisyos.ir.analytics.causal_graph.load_causal_graph_model(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py:993 polisyos.ir.analytics.transportability.persist_transportability_result(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py:1621 polisyos.ir.analytics.causal_capabilities.persist_causal_capability_contract(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py:910 polisyos.ir.analytics.transportability.persist_transportability_result(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py:916 polisyos.ir.analytics.causal.persist_causal_effect_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py:1023 polisyos.ir.analytics.causal.persist_causal_effect_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py:750 polisyos.ir.analytics.causal.load_causal_effect_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py:1691 polisyos.ir.analytics.causal_ensemble.load_causal_model_ensemble(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py:1709 polisyos.ir.analytics.causal_graph.load_causal_graph_model(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py:1613 polisyos.ir.analytics.causal_capabilities.load_causal_capability_contract(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py:1695 polisyos.ir.analytics.causal_graph.load_causal_graph_model(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_abm_consistency.py:437 polisyos.ir.analytics.abstraction.load_finite_state_abstraction_map(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_abm_consistency.py:318 polisyos.ir.analytics.causal.load_causal_effect_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_abm_consistency.py:373 polisyos.ir.analytics.structural_causal_model.load_structural_causal_model_spec(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_abm_consistency.py:498 polisyos.ir.analytics.abstraction.load_finite_state_abstraction_map(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_abm_consistency.py:833 polisyos.ir.analytics.abm_bridge.persist_abm_alignment_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_abm_consistency.py:379 polisyos.ir.analytics.structural_causal_model.load_structural_causal_model_spec(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_abm_consistency.py:615 polisyos.ir.analytics.causal_graph.persist_causal_graph_model(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_abm_consistency.py:624 polisyos.ir.analytics.causal_graph.persist_causal_graph_model(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_abm_consistency.py:679 polisyos.ir.analytics.abstraction.persist_abstraction_certificate(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_abm_consistency.py:644 polisyos.ir.analytics.abstraction.persist_finite_state_abstraction_map(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py:501 polisyos.ir.observation.causal_execution.persist_causal_execution_bundle(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py:115 polisyos.ir.analytics.dynamic_regime.persist_dynamic_treatment_regime(store, ...) => self.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py:350 polisyos.ir.analytics.causal_graph.persist_causal_graph_model(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py:325 polisyos.ir.analytics.causal_discovery.load_causal_discovery_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py:346 polisyos.ir.analytics.causal_graph.load_causal_graph_model(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py:748 polisyos.ir.analytics.causal_ensemble.persist_causal_model_ensemble(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py:777 polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py:726 polisyos.ir.analytics.causal_graph.persist_causal_graph_model(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py:540 polisyos.ir.analytics.structural_causal_model.persist_structural_causal_model_spec(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py:550 polisyos.ir.analytics.structural_causal_model.load_structural_causal_model_spec(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py:598 polisyos.ir.analytics.causal_queries.load_causal_query_result(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py:357 polisyos.ir.analytics.causal_queries.persist_causal_query_result(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py:384 polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py:254 polisyos.ir.analytics.structural_causal_model.load_structural_causal_model_spec(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_readiness.py:291 polisyos.ir.observation.causal_readiness.persist_causal_readiness_bundle(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_readiness.py:198 polisyos.ir.analytics.causal_graph.load_causal_graph_model(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py:283 polisyos.ir.analytics.distributional.load_distributional_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py:292 polisyos.ir.analytics.cross_graph.load_cross_graph_evidence_profile(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py:322 polisyos.ir.analytics.uncertainty.load_uncertainty_envelope(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py:459 polisyos.ir.analytics.metric_validation_report.load_metric_validation_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:1267 polisyos.ir.analytics.abm_bridge.load_abm_alignment_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:1320 polisyos.ir.analytics.abstraction.load_abstraction_certificate(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:1359 polisyos.ir.analytics.hte.load_hte_result(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:1407 polisyos.ir.analytics.hte.load_policy_recommendation(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:1452 polisyos.ir.analytics.backtest.load_backtest_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:1798 polisyos.ir.analytics.welfare.load_welfare_bundle(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:2051 polisyos.ir.analytics.normative_arbitration.load_normative_arbitration_result(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:2128 polisyos.ir.analytics.sensitivity.load_sensitivity_result(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:2165 polisyos.ir.analytics.sensitivity.persist_sensitivity_analysis_bundle(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:641 polisyos.ir.analytics.causal_ensemble.load_causal_model_ensemble(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:710 polisyos.ir.analytics.evidence_bundle.load_causal_evidence_bundle(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:755 polisyos.ir.analytics.partial_identification.load_bounds_bundle(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:874 polisyos.ir.analytics.strategic.load_strategic_scm(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:907 polisyos.ir.analytics.strategic.load_strategic_response_bundle(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:1621 polisyos.ir.analytics.distributional.load_distributional_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:1677 polisyos.ir.analytics.distributional.load_distributional_effect_bundle(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:2015 polisyos.ir.analytics.uncertainty.load_uncertainty_envelope(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:2805 polisyos.ir.analytics.uncertainty.load_simulation_result_uncertainty_admission(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:2838 polisyos.ir.analytics.uncertainty.load_uncertainty_envelope(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:2858 polisyos.ir.analytics.uncertainty.load_uncertainty_envelope(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:725 polisyos.ir.analytics.kernel_causal.load_kernel_estimator_spec(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:1107 polisyos.ir.analytics.strategic.load_post_adaptation_policy_value_summary(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:1879 polisyos.ir.analytics.welfare.load_channel_decomposition_artifact(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:959 polisyos.ir.analytics.strategic.load_mean_field_equilibrium_certificate(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:1088 polisyos.ir.analytics.strategic.load_performative_shift_summary(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:1130 polisyos.ir.analytics.strategic.load_strategic_decomposition_failure_card(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:1734 polisyos.ir.analytics.distributional.load_ordinal_poverty_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:1014 polisyos.ir.analytics.strategic.load_mean_field_macro_simulation_config(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:1045 polisyos.ir.analytics.strategic.load_mean_field_perturbation_spec(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_request.py:80 polisyos.ir.analytics.decision_layer.load_optimization_ambiguity_certificate(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py:841 polisyos.ir.analytics.distributional.load_distributional_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py:869 polisyos.ir.analytics.cross_graph.load_cross_graph_evidence_profile(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py:1058 polisyos.ir.analytics.uncertainty.load_uncertainty_envelope(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py:1238 polisyos.ir.analytics.causal.load_data_readiness_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py:1469 polisyos.ir.analytics.strategic.persist_strategic_payoff_table(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py:1558 polisyos.ir.analytics.abstraction.load_abstraction_certificate(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py:1505 polisyos.ir.analytics.strategic.load_strategic_payoff_table(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py:1346 polisyos.ir.analytics.strategic.persist_strategic_scm(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py:1301 polisyos.ir.analytics.strategic.persist_strategic_scm(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py:1315 polisyos.ir.analytics.strategic.persist_strategic_scm(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py:371 polisyos.ir.analytics.distributional.load_distributional_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py:405 polisyos.ir.analytics.cross_graph.load_cross_graph_evidence_profile(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py:412 polisyos.ir.analytics.uncertainty.load_uncertainty_envelope(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_governance.py:1078 polisyos.ir.analytics.normative_arbitration.load_normative_arbitration_result(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py:345 polisyos.ir.analytics.normative_arbitration.persist_normative_arbitration_result(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py:418 polisyos.ir.analytics.distributional.load_distributional_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py:667 polisyos.ir.analytics.uncertainty.load_simulation_result_uncertainty_admission(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/planning/build_method_catalog_snapshot.py:66 polisyos.ir.analytics.causal_capabilities.persist_causal_capability_contract(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py:359 polisyos.ir.analytics.cross_graph.persist_cross_graph_evidence_profile(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py:399 polisyos.ir.analytics.causal_graph.load_causal_graph_model(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py:217 polisyos.ir.analytics.cross_graph.persist_cross_graph_evidence_profile(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py:299 polisyos.ir.analytics.literature.load_literature_causal_prior(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py:180 polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py:294 polisyos.ir.analytics.uncertainty.load_uncertainty_envelope(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py:313 polisyos.ir.analytics.uncertainty.load_uncertainty_envelope(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:1859 polisyos.ir.analytics.welfare.persist_welfare_sample_bundle(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:1152 polisyos.ir.analytics.dependence_structure.load_dependence_structure(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:1511 polisyos.ir.analytics.welfare.persist_ge_uncertainty_bundle(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:3415 polisyos.ir.analytics.welfare.build_channel_decomposition_ref(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:541 polisyos.ir.analytics.welfare.persist_welfare_bundle(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:780 polisyos.ir.analytics.uncertainty.load_uncertainty_envelope(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:1293 polisyos.ir.analytics.welfare.load_ge_uncertainty_bundle(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:1594 polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:809 polisyos.ir.analytics.uncertainty.load_uncertainty_envelope(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:864 polisyos.ir.analytics.uncertainty.load_uncertainty_envelope(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py:1480 polisyos.ir.analytics.causal.persist_causal_effect_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py:1506 polisyos.ir.analytics.uncertainty.persist_uncertainty_envelope(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py:1528 polisyos.ir.analytics.hte.persist_hte_result(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py:1550 polisyos.ir.analytics.hte.persist_policy_recommendation(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py:1442 polisyos.ir.analytics.sensitivity.persist_sensitivity_result(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py:1732 polisyos.ir.analytics.estimand.persist_estimand_ast(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py:2072 polisyos.ir.analytics.distributional.persist_discrete_distribution_summary(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py:2082 polisyos.ir.analytics.distributional.persist_discrete_distribution_summary(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py:2092 polisyos.ir.analytics.distributional.persist_quantile_shift_summary(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py:2097 polisyos.ir.analytics.distributional.persist_tail_risk_delta_summary(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py:2102 polisyos.ir.analytics.distributional.persist_ot_coupling_summary(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py:2212 polisyos.ir.analytics.distributional.persist_subgroup_distribution_comparison(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py:810 polisyos.ir.analytics.distributional.persist_ordinal_poverty_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py:1775 polisyos.ir.analytics.causal.persist_proof_bundle(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py:1788 polisyos.ir.analytics.distributional.persist_distributional_proof_artifact(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py:1835 polisyos.ir.analytics.distributional.persist_distributional_proof_artifact(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py:1871 polisyos.ir.analytics.negative_certificate.persist_negative_certificate(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py:1879 polisyos.ir.analytics.distributional.persist_distributional_proof_artifact(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py:505 polisyos.ir.analytics.distributional.persist_distributional_effect_bundle(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py:508 polisyos.ir.analytics.distributional.persist_distributional_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py:881 polisyos.ir.analytics.causal_graph.load_causal_graph_model(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py:1679 polisyos.ir.analytics.distributional.persist_causal_assumption_card(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py:1193 polisyos.ir.analytics.distributional.persist_distributional_bounds_bundle(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py:1185 polisyos.ir.analytics.distributional.persist_distributional_dual_certificate(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_metric_validation.py:223 polisyos.ir.analytics.metric_validation_report.persist_metric_validation_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py:553 polisyos.ir.analytics.simulation_proof_bridge.build_simulation_proof_bridge_artifacts(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/policy_design/phase3.py:344 polisyos.ir.analytics.decision_layer.persist_optimization_ambiguity_certificate(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/policy_design/phase3.py:385 polisyos.ir.analytics.decision_layer.persist_fiscal_feedback_link(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/policy_design/phase3.py:535 polisyos.ir.analytics.decision_layer.persist_social_weight_manifest(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/policy_design/phase3.py:949 polisyos.ir.analytics.welfare.load_channel_decomposition_artifact(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/policy_design/phase3.py:197 polisyos.ir.analytics.welfare.load_welfare_bundle(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/policy_design/phase3.py:419 polisyos.ir.analytics.welfare.load_welfare_bundle(store, ...) => store
+  policy-engine/src/polisyos/scientist/policy_design/phase3.py:434 polisyos.ir.analytics.decision_layer.load_optimization_ambiguity_certificate(store, ...) => store
+  policy-engine/src/polisyos/scientist/policy_design/phase3.py:454 polisyos.ir.analytics.mechanism_design.load_incentive_compatibility_certificate(store, ...) => store
+  policy-engine/src/polisyos/scientist/policy_design/phase3.py:461 polisyos.ir.analytics.mechanism_design.load_mechanism_welfare_loss_bound(store, ...) => store
+  policy-engine/src/polisyos/scientist/policy_design/phase3.py:470 polisyos.ir.analytics.decision_layer.load_fiscal_feedback_link(store, ...) => store
+  policy-engine/src/polisyos/scientist/validation/phase5_preflight.py:306 polisyos.ir.governance.validation.persist_validation_report(store, ...) => ctx.store
+  policy-engine/src/polisyos/scientist/validation/verification/ic/service.py:1875 polisyos.ir.analytics.mechanism_design.persist_mechanism_family_spec(store, ...) => store
+  policy-engine/src/polisyos/scientist/validation/verification/ic/service.py:1880 polisyos.ir.analytics.mechanism_design.persist_incentive_compatibility_certificate(store, ...) => store
+  policy-engine/src/polisyos/scientist/validation/verification/ic/service.py:1894 polisyos.ir.analytics.mechanism_design.persist_mechanism_welfare_loss_bound(store, ...) => store
+  policy-engine/src/polisyos/scientist/validation/verification/ic/service.py:1926 polisyos.ir.analytics.mechanism_design.persist_mechanism_family_spec(store, ...) => store
+  policy-engine/src/polisyos/scientist/validation/verification/ic/service.py:1931 polisyos.ir.analytics.mechanism_design.persist_incentive_compatibility_certificate(store, ...) => store
+  policy-engine/src/polisyos/scientist/validation/verification/ic/service.py:1945 polisyos.ir.analytics.mechanism_design.persist_mechanism_welfare_loss_bound(store, ...) => store

@@ -1,0 +1,10 @@
+src/polisyos/ir/artifacts/contracts.py:192: error: "PutOptions" has no
+attribute "governance"  [attr-defined]
+            opts.governance.model_dump(mode="python")
+            ^~~~~~~~~~~~~~~
+src/polisyos/ir/artifacts/contracts.py:202: error: Argument "inputs" to
+"StorePutOptions" has incompatible type "list[dict[str, Any]] | None"; expected
+"list[BaseModel | Mapping[str, Any]] | None"  [arg-type]
+            inputs=inputs,
+                   ^~~~~~
+Found 2 errors in 1 file (checked 2 source files)

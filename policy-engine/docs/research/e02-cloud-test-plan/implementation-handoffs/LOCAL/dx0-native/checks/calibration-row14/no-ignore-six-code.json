@@ -1,0 +1,6 @@
+{
+  "command": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python -m ruff check --config ruff.toml --config 'lint.per-file-ignores={}' --select ANN401,B905,E501,RUF005,TC001,TC003 --output-format concise src/polisyos/calibration",
+  "exit_code": 0,
+  "stdout": "All checks passed!\n",
+  "stderr": ""
+}

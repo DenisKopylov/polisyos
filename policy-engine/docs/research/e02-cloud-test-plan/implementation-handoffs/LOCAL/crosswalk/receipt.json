@@ -1,0 +1,89 @@
+{
+  "schema": "policyos.e02.q0_crosswalk_receipt.v2",
+  "status": "provisional_author_review_pending_final_source_freeze",
+  "mode": "provisional_review",
+  "source_checkpoint": {
+    "commit": "00c200c2ec33786a80dd41209eca46a2539dac5c",
+    "tree": "5ba74fcb78e28d61be21f3208ee7a4b42665b6fe",
+    "branch": "codex/e02-unified-local-20261009"
+  },
+  "source_freeze_status": "provisional_source_checkpoint_not_frozen",
+  "ledger": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/finding-proposals.json",
+    "sha256": "1bd47384a114951b89305ec48892593ae061933d9d0b2fa884e63a47b3b97908",
+    "denominator": {
+      "bundles": 127,
+      "finding_ids": 282,
+      "canonical_occurrences": 291
+    },
+    "formal_closure_ids": []
+  },
+  "candidate_evaluation_states": {
+    "UNRUN": 291
+  },
+  "author_review_states": {
+    "source_qualified_author_review_pending_final_candidate_freeze": 291
+  },
+  "external_or_g_choice_kinds": {
+    "named_source_owner_action": 29,
+    "G_decision_or_intake": 4,
+    "named_owner_next_verifiable_result": 43,
+    "targeted_current_candidate_verification_then_G_adjudication": 46,
+    "external_served_input_or_G_review": 4,
+    "G_criterion_scoped_action": 59,
+    "named_owner_or_G_review": 56,
+    "external_owner_input_then_G_source_admission": 12,
+    "G_source_review_and_affected_consumer_replay": 34,
+    "external_input_or_G_review": 2,
+    "source_author_residual_or_G_review": 2
+  },
+  "source_change_census_ref": "/source_boundary/source_freeze/source_change_census",
+  "command": [
+    "python3",
+    "-B",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py",
+    "--provisional-review"
+  ],
+  "command_logs": {
+    "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/checks/emit.stdout.txt",
+    "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/checks/emit.stderr.txt"
+  },
+  "evaluation_import_contract": {
+    "schema": "policyos.e02.occurrence_evaluations.v4",
+    "occurrence_key": [
+      "occurrence_pointer",
+      "sha256"
+    ],
+    "frozen_candidate_source": null,
+    "provisional_report_checkout": {
+      "commit": "00c200c2ec33786a80dd41209eca46a2539dac5c",
+      "tree": "5ba74fcb78e28d61be21f3208ee7a4b42665b6fe",
+      "branch": "codex/e02-unified-local-20261009"
+    },
+    "source_footprint_ref": "/source_boundary/source_freeze/source_change_census",
+    "source_footprint_sha256": "53ff237924e5bbd47932e47b66596e6e884f291f015bdbaea38f5253fb90af6f",
+    "evaluation_input_path": null,
+    "required_execution_context": [
+      "configuration_and_lock_evidence_indexes",
+      "configuration_scope_evidence_index",
+      "selected_input_state",
+      "selected_input_evidence_indexes",
+      "input_scope_evidence_index",
+      "backend_profile_evidence_index",
+      "consumer_surface_evidence_indexes",
+      "typed_slice_receipt_evidence_indexes",
+      "decision_research_evidence_indexes"
+    ],
+    "candidate_specific_alternative_or_prototype_basis_required": true,
+    "unmentioned_occurrences_remain_UNRUN": true,
+    "task_status_and_source_author_status_are_not_outcomes": true,
+    "partial_proposal_dispositions": [
+      "closed",
+      "held",
+      "limited",
+      "open"
+    ],
+    "formal_closure_ids": []
+  },
+  "authority_boundary": "Author proposals and source-qualified research only. Candidate outcomes require explicit occurrence evidence bound to the final frozen source; formal G closures stay empty."
+}

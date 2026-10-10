@@ -1,0 +1,307 @@
+.FFFF............                                                        [100%]
+=================================== FAILURES ===================================
+_ test_catalog_binding_must_join_registered_source_and_connector[-files.tabular-catalog_source_identity_unresolved] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1568/test_catalog_binding_must_join0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x14508cd60>
+source_id = '', connector_id = 'files.tabular'
+expected_code = 'catalog_source_identity_unresolved'
+
+    @pytest.mark.parametrize(
+        ("source_id", "connector_id", "expected_code"),
+        [
+            ("", "files.tabular", "catalog_source_identity_unresolved"),
+            ("unregistered_fixture", "files.tabular", "catalog_source_unregistered"),
+            (
+                "recorded_file_fixture",
+                "worldbank.wdi",
+                "catalog_source_connector_mismatch",
+            ),
+        ],
+    )
+    def test_catalog_binding_must_join_registered_source_and_connector(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        source_id: str,
+        connector_id: str,
+        expected_code: str,
+    ) -> None:
+        """Missing, unknown, or cross-connector source identities refuse before planning."""
+        from polisyos.core.contracts.control import DataNeed, DataResolveRequest
+        from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+            CatalogSelectionError,
+        )
+        from polisyos.data_forge.domains.catalog.knowledge.types import MetricBindingMatch
+        from polisyos.fabric.retrieval.service import RetrievalService
+    
+        _install_recorded_file_catalog_supplier(monkeypatch)
+    
+        class _SuppliedBindingCatalog:
+            def resolve_metric_bindings(self, metric_name: str, *, top_k: int = 20):
+                if metric_name != "metric.test":
+                    return []
+                return [
+                    MetricBindingMatch(
+                        metric_id=metric_name,
+                        catalog_dataset_id="catalog-recorded-fixture",
+                        connector_id=connector_id,
+                        request_dataset_id="recorded.csv",
+                        execution_tier="transport_ready",
+                        source=source_id,
+                        title="Controlled recorded fixture",
+                    )
+                ]
+    
+        service = RetrievalService(
+            curated_dir=tmp_path / "curated",
+            dataset_catalog=_SuppliedBindingCatalog(),
+        )
+        request = DataResolveRequest(
+            data_needs=[DataNeed(metric="metric.test", purpose="catalog identity control")],
+            mode="hybrid",
+            allow_explore_fallback=False,
+        )
+    
+        with pytest.raises(CatalogSelectionError) as refusal:
+            service.resolve(request, run_profile="prod_full")
+    
+        assert refusal.value.code == expected_code
+    
+        receipt = run_acquisition_closed_loop(
+            run_id="run-n7-catalog-plan-no-world-growth",
+            acquisition_request={
+                "request_kind": "owner_grounding_evidence",
+                "driver": "missing_supporting_data",
+                "cycle_index": 1,
+            },
+>           data_requirement_specs=(base_spec,),
+                                    ^^^^^^^^^
+            world_snapshot=AcquisitionWorldSnapshot(world_ref="world://before/catalog-plan"),
+            owner_gateway=RecordedAcquisitionOwnerGateway(
+                artifacts_by_requirement={base_spec["requirement_id"]: artifact}
+            ),
+            generated_at=datetime(2026, 7, 17, tzinfo=UTC),
+        )
+E       NameError: name 'base_spec' is not defined
+
+tests/unit/runtime/quality/test_acquisition_planner.py:1823: NameError
+_ test_catalog_binding_must_join_registered_source_and_connector[unregistered_fixture-files.tabular-catalog_source_unregistered] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1568/test_catalog_binding_must_join1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x145320710>
+source_id = 'unregistered_fixture', connector_id = 'files.tabular'
+expected_code = 'catalog_source_unregistered'
+
+    @pytest.mark.parametrize(
+        ("source_id", "connector_id", "expected_code"),
+        [
+            ("", "files.tabular", "catalog_source_identity_unresolved"),
+            ("unregistered_fixture", "files.tabular", "catalog_source_unregistered"),
+            (
+                "recorded_file_fixture",
+                "worldbank.wdi",
+                "catalog_source_connector_mismatch",
+            ),
+        ],
+    )
+    def test_catalog_binding_must_join_registered_source_and_connector(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        source_id: str,
+        connector_id: str,
+        expected_code: str,
+    ) -> None:
+        """Missing, unknown, or cross-connector source identities refuse before planning."""
+        from polisyos.core.contracts.control import DataNeed, DataResolveRequest
+        from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+            CatalogSelectionError,
+        )
+        from polisyos.data_forge.domains.catalog.knowledge.types import MetricBindingMatch
+        from polisyos.fabric.retrieval.service import RetrievalService
+    
+        _install_recorded_file_catalog_supplier(monkeypatch)
+    
+        class _SuppliedBindingCatalog:
+            def resolve_metric_bindings(self, metric_name: str, *, top_k: int = 20):
+                if metric_name != "metric.test":
+                    return []
+                return [
+                    MetricBindingMatch(
+                        metric_id=metric_name,
+                        catalog_dataset_id="catalog-recorded-fixture",
+                        connector_id=connector_id,
+                        request_dataset_id="recorded.csv",
+                        execution_tier="transport_ready",
+                        source=source_id,
+                        title="Controlled recorded fixture",
+                    )
+                ]
+    
+        service = RetrievalService(
+            curated_dir=tmp_path / "curated",
+            dataset_catalog=_SuppliedBindingCatalog(),
+        )
+        request = DataResolveRequest(
+            data_needs=[DataNeed(metric="metric.test", purpose="catalog identity control")],
+            mode="hybrid",
+            allow_explore_fallback=False,
+        )
+    
+        with pytest.raises(CatalogSelectionError) as refusal:
+            service.resolve(request, run_profile="prod_full")
+    
+        assert refusal.value.code == expected_code
+    
+        receipt = run_acquisition_closed_loop(
+            run_id="run-n7-catalog-plan-no-world-growth",
+            acquisition_request={
+                "request_kind": "owner_grounding_evidence",
+                "driver": "missing_supporting_data",
+                "cycle_index": 1,
+            },
+>           data_requirement_specs=(base_spec,),
+                                    ^^^^^^^^^
+            world_snapshot=AcquisitionWorldSnapshot(world_ref="world://before/catalog-plan"),
+            owner_gateway=RecordedAcquisitionOwnerGateway(
+                artifacts_by_requirement={base_spec["requirement_id"]: artifact}
+            ),
+            generated_at=datetime(2026, 7, 17, tzinfo=UTC),
+        )
+E       NameError: name 'base_spec' is not defined
+
+tests/unit/runtime/quality/test_acquisition_planner.py:1823: NameError
+_ test_catalog_binding_must_join_registered_source_and_connector[recorded_file_fixture-worldbank.wdi-catalog_source_connector_mismatch] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1568/test_catalog_binding_must_join2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x145394160>
+source_id = 'recorded_file_fixture', connector_id = 'worldbank.wdi'
+expected_code = 'catalog_source_connector_mismatch'
+
+    @pytest.mark.parametrize(
+        ("source_id", "connector_id", "expected_code"),
+        [
+            ("", "files.tabular", "catalog_source_identity_unresolved"),
+            ("unregistered_fixture", "files.tabular", "catalog_source_unregistered"),
+            (
+                "recorded_file_fixture",
+                "worldbank.wdi",
+                "catalog_source_connector_mismatch",
+            ),
+        ],
+    )
+    def test_catalog_binding_must_join_registered_source_and_connector(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        source_id: str,
+        connector_id: str,
+        expected_code: str,
+    ) -> None:
+        """Missing, unknown, or cross-connector source identities refuse before planning."""
+        from polisyos.core.contracts.control import DataNeed, DataResolveRequest
+        from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+            CatalogSelectionError,
+        )
+        from polisyos.data_forge.domains.catalog.knowledge.types import MetricBindingMatch
+        from polisyos.fabric.retrieval.service import RetrievalService
+    
+        _install_recorded_file_catalog_supplier(monkeypatch)
+    
+        class _SuppliedBindingCatalog:
+            def resolve_metric_bindings(self, metric_name: str, *, top_k: int = 20):
+                if metric_name != "metric.test":
+                    return []
+                return [
+                    MetricBindingMatch(
+                        metric_id=metric_name,
+                        catalog_dataset_id="catalog-recorded-fixture",
+                        connector_id=connector_id,
+                        request_dataset_id="recorded.csv",
+                        execution_tier="transport_ready",
+                        source=source_id,
+                        title="Controlled recorded fixture",
+                    )
+                ]
+    
+        service = RetrievalService(
+            curated_dir=tmp_path / "curated",
+            dataset_catalog=_SuppliedBindingCatalog(),
+        )
+        request = DataResolveRequest(
+            data_needs=[DataNeed(metric="metric.test", purpose="catalog identity control")],
+            mode="hybrid",
+            allow_explore_fallback=False,
+        )
+    
+        with pytest.raises(CatalogSelectionError) as refusal:
+            service.resolve(request, run_profile="prod_full")
+    
+        assert refusal.value.code == expected_code
+    
+        receipt = run_acquisition_closed_loop(
+            run_id="run-n7-catalog-plan-no-world-growth",
+            acquisition_request={
+                "request_kind": "owner_grounding_evidence",
+                "driver": "missing_supporting_data",
+                "cycle_index": 1,
+            },
+>           data_requirement_specs=(base_spec,),
+                                    ^^^^^^^^^
+            world_snapshot=AcquisitionWorldSnapshot(world_ref="world://before/catalog-plan"),
+            owner_gateway=RecordedAcquisitionOwnerGateway(
+                artifacts_by_requirement={base_spec["requirement_id"]: artifact}
+            ),
+            generated_at=datetime(2026, 7, 17, tzinfo=UTC),
+        )
+E       NameError: name 'base_spec' is not defined
+
+tests/unit/runtime/quality/test_acquisition_planner.py:1823: NameError
+_ test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_growth _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1568/test_real_owner_gateway_opt_in0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1453947c0>
+
+    def test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_growth(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """The explicit capture lane records real CAS refs and remains resolve-only for N7."""
+    
+        from polisyos.core import artifacts, canon
+        from polisyos.data_forge.read_api import catalog as catalog_read_api
+        from polisyos.fabric.retrieval import custody
+        from polisyos.fabric.retrieval.custody import FabricFetchReceipt
+        from polisyos.fabric.retrieval.service import RetrievalService
+        from polisyos.runtime.http.resilience import guard_runtime_cas
+        from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
+    
+        capture_root = tmp_path / "runtime-cas"
+        runtime_store = guard_runtime_cas(
+            FileSystemCAS(capture_root).for_tenant("tenant-n7", cell_id="cell-a")
+        )
+        foreign_store = FileSystemCAS(capture_root).for_tenant("tenant-other", cell_id="cell-a")
+        services: list[RetrievalService] = []
+        source_id = _install_recorded_file_catalog_supplier(monkeypatch)
+    
+        with build_recorded_file_fetch_owner(
+            tmp_path, canonicalize_catalog_source=True
+        ) as owner:
+            binding = owner.graph.resolve_metric_bindings("metric.test", top_k=1)[0]
+>           assert binding.source == source_id
+E           AssertionError: assert '' == 'recorded_file_fixture'
+E             
+E             - recorded_file_fixture
+
+tests/unit/runtime/quality/test_acquisition_planner.py:2060: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_acquisition_planner.py::test_catalog_binding_must_join_registered_source_and_connector[-files.tabular-catalog_source_identity_unresolved]
+FAILED tests/unit/runtime/quality/test_acquisition_planner.py::test_catalog_binding_must_join_registered_source_and_connector[unregistered_fixture-files.tabular-catalog_source_unregistered]
+FAILED tests/unit/runtime/quality/test_acquisition_planner.py::test_catalog_binding_must_join_registered_source_and_connector[recorded_file_fixture-worldbank.wdi-catalog_source_connector_mismatch]
+FAILED tests/unit/runtime/quality/test_acquisition_planner.py::test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_growth
+4 failed, 13 passed, 60 deselected, 2 warnings in 14.05s

@@ -1,0 +1,180 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______ test_native_bayesian_method_evidence_persists_candidate_summary ________
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1377/test_native_bayesian_method_ev0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13719a060>
+
+    def test_native_bayesian_method_evidence_persists_candidate_summary(tmp_path, monkeypatch) -> None:
+        _pin_numeric_threads(monkeypatch)
+        registry = MethodRegistry()
+        ensure_bayesian_methods_registered(registry)
+        dispatcher = MethodDispatcher()
+        providers = MethodRuntimeProviders(
+            registry_provider=lambda: registry,
+            dispatcher_provider=lambda: dispatcher,
+        )
+        method = registry.get("bayesian.sampling.hmc@1.0.0")
+        state = TabularData(
+            features=np.asarray([[-1.0], [0.0], [1.0], [2.0]], dtype=np.float64),
+            target=np.asarray([-1.1, 0.2, 1.0, 1.8], dtype=np.float64),
+            feature_names=["x"],
+        )
+        result = run_job(
+            JobSpec(
+                job_kind="method",
+                method_fqn=method.signature.fqn,
+                method_params={
+                    "runtime_backend": "numpy",
+                    "num_warmup": 4,
+                    "num_samples": 4,
+                    "num_chains": 1,
+                    "step_size": 0.02,
+                    "n_leapfrog": 2,
+                },
+                seed=11,
+            ),
+            cas_root=tmp_path,
+            method_state=state,
+            store_factory=lambda path: FileSystemCAS(path),
+            method_runtime_providers=providers,
+        )
+    
+        assert result.issues == []
+        assert result.method_result_ref is not None
+        assert result.method_evidence_ref is not None
+        assert result.method_evidence_ref.kind == "scientist.method_evidence"
+    
+        producer_store = FileSystemCAS(tmp_path)
+        evidence_payload = from_canonical_bytes(
+            producer_store.get_bytes(result.method_evidence_ref.artifact_id)
+        )
+        producer_evidence_manifest = producer_store.get_manifest(result.method_evidence_ref)
+        assert [edge.role for edge in producer_evidence_manifest.inputs] == ["method_result"]
+        selected_evidence_ref = producer_store.put_json(
+            evidence_payload,
+            PutOptions(
+                kind="scientist.method_evidence",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.scientist.MethodExecutionEvidence", version="0.1.0"),
+                inputs=producer_evidence_manifest.inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False, max_depth=129),
+        )
+        assert str(selected_evidence_ref.artifact_id) == str(result.method_evidence_ref.artifact_id)
+        assert selected_evidence_ref.manifest_profile_sha256 is not None
+        assert producer_store.get_manifest(selected_evidence_ref).inputs == producer_evidence_manifest.inputs
+    
+        summary_ref = persist_posterior_summary_from_method_evidence(
+            producer_store,
+            selected_evidence_ref,
+            credible_mass=0.9,
+            point_role=PosteriorPointRole.POSTERIOR_MEDIAN,
+        )
+        fresh_store = FileSystemCAS(tmp_path)
+        summary = load_persisted_posterior_summary(fresh_store, summary_ref)
+    
+        assert summary.point_role is PosteriorPointRole.POSTERIOR_MEDIAN
+        assert summary.gate_eligible is False
+        assert summary.unit_binding_status == "not_established"
+        assert summary.source_method_evidence_ref is not None
+        assert str(summary.source_method_evidence_ref.artifact_id) == str(selected_evidence_ref.artifact_id)
+        assert (
+            summary.source_method_evidence_ref.manifest_profile_sha256
+            == selected_evidence_ref.manifest_profile_sha256
+        )
+        assert summary.source_draws_payload["schema"] == "foundry.bayesian.draws.v1"
+        assert summary.source_draws_hash.startswith("sha256:")
+        assert "intercept" in summary.parameters
+        assert summary.parameters["intercept"].selected_point == summary.parameters[
+            "intercept"
+        ].posterior_median
+    
+        summary_manifest = fresh_store.get_manifest(summary_ref.artifact_id)
+        assert len(summary_manifest.inputs) == 1
+        assert summary_manifest.inputs[0].role == "method_evidence"
+        assert str(summary_manifest.inputs[0].artifact_id) == str(selected_evidence_ref.artifact_id)
+        assert (
+            summary_manifest.inputs[0].manifest_profile_sha256
+            == selected_evidence_ref.manifest_profile_sha256
+        )
+    
+        # Keep a valid default summary sidecar, then write a sibling selected view
+        # whose evidence edge names another profile for the same evidence blob.
+        alternate_evidence_ref = producer_store.put_json(
+            evidence_payload,
+            PutOptions(
+                kind="scientist.method_evidence",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.scientist.MethodExecutionEvidence",
+                    version="0.1.0",
+                ),
+                inputs=producer_evidence_manifest.inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False, max_depth=130),
+        )
+        assert alternate_evidence_ref.artifact_id == selected_evidence_ref.artifact_id
+        assert alternate_evidence_ref.manifest_profile_sha256 is not None
+        assert (
+            alternate_evidence_ref.manifest_profile_sha256
+            != selected_evidence_ref.manifest_profile_sha256
+        )
+        selected_summary_view = fresh_store.put_json(
+            from_canonical_bytes(fresh_store.get_bytes(summary_ref.artifact_id)),
+            PutOptions(
+                kind="ir.posterior_summary",
+                media_type="application/json",
+                schema=SchemaInfo(name="ir.PosteriorSummaryV11", version="1.1"),
+                inputs=[
+                    InputRef(
+                        artifact_id=alternate_evidence_ref.artifact_id,
+                        role="method_evidence",
+                        manifest_profile_sha256=alternate_evidence_ref.manifest_profile_sha256,
+                    )
+                ],
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        selected_summary_ref = PosteriorSummaryRef.model_validate(
+            selected_summary_view.model_dump(mode="python")
+        )
+        assert selected_summary_ref.artifact_id == summary_ref.artifact_id
+        assert selected_summary_ref.manifest_profile_sha256 is not None
+        assert (
+            fresh_store.get_manifest_by_profile(
+                selected_summary_ref.artifact_id,
+                selected_summary_ref.manifest_profile_sha256,
+            ).inputs[0].manifest_profile_sha256
+            == alternate_evidence_ref.manifest_profile_sha256
+        )
+        assert load_persisted_posterior_summary(fresh_store, summary_ref) == summary
+>       with pytest.raises(ValueError, match="does not bind the selected method-evidence view"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/foundry/uncertainty/test_posterior_summary_persistence.py:182: Failed
+----------------------------- Captured stdout call -----------------------------
+2026-10-09 16:28:48 [info     ] method_registered              backend=bayesian fqn=bayesian.approximation.expectation_propagation_gaussian@1.0.0 lazy=True namespace=bayesian.approximation override=False tags=['bayesian', 'builtin', 'domain:bayesian', 'ep', 'estimation', 'expectation-propagation', 'family:bayesian', 'structural', 'uncertainty'] version=1.0.0
+2026-10-09 16:28:48 [info     ] method_registered              backend=bayesian fqn=bayesian.flow.affine_normalizing_flow@1.0.0 lazy=True namespace=bayesian.flow override=False tags=['affine-flow', 'bayesian', 'builtin', 'domain:bayesian', 'estimation', 'family:bayesian', 'normalizing-flow', 'structural', 'uncertainty'] version=1.0.0
+2026-10-09 16:28:48 [info     ] method_registered              backend=bayesian fqn=bayesian.gp.gp_regression@1.0.0 lazy=True namespace=bayesian.gp override=False tags=['bayesian', 'builtin', 'domain:bayesian', 'estimation', 'family:bayesian', 'gaussian-process', 'regression', 'tabular', 'uncertainty'] version=1.0.0
+2026-10-09 16:28:48 [info     ] method_registered              backend=bayesian fqn=bayesian.gp.sparse_gp_regression@1.0.0 lazy=True namespace=bayesian.gp override=False tags=['bayesian', 'builtin', 'domain:bayesian', 'estimation', 'family:bayesian', 'gaussian-process', 'regression', 'scalable', 'sparse', 'tabular', 'uncertainty'] version=1.0.0
+2026-10-09 16:28:48 [info     ] method_registered              backend=bayesian fqn=bayesian.graphical.factor_graph_belief_propagation@1.0.0 lazy=True namespace=bayesian.graphical override=False tags=['bayesian', 'belief-propagation', 'builtin', 'domain:bayesian', 'estimation', 'factor-graph', 'family:bayesian', 'network', 'uncertainty'] version=1.0.0
+2026-10-09 16:28:48 [info     ] method_registered              backend=bayesian fqn=bayesian.nonparametric.bart_regression@1.0.0 lazy=True namespace=bayesian.nonparametric override=False tags=['bart', 'bayesian', 'builtin', 'domain:bayesian', 'estimation', 'family:bayesian', 'heterogeneity', 'nonparametric', 'tabular', 'uncertainty'] version=1.0.0
+2026-10-09 16:28:48 [info     ] method_registered              backend=bayesian fqn=bayesian.nonparametric.dirichlet_process_mixture@1.0.0 lazy=True namespace=bayesian.nonparametric override=False tags=['bayesian', 'builtin', 'dirichlet-process', 'domain:bayesian', 'estimation', 'family:bayesian', 'nonparametric', 'tabular', 'uncertainty'] version=1.0.0
+2026-10-09 16:28:48 [info     ] method_registered              backend=bayesian fqn=bayesian.nonparametric.gaussian_mixture@1.0.0 lazy=True namespace=bayesian.nonparametric override=False tags=['bayesian', 'builtin', 'domain:bayesian', 'estimation', 'family:bayesian', 'gaussian-mixture', 'mixture', 'tabular', 'uncertainty'] version=1.0.0
+2026-10-09 16:28:48 [info     ] method_registered              backend=bayesian fqn=bayesian.regression.hierarchical@1.0.0 lazy=True namespace=bayesian.regression override=False tags=['bayesian', 'builtin', 'domain:bayesian', 'estimation', 'family:bayesian', 'hierarchical', 'regression', 'tabular', 'uncertainty'] version=1.0.0
+2026-10-09 16:28:48 [info     ] method_registered              backend=bayesian fqn=bayesian.regression.linear_regression@1.0.0 lazy=True namespace=bayesian.regression override=False tags=['bayesian', 'builtin', 'domain:bayesian', 'estimation', 'family:bayesian', 'regression', 'sampling', 'tabular', 'uncertainty'] version=1.0.0
+2026-10-09 16:28:48 [info     ] method_registered              backend=bayesian fqn=bayesian.sampling.hmc@1.0.0 lazy=True namespace=bayesian.sampling override=False tags=['bayesian', 'builtin', 'domain:bayesian', 'estimation', 'family:bayesian', 'hmc', 'sampling', 'tabular', 'uncertainty'] version=1.0.0
+2026-10-09 16:28:48 [info     ] method_registered              backend=bayesian fqn=bayesian.sampling.nuts@1.0.0 lazy=True namespace=bayesian.sampling override=False tags=['bayesian', 'builtin', 'domain:bayesian', 'estimation', 'family:bayesian', 'nuts', 'sampling', 'tabular', 'uncertainty'] version=1.0.0
+2026-10-09 16:28:48 [info     ] method_registered              backend=bayesian fqn=bayesian.sbi.nle@1.0.0 lazy=True namespace=bayesian.sbi override=False tags=['bayesian', 'builtin', 'domain:bayesian', 'estimation', 'family:bayesian', 'likelihood-free', 'nle', 'sbi', 'structural', 'uncertainty'] version=1.0.0
+2026-10-09 16:28:48 [info     ] method_registered              backend=bayesian fqn=bayesian.sbi.npe@1.0.0 lazy=True namespace=bayesian.sbi override=False tags=['bayesian', 'builtin', 'domain:bayesian', 'estimation', 'family:bayesian', 'likelihood-free', 'npe', 'sbi', 'structural', 'uncertainty'] version=1.0.0
+2026-10-09 16:28:48 [info     ] method_registered              backend=bayesian fqn=bayesian.sbi.nre@1.0.0 lazy=True namespace=bayesian.sbi override=False tags=['bayesian', 'builtin', 'domain:bayesian', 'estimation', 'family:bayesian', 'likelihood-free', 'nre', 'sbi', 'structural', 'uncertainty'] version=1.0.0
+2026-10-09 16:28:48 [info     ] method_registered              backend=bayesian fqn=bayesian.timeseries.autoregression@1.0.0 lazy=True namespace=bayesian.timeseries override=False tags=['bayesian', 'builtin', 'domain:bayesian', 'estimation', 'family:bayesian', 'sampling', 'time-series', 'uncertainty'] version=1.0.0
+2026-10-09 16:28:48 [info     ] method_registered              backend=bayesian fqn=bayesian.variational.bbvi@1.0.0 lazy=True namespace=bayesian.variational override=False tags=['advi', 'bayesian', 'black-box', 'builtin', 'domain:bayesian', 'estimation', 'family:bayesian', 'gradient', 'tabular', 'uncertainty', 'variational-inference'] version=1.0.0
+2026-10-09 16:28:48 [info     ] method_registered              backend=bayesian fqn=bayesian.variational.mean_field_vi@1.0.0 lazy=True namespace=bayesian.variational override=False tags=['bayesian', 'builtin', 'domain:bayesian', 'estimation', 'family:bayesian', 'mean-field', 'regression', 'tabular', 'uncertainty', 'variational-inference'] version=1.0.0
+2026-10-09 16:28:48 [info     ] method_registered              backend=bayesian fqn=bayesian.variational.svgd_regression@1.0.0 lazy=True namespace=bayesian.variational override=False tags=['bayesian', 'builtin', 'domain:bayesian', 'estimation', 'family:bayesian', 'regression', 'svgd', 'tabular', 'uncertainty'] version=1.0.0
+2026-10-09 16:28:48 [debug    ] method_dispatch_start          backend=bayesian fqn=bayesian.sampling.hmc@1.0.0 n_obs=None requested_backend=bayesian selection_reason=declared_backend
+2026-10-09 16:28:49 [info     ] method_dispatch_complete       attempts=[('bayesian', 'success')] backend=bayesian elapsed_ms=1215.28 fqn=bayesian.sampling.hmc@1.0.0 n_obs=None requested_backend=bayesian selection_reason=declared_backend
+=========================== short test summary info ============================
+FAILED tests/integration/foundry/uncertainty/test_posterior_summary_persistence.py::test_native_bayesian_method_evidence_persists_candidate_summary

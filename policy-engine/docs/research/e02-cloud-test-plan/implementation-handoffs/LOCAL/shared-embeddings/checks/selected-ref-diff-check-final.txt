@@ -1,0 +1,4 @@
+$ git diff --check -- src/polisyos/core/artifacts/ir_adapter.py src/polisyos/ir/artifacts/contracts.py src/polisyos/ir/artifacts/README.md src/polisyos/calibration/forecast_bridge.py tests/unit/core/artifacts/test_ir_adapter.py tests/unit/ir/registry/test_refs.py
+exit=0
+stdout:
+stderr:

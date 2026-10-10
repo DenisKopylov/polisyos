@@ -1,0 +1,765 @@
+FF..F.FF......FF......................................                   [100%]
+=================================== FAILURES ===================================
+_______ test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x144b42fd0>
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-854/test_scope_is_bound_before_lim0')
+
+    def test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -> None:
+        """Unbound measurement units are refused after applying the geographic scope."""
+    
+        catalog_path = tmp_path / "l1.duckdb"
+        catalog_path.touch()
+        rows = (
+            ("UA", 2020, 10.0, "dataset-percent", "obs-ua-percent-2020", '{"unit":"percent"}'),
+            ("UA", 2020, 1000.0, "dataset-usd", "obs-ua-usd-2020", '{"unit":"usd"}'),
+            ("UA", 2021, 11.0, "dataset-percent", "obs-ua-percent-2021", '{"unit":"percent"}'),
+            ("UA", 2022, 12.0, "dataset-percent", "obs-ua-percent-2022", '{"unit":"percent"}'),
+            ("UA", 2023, 13.0, "dataset-percent", "obs-ua-percent-2023", '{"unit":"percent"}'),
+            ("PL", 2020, 99.0, "dataset-foreign", "obs-pl-2020", '{"unit":"percent"}'),
+            ("PL", 2021, 98.0, "dataset-foreign", "obs-pl-2021", '{"unit":"percent"}'),
+        )
+        connection = _RowsConnection(rows)
+    
+        monkeypatch.setattr(
+            substrate_registry,
+            "default_substrate_catalog_paths",
+            lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
+        )
+        monkeypatch.setattr(
+            read_api.catalog,
+            "default_acquisition_overlay_path",
+            lambda _repo_root: None,
+        )
+        monkeypatch.setattr(
+            read_api.catalog,
+            "open_catalog_read_session",
+            lambda _path, overlay_path=None: connection,
+        )
+        monkeypatch.setattr(
+            data_state_substrate,
+            "l1_dcat_variable_availability",
+            lambda *_args, **_kwargs: SimpleNamespace(
+                status="available",
+                coverage_ref="catalog://emp01/outcome",
+                dataset_count=3,
+                metric_binding_count=1,
+                observation_count=len(rows),
+            ),
+        )
+    
+        candidate = SimpleNamespace(
+            atom=SimpleNamespace(target_world_slots=("outcome",)),
+        )
+        problem = SimpleNamespace(
+            outcome_of_interest=SimpleNamespace(target_variable="outcome"),
+            jurisdiction_time=SimpleNamespace(region="UA"),
+            runtime_hints={},
+        )
+        with pytest.raises(
+            generation_cycle.ValueOwnerAccessError,
+            match="measurement-unit-binding",
+        ):
+            generation_cycle.RealValueOwnerGateway(repo_root=tmp_path).load_value_data_profile(
+                candidate=candidate,
+                problem=problem,
+                world_record=SimpleNamespace(),
+            )
+    
+        assert connection.calls
+        assert connection.calls[0][1][0] == "outcome"
+        statement = connection.calls[0][0]
+>       assert statement.index("country_code = ?") < statement.index("LIMIT")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: substring not found
+
+policy-engine/tests/unit/remediation/test_emp_01.py:160: ValueError
+________ test_scope_filter_excludes_other_regions_before_profile_limit _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x144b42ea0>
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-854/test_scope_filter_excludes_oth0')
+
+    def test_scope_filter_excludes_other_regions_before_profile_limit(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -> None:
+        """A declared region is applied in the owner query before profile shaping."""
+    
+        catalog_path = tmp_path / "l1.duckdb"
+        catalog_path.touch()
+        rows = (
+            ("UA", 2020, 10.0, "dataset-percent", "obs-ua-2020", '{"unit":"percent"}'),
+            ("UA", 2021, 11.0, "dataset-percent", "obs-ua-2021", '{"unit":"percent"}'),
+            ("UA", 2022, 12.0, "dataset-percent", "obs-ua-2022", '{"unit":"percent"}'),
+            ("UA", 2023, 13.0, "dataset-percent", "obs-ua-2023", '{"unit":"percent"}'),
+            ("PL", 2020, 99.0, "dataset-foreign", "obs-pl-2020", '{"unit":"percent"}'),
+            ("PL", 2021, 98.0, "dataset-foreign", "obs-pl-2021", '{"unit":"percent"}'),
+            ("PL", 2022, 97.0, "dataset-foreign", "obs-pl-2022", '{"unit":"percent"}'),
+            ("PL", 2023, 96.0, "dataset-foreign", "obs-pl-2023", '{"unit":"percent"}'),
+        )
+        connection = _RowsConnection(rows)
+    
+        monkeypatch.setattr(
+            substrate_registry,
+            "default_substrate_catalog_paths",
+            lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
+        )
+        monkeypatch.setattr(
+            read_api.catalog,
+            "default_acquisition_overlay_path",
+            lambda _repo_root: None,
+        )
+        monkeypatch.setattr(
+            read_api.catalog,
+            "open_catalog_read_session",
+            lambda _path, overlay_path=None: connection,
+        )
+        monkeypatch.setattr(
+            data_state_substrate,
+            "l1_dcat_variable_availability",
+            lambda *_args, **_kwargs: SimpleNamespace(
+                status="available",
+                coverage_ref="catalog://emp01/outcome",
+                dataset_count=2,
+                metric_binding_count=1,
+                observation_count=len(rows),
+            ),
+        )
+    
+>       profile = generation_cycle.RealValueOwnerGateway(repo_root=tmp_path).load_value_data_profile(
+            candidate=SimpleNamespace(atom=SimpleNamespace(target_world_slots=("outcome",))),
+            problem=SimpleNamespace(
+                outcome_of_interest=SimpleNamespace(target_variable="outcome"),
+                jurisdiction_time=SimpleNamespace(region="UA"),
+                runtime_hints={},
+            ),
+            world_record=SimpleNamespace(),
+        )
+
+policy-engine/tests/unit/remediation/test_emp_01.py:211: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+policy-engine/src/polisyos/runtime/quality/generation_cycle.py:4340: in load_value_data_profile
+    profile = _load_value_data_profile_from_l1_dcat(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _load_value_data_profile_from_l1_dcat(
+        *,
+        repo_root: Path,
+        outcome: str,
+        owner_access_ref: str,
+        overlay_path: Path | None = None,
+        scope_region: str | None = None,
+        artifact_store: ArtifactStore | None = None,
+        activated_observation_projection: (
+            data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection | None
+        ) = None,
+    ) -> ValueDataProfile | None:
+        """Load deterministic owner rows without deriving an exposure assignment."""
+    
+        normalized_scope_region = _optional_text(scope_region)
+        owner_row_limit = 20_000
+        parameters: list[object] = [outcome]
+        observation_projection = None
+        registered_dataset_id: str | None = None
+        registered_canonical_unit: str | None = None
+        selected_wdi_observation_ids: tuple[str, ...] = ()
+        registered_measurement_units_by_id: dict[str, str] = {}
+        if activated_observation_projection is not None:
+            projection_type = (
+                data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
+            )
+            try:
+                observation_projection = projection_type.model_validate(
+                    activated_observation_projection.model_dump(mode="json")
+                )
+            except Exception as exc:
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_projection_invalid",
+                    f"Data Forge active observation projection failed content validation: {exc}",
+                    owner_access_ref=(
+                        f"{owner_access_ref}#activated-observation-projection"
+                    ),
+                ) from exc
+            if artifact_store is None:
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_passport_store_missing",
+                    "N8 requires the runtime artifact store to resolve the active passport",
+                    owner_access_ref=f"{owner_access_ref}#active-passport",
+                )
+            try:
+                passport_payload = core_contracts.epoch.load_verified_epoch_statement(
+                    store=artifact_store,
+                    ref=observation_projection.passport_ref,
+                    expected_kind="epoch.acquisition_passport_snapshot",
+                )
+                from polisyos.fabric.data_plane import content_sha256
+                from polisyos.runtime.quality import acquisition_executor
+    
+                passport = acquisition_executor.AdmissionPassport.model_validate(
+                    passport_payload
+                )
+                passport_content_hash = content_sha256(passport_payload)
+            except Exception as exc:
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_passport_unresolved",
+                    f"N8 could not verify the Data Forge active passport: {exc}",
+                    owner_access_ref=f"{owner_access_ref}#active-passport",
+                ) from exc
+            if (
+                observation_projection.variable_id != outcome
+                or observation_projection.activation_state != "active"
+                or observation_projection.predicate_provenance != "recomputed"
+                or observation_projection.source_time_status != "not_established"
+                or passport_content_hash != observation_projection.passport_content_sha256
+                or passport.passport_id != observation_projection.passport_id
+                or passport.epoch_id != observation_projection.epoch_id
+                or passport.variable_id != outcome
+                or passport.registration.field_binding.canonical_variable != outcome
+                or passport.registration.field_binding != passport.field_binding
+                or getattr(passport.status, "value", passport.status)
+                not in {"admitted", "admitted_degraded"}
+            ):
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_projection_binding_mismatch",
+                    "Data Forge active projection does not bind the verified passport and N8 outcome",
+                    owner_access_ref=(
+                        f"{owner_access_ref}#activated-observation-projection"
+                    ),
+                )
+            registered_dataset_id = passport.registration.catalog_dataset_id
+            registered_canonical_unit = _optional_text(
+                passport.registration.field_binding.canonical_unit
+            )
+            if any(
+                row.observation.dataset_id != registered_dataset_id
+                for row in observation_projection.observations
+            ):
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_projection_registration_mismatch",
+                    "Data Forge active rows differ from their passport registration dataset",
+                    owner_access_ref=(
+                        f"{owner_access_ref}#activated-observation-projection"
+                    ),
+                )
+            if normalized_scope_region:
+                from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
+                    iso2_to_iso3,
+                    normalize_country_code,
+                )
+    
+                try:
+                    wdi_country_code = iso2_to_iso3(normalized_scope_region)
+                except Exception as exc:  # pragma: no cover - defensive owner-boundary guard.
+                    raise ValueOwnerAccessError(
+                        "acquire_data:active_observation_country_scheme_not_established",
+                        f"The registered WDI source code for this scope is unresolved: {exc}",
+                        owner_access_ref=(
+                            f"{owner_access_ref}#activated-observation-projection"
+                        ),
+                    ) from exc
+                selected_ids: list[str] = []
+                for row in observation_projection.observations:
+                    observation = row.observation
+                    if observation.country_code == normalized_scope_region:
+                        continue
+                    if normalize_country_code(observation.country_code) != normalized_scope_region:
+                        continue
+                    live_source = passport.live_source_execution
+                    live_authorization = (
+                        live_source.authorization if live_source is not None else None
+                    )
+                    if (
+                        passport.registration.connector_id != "worldbank.wdi"
+                        or passport.source_lane != "live_fetch"
+                        or live_authorization is None
+                        or live_authorization.connector_id
+                        != passport.registration.connector_id
+                        or live_authorization.profile_id
+                        != passport.registration.source_profile_id
+                        or live_authorization.request_variables
+                        != (passport.registration.request_dataset_id,)
+                        or observation.country_code
+                        not in passport.registration.country_codes
+                        or observation.country_code != wdi_country_code
+                    ):
+                        raise ValueOwnerAccessError(
+                            "acquire_data:active_observation_country_scheme_not_established",
+                            "Only the registered WDI ISO3 source code may bind to this ISO2 scope",
+                            owner_access_ref=(
+                                f"{owner_access_ref}#activated-observation-projection"
+                            ),
+                        )
+                    selected_ids.append(observation.observation_id)
+                if len(selected_ids) > owner_row_limit:
+                    raise ValueOwnerAccessError(
+                        "acquire_data:active_observation_projection_too_large",
+                        "The active selected-member projection exceeds the bounded N8 row limit",
+                        owner_access_ref=(
+                            f"{owner_access_ref}#activated-observation-projection"
+                        ),
+                    )
+                selected_wdi_observation_ids = tuple(sorted(set(selected_ids)))
+        parameters.extend(
+            (
+                normalized_scope_region,
+                normalized_scope_region,
+                list(selected_wdi_observation_ids),
+                owner_row_limit + 1,
+            )
+        )
+        try:
+            from polisyos.runtime.quality.substrate_registry import (
+                default_substrate_catalog_paths,
+            )
+        except Exception as exc:  # pragma: no cover - local dependency surface.
+            raise ValueOwnerAccessError(
+                "acquire_data:value_owner_rows_missing",
+                f"substrate row loader dependencies unavailable: {exc}",
+                owner_access_ref="substrate_owner://row_loader_dependency_missing",
+            ) from exc
+    
+        dcat_path = default_substrate_catalog_paths(repo_root).l1_dcat_path
+        if not dcat_path.exists():
+            raise ValueOwnerAccessError(
+                "acquire_data:value_owner_rows_missing",
+                f"L1 DCAT catalog missing at {dcat_path}",
+                owner_access_ref="substrate_owner://l1_dcat_missing",
+            )
+        selected_overlay = overlay_path or (
+            data_forge_read_api.catalog.default_acquisition_overlay_path(repo_root)
+        )
+        con = data_forge_read_api.catalog.open_catalog_read_session(
+            dcat_path,
+            overlay_path=selected_overlay,
+        )
+        try:
+            raw_rows = con.execute(
+                """
+                SELECT
+                  COALESCE(NULLIF(country_code, ''), 'unknown') AS unit_id,
+                  COALESCE(year, survey_year, wave) AS period_id,
+                  value,
+                  dataset_id,
+                  observation_id,
+                  condition_json,
+                  canonical_var,
+                  country_code,
+                  year,
+                  survey_year,
+                  wave
+                FROM ds_observations
+                WHERE canonical_var = ?
+                  AND value IS NOT NULL
+                  AND COALESCE(year, survey_year, wave) IS NOT NULL
+                  AND (
+                    CAST(? AS VARCHAR) IS NULL
+                    OR country_code = CAST(? AS VARCHAR)
+                    OR observation_id IN (
+                        SELECT UNNEST(CAST(? AS VARCHAR[]))
+                    )
+                  )
+                ORDER BY unit_id, period_id, dataset_id, observation_id, value
+                LIMIT ?
+                """,
+                parameters,
+            ).fetchall()
+        finally:
+            con.close()
+        if len(raw_rows) > owner_row_limit:
+            raise ValueOwnerAccessError(
+                "acquire_data:value_owner_rows_truncated",
+                (
+                    f"owner profile exceeded the bounded row cap of {owner_row_limit}; "
+                    "refusing to classify a truncated panel"
+                ),
+                owner_access_ref=f"{owner_access_ref}#row-cap",
+            )
+        projected_rows_by_id: dict[str, tuple[object, ...]] = {}
+        if observation_projection is not None:
+            physical_rows_by_id: dict[str, list[tuple[object, ...]]] = {}
+            for raw_row in raw_rows:
+                physical_rows_by_id.setdefault(str(raw_row[4]), []).append(raw_row)
+            for projected in observation_projection.observations:
+                observation = projected.observation
+                projected_unit = observation.country_code
+                if normalized_scope_region:
+                    if (
+                        observation.country_code != normalized_scope_region
+                        and observation.observation_id not in selected_wdi_observation_ids
+                    ):
+                        continue
+                    projected_unit = normalized_scope_region
+                physical_matches = physical_rows_by_id.get(observation.observation_id, [])
+                expected_physical = (
+                    observation.observation_id,
+                    observation.dataset_id,
+                    observation.canonical_var,
+                    observation.country_code,
+                    observation.year,
+                    observation.survey_year,
+                    observation.wave,
+                    observation.value,
+                    observation.condition_json,
+                )
+                actual_physical = (
+                    str(physical_matches[0][4]),
+                    str(physical_matches[0][3]),
+                    str(physical_matches[0][6]),
+                    str(physical_matches[0][7]),
+                    physical_matches[0][8],
+                    physical_matches[0][9],
+                    physical_matches[0][10],
+                    physical_matches[0][2],
+                    str(physical_matches[0][5]),
+                ) if len(physical_matches) == 1 else None
+                if actual_physical != expected_physical:
+                    raise ValueOwnerAccessError(
+                        "acquire_data:active_observation_projection_drift",
+                        (
+                            "N8 query rows differ from the Data Forge verified active member "
+                            f"{observation.observation_id}"
+                        ),
+                        owner_access_ref=(
+                            f"{owner_access_ref}#activated-observation-projection"
+                        ),
+                    )
+                period_id = (
+                    observation.year
+                    if observation.year is not None
+                    else observation.survey_year
+                    if observation.survey_year is not None
+                    else observation.wave
+                )
+                if period_id is None:
+                    raise ValueOwnerAccessError(
+                        "acquire_data:active_observation_projection_time_missing",
+                        "Data Forge active observation has no N8 panel coordinate",
+                        owner_access_ref=(
+                            f"{owner_access_ref}#activated-observation-projection"
+                        ),
+                    )
+                if observation.observation_id in selected_wdi_observation_ids:
+                    if (
+                        registered_canonical_unit is None
+                        or passport.registration.field_binding.raw_unit
+                        != registered_canonical_unit
+                        or passport.registration.field_binding.unit_transform != "identity"
+                    ):
+                        raise ValueOwnerAccessError(
+                            "acquire_data:active_observation_unit_transform_not_applied",
+                            (
+                                "The selected WDI value cannot enter N8 unchanged without an "
+                                "identity unit binding"
+                            ),
+                            owner_access_ref=(
+                                f"{owner_access_ref}#activated-observation-projection"
+                            ),
+                        )
+                    registered_measurement_units_by_id[
+                        observation.observation_id
+                    ] = registered_canonical_unit
+                projected_rows_by_id[observation.observation_id] = (
+                    projected_unit,
+                    int(period_id),
+                    observation.value,
+                    observation.dataset_id,
+                    observation.observation_id,
+                    observation.condition_json,
+                )
+        raw_rows = [
+            projected_rows_by_id.get(str(row[4]), tuple(row[:6]))
+            for row in raw_rows
+        ]
+        if not raw_rows:
+            return None
+        grouped: dict[tuple[str, int], list[tuple[float, str, str, str]]] = {}
+        for unit, period, value, dataset_id, observation_id, condition_json in raw_rows:
+            numeric_value = float(value)
+            if not math.isfinite(numeric_value):
+                continue
+            source_dataset_id = _optional_text(dataset_id) or ""
+            measurement_unit = (
+                registered_measurement_units_by_id.get(str(observation_id))
+                or _measurement_unit_from_condition_json(condition_json)
+                or ""
+            )
+            grouped.setdefault((str(unit), int(period)), []).append(
+                (numeric_value, source_dataset_id, str(observation_id), measurement_unit)
+            )
+        ambiguous_keys = tuple(
+            (unit_id, period_id)
+            for (unit_id, period_id), values in sorted(grouped.items())
+            if len(values) > 1
+        )
+        if ambiguous_keys:
+            raise ValueOwnerAccessError(
+                "acquire_data:value_owner_unit_binding_ambiguous",
+                (
+                    "owner observations contain multiple values for a unit-period, but "
+                    "the catalog has no declared measurement-unit binding; refusing to "
+                    "aggregate by dataset identity"
+                ),
+                owner_access_ref=f"{owner_access_ref}#measurement-unit-binding",
+            )
+        owner_rows = tuple(
+            _value_owner_row(
+                outcome=outcome,
+                unit_id=unit_id,
+                period_id=period_id,
+                source_rows=tuple(values),
+            )
+            for (unit_id, period_id), values in sorted(grouped.items())
+        )
+        if len(owner_rows) < 4:
+            return None
+        measurement_units = tuple(sorted({row[3] for values in grouped.values() for row in values}))
+        if not measurement_units or "" in measurement_units:
+            raise ValueOwnerAccessError(
+                "acquire_data:value_owner_unit_binding_ambiguous",
+                (
+                    "owner observations do not carry a declared condition_json.unit over the "
+                    "selected profile; refusing to infer measurement units from dataset identity"
+                ),
+                owner_access_ref=f"{owner_access_ref}#measurement-unit-binding",
+            )
+        if len(measurement_units) != 1:
+            raise ValueOwnerAccessError(
+                "acquire_data:value_owner_unit_binding_ambiguous",
+                (
+                    "owner observations carry multiple condition_json.unit values over the "
+                    "selected profile; refusing to combine measurement units"
+                ),
+                owner_access_ref=f"{owner_access_ref}#measurement-unit-binding",
+            )
+        source_dataset_ids = tuple(sorted({row[1] for values in grouped.values() for row in values}))
+        if len(source_dataset_ids) != 1 or "" in source_dataset_ids:
+>           raise ValueOwnerAccessError(
+                "acquire_data:value_owner_unit_binding_ambiguous",
+                (
+                    "owner observations span multiple or missing dataset/source identities, "
+                    "but the catalog has no declared measurement-unit binding over the "
+                    "selected profile; refusing to combine periods"
+                ),
+                owner_access_ref=f"{owner_access_ref}#measurement-unit-binding",
+            )
+E           polisyos.runtime.quality.generation_cycle.ValueOwnerAccessError: owner observations span multiple or missing dataset/source identities, but the catalog has no declared measurement-unit binding over the selected profile; refusing to combine periods owner_access_ref=catalog://emp01/outcome#measurement-unit-binding
+
+policy-engine/src/polisyos/runtime/quality/generation_cycle.py:10301: ValueOwnerAccessError
+_________________ test_owner_row_cap_refuses_truncated_profile _________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x144a41d00>
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-854/test_owner_row_cap_refuses_tru0')
+
+    def test_owner_row_cap_refuses_truncated_profile(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -> None:
+        """A bounded catalog read never classifies an incomplete owner panel."""
+    
+        catalog_path = tmp_path / "l1.duckdb"
+        catalog_path.touch()
+        rows = tuple(
+            ("UA", 2000 + index, float(index), "dataset-percent", f"obs-{index}", '{"unit":"percent"}')
+            for index in range(20_001)
+        )
+        connection = _RowsConnection(rows)
+        monkeypatch.setattr(
+            substrate_registry,
+            "default_substrate_catalog_paths",
+            lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
+        )
+        monkeypatch.setattr(
+            read_api.catalog,
+            "default_acquisition_overlay_path",
+            lambda _repo_root: None,
+        )
+        monkeypatch.setattr(
+            read_api.catalog,
+            "open_catalog_read_session",
+            lambda _path, overlay_path=None: connection,
+        )
+    
+        with pytest.raises(
+            generation_cycle.ValueOwnerAccessError,
+            match="row cap",
+        ) as exc_info:
+            generation_cycle._load_value_data_profile_from_l1_dcat(
+                repo_root=tmp_path,
+                outcome="outcome",
+                owner_access_ref="catalog://emp01/outcome",
+                scope_region="UA",
+            )
+    
+        assert exc_info.value.code == "acquire_data:value_owner_rows_truncated"
+        assert connection.calls
+>       assert "LIMIT 20001" in connection.calls[0][0]
+E       assert 'LIMIT 20001' in "\n            SELECT\n              COALESCE(NULLIF(country_code, ''), 'unknown') AS unit_id,\n              COALESCE...      )\n            ORDER BY unit_id, period_id, dataset_id, observation_id, value\n            LIMIT ?\n            "
+
+policy-engine/tests/unit/remediation/test_emp_01.py:361: AssertionError
+_____ test_identification_set_and_statistical_uncertainty_remain_separate ______
+
+    def test_identification_set_and_statistical_uncertainty_remain_separate() -> None:
+        """Point identification must not erase a non-zero native statistical interval."""
+    
+        value_set = _project_value_outer_set(confidence_interval=(1.0, 10.0))
+    
+        assert value_set.identification_status == "point"
+        assert value_set.lower == (4.0,)
+        assert value_set.upper == (4.0,)
+>       assert getattr(value_set, "statistical_lower", None) == (1.0,)
+E       AssertionError: assert None == (1.0,)
+E        +  where None = getattr(ValueOuterSet(representation='interval_box', lower=(4.0,), upper=(4.0,), coordinates=('emp01_test_method',), identific...aaaaaaaaaaaaaaaaaaaaaaa', epoch='2026-Q3', representation_status='certified', solver_time_budget_ms=None, width=(0.0,)), 'statistical_lower', None)
+
+policy-engine/tests/unit/remediation/test_emp_01.py:408: AssertionError
+__________ test_asymmetric_interval_is_preserved_by_value_projection ___________
+
+    def test_asymmetric_interval_is_preserved_by_value_projection() -> None:
+        """Proxy projection must not replace an asymmetric native interval with a symmetric guess."""
+    
+        value_set = _project_value_outer_set(
+            confidence_interval=(1.0, 10.0),
+            forecast_tier="transported_limited",
+        )
+    
+        assert value_set.identification_status == "proxy"
+>       assert value_set.lower == (1.0,)
+E       assert (-0.5,) == (1.0,)
+E         
+E         At index 0 diff: -0.5 != 1.0
+E         Use -v to get more diff
+
+policy-engine/tests/unit/remediation/test_emp_01.py:421: AssertionError
+________ test_calibration_time_roles_are_preserved_from_bound_evidence _________
+
+    def test_calibration_time_roles_are_preserved_from_bound_evidence() -> None:
+        """Prediction, observation, effective, valid, and window times stay distinct."""
+    
+        build_inputs = _generation_cycle("_build_s10_forecast_inputs")
+        prediction_time = datetime(2025, 1, 15, 8, 30, tzinfo=UTC)
+        observation_time = datetime(2025, 4, 20, 9, 45, tzinfo=UTC)
+        policy_effective_time = datetime(2025, 2, 1, 0, 0, tzinfo=UTC)
+        data_valid_time = datetime(2025, 4, 1, 0, 0, tzinfo=UTC)
+        window_start = datetime(2025, 3, 1, 0, 0, tzinfo=UTC)
+        window_end = datetime(2025, 4, 30, 23, 59, tzinfo=UTC)
+        world_record = SimpleNamespace(
+            world_model_record_id="world_model_record_frc01",
+            content_hash="sha256:" + "a" * 64,
+            valid_time_scope="2025-Q2",
+            region_or_jurisdiction="UA",
+        )
+        problem = SimpleNamespace(
+            design_problem_id="frc01-problem",
+            outcome_of_interest=SimpleNamespace(target_variable="firm_survival"),
+        )
+        candidate = SimpleNamespace(candidate_id="frc01-candidate")
+        method_result = SimpleNamespace(
+            output={"report": _finite_estimator_report()}
+        )
+    
+        inputs = build_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+            method_result=method_result,
+            selected_method_fqn="foundry.methods.example",
+            forecast_tier="observable_calibrated",
+            calibration_status="limit",
+            policy_context_ref="policy-context://world_model_record_frc01",
+            expected_policy_context_ref="policy-context://world_model_record_frc01",
+            false_clear_counts={},
+            calibration_evidence={
+                "denominator": 0,
+                "numerator": 0,
+                "pass_rate": 0.0,
+                "floor_passed": False,
+                "counterfactual_credibility": "insufficient_history",
+                "prediction_time": prediction_time.isoformat(),
+                "observation_time": observation_time.isoformat(),
+                "policy_effective_time": policy_effective_time.isoformat(),
+                "data_valid_time": data_valid_time.isoformat(),
+                "calibration_window_start": window_start.isoformat(),
+                "calibration_window_end": window_end.isoformat(),
+                "observed_outcome_ref": "outcome://frc01/observed",
+                "historical_implementation_ref": "implementation://frc01/history",
+                "evaluation_design_ref": "evaluation://frc01/design",
+                "credible_evaluation_evidence_ref": "evidence://frc01/credible",
+                "source_lineage_refs": ["lineage://frc01/source"],
+                "method_lineage_refs": ["lineage://frc01/method"],
+            },
+        )
+        record = inputs["forecast_calibration_record"]
+    
+>       assert record.prediction_time == prediction_time
+               ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'prediction_time'
+
+policy-engine/tests/unit/remediation/test_frc_01.py:158: AttributeError
+__________ test_missing_calibration_evidence_refs_stays_typed_blocked __________
+
+    def test_missing_calibration_evidence_refs_stays_typed_blocked() -> None:
+        """Temporal dates alone cannot mint a calibration record or pass-through tier."""
+    
+        build_inputs = _generation_cycle("_build_s10_forecast_inputs")
+        timestamp = datetime(2025, 1, 15, 8, 30, tzinfo=UTC).isoformat()
+        world_record = SimpleNamespace(
+            world_model_record_id="world_model_record_frc01",
+            content_hash="sha256:" + "a" * 64,
+            valid_time_scope="2025-Q2",
+            region_or_jurisdiction="UA",
+        )
+        problem = SimpleNamespace(
+            design_problem_id="frc01-problem",
+            outcome_of_interest=SimpleNamespace(target_variable="firm_survival"),
+        )
+        candidate = SimpleNamespace(candidate_id="frc01-candidate")
+        method_result = SimpleNamespace(output={"report": _finite_estimator_report()})
+    
+        inputs = build_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+            method_result=method_result,
+            selected_method_fqn="foundry.methods.example",
+            forecast_tier="observable_calibrated",
+            calibration_status="limit",
+            policy_context_ref="policy-context://world_model_record_frc01",
+            expected_policy_context_ref="policy-context://world_model_record_frc01",
+            false_clear_counts={},
+            calibration_evidence={
+                "counterfactual_credibility": "insufficient_history",
+                "prediction_time": timestamp,
+                "observation_time": timestamp,
+                "policy_effective_time": timestamp,
+                "data_valid_time": timestamp,
+                "calibration_window_start": timestamp,
+                "calibration_window_end": timestamp,
+            },
+        )
+    
+        support = inputs["forecast_support"]
+        assert inputs["forecast_calibration_record"] is None
+        assert support.forecast_tier == "blocked"
+        assert support.calibration_record_ref is None
+>       assert "s10://calibration/fail-closed/insufficient-history" in support.s6_limitation_refs
+E       AssertionError: assert 's10://calibration/fail-closed/insufficient-history' in []
+E        +  where [] = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...owth', 's13_accountability_closure', 's14_universality'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').s6_limitation_refs
+
+policy-engine/tests/unit/remediation/test_frc_01.py:224: AssertionError
+=============================== warnings summary ===============================
+policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/remediation/test_emp_01.py::test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed
+FAILED policy-engine/tests/unit/remediation/test_emp_01.py::test_scope_filter_excludes_other_regions_before_profile_limit
+FAILED policy-engine/tests/unit/remediation/test_emp_01.py::test_owner_row_cap_refuses_truncated_profile
+FAILED policy-engine/tests/unit/remediation/test_emp_01.py::test_identification_set_and_statistical_uncertainty_remain_separate
+FAILED policy-engine/tests/unit/remediation/test_emp_01.py::test_asymmetric_interval_is_preserved_by_value_projection
+FAILED policy-engine/tests/unit/remediation/test_frc_01.py::test_calibration_time_roles_are_preserved_from_bound_evidence
+FAILED policy-engine/tests/unit/remediation/test_frc_01.py::test_missing_calibration_evidence_refs_stays_typed_blocked

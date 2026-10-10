@@ -1,0 +1,425 @@
+src/polisyos/core/artifacts/_manifest_lifecycle.py:33
+{
+            "artifact_id": artifact_id,
+            "kind": opts.kind,
+            "media_type": opts.media_type,
+            "byte_size": len(data),
+            "schema": opts.schema,
+            "canon": opts.canon,
+            "inputs": input_refs,
+            "producer": opts.producer,
+            "env": opts.env,
+            "governance": getattr(opts, "governance", None),
+            "tenant_context": getattr(opts, "tenant_context", None),
+            "same_input_closure": getattr(opts, "same_input_closure", None),
+            "authority": getattr(opts, "authority", None),
+            "integrity": IntegrityInfo(sha256=sha),
+            "warnings": list(opts.warnings or []),
+        }
+src/polisyos/core/audit/_assembler_provenance.py:147
+{
+                "artifact_id": str(artifact_id),
+                "kind": manifest.kind,
+                "media_type": manifest.media_type,
+                "byte_size": int(manifest.byte_size),
+                "sha256": manifest.integrity.sha256,
+            }
+src/polisyos/foundry/analysis/attractors.py:620
+{
+            "artifact_id": ref.artifact_id,
+            "kind": "ir.abm_result",
+            "media_type": "application/json",
+        }
+src/polisyos/foundry/calibration/identifiability.py:468
+{
+            "artifact_id": ref.artifact_id,
+            "kind": "ir.abm_result",
+            "media_type": "application/json",
+        }
+src/polisyos/ir/analytics/uncertainty.py:2354
+{
+            "artifact_id": str(artifact_id),
+            "kind": str(getattr(manifest, "kind", "")),
+            "media_type": str(getattr(manifest, "media_type", "")),
+        }
+src/polisyos/runtime/http/openapi_contract.py:2645
+{
+        "artifact_id": _ARTIFACT_ID_SAMPLE,
+        "kind": "foundry.basin_map",
+        "media_type": "application/json",
+    }
+src/polisyos/runtime/http/openapi_contract.py:2650
+{
+        "artifact_id": _ARTIFACT_ID_SAMPLE,
+        "kind": "foundry.continuation_branch",
+        "media_type": "application/json",
+    }
+src/polisyos/runtime/http/openapi_contract.py:593
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "core.run_manifest",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/openapi_contract.py:602
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "core.registry_bundle",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/openapi_contract.py:1102
+{
+            "artifact_id": (
+                "sha256:ba4ce3c08d828641c6d4c09c4610961af2b3c59330632ea769750559302474f6"
+            ),
+            "kind": "runtime.capability_manifest",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/openapi_contract.py:2059
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "runtime.production_approval_packet",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/openapi_contract.py:2291
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "ir.mobility_report",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/openapi_contract.py:2296
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "ir.bounds_bundle",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/openapi_contract.py:2349
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "ir.bounds_bundle",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/openapi_contract.py:2425
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "ir.mobility_report",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/openapi_contract.py:2452
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "ir.bounds_bundle",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/openapi_contract.py:2457
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "ir.mobility_report",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/openapi_contract.py:2480
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "ir.mobility_report",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/openapi_contract.py:2572
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "foundry.attractor_analysis_result",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/openapi_contract.py:2637
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "foundry.attractor_analysis_result",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/openapi_contract.py:3699
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "scientist.workflow_report",
+            "media_type": "application/json",
+            "byte_size": 1024,
+            "created_at": _TS_SAMPLE,
+            "schema_name": "scientist.workflow_report",
+            "schema_version": "1.0",
+            "producer_component": "scientist.run_governance",
+            "producer_version": "1.0.0",
+            "inputs": [],
+            "integrity_sha256": "a" * 64,
+        }
+src/polisyos/runtime/http/openapi_contract.py:3733
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "scientist.decision_packet",
+            "media_type": "application/json",
+            "mode": "json",
+            "size_bytes": 1024,
+            "max_bytes": 4096,
+            "truncated": False,
+            "preview": {
+                "policy_answer": "Approve the targeted SME bridge support package.",
+                "document_outline": [
+                    {
+                        "section_id": "policy_answer",
+                        "section_type": "policy",
+                        "title": "Recommendation",
+                    }
+                ],
+                "metric_significance_by_metric": {
+                    "gdp_change": {
+                        "effect_size": 0.23,
+                        "p_value": 0.02,
+                        "test_label": "Paired t test",
+                    }
+                },
+            },
+            "decision_packet_preview": {
+                "document_outline": [
+                    {
+                        "section_id": "policy_answer",
+                        "section_type": "policy",
+                        "title": "Recommendation",
+                    }
+                ],
+                "metric_significance_by_metric": {
+                    "gdp_change": {
+                        "effect_size": {
+                            "point": 0.23,
+                            "ci_95": [0.12, 0.34],
+                            "method": "analytic",
+                        },
+                        "p_value": 0.02,
+                        "test_label": "Paired t test",
+                    }
+                },
+            },
+        }
+src/polisyos/runtime/http/openapi_contract.py:3805
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "scientist.workflow_report",
+            "media_type": "application/json",
+            "schema_name": "scientist.workflow_report",
+            "schema_version": "1.0",
+            "top_level_keys": ["run_id", "status", "nodes"],
+        }
+src/polisyos/runtime/http/openapi_contract.py:3828
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "scientist.decision_monitoring_report",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/openapi_contract.py:3833
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "scientist.decision_compare_report",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/openapi_contract.py:3838
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "scientist.decision_reissue_plan",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/openapi_contract.py:3862
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "scientist.decision_monitoring_report",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/openapi_contract.py:3867
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "scientist.decision_compare_report",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/openapi_contract.py:3872
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "scientist.decision_reissue_plan",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/openapi_contract.py:4270
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "scientist.decision_packet",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/openapi_contract.py:4297
+{
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "scientist.decision_packet",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/openapi_contract.py:2382
+{
+                "artifact_id": _ARTIFACT_ID_SAMPLE,
+                "kind": "spatial.dependence_bundle",
+                "media_type": "application/json",
+            }
+src/polisyos/runtime/http/openapi_contract.py:2387
+{
+                "artifact_id": _ARTIFACT_ID_SAMPLE,
+                "kind": "fabric.quality_report",
+                "media_type": "application/json",
+            }
+src/polisyos/runtime/http/openapi_contract.py:2392
+{
+                "artifact_id": _ARTIFACT_ID_SAMPLE,
+                "kind": "survey.sae_estimates_bundle",
+                "media_type": "application/json",
+            }
+src/polisyos/runtime/http/openapi_contract.py:2397
+{
+                "artifact_id": _ARTIFACT_ID_SAMPLE,
+                "kind": "survey.causal_frontier_diagnostics",
+                "media_type": "application/json",
+            }
+src/polisyos/runtime/http/openapi_contract.py:2402
+{
+                "artifact_id": _ARTIFACT_ID_SAMPLE,
+                "kind": "scientist.governance_report",
+                "media_type": "application/json",
+            }
+src/polisyos/runtime/http/openapi_contract.py:3360
+{
+                "artifact_id": _ARTIFACT_ID_SAMPLE,
+                "kind": "foundry.simulation_result",
+                "media_type": "application/json",
+            }
+src/polisyos/runtime/http/openapi_contract.py:3459
+{
+                "artifact_id": _ARTIFACT_ID_SAMPLE,
+                "kind": "scientist.decision_packet",
+                "media_type": "application/json",
+            }
+src/polisyos/runtime/http/openapi_contract.py:3716
+{
+                "artifact_id": _ARTIFACT_ID_SAMPLE,
+                "kind": "scientist.workflow_report",
+                "media_type": "application/json",
+                "byte_size": 1024,
+                "created_at": _TS_SAMPLE,
+                "schema_name": "scientist.workflow_report",
+                "schema_version": "1.0",
+                "producer_component": "scientist.run_governance",
+                "producer_version": "1.0.0",
+                "inputs": [],
+                "integrity_sha256": "a" * 64,
+            }
+src/polisyos/runtime/http/openapi_contract.py:2247
+{
+                    "artifact_id": _ARTIFACT_ID_SAMPLE,
+                    "kind": "ir.bounds_bundle",
+                    "media_type": "application/json",
+                }
+src/polisyos/runtime/http/openapi_contract.py:2580
+{
+                    "artifact_id": _ARTIFACT_ID_SAMPLE,
+                    "kind": "foundry.attractor_analysis_result",
+                    "media_type": "application/json",
+                }
+src/polisyos/runtime/http/openapi_contract.py:3367
+{
+                    "artifact_id": _ARTIFACT_ID_SAMPLE,
+                    "kind": "foundry.exec_plan",
+                    "media_type": "application/json",
+                }
+src/polisyos/runtime/http/openapi_contract.py:3372
+{
+                    "artifact_id": _ARTIFACT_ID_SAMPLE,
+                    "kind": "foundry.metrics",
+                    "media_type": "application/json",
+                }
+src/polisyos/runtime/http/openapi_contract.py:3466
+{
+                    "artifact_id": _ARTIFACT_ID_SAMPLE,
+                    "kind": "scientist.decision_monitoring_contract",
+                    "media_type": "application/json",
+                }
+src/polisyos/runtime/http/openapi_contract.py:3471
+{
+                    "artifact_id": _ARTIFACT_ID_SAMPLE,
+                    "kind": "scientist.decision_monitoring_report",
+                    "media_type": "application/json",
+                }
+src/polisyos/runtime/http/openapi_contract.py:3476
+{
+                    "artifact_id": _ARTIFACT_ID_SAMPLE,
+                    "kind": "scientist.decision_compare_report",
+                    "media_type": "application/json",
+                }
+src/polisyos/runtime/http/openapi_contract.py:3481
+{
+                    "artifact_id": _ARTIFACT_ID_SAMPLE,
+                    "kind": "scientist.decision_reissue_plan",
+                    "media_type": "application/json",
+                }
+src/polisyos/runtime/http/routes/runs.py:1652
+{
+            "artifact_id": persisted.packet_ref,
+            "kind": "runtime.production_approval_packet",
+            "media_type": "application/json",
+        }
+src/polisyos/runtime/http/services/control/nl_pipeline.py:955
+{
+                    "direction": direction,
+                    "artifact_id": str(artifact_id),
+                    "kind": str(value.get("kind") or ""),
+                    "media_type": str(value.get("media_type") or ""),
+                }
+src/polisyos/runtime/http/services/feedback.py:245
+{
+                "artifact_id": plan.parameter_override_bundle_ref,
+                "kind": "foundry.parameter_override_bundle",
+                "media_type": "application/json",
+            }
+src/polisyos/runtime/quality/generation_cycle.py:7404
+{
+                "artifact_id": measurement_root.payload_ref,
+                "kind": "policyos.gy.measurement_root_payload",
+                "media_type": "application/json",
+            }
+src/polisyos/runtime/quality/generation_source.py:2599
+{
+                    "artifact_id": record.n5_result_ref,
+                    "kind": JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
+                    "media_type": "application/json",
+                }
+src/polisyos/runtime/quality/grounding_calibration.py:166
+{
+            "artifact_id": str(manifest.artifact_id),
+            "kind": manifest.kind, "media_type": manifest.media_type,
+        }
+src/polisyos/runtime/quality/substrate_registry.py:491
+{
+                "artifact_id": (
+                    "sha256:"
+                    + hashlib.sha256(
+                        len(receipt_bytes).to_bytes(8, "big") + receipt_bytes
+                    ).hexdigest()
+                ),
+                "kind": "l5.schema_regime_denominator_receipt",
+                "media_type": "application/vnd.polisyos.epoch+json",
+            }
+src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py:176
+{"artifact_id": ref, "kind": kind, "media_type": "application/json"}
+src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py:1675
+{
+                "artifact_id": artifact_id,
+                "kind": "ir.causal_graph_model",
+                "media_type": "application/json",
+            }
+src/polisyos/scientist/nodes/builtins/decide/decision_packet/serialization.py:120
+{
+            "artifact_id": ref,
+            "kind": "scientist.sensitivity_analysis_bundle",
+            "media_type": "application/json",
+        }
+src/polisyos/scientist/publishing/publisher.py:922
+{
+        "artifact_id": str(ref.artifact_id),
+        "kind": ref.kind,
+        "media_type": ref.media_type,
+    }

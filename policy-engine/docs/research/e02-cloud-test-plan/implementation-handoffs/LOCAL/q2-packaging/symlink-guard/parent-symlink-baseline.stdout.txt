@@ -1,0 +1,40 @@
+F...                                                                     [100%]
+=================================== FAILURES ===================================
+__ test_gcp_archive_refuses_symlinked_or_missing_source_paths[inside_parent] ___
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1007/test_gcp_archive_refuses_symli0')
+shape = 'inside_parent'
+
+    @pytest.mark.parametrize("shape", ["inside_parent", "outside_parent", "missing", "leaf"])
+    def test_gcp_archive_refuses_symlinked_or_missing_source_paths(tmp_path, shape):
+        source = "assets/item.yaml"
+        (workspace, product) = _project_fixture(
+            tmp_path, _force_include_manifest(source, "polisyos/assets/item.yaml")
+        )
+        if shape == "inside_parent":
+            target_dir = product / "internal"
+            target_dir.mkdir()
+            (target_dir / "item.yaml").write_text("redirected in-root bytes\n")
+            (product / "assets").symlink_to(target_dir, target_is_directory=True)
+        elif shape == "outside_parent":
+            target_dir = workspace / "outside"
+            target_dir.mkdir()
+            (target_dir / "item.yaml").write_text("redirected outside bytes\n")
+            (product / "assets").symlink_to(target_dir, target_is_directory=True)
+        elif shape == "leaf":
+            target = product / "internal/item.yaml"
+            target.parent.mkdir()
+            target.write_text("redirected leaf bytes\n")
+            link = product / source
+            link.parent.mkdir(parents=True)
+            link.symlink_to(target)
+    
+        output = workspace / "archives"
+        result = _run_packager(product, output)
+>       assert result.returncode != 0
+E       AssertionError: assert 0 != 0
+E        +  where 0 = CompletedProcess(args=['bash', '/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest...ytest-1007/test_gcp_archive_refuses_symli0/workspace/archives/policy-engine-20261009-094149-local.tar.gz\n', stderr='').returncode
+
+tests/repo_quality/tools/test_gcp_package_assets.py:114: AssertionError
+=========================== short test summary info ============================
+FAILED tests/repo_quality/tools/test_gcp_package_assets.py::test_gcp_archive_refuses_symlinked_or_missing_source_paths[inside_parent]

@@ -1,0 +1,127 @@
+{
+  "packet_type": "local G decision packet; analysis only, not a runtime contract",
+  "packet_id": "N4-V3",
+  "source_cut": {
+    "task_base_sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+    "branch": "codex/e02-unified-local-20261009",
+    "date": "2026-10-09",
+    "task_pointer": "docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V3"
+  },
+  "original_criteria": {
+    "title": "Source-driven same-candidate reissue and acquisition",
+    "finding_ids": [
+      "B09",
+      "B12",
+      "B27",
+      "B28",
+      "LA-046"
+    ],
+    "required_signal": "An admitted substantive source-content/acquisition change reissues the same candidate through current WMR/N5/history; ID/order/write-time-only changes do not reissue; requirement and acquisition remain separate."
+  },
+  "decision_state": "g_decision_required; currentness/relevance predicate not_established",
+  "property_and_proxy": {
+    "property": "A source owner admits an actual active source/acquisition change; the change is recomputed as relevant to the exact same candidate's selected operator/target slots/outcome and valid-time basis; only then the same candidate is re-entered through N5/N8 and a fresh history readback records the resulting source/context lineage. Identity/time-only changes with unchanged source content do not trigger reissue.",
+    "current_measured_projection": "N4CandidateScenarioSourceRecordV3 recomputes stable_subject_ref + Trinity problem/policy/model + selected intervention + profile selection semantics into semantic_identity_hash (excluding N5 baseline). It binds candidate_occurrence_hash to the atom content hash and nests an exact V2 selected source view. An origin V3 must share stable subject, semantic identity, profile selection and candidate ID, but differ in both candidate occurrence hash and full world_model_record_hash. CAS bytes, manifest profile, context, model, NCM, tenant/job/run and origin chain are resolved/recomputed.",
+    "proxy_divergence": "world_model_record_hash is a full-record content digest, not a selected candidate relevance projection. A changed slot unrelated to the selected candidate changes the full WMR hash; the V3 reissue predicate does not compare the changed slot with the candidate's selected operator/target/outcome. The atom's world-model reference can also change its occurrence hash. No current source-owner event says the changed WMR content is an admitted acquisition relevant to this candidate.",
+    "identity_time_counterfeit_control": "The current WMR content-hash implementation strips world_model_record_id, created_at, producer_ref and authority_status. A direct typed control changed only ID/time and kept the WMR content hash; adding an unselected policy slot changed the full-record hash. Probe receipt: LOCAL/v1-v2/v3-wmr-hash-probe.log@sha256:a8e530e7809ac75684728c23984517ff1d36077b59d519f43108a34aff1983e1. Thus ID/time alone is not a source-content change, while an unrelated content field is sufficient to change the measured hash.",
+    "p37_labels": {
+      "CAS identity_manifest_nested_context_and_WMR_hash": "recomputed",
+      "stable candidate semantic identity": "recomputed",
+      "changed source is genuinely acquired and active": "not_established",
+      "changed source content is relevant to this candidate": "not_established"
+    }
+  },
+  "source_readout": {
+    "current_owner": "GenerationSourceRepository.load_candidate_scenario_source_v3 resolves the selected V2 artifact and optional origin V3 chain and checks exact candidate identity plus changed atom/WMR content hashes. V2 binds the N4 proposal, selected profile, context job, model declaration, NCM and WMR content hash. The N5 input/history consumer checks those exact refs and current context/profile. A separate served acquisition route also consumes a Data Forge active overlay receipt/passport/epoch through AcquisitionWorldGrowthBridge, then runs a new N5 cycle for the same DesignProblem; its controlled fixture selects the acquired government.balance observation into the target baseline.",
+    "local_active_acquisition_positive": "Rerun in this author turn: tests/integration/core_runtime/test_acquisition_authority_served.py::test_served_acquisition_selects_committed_human_authority_and_reopens_worker passed (1 passed in 98.62s; LOCAL/v1-v2/v3-acquisition-served-current.log@sha256:7cabd0f17a31792b2c75f1d0303a1b88930ada857c3035f6ca5eb1c4dec182cc). The owner-backed active overlay admits one observation, persists a reentry receipt, and resolves a new N5 result whose baseline consumes the acquired government.balance observation. The persisted receipt is b8aea87063c0e793bf04d078540bc0e770d4dc192afde3af8893cea0d6133b3e; it names source_candidate_ref=candidate_cgf_shadow and new_cycle.selected_candidate_ref=candidate_123b27397979d0b7. The new V3 N4 source is a8df3207672e7036adeabae25f14551eab409a7dc26d9f36e21687a7e7455ccd, candidate_id=candidate_123b27397979d0b7, semantic_identity_hash=sha256:123b27397979d0b7e9bb7e46ef21b9d9100d41bda9a52a20283f5ab9ae554b48, profile_selection_ref=sha256:3b79de3789512028e770bfdadb905f06ead50cca7deb07859e6873c985b847e6, world_model_record_hash=sha256:30952b7c553eaa57ba4c7495753e60311667a4dc2058ee348631c0e1f7f9f9d0, and origin_source_ref=null. This is local controlled mechanism evidence only, not external source custody.",
+    "current_public_projection_and_residual": "The reentry receipt's source_candidate_ref differs from new_cycle.selected_candidate_ref (candidate_cgf_shadow versus candidate_123b27397979d0b7), and the new V3 source has origin_source_ref=null; therefore this controlled acquisition chain does not establish same-candidate V3 source history. The run-details consumer now resolves the persisted route and reentry receipts and projects the observed old/new candidate ids and typed N4 source ref, preserving the mismatch and nullable origin with candidate-only/currentness-not-established status. Its fresh GET assertion and matched-reentry-byte corruption control were added to the served integration test but not rerun in this author turn. Separately, load_candidate_scenario_source_v3 only requires equal stable subject/semantic identity/profile selection/candidate ID and unequal atom-content/full-WMR hashes; it does not recompute relevance of changed slots to the selected candidate. External producer custody/currentness and a general candidate-relevance projection remain unestablished.",
+    "baseline_time_control": "The served configured-profile test changes only DesignProblem as_of and confirms the profile/context is no longer selected and N5 is not entered while ordinary N4 remains usable. This is a drift control, not a positive acquisition/reissue witness.",
+    "semantic_identity_control": "test_candidate_scenario_identity_separates_semantics_from_refreshed_baseline checks baseline exclusion and action/profile/subject sensitivity using test doubles; it does not execute a persisted V3 reissue chain."
+  },
+  "options_for_g": [
+    {
+      "id": "A",
+      "name": "Bounded candidate-only lineage until an owner admits relevant source change",
+      "status": "recommended interim",
+      "effect": "Retain candidate-only N4/N5 behavior and exact CAS/context/profile lineage. Do not label a new WMR hash as source freshness or same-candidate source relevance; no N9/S8/authority pass. Keep V3 original exit execution_remaining."
+    },
+    {
+      "id": "B",
+      "name": "Extend the existing acquisition owner with candidate-relevance admission",
+      "status": "requires source owner and G selection",
+      "effect": "Reuse AcquisitionWorldGrowthBridge's existing active-overlay receipt, passport, epoch, and activated-observation projection. Extend that owner-to-reentry seam with a typed before/after source binding and an explicit candidate-relevance projection over the candidate's selected operator/target/outcome/unit. Fresh consumer resolves the owner evidence and recomputes relevance before re-entering N5/N8. Do not use a hash-difference threshold as the relevance rule."
+    },
+    {
+      "id": "C",
+      "name": "Use full WMR content-hash changes as candidate-only recompute triggers",
+      "status": "possible limited scheduling policy only; not V3 criterion closure",
+      "effect": "This can conservatively schedule extra candidate N5 recomputation under an explicit limitation, but must not claim a substantively relevant source change or external currentness. Same-input CAS history and budget still apply."
+    }
+  ],
+  "recommendation_for_interim": "Select A. Option C may be considered as an explicitly conservative candidate-band scheduling policy if G wants it, but it does not satisfy the original relevant-source-change criterion. Do not select B until the owner and admissible source packet exist.",
+  "prototype_and_falsifiers": {
+    "current_prototype": "N4CandidateScenarioSourceRecordV3 provides a strict optional same-candidate semantic identity/origin-chain verifier. The configured ordinary POST test proves real N4 source→N5 with exact profile/context and a time-drift stop. The rerun served acquisition integration proves local active-overlay owner admission and a new N5 output for the same DesignProblem using the acquired target-slot observation. The actual receipt links candidate_cgf_shadow while the new source candidate is candidate_123b27397979d0b7; the source origin is null and the fixture does not establish cross-cycle candidate equality. A fresh run GET projection has now been added to resolve the persisted receipts and source ref, preserve that mismatch, and return no history if the selected reentry bytes are corrupt; those new assertions were not rerun in this author turn. These are bounded mechanism witnesses, not V3 closure.",
+    "extension_migration_option": "If G selects option B, preserve V1-V3 source artifacts and their replay semantics unchanged. Introduce a versioned current source/reentry companion carrying the owner-issued acquisition receipt, exact before/after selected source refs, candidate relevance binding and owner valid/transaction times; current consumers must resolve/recompute those fields and expose the complete chain through fresh run history. Historical V1-V3 remain readable but cannot acquire the new admitted-relevance status by migration or defaulting. No source/schema contract is selected by this packet.",
+    "counterfeit_falsifier": "With WMR markers unchanged, change only world_model_record_id and created_at: content hash stays equal, so a content-change admission must not claim new evidence. Change only an unselected WMR slot: full content hash changes, but candidate-relevance is unmeasured. The local active-acquisition witness changes the selected government.balance input and N5 result, but a receipt carrying the prior candidate plus a new cycle marker is insufficient unless the consumer recomputes same-candidate equality and resolves the V3 origin chain. A consumer that admits reissue on full WMR hash inequality or adjacent receipt fields alone is a P38 proxy pass.",
+    "source_change_positive_required": "The local Data Forge path supplies a controlled active-overlay positive for N5 recomputation, and the new run-details history consumer resolves the persisted route/reentry receipts plus selected N4/N5 source refs. A V3 positive still needs the same-subject before/after source pair through V3 origin_source_ref, exact equality of prior and new selected candidate, and changed occurrence/WMR content bound to the selected target/operator/outcome. The current fixture instead exposes differing candidate ids and null origin. For an external claim, source-owner admission/currentness and valid/transaction times must also be present; current L01/L02 evidence is locator/metadata only.",
+    "receipts": [
+      "tests/integration/runtime_quality/test_configured_candidate_simulation_served.py::test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects_drift",
+      "tests/integration/core_runtime/test_acquisition_authority_served.py::test_served_acquisition_selects_committed_human_authority_and_reopens_worker (1 passed in 98.62s; LOCAL/v1-v2/v3-acquisition-served-current.log@sha256:7cabd0f17a31792b2c75f1d0303a1b88930ada857c3035f6ca5eb1c4dec182cc; persisted reentry b8aea87063c0e793bf04d078540bc0e770d4dc192afde3af8893cea0d6133b3e and V3 source a8df3207672e7036adeabae25f14551eab409a7dc26d9f36e21687a7e7455ccd)",
+      "tests/unit/runtime/http/test_acquisition_route_authority_sink.py::test_source_history_heads_are_exactly_scoped_across_route_ids (1 passed; LOCAL/v1-v2/acquisition-history-focused-20261009.log@sha256:7b93073a17229b9d199a8b3b7165f64e73a2e4d72d8e71883510d6b6a846e18e)",
+      "tests/unit/core/contracts/test_run_candidate_simulation_acquisition_history.py (2 passed in focused run; same receipt above)",
+      "tests/unit/runtime/http/test_control_service_di.py::test_fresh_run_details_get_projects_the_persisted_candidate_simulation (1 passed in focused run; same receipt above)",
+      "corepack pnpm --filter @polisyos/runtime-dashboard exec vitest run src/api/validators.test.ts src/features/runs/routes/tabs/OverviewTab.test.tsx (40 passed; LOCAL/v1-v2/acquisition-history-dashboard-20261009.log@sha256:0a422dc9598c25310e83ca59ab7b397c0c2ec3e876049c7a967b7f46dfbadc1b)",
+      "LOCAL/s3-empirical/v3-active-overlay-reentry-probe.stdout.txt@sha256:4f34b2412d4ce46d75b5475ca2907fef4bd8ca3e82f81ba4471cc9899f6c2190 (bounded controlled source probe; source WMR absent and candidate simulations blocked)",
+      "tests/unit/runtime/quality/test_generation_source.py::test_candidate_scenario_identity_separates_semantics_from_refreshed_baseline",
+      "src/polisyos/pdc/_impl/world_model_record.py::_content_payload_from_record",
+      "src/polisyos/runtime/quality/generation_source.py::N4CandidateScenarioSourceRecordV3 and GenerationSourceRepository.load_candidate_scenario_source_v3"
+    ]
+  },
+  "minimum_genuine_inputs": {
+    "admission_owner": "The existing source/selection owner that identifies the actually active artifact and signs or otherwise provides recomputable custody, tenant/purpose scope, validity/transaction times, source epoch, and revocation/currentness. An artifact ID, content hash, version counter, cache key or fixture response is not that owner.",
+    "candidate_relevance_projection": "A recomputable projection from the selected candidate's exact target/operator/outcome/unit to the source fields that can alter its N5/N8 inputs, with explicit evidence of what changed and why the same semantic candidate is affected.",
+    "input_packet": "Private L01/L02 minimal locator plus source bytes or owner-resolved immutable ref; before/after content, active-profile/selection binding, exact subject/unit/outcome and valid/transaction time, and issuer/consumer pairing. The inspected L01/L02 packet is metadata/locator only; authentic pairing remains UNRUN, not proof of absence.",
+    "history_consumer": "The run-details projection resolves route/reentry receipts and selected N4/N5 source refs, then exposes the observed candidate mismatch and nullable origin. It does not admit a relevance predicate or same-candidate status; those remain a G-selected, source-owner-backed extension."
+  },
+  "status_authority_time_provenance": {
+    "candidate_band": "Candidate re-computation may be scheduled under explicit unknown/limited status; it cannot become evidence-grounded or authority-grade from artifact lineage alone.",
+    "authority_band": "Any confidence forwarding, protected admission or publication remains withheld until the exact qualified K_ref/Credal and source-owner currentness predicates are admitted.",
+    "time": "WMR content hash intentionally excludes ID/created_at/producer/status; relevant valid time and transaction time must be carried by the source owner, not inferred from artifact occurrence.",
+    "provenance": "A synthetic/new fixture identity is controlled mechanism evidence only; original recorded source bytes are unchanged and external custody is not inferred."
+  },
+  "pattern_pass": {
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P05",
+      "P07",
+      "P08",
+      "P10",
+      "P14",
+      "P29",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "existing_anti_pattern": "Equating CAS/WMR hash inequality, source-epoch counts, identity, or time metadata with an admitted source change relevant to the selected candidate.",
+    "p40_bucket": "Same N4 source/history lineage class one level deeper: the public reader now links persisted route/reentry receipts and source refs, while the controlled result still has a different new candidate id and null origin; candidate relevance is unmeasured. Retain the residual with the identity/time-only and unrelated-content falsifiers; do not treat the history projection or an adjacent receipt as a same-candidate/relevance binding.",
+    "capability_labels": [
+      "implemented_but_not_orchestrated for the V3 same-candidate origin/history chain on the served active-acquisition reentry path",
+      "producer_missing for external source-owner admission and a general candidate-relevance projection",
+      "verification_missing for the added fresh GET positive/corrupt-ref assertions until the served integration test is rerun",
+      "verification_missing for cross-cycle candidate equality plus the unrelated-content negative",
+      "not_established for external custody/currentness"
+    ],
+    "acceptance_signal": "An owner-admitted relevant source change resolves through the same-candidate V3 origin chain; the consumer recomputes equal prior/new candidate identity, changed occurrence and selected-relevance binding; N5/N8 outputs bind the new source/context; and a fresh GET reads complete history. Identity/time-only and unrelated-source controls remain non-relevant, while authority/currentness stays withheld unless its source owner supplies those predicates."
+  },
+  "g_question": "Should this slice remain a bounded candidate-only hash-lineage mechanism, or should G extend the existing AcquisitionWorldGrowthBridge and select a candidate-relevance projection for V3 re-entry? If selected, preserve V1-V3 history and add a versioned current owner-bound reentry/source companion plus fresh history projection. The current packet supports no claim of authentic external acquisition, currentness, or relevance.",
+  "current_readback_9e02": {
+    "head": "9e02a9f49c8b01026327a9f7c7e18711b13a96f2",
+    "tree": "881a950dccb7cdefacc636515aa7dd2bceadf928",
+    "current_history_surface": "Typed run-details projection resolves scoped current acquisition heads and exact route/reentry/source refs; it exposes observed old/new candidate IDs and nullable origin with currentness not_established and publication_authority false.",
+    "observed_reentry": "The controlled served receipt names candidate_cgf_shadow; the new candidate is candidate_123b27397979d0b7 and origin_source_ref is null. This is not a same-candidate V3 positive.",
+    "verification": "Exact-scope history units (4 passed) and dashboard tests (40 passed) are retained. Added served fresh-GET/corrupt-ref assertions are not rerun; the current shared overlay's run-details unit did not reach its GET fixture because of the active control-lifecycle split NameError.",
+    "relevance_and_external_scope": "Candidate-specific source relevance and external custody/currentness remain not_established. Full WMR hash inequality is a P38 proxy: an unrelated unselected slot changes the hash without proving relevance; ID/time-only changes preserve the content hash.",
+    "p40": "Same N4 source/history lineage class one level deeper; retain bounded residual or widen once through a G-selected versioned owner-bound relevance/reissue binding."
+  }
+}

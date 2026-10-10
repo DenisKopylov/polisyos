@@ -1,0 +1,27 @@
+diff --git a/policy-engine/src/polisyos/core/artifacts/backends/caching_store.py b/policy-engine/src/polisyos/core/artifacts/backends/caching_store.py
+index 2144bef82..e9521e70d 100644
+--- a/policy-engine/src/polisyos/core/artifacts/backends/caching_store.py
++++ b/policy-engine/src/polisyos/core/artifacts/backends/caching_store.py
+@@ -317,6 +317,22 @@ class CachingArtifactStore:
+             )
+         return self._remote.get_manifest(selected)
+ 
++    def get_manifest_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
++        """Return raw manifest bytes from the owner that defines this view.
++
++        Raw profile consumers must observe the owner's exact sidecar bytes. A
++        typed local cache hit is insufficient because model validation can fill
++        omitted defaults before a reader checks profile completeness.
++        """
++        owner = self._default_manifest_owner()
++        reader = getattr(owner, "get_manifest_bytes", None)
++        if not callable(reader):
++            raise TypeError("Durable artifact owner must expose get_manifest_bytes")
++        manifest_bytes = reader(artifact_id)
++        if not isinstance(manifest_bytes, bytes):
++            raise TypeError("Artifact owner get_manifest_bytes() must return bytes")
++        return manifest_bytes
++
+     def put_bytes(self, data: bytes, opts: PutOptions) -> ArtifactRef:
+         ref = self._local.put_bytes(data, opts)
+         if self._write_through:

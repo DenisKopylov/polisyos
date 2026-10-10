@@ -1,0 +1,75 @@
+I001 [*] Import block is un-sorted or un-formatted
+   --> tests/unit/scientist/methods/backtesting/test_backtesting.py:414:5
+    |
+412 |       include_producer: bool = True,
+413 |   ) -> tuple[dict[str, Any], dict[str, Any]]:
+414 | /     from polisyos.core.artifacts.manifest import ArtifactRef
+415 | |     from polisyos.core.contracts.fabric import DataSnapshotRef
+416 | |     from polisyos.core.contracts.foundry import (
+417 | |         ExecuteRequest,
+418 | |         ExecuteResult,
+419 | |         ExecPlanRef,
+420 | |         FoundryInputBindings,
+421 | |         FoundryInputBindingsRef,
+422 | |         MetricsRef,
+423 | |         SimulationResult,
+424 | |         SimulationResultRef,
+425 | |         StateSnapshotRef,
+426 | |         UncertaintyEnvelopeRef,
+427 | |     )
+    | |_____^
+428 |
+429 |       metrics_ref = _put_backtest_artifact(
+    |
+help: Organize imports
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> tests/unit/scientist/methods/backtesting/test_backtesting.py:800:5
+    |
+798 |       monkeypatch, tmp_path
+799 |   ) -> None:
+800 | /     from polisyos.core.artifacts.manifest import ArtifactRef
+801 | |     from polisyos.core.contracts.fabric import DataSnapshotRef
+802 | |     from polisyos.core.contracts.foundry import (
+803 | |         ExecuteRequest,
+804 | |         ExecuteResult,
+805 | |         ExecPlanRef,
+806 | |         FoundryInputBindings,
+807 | |         FoundryInputBindingsRef,
+808 | |         MetricsRef,
+809 | |         SimulationResult,
+810 | |         SimulationResultRef,
+811 | |         StateSnapshotRef,
+812 | |     )
+    | |_____^
+813 |
+814 |       store = FileSystemCAS(tmp_path / "cas")
+    |
+help: Organize imports
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> tests/unit/scientist/methods/backtesting/test_backtesting.py:935:5
+    |
+933 |       monkeypatch, tmp_path
+934 |   ) -> None:
+935 | /     from polisyos.core.artifacts.manifest import ArtifactRef
+936 | |     from polisyos.core.contracts.fabric import DataSnapshotRef
+937 | |     from polisyos.core.contracts.foundry import (
+938 | |         ExecuteRequest,
+939 | |         ExecuteResult,
+940 | |         ExecPlanRef,
+941 | |         FoundryInputBindings,
+942 | |         FoundryInputBindingsRef,
+943 | |         MetricsRef,
+944 | |         SimulationResult,
+945 | |         SimulationResultRef,
+946 | |         StateSnapshotRef,
+947 | |     )
+    | |_____^
+948 |
+949 |       orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / "cas"))
+    |
+help: Organize imports
+
+Found 3 errors.
+[*] 3 fixable with the `--fix` option.

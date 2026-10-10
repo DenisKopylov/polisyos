@@ -1,0 +1,11 @@
+B201: 99 zeros + one 100, posterior mean with 90% equal-tail bounds
+result=ValidationError: 1 validation error for UncertaintyEnvelope
+B202: same marginals, reversed pairing
+same_reported_means=True
+same_reported_marginal_intervals=True
+same_pairing
+  x: carrier=None sample_size=3 metadata=['emulator_diagnostics', 'param_name', 'posterior_basis', 'posterior_diagnostics']
+  y: carrier=None sample_size=3 metadata=['emulator_diagnostics', 'param_name', 'posterior_basis', 'posterior_diagnostics']
+reversed_pairing
+  x: carrier=None sample_size=3 metadata=['emulator_diagnostics', 'param_name', 'posterior_basis', 'posterior_diagnostics']
+  y: carrier=None sample_size=3 metadata=['emulator_diagnostics', 'param_name', 'posterior_basis', 'posterior_diagnostics']

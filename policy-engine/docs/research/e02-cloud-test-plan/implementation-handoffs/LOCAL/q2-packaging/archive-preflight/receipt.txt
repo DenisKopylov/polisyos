@@ -1,0 +1,7 @@
+baseline_revision=672f5514e2733a782b49a56425b67294928de78a
+baseline_basis=HEAD package_repo.sh in isolated minimal fixtures
+baseline_cases=fixed-root symlink and special FIFO with valid force-include config
+fixed_command=python3 -m pytest -q tests/repo_quality/tools/test_gcp_package_assets.py
+fixed_exit=0
+candidate_source=ops/cloud/gcp/package_repo.sh plus tests/repo_quality/tools/test_gcp_package_assets.py
+archive_to_wheel_build=deferred for frozen root wave

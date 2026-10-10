@@ -1,0 +1,6 @@
+policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py:1758: trailing whitespace.
++            
+policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py:1771: trailing whitespace.
++            
+policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py:892: new blank line at EOF.
+policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py:638: new blank line at EOF.

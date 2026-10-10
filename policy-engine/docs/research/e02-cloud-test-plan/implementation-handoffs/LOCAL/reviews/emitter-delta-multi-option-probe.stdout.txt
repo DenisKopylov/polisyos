@@ -1,0 +1,4 @@
+candidate_commit= 077a572ff5880b3f50a85d3e3db6a232d277659a
+candidate_tree= 2895b6c7597215b714275cb4ba83a504724dc89c
+emitter_sha256= ae46bb307eff0a177554f9841ce0115fa92a8f2143e0618197d79f298dd6e889
+{"accepted": false, "control": "same_occurrence_two_alternatives_and_one_prototype", "decision_count": 3, "expected_contract": "three independently source-bound decision options for one occurrence should remain addressable", "rejection": "multi-option positive control decision mapping is duplicated for probe-multiple-decisions"}

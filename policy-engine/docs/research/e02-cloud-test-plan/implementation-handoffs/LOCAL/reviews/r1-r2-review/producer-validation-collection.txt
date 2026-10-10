@@ -1,0 +1,15 @@
+Command: .venv/bin/python -m pytest -q tests/unit/scientist/orchestration/engine/test_producer_validation_graph_oracle.py
+Working directory: policy-engine/
+Source review target: 672f5514e2733a782b49a56425b67294928de78a (tree 8b41d7c743853588228381d4a9fc1f9c76046763)
+
+ERROR collecting tests/unit/scientist/orchestration/engine/test_producer_validation_graph_oracle.py
+ImportError while importing test module ...
+tests/unit/scientist/orchestration/engine/test_producer_validation_graph_oracle.py:38: in <module>
+    from .test_producer_model_scope_oracle import (
+E   ModuleNotFoundError: No module named 'engine.test_producer_model_scope_oracle'
+
+=========================== short test summary info ============================
+ERROR tests/unit/scientist/orchestration/engine/test_producer_validation_graph_oracle.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+
+The referenced sibling is absent from the exact target tree and the current worktree. No test body executed. The same target release fragment also lists the missing sibling as evidence.

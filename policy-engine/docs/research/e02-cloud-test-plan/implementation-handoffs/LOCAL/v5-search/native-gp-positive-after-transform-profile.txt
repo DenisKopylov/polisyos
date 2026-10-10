@@ -1,0 +1,185 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______ test_fitted_native_gp_profile_round_trips_into_same_context_search ______
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-923/test_fitted_native_gp_profile_0')
+
+    @pytest.mark.skipif(
+        os.environ.get("POLISYOS_RUN_NATIVE_GP_HEAVY") != "1",
+        reason="reserved single native GP fit slot",
+    )
+    def test_fitted_native_gp_profile_round_trips_into_same_context_search(tmp_path) -> None:
+        _register_method()
+        store = FileSystemCAS(tmp_path / "cas")
+        registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
+        suite_ref = persist_benchmark_suite(
+            store,
+            BenchmarkSuite(suite_id="v5_native_gp_suite", kind="method_job"),
+        )
+        generator = BayesianCandidateGenerator(
+            SearchSpace(bounds=[{"name": "value", "lower": 0.0, "upper": 1.0}]),
+            n_initial=3,
+            seed=31,
+        )
+        generator._optimizer._config.num_restarts = 1
+        generator._optimizer._config.raw_samples = 16
+        generator._optimizer._config.refit_interval = 1
+        policy = _policy()
+        spec = SearchLoopSpec(
+            loop_id="v5_search",
+            mutation_codec=PydanticMutationCodec(_V5Mutation),
+            candidate_generator=generator,
+            benchmark_evaluator=MethodJobBenchmarkEvaluator(
+                method_fqn=_V5ScoreMethod.signature.fqn,
+                candidate_input_bindings={"value": "value"},
+                split=BenchmarkSplit.SELECTION,
+            ),
+            promotion_policy=policy,
+        )
+        source_context = {"policy_context": {"year": 2032, "unit": "dimensionless"}}
+        original_context = {"policy_context": dict(source_context["policy_context"])}
+        source_result = SearchLoopRunner(store=store, registry=registry).run(
+            spec,
+            suite_ref=suite_ref,
+            context=source_context,
+            max_iterations=4,
+        )
+    
+        assert source_context == original_context
+        assert generator._optimizer._model is not None
+        assert source_result.history[-1].candidate["_strategy_metadata"]["source"] == (
+            "bayesian_acquisition"
+        )
+        source_stage_b = source_result.history[-1].stage_b_result
+        assert source_stage_b is not None
+        source_evaluation_ref = source_stage_b["simulation_results"]["evaluation_ref"]
+        source_reader = FileSystemCAS(tmp_path / "cas")
+        source_evaluation = load_model_artifact(
+            source_reader,
+            source_evaluation_ref,
+            BenchmarkEvaluation,
+        )
+        source_profile = source_evaluation.search_source_profile
+        assert source_profile is not None
+        assert source_profile.profile_kind == "configured_native_gp"
+        assert source_profile.gp_model_fqn == "botorch.models.gp_regression.SingleTaskGP"
+        assert source_profile.input_transform_fingerprint == "Normalize[0,1]"
+        assert source_profile.outcome_transform_fingerprint == "Standardize[m=1]"
+        assert source_profile.noise_model_fingerprint == "GaussianLikelihood[inferred]"
+        assert source_profile.warm_start_eligible is True
+        assert source_profile.training_observation_count == 3
+        assert source_profile.context_fingerprint == generator._search_run_context_fingerprint
+        source_manifest = source_reader.get_manifest(source_evaluation_ref)
+        assert {item.role for item in source_manifest.inputs} >= {
+            "candidate",
+            "benchmark_suite",
+            "method_result",
+            "method_evidence",
+        }
+    
+        source_evaluations = generator._history_to_evaluations(source_result.history)
+        transfer = TransferLearningManager(store, _V5VectorIndex())
+        source_fingerprint = RunFingerprint(
+            run_id="v5-native-source-run",
+            space_hash=generator._search_space._native.sobol_space_fingerprint(),
+            objective_names=[policy.primary_metric],
+            bounds={"value": {"lower": 0.0, "upper": 1.0}},
+            split=BenchmarkSplit.SELECTION.value,
+            units={},
+            origin="v5-native-methodjob-test",
+            objective_directions={policy.primary_metric: policy.direction.value},
+            embedding=[1.0],
+            num_evaluations=len(source_evaluations),
+        )
+        assert transfer.register_run(source_fingerprint, source_evaluations) is not None
+        target_generator = BayesianCandidateGenerator(
+            SearchSpace(bounds=[{"name": "value", "lower": 0.0, "upper": 1.0}]),
+            n_initial=3,
+            seed=37,
+        )
+        target_generator._optimizer._config.num_restarts = 1
+        target_generator._optimizer._config.raw_samples = 16
+        target_fingerprint = source_fingerprint.model_copy(
+            update={"run_id": "v5-native-target-run"}
+        )
+        bridge = WarmStartBridge(transfer)
+        transferred_profiles = bridge.load_warm_start(target_fingerprint)
+        fitted_source_ids = {
+            evaluation.candidate_id
+            for evaluation in transferred_profiles
+            if evaluation.metadata.get("warm_start_compatibility", {}).get(
+                "warm_start_eligible"
+            ) is True
+        }
+        assert len(fitted_source_ids) == 1
+        training_candidate_ids: list[list[str]] = []
+        prepare_training_data = target_generator._optimizer._prepare_training_data
+    
+        def observe_training_data(evaluations):
+            training_candidate_ids.append([evaluation.candidate_id for evaluation in evaluations])
+            return prepare_training_data(evaluations)
+    
+        target_generator._optimizer._prepare_training_data = observe_training_data
+        target_result = SearchLoopRunner(store=store, registry=registry).run(
+            replace(spec, candidate_generator=target_generator),
+            suite_ref=suite_ref,
+            context=original_context,
+            max_iterations=3,
+            warm_start_bridge=bridge,
+            warm_start_fingerprint=target_fingerprint,
+        )
+    
+        assert target_result.history
+        assert target_generator._warm_start_accepted_count == 1
+        assert len(target_generator._optimizer._warm_evals) == 1
+        assert len(target_generator._warm_start_rejections) == 3
+        assert len(training_candidate_ids) == 1
+        assert fitted_source_ids.issubset(set(training_candidate_ids[0]))
+        target_stage_b = target_result.history[0].stage_b_result
+        assert target_stage_b is not None
+        target_evaluation = load_model_artifact(
+            FileSystemCAS(tmp_path / "cas"),
+            target_stage_b["simulation_results"]["evaluation_ref"],
+            BenchmarkEvaluation,
+        )
+        assert target_evaluation.search_source_profile is not None
+>       assert target_evaluation.search_source_profile.training_observation_count == 3
+E       AssertionError: assert None == 3
+E        +  where None = BayesianSourceProfile(profile_kind='configured_native_gp', optimizer_fqn='polisyos.scientist.methods.search.strategies...7396', training_corpus_fingerprint=None, training_observation_count=None, gp_model_fqn=None, warm_start_eligible=False).training_observation_count
+E        +    where BayesianSourceProfile(profile_kind='configured_native_gp', optimizer_fqn='polisyos.scientist.methods.search.strategies...7396', training_corpus_fingerprint=None, training_observation_count=None, gp_model_fqn=None, warm_start_eligible=False) = BenchmarkEvaluation(loop_id='v5_search', suite_id='v5_native_gp_suite', suite_version='1.0', candidate_ref=ArtifactRef...acy_method_adapter_ref:sha256:84fac3bd18fbb5fdbaa62cfa3445506377f0055067d281214b776b9f1947f81d'], 'metric_unit': None}).search_source_profile
+
+policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py:444: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-09 11:56:18 [info     ] method_registered              backend=numpy fqn=tests.scientist.v5_score@1.0.0 lazy=False namespace=tests.scientist override=True tags=[] version=1.0.0
+2026-10-09 11:56:18 [debug    ] method_dispatch_start          backend=numpy fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-09 11:56:18 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=7.12 fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-09 11:56:18 [debug    ] method_dispatch_start          backend=numpy fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-09 11:56:18 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=6.95 fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-09 11:56:18 [debug    ] method_dispatch_start          backend=numpy fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-09 11:56:18 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=6.87 fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-09 11:56:19 [debug    ] method_dispatch_start          backend=numpy fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-09 11:56:19 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=7.3 fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-09 11:56:19 [debug    ] method_dispatch_start          backend=numpy fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-09 11:56:19 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=7.1 fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-09 11:56:20 [debug    ] method_dispatch_start          backend=numpy fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-09 11:56:20 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=7.14 fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-09 11:56:20 [debug    ] method_dispatch_start          backend=numpy fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-09 11:56:20 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=7.46 fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+=============================== warnings summary ===============================
+policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_fitted_native_gp_profile_round_trips_into_same_context_search
+tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_fitted_native_gp_profile_round_trips_into_same_context_search
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_fitted_native_gp_profile_round_trips_into_same_context_search

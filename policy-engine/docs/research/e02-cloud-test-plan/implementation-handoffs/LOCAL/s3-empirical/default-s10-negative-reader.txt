@@ -1,0 +1,5 @@
+forecast_tier blocked
+calibration_record None
+s6_limitation_refs ['s10://calibration/fail-closed/empirical_evidence_ref_missing']
+forecast_authority_disposition_reason S10 estimator-shape diagnostics derived from Foundry CausalEffectReport; empirical calibration evidence remains unestablished (finite_ci=True, diagnostics_pass=True, sample_size=100, ci_width=9).
+authority_denials ['approval_authority', 'claim_authority', 'closeout_authority', 'preference_learning_authority', 'production_claim_authority', 'production_recommendation', 'publication_authority', 'rollout_authority', 's11_calibration', 's12_envelope_growth', 's13_accountability_closure', 's14_universality', 'scorecard_authority']

@@ -1,0 +1,6 @@
+scoped_count 4
+scoped_units ['UA']
+scoped_periods [2020, 2021, 2022, 2023]
+unscoped_code acquire_data:value_owner_rows_truncated
+unscoped_error owner profile exceeded the bounded row cap of 20000; refusing to classify a truncated panel owner_access_ref=catalog://b16/outcome#row-cap
+mixed_unit_code acquire_data:value_owner_unit_binding_ambiguous

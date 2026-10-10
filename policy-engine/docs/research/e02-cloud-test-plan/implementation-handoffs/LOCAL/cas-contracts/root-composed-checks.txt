@@ -1,0 +1,11 @@
+COMMAND ['.venv/bin/python', '-m', 'ruff', 'check', 'src/polisyos/core/artifacts/store.py', 'src/polisyos/core/artifacts/_transfer_ops.py', 'src/polisyos/core/artifacts/backends/caching_store.py', 'src/polisyos/core/artifacts/ir_adapter.py', 'src/polisyos/ir/artifacts/contracts.py', 'src/polisyos/ir/artifacts/io.py', 'tests/unit/core/artifacts/test_ir_adapter.py', 'tests/unit/core/artifacts/test_bound_import_preservation.py', 'tests/unit/core/artifacts/test_transfer_import_fresh_process.py']
+All checks passed!
+EXIT 0
+COMMAND ['.venv/bin/python', '-m', 'ruff', 'format', '--check', 'src/polisyos/core/artifacts/store.py', 'src/polisyos/core/artifacts/_transfer_ops.py', 'src/polisyos/core/artifacts/backends/caching_store.py', 'src/polisyos/core/artifacts/ir_adapter.py', 'src/polisyos/ir/artifacts/contracts.py', 'src/polisyos/ir/artifacts/io.py', 'tests/unit/core/artifacts/test_ir_adapter.py', 'tests/unit/core/artifacts/test_bound_import_preservation.py', 'tests/unit/core/artifacts/test_transfer_import_fresh_process.py']
+9 files already formatted
+EXIT 0
+COMMAND ['.venv/bin/python', '-m', 'pytest', 'tests/unit/core/artifacts/test_ir_adapter.py', 'tests/unit/core/artifacts/test_bound_import_preservation.py', 'tests/unit/core/artifacts/test_transfer_import_fresh_process.py', 'tests/unit/core/artifacts/test_multi_tenant_cas.py', 'tests/unit/core/artifacts/test_caching_store.py', '-q']
+ERROR: file or directory not found: tests/unit/core/artifacts/test_multi_tenant_cas.py
+
+
+EXIT 4

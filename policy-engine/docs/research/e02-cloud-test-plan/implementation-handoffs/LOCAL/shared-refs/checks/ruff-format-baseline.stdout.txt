@@ -1,0 +1,31 @@
+src/polisyos/calibration/forecast_bridge.py: base_unformatted=True
+src/polisyos/ir/analytics/alignment_certification.py: base_unformatted=True
+src/polisyos/ir/analytics/dependent_sensitivity.py: base_unformatted=True
+src/polisyos/ir/analytics/distributional.py: base_unformatted=True
+src/polisyos/ir/analytics/dynamic_causal_semantics.py: base_unformatted=True
+src/polisyos/ir/analytics/forecasting_uncertainty.py: base_unformatted=True
+src/polisyos/ir/analytics/ncm.py: base_unformatted=True
+src/polisyos/ir/analytics/partial_identification.py: base_unformatted=True
+src/polisyos/ir/analytics/phase4_dynamics.py: base_unformatted=True
+src/polisyos/ir/analytics/proximal.py: base_unformatted=True
+src/polisyos/ir/analytics/regime_shift_forecast.py: base_unformatted=True
+src/polisyos/ir/analytics/shift_diagnostics.py: base_unformatted=True
+src/polisyos/ir/analytics/simulation_proof_bridge.py: base_unformatted=True
+src/polisyos/ir/analytics/strategic.py: base_unformatted=True
+src/polisyos/ir/analytics/transportability.py: base_unformatted=True
+Would reformat: .selected-ref-base-9bbg9s8f/src/polisyos/calibration/forecast_bridge.py
+Would reformat: .selected-ref-base-9bbg9s8f/src/polisyos/ir/analytics/alignment_certification.py
+Would reformat: .selected-ref-base-9bbg9s8f/src/polisyos/ir/analytics/dependent_sensitivity.py
+Would reformat: .selected-ref-base-9bbg9s8f/src/polisyos/ir/analytics/distributional.py
+Would reformat: .selected-ref-base-9bbg9s8f/src/polisyos/ir/analytics/dynamic_causal_semantics.py
+Would reformat: .selected-ref-base-9bbg9s8f/src/polisyos/ir/analytics/forecasting_uncertainty.py
+Would reformat: .selected-ref-base-9bbg9s8f/src/polisyos/ir/analytics/ncm.py
+Would reformat: .selected-ref-base-9bbg9s8f/src/polisyos/ir/analytics/partial_identification.py
+Would reformat: .selected-ref-base-9bbg9s8f/src/polisyos/ir/analytics/phase4_dynamics.py
+Would reformat: .selected-ref-base-9bbg9s8f/src/polisyos/ir/analytics/proximal.py
+Would reformat: .selected-ref-base-9bbg9s8f/src/polisyos/ir/analytics/regime_shift_forecast.py
+Would reformat: .selected-ref-base-9bbg9s8f/src/polisyos/ir/analytics/shift_diagnostics.py
+Would reformat: .selected-ref-base-9bbg9s8f/src/polisyos/ir/analytics/simulation_proof_bridge.py
+Would reformat: .selected-ref-base-9bbg9s8f/src/polisyos/ir/analytics/strategic.py
+Would reformat: .selected-ref-base-9bbg9s8f/src/polisyos/ir/analytics/transportability.py
+15 files would be reformatted

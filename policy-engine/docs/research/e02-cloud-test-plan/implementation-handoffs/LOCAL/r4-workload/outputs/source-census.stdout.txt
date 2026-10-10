@@ -1,0 +1,40 @@
+ROOT policy-engine/src/polisyos; denominator=2705 files of type .py
+  LocalWorkerPool constructor: 0 matching lines
+  LocalWorkerPool symbol: 1 matching lines
+    policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_pool.py:37: class LocalWorkerPool:
+  build_workflow_runner call: 5 matching lines
+    policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py:2579: runner = build_workflow_runner(runner_config)
+    policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py:2598: runner = build_workflow_runner(
+    policy-engine/src/polisyos/scientist/orchestration/engine/runner/config.py:4: with ``from_env()`` classmethod and a ``build_workflow_runner()`` factory.
+    policy-engine/src/polisyos/scientist/orchestration/engine/runner/config.py:87: def build_workflow_runner(config: WorkflowRunnerConfig) -> WorkflowRunnerBackend:
+    policy-engine/src/polisyos/scientist/orchestration/workflows/builder.py:958: runner = build_workflow_runner(runner_config)
+ROOT policy-engine/tests; denominator=2839 files of type .py
+  LocalWorkerPool constructor: 7 matching lines
+    policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:400: pool = LocalWorkerPool(max_workers=budget)
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py:74: pool = LocalWorkerPool(max_workers=4)
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py:84: pool = LocalWorkerPool(max_workers=2)
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py:96: pool = LocalWorkerPool(max_workers=5)
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py:154: pool = LocalWorkerPool(max_workers=2)
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py:166: pool = LocalWorkerPool(max_workers=1)
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py:197: pool = LocalWorkerPool(max_workers=1)
+  LocalWorkerPool symbol: 15 matching lines
+    policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:335: from polisyos.scientist.orchestration.engine.runner.local_pool import LocalWorkerPool
+    policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:400: pool = LocalWorkerPool(max_workers=budget)
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py:1: """Tests for WorkerPool protocol and LocalWorkerPool."""
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py:72: from polisyos.scientist.orchestration.engine.runner.local_pool import LocalWorkerPool
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py:74: pool = LocalWorkerPool(max_workers=4)
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py:82: from polisyos.scientist.orchestration.engine.runner.local_pool import LocalWorkerPool
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py:84: pool = LocalWorkerPool(max_workers=2)
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py:94: from polisyos.scientist.orchestration.engine.runner.local_pool import LocalWorkerPool
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py:96: pool = LocalWorkerPool(max_workers=5)
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py:152: from polisyos.scientist.orchestration.engine.runner.local_pool import LocalWorkerPool
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py:154: pool = LocalWorkerPool(max_workers=2)
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py:164: from polisyos.scientist.orchestration.engine.runner.local_pool import LocalWorkerPool
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py:166: pool = LocalWorkerPool(max_workers=1)
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py:195: from polisyos.scientist.orchestration.engine.runner.local_pool import LocalWorkerPool
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py:197: pool = LocalWorkerPool(max_workers=1)
+  build_workflow_runner call: 4 matching lines
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_config.py:107: runner = build_workflow_runner(cfg)
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_config.py:125: build_workflow_runner(cfg)
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_config.py:138: build_workflow_runner(cfg)
+    policy-engine/tests/unit/scientist/orchestration/engine/runner/test_config.py:144: build_workflow_runner(cfg)

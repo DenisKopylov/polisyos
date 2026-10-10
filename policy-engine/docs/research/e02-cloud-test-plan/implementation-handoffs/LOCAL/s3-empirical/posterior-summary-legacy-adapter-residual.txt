@@ -1,0 +1,4 @@
+B201 legacy producer: ValidationError 1 validation error for UncertaintyEnvelope
+B202 legacy marginal means identical: True
+B202 legacy marginal intervals identical: True
+B202 legacy envelope distribution payloads: {'x': None, 'y': None}

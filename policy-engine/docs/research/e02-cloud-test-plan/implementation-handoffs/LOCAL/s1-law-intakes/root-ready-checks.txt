@@ -1,0 +1,13 @@
+COMMAND ['.venv/bin/python', '-m', 'pytest', 'tests/unit/berl/test_adapters.py', 'tests/unit/berl/test_service.py', 'tests/unit/remediation/test_ber_01.py', 'tests/unit/remediation/test_uqs_01.py', 'tests/unit/foundry/uncertainty/test_aggregation_strategies.py', '-q']
+..............................................................           [100%]
+EXIT 0
+COMMAND ['.venv/bin/python', '-m', 'ruff', 'check', 'src/polisyos/berl/service.py', 'src/polisyos/berl/adapters/shap_kernel.py', 'src/polisyos/foundry/uncertainty/aggregator.py', 'tests/unit/berl/test_service.py', 'tests/unit/berl/test_adapters.py', 'tests/unit/remediation/test_ber_01.py', 'tests/unit/remediation/test_uqs_01.py', 'tests/unit/foundry/uncertainty/test_aggregation_strategies.py']
+All checks passed!
+EXIT 0
+COMMAND ['.venv/bin/python', '-m', 'ruff', 'format', '--check', 'src/polisyos/berl/service.py', 'src/polisyos/berl/adapters/shap_kernel.py', 'src/polisyos/foundry/uncertainty/aggregator.py', 'tests/unit/berl/test_service.py', 'tests/unit/berl/test_adapters.py', 'tests/unit/remediation/test_ber_01.py', 'tests/unit/remediation/test_uqs_01.py', 'tests/unit/foundry/uncertainty/test_aggregation_strategies.py']
+Would reformat: src/polisyos/berl/adapters/shap_kernel.py
+Would reformat: src/polisyos/berl/service.py
+Would reformat: src/polisyos/foundry/uncertainty/aggregator.py
+Would reformat: tests/unit/remediation/test_ber_01.py
+4 files would be reformatted, 4 files already formatted
+EXIT 1

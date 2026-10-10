@@ -1,0 +1,1 @@
+{'decoder_value': {'fraction': 1.5}, 'profile_reencoder_refuses': 'float forbidden in canonical JSON'}

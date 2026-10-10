@@ -1,0 +1,16 @@
+src/polisyos/scientist/validation/phase5_preflight.py:307: error: Argument 1 to "persist_validation_report" has incompatible type "polisyos.core.artifacts.protocol.ArtifactStore"; expected "polisyos.ir.artifacts.contracts.ArtifactStore"  [arg-type]
+src/polisyos/scientist/validation/phase5_preflight.py:307: note: "ArtifactStore" is missing following "ArtifactStore" protocol member:
+src/polisyos/scientist/validation/phase5_preflight.py:307: note:     get_manifest_bytes
+src/polisyos/scientist/validation/phase5_preflight.py:307: note: Following member(s) of "ArtifactStore" have conflicts:
+src/polisyos/scientist/validation/phase5_preflight.py:307: note:     Expected:
+src/polisyos/scientist/validation/phase5_preflight.py:307: note:         def get_bytes(self, artifact_id: ArtifactID | ArtifactViewRef | Mapping[str, Any] | str) -> bytes
+src/polisyos/scientist/validation/phase5_preflight.py:307: note:     Got:
+src/polisyos/scientist/validation/phase5_preflight.py:307: note:         def get_bytes(self, artifact_id: ArtifactID | ArtifactRef) -> bytes
+src/polisyos/scientist/validation/phase5_preflight.py:307: note:     Expected:
+src/polisyos/scientist/validation/phase5_preflight.py:307: note:         def get_manifest(self, artifact_id: ArtifactID | ArtifactViewRef | Mapping[str, Any] | str) -> Any
+src/polisyos/scientist/validation/phase5_preflight.py:307: note:     Got:
+src/polisyos/scientist/validation/phase5_preflight.py:307: note:         def get_manifest(self, artifact_id: ArtifactID | ArtifactRef) -> ArtifactManifest
+src/polisyos/scientist/validation/phase5_preflight.py:307: note:     <1 more conflict(s) not shown>
+src/polisyos/scientist/validation/phase5_preflight.py:309: error: Argument "inputs" to "persist_validation_report" has incompatible type "list[polisyos.core.artifacts.manifest.InputRef] | None"; expected "list[polisyos.ir.artifacts.contracts.InputRef] | None"  [arg-type]
+src/polisyos/scientist/validation/phase5_preflight.py:878: error: Unused "type: ignore" comment  [unused-ignore]
+Found 3 errors in 1 file (checked 3 source files)

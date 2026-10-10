@@ -1,0 +1,42 @@
+polisyos/core/registry/builder.py	212	core.registry_bundle	application/json (_put_registry helper)	_schema_info(name, obj); returns None without payload.schema_version	_put_registry
+polisyos/data_forge/domains/ukraine/builders/sources.py	689	fabric.data_snapshot	application/json (helper contract)	None (helper contract)	_cas_put_json
+polisyos/fabric/data_plane/modes.py	132	fabric.data_snapshot	application/json	SchemaInfo(name='polisyos.core.DataSnapshot', version='0.2.0')	ArtifactWriteOptions
+polisyos/fabric/data_plane/orchestrator.py	654	fabric.data_snapshot	application/json	SchemaInfo(name='polisyos.core.DataSnapshot', version='0.2.0')	ArtifactWriteOptions
+polisyos/foundry/_quickstart.py	123	ir.trinity_bundle	application/json	SchemaInfo(name='polisyos.ir.TrinityBundle', version=bundle.schema_version)	PutOptions
+polisyos/foundry/_quickstart.py	159	fabric.data_snapshot	application/json	None	PutOptions
+polisyos/foundry/_quickstart.py	168	foundry.input_bindings	application/json	None	PutOptions
+polisyos/foundry/data_plane/bindings.py	639	foundry.input_bindings	application/json	SchemaInfo(name='polisyos.core.FoundryInputBindings', version='1.0')	PutOptions
+polisyos/foundry/execute/_internal/snapshots/__init__.py	181	foundry.state_snapshot	application/json	SchemaInfo(name='polisyos.core.StateSnapshot', version='2.2.0')	PutOptions
+polisyos/foundry/validation/release_acceptance.py	263	fabric.data_snapshot	application/json	SchemaInfo(name='polisyos.core.DataSnapshot', version='0.2.0')	PutOptions
+polisyos/foundry/validation/release_acceptance.py	298	ir.trinity_bundle	application/json	SchemaInfo(name='polisyos.ir.TrinityBundle', version=effective_trinity.schema_version)	PutOptions
+polisyos/lex/normpack/assemble_pack.py	696	lex.norm_pack	application/json	SchemaInfo(name='polisyos.ir.NormPack', version='1.0')	PutOptions
+polisyos/runtime/http/services/control/nl_pipeline.py	4494	fabric.data_snapshot	application/json	SchemaInfo(name='polisyos.core.DataSnapshot', version='0.2.0')	ArtifactWriteOptions
+polisyos/runtime/http/services/control/nl_pipeline.py	4565	foundry.state_snapshot	application/json	SchemaInfo(name='polisyos.core.StateSnapshot', version='1.0')	ArtifactWriteOptions
+polisyos/runtime/http/services/control/nl_pipeline.py	4587	foundry.input_bindings	application/json	SchemaInfo(name='polisyos.core.FoundryInputBindings', version='1.0')	ArtifactWriteOptions
+polisyos/runtime/http/services/control/nl_pipeline.py	4756	fabric.data_snapshot	application/json	SchemaInfo(name='polisyos.core.DataSnapshot', version='0.2.0')	ArtifactWriteOptions
+polisyos/runtime/http/services/control/nl_pipeline.py	4815	foundry.state_snapshot	application/json	SchemaInfo(name='polisyos.core.StateSnapshot', version='1.0')	ArtifactWriteOptions
+polisyos/runtime/http/services/control/nl_pipeline.py	4837	foundry.input_bindings	application/json	SchemaInfo(name='polisyos.core.FoundryInputBindings', version='1.0')	ArtifactWriteOptions
+polisyos/runtime/http/services/control/nl_pipeline.py	5000	ir.trinity_bundle	application/json	SchemaInfo(name='polisyos.ir.TrinityBundle', version=str(getattr(bundle, 'schema_version', '1.0')))	ArtifactWriteOptions
+polisyos/runtime/quality/data_forge_binding.py	1317	fabric.data_snapshot	application/json	artifacts.SchemaInfo(name='polisyos.core.DataSnapshot', version='0.2.0')	PutOptions
+polisyos/runtime/quality/data_state_substrate.py	522	fabric.data_snapshot	application/json	SchemaInfo(name='polisyos.core.DataSnapshot', version='0.2.0')	PutOptions
+polisyos/runtime/quality/data_state_substrate.py	804	fabric.data_snapshot	application/json	SchemaInfo(name='polisyos.core.DataSnapshot', version='0.2.0')	PutOptions
+polisyos/runtime/quality/workspace/loop.py	1952	ir.trinity_bundle	application/json	SchemaInfo(name='polisyos.ir.TrinityBundle', version='1.0')	PutOptions
+polisyos/scholar/orchestrator/bundle.py	132	scholar.knowledge_bundle	application/json	_BUNDLE_SCHEMA	ArtifactWriteOptions
+polisyos/scientist/adapters/fabric_bridge.py	214	fabric.data_snapshot	application/json	SchemaInfo(name='polisyos.core.DataSnapshot', version='0.2.0')	ArtifactWriteOptions
+polisyos/scientist/governance/blueprint_release.py	2284	ir.trinity_bundle	application/json	SchemaInfo(name='polisyos.ir.TrinityBundle', version=trinity.schema_version)	PutOptions
+polisyos/scientist/governance/passes/incentive_compatibility_pass.py	114	ir.trinity_bundle	application/json	SchemaInfo(name='polisyos.ir.TrinityBundle', version=str(ctx.ir.schema_version))	PutOptions
+polisyos/scientist/methods/backtesting/orchestrator.py	1187	fabric.data_snapshot	application/json (helper contract)	'polisyos.core.DataSnapshot':'0.2.0'	put_json_artifact
+polisyos/scientist/nodes/builtins/data/enrich_knowledge.py	418	scholar.knowledge_bundle	application/json	SchemaInfo(name='polisyos.scholar.KnowledgeBundlePayloadV1', version='1.0')	PutOptions
+polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py	1119	ir.trinity_bundle	application/json	SchemaInfo(name='polisyos.ir.TrinityBundle', version=str(bundle.schema_version))	PutOptions
+polisyos/scientist/orchestration/engine/runner/_activity_worker.py	437	core.registry_bundle	application/json	None	ArtifactWriteOptions
+SOURCE_PY_FILES=2746
+PARSED_SOURCE_PY_FILES=2746
+WRITER_CALLS=31
+KIND_COUNT[core.registry_bundle]=2
+KIND_COUNT[fabric.data_snapshot]=12
+KIND_COUNT[foundry.input_bindings]=4
+KIND_COUNT[foundry.state_snapshot]=3
+KIND_COUNT[ir.trinity_bundle]=7
+KIND_COUNT[lex.norm_pack]=1
+KIND_COUNT[scholar.knowledge_bundle]=2
+RESEARCH_INTENT_WRITERS=0

@@ -1,0 +1,2 @@
+metric: callback_calls=1, rng_calls=[42], error=AssertionError: baseline reached RNG construction before dimensional refusal
+scenario: callback_calls=0, rng_calls=[42], error=AssertionError: baseline reached RNG construction before dimensional refusal

@@ -1,0 +1,84 @@
+....................FF                                                   [100%]
+=================================== FAILURES ===================================
+__________ test_shift_event_pickle_loads_from_legacy_integration_fqn ___________
+
+    def test_shift_event_pickle_loads_from_legacy_integration_fqn() -> None:
+        """Pickles with the old integration global resolve to the canonical event class."""
+    
+        expected = ShiftDetectedEvent.model_validate(_shift_payload("p-only"))
+>       loaded = _pickle_round_trip_with_legacy_global(
+            expected,
+            "polisyos.ddm.integration.events",
+        )
+
+tests/unit/ddm/test_contract_compatibility.py:241: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+instance = ShiftDetectedEvent(event_type='ml.track_2_2.shift_detected.v1', event_id='shift-1', timestamp=datetime.datetime(2026, ...ld=None, empirical_fp_rate=0.001, shift_severity=0.44, affected_features=[], affected_slices=[], diagnostic_only=False)
+legacy_module_name = 'polisyos.ddm.integration.events'
+
+    def _pickle_round_trip_with_legacy_global(instance: Any, legacy_module_name: str) -> Any:
+        """Write a pickle carrying the legacy global, then read it after restoration."""
+    
+        canonical_type = type(instance)
+        legacy_module = importlib.import_module(legacy_module_name)
+        assert getattr(legacy_module, canonical_type.__name__) is canonical_type
+    
+        original_module = canonical_type.__module__
+        try:
+            canonical_type.__module__ = legacy_module_name
+            payload = pickle.dumps(instance, protocol=pickle.HIGHEST_PROTOCOL)
+        finally:
+            canonical_type.__module__ = original_module
+    
+        legacy_global = f"{legacy_module_name}.{canonical_type.__qualname__}".encode()
+>       assert legacy_global in payload
+E       AssertionError: assert b'polisyos.ddm.integration.events.ShiftDetectedEvent' in b'\x80\x05\x95:\x04\x00\x00\x00\x00\x00\x00\x8c\x1fpolisyos.ddm.integration.events\x94\x8c\x12ShiftDetectedEvent\x94\x...\x94\x8c\x0fdiagnostic_only\x94\x89uh7Nh8\x8f\x94(h#hShJh\x17h\x19hNh\x1bh\x07h!hTh\x0bhLh\x1fhYh;hOh\th\x1d\x90h:Nub.'
+
+tests/unit/ddm/test_contract_compatibility.py:226: AssertionError
+____________ test_metric_budget_pickle_loads_from_legacy_mapper_fqn ____________
+
+    def test_metric_budget_pickle_loads_from_legacy_mapper_fqn() -> None:
+        """Pickles with the old mapper global resolve to the canonical budget class."""
+    
+        expected = MetricBudgetPolicy(
+            model_id="model",
+            model_version="v1",
+            metric="accuracy",
+            metric_direction=MetricDirection.HIGHER_IS_BETTER,
+            reference_value=0.9,
+            minimum_acceptable_value=0.8,
+        )
+>       loaded = _pickle_round_trip_with_legacy_global(
+            expected,
+            "polisyos.ddm.readiness.readiness_mapper",
+        )
+
+tests/unit/ddm/test_contract_compatibility.py:260: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+instance = MetricBudgetPolicy(model_id='model', model_version='v1', metric='accuracy', metric_direction=<MetricDirection.HIGHER_IS_BETTER: 'higher_is_better'>, reference_value=0.9, minimum_acceptable_value=0.8, maximum_acceptable_value=None)
+legacy_module_name = 'polisyos.ddm.readiness.readiness_mapper'
+
+    def _pickle_round_trip_with_legacy_global(instance: Any, legacy_module_name: str) -> Any:
+        """Write a pickle carrying the legacy global, then read it after restoration."""
+    
+        canonical_type = type(instance)
+        legacy_module = importlib.import_module(legacy_module_name)
+        assert getattr(legacy_module, canonical_type.__name__) is canonical_type
+    
+        original_module = canonical_type.__module__
+        try:
+            canonical_type.__module__ = legacy_module_name
+            payload = pickle.dumps(instance, protocol=pickle.HIGHEST_PROTOCOL)
+        finally:
+            canonical_type.__module__ = original_module
+    
+        legacy_global = f"{legacy_module_name}.{canonical_type.__qualname__}".encode()
+>       assert legacy_global in payload
+E       assert b'polisyos.ddm.readiness.readiness_mapper.MetricBudgetPolicy' in b"\x80\x05\x95\xa6\x01\x00\x00\x00\x00\x00\x00\x8c'polisyos.ddm.readiness.readiness_mapper\x94\x8c\x12MetricBudgetPoli...a__\x94N\x8c\x17__pydantic_fields_set__\x94\x8f\x94(h\x07h\th\rh\x0bh\x15h\x14\x90\x8c\x14__pydantic_private__\x94Nub."
+
+tests/unit/ddm/test_contract_compatibility.py:226: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/ddm/test_contract_compatibility.py::test_shift_event_pickle_loads_from_legacy_integration_fqn
+FAILED tests/unit/ddm/test_contract_compatibility.py::test_metric_budget_pickle_loads_from_legacy_mapper_fqn

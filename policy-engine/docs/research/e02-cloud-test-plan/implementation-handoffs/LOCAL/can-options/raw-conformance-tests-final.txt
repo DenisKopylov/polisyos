@@ -1,0 +1,64 @@
+........................................................................ [ 54%]
+..........F.................................................             [100%]
+=================================== FAILURES ===================================
+_ TestCachingArtifactStore.test_write_through_accepts_remote_view_when_cache_defaults_diverge[False-put_json] _
+
+self = <core.artifacts.backends.test_caching_store.TestCachingArtifactStore object at 0x11ab7d240>
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-946/test_write_through_accepts_rem3')
+operation = 'put_json', seed_local_default = False
+
+    @pytest.mark.parametrize("operation", ["put_bytes", "put_json"])
+    @pytest.mark.parametrize("seed_local_default", [True, False])
+    def test_write_through_accepts_remote_view_when_cache_defaults_diverge(
+        self,
+        tmp_path: Path,
+        operation: str,
+        seed_local_default: bool,
+    ) -> None:
+        local = FileSystemCAS(tmp_path / "write-local")
+        remote = FileSystemCAS(tmp_path / "write-remote")
+        payload = {"shared": "write-through payload"} if operation == "put_json" else b"shared"
+        media_type = "application/json" if operation == "put_json" else "text/plain"
+    
+        def options(version: str) -> PutOptions:
+            return PutOptions(
+                kind="cache.write-through-view",
+                media_type=media_type,
+                producer=ProducerInfo(component="tests.cache", version=version),
+            )
+    
+        seeded_store = local if seed_local_default else remote
+        if operation == "put_json":
+            seeded_store.put_json(payload, options("existing-default"))
+        else:
+            seeded_store.put_bytes(payload, options("existing-default"))
+    
+        store = CachingArtifactStore(remote=remote, local=local)
+        if operation == "put_json":
+            written_ref = store.put_json(payload, options("new-view"))
+        else:
+            written_ref = store.put_bytes(payload, options("new-view"))
+    
+        remote_manifest = remote.get_manifest(written_ref)
+        assert remote_manifest.producer.version == "new-view"
+        exact_remote_view = ArtifactRef(
+            artifact_id=written_ref.artifact_id,
+            kind=remote_manifest.kind,
+            media_type=remote_manifest.media_type,
+            manifest_profile_sha256=ManifestLifecycle.profile_sha256(remote_manifest),
+        )
+>       assert local.get_manifest(exact_remote_view) == remote_manifest
+E       assert ArtifactManif..., warnings=[]) == ArtifactManif..., warnings=[])
+E         
+E         Use -v to get more diff
+
+policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py:660: AssertionError
+=============================== warnings summary ===============================
+policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py::TestCachingArtifactStore::test_write_through_accepts_remote_view_when_cache_defaults_diverge[False-put_json]

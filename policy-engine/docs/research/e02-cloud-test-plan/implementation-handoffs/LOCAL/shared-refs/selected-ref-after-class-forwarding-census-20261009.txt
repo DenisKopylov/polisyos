@@ -1,0 +1,26 @@
+python_source_files=2708 parse_errors=0 direct_selector_calls=15
+method_counts={'get_manifest': 7, 'verify': 3, 'get_bytes': 5}
+categories={'unresolved': 11, 'typed-ref-incomplete-schema': 1, 'typed-full-selector': 1, 'typed-nonref-id': 2}
+
+[typed-full-selector]
+src/polisyos/foundry/calibration/uncertainty_adapter.py:774 get_manifest(summary_ref.artifact_id) type=PosteriorSummaryRef owner=load_persisted_posterior_summary(store: ArtifactStore, summary_ref: PosteriorSummaryRef)
+
+[typed-ref-incomplete-schema]
+src/polisyos/foundry/calibration/identifiability.py:1375 get_manifest(item.artifact_id) type=InputRef owner=_response_input_ref(store: FileSystemCAS, item: InputRef)
+
+[typed-nonref-id]
+src/polisyos/runtime/quality/derived_observations.py:1096 get_bytes(projection.artifact_id) type=ArtifactContractProjection owner=_load_source(store: artifacts.FileSystemCAS, projection: ArtifactContractProjection, refusal_code: DerivationRefusalCode)
+src/polisyos/runtime/quality/derived_observations.py:1175 get_bytes(projection.artifact_id) type=ArtifactContractProjection owner=_load_transform_family_registry_artifact(store: artifacts.FileSystemCAS, projection: ArtifactContractProjection, refusal_code: DerivationRefusalCode)
+
+[unresolved]
+src/polisyos/core/artifacts/backends/caching_store.py:251 get_manifest(input_ref.artifact_id) type= owner=_manifest_input_views_match(self, manifest: ArtifactManifest)
+src/polisyos/core/artifacts/backends/caching_store.py:252 get_manifest(input_ref.artifact_id) type= owner=_manifest_input_views_match(self, manifest: ArtifactManifest)
+src/polisyos/core/security/chronology_anchor.py:568 verify(record.artifact_ref.artifact_id) type= owner=verify_signed_evidence(evidence: contract.SignedArtifactEvidence, verifier: ArtifactVerifier)
+src/polisyos/runtime/http/services/control/nl_pipeline.py:3756 get_bytes(result.authority_envelope_ref.artifact_id) type= owner=_publish_runtime_quality_report(report_key: str, ref_key: str, ref_value: str, report_payload: Mapping[str, Any], artifact_kind: str, schema_name: str, schema_version: str, phase: str, input_refs: list[InputRef] | None, semantic_binding_ref: str | None)
+src/polisyos/runtime/http/services/debug.py:1607 verify(ref.artifact_id) type= owner=_agent_steps_from_compiled_cycle(self, run: IndexedRunRecord, sensitive_keys: tuple[str, ...])
+src/polisyos/runtime/http/services/debug.py:1620 get_bytes(ref.artifact_id) type= owner=_agent_steps_from_compiled_cycle(self, run: IndexedRunRecord, sensitive_keys: tuple[str, ...])
+src/polisyos/runtime/http/services/debug.py:1716 verify(ref.artifact_id) type= owner=_agent_steps_from_n4_candidate_proposal(self, run: IndexedRunRecord, sensitive_keys: tuple[str, ...])
+src/polisyos/runtime/http/services/debug.py:1728 get_bytes(ref.artifact_id) type= owner=_agent_steps_from_n4_candidate_proposal(self, run: IndexedRunRecord, sensitive_keys: tuple[str, ...])
+src/polisyos/runtime/quality/workspace/foundry_consumption.py:1430 get_manifest(item.artifact_id) type= owner=_verified_method_input_refs(store: ArtifactStore, manifest: ArtifactManifest, state: ExperimentState, bound: RecordedPanelMethodInput, staged_input_source: StagedFoundryInputSource | None)
+src/polisyos/runtime/quality/workspace/scientist_node_adapters.py:833 get_manifest(parent.artifact_id) type= owner=visit(item: object, coordinate: str)
+src/polisyos/scientist/methods/backtesting/orchestrator.py:327 get_manifest(item.artifact_id) type= owner=_resolve_manifest_inputs(store: BacktestStore, inputs: Sequence[Any] | None)

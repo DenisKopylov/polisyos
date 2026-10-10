@@ -1,0 +1,509 @@
+{
+  "candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "80f043c0c007ca14dfd4927f980e391f4fcdc62a",
+    "product_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "head_observation": "Retained from the prior receipt; not inspected in this follow-up."
+  },
+  "changed_product_paths": [
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/ddm/test_facade.py",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/ddm/test_readiness_mapping.py",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/ddm/test_contract_compatibility.py"
+  ],
+  "evidence_files": [
+    {
+      "bytes": 106,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/baseline-existing-tests.command.txt",
+      "sha256": "af45fc794524e7f718aa34c70b94bc8cc8b5596824128d803114a4de53229a23"
+    },
+    {
+      "bytes": 2,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/baseline-existing-tests.exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/baseline-existing-tests.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 80,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/baseline-existing-tests.stdout.txt",
+      "sha256": "06955fb47f16312e5d13266c774a2aa4648c46e423cbe6564a92e25b68e39131"
+    },
+    {
+      "bytes": 6,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/baseline-existing-tests.wall-seconds.txt",
+      "sha256": "998a0d4a73268755d5dd98aa31a902160f32e05c80f430d5a75ed9a7f31a0412"
+    },
+    {
+      "bytes": 91,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/diff-check.command.txt",
+      "sha256": "6717a6d8e700c28f03f9384f47d6a690792dd393735e5fa5ed281c007447ae75"
+    },
+    {
+      "bytes": 2,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/diff-check.exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/diff-check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/diff-check.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 6,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/diff-check.wall-seconds.txt",
+      "sha256": "608da6621b465af869f52516280e770f9645c3003e571ddd08e3bbf3abbd7e68"
+    },
+    {
+      "bytes": 152,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.command.txt",
+      "sha256": "dd33f6713d0f01d2375fc32bc1ce1be00c8880e795c239702da88651ca1d47b3"
+    },
+    {
+      "bytes": 2,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 152,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.pre-complete-export-list.command.txt",
+      "sha256": "dd33f6713d0f01d2375fc32bc1ce1be00c8880e795c239702da88651ca1d47b3"
+    },
+    {
+      "bytes": 2,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.pre-complete-export-list.exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.pre-complete-export-list.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 80,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.pre-complete-export-list.stdout.txt",
+      "sha256": "e2289c230135b682d66e48107f8caab30f5b37878e8daf2e9fb92df9aebb1375"
+    },
+    {
+      "bytes": 6,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.pre-complete-export-list.wall-seconds.txt",
+      "sha256": "7c1ce4c3754097a065e357989c7f49e0c5fe258d5cb9f04001189e1ef68fd392"
+    },
+    {
+      "bytes": 152,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.pre-export-wire-assertions.command.txt",
+      "sha256": "dd33f6713d0f01d2375fc32bc1ce1be00c8880e795c239702da88651ca1d47b3"
+    },
+    {
+      "bytes": 2,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.pre-export-wire-assertions.exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.pre-export-wire-assertions.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 80,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.pre-export-wire-assertions.stdout.txt",
+      "sha256": "e2289c230135b682d66e48107f8caab30f5b37878e8daf2e9fb92df9aebb1375"
+    },
+    {
+      "bytes": 6,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.pre-export-wire-assertions.wall-seconds.txt",
+      "sha256": "affce9c4f70680c2e2ed3f2205dd587deaf20a6d22f00cb6a9075b1954fa1e44"
+    },
+    {
+      "bytes": 152,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.pre-ruff-fix.command.txt",
+      "sha256": "dd33f6713d0f01d2375fc32bc1ce1be00c8880e795c239702da88651ca1d47b3"
+    },
+    {
+      "bytes": 2,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.pre-ruff-fix.exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.pre-ruff-fix.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 80,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.pre-ruff-fix.stdout.txt",
+      "sha256": "e2289c230135b682d66e48107f8caab30f5b37878e8daf2e9fb92df9aebb1375"
+    },
+    {
+      "bytes": 6,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.pre-ruff-fix.wall-seconds.txt",
+      "sha256": "62c04b40f6b24d2a1bc071f069b621bf552f8267229e32695a4ff701d7bd4ea7"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 80,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.stdout.txt",
+      "sha256": "475bcfb56b286d857c4310602373e306e2cb722ad6df6053d0e1aff939c18220"
+    },
+    {
+      "bytes": 6,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.wall-seconds.txt",
+      "sha256": "372d91573e1f5ae962b66e95b7d8912e4190fc379afea9e13de226428b0c5c06"
+    },
+    {
+      "bytes": 152,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/path-mismatch-attempt.command.txt",
+      "sha256": "dd33f6713d0f01d2375fc32bc1ce1be00c8880e795c239702da88651ca1d47b3"
+    },
+    {
+      "bytes": 2,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/path-mismatch-attempt.exit.txt",
+      "sha256": "7de1555df0c2700329e815b93b32c571c3ea54dc967b89e81ab73b9972b72d1d"
+    },
+    {
+      "bytes": 83,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/path-mismatch-attempt.stderr.txt",
+      "sha256": "ec7680b36c451c35da1fe18a0a4eadf8244de4177e72991c3f55eaea688f10ef"
+    },
+    {
+      "bytes": 1,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/path-mismatch-attempt.stdout.txt",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "bytes": 6,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/path-mismatch-attempt.wall-seconds.txt",
+      "sha256": "3efb29036fb0bd165e5be5de0f285687526f6ef9165ddbb783d2300444c1ccf9"
+    },
+    {
+      "bytes": 489,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/pickle-fixture-census.txt",
+      "sha256": "de460bf1d5745f382b59ec95ee39a333b1a04649c65b9c80c0a83e51228c52b1"
+    },
+    {
+      "bytes": 152,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/pickle-fqn-assertion-attempt.command.txt",
+      "sha256": "dd33f6713d0f01d2375fc32bc1ce1be00c8880e795c239702da88651ca1d47b3"
+    },
+    {
+      "bytes": 2,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/pickle-fqn-assertion-attempt.exit.txt",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/pickle-fqn-assertion-attempt.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 4853,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/pickle-fqn-assertion-attempt.stdout.txt",
+      "sha256": "27c4b3b5b518546f2689f03005b9efd40f26273276ba1dd3fae76b5e4c9d0ff4"
+    },
+    {
+      "bytes": 6,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/pickle-fqn-assertion-attempt.wall-seconds.txt",
+      "sha256": "2eb420ee607e5fb2fd447a878689abe5c06395996db83dfe7e372903357eda99"
+    },
+    {
+      "bytes": 7514,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/receipt.md",
+      "sha256": "be190b4f5d3c4a5b958857252afb1aa242f9ca4af4c10f247dca4797dbdd52fb"
+    },
+    {
+      "bytes": 152,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/root-export-expansion-test-assumption.command.txt",
+      "sha256": "dd33f6713d0f01d2375fc32bc1ce1be00c8880e795c239702da88651ca1d47b3"
+    },
+    {
+      "bytes": 2,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/root-export-expansion-test-assumption.exit.txt",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/root-export-expansion-test-assumption.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 3038,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/root-export-expansion-test-assumption.stdout.txt",
+      "sha256": "399cd7525cdcb61cc4a9ff6d8192facf4417bdcd416919eed24095f93ff279da"
+    },
+    {
+      "bytes": 6,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/root-export-expansion-test-assumption.wall-seconds.txt",
+      "sha256": "1a0ea9b77d7a48d6970a4d7b8850d191973158b2a628c343472178f4c441f1d0"
+    },
+    {
+      "bytes": 163,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-check.command.txt",
+      "sha256": "21feea1986bd205d0931a255a78852b0ff6dc15ac10dad4bcdf205dd274278bb"
+    },
+    {
+      "bytes": 2,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-check.exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 146,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-check.pre-complete-export-list.command.txt",
+      "sha256": "8fd55bba5a19f2c212e15ce98e5f8bf21d86fa6b1c92a18dba4625859850beee"
+    },
+    {
+      "bytes": 2,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-check.pre-complete-export-list.exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-check.pre-complete-export-list.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 19,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-check.pre-complete-export-list.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "bytes": 6,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-check.pre-complete-export-list.wall-seconds.txt",
+      "sha256": "205ed1708388fc0890af284b741ab46bd02743023f012396157c16f601b32f8d"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 19,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-check.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "bytes": 6,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-check.wall-seconds.txt",
+      "sha256": "1b2bef477cb94bc7fc9d187c6220c52a6b379533de2b9056c60b8b14f14a1d32"
+    },
+    {
+      "bytes": 172,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-format.command.txt",
+      "sha256": "1e28c929570d04d89a9b4dab1a0ef792b4c2ddf1ad60f7a881e3651db9536a52"
+    },
+    {
+      "bytes": 2,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-format.exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 155,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-format.pre-complete-export-list.command.txt",
+      "sha256": "fd5065ccf61263c3c7792750f74a8c52dfaae1aa28d98e162449c81760787313"
+    },
+    {
+      "bytes": 2,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-format.pre-complete-export-list.exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-format.pre-complete-export-list.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 26,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-format.pre-complete-export-list.stdout.txt",
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+    },
+    {
+      "bytes": 6,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-format.pre-complete-export-list.wall-seconds.txt",
+      "sha256": "23fab5ea8ba92e2cda5b42c8af057bb3c0ad3e3eb15aa8a8937d4e5aece767cd"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-format.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 26,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-format.stdout.txt",
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+    },
+    {
+      "bytes": 6,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-format.wall-seconds.txt",
+      "sha256": "205ed1708388fc0890af284b741ab46bd02743023f012396157c16f601b32f8d"
+    },
+    {
+      "bytes": 573,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/public-surface-before.sha256",
+      "sha256": "e692ace79b49223873f3ed23e9029230e00dbe1d929a3e15fe6f40e285260fb6"
+    },
+    {
+      "bytes": 573,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/public-surface-after.sha256",
+      "sha256": "e692ace79b49223873f3ed23e9029230e00dbe1d929a3e15fe6f40e285260fb6"
+    }
+  ],
+  "original_inputs": {
+    "criterion_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@7bf53fd0cf69a568b37d8a881e26bfb16c315653:4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+    "criterion_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+    "ddm_pickle_fixture_count": 0,
+    "historical_check_archive_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/t1-t2-intake/receipts/pytest-l6-ddm-light-final-672f.txt",
+    "historical_check_archive_sha256": "883879a53df12b032f4be3e933f2af2e1e881411c7dfd1bbb0cae5f8aa5f49aa",
+    "independent_review_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/e-original-criteria.md",
+    "independent_review_sha256": "f27f9354c8268e62bb44c02a0517c981410f4e5ee149063ba7ba8259033cbada",
+    "pickle_fixture_census_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/pickle-fixture-census.txt",
+    "pickle_fixture_filetype_denominator": 2
+  },
+  "product_documentation_changes": [],
+  "purpose": "LA-056 DDM manual-schema and old-FQN pickle verification",
+  "release": {
+    "fragment": "none",
+    "reason": "tests-only delta; no production/public surface or serialization behavior changed"
+  },
+  "scope_note": "No source contract, manual schema, producer, profile behavior, or release/documentation surface was modified.",
+  "source_contract_paths": [
+    {
+      "git_status": "unchanged",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/ddm/contracts/events.py",
+      "sha256": "bb61dc020f9c905b7a3b47a9cec4ebdd98b002be5bb5692919bddc117a7a7ab7"
+    },
+    {
+      "git_status": "unchanged",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/ddm/contracts/metric_budget.py",
+      "sha256": "5f607000142ec570fdbd89297ea00039b7e2b2fef6cf825753eac24e7f4a4cdc"
+    },
+    {
+      "git_status": "unchanged",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/ddm/__init__.py",
+      "sha256": "adbf26cc868a931b8ad4b2951558a065a52169a5d55acb3993e137d6657322fc"
+    },
+    {
+      "git_status": "unchanged",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/ddm/integration/__init__.py",
+      "sha256": "426bfbc35a951ff24434e755720fc7592ec27386ce046a7db3d05d07baff62b8"
+    },
+    {
+      "git_status": "unchanged",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/ddm/integration/events.py",
+      "sha256": "894151bedc3046b2b41c469f15b42565818162dbd8d7a3d2d587a36ebcc9eb50"
+    },
+    {
+      "git_status": "unchanged",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/ddm/readiness/__init__.py",
+      "sha256": "cbd5315749bc31f57206b1a35b9c87e7ad066e4e43524fbece3077bfb2acbc13"
+    },
+    {
+      "git_status": "unchanged",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/ddm/readiness/readiness_mapper.py",
+      "sha256": "040c993e244c868c897456429738e5140c9607eae4157cca33b70c849f9ca7d0"
+    },
+    {
+      "git_status": "unchanged",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/ddm/integration/shift_event.schema.json",
+      "sha256": "1bb48c1e7bd3531d8a8e81213f392f42fd91649654e41b42a8a4a2fb76045f65"
+    }
+  ],
+  "test_paths": [
+    {
+      "git_status": "M policy-engine/tests/unit/ddm/test_facade.py",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/ddm/test_facade.py",
+      "sha256": "8ec5c49f05af963762f8fdb583ce71ea6258a3ef5300bc51d51ff782a3ee4491"
+    },
+    {
+      "git_status": "M policy-engine/tests/unit/ddm/test_readiness_mapping.py",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/ddm/test_readiness_mapping.py",
+      "sha256": "2e42c1f75113a8a443610e143497a2d9a0356154119da83bc564075bba9e0f95"
+    },
+    {
+      "git_status": "not inspected in follow-up",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/ddm/test_contract_compatibility.py",
+      "sha256": "e2931688daf033f9ed9b95e16a6e462bf87ce67908505c186312cdd5b2728813"
+    }
+  ],
+  "verification": [
+    {
+      "command": "PYTHONPATH=src .venv/bin/pytest -q tests/unit/ddm/test_facade.py tests/unit/ddm/test_readiness_mapping.py",
+      "exit_status": 0,
+      "outputs": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/baseline-existing-tests.command.txt",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/baseline-existing-tests.stdout.txt",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/baseline-existing-tests.stderr.txt",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/baseline-existing-tests.exit.txt",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/baseline-existing-tests.wall-seconds.txt"
+      ],
+      "result": "8 passed (pre-change baseline)"
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/pytest -q tests/unit/ddm/test_facade.py tests/unit/ddm/test_readiness_mapping.py tests/unit/ddm/test_contract_compatibility.py",
+      "exit_status": 0,
+      "outputs": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.command.txt",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.stdout.txt",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.stderr.txt",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.exit.txt",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/focused-tests.wall-seconds.txt"
+      ],
+      "result": "23 passed"
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m ruff check tests/unit/ddm/test_facade.py tests/unit/ddm/test_readiness_mapping.py tests/unit/ddm/test_contract_compatibility.py",
+      "exit_status": 0,
+      "outputs": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-check.command.txt",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-check.stdout.txt",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-check.stderr.txt",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-check.exit.txt",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-check.wall-seconds.txt"
+      ],
+      "result": "All checks passed"
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m ruff format --check tests/unit/ddm/test_facade.py tests/unit/ddm/test_readiness_mapping.py tests/unit/ddm/test_contract_compatibility.py",
+      "exit_status": 0,
+      "outputs": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-format.command.txt",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-format.stdout.txt",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-format.stderr.txt",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-format.exit.txt",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/ruff-format.wall-seconds.txt"
+      ],
+      "result": "3 files already formatted"
+    },
+    {
+      "command": "git diff --check -- tests/unit/ddm/test_facade.py tests/unit/ddm/test_readiness_mapping.py",
+      "exit_status": 0,
+      "outputs": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/diff-check.command.txt",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/diff-check.stdout.txt",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/diff-check.stderr.txt",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/diff-check.exit.txt",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/la056/diff-check.wall-seconds.txt"
+      ],
+      "result": "passed"
+    }
+  ],
+  "execution_environment": {
+    "pytest_entrypoint": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/pytest",
+    "pytest_entrypoint_realpath": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/pytest",
+    "pytest_shebang": "#!/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python3",
+    "pytest_version": "9.0.2",
+    "python_runtime": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+    "python_version": "3.14.3"
+  },
+  "follow_up_scope": "Only tests/unit/ddm/test_contract_compatibility.py and LOCAL/cas-contracts/la056 receipt/evidence files were updated; no Git state or generator was inspected or run."
+}

@@ -1,0 +1,1052 @@
+{
+  "schema": "policyos.e02.e11-current-witness-repair.v1",
+  "assessment_state": "current_worktree_readiness_assessment; no formal E/G closure issued",
+  "candidate": {
+    "worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "product_root": "policy-engine",
+    "head": "077a572ff5880b3f50a85d3e3db6a232d277659a",
+    "tree": "2895b6c7597215b714275cb4ba83a504724dc89c",
+    "parent": "b2cd1fbb0c9aaa21a05cbf999330a2e07fe81f23",
+    "slice_base_as_directed": "077a572ff5880b3f50a85d3e3db6a232d277659a",
+    "working_tree_contains_shared_author_changes": true,
+    "this_report_is_not_a_full_candidate_freeze": true
+  },
+  "source_inputs": {
+    "selector_rebinding_map": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/E-replay-selector-rebinding.json",
+      "sha256": "f7ab9a63db5137fd4ef26bb96b2548d28223c7f4fdce622e7eebb38bca0d4687",
+      "historical_test_source_commit": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+    },
+    "full_id_E_assessment": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/full-id-E-assessment.json",
+      "sha256": "f3eee2d0bded07c41c22c53c0142b0192fba2558476f29ab74753e0bc091798d",
+      "current_E_assessment_state": "read_only_source_assessment_pending_candidate_wave"
+    },
+    "original_coverage": {
+      "path": "docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    }
+  },
+  "summary": {
+    "historical_selector_rows_assessed": 11,
+    "rows_with_original_criterion_occurrences": 5,
+    "rows_support_only_no_original_criterion": 6,
+    "distinct_original_criterion_ids": [
+      "B188",
+      "B192",
+      "B194",
+      "B202",
+      "LA-052",
+      "LA-054"
+    ],
+    "internal_candidate_repairs": [
+      "B192 empirical Welfare consumer",
+      "B194 partial Welfare draw settlement"
+    ],
+    "existing_current_candidate_witnesses_rebound": [
+      "LA-052",
+      "LA-054",
+      "B202"
+    ],
+    "G_decisions_still_required": [
+      "B188 joint-law admission/issuer",
+      "LA-054 default owner mapping/current trigger feed"
+    ],
+    "formal_finding_closures": []
+  },
+  "pattern_pass": {
+    "register_ids": [
+      "P29",
+      "P32",
+      "P33",
+      "P35",
+      "P37",
+      "P38",
+      "P39",
+      "P40",
+      "P41"
+    ],
+    "anti_patterns_found": [
+      "A historical selector basename or receipt is not current property verification; the LA-052 advanced-persistence path does not match its calibration-curve source property.",
+      "A matching joint_sample_id string is not authority for a scientific joint law; it only preserves candidate row pairing and is recorded non-authoritative.",
+      "A successful-draw-only mean or interval cannot stand in for the requested draw population when evaluator outcomes are incomplete.",
+      "No-ID historical selector rows remain support-only and are not promoted to findings."
+    ],
+    "target_pattern": "Bind each original occurrence to its exact criterion source and live consumer. Preserve source bytes and selected refs through CAS readback; use typed partial results when law or draw denominator is unresolved; keep external owner/scientific decisions outside code invention.",
+    "p40_bucket": {
+      "B192": "Same class: empirical payload ignored by downstream consumer. Repaired at current Welfare boundary for weighted atoms and aligned rows; a generalized identity/axis/count/weight admission guard handles absent and mismatched pair identities.",
+      "B194": "Same class: failed draws filtered while an unconditional-looking interval/point remains. The Welfare path now records each terminal draw and uses conditional-only summaries with no credible interval on partial execution.",
+      "B188": "Remaining unknown is source authority for the joint law, an external owner decision distinct from row-alignment mechanics; covariance alone does not define that law."
+    },
+    "capability_labels": {
+      "B192": "candidate producer-artifact-consumer-verification path exercised; no formal finding closure",
+      "B194": "candidate producer-artifact-consumer-verification path exercised; no formal finding closure",
+      "B188": "bridge_missing for authoritative joint-law issuer; typed withhold remains available",
+      "LA-054": "bridge_missing for actual default owner mapping/current trigger feed; typed refusal is exercised on synthetic context",
+      "LA-052": "current candidate helper-report-receipt path exercised; no historical production receipt census",
+      "B202": "current candidate posterior method-job-CAS summary path exercised; no native fit or formal closure"
+    },
+    "acceptance_signal": "Source-bound properties have exact current selector receipts or a named residual. B188 joint-law issuer and LA-054 owner mapping remain explicit G choices; no historical PASS/closed label is carried forward."
+  },
+  "verification_receipts": {
+    "calibration_current": {
+      "command": ".venv/bin/pytest -q tests/unit/scientist/methods/backtesting/test_calibration_curve.py tests/unit/calibration/test_curve.py tests/unit/calibration/test_continuous.py --tb=short --junitxml=.../29-calibration-combined.xml",
+      "log": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/29-calibration-combined.log",
+      "junit": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/29-calibration-combined.xml",
+      "result": {
+        "tests": 56,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "ddm_current": {
+      "command": ".venv/bin/pytest -q tests/unit/ddm/test_full_acceptance.py --tb=short --junitxml=.../22-ddm.xml",
+      "log": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/22-ddm.log",
+      "junit": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/22-ddm.xml",
+      "result": {
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "uqp02_current": {
+      "command": ".venv/bin/pytest -q tests/unit/remediation/test_uqp_02.py --tb=short --junitxml=.../23-uqp02.xml",
+      "log": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/23-uqp02.log",
+      "junit": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/23-uqp02.xml",
+      "result": {
+        "tests": 18,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "welfare_actual_consumer": {
+      "command": ".venv/bin/pytest -q tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::{partial_draws,weighted_empirical_atoms,declared_shared_rows} --tb=short --junitxml=.../33-b192-b194-final.xml",
+      "log": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/33-b192-b194-final.log",
+      "junit": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/33-b192-b194-final.xml",
+      "result": {
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "b194_generic_current": {
+      "command": ".venv/bin/pytest -q tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::{test_partial_failures_are_per_draw_provenanced_candidate_only,test_real_node_persists_aggregate_draw_report_and_exact_missing_set} --tb=short --junitxml=.../24-b194.xml",
+      "log": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/24-b194.log",
+      "junit": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/24-b194.xml",
+      "result": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "ir_uncertainty_current": {
+      "command": ".venv/bin/pytest -q tests/unit/ir/test_uncertainty.py --tb=short --junitxml=.../30-ir-uncertainty.xml",
+      "log": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/30-ir-uncertainty.log",
+      "junit": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/30-ir-uncertainty.xml",
+      "result": {
+        "tests": 19,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "posterior_summary_current": {
+      "command": ".venv/bin/pytest -q tests/unit/ir/analytics/test_posterior_summary.py --tb=short --junitxml=.../31-posterior-summary.xml",
+      "log": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/31-posterior-summary.log",
+      "junit": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/31-posterior-summary.xml",
+      "result": {
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "posterior_method_job_current": {
+      "command": ".venv/bin/pytest -q tests/unit/scientist/compute/test_runner_posterior_summary.py --tb=short --junitxml=.../28-posterior-runner.xml",
+      "log": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/28-posterior-runner.log",
+      "junit": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/28-posterior-runner.xml",
+      "result": {
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "welfare_identity_guard_removal": {
+      "command": ".venv/bin/pytest -q tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_preserves_only_declared_shared_empirical_rows --tb=short --junitxml=.../32-absent-joint-id-removal.xml",
+      "log": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/32-absent-joint-id-removal.log",
+      "junit": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/32-absent-joint-id-removal.xml",
+      "result": {
+        "tests": 4,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "control": "Temporarily removed the nonempty string joint-identity admission; only the absent-ID case failed because it created a paired sample bundle. The guard was restored before receipt 33."
+    },
+    "ruff_final": {
+      "command": ".venv/bin/python -m ruff check src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+      "log": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/34-ruff-final.log",
+      "result": "All checks passed; exit 0."
+    }
+  },
+  "development_red_witnesses": [
+    {
+      "behavior": "B194 Welfare simulation exceptions escaped instead of becoming terminal outcomes.",
+      "log": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/11-b194-red.log",
+      "junit": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/11-b194-red.xml",
+      "classification": "expected initial red; fixed by current outcome ledger and verified by welfare_actual_consumer"
+    },
+    {
+      "behavior": "Welfare empirical atoms/row identity were not consumed; Normal fallback/sample bundle appeared.",
+      "log": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/16-b192-red.log",
+      "junit": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/16-b192-red.xml",
+      "classification": "expected initial red; fixed by carrier sampling/typed refusal and verified by welfare_actual_consumer"
+    },
+    {
+      "behavior": "A selector attempt used removed historical test modules.",
+      "log": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e-gap-current/13-current-criterion-units.log",
+      "classification": "exit 4 due absent historical modules; not a current candidate behavioral failure"
+    }
+  ],
+  "rows": [
+    {
+      "e11_gap_ordinal": 1,
+      "selector_map_array_index": 2,
+      "historical_path": "tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py",
+      "historical_test_object": {
+        "commit": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "81c11583e308041d9e026db275a0436a7a521eec",
+        "sha256": "ad4c0101b0529b05011cde97a7b23d8d40ee2ffe443aa991556357ced0d4d3ea",
+        "bytes": 9343
+      },
+      "historical_job_receipt": {
+        "job": "pcl-continuous-persistence",
+        "receipt_sha256": "bcdda6d8383bfaac986a17022645362d968ae9a9c4a3c982927490ace70db840",
+        "stdout_sha256": "6674452e653bfb530342ae4a12971ba9538f6465c6ef2a5c3b8904713e1c32c9",
+        "junit_sha256": "d2f663fa1f1cd49d8a06ca026960ec08e621ec6de0da49a40ca3ffc3da42c1f4",
+        "historical_counts": {
+          "cases": 101,
+          "passed": 101,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "original_criterion_occurrences": [
+        {
+          "finding_id": "LA-052",
+          "coverage_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/276/criterion_refs/0",
+          "criterion_source": {
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+            "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+            "document": "LA_r09",
+            "lines_1_based_inclusive": [
+              3747,
+              3792
+            ],
+            "sha256_exact_source_span": "846f644e4daca7f4a4828a626a08dbf8e659d06028fc902b85878a690b3ac801",
+            "card": "PCL-01"
+          }
+        }
+      ],
+      "historical_selector_rules": [
+        "test_continuous_persistence|test_continuous::test_(incomplete|measured)|test_advanced_persistence"
+      ],
+      "current_candidate_selectors_from_prior_map": [
+        {
+          "path": "tests/unit/foundry/methods/catalog/econometrics/test_advanced.py",
+          "node_ids": [
+            "test_advanced_estimators_run",
+            "test_econometric_diagnostics_run",
+            "test_cointegration_and_forecast_backtest_run"
+          ],
+          "role": "adjacent only",
+          "property": "Estimator/diagnostic execution; no configured CAS refs/readback."
+        }
+      ],
+      "current_disposition": {
+        "classification": "Current property re-bound by source, not old filename: pinned LA-052 concerns empty/incomplete calibration intervals and the report-to-truthfulness receipt. The old test object exercises method-summary persistence and is not a calibration test.",
+        "current_property": "Empty or incomplete interval sets preserve not_evaluated/incomplete and unknown metrics; neither can emit a positive calibration receipt. Complete measured results retain the actual comparison denominator.",
+        "current_selectors": [
+          "tests/unit/calibration/test_curve.py::TestCalibrationCurve.test_empty_intervals",
+          "tests/unit/calibration/test_curve.py::test_incomplete_curve_cannot_pass_even_with_zero_measured_error",
+          "tests/unit/calibration/test_curve.py::test_all_skipped_interval_sets_preserve_unknown_metrics",
+          "tests/unit/calibration/test_continuous.py::test_empty_interval_inputs_are_not_positive_calibration_evidence",
+          "tests/unit/calibration/test_continuous.py::test_incomplete_intervals_remain_unverified_after_report_readback",
+          "tests/unit/scientist/methods/backtesting/test_calibration_curve.py::test_canonical_and_compatibility_exports_preserve_identity"
+        ],
+        "verification_receipts": [
+          "calibration_current"
+        ],
+        "candidate_disposition": "Current local calibration helper/report/receipt property is exercised and green. No finding closure inferred; this test does not establish a historical production receipt or its re-evaluation."
+      }
+    },
+    {
+      "e11_gap_ordinal": 2,
+      "selector_map_array_index": 3,
+      "historical_path": "tests/unit/calibration/test_core_artifact_routes.py",
+      "historical_test_object": {
+        "commit": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "713794d9de160732e376315ffd715214dd2f4957",
+        "sha256": "7810ffa9d5e0ec31e3f9dd8df9dccb169007594a329a66ca69ff7555b6e23cb7",
+        "bytes": 3803
+      },
+      "historical_job_receipt": {
+        "job": "pcl-continuous-persistence",
+        "receipt_sha256": "bcdda6d8383bfaac986a17022645362d968ae9a9c4a3c982927490ace70db840",
+        "stdout_sha256": "6674452e653bfb530342ae4a12971ba9538f6465c6ef2a5c3b8904713e1c32c9",
+        "junit_sha256": "d2f663fa1f1cd49d8a06ca026960ec08e621ec6de0da49a40ca3ffc3da42c1f4",
+        "historical_counts": {
+          "cases": 101,
+          "passed": 101,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "original_criterion_occurrences": [],
+      "historical_selector_rules": [],
+      "current_candidate_selectors_from_prior_map": [
+        {
+          "path": "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+          "node_ids": [
+            "test_candidate_store_fresh_reader_reaches_actual_univariate_mc_consumer"
+          ],
+          "role": "adjacent only",
+          "property": "Fresh candidate reader, not old core facade."
+        },
+        {
+          "path": "tests/integration/foundry_calibration/test_method_calibration_bridge.py",
+          "node_ids": [
+            "test_foundry_method_output_feeds_calibration_diagnostics"
+          ],
+          "role": "adjacent only",
+          "property": "Method→diagnostics, not core facade/SALib."
+        }
+      ],
+      "current_disposition": {
+        "classification": "Historical job-support only; criterion_binding has no original criterion occurrence.",
+        "current_property": "No E criterion is bound to this selector row. Adjacent calibration-adapter tests are not substitutes for a core facade route claim.",
+        "current_selectors": [],
+        "verification_receipts": [],
+        "candidate_disposition": "Support-only; do not promote to criterion verification or create a new criterion from the historical path."
+      }
+    },
+    {
+      "e11_gap_ordinal": 3,
+      "selector_map_array_index": 5,
+      "historical_path": "tests/unit/ddm/test_registry_schema_compatibility.py",
+      "historical_test_object": {
+        "commit": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "570b29004553f80d63086804a8a782b9bb3d9b8b",
+        "sha256": "33ad1986cac616c0bf4fc4b5c67954310717ec6c5048c8002464fe4e21dc1504",
+        "bytes": 8495
+      },
+      "historical_job_receipt": {
+        "job": "ddm-runtime-and-facade",
+        "receipt_sha256": "9feca71fa2ce13a50631b94bce85e609edd471ff4de86ebe7f044f38fc01e4db",
+        "stdout_sha256": "4bed8cc624113743771e380f4fea7f09ec8586d03d46684c5c3a9889a2038305",
+        "junit_sha256": "9dd13a329d708ab962458bac655c1c1278dcd0ec2090c8ae028ac2dbfa3c2cf7",
+        "historical_counts": {
+          "cases": 82,
+          "passed": 82,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "original_criterion_occurrences": [
+        {
+          "finding_id": "LA-054",
+          "coverage_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/278/criterion_refs/0",
+          "criterion_source": {
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+            "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+            "document": "LA_r09",
+            "lines_1_based_inclusive": [
+              4053,
+              4107
+            ],
+            "sha256_exact_source_span": "ffb93357b63c03313b11c4dedb3cce3153c2f14b30257aadd860ca09fda6d425",
+            "card": "DDM-02"
+          }
+        }
+      ],
+      "historical_selector_rules": [
+        "test_ddm_02|test_registry_schema_compatibility|test_full_acceptance.*test_registry_(public_round|rebind|legacy|projection|distinguishes)"
+      ],
+      "current_candidate_selectors_from_prior_map": [
+        {
+          "path": "tests/unit/ddm/test_full_acceptance.py",
+          "node_ids": [
+            "test_registry_legacy_payload_stays_not_established_after_rebind"
+          ],
+          "role": "adjacent only",
+          "property": "Legacy readiness remains non-gating, not migration."
+        },
+        {
+          "path": "tests/unit/ddm/test_contract_compatibility.py",
+          "node_ids": [
+            "test_manual_schema_and_model_validate_evidence_cases",
+            "test_shift_event_pickle_loads_from_legacy_integration_fqn",
+            "test_metric_budget_pickle_loads_from_legacy_mapper_fqn"
+          ],
+          "role": "negative controls only",
+          "property": "Different contracts/FQNs, not readiness-record wire migration."
+        }
+      ],
+      "current_disposition": {
+        "classification": "The old selector row binds LA-054, but the current criterion is current validity/identity context through the registry gate, not a schema migration label alone.",
+        "current_property": "Historical calibration pass is insufficient: expiry, trigger observation, report binding, and subject identity must survive registry projection/rebind; absent current inputs remain not_established.",
+        "current_selectors": [
+          "tests/unit/ddm/test_full_acceptance.py::test_registry_public_round_trip_fails_closed_without_durable_validity",
+          "tests/unit/ddm/test_full_acceptance.py::test_registry_public_round_trip_rebinds_with_exact_context",
+          "tests/unit/ddm/test_full_acceptance.py::test_registry_rebind_refreshes_projection_for_current_context",
+          "tests/unit/ddm/test_full_acceptance.py::test_registry_rebind_rejects_tampered_validity_projection",
+          "tests/unit/ddm/test_full_acceptance.py::test_registry_distinguishes_unavailable_from_observed_empty_triggers",
+          "tests/unit/ddm/test_full_acceptance.py::test_registry_rebind_preserves_expiry_reason_without_trigger_observation",
+          "tests/unit/ddm/test_full_acceptance.py::test_registry_projection_preserves_expiry_boundary"
+        ],
+        "verification_receipts": [
+          "ddm_current"
+        ],
+        "candidate_disposition": "Synthetic DDM source/registry checks are green, including refusal on missing or wrong context. The actual default owner mapping/current feed and public deployment reader are not established; keep open for the G owner-mapping decision and infer no real deployment claim."
+      }
+    },
+    {
+      "e11_gap_ordinal": 4,
+      "selector_map_array_index": 9,
+      "historical_path": "tests/unit/foundry/calibration/test_report.py",
+      "historical_test_object": {
+        "commit": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "2a381cb5fc30e9dc408512017c2a291c5e70b494",
+        "sha256": "7d138b068a0b0c8bae8b30eeefcbd3ce4dcd76a114fbb75068a7c9ab9c39d531",
+        "bytes": 4814
+      },
+      "historical_job_receipt": {
+        "job": "cal-and-welfare-consumer",
+        "receipt_sha256": "46665040423f12158dc05042fdfecd1c9204e64e9be57a1809c29a427468531d",
+        "stdout_sha256": "b156e9922f76d25723911762a7fc411b0a8aeb840a9069496bef64f6b3877445",
+        "junit_sha256": "d8c92610ea1b9b7f9f2ea36a9204a83f7709ef6eebc90fca7ed90df8538b458b",
+        "historical_counts": {
+          "cases": 69,
+          "passed": 69,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "original_criterion_occurrences": [],
+      "historical_selector_rules": [],
+      "current_candidate_selectors_from_prior_map": [
+        {
+          "path": "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+          "node_ids": [
+            "test_historical_v1_serializer_preserves_pre_projection_wire_shape",
+            "test_candidate_store_fresh_reader_reaches_actual_univariate_mc_consumer"
+          ],
+          "role": "partial candidate",
+          "property": "Legacy shape and fresh candidate consumer."
+        },
+        {
+          "path": "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+          "node_ids": [
+            "test_calibrator_tied_report_reaches_delta_and_monte_carlo_welfare",
+            "test_welfare_suppresses_unproved_or_malformed_calibration_dependence"
+          ],
+          "role": "partial candidate",
+          "property": "Actual report→Welfare and malformed-dependence refusal."
+        }
+      ],
+      "current_disposition": {
+        "classification": "Historical job-support only; no criterion-specific original occurrence.",
+        "current_property": "The former report test path is not a new criterion. Current adapter/Welfare report selectors are only supporting evidence unless tied to an original criterion.",
+        "current_selectors": [],
+        "verification_receipts": [],
+        "candidate_disposition": "Support-only; no criterion closure inferred."
+      }
+    },
+    {
+      "e11_gap_ordinal": 5,
+      "selector_map_array_index": 11,
+      "historical_path": "tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+      "historical_test_object": {
+        "commit": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "ecbf6e41d8c7ad3888209e7c9928d15fa1789758",
+        "sha256": "a7bd90fe23eb9c7a3b04940b41b3e92b9c5798376f177dcd04760465a8b842b1",
+        "bytes": 15822
+      },
+      "historical_job_receipt": {
+        "job": "cal-and-welfare-consumer",
+        "receipt_sha256": "46665040423f12158dc05042fdfecd1c9204e64e9be57a1809c29a427468531d",
+        "stdout_sha256": "b156e9922f76d25723911762a7fc411b0a8aeb840a9069496bef64f6b3877445",
+        "junit_sha256": "d8c92610ea1b9b7f9f2ea36a9204a83f7709ef6eebc90fca7ed90df8538b458b",
+        "historical_counts": {
+          "cases": 69,
+          "passed": 69,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "original_criterion_occurrences": [
+        {
+          "finding_id": "B192",
+          "coverage_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/111/criterion_refs/0",
+          "criterion_source": {
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+            "document": "B_r19",
+            "lines_1_based_inclusive": [
+              4772,
+              4781
+            ],
+            "sha256_exact_source_span": "3ba8c9b9a37ba35d3d7e210af7d91ecdfaebbc6d642739172a988840a9c2ef34",
+            "card": "UQP-02"
+          }
+        },
+        {
+          "finding_id": "B194",
+          "coverage_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/113/criterion_refs/0",
+          "criterion_source": {
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+            "document": "B_r19",
+            "lines_1_based_inclusive": [
+              4792,
+              4801
+            ],
+            "sha256_exact_source_span": "47058d366d7ff7e11ed2348e96b2f56659a999f1f0839a02edc92804b295711e",
+            "card": "UQP-03"
+          }
+        }
+      ],
+      "historical_selector_rules": [
+        "test_uqp_02::test_(random_mc_uses_weighted|qmc_uses_weighted|random_mc_preserves|qmc_preserves|same_empirical|mixed_empirical)|test_welfare_empirical_law|test_finite_empirical_law|test_sampling_real_domain",
+        "test_sampling_admission::test_(uniform_failed_support|removal_of_draw|failed_support|rqmc_exceptional|draw_reconciliation|unattempted)|test_welfare_empirical_law|test_monte_carlo_b194"
+      ],
+      "current_candidate_selectors_from_prior_map": [
+        {
+          "path": "tests/unit/remediation/test_uqp_02.py",
+          "node_ids": [
+            "test_random_mc_uses_weighted_empirical_atoms_instead_of_ci_normal",
+            "test_qmc_uses_weighted_empirical_atoms_instead_of_ci_normal"
+          ],
+          "role": "support only",
+          "property": "MC/QMC use weighted atoms."
+        },
+        {
+          "path": "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+          "node_ids": [
+            "test_monte_carlo_samples_independent_external_uniform_marginal_without_calibration",
+            "test_welfare_reports_non_normal_calibration_coordinate_capability"
+          ],
+          "role": "support only",
+          "property": "Welfare handles external uniform/non-normal capability."
+        },
+        {
+          "path": "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+          "node_ids": [
+            "test_partial_failures_are_per_draw_provenanced_candidate_only",
+            "test_real_node_persists_aggregate_draw_report_and_exact_missing_set"
+          ],
+          "role": "support only",
+          "property": "Generic MC outcome persistence, not Welfare consumer."
+        }
+      ],
+      "current_disposition": {
+        "classification": "Criterion-specific historical selector for B192 and B194; current tests join the existing empirical carrier to actual Welfare node output and persistence.",
+        "current_property": "Single empirical Welfare input preserves finite atoms and weights. Multiple inputs preserve paired rows only for matching declared non-authoritative identity, axis, row count, and normalized weights; absent/mismatched identity withholds the interval. Partial evaluator outcomes retain the requested/success/failed/unattempted denominator and only conditional successful summaries.",
+        "current_selectors": [
+          "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_uses_weighted_empirical_atoms_through_fresh_cas_consumer",
+          "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_preserves_only_declared_shared_empirical_rows (aligned rows, anti-paired rows, absent IDs, mismatched IDs)",
+          "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_partial_welfare_draws_retain_terminal_outcomes_after_fresh_cas_readback",
+          "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_partial_failures_are_per_draw_provenanced_candidate_only",
+          "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_real_node_persists_aggregate_draw_report_and_exact_missing_set"
+        ],
+        "verification_receipts": [
+          "welfare_actual_consumer",
+          "uqp02_current",
+          "b194_generic_current"
+        ],
+        "candidate_disposition": "Internal B192/B194 candidate behavior and fresh-CAS readback are green. Incomplete runs remain WelfareStatus.partial with no credible interval, report/sample bundle retain per-draw reason/type/bounded message and sampled-input digest, and result_map exposes conditional_mean only. The callback is a deterministic test evaluator; no native model fit was run. B188 authority is separately unresolved."
+      }
+    },
+    {
+      "e11_gap_ordinal": 6,
+      "selector_map_array_index": 13,
+      "historical_path": "tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py",
+      "historical_test_object": {
+        "commit": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "7d4a04ea905d56a97bf9ad00dffd15d6e9d8aefa",
+        "sha256": "005955b8af1e97149bc9a815d73ea563348550474517b156af8edb2ce401fe38",
+        "bytes": 14308
+      },
+      "historical_job_receipt": {
+        "job": "mc-joint-law-support-and-scientist-consumer",
+        "receipt_sha256": "9dd509e9c521c7a5eec486c4bd5a31d79b1cd3141468aff817d27fc0f4b5b37e",
+        "stdout_sha256": "b2ce54dba485739fade9fe9a903e62d8062143114ce598a731b69c027f59a6d7",
+        "junit_sha256": "9aa2e03a46085ca85a5418d5fedcbb97cb37bc6eb3f5fa36f9ecd5cfe48fffbd",
+        "historical_counts": {
+          "cases": 612,
+          "passed": 612,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "original_criterion_occurrences": [],
+      "historical_selector_rules": [],
+      "current_candidate_selectors_from_prior_map": [
+        {
+          "path": "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+          "node_ids": [
+            "test_partial_failures_are_per_draw_provenanced_candidate_only",
+            "test_real_node_persists_aggregate_draw_report_and_exact_missing_set",
+            "test_normative_admission_recomputes_denominator_while_markers_stay_true"
+          ],
+          "role": "adjacent only",
+          "property": "Generic draw accounting."
+        },
+        {
+          "path": "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+          "node_ids": [
+            "test_propagate_welfare_node_supports_delta_and_dependence_sampling"
+          ],
+          "role": "adjacent only",
+          "property": "Welfare sampling route without terminal draw reconciliation."
+        }
+      ],
+      "current_disposition": {
+        "classification": "Historical job-support only; criterion_binding is empty. Current B194 consumer test is separately bound to the row that has B194.",
+        "current_property": "Do not use this no-ID selector path to create or duplicate criterion closure.",
+        "current_selectors": [],
+        "verification_receipts": [
+          "welfare_actual_consumer",
+          "b194_generic_current"
+        ],
+        "candidate_disposition": "Support-only historical row; B194 evidence is recorded under its source-bound row, not promoted here."
+      }
+    },
+    {
+      "e11_gap_ordinal": 7,
+      "selector_map_array_index": 14,
+      "historical_path": "tests/unit/foundry/uncertainty/test_finite_empirical_law.py",
+      "historical_test_object": {
+        "commit": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "76ffdb1076833c7bd4d197f088d5a3ade068d546",
+        "sha256": "ce5988c98b2377f21b50d124c1ab1181c9e9b63b1b55d88e7a42972acf3401fc",
+        "bytes": 8500
+      },
+      "historical_job_receipt": {
+        "job": "mc-joint-law-support-and-scientist-consumer",
+        "receipt_sha256": "9dd509e9c521c7a5eec486c4bd5a31d79b1cd3141468aff817d27fc0f4b5b37e",
+        "stdout_sha256": "b2ce54dba485739fade9fe9a903e62d8062143114ce598a731b69c027f59a6d7",
+        "junit_sha256": "9aa2e03a46085ca85a5418d5fedcbb97cb37bc6eb3f5fa36f9ecd5cfe48fffbd",
+        "historical_counts": {
+          "cases": 612,
+          "passed": 612,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "original_criterion_occurrences": [
+        {
+          "finding_id": "B188",
+          "coverage_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/106/criterion_refs/0",
+          "criterion_source": {
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+            "document": "B_r19",
+            "lines_1_based_inclusive": [
+              4732,
+              4741
+            ],
+            "sha256_exact_source_span": "845944fcb63293d09ccc282370335bbe03a508973c704ac6a58175d019e86771",
+            "card": "UQP-02"
+          }
+        },
+        {
+          "finding_id": "B192",
+          "coverage_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/111/criterion_refs/0",
+          "criterion_source": {
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+            "document": "B_r19",
+            "lines_1_based_inclusive": [
+              4772,
+              4781
+            ],
+            "sha256_exact_source_span": "3ba8c9b9a37ba35d3d7e210af7d91ecdfaebbc6d642739172a988840a9c2ef34",
+            "card": "UQP-02"
+          }
+        },
+        {
+          "finding_id": "B202",
+          "coverage_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/122/criterion_refs/0",
+          "criterion_source": {
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+            "document": "B_r19",
+            "lines_1_based_inclusive": [
+              4992,
+              5005
+            ],
+            "sha256_exact_source_span": "8d507abb668fd82e3a58b5b416e8d011d07927198cfae69949d218a6328a16ab",
+            "card": "UQS-01"
+          }
+        }
+      ],
+      "historical_selector_rules": [
+        "test_uqp_02::test_(analytical_uses_joint|delta_uses_joint|random_mc_preserves|qmc_preserves|incompatible_empirical|same_empirical|mixed_empirical|default_empirical|unknown_dependency)|test_finite_empirical_law|test_sampling_real_domain|test_sampling_admission::test_(singular_joint|paired_carrier|missing_joint_law)",
+        "test_uqp_02::test_(random_mc_uses_weighted|qmc_uses_weighted|random_mc_preserves|qmc_preserves|same_empirical|mixed_empirical)|test_welfare_empirical_law|test_finite_empirical_law|test_sampling_real_domain",
+        "test_sampling_admission::test_paired_carrier|test_finite_empirical_law|test_sampling_real_domain"
+      ],
+      "current_candidate_selectors_from_prior_map": [
+        {
+          "path": "tests/unit/remediation/test_uqp_02.py",
+          "node_ids": [
+            "test_random_mc_uses_weighted_empirical_atoms_instead_of_ci_normal",
+            "test_qmc_uses_weighted_empirical_atoms_instead_of_ci_normal"
+          ],
+          "role": "adjacent only",
+          "property": "Weighted MC/QMC consumption."
+        },
+        {
+          "path": "tests/unit/ir/analytics/test_posterior_summary.py",
+          "node_ids": [
+            "test_b202_keeps_exact_joint_draw_rows_for_matched_marginals",
+            "test_posterior_draw_artifact_refuses_unhandled_source_weights"
+          ],
+          "role": "adjacent only",
+          "property": "Paired rows and unhandled-weight refusal."
+        }
+      ],
+      "current_disposition": {
+        "classification": "Criterion-specific historical selector for B188, B192, and B202. Current assessment separates joint-law choice, empirical carrier consumption, and posterior summary production.",
+        "current_property": "Current MC paths consume exact weighted empirical atoms; current Welfare preserves paired rows only for matching declared non-authoritative identity/axis/count/weights. A covariance matrix or self-label does not establish a scientific joint law. Posterior v1.1 retains exact source rows in a content-bound artifact and refuses unsupported weights.",
+        "current_selectors": [
+          "tests/unit/remediation/test_uqp_02.py::test_random_mc_uses_weighted_empirical_atoms_instead_of_ci_normal",
+          "tests/unit/remediation/test_uqp_02.py::test_qmc_uses_weighted_empirical_atoms_instead_of_ci_normal",
+          "tests/unit/remediation/test_uqp_02.py::test_default_empirical_draws_without_shared_identity_are_not_coupled",
+          "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_preserves_only_declared_shared_empirical_rows",
+          "tests/unit/ir/analytics/test_posterior_summary.py::test_b202_keeps_exact_joint_draw_rows_for_matched_marginals",
+          "tests/unit/scientist/compute/test_runner_posterior_summary.py::test_method_job_returns_fresh_readable_summary_refs_for_both_point_roles"
+        ],
+        "verification_receipts": [
+          "uqp02_current",
+          "welfare_actual_consumer",
+          "posterior_summary_current",
+          "posterior_method_job_current"
+        ],
+        "candidate_disposition": "B192/B202 internal paths are evidenced. B188 remains a G choice: no covariance-only or self-labeled identity creates an authoritative joint law. Missing/mismatched source rows are withheld. The old finite-law module is absent; no historical test PASS is carried forward."
+      }
+    },
+    {
+      "e11_gap_ordinal": 8,
+      "selector_map_array_index": 15,
+      "historical_path": "tests/unit/foundry/uncertainty/test_sampling_real_domain.py",
+      "historical_test_object": {
+        "commit": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "52389e9eb467d2322f60e5dde11a55abe35ec90a",
+        "sha256": "3e5229e3e6d9767c4d43eb65a1ffc369a6fe85dfff5b1244d2740b8f9b1245b2",
+        "bytes": 3286
+      },
+      "historical_job_receipt": {
+        "job": "mc-joint-law-support-and-scientist-consumer",
+        "receipt_sha256": "9dd509e9c521c7a5eec486c4bd5a31d79b1cd3141468aff817d27fc0f4b5b37e",
+        "stdout_sha256": "b2ce54dba485739fade9fe9a903e62d8062143114ce598a731b69c027f59a6d7",
+        "junit_sha256": "9aa2e03a46085ca85a5418d5fedcbb97cb37bc6eb3f5fa36f9ecd5cfe48fffbd",
+        "historical_counts": {
+          "cases": 612,
+          "passed": 612,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "original_criterion_occurrences": [
+        {
+          "finding_id": "B188",
+          "coverage_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/106/criterion_refs/0",
+          "criterion_source": {
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+            "document": "B_r19",
+            "lines_1_based_inclusive": [
+              4732,
+              4741
+            ],
+            "sha256_exact_source_span": "845944fcb63293d09ccc282370335bbe03a508973c704ac6a58175d019e86771",
+            "card": "UQP-02"
+          }
+        },
+        {
+          "finding_id": "B192",
+          "coverage_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/111/criterion_refs/0",
+          "criterion_source": {
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+            "document": "B_r19",
+            "lines_1_based_inclusive": [
+              4772,
+              4781
+            ],
+            "sha256_exact_source_span": "3ba8c9b9a37ba35d3d7e210af7d91ecdfaebbc6d642739172a988840a9c2ef34",
+            "card": "UQP-02"
+          }
+        },
+        {
+          "finding_id": "B202",
+          "coverage_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/122/criterion_refs/0",
+          "criterion_source": {
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+            "document": "B_r19",
+            "lines_1_based_inclusive": [
+              4992,
+              5005
+            ],
+            "sha256_exact_source_span": "8d507abb668fd82e3a58b5b416e8d011d07927198cfae69949d218a6328a16ab",
+            "card": "UQS-01"
+          }
+        }
+      ],
+      "historical_selector_rules": [
+        "test_uqp_02::test_(analytical_uses_joint|delta_uses_joint|random_mc_preserves|qmc_preserves|incompatible_empirical|same_empirical|mixed_empirical|default_empirical|unknown_dependency)|test_finite_empirical_law|test_sampling_real_domain|test_sampling_admission::test_(singular_joint|paired_carrier|missing_joint_law)",
+        "test_uqp_02::test_(random_mc_uses_weighted|qmc_uses_weighted|random_mc_preserves|qmc_preserves|same_empirical|mixed_empirical)|test_welfare_empirical_law|test_finite_empirical_law|test_sampling_real_domain",
+        "test_sampling_admission::test_paired_carrier|test_finite_empirical_law|test_sampling_real_domain"
+      ],
+      "current_candidate_selectors_from_prior_map": [
+        {
+          "path": "tests/unit/ir/test_uncertainty.py",
+          "node_ids": [
+            "test_distribution_carriers_validate_and_roundtrip"
+          ],
+          "role": "adjacent only",
+          "property": "Generic distribution-carrier validation."
+        },
+        {
+          "path": "tests/unit/ir/analytics/test_posterior_summary.py",
+          "node_ids": [
+            "test_posterior_draw_artifact_refuses_mismatched_axis_shapes"
+          ],
+          "role": "adjacent only",
+          "property": "Axis shape, not numeric domain."
+        },
+        {
+          "path": "tests/unit/remediation/test_uqp_02.py",
+          "node_ids": [
+            "test_random_mc_uses_weighted_empirical_atoms_instead_of_ci_normal"
+          ],
+          "role": "adjacent only",
+          "property": "Weighted law consumer, not dtype admission."
+        }
+      ],
+      "current_disposition": {
+        "classification": "Criterion-specific historical selector for B188, B192, and B202, but old helper/domain tests are absent from this candidate and are not re-created under a guessed new API.",
+        "current_property": "Current typed posterior carriers validate finite samples and nonnegative finite weights; posterior summary preserves content-bound draw rows and rejects unsupported weights. This does not prove every old helper-level dyadic real-domain property, which is not an independently named property in the pinned source block.",
+        "current_selectors": [
+          "tests/unit/ir/test_uncertainty.py::test_distribution_carriers_validate_and_roundtrip",
+          "tests/unit/ir/analytics/test_posterior_summary.py::test_posterior_draw_artifact_refuses_unhandled_source_weights",
+          "tests/unit/ir/analytics/test_posterior_summary.py::test_posterior_draw_artifact_refuses_mismatched_axis_shapes"
+        ],
+        "verification_receipts": [
+          "ir_uncertainty_current",
+          "posterior_summary_current"
+        ],
+        "candidate_disposition": "Use overlapping B188/B192/B202 evidence under the source-bound rows; do not treat the absent real-domain helper as a current passing selector. Exact old helper boundary behavior is not claimed outside current typed-carrier/summary contracts."
+      }
+    },
+    {
+      "e11_gap_ordinal": 9,
+      "selector_map_array_index": 18,
+      "historical_path": "tests/unit/ir/test_posterior_ratio_law.py",
+      "historical_test_object": {
+        "commit": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "de99f029e82b073314036fd8be39da54fe4a67e1",
+        "sha256": "1335426176a93732e569d0c7c672bd99ed3b306af89c0ab6f43d4c69896669f6",
+        "bytes": 11522
+      },
+      "historical_job_receipt": {
+        "job": "mc-joint-law-support-and-scientist-consumer",
+        "receipt_sha256": "9dd509e9c521c7a5eec486c4bd5a31d79b1cd3141468aff817d27fc0f4b5b37e",
+        "stdout_sha256": "b2ce54dba485739fade9fe9a903e62d8062143114ce598a731b69c027f59a6d7",
+        "junit_sha256": "9aa2e03a46085ca85a5418d5fedcbb97cb37bc6eb3f5fa36f9ecd5cfe48fffbd",
+        "historical_counts": {
+          "cases": 612,
+          "passed": 612,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "original_criterion_occurrences": [],
+      "historical_selector_rules": [],
+      "current_candidate_selectors_from_prior_map": [
+        {
+          "path": "tests/unit/remediation/test_uqp_02.py",
+          "node_ids": [
+            "test_random_mc_uses_weighted_empirical_atoms_instead_of_ci_normal",
+            "test_qmc_uses_weighted_empirical_atoms_instead_of_ci_normal"
+          ],
+          "role": "adjacent only",
+          "property": "Weighted sampling, not ratio arithmetic."
+        },
+        {
+          "path": "tests/unit/ir/analytics/test_posterior_summary.py",
+          "node_ids": [
+            "test_b202_keeps_exact_joint_draw_rows_for_matched_marginals"
+          ],
+          "role": "adjacent only",
+          "property": "Paired posterior rows, not ratio boundaries."
+        }
+      ],
+      "current_disposition": {
+        "classification": "Historical job-support only; no criterion-specific original occurrence.",
+        "current_property": "No ratio-law criterion is bound to this row. Do not invent a ratio/refinement law or count adjacent posterior-pairing tests as proof of one.",
+        "current_selectors": [],
+        "verification_receipts": [],
+        "candidate_disposition": "Support-only; no ratio-law semantics or finding closure inferred."
+      }
+    },
+    {
+      "e11_gap_ordinal": 10,
+      "selector_map_array_index": 19,
+      "historical_path": "tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "historical_test_object": {
+        "commit": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "91c64a39aade054c5dcdfbed9600db3554d7fdc8",
+        "sha256": "ae932dd1153f0272b38a748aabcd2adb53fae267268b85d867ee8198bcbf3642",
+        "bytes": 14451
+      },
+      "historical_job_receipt": {
+        "job": "mc-joint-law-support-and-scientist-consumer",
+        "receipt_sha256": "9dd509e9c521c7a5eec486c4bd5a31d79b1cd3141468aff817d27fc0f4b5b37e",
+        "stdout_sha256": "b2ce54dba485739fade9fe9a903e62d8062143114ce598a731b69c027f59a6d7",
+        "junit_sha256": "9aa2e03a46085ca85a5418d5fedcbb97cb37bc6eb3f5fa36f9ecd5cfe48fffbd",
+        "historical_counts": {
+          "cases": 612,
+          "passed": 612,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "original_criterion_occurrences": [],
+      "historical_selector_rules": [],
+      "current_candidate_selectors_from_prior_map": [
+        {
+          "path": "tests/unit/ir/test_uncertainty.py",
+          "node_ids": [
+            "test_push_forward_particles_preserves_law_object",
+            "test_compress_envelope_to_moments_marks_approximation"
+          ],
+          "role": "adjacent only",
+          "property": "Generic push/compress operations."
+        },
+        {
+          "path": "tests/unit/ir/analytics/test_posterior_summary.py",
+          "node_ids": [
+            "test_b202_keeps_exact_joint_draw_rows_for_matched_marginals"
+          ],
+          "role": "adjacent only",
+          "property": "Posterior pairing only."
+        }
+      ],
+      "current_disposition": {
+        "classification": "Historical job-support only; no criterion-specific original occurrence.",
+        "current_property": "Generic posterior composition is separate from the source-bound B202 producer and B192 consumer rows. No new composition law is authorized here.",
+        "current_selectors": [],
+        "verification_receipts": [
+          "posterior_summary_current"
+        ],
+        "candidate_disposition": "Support-only; v1.1 producer/consumer results do not promote this no-ID row."
+      }
+    },
+    {
+      "e11_gap_ordinal": 11,
+      "selector_map_array_index": 22,
+      "historical_path": "tests/unit/scientist/methods/doe/test_morris_analysis_admission.py",
+      "historical_test_object": {
+        "commit": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "42d8c236cb4ad714da61fc7c771f9c6435637a0d",
+        "sha256": "4b87baf6ee95cd0d5d0f075c7838aaddf8692505e3f97999904735a3d9013e8d",
+        "bytes": 7613
+      },
+      "historical_job_receipt": {
+        "job": "doe-salib-and-consumer-factory",
+        "receipt_sha256": "3b85afc393b2472fc432d0f21dff5c243b63a584c774317dfb39f397f31fbf20",
+        "stdout_sha256": "c1d3a2f4cd10aa217734d3855947b1ce82b395ce79df040da3a5a9ba0089d16b",
+        "junit_sha256": "aa1dd304386a2ca5f5bfc12a342cb87e711dad57d4afd2cf68c686875c7ec563",
+        "historical_counts": {
+          "cases": 221,
+          "passed": 221,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "original_criterion_occurrences": [],
+      "historical_selector_rules": [],
+      "current_candidate_selectors_from_prior_map": [
+        {
+          "path": "tests/unit/scientist/methods/doe/test_morris_geometry.py",
+          "node_ids": [
+            "test_invalid_morris_geometry_cannot_emit_point_or_pca_result",
+            "test_native_morris_blocks_preserve_point_uncertainty_under_units_and_order",
+            "test_admitted_nonuniform_designs_use_their_actual_source_coordinates"
+          ],
+          "role": "adjacent only",
+          "property": "Geometry, source coordinates, units and ordering."
+        },
+        {
+          "path": "tests/unit/remediation/test_doe_03.py",
+          "node_ids": [
+            "test_drop_failed_discards_whole_morris_trajectories"
+          ],
+          "role": "adjacent only",
+          "property": "Failed rows are dropped as whole trajectories."
+        }
+      ],
+      "current_disposition": {
+        "classification": "Historical job-support only; no criterion-specific original occurrence.",
+        "current_property": "No original criterion ID is bound to this selector row. Existing DOE geometry and failed-trajectory tests are not a basis to add or close a finding here.",
+        "current_selectors": [],
+        "verification_receipts": [],
+        "candidate_disposition": "Support-only; no new DOE claim or closure inferred."
+      }
+    }
+  ],
+  "limits": [
+    "Empirical row identity is non-authoritative metadata; no covariance matrix or self-label establishes an external joint law.",
+    "Welfare witnesses use deterministic test evaluators through the real node and FileSystemCAS, not native fitted models.",
+    "Posterior v1.1 witness uses a current MethodJob/CAS path with synthetic draws; no native MCMC/HMC fit ran.",
+    "DDM tests use synthetic calibration/audit inputs and typed registry projections; no real deployment/source-owner mapping or current institutional trigger feed was available.",
+    "All evidence is candidate-worktree behavior; no source acceptance, formal finding closure, or publication authority is claimed."
+  ],
+  "scoped_file_hashes": {
+    "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py": "0ffff2704a5746ca8aa5df5a268f263d3b0bd529c830fe305da921ffaecaeb5e",
+    "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py": "6f14e996f53114f12b1a46820cc896816ebd1d52754bb1395f576cfba047b98f",
+    "src/polisyos/scientist/nodes/README.md": "5e3caab86536f79dfce95f17c677f220cb94b49e7f01575860855811263894bf",
+    "release-fragments/unreleased/2026-10-09-e02-e11-welfare-monte-carlo-truthfulness.toml": "bbeb5ba677dfeb4728874d0091b7ad10057f06f7b756ad6f517e45b776dd61f7"
+  }
+}

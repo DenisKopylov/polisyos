@@ -1,0 +1,242 @@
+{
+  "schema": "policyos.e02.final_numerical_command_plan.v1",
+  "purpose": "Read-only plan for the final native numerical S2/S3 wave; no final-wave fits or collection have run. Lightweight post-edit welfare source checks are recorded separately in the decomposition receipt.",
+  "candidate": {
+    "worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "product_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "expected_commit": "9e02a9f49c8b01026327a9f7c7e18711b13a96f2",
+    "expected_tree_prefix": "881a950",
+    "freeze_status": "pending_native_checker_repair",
+    "execution_gate": "Run only after root verifies the frozen source identity and records the final candidate commit/tree. This plan is not a freeze receipt.",
+    "python_profile": "Existing product .venv, Python 3.14.3 per the retained HMC integration receipt; locked ML profile is already provisioned."
+  },
+  "scope": {
+    "task_source": "docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+    "S2": {
+      "title": "Actual law/draw/calibration/relationship intake",
+      "finding_ids": ["LA-036", "B157", "B190", "B194", "B197", "B200"],
+      "original_exit": "attempted denominator/covariance/axis/subject identity consumed fresh; counterfeit metadata refuses"
+    },
+    "S3": {
+      "title": "B31 producer-owned persisted subject join",
+      "finding_ids": ["B31"],
+      "original_exit": "exact identification/native uncertainty refs bound to recomputed resolved subject/unit; fresh consumer retains point [4,4] and statistical interval [1,10]; fake/mismatch/unresolved removal refuses"
+    },
+    "nonclosure": "Execution receipts qualify only the exact exercised producer/consumer properties; original finding statuses remain not_adjudicated. B198 history is preserved and is not reopened."
+  },
+  "readback_inputs_at_plan_time": [
+    {"path": "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py", "sha256": "404e8d3217f581bfe2a6bf63b8a5c3d1a299f54cbf15c17647a9df9cf38d3280"},
+    {"path": "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py", "sha256": "895fe9b1b050a1ba34f5cf6f74d0b2ce3844b527b4dbd03cd6e6a754bf3f2dfd"},
+    {"path": "tests/integration/foundry/uncertainty/test_posterior_summary_persistence.py", "sha256": "ae65b7181b58c20c6a7be193b4388b18d3efce8caac8ae8b9bc92b6dd71d98c8"},
+    {"path": "tests/unit/foundry/calibration/test_identifiability_response_basis.py", "sha256": "dbb0c2cec0b6a38ae3f9839f048647c5d59b91ba9f662d115021715ce4935231"},
+    {"path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py", "sha256": "993a434317e54b6db23626ba56e60e0973312fe960e57cc2c2cc76cdae981c7f", "note": "Stable public node/error facade; helper implementation is in the listed welfare modules."},
+    {"path": "src/polisyos/scientist/nodes/builtins/simulate/welfare_context.py", "sha256": "67b8d609fe101e9b13756b651af03bb0740940e7415a6913b3f30c11581b116a"},
+    {"path": "src/polisyos/scientist/nodes/builtins/simulate/welfare_covariance.py", "sha256": "c5cb907b8312b52f0504cbacf3e2a38e147909a0acf8db6d04ac741607bc2d65"},
+    {"path": "src/polisyos/scientist/nodes/builtins/simulate/welfare_draws.py", "sha256": "99d2adc8509354890a92de6380e23b973966f141f5a2b7a68f3fa2e8f2f09d38"},
+    {"path": "src/polisyos/scientist/nodes/builtins/simulate/welfare_ge.py", "sha256": "ad740b6579a91b76ff005b3c2bbecd7a1f84d4827298627ec08f5aae84f41cea"},
+    {"path": "src/polisyos/scientist/nodes/builtins/simulate/welfare_node.py", "sha256": "b321051e25133161b0d504366cbdc0cb55391778430b1a685e1a46329ef698bf"},
+    {"path": "src/polisyos/scientist/nodes/builtins/simulate/welfare_propagation.py", "sha256": "3633130f341dea915e1876ca1e148c7e26cd0ab34811d4fed870c240686a24bb"},
+    {"path": "src/polisyos/scientist/nodes/builtins/simulate/welfare_reports.py", "sha256": "5040ee6a1192a88551ff6efc83944cb8b5e2f44fe508e9368a85ed11ac8d3807"},
+    {"path": "src/polisyos/scientist/nodes/builtins/simulate/welfare_types.py", "sha256": "80c7724be00d61bb2202d322b70d0bc2d525ce7d23328e9bf1bc0557af1a00a8"},
+    {"path": "src/polisyos/foundry/uncertainty/evaluation_failures.py", "sha256": "a371c4e8ad6ca37d3d94bb69fefad541c442fcec233c2a7305ea689fffca9050", "note": "Shared bounded evaluation failure classifier used by generic Monte Carlo and Welfare."},
+    {"path": "src/polisyos/foundry/uncertainty/monte_carlo.py", "sha256": "55cb10307797795392e17ae68f76c754672d85dbe341d301043ba20507152d80"},
+    {"path": "src/polisyos/foundry/calibration/uncertainty_adapter.py", "sha256": "6f49c9f8f387f7392d36f89c8710407793200004fbc1b3fe1b80fc74312d9386"},
+    {"path": ".python-version", "sha256": "a876e0b10411037a012498b9fe18d9bc1df32ed8b722a13564dc944ddcfd9135"},
+    {"path": "uv.lock", "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"}
+  ],
+  "execution": {
+    "serialization": "Run every command sequentially with one pytest process at a time. No xdist and no concurrent numerical work.",
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "common_env": {
+      "PYTHONPATH": "src:.",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1",
+      "BLIS_NUM_THREADS": "1"
+    },
+    "capture_rule": "For each argv below, save complete stdout and stderr separately at the listed absolute paths, preserve the exact exit status in a sibling .exit.txt file, and retain the pytest JUnit XML. Do not rely on quiet-dot output for item counts.",
+    "output_directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation"
+  },
+  "module_identity_readback": {
+    "argv": [
+      ".venv/bin/python", "-c",
+      "import importlib,json; names=('polisyos.scientist.nodes.builtins.simulate.propagate_welfare','polisyos.scientist.nodes.builtins.simulate.welfare_draws','polisyos.foundry.uncertainty.evaluation_failures','polisyos.foundry.uncertainty.monte_carlo','polisyos.ir.analytics.posterior_summary','polisyos.foundry.calibration.uncertainty_adapter'); print(json.dumps({name: importlib.import_module(name).__file__ for name in names},sort_keys=True))"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "env": {"PYTHONPATH": "src:.", "PYTHONDONTWRITEBYTECODE": "1"},
+    "stdout": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-loaded-module-paths.stdout.txt",
+    "stderr": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-loaded-module-paths.stderr.txt",
+    "exit_status": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-loaded-module-paths.exit.txt"
+  },
+  "wave": [
+    {
+      "id": "native_hmc_methodjob_summary_v11",
+      "criteria": ["B31 bounded producer/evaluator evidence", "B201/B202 related point and exact joint-row consumers"],
+      "argv": [
+        ".venv/bin/python", "-m", "pytest", "-vv",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-native-hmc-summary.xml",
+        "tests/integration/foundry/uncertainty/test_posterior_summary_persistence.py::test_native_bayesian_method_evidence_persists_candidate_summary"
+      ],
+      "env": {"PYTHONPATH": "src:.", "OMP_NUM_THREADS": "1", "OPENBLAS_NUM_THREADS": "1", "MKL_NUM_THREADS": "1", "NUMEXPR_NUM_THREADS": "1", "VECLIB_MAXIMUM_THREADS": "1", "BLIS_NUM_THREADS": "1"},
+      "threads": 1,
+      "stdout": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-native-hmc-summary.stdout.txt",
+      "stderr": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-native-hmc-summary.stderr.txt",
+      "exit_status": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-native-hmc-summary.exit.txt",
+      "previous_wall": {"exact_selector": "UNMEASURED", "containing_cohort_seconds": 4.48, "receipt": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s3-empirical/posterior-summary-v11-green.stdout.txt", "cohort": "5 selected tests; do not attribute its 4.48 seconds to this single selector"},
+      "expected_witness": "Real bayesian.sampling.hmc@1.0.0 MethodJob (NumPy, seed 11, one chain, 32 warmup and 32 retained draws) persists method result/evidence and summary v1.1 refs; a fresh CAS reader recomputes the profile-bound summary; actual evaluator calls cover the named point plus every exact paired intercept/sigma row; same-byte sibling manifest with wrong selected profile refuses.",
+      "limits": ["Candidate-only; not default-dispatched or gate-authoritative.", "A source-bound joint sampling law, weights, convergence evidence, and subject/unit relation are not inferred from row pairing.", "This does not establish S3 B31's production value-owner subject/unit join."]
+    },
+    {
+      "id": "calibrated_welfare_real_fit_and_covariance_controls",
+      "criteria": ["B190 zero-baseline/source-bound response basis", "B197 calibration coordinate/covariance projection", "B200 dependence/independence boundary"],
+      "argv": [
+        ".venv/bin/python", "-m", "pytest", "-vv",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-calibrated-welfare-covariance.xml",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_calibrator_tied_report_reaches_delta_and_monte_carlo_welfare",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_withholds_interval_when_envelope_covariance_disagrees_with_projection",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_reconciles_external_overlap_before_using_calibration_covariance",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_suppresses_unproved_or_malformed_calibration_dependence"
+      ],
+      "env": {"PYTHONPATH": "src:.", "JAX_ENABLE_X64": "1", "OMP_NUM_THREADS": "1", "OPENBLAS_NUM_THREADS": "1", "MKL_NUM_THREADS": "1", "NUMEXPR_NUM_THREADS": "1", "VECLIB_MAXIMUM_THREADS": "1", "BLIS_NUM_THREADS": "1"},
+      "threads": 1,
+      "stdout": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-calibrated-welfare-covariance.stdout.txt",
+      "stderr": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-calibrated-welfare-covariance.stderr.txt",
+      "exit_status": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-calibrated-welfare-covariance.exit.txt",
+      "previous_wall": {"seconds": "UNMEASURED", "basis": "No exact saved timing receipt for these selectors."},
+      "required_assertion_gap": "The current real-fit selector executes Calibrator, Delta, and 100-draw Monte Carlo with CAS persistence, but it reads report bytes through the producer store and does not assert the calibrated Monte Carlo welfare report schema 2.2 via a fresh FileSystemCAS instance. Before claiming that exact property, add/retain a mirrored assertion that reads the 2.2 report and its selected calibration/sample lineage from a reopened CAS consumer; otherwise record verification_missing for that portion.",
+      "counterfeit_controls": ["The covariance-conflict parameterization keeps a PSD matrix and marginal stds plausible while disagreeing with the source coordinate projection; both delta and Monte Carlo must withhold the interval.", "External-overlap matching/conflict tests must distinguish the exact projected covariance from a conflicting supplied matrix.", "Missing or malformed projection must remain partial with no interval.", "A covariance matrix by itself is not a joint law and cannot authorize arbitrary marginal coupling or independence."]
+    },
+    {
+      "id": "native_response_basis_zero_baseline_axis_and_source_controls",
+      "criteria": ["B190 actual sensitivity/Jacobian source, field and unit binding"],
+      "argv": [
+        ".venv/bin/python", "-m", "pytest", "-vv",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-native-response-basis.xml",
+        "tests/unit/foundry/calibration/test_identifiability_response_basis.py::test_native_zero_baseline_has_dimensioned_nonzero_response",
+        "tests/unit/foundry/calibration/test_identifiability_response_basis.py::test_fresh_reader_recomputes_actual_native_response",
+        "tests/unit/foundry/calibration/test_identifiability_response_basis.py::test_unknown_partial_response_refuses_without_dropping_known_slots",
+        "tests/unit/foundry/calibration/test_identifiability_response_basis.py::test_axis_order_is_bound_on_actual_two_slot_response",
+        "tests/unit/foundry/calibration/test_identifiability_response_basis.py::test_forged_unit_with_retained_markers_is_rejected",
+        "tests/unit/foundry/calibration/test_identifiability_response_basis.py::test_actual_cas_basis_mutations_refuse_before_state_load"
+      ],
+      "env": {"PYTHONPATH": "src:.", "JAX_ENABLE_X64": "1", "OMP_NUM_THREADS": "1", "OPENBLAS_NUM_THREADS": "1", "MKL_NUM_THREADS": "1", "NUMEXPR_NUM_THREADS": "1", "VECLIB_MAXIMUM_THREADS": "1", "BLIS_NUM_THREADS": "1"},
+      "threads": 1,
+      "stdout": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-native-response-basis.stdout.txt",
+      "stderr": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-native-response-basis.stderr.txt",
+      "exit_status": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-native-response-basis.exit.txt",
+      "previous_wall": {"seconds": "UNMEASURED"},
+      "required_discriminators": ["Real native zero-baseline evaluation has a nonzero dimensioned response.", "A fresh CAS reader recomputes from content-bound source bytes and selected axes.", "Missing/extra/duplicate fields, changed source bytes, axis permutation, or forged units refuse before consuming state; known slots are not dropped when a sibling slot is unknown."],
+      "limits": ["This is source-bound sensitivity evidence, not an external empirical response law.", "No unprovided coefficient, baseline, unit, or sensitivity is invented."]
+    },
+    {
+      "id": "empirical_joint_rows_axis_and_covariance_only_refusal",
+      "criteria": ["B188/B192 joint-law and empirical-row distinction", "S2 axis counterfeit controls"],
+      "argv": [
+        ".venv/bin/python", "-m", "pytest", "-vv",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-joint-row-axis.xml",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_preserves_only_declared_shared_empirical_rows",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_uses_weighted_empirical_atoms_through_fresh_cas_consumer"
+      ],
+      "env": {"PYTHONPATH": "src:.", "OMP_NUM_THREADS": "1", "OPENBLAS_NUM_THREADS": "1", "MKL_NUM_THREADS": "1", "NUMEXPR_NUM_THREADS": "1", "VECLIB_MAXIMUM_THREADS": "1", "BLIS_NUM_THREADS": "1"},
+      "threads": 1,
+      "stdout": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-joint-row-axis.stdout.txt",
+      "stderr": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-joint-row-axis.stderr.txt",
+      "exit_status": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-joint-row-axis.exit.txt",
+      "previous_wall": {"seconds": "UNMEASURED", "note": "An independent 12-test replay was reported green, but no exact selector wall time was retained."},
+      "expected_matrix_cases": ["same declared pair and axis preserves rows", "same marginals with reversed pairing produce the distinct paired result", "missing or mismatched IDs refuse", "empty and whitespace-only axes refuse", "single-carrier weighted empirical atoms persist and load through fresh CAS"],
+      "limits": ["The shared ID is non-authoritative metadata; it cannot establish the law or issuer.", "Matching axis/covariance is not proof of a common joint distribution. Missing source joint law remains limited/refused."]
+    },
+    {
+      "id": "b194_same_draw_failure_scope_retry_and_cycle_controls",
+      "criteria": ["B194 sampled-input execution denominator, retry, terminal status, and partial interval behavior"],
+      "argv": [
+        ".venv/bin/python", "-m", "pytest", "-vv",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-b194-draw-scope.xml",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_partial_welfare_draws_retain_terminal_outcomes_after_fresh_cas_readback",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_mc_retries_explicit_transient_on_same_draw_before_fresh_cas_readback",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_mc_persistent_transient_is_bounded_and_withholds_interval",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_mc_requires_explicit_sample_domain_signal_for_partial_draw",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_mc_does_not_launder_global_or_unknown_failures_as_draws[permission-ERROR_WELFARE_GLOBAL_EVALUATION_FAILURE-global]",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_mc_does_not_launder_global_or_unknown_failures_as_draws[validation-ERROR_WELFARE_GLOBAL_EVALUATION_FAILURE-global]",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_mc_does_not_launder_global_or_unknown_failures_as_draws[typed_fatal-ERROR_WELFARE_GLOBAL_EVALUATION_FAILURE-global]",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_mc_does_not_launder_global_or_unknown_failures_as_draws[typed_validation-ERROR_WELFARE_GLOBAL_EVALUATION_FAILURE-global]",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_mc_does_not_launder_global_or_unknown_failures_as_draws[unknown-ERROR_WELFARE_EVALUATION_SCOPE_UNKNOWN-unknown]",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_mc_does_not_launder_global_or_unknown_failures_as_draws[cyclic_unknown-ERROR_WELFARE_EVALUATION_SCOPE_UNKNOWN-unknown]",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_mc_does_not_launder_global_or_unknown_failures_as_draws[domain_cycle-ERROR_WELFARE_EVALUATION_SCOPE_UNKNOWN-unknown]",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_mc_does_not_launder_global_or_unknown_failures_as_draws[transient_cycle-ERROR_WELFARE_EVALUATION_SCOPE_UNKNOWN-unknown]",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_mc_does_not_launder_global_or_unknown_failures_as_draws[domain_wrapped_permission-ERROR_WELFARE_GLOBAL_EVALUATION_FAILURE-global]",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_mc_does_not_launder_global_or_unknown_failures_as_draws[deep_domain_wrapped_permission-ERROR_WELFARE_EVALUATION_SCOPE_UNKNOWN-unknown]",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_mc_does_not_launder_global_or_unknown_failures_as_draws[transient_wrapped_validation-ERROR_WELFARE_GLOBAL_EVALUATION_FAILURE-global]",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_mc_sampling_failure_fails_without_drawing_a_replacement",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_mc_default_ge_evaluator_declares_sampled_condition_domain_through_cas"
+      ],
+      "env": {"PYTHONPATH": "src:.", "JAX_ENABLE_X64": "1", "OMP_NUM_THREADS": "1", "OPENBLAS_NUM_THREADS": "1", "MKL_NUM_THREADS": "1", "NUMEXPR_NUM_THREADS": "1", "VECLIB_MAXIMUM_THREADS": "1", "BLIS_NUM_THREADS": "1"},
+      "threads": 1,
+      "stdout": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-b194-draw-scope.stdout.txt",
+      "stderr": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-b194-draw-scope.stderr.txt",
+      "exit_status": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-b194-draw-scope.exit.txt",
+      "previous_wall": {"seconds": 9.44, "receipt": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/welfare-b194-delta.md", "raw_output": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/raw/welfare-b194-independent-focused.log", "raw_sha256": "ea7e42043fe412f164f9c5bf6cce253df3f958bdad1e0be17cca5bab4957fd72", "item_count": 17},
+      "assertion_boundaries": ["Only an explicitly typed transient may retry, and every retry uses the exact same sampled input and input digest with bounded attempts.", "Only an explicit producer-declared sample-domain outcome may become a partial draw; global permission/validation/fatal failures remain node failures; unclassified failures and truncated/cyclic scope are unknown/fail-closed.", "Partial output preserves attempted/succeeded/failed denominator and withholds the Monte Carlo interval; sampling failure cannot silently redraw a replacement.", "Cause traversal treats a true ancestor cycle as unknown while a shared cause/context DAG is not a cycle; visible global failure retains precedence."]
+    },
+    {
+      "id": "b194_attempted_denominator_counterfeit_and_fresh_consumer",
+      "criteria": ["B194 exact requested/attempted/valid/failed count consumed by normative admission; marker-preserving counterfeit refused"],
+      "argv": [
+        ".venv/bin/python", "-m", "pytest", "-vv",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-b194-denominator.xml",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_real_node_persists_aggregate_draw_report_and_exact_missing_set",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_normative_admission_recomputes_denominator_while_markers_stay_true",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_complete_persisted_draws_remain_limited_in_fresh_normative_consumer",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_partial_failures_are_per_draw_provenanced_candidate_only"
+      ],
+      "env": {"PYTHONPATH": "src:.", "JAX_ENABLE_X64": "1", "OMP_NUM_THREADS": "1", "OPENBLAS_NUM_THREADS": "1", "MKL_NUM_THREADS": "1", "NUMEXPR_NUM_THREADS": "1", "VECLIB_MAXIMUM_THREADS": "1", "BLIS_NUM_THREADS": "1"},
+      "threads": 1,
+      "stdout": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-b194-denominator.stdout.txt",
+      "stderr": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-b194-denominator.stderr.txt",
+      "exit_status": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-b194-denominator.exit.txt",
+      "previous_wall": {"seconds": "UNMEASURED"},
+      "negative_probe": "Remove/corrupt the true denominator-bearing artifact field while preserving completeness/status marker fields; the fresh normative reader must refuse or keep the result limited. The current test named denominator_recomputes_while_markers_stay_true is the direct remove-property/keep-markers control.",
+      "limits": ["Candidate-only report and normative consumer; no policy-grade confidence claim.", "Do not substitute a requested count, profile setting, config echo, successful subset size, or hard-coded random failure count for the actual attempted denominator."]
+    },
+    {
+      "id": "generic_mc_exact_symmetric_partial_and_global_failure",
+      "criteria": ["B194 exact matched input denominator: y=x with 100 fixed symmetric draws, 50 declared-in-input failures, min_valid_samples=10, and fresh normative consumer", "B194 global access failure must not be absorbed as an ordinary failed draw"],
+      "argv": [
+        ".venv/bin/python", "-m", "pytest", "-vv",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-b194-generic-exact-symmetric.xml",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_exact_symmetric_partial_draws_stay_candidate_and_retain_control",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_exact_symmetric_partial_draws_reach_fresh_normative_consumer",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_global_access_error_is_not_recorded_as_a_draw_failure"
+      ],
+      "env": {"PYTHONPATH": "src:.", "JAX_ENABLE_X64": "1", "OMP_NUM_THREADS": "1", "OPENBLAS_NUM_THREADS": "1", "MKL_NUM_THREADS": "1", "NUMEXPR_NUM_THREADS": "1", "VECLIB_MAXIMUM_THREADS": "1", "BLIS_NUM_THREADS": "1"},
+      "threads": 1,
+      "stdout": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-b194-generic-exact-symmetric.stdout.txt",
+      "stderr": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-b194-generic-exact-symmetric.stderr.txt",
+      "exit_status": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-law-intakes/validation/final-b194-generic-exact-symmetric.exit.txt",
+      "previous_wall": {"exact_selector": "UNMEASURED"},
+      "required_witness": "The installed sampler seam returns exactly np.linspace(-1, 1, 100); 50 negative rows fail and 50 nonnegative rows succeed. With mc_min_valid_samples=10, the run retains the full 100-row attempted denominator, records the successful-only conditional estimate as candidate-limited, withholds confidence intervals/gate eligibility, and the actual producer persists to CAS for a fresh normative consumer. A separate access-denied callback must escape the draw-local failure path.",
+      "limits": ["This is a deterministic generic Monte Carlo failure/denominator control, not a fitted law or policy-grade interval.", "A direct legacy RuntimeError remains candidate-only draw failure evidence and does not attest the domain law."]
+    }
+  ],
+  "adjacent_s2_s3_boundaries": {
+    "B157": "Owned by the separate native search/funnel execution-count bridge. The present welfare/HMC wave does not verify the original L3 actual processed-row count to same-run L4 consumer criterion; keep it open until that owner runs the native receiver selector.",
+    "LA-036": "Method identity/fallback backend qualification is outside this numerical wave; retain current bounded native-backend identity evidence and no numerical closure from these commands.",
+    "B200": "The calibrated dependence refusal control is included, but the exact original duplicate-observation independence property still needs source-identical repeated observations versus genuinely independent source refs through the same consumer. Do not assert B200 closure from covariance controls alone.",
+    "B31_subject_unit_issuer_choices": [
+      "Reuse an existing producer-resolved estimand and canonical unit relation only if the same owner persists it with the exact identification and native uncertainty refs and a fresh reader recomputes the join; no current production relation was identified.",
+      "If no existing owner can issue it, appoint the smallest typed relation issuer and an independent resolver; this is a product/G choice, not a numerical-test assumption.",
+      "Until an issuer exists, preserve exact point identification and native statistical/model interval separately as candidate-limited output; do not infer units, subject, estimand, joint law, or a symmetric width."
+    ],
+    "joint_law": "A covariance matrix, matched marginals, same-axis string, shared ID, or row count does not alone establish a joint law. Existing positive empirical-row test only proves exact paired-row arithmetic under declared candidate inputs; the lawful issuer and authority remain not established.",
+    "scope_status": "The numerical plan leaves B157 and LA-036 to their separate owner routes, B200 partly qualified but not closed, and S3 B31 blocked on an issuer/consumer relation choice."
+  },
+  "expected_readout": "Record each command's exact exit code, JUnit item count, full stdout/stderr paths and SHA-256, selected Python/lock profile, and actual loaded module paths. Preserve PASS/FAIL/ERROR/SKIP/UNRUN separately. Do not treat this plan or a green scoped suite as closure.",
+  "pattern_and_p40": {
+    "relevant_patterns": ["P04", "P05", "P10", "P12", "P14", "P29", "P32", "P37", "P38", "P40"],
+    "current_bucket": "The retry/cause-chain expansion is the same B194 failure-scope class, widened to general bounded cause/context graph traversal. No further per-exception patch is planned; future hypothetical exception types are handled by explicit typed category or remain unknown.",
+    "acceptance_signal": "Actual native producer → persisted artifact/event → fresh independent consumer → property-changing negative, with the issuer and authority limits retained."
+  }
+}

@@ -1,0 +1,24 @@
+COMMAND ['.venv/bin/python', '-m', 'ruff', 'check', 'src/polisyos/scientist/orchestration/engine/state_branching.py', 'src/polisyos/scientist/orchestration/engine/executor.py', 'src/polisyos/scientist/orchestration/engine/async_executor.py', 'src/polisyos/scientist/orchestration/engine/checkpoint.py', 'src/polisyos/scientist/orchestration/engine/idempotency.py', 'src/polisyos/scientist/orchestration/engine/retry.py', 'src/polisyos/scientist/orchestration/engine/state_merge.py', 'src/polisyos/scientist/orchestration/engine/skg_snapshot.py', 'src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py', 'src/polisyos/scientist/orchestration/engine/runner/serialization.py', 'src/polisyos/data_forge/read_api/academic.py', 'src/polisyos/fabric/connectors/pool.py', 'src/polisyos/fabric/data_plane/streaming.py', 'src/polisyos/fabric/data_plane/modes.py', 'src/polisyos/fabric/data_plane/schema_rows.py', 'tests/unit/scientist/orchestration/engine/test_state_branching.py', 'tests/unit/scientist/orchestration/engine/test_state_merge.py', 'tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py', 'tests/unit/scientist/orchestration/engine/test_idempotency.py', 'tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py', 'tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py', 'tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py', 'tests/unit/scientist/orchestration/engine/test_async_executor.py', 'tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py', 'tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py', 'tests/unit/scientist/orchestration/engine/runner/test_serialization.py', 'tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py', 'tests/unit/scientist/orchestration/engine/runner/test_state_merge.py', 'tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py', 'tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py', 'tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py', 'tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py', 'tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py', 'tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py', 'tests/unit/fabric/connectors/test_pool_e02.py', 'tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py', 'tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py', 'tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py', 'tests/unit/fabric/data_plane/test_stream_pool_physical_cleanup_oracle.py', 'tests/unit/fabric/data_plane/test_processing_guarantees.py', 'tests/unit/fabric/data_plane/test_streaming_runtime.py', 'tests/unit/scientist/orchestration/engine/test_producer_validation_graph_oracle.py']
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/unit/scientist/orchestration/engine/runner/test_state_merge.py:3:1
+   |
+ 1 |   """Tests for engine/runner/state_merge.py."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import pytest
+ 6 | | from polisyos.core.artifacts.manifest import ArtifactRef
+ 7 | | from polisyos.scientist.orchestration.engine.runner.serialization import deserialize_state, serialize_state
+ 8 | | from polisyos.scientist.orchestration.engine.runner.state_merge import (
+ 9 | |     StateMergeConflictError,
+10 | |     merge_tier_states,
+11 | | )
+12 | | from polisyos.scientist.orchestration.engine.state import ExperimentState
+13 | | from polisyos.scientist.orchestration.engine.state_merge import MergeConflictPolicy
+   | |___________________________________________________________________________________^
+   |
+help: Organize imports
+
+Found 1 error.
+[*] 1 fixable with the `--fix` option.
+EXIT 1

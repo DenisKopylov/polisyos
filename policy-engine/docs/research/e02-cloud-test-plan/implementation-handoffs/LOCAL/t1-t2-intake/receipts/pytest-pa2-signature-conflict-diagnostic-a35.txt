@@ -1,0 +1,25 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____ test_agent_gateway_pa2_arm_re_resolves_s7_without_production_packet ______
+tests/unit/runtime/quality/test_agent_action_authority.py:1315: in test_agent_gateway_pa2_arm_re_resolves_s7_without_production_packet
+    gateway, _, _ = _prepare_gateway(
+tests/unit/runtime/quality/test_agent_action_authority.py:565: in _prepare_gateway
+    admission_ref = _persist_signed(
+tests/unit/runtime/quality/test_agent_action_authority.py:441: in _persist_signed
+    harness.store.sign_artifact(
+src/polisyos/core/artifacts/store.py:1755: in sign_artifact
+    return _sign_artifact(
+src/polisyos/core/artifacts/_signature_ops.py:165: in sign_artifact
+    write_signature(artifact_id, signature)
+src/polisyos/core/artifacts/store.py:1761: in <lambda>
+    write_signature=lambda selected_id, signature: self.put_signature(selected, signature),
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<stdin>:13: in observed
+    ???
+src/polisyos/core/artifacts/store.py:1638: in put_signature
+    raise ArtifactIntegrityError("immutable signature sidecar conflicts")
+E   polisyos.core.artifacts._integrity_ops.ArtifactIntegrityError: immutable signature sidecar conflicts
+----------------------------- Captured stdout call -----------------------------
+EXISTING_SIDECAR sha256:e85837800e8c4a2fdf7400b250ba0094c77fcd8aede5e7f36d6a7549c3595b7f same_key= True same_signed_bytes= True old_signed_at= 2026-10-09T09:45:47.506512+00:00 new_signed_at= 2026-10-09T09:45:48.694290+00:00 identity_matches= True manifest_matches= True
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_agent_action_authority.py::test_agent_gateway_pa2_arm_re_resolves_s7_without_production_packet

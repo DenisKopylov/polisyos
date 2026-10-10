@@ -1,0 +1,177 @@
+{
+  "scope": "ledger integrity only; no runtime proof or G closure",
+  "finding_ids": 282,
+  "canonical_occurrences": 291,
+  "candidate_states": {
+    "UNRUN": 291
+  },
+  "author_crosswalk_occurrence_states": {
+    "exact_occurrence_and_card_bound": 220,
+    "finding_and_card_bound_distinct_author_criterion_text": 60,
+    "exact_text_occurrence_card_not_established": 11
+  },
+  "author_crosswalk_by_source": {
+    "A": {
+      "exact_occurrence_and_card_bound": 35
+    },
+    "B": {
+      "finding_and_card_bound_distinct_author_criterion_text": 60
+    },
+    "C": {
+      "exact_occurrence_and_card_bound": 50,
+      "exact_text_occurrence_card_not_established": 9
+    },
+    "D": {
+      "exact_occurrence_and_card_bound": 46
+    },
+    "E": {
+      "exact_occurrence_and_card_bound": 55
+    },
+    "F": {
+      "exact_occurrence_and_card_bound": 34,
+      "exact_text_occurrence_card_not_established": 2
+    }
+  },
+  "route_census": {
+    "task_definitions": 26,
+    "route_assignments": 319,
+    "routed_finding_ids": 282,
+    "route_gaps": 0,
+    "ids_with_multiple_task_routes": 35,
+    "q0_finding_ids": 206,
+    "author_closed_ids": 198,
+    "author_closed_ids_on_q0": 198,
+    "author_closed_ids_missing_q0": [],
+    "q0_nonclosed_ids": [
+      "B11",
+      "B14",
+      "B24",
+      "LA-029",
+      "LA-034",
+      "LA-038",
+      "LA-039",
+      "LA-045"
+    ],
+    "q0_occurrences": 212,
+    "author_proposal_counts": {
+      "open": 7,
+      "limited": 54,
+      "closed": 198,
+      "held": 23
+    },
+    "basis": {
+      "coverage": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "file_type": "JSON",
+        "finding_ids": 282,
+        "criterion_occurrences": 291
+      },
+      "author_findings": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+        "file_type": "JSON",
+        "finding_ids": 282,
+        "criterion_occurrences": 291
+      },
+      "task_routes": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+        "file_type": "JSON"
+      }
+    }
+  },
+  "source_freeze_status": "provisional_source_checkpoint_not_frozen",
+  "provisional_review_states": {
+    "source_qualified_author_review_pending_final_candidate_freeze": 291
+  },
+  "external_or_g_choice_kinds": {
+    "named_source_owner_action": 29,
+    "G_decision_or_intake": 4,
+    "named_owner_next_verifiable_result": 43,
+    "targeted_current_candidate_verification_then_G_adjudication": 46,
+    "external_served_input_or_G_review": 4,
+    "G_criterion_scoped_action": 59,
+    "named_owner_or_G_review": 56,
+    "external_owner_input_then_G_source_admission": 12,
+    "G_source_review_and_affected_consumer_replay": 34,
+    "external_input_or_G_review": 2,
+    "source_author_residual_or_G_review": 2
+  },
+  "remaining_queue": {
+    "G_intake_after_frozen_wave_receipt_reconciliation": {
+      "occurrences": 1,
+      "finding_ids": 1
+    },
+    "G_review_of_exact_A_receipt_and_selected_source": {
+      "occurrences": 5,
+      "finding_ids": 5
+    },
+    "G_source_acceptance_and_exact_finding_intake": {
+      "occurrences": 36,
+      "finding_ids": 36
+    },
+    "check_generic_join_compatibility_and_diagnostic_claim_boundary": {
+      "occurrences": 1,
+      "finding_ids": 1
+    },
+    "execute_exact_selected_plan_or_record_tested_supported_profile_unavailability": {
+      "occurrences": 45,
+      "finding_ids": 42
+    },
+    "freeze_public_boundary_review_then_affected_native_routes": {
+      "occurrences": 2,
+      "finding_ids": 2
+    },
+    "historical_closed_regression_falsifier_only": {
+      "occurrences": 1,
+      "finding_ids": 1
+    },
+    "replay_final_public_reader_affected_native_sampling": {
+      "occurrences": 2,
+      "finding_ids": 2
+    },
+    "replay_named_changed_consumer_paths": {
+      "occurrences": 14,
+      "finding_ids": 14
+    },
+    "resolve_author_named_residual_then_G_adjudication": {
+      "occurrences": 44,
+      "finding_ids": 42
+    },
+    "reuse_carried_evidence_only_if_exact_candidate_property_unchanged": {
+      "occurrences": 33,
+      "finding_ids": 31
+    },
+    "run_occurrence_specific_current_property_consumer_negative": {
+      "occurrences": 40,
+      "finding_ids": 39
+    },
+    "verify_admitted_F_source_and_per_ID_evidence_for_exact_occurrence": {
+      "occurrences": 34,
+      "finding_ids": 33
+    },
+    "verify_retained_scope_on_selected_source_then_G_intake": {
+      "occurrences": 33,
+      "finding_ids": 33
+    }
+  },
+  "formal_closure_ids": [],
+  "occurrences": 291,
+  "unrun_occurrences": 291,
+  "count_preserving_mutations_rejected": 11,
+  "typed_report_artifact_rejections": 6,
+  "empty_occurrence_update_input_accepted": true,
+  "frozen_context_corruptions_rejected": 2,
+  "task_level_status_rejected": true,
+  "input_context_corruptions_rejected": 2,
+  "candidate_evaluations_written": 0,
+  "typed_slice_handoff_probe_accepted": true,
+  "ignored_local_raw_available_readback_accepted": true,
+  "ignored_local_raw_mutations_rejected": 6,
+  "ignored_local_raw_symlink_rejected": true,
+  "ignored_local_raw_parent_symlink_rejected": true,
+  "shared_two_occurrence_decision_map_accepted": true,
+  "shared_decision_mapping_mutations_rejected": 6,
+  "forged_occurrence_criterion_rejected": true,
+  "p40_sequence_probe_accepted": true,
+  "p40_sequence_mutations_rejected": 4,
+  "mode": "self_check"
+}

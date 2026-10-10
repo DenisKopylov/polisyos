@@ -1,0 +1,13 @@
+PRETEST CANDIDATE SOURCE BINDING
+polisyos: /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/__init__.py sha256=5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c
+polisyos.core.artifacts.ir_adapter: /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/core/artifacts/ir_adapter.py sha256=61ecbd49c9accff56c80356039a974e3f152b97eb23820a03ca8f2903e849e76
+polisyos.calibration.forecast_bridge: /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/calibration/forecast_bridge.py sha256=b22a8623047a81e91159e9a7186fb77392e5257d88443960a58b6ac59b4b733f
+.................................................................        [100%]
+=============================== warnings summary ===============================
+tests/unit/remediation/test_frc_02_s10.py::test_same_ets_shape_with_different_held_out_observations_changes_s10_suitability
+tests/unit/remediation/test_frc_02_s10.py::test_same_ets_shape_with_different_held_out_observations_changes_s10_suitability
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+POSTTEST POLISYOS MODULE CENSUS: 1430 paths; 0 outside candidate; /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/shared-embeddings/checks/selected-ref-candidate-import-census.txt

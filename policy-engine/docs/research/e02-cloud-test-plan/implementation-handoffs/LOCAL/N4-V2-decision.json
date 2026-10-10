@@ -1,0 +1,184 @@
+{
+  "packet_type": "local G decision packet; analysis only, not a runtime contract",
+  "packet_id": "N4-V2",
+  "source_cut": {
+    "task_base_sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+    "branch": "codex/e02-unified-local-20261009",
+    "date": "2026-10-09",
+    "task_pointer": "docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V2"
+  },
+  "original_criteria": {
+    "title": "N4 meaningful-child producer and actual recursive reader",
+    "finding_ids": [
+      "B15",
+      "B29"
+    ],
+    "required_signal": "ordinary actual N4 producer emits two semantically distinct children, each receives its own current owner-bound profile/context, N6 frontier/history is persisted, and a fresh GET/client reads the exact result; a manually supplied graph is not a producer"
+  },
+  "decision_state": "g_decision_required; candidate-only N5 path verified; V2 end-to-end two-child positive not established",
+  "property_and_proxy": {
+    "property": "Two child nodes correspond to distinct declared operator/target-slot semantics produced by the actual N4 source for this exact DesignProblem, and each child runs only under its own current persisted context/profile before fresh history/API readback.",
+    "current_mechanism": "derive_n4_candidate_child_problems accepts only exact GenerationUnderAResult bound to the exact parent and model. It groups atoms by declared operator kind plus target slots, checks estimand/population/outcome and declared lever correspondence, and preserves the remaining DesignProblem fields. The served route replays/persists root N4, calls that helper, and asks the owner for a per-child handoff. The HTTP budget is limited to at most two candidate children. Child runtime_hints also carry exact source_result_ref/source_atom_refs.",
+    "divergent_case": "A model-generated N4CandidateProposalSource has candidate prose/Trinity policy content but is not a GenerationUnderAResult and has no owner-issued atom groups. Similar names, an N4 marker, or two client-supplied children cannot satisfy the exact source type and binding. Separately, a new actual N4 result ref changes a child's profile-selection hash even when its declared child lever semantics are unchanged, so a startup profile keyed to stable child semantics cannot match the emitted child under current projection. The existing no-context POST correctly persists a candidate-only N4 proposal and stops.",
+    "p38_gate_basis": "The helper's strict typed source, semantic grouping and subject checks are recomputed. Actual ordinary served production of two distinct groups plus two per-child contexts and parsed fresh history is not established by the current positive route witness.",
+    "p37_labels": {
+      "typed_source_parent_model_and_atom_bindings": "recomputed",
+      "per_child_context_scope_and_profile": "recomputed by the owner when present",
+      "external confidence/currentness beyond controlled context": "not_established"
+    }
+  },
+  "source_readout": {
+    "ordinary_post_without_context": {
+      "path": "POST /api/v1/control/runs/nl -> compile_and_run_recursive_generation_cycle -> generate_design_candidate_proposal_under_a -> N4CandidateProposalRecordV3 in CAS -> fresh GET /api/v1/runs/{core_run_id}/agents",
+      "meaning": "Native candidate-only N4 proposal is persisted with substrate_status=unknown and status=candidate_limited; the ordinary producer events are joined by the exact persisted run owner and exposed through fresh /agents GET. N5/N8/N9/S8 are not run. This is valid candidate-band output, not a recursive child graph."
+    },
+    "ordinary_post_with_owned_context": {
+      "path": "POST /api/v1/control/runs/nl -> owner-issued CandidateSimulationContextHandoff -> N4GenerationPort -> GenerationSourceRepository.persist_ref/load -> derive_n4_candidate_child_problems -> per-child context/profile resolver -> child N6/N5 controller -> compiled CAS artifact -> fresh run reader",
+      "meaning": "The source-owned derivation accepts only a generated GenerationUnderAResult; proposal-only N4 is not atomized. The configured served POST invokes the actual traced N4 producer, but its full-N4 source result is generation_unavailable and no recursive child profile bindings are emitted. The same run has one separate candidate-scenario N5 joint simulation that fresh GET resolves; this does not prove children derived from completed full N4. The exact confidence owner vintage is retained as a typed withheld-confidence limitation on the candidate N5 source."
+    },
+    "child_profile_selection": {
+      "selection_projection": "cycle_job_profile_selection_ref serializes the full current DesignProblem V2 projection, then removes only configured execution IDs from nl_provenance.source_context. The full runtime_hints field, including n4_candidate_child_source.source_result_ref and source_atom_refs, remains in the selection hash (cycle_substrate.py:1482-1507, 1678-1707).",
+      "owner_surface": "ConfiguredCandidateSimulationContextAdmissionOwner accepts a startup Sequence of exact profiles and resolves only a unique exact profile_selection_ref; it has no runtime child-profile producer/resolver (cycle_substrate.py:2087-2169).",
+      "controlled_falsifier": "Using the existing two-child formalizer input, changing only child.runtime_hints.n4_candidate_child_source.source_result_ref from sha256:abbcaf2fc28036dd8aaa03c05ed2ecf77f0707324a2f2a7ee48deeeb7f3f8992 to sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff changed cycle_job_profile_selection_ref from sha256:b34b133cc4515844377ccad484774eae81c72025190c98cf5bc4c34ce6cb2159 to sha256:e633ccb5dcd6e00d8d3d3586f775e44ff6e5ed705c65e6c5a5f339ba2a0b94cb; candidate_lever_space was unchanged.",
+      "status": "A genuine two-child run needs G to select either a stable semantic profile-selection projection that continues to bind the exact child/source through separate persisted refs, or a new source-owner API that issues child profiles after actual N4 output. Neither is implemented by the current static profile owner."
+    },
+    "authority_and_confidence": "The full-N4 recursive source result is generation_unavailable under the exact registered L2 confidence vintage above, with no child bindings. The separate candidate-scenario N5 source persists k_ref_limitation_code=historical_l2_confidence_withheld, the exact vintage snapshot SHA, l2_confidence_forwarded=false, credal_reference_payload=null, N9=not_admitted, and S8=blocked. Preserve these limits through every candidate child/gate; do not synthesize credible confidence from the controlled witness.",
+    "full_n4_confidence_guard": {
+      "owner": "src/polisyos/data_forge/domains/academic/knowledge/skg_versioning.py:83-129",
+      "snapshot": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
+      "snapshot_sha256": "583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967",
+      "owner_result": {
+        "schema_version": "academic.confidence_layer_vintage.v1",
+        "claim_evidence_axis": "absent",
+        "confidence_reproducibility": "not_reproducible_under_current_rule",
+        "consumer_action": "withhold_confidence_forwarding",
+        "binding_status": "recomputed",
+        "measurement_basis": "independently_reconciled"
+      },
+      "observed_effect": "Full-N4 Credal construction raises the exact owner-produced ValueError before NCM/WMR profile intake; the recursive result is generation_unavailable. The candidate scenario wrapper recognizes the canonical owner payload and carries historical_l2_confidence_withheld with the exact snapshot hash, l2_confidence_forwarded=false, and credal_reference_payload=null.",
+      "meaning": "This is an actual registered-source confidence-withhold, not a malformed candidate profile or external-custody claim. Keep candidate exploration separate from confidence/authority forwarding; do not bypass the owner."
+    }
+  },
+  "options_for_g": [
+    {
+      "id": "A",
+      "name": "Keep candidate-band N4 usable under declared unknown; retain confidence/authority withholding",
+      "status": "existing native candidate-only proposal path",
+      "effect": "Candidate output may be generated and persisted with explicit unknown/limitation. It does not imply a qualified K_ref, child N6 completion, N9 admission or S8 publication."
+    },
+    {
+      "id": "B",
+      "name": "Use the existing full N4 GenerationUnderAResult route when a current owner-bound root context exists, then derive owner-bound children",
+      "status": "existing derivation bridge; two-child served positive blocked by current profile-selection/owner seam",
+      "effect": "This reuses N4GenerationPort and derive_n4_candidate_child_problems. A genuine two-child served fixture must prove two distinct atom groups, two child-bound contexts, N6 work/history and parsed fresh GET. The current profile key includes dynamic exact N4 source refs, while the existing profile owner only accepts a startup tuple; changing this requires an explicit G choice."
+    },
+    {
+      "id": "C",
+      "name": "Add a versioned candidate-proposal-to-child source/atom producer",
+      "status": "new semantics; not implemented",
+      "effect": "Only needed if G wants children from proposal-only N4 without the existing full N4 producer path. It requires a typed producer that binds every derived atom to the original problem/model/declared slot and current owner context. Casting or self-attesting N4CandidateProposalSource as GenerationUnderAResult is expressly refused."
+    },
+    {
+      "id": "D",
+      "name": "Require a currently qualified K_ref/Credal basis before the confidence/authority band",
+      "status": "existing owner API may be reused; the current packet does not establish a qualifying external basis",
+      "effect": "This can gate confidence forwarding or authority-grade claims. It need not block candidate-band exploration with explicit unknown under S0-K06."
+    }
+  ],
+  "recommendation_for_interim": "Select A for candidate-band availability and preserve D for any confidence/authority claim. Keep B as the preferred reuse path only after G selects how stable child semantics acquire distinct owner profiles while exact N4 source lineage remains bound. Do not select C without a source-owned producer contract and G's decision. This is a bounded disposition, not V2 closure.",
+  "prototype_and_falsifiers": {
+    "actual_served_prototype": "A new digest-derived fixture_id/recording_id and content hash are used for rewritten recorded bytes; the historical recording remains unchanged. The ordinary no-profile POST persists an N4CandidateProposalRecordV3 and its producer events; fresh /agents GET preserves the exact owner-bound events and malformed-reference controls refuse them. The configured POST uses the actual local OpenAI-compatible HTTP gateway through the production traced-client factory. The retained prior run resolves one separate candidate-scenario N5 result and exact source/context/input/profile refs; it reports full N4 generation_unavailable, child_profile_status=not_established, and child_bindings=0, with a typed historical_l2_confidence_withheld vintage on the N5 source. The retained bounded-native test encodes and passes that honest outcome; the prior R3 duplicate event-ID blocker is superseded by current_readback_9e02. The separate full-V2 criterion remains FAIL/HOLD in full_v2_closeout_probe.",
+    "formalizer_prototype": "tests/unit/runtime/quality/test_generation_cycle.py::test_n4_candidate_child_producer_uses_declared_atom_semantics_and_complete_problem builds two semantic groups through the existing derive helper; companion test proves candidate renaming deduplicates and foreign subject/model refuses. This is a controlled typed-source mechanism test, not an ordinary served two-child positive.",
+    "falsifiers": [
+      "Remove the actual GenerationUnderAResult while preserving N4 status markers: helper refuses n4_recursive_child_source_untyped.",
+      "Rename/copy an atom without changing operator/target semantics: it remains one semantic child.",
+      "Change the parent, model, estimand, target population or declared slot binding: derivation refuses.",
+      "Change only a child n4_candidate_child_source.source_result_ref: current profile-selection ref changes even though candidate_lever_space is identical; the static configured owner cannot resolve the previously configured semantic profile by the emitted key.",
+      "Remove one child owner context or transplant a different job/tenant/cell scope: N6 child execution must be refused before owner entry.",
+      "Serve two actual semantically distinct N4 groups and then remove a persisted child/N6 ref while retaining child markers: fresh reader must report typed limitation/refusal, not a completed graph."
+    ],
+    "receipts": [
+      "tests/integration/runtime_quality/test_configured_candidate_simulation_served.py::test_served_unknown_candidate_profile_keeps_persisted_n4_candidate",
+      "tests/integration/runtime_quality/test_configured_candidate_simulation_served.py::test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects_drift (bounded assertions passed in the retained run; R3 event-ID blocker superseded by current_readback_9e02; not replayed against 9e02 in this refresh)",
+      "tests/unit/runtime/quality/test_design_generation.py::test_recognized_confidence_vintage_round_trips_exact_owner_json",
+      "tests/unit/runtime/quality/test_design_generation.py::test_candidate_scenario_keeps_exact_registered_l2_vintage_unknown (focused two-test output LOCAL/v1-v2/credal-vintage-projection-test.log@sha256:78a6f17583a53a93b819dbeca9979de222bbc392defd60ca2a14513ad020dd60)",
+      "tests/unit/runtime/quality/test_generation_cycle.py::test_n4_candidate_child_producer_uses_declared_atom_semantics_and_complete_problem",
+      "tests/unit/runtime/quality/test_generation_cycle.py::test_n4_candidate_child_producer_deduplicates_names_and_refuses_foreign_subject",
+      "tests/integration/runtime_quality/test_configured_candidate_simulation_served.py::test_configured_child_intake_refuses_missing_complete_owner_before_n6 (negative owner boundary; not an ordinary positive)"
+    ]
+  },
+  "minimum_genuine_inputs": {
+    "candidate_band_two_child_witness": [
+      "The exact compiled DesignProblem and a newly identified synthetic response recording whose bytes/digests/fixture ID all describe its own content.",
+      "An actual source-owned route that can emit two distinct declared operator/target-slot groups under the selected candidate-band confidence semantics; the current full-N4 route is held by the registered vintage, while the proposal-only route is not atomized.",
+      "A server-issued root job scope and current root context/profile; one owner-resolved current context/profile per derived child, all bound to the same job/run/tenant/cell and exact child problem. The current configured owner accepts fixed startup profiles and cannot issue a profile after seeing the N4 source ref.",
+      "The existing at-most-two child budget resolution, CAS source/context/child outputs, N6 frontier/history, and fresh API/client projection, including removal/corruption controls."
+    ],
+    "confidence_or_authority_band": "A source-owner-issued current qualified K_ref/Credal basis that satisfies the exact forwardability rule for the candidate/model/outcome/population and relevant valid/transaction times, plus issuer/verifier/currentness evidence. The registered current L2 vintage explicitly withholds confidence; a new, genuinely admitted source/profile is needed to change that result. L01/L02 materials inspected for this packet are private locators/metadata only; authentic source admission/consumer pairing remains not_established and does not block candidate exploration with declared unknown."
+  },
+  "status_authority_time_provenance": {
+    "candidate_band": "candidate-only, unknown substrate/confidence explicitly carried; no authority upgrade",
+    "time": "source validity and context freshness must come from their owner; controlled fixture time is not external currentness",
+    "provenance": "new synthetic fixture identity binds rewritten recorded bytes; archived original recording is unchanged"
+  },
+  "pattern_pass": {
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P04",
+      "P05",
+      "P10",
+      "P15",
+      "P29",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "existing_anti_pattern": "Treating proposal shape, status markers or a caller graph as produced meaningful children; forwarding withheld K_ref/confidence from adjacent artifacts.",
+    "p40_bucket": "Same N4-source-to-child/served-history class, one level deeper: actual source-owned formalization exists, but the current full-N4 owner withholds confidence for this exact L2 vintage, while the candidate-proposal path is not atomized. Separately, the existing profile-selection hash includes dynamic N4 source refs and the owner only accepts a fixed startup profile tuple; the two-child ordinary served producer/history witness is absent. Widen once after G chooses stable semantic profile selection plus separately bound lineage, or a dynamic owner-issued child profile API; otherwise retain this bounded residual and run its falsifiers. Do not patch one child instance.",
+    "capability_labels": [
+      "implemented_but_not_orchestrated for the proposal-only object as a recursive child source",
+      "semantic_test_missing for a normal served two-child plus parsed-history positive",
+      "not_established for external confidence/currentness"
+    ],
+    "acceptance_signal": "Actual ordinary POST emits two atom-semantically distinct N4 children, obtains separate current child contexts, executes N6 and persists history, and fresh GET/client reads exact children and refs; identity-only or owner-missing controls refuse; confidence and authority remain withheld."
+  },
+  "g_question": "Choose the interim candidate-band/authority-band separation and whether to fund a two-child source/profile fixture using the existing full N4 route. For child profiles, decide whether exact N4 provenance remains outside the profile-selection key while separate source/problem refs continue to bind lineage, or whether a dynamic source-owner API is needed. If G wants recursive children from the proposal-only artifact, authorize a separately typed source-owned producer; do not approve a cast or a confidence shortcut.",
+  "cg1_index_readout": {
+    "current_flag": "POLISYOS_N4_PREWARM_CG1_INDEX defaults false in runtime/quality/design_generation.py::_cg1_index_prewarm_enabled.",
+    "prewarm_behavior": "When enabled for a non-proposal full N4 run, _prewarm_grounding_relation_index parses the current problem and calls GroundingRelationEngine.retrieve_candidates. This is an optional in-process prewarm, not a persisted index artifact; candidate_proposal_only skips it.",
+    "actual_cg1_producer": "The full N4 path builds a CredalReference from the owner context/WMR, creates GroundingRelationEngine(reference), and calls certificate_for per generated intervention. DesignGenerationOrganRun.candidate_sources retains each actual GroundingRelationCertificate plus its GroundingDecisionCertificate; GenerationSourceRepository persists that organ/source object beside GenerationUnderAResult. The configured POST→N4→N5 fixture exercises the real full producer through the actual traced-client factory.",
+    "bounded_claim": "There is a reproducible source-backed CG1 certificate path when the full N4 owner context/reference is available. There is no separate persisted/versioned CG1 index producer demonstrated here. Do not treat prewarm timing/flag as a certificate, current source, external confidence, or an admission.",
+    "g_choice_if_index_artifact_required": "Reuse the existing full N4 certificate source first. If G requires a standalone index artifact, define a versioned producer/reader with the exact reference and owner scope; the current prewarm alone does not justify such a contract."
+  },
+  "full_v2_closeout_probe": {
+    "status": "FAIL/HOLD",
+    "criterion": "The ordinary source-backed route must emit generated full N4 with at least two semantically distinct child groups, resolve a separate current owner-bound context/profile for each, execute N6, persist the frontier/history, and expose complete refs through fresh GET/client readback.",
+    "observed": {
+      "full_n4_source_result_status": "generation_unavailable",
+      "child_profile_status": "not_established",
+      "child_profile_bindings": 0,
+      "candidate_scenario_n5_observation": "one separate joint_simulated candidate-only result; it is not a child derived from generated full N4",
+      "typed_confidence_limit": "historical_l2_confidence_withheld",
+      "confidence_forwarded": false
+    },
+    "evidence": "The pre-bounded-assertion run reached all served producer, fresh-readback, and negative controls, then failed the full-N4 generated-status criterion. Retained complete output: LOCAL/v1-v2/configured-candidate-chain-retest.log@sha256:9f4229a218672f57fa856b8b304069a347ee378e1ee52aceef6e1fed423365dc. Retained CAS: LOCAL/v1-v2/pytest-n4-candidate-chain-20261009/.",
+    "interpretation": "This independent closeout row remains held after the ordinary integration test is corrected to expect the native withheld-confidence behavior. The bounded test does not close, waive, or green V2."
+  },
+  "fresh_bounded_test_attempt": {
+    "status": "PASS_BOUNDED_NATIVE_WITHHELD",
+    "command": "OMP_NUM_THREADS=1 JAX_PLATFORMS=cpu uv run --no-sync pytest -q tests/integration/runtime_quality/test_configured_candidate_simulation_served.py::test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects_drift --basetemp=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v1-v2/pytest-n4-bounded-native-rerun-20261009",
+    "result": "1 passed; fresh /agents GET preserves compiled producer events; candidate N5 provenance and fresh run-details projection pass; native historical L2 confidence withholding, no child bindings, and drift refusals are asserted.",
+    "log": "LOCAL/v1-v2/bounded-native-withheld-test-r3-rerun.log@sha256:ff7302cd30f5584f99f3c484fb2eb2493668d64974a47e551af41fcc1eab3ed5",
+    "interpretation": "This bounded candidate-only witness does not establish external custody/currentness, forward historical confidence, produce generated full N4, derive two meaningful children, or close the separate full-V2 criterion."
+  },
+  "current_readback_9e02": {
+    "head": "9e02a9f49c8b01026327a9f7c7e18711b13a96f2",
+    "tree": "881a950dccb7cdefacc636515aa7dd2bceadf928",
+    "r3_duplicate_event_blocker": "Superseded for the committed source by LOCAL/r3-monetary/final-integrated.log@sha256:5fe0424e44c14d5f04fecb31c8ae63d7e3855742c152522a40920db452a9b8c1 and final-integrated.xml@sha256:d27ef42d8705bf5fc20e285c4167eca1ab19cea26cad40f9dfd08dec2d52b566: 160 passed, including ordinary POST-to-fresh-GET and cross-source event-ID conflict refusal.",
+    "bounded_native": "The retained bounded-native withheld-confidence test is PASS_BOUNDED_NATIVE_WITHHELD only. It was not replayed against 9e02 in this refresh. Full V2 remains FAIL/HOLD.",
+    "source_state": "The exact full-N4 source result remains generation_unavailable for the registered L2 vintage; no N4-derived child bindings exist. Separate candidate-scenario N5 is not a recursive child.",
+    "current_worktree_replay": "The small unit batch had 11 passes and one fresh run-details test failed before entering its fixture due the active uncommitted control-lifecycle decomposition owned by cas_contracts (not the R4 workload). This is not a failure attribution to HEAD; exact fresh route replay remains unverified on the current shared overlay.",
+    "remaining_choice": "G must choose candidate-band proposal-only unknown versus a typed candidate-to-child producer, and select stable semantic child-profile identity plus separate lineage refs or dynamic owner-issued child profiles. No confidence/authority forwarding is allowed from the known withheld vintage."
+  }
+}

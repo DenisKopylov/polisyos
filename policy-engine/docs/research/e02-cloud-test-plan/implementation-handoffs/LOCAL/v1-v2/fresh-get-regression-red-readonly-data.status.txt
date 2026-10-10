@@ -1,0 +1,3 @@
+exit_code=1
+result=expected_assertion_failure
+reason=candidate_simulation projection absent from fresh GET

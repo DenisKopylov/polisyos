@@ -1,0 +1,96 @@
+{
+  "packet": "LOCAL/N4-V2-decision.json",
+  "bounded_native_witness": {
+    "status": "PASS_BOUNDED_NATIVE_WITHHELD",
+    "test": "tests/integration/runtime_quality/test_configured_candidate_simulation_served.py::test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects_drift",
+    "command": "OMP_NUM_THREADS=1 JAX_PLATFORMS=cpu uv run --no-sync pytest -q tests/integration/runtime_quality/test_configured_candidate_simulation_served.py::test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects_drift --basetemp=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v1-v2/pytest-n4-bounded-native-rerun-20261009",
+    "exit_code": 0,
+    "result": "1 passed",
+    "log": "LOCAL/v1-v2/bounded-native-withheld-test-r3-rerun.log@sha256:ff7302cd30f5584f99f3c484fb2eb2493668d64974a47e551af41fcc1eab3ed5",
+    "asserted_properties": [
+      "ordinary configured POST persisted the compiled candidate source and N5 artifacts",
+      "fresh /agents GET retained all compiled producer cost-event rows without conflicting-ID weakening",
+      "fresh run-details GET resolves candidate-only N5 lineage and keeps currentness not_established",
+      "the current native L2 vintage is withheld, no child bindings are emitted, and source/profile drift is refused"
+    ]
+  },
+  "separate_full_v2_closeout": {
+    "status": "FAIL/HOLD",
+    "criterion": "generated full N4 plus two meaningful child groups, per-child owner-bound current profiles, N6 execution, persisted history, and fresh complete readback",
+    "retained_log": "LOCAL/v1-v2/configured-candidate-chain-retest.log@sha256:9f4229a218672f57fa856b8b304069a347ee378e1ee52aceef6e1fed423365dc",
+    "interpretation": "Bounded native withholding PASS does not close or green full V2."
+  },
+  "author_delta_paths": [
+    "tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+    "LOCAL/N4-V2-decision.json",
+    "LOCAL/v1-v2/bounded-native-withheld-test-r3-rerun.log",
+    "src/polisyos/core/contracts/runtime.py",
+    "src/polisyos/core/contracts/__init__.py",
+    "src/polisyos/runtime/http/routes/runs.py",
+    "src/polisyos/runtime/http/services/control_plane_store.py",
+    "tests/unit/core/contracts/test_run_candidate_simulation_acquisition_history.py",
+    "tests/unit/runtime/http/test_acquisition_route_authority_sink.py",
+    "tests/unit/runtime/http/test_control_service_di.py",
+    "tests/integration/core_runtime/test_acquisition_authority_served.py",
+    "apps/runtime-dashboard/src/api/validators.ts",
+    "apps/runtime-dashboard/src/api/validators.test.ts",
+    "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx",
+    "apps/runtime-dashboard/src/shared/i18n/locales/{en,ru,uk}.json",
+    "LOCAL/LEASES.json",
+    "LOCAL/N4-V3-decision.json",
+    "LOCAL/v1-v2/acquisition-history-focused-20261009.log",
+    "LOCAL/v1-v2/acquisition-history-dashboard-20261009.log",
+    "LOCAL/v1-v2/acquisition-history-static-20261009.log",
+    "LOCAL/v1-v2/acquisition-history-failed-sibling-compat-20261009.log"
+  ],
+  "ownership_boundary": {
+    "runtime_producer_and_debug_cost_projection": "R3 numerical owner; provider identity binding and same-ID conflict refusal remain strict",
+    "shared_core_ir_put_bytes": "shared embeddings owner",
+    "V1_V2_closeout": "candidate-only withheld confidence is bounded evidence; full generated N4 and child-source/history chain remain open"
+  },
+  "acquisition_history_readback": {
+    "status": "source_projection_implemented; fresh_reentry_get_test_added_but_not_rerun",
+    "route": "GET /api/v1/runs/{run_id} resolves exact completed job-owned Core output, source-scoped acquisition action head, typed route/reentry receipts, and selected N4/N5 source refs",
+    "projection": "Observed old/new candidate ids and source refs are candidate-only; origin_source_ref remains nullable; currentness is not_established and publication_authority is false",
+    "negative": "The served test now corrupts the selected reentry CAS bytes while retaining route/head markers and expects empty history with acquisition_action_history_integrity_not_established",
+    "unit_receipts": [
+      "tests/unit/runtime/http/test_acquisition_route_authority_sink.py::test_source_history_heads_are_exactly_scoped_across_route_ids",
+      "tests/unit/core/contracts/test_run_candidate_simulation_acquisition_history.py",
+      "tests/unit/runtime/http/test_control_service_di.py::test_fresh_run_details_get_projects_the_persisted_candidate_simulation"
+    ],
+    "focused_unit_command": ".venv/bin/python -m pytest -q --tb=short --show-capture=no tests/unit/runtime/http/test_acquisition_route_authority_sink.py::test_source_history_heads_are_exactly_scoped_across_route_ids tests/unit/core/contracts/test_run_candidate_simulation_acquisition_history.py tests/unit/runtime/http/test_control_service_di.py::test_fresh_run_details_get_projects_the_persisted_candidate_simulation",
+    "focused_unit_result": "4 passed; LOCAL/v1-v2/acquisition-history-focused-20261009.log@sha256:7b93073a17229b9d199a8b3b7165f64e73a2e4d72d8e71883510d6b6a846e18e",
+    "dashboard_command": "corepack pnpm --filter @polisyos/runtime-dashboard exec vitest run src/api/validators.test.ts src/features/runs/routes/tabs/OverviewTab.test.tsx",
+    "dashboard_result": "2 files / 40 tests passed; LOCAL/v1-v2/acquisition-history-dashboard-20261009.log@sha256:0a422dc9598c25310e83ca59ab7b397c0c2ec3e876049c7a967b7f46dfbadc1b",
+    "static_checks": "ruff check, py_compile, and JSON parsing for the readiness/decision/lease packets passed; LOCAL/v1-v2/acquisition-history-static-20261009.log@sha256:2439f6041a165f7fb10ad7c289b681d093b0c6c45d325c974b6f1b1eef15f62c",
+    "compatibility_test": "tests/unit/runtime/http/test_control_service_di.py::test_fresh_run_details_get_keeps_n5_and_failed_sibling_checkpoint passed; LOCAL/v1-v2/acquisition-history-failed-sibling-compat-20261009.log@sha256:ff7302cd30f5584f99f3c484fb2eb2493668d64974a47e551af41fcc1eab3ed5",
+    "served_test": "tests/integration/core_runtime/test_acquisition_authority_served.py::test_served_acquisition_selects_committed_human_authority_and_reopens_worker (fresh GET assertions added; existing 98-second fixture not rerun)",
+    "limitation": "This history readback exposes the actual cross-cycle candidate mismatch and nullable origin but does not establish same-candidate relevance, external custody, or currentness. Full V2 remains FAIL/HOLD."
+  },
+  "pattern_pass": {
+    "ids": [
+      "P29",
+      "P32",
+      "P33",
+      "P38",
+      "P40"
+    ],
+    "P40_bucket": "same candidate-source-to-child/history capability class, one level deeper; the typed public history projection now resolves persisted route/reentry/source refs, while the controlled fixture still shows differing candidate ids and null origin. Keep relevance/currentness bounded; do not count another same-class ref projection as a new round.",
+    "falsifier": "a source with the exact current qualified confidence basis and owner-admitted two semantically distinct child inputs/profiles must produce N6 and fresh history; current controlled source lacks that admitted basis and emitted generation_unavailable. The separate history projection must preserve its observed mismatch and refuse when selected source bytes are corrupted."
+  },
+  "limitations": [
+    "no external custody or currentness is inferred from this controlled serving witness",
+    "no historical L2 confidence is forwarded",
+    "no authority or publication admission is established"
+  ],
+  "refresh_readback_9e02": {
+    "head": "9e02a9f49c8b01026327a9f7c7e18711b13a96f2",
+    "tree": "881a950dccb7cdefacc636515aa7dd2bceadf928",
+    "r3": "Old duplicate-event-ID blocker is stale for the committed source receipt; the retained 160-pass integrated output includes the conflict refusal test.",
+    "small_unit_replay": "11 passed; one fresh run-details test failed before fixture entry in the active uncommitted control-lifecycle decomposition owned by cas_contracts. Exact error: NameError _NL_REQUEST_SNAPSHOT_SCHEMA at job_attempt_publication.py:180; HEAD has the constant and helper together in run_lifecycle.py.",
+    "v2": "Bounded native-withheld PASS only; full generated-N4/two-child/N6/history criterion remains FAIL/HOLD.",
+    "v3": "History projection implemented; new served GET/corruption assertions not replayed; same-candidate relevance and external currentness not established.",
+    "final_wave": "After overlay resolution and source freeze: rerun small unit/history suite; bounded N4 served test; long V3 acquisition served test once; dashboard tests if generated DTO changes; R3 integrated suite if run_lifecycle changes."
+  }
+}

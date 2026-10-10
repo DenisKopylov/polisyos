@@ -1,0 +1,38 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_________ test_read_api_imports_do_not_load_domain_or_legacy_internals _________
+
+    def test_read_api_imports_do_not_load_domain_or_legacy_internals() -> None:
+        for module_name in READ_API_MODULES:
+>           blocked = _blocked_modules_after_import(module_name)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/data_forge/test_phase6_read_api_consolidation.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+module_name = 'polisyos.data_forge.read_api.ukraine'
+
+    def _blocked_modules_after_import(module_name: str) -> list[str]:
+        script = f"""
+            import importlib
+            import json
+            import sys
+    
+            importlib.import_module({module_name!r})
+            blocked = sorted(
+                name
+                for name in sys.modules
+                if name.startswith({BLOCKED_IMPORT_PREFIXES!r})
+            )
+            print(json.dumps(blocked))
+            raise SystemExit(1 if blocked else 0)
+        """
+        result = _run_python(script)
+>       assert result.returncode == 0, result.stderr
+E       AssertionError: 
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/opt/homebrew/opt/python@3.14/bin/python3.14', '-c', "\nimport importlib\nimport json\nimport ...s", "polisyos.data_forge.kernel.pipeline.materialize", "polisyos.data_forge.kernel.pipeline.partitions"]\n', stderr='').returncode
+
+tests/unit/data_forge/test_phase6_read_api_consolidation.py:277: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/data_forge/test_phase6_read_api_consolidation.py::test_read_api_imports_do_not_load_domain_or_legacy_internals

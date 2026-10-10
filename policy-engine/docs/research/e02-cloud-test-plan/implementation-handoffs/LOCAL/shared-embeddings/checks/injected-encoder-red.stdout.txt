@@ -1,0 +1,25 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________ test_generation_uses_injected_encoder_and_derives_its_identity ________
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-736/test_generation_uses_injected_0')
+
+    def test_generation_uses_injected_encoder_and_derives_its_identity(
+        tmp_path: Path,
+    ) -> None:
+        encoder = _Encoder()
+        expected_identity = derive_encoder_identity(encoder)
+    
+>       build_embedding_generation(
+            rows=(("member-1", "policy text"),),
+            index_dir=tmp_path,
+            embedding_model="fixture-label",
+            embedding_device="cpu",
+            embedding_dimension=2,
+            encoder=encoder,
+        )
+E       TypeError: build_embedding_generation() got an unexpected keyword argument 'encoder'
+
+policy-engine/tests/unit/data_forge/kernel/test_encoder_identity.py:136: TypeError
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/data_forge/kernel/test_encoder_identity.py::test_generation_uses_injected_encoder_and_derives_its_identity

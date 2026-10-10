@@ -1,0 +1,18 @@
+{
+  "candidate_source": {
+    "commit": "077a572ff5880b3f50a85d3e3db6a232d277659a",
+    "tree": "2895b6c7597215b714275cb4ba83a504724dc89c"
+  },
+  "decision_map_duplicate_binding_cover": "rejected",
+  "decision_map_duplicate_decision": "rejected",
+  "decision_map_missing_occurrence": "rejected",
+  "decision_map_unknown_occurrence": "rejected",
+  "decision_map_wrong_criterion_hash": "rejected",
+  "raw_candidate_ref_mismatch": "rejected",
+  "raw_candidate_tree_mismatch_when_ref_matches": "rejected",
+  "raw_missing_file": "rejected",
+  "raw_path_escape": "rejected",
+  "raw_positive_readback": "accepted",
+  "raw_wrong_digest": "rejected",
+  "same_id_distinct_criteria_reversed_order": "accepted and mapped to their own decisions"
+}

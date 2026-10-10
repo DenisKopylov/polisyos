@@ -1,0 +1,73 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______ test_fitted_native_gp_profile_round_trips_into_same_context_search ______
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-903/test_fitted_native_gp_profile_0')
+
+    @pytest.mark.skipif(
+        os.environ.get("POLISYOS_RUN_NATIVE_GP_HEAVY") != "1",
+        reason="reserved single native GP fit slot",
+    )
+    def test_fitted_native_gp_profile_round_trips_into_same_context_search(tmp_path) -> None:
+        _register_method()
+        store = FileSystemCAS(tmp_path / "cas")
+        registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
+        suite_ref = persist_benchmark_suite(
+            store,
+            BenchmarkSuite(suite_id="v5_native_gp_suite", kind="method_job"),
+        )
+        generator = BayesianCandidateGenerator(
+            SearchSpace(bounds=[{"name": "value", "lower": 0.0, "upper": 1.0}]),
+            n_initial=3,
+            seed=31,
+        )
+        generator._optimizer._config.num_restarts = 1
+        generator._optimizer._config.raw_samples = 16
+        generator._optimizer._config.refit_interval = 1
+        policy = _policy()
+        spec = SearchLoopSpec(
+            loop_id="v5_search",
+            mutation_codec=PydanticMutationCodec(_V5Mutation),
+            candidate_generator=generator,
+            benchmark_evaluator=MethodJobBenchmarkEvaluator(
+                method_fqn=_V5ScoreMethod.signature.fqn,
+                candidate_input_bindings={"value": "value"},
+                split=BenchmarkSplit.SELECTION,
+            ),
+            promotion_policy=policy,
+        )
+        source_context = {"policy_context": {"year": 2032, "unit": "dimensionless"}}
+        original_context = {"policy_context": dict(source_context["policy_context"])}
+        source_result = SearchLoopRunner(store=store, registry=registry).run(
+            spec,
+            suite_ref=suite_ref,
+            context=source_context,
+            max_iterations=4,
+        )
+    
+        assert source_context == original_context
+>       assert generator._optimizer._model is not None
+E       assert None is not None
+E        +  where None = <polisyos.scientist.methods.search.strategies.bayesian.BayesianOptimizer object at 0x13c8b5d30>._model
+E        +    where <polisyos.scientist.methods.search.strategies.bayesian.BayesianOptimizer object at 0x13c8b5d30> = <polisyos.scientist.methods.autotune.bayesian_generator.BayesianCandidateGenerator object at 0x13c8b5be0>._optimizer
+
+policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py:347: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-09 11:52:16 [info     ] method_registered              backend=numpy fqn=tests.scientist.v5_score@1.0.0 lazy=False namespace=tests.scientist override=True tags=[] version=1.0.0
+2026-10-09 11:52:16 [debug    ] method_dispatch_start          backend=numpy fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-09 11:52:16 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=6.83 fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-09 11:52:16 [debug    ] method_dispatch_start          backend=numpy fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-09 11:52:16 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=6.78 fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-09 11:52:16 [debug    ] method_dispatch_start          backend=numpy fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-09 11:52:16 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=6.59 fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-09 11:52:16 [debug    ] method_dispatch_start          backend=numpy fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-09 11:52:16 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=6.55 fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+=============================== warnings summary ===============================
+policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_fitted_native_gp_profile_round_trips_into_same_context_search

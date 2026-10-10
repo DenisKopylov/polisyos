@@ -1,0 +1,10 @@
+==================================== ERRORS ====================================
+____ ERROR collecting tests/unit/data_forge/kernel/test_encoder_identity.py ____
+ImportError while importing test module '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/data_forge/kernel/test_encoder_identity.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/unit/data_forge/kernel/test_encoder_identity.py:11: in <module>
+    from polisyos.data_forge.kernel.embeddings import (
+E   ImportError: cannot import name 'derive_encoder_identity' from 'polisyos.data_forge.kernel.embeddings' (/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/data_forge/kernel/embeddings.py)
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.82s

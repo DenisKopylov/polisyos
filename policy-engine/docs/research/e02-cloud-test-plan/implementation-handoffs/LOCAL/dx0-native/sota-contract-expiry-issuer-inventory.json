@@ -1,0 +1,1483 @@
+{
+  "by_gate": {
+    "complexity": 9,
+    "docs-freshness": 1,
+    "import-exceptions": 21,
+    "phase6.5-exceptions": 39,
+    "shims": 12
+  },
+  "by_issuer": {
+    "team-architecture": 15,
+    "team-core": 4,
+    "team-data-forge": 6,
+    "team-devx": 3,
+    "team-docs": 1,
+    "team-fabric": 5,
+    "team-foundry": 5,
+    "team-foundry/team-scientist": 1,
+    "team-ir": 2,
+    "team-lex": 2,
+    "team-polisyos": 15,
+    "team-quality": 3,
+    "team-research": 2,
+    "team-runtime": 1,
+    "team-scientist": 13,
+    "team-security": 3,
+    "team-universal-compilation": 1
+  },
+  "by_registry": {
+    "architecture/component_observability.toml": 5,
+    "architecture/exceptions/complexity.toml": 9,
+    "architecture/exceptions/docs_freshness.toml": 1,
+    "architecture/imports/dynamic.toml": 1,
+    "architecture/imports/exceptions.toml": 21,
+    "architecture/name_registry.toml": 4,
+    "architecture/packages/berl.toml": 1,
+    "architecture/packages/calibration.toml": 2,
+    "architecture/packages/common.toml": 1,
+    "architecture/packages/ddm.toml": 1,
+    "architecture/packages/fabric.toml": 1,
+    "architecture/runbook_coverage.toml": 5,
+    "architecture/shims.toml": 12,
+    "architecture/tests/ratchets.toml": 9,
+    "architecture/tooling/static_analysis_overrides.toml": 4,
+    "ops/components/index.toml": 5
+  },
+  "candidate_head": "9e89dddfbcc3d8c44a421cc1fc143ec84f3753ae",
+  "current_date": "2026-10-09",
+  "decision_rule": "Do not blanket extend or waive dates. Each row remains with its source registry issuer and issue/ADR locator (or explicitly no issue field where this checker does not require one). Renew only by that issuer after checking the named condition; otherwise close/remove the exception.",
+  "non_expiry_rows": [
+    {
+      "finding": {
+        "detail": "docs/reference/frontend/atlas-live-application-audit.md:22",
+        "gate": "public-polish",
+        "message": "published doc links to excluded plan evidence"
+      },
+      "source_authority": "published docs named by diagnostic; handle as a separate surface repair"
+    },
+    {
+      "finding": {
+        "detail": "docs/brand/ATLAS_SOURCE_OF_TRUTH.md:43",
+        "gate": "public-polish",
+        "message": "published doc links to excluded plan evidence"
+      },
+      "source_authority": "published docs named by diagnostic; handle as a separate surface repair"
+    },
+    {
+      "finding": {
+        "detail": "docs/brand/ATLAS_SOURCE_OF_TRUTH.md:69",
+        "gate": "public-polish",
+        "message": "published doc links to excluded plan evidence"
+      },
+      "source_authority": "published docs named by diagnostic; handle as a separate surface repair"
+    },
+    {
+      "finding": {
+        "detail": "docs/brand/ATLAS_SOURCE_OF_TRUTH.md:84",
+        "gate": "public-polish",
+        "message": "published doc links to excluded plan evidence"
+      },
+      "source_authority": "published docs named by diagnostic; handle as a separate surface repair"
+    }
+  ],
+  "rows": [
+    {
+      "finding": {
+        "detail": "",
+        "gate": "docs-freshness",
+        "message": "docs freshness exception baseline expired"
+      },
+      "source_authority": {
+        "expires": "2026-06-30",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup",
+        "issuer": "team-docs",
+        "issuer_field": "owner",
+        "record": "docs_freshness_exceptions",
+        "registry": "architecture/exceptions/docs_freshness.toml",
+        "registry_sha256_at_slice_base": "aaea4ef9cfa72d3e2b6a80c70f62ed91e0e33b03514568ffc0c1a1e8e1cc2bfe"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-01",
+        "gate": "import-exceptions",
+        "message": "E-2026-04-LEX-FOUNDRY-001 expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-01",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion",
+        "issuer": "team-polisyos",
+        "issuer_field": "owner",
+        "record": "exception[id=E-2026-04-LEX-FOUNDRY-001]",
+        "registry": "architecture/imports/exceptions.toml",
+        "registry_sha256_at_slice_base": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-01",
+        "gate": "import-exceptions",
+        "message": "E-2026-04-LEX-SCIENTIST-001 expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-01",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion",
+        "issuer": "team-polisyos",
+        "issuer_field": "owner",
+        "record": "exception[id=E-2026-04-LEX-SCIENTIST-001]",
+        "registry": "architecture/imports/exceptions.toml",
+        "registry_sha256_at_slice_base": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-30",
+        "gate": "import-exceptions",
+        "message": "E-2026-05-DATA-FORGE-LEGAL-BATCH-LEX-001 expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-30",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion",
+        "issuer": "team-data-forge",
+        "issuer_field": "owner",
+        "record": "exception[id=E-2026-05-DATA-FORGE-LEGAL-BATCH-LEX-001]",
+        "registry": "architecture/imports/exceptions.toml",
+        "registry_sha256_at_slice_base": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-30",
+        "gate": "import-exceptions",
+        "message": "E-2026-05-DATA-FORGE-LEGAL-BATCH-SCIENTIST-001 expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-30",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion",
+        "issuer": "team-data-forge",
+        "issuer_field": "owner",
+        "record": "exception[id=E-2026-05-DATA-FORGE-LEGAL-BATCH-SCIENTIST-001]",
+        "registry": "architecture/imports/exceptions.toml",
+        "registry_sha256_at_slice_base": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-30",
+        "gate": "import-exceptions",
+        "message": "E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-FOUNDRY-001 expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-30",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion",
+        "issuer": "team-data-forge",
+        "issuer_field": "owner",
+        "record": "exception[id=E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-FOUNDRY-001]",
+        "registry": "architecture/imports/exceptions.toml",
+        "registry_sha256_at_slice_base": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-30",
+        "gate": "import-exceptions",
+        "message": "E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-LEX-001 expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-30",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion",
+        "issuer": "team-data-forge",
+        "issuer_field": "owner",
+        "record": "exception[id=E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-LEX-001]",
+        "registry": "architecture/imports/exceptions.toml",
+        "registry_sha256_at_slice_base": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-30",
+        "gate": "import-exceptions",
+        "message": "E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-SCIENTIST-001 expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-30",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion",
+        "issuer": "team-data-forge",
+        "issuer_field": "owner",
+        "record": "exception[id=E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-SCIENTIST-001]",
+        "registry": "architecture/imports/exceptions.toml",
+        "registry_sha256_at_slice_base": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-01",
+        "gate": "import-exceptions",
+        "message": "E-2026-04-ACADEMIC-SCIENTIST-001 expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-01",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion",
+        "issuer": "team-data-forge",
+        "issuer_field": "owner",
+        "record": "exception[id=E-2026-04-ACADEMIC-SCIENTIST-001]",
+        "registry": "architecture/imports/exceptions.toml",
+        "registry_sha256_at_slice_base": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-01",
+        "gate": "import-exceptions",
+        "message": "E-2026-04-IR-OBS-FOUNDRY-001 expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-01",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion",
+        "issuer": "team-polisyos",
+        "issuer_field": "owner",
+        "record": "exception[id=E-2026-04-IR-OBS-FOUNDRY-001]",
+        "registry": "architecture/imports/exceptions.toml",
+        "registry_sha256_at_slice_base": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-01",
+        "gate": "import-exceptions",
+        "message": "E-2026-04-IR-OBS-SCIENTIST-001 expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-01",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion",
+        "issuer": "team-polisyos",
+        "issuer_field": "owner",
+        "record": "exception[id=E-2026-04-IR-OBS-SCIENTIST-001]",
+        "registry": "architecture/imports/exceptions.toml",
+        "registry_sha256_at_slice_base": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-01",
+        "gate": "import-exceptions",
+        "message": "E-2026-04-IR-ANALYTICS-FOUNDRY-001 expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-01",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion",
+        "issuer": "team-polisyos",
+        "issuer_field": "owner",
+        "record": "exception[id=E-2026-04-IR-ANALYTICS-FOUNDRY-001]",
+        "registry": "architecture/imports/exceptions.toml",
+        "registry_sha256_at_slice_base": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-01",
+        "gate": "import-exceptions",
+        "message": "E-2026-04-IR-ANALYTICS-SCIENTIST-001 expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-01",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion",
+        "issuer": "team-polisyos",
+        "issuer_field": "owner",
+        "record": "exception[id=E-2026-04-IR-ANALYTICS-SCIENTIST-001]",
+        "registry": "architecture/imports/exceptions.toml",
+        "registry_sha256_at_slice_base": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-01",
+        "gate": "import-exceptions",
+        "message": "E-2026-04-IR-PANDAS-001 expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-01",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion",
+        "issuer": "team-polisyos",
+        "issuer_field": "owner",
+        "record": "exception[id=E-2026-04-IR-PANDAS-001]",
+        "registry": "architecture/imports/exceptions.toml",
+        "registry_sha256_at_slice_base": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-01",
+        "gate": "import-exceptions",
+        "message": "E-2026-04-IR-JAX-001 expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-01",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion",
+        "issuer": "team-polisyos",
+        "issuer_field": "owner",
+        "record": "exception[id=E-2026-04-IR-JAX-001]",
+        "registry": "architecture/imports/exceptions.toml",
+        "registry_sha256_at_slice_base": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-01",
+        "gate": "import-exceptions",
+        "message": "E-2026-04-FOUNDRY-SCIENTIST-001 expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-01",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion",
+        "issuer": "team-polisyos",
+        "issuer_field": "owner",
+        "record": "exception[id=E-2026-04-FOUNDRY-SCIENTIST-001]",
+        "registry": "architecture/imports/exceptions.toml",
+        "registry_sha256_at_slice_base": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-01",
+        "gate": "import-exceptions",
+        "message": "E-2026-04-FOUNDRY-LEX-001 expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-01",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion",
+        "issuer": "team-polisyos",
+        "issuer_field": "owner",
+        "record": "exception[id=E-2026-04-FOUNDRY-LEX-001]",
+        "registry": "architecture/imports/exceptions.toml",
+        "registry_sha256_at_slice_base": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-01",
+        "gate": "import-exceptions",
+        "message": "E-2026-04-FABRIC-WORLD-DEEP-001 expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-01",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion",
+        "issuer": "team-polisyos",
+        "issuer_field": "owner",
+        "record": "exception[id=E-2026-04-FABRIC-WORLD-DEEP-001]",
+        "registry": "architecture/imports/exceptions.toml",
+        "registry_sha256_at_slice_base": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-30",
+        "gate": "import-exceptions",
+        "message": "E-2026-05-FOUNDRY-FABRIC-QUALITY-001 expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-30",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion",
+        "issuer": "team-polisyos",
+        "issuer_field": "owner",
+        "record": "exception[id=E-2026-05-FOUNDRY-FABRIC-QUALITY-001]",
+        "registry": "architecture/imports/exceptions.toml",
+        "registry_sha256_at_slice_base": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-30",
+        "gate": "import-exceptions",
+        "message": "E-2026-05-IR-ANALYTICS-CORE-DYNAMICS-001 expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-30",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion",
+        "issuer": "team-polisyos",
+        "issuer_field": "owner",
+        "record": "exception[id=E-2026-05-IR-ANALYTICS-CORE-DYNAMICS-001]",
+        "registry": "architecture/imports/exceptions.toml",
+        "registry_sha256_at_slice_base": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-30",
+        "gate": "import-exceptions",
+        "message": "E-2026-05-IR-ANALYTICS-CORE-SIMULATION-PROOF-001 expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-30",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion",
+        "issuer": "team-polisyos",
+        "issuer_field": "owner",
+        "record": "exception[id=E-2026-05-IR-ANALYTICS-CORE-SIMULATION-PROOF-001]",
+        "registry": "architecture/imports/exceptions.toml",
+        "registry_sha256_at_slice_base": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-01",
+        "gate": "import-exceptions",
+        "message": "E-2026-04-IR-PASSES-FOUNDRY-KERNEL-LOWERING-001 expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-01",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion",
+        "issuer": "team-polisyos",
+        "issuer_field": "owner",
+        "record": "exception[id=E-2026-04-IR-PASSES-FOUNDRY-KERNEL-LOWERING-001]",
+        "registry": "architecture/imports/exceptions.toml",
+        "registry_sha256_at_slice_base": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "complexity",
+        "message": "src/polisyos/lex/interventions.py expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets",
+        "issuer": "team-lex",
+        "issuer_field": "owner",
+        "record": "exception[path=src/polisyos/lex/interventions.py]",
+        "registry": "architecture/exceptions/complexity.toml",
+        "registry_sha256_at_slice_base": "52f2de8f4e7d391e18736b542c0b275fa2362b797c5879ebcab07e171183d6ee"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-15",
+        "gate": "complexity",
+        "message": "src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-15",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets",
+        "issuer": "team-scientist",
+        "issuer_field": "owner",
+        "record": "exception[path=src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py]",
+        "registry": "architecture/exceptions/complexity.toml",
+        "registry_sha256_at_slice_base": "52f2de8f4e7d391e18736b542c0b275fa2362b797c5879ebcab07e171183d6ee"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-15",
+        "gate": "complexity",
+        "message": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-15",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets",
+        "issuer": "team-scientist",
+        "issuer_field": "owner",
+        "record": "exception[path=src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py]",
+        "registry": "architecture/exceptions/complexity.toml",
+        "registry_sha256_at_slice_base": "52f2de8f4e7d391e18736b542c0b275fa2362b797c5879ebcab07e171183d6ee"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-15",
+        "gate": "complexity",
+        "message": "src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-15",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets",
+        "issuer": "team-scientist",
+        "issuer_field": "owner",
+        "record": "exception[path=src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py]",
+        "registry": "architecture/exceptions/complexity.toml",
+        "registry_sha256_at_slice_base": "52f2de8f4e7d391e18736b542c0b275fa2362b797c5879ebcab07e171183d6ee"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-15",
+        "gate": "complexity",
+        "message": "src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-15",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets",
+        "issuer": "team-scientist",
+        "issuer_field": "owner",
+        "record": "exception[path=src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py]",
+        "registry": "architecture/exceptions/complexity.toml",
+        "registry_sha256_at_slice_base": "52f2de8f4e7d391e18736b542c0b275fa2362b797c5879ebcab07e171183d6ee"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-15",
+        "gate": "complexity",
+        "message": "src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-15",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets",
+        "issuer": "team-scientist",
+        "issuer_field": "owner",
+        "record": "exception[path=src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py]",
+        "registry": "architecture/exceptions/complexity.toml",
+        "registry_sha256_at_slice_base": "52f2de8f4e7d391e18736b542c0b275fa2362b797c5879ebcab07e171183d6ee"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-15",
+        "gate": "complexity",
+        "message": "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-15",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets",
+        "issuer": "team-scientist",
+        "issuer_field": "owner",
+        "record": "exception[path=src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py]",
+        "registry": "architecture/exceptions/complexity.toml",
+        "registry_sha256_at_slice_base": "52f2de8f4e7d391e18736b542c0b275fa2362b797c5879ebcab07e171183d6ee"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-15",
+        "gate": "complexity",
+        "message": "src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-15",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets",
+        "issuer": "team-scientist",
+        "issuer_field": "owner",
+        "record": "exception[path=src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py]",
+        "registry": "architecture/exceptions/complexity.toml",
+        "registry_sha256_at_slice_base": "52f2de8f4e7d391e18736b542c0b275fa2362b797c5879ebcab07e171183d6ee"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-15",
+        "gate": "complexity",
+        "message": "src/polisyos/scientist/nodes/builtins/governance/run_governance.py expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-15",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets",
+        "issuer": "team-scientist",
+        "issuer_field": "owner",
+        "record": "exception[path=src/polisyos/scientist/nodes/builtins/governance/run_governance.py]",
+        "registry": "architecture/exceptions/complexity.toml",
+        "registry_sha256_at_slice_base": "52f2de8f4e7d391e18736b542c0b275fa2362b797c5879ebcab07e171183d6ee"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "shims",
+        "message": "product-install-sh-to-workspace-bootstrap expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "sunset_date",
+        "issue_or_adr": "docs/plans/accepted/REPOSITORY_SOTA_PHASE_0_CONTRACTS.md#shim-normalization-baseline",
+        "issuer": "team-devx",
+        "issuer_field": "owner",
+        "record": "shim[id=product-install-sh-to-workspace-bootstrap]",
+        "registry": "architecture/shims.toml",
+        "registry_sha256_at_slice_base": "3752050d411eecc6dddf52500d009e6d081de12d2584497aa8916ffdc9e312d3"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "shims",
+        "message": "product-migrate-py-to-tools-migrations expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "sunset_date",
+        "issue_or_adr": "docs/plans/accepted/REPOSITORY_SOTA_PHASE_0_CONTRACTS.md#shim-normalization-baseline",
+        "issuer": "team-devx",
+        "issuer_field": "owner",
+        "record": "shim[id=product-migrate-py-to-tools-migrations]",
+        "registry": "architecture/shims.toml",
+        "registry_sha256_at_slice_base": "3752050d411eecc6dddf52500d009e6d081de12d2584497aa8916ffdc9e312d3"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "shims",
+        "message": "product-jax-bootstrap-to-workspace-vendor expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "sunset_date",
+        "issue_or_adr": "docs/plans/accepted/REPOSITORY_SOTA_PHASE_0_CONTRACTS.md#shim-normalization-baseline",
+        "issuer": "team-devx",
+        "issuer_field": "owner",
+        "record": "shim[id=product-jax-bootstrap-to-workspace-vendor]",
+        "registry": "architecture/shims.toml",
+        "registry_sha256_at_slice_base": "3752050d411eecc6dddf52500d009e6d081de12d2584497aa8916ffdc9e312d3"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-01",
+        "gate": "shims",
+        "message": "repo-filter-topics-to-tools-research expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-01",
+        "expiry_field": "sunset_date",
+        "issue_or_adr": "docs/plans/accepted/REPOSITORY_SOTA_PHASE_0_CONTRACTS.md#shim-normalization-baseline",
+        "issuer": "team-research",
+        "issuer_field": "owner",
+        "record": "shim[id=repo-filter-topics-to-tools-research]",
+        "registry": "architecture/shims.toml",
+        "registry_sha256_at_slice_base": "3752050d411eecc6dddf52500d009e6d081de12d2584497aa8916ffdc9e312d3"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-07-01",
+        "gate": "shims",
+        "message": "repo-organize-relevant-topics-to-tools-research expired"
+      },
+      "source_authority": {
+        "expires": "2026-07-01",
+        "expiry_field": "sunset_date",
+        "issue_or_adr": "docs/plans/accepted/REPOSITORY_SOTA_PHASE_0_CONTRACTS.md#shim-normalization-baseline",
+        "issuer": "team-research",
+        "issuer_field": "owner",
+        "record": "shim[id=repo-organize-relevant-topics-to-tools-research]",
+        "registry": "architecture/shims.toml",
+        "registry_sha256_at_slice_base": "3752050d411eecc6dddf52500d009e6d081de12d2584497aa8916ffdc9e312d3"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-09-01",
+        "gate": "shims",
+        "message": "imports-policy-config-relocation expired"
+      },
+      "source_authority": {
+        "expires": "2026-09-01",
+        "expiry_field": "sunset_date",
+        "issue_or_adr": "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#113-migration-shims",
+        "issuer": "team-architecture",
+        "issuer_field": "owner",
+        "record": "shim[id=imports-policy-config-relocation]",
+        "registry": "architecture/shims.toml",
+        "registry_sha256_at_slice_base": "3752050d411eecc6dddf52500d009e6d081de12d2584497aa8916ffdc9e312d3"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-09-01",
+        "gate": "shims",
+        "message": "imports-exceptions-config-relocation expired"
+      },
+      "source_authority": {
+        "expires": "2026-09-01",
+        "expiry_field": "sunset_date",
+        "issue_or_adr": "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#113-migration-shims",
+        "issuer": "team-architecture",
+        "issuer_field": "owner",
+        "record": "shim[id=imports-exceptions-config-relocation]",
+        "registry": "architecture/shims.toml",
+        "registry_sha256_at_slice_base": "3752050d411eecc6dddf52500d009e6d081de12d2584497aa8916ffdc9e312d3"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-09-01",
+        "gate": "shims",
+        "message": "imports-exceptions-registry-relocation expired"
+      },
+      "source_authority": {
+        "expires": "2026-09-01",
+        "expiry_field": "sunset_date",
+        "issue_or_adr": "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#113-migration-shims",
+        "issuer": "team-architecture",
+        "issuer_field": "owner",
+        "record": "shim[id=imports-exceptions-registry-relocation]",
+        "registry": "architecture/shims.toml",
+        "registry_sha256_at_slice_base": "3752050d411eecc6dddf52500d009e6d081de12d2584497aa8916ffdc9e312d3"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-09-01",
+        "gate": "shims",
+        "message": "imports-gate-baseline-relocation expired"
+      },
+      "source_authority": {
+        "expires": "2026-09-01",
+        "expiry_field": "sunset_date",
+        "issue_or_adr": "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#113-migration-shims",
+        "issuer": "team-architecture",
+        "issuer_field": "owner",
+        "record": "shim[id=imports-gate-baseline-relocation]",
+        "registry": "architecture/shims.toml",
+        "registry_sha256_at_slice_base": "3752050d411eecc6dddf52500d009e6d081de12d2584497aa8916ffdc9e312d3"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-09-01",
+        "gate": "shims",
+        "message": "imports-gate-summary-relocation expired"
+      },
+      "source_authority": {
+        "expires": "2026-09-01",
+        "expiry_field": "sunset_date",
+        "issue_or_adr": "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#113-migration-shims",
+        "issuer": "team-architecture",
+        "issuer_field": "owner",
+        "record": "shim[id=imports-gate-summary-relocation]",
+        "registry": "architecture/shims.toml",
+        "registry_sha256_at_slice_base": "3752050d411eecc6dddf52500d009e6d081de12d2584497aa8916ffdc9e312d3"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-09-01",
+        "gate": "shims",
+        "message": "freeze-policy-relocation expired"
+      },
+      "source_authority": {
+        "expires": "2026-09-01",
+        "expiry_field": "sunset_date",
+        "issue_or_adr": "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#113-migration-shims",
+        "issuer": "team-architecture",
+        "issuer_field": "owner",
+        "record": "shim[id=freeze-policy-relocation]",
+        "registry": "architecture/shims.toml",
+        "registry_sha256_at_slice_base": "3752050d411eecc6dddf52500d009e6d081de12d2584497aa8916ffdc9e312d3"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-06-30",
+        "gate": "shims",
+        "message": "data-requirement-family-fallback-from-hardcoded-heuristic expired"
+      },
+      "source_authority": {
+        "expires": "2026-06-30",
+        "expiry_field": "sunset_date",
+        "issue_or_adr": "docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#phase-4---requirement-to-capability-resolver",
+        "issuer": "team-universal-compilation",
+        "issuer_field": "owner",
+        "record": "shim[id=data-requirement-family-fallback-from-hardcoded-heuristic]",
+        "registry": "architecture/shims.toml",
+        "registry_sha256_at_slice_base": "3752050d411eecc6dddf52500d009e6d081de12d2584497aa8916ffdc9e312d3"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-04",
+        "gate": "phase6.5-exceptions",
+        "message": "dynamic_imports expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-04",
+        "expiry_field": "review_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup",
+        "issuer": "team-architecture",
+        "issuer_field": "owner",
+        "record": "dynamic_imports",
+        "registry": "architecture/imports/dynamic.toml",
+        "registry_sha256_at_slice_base": "2260c569226fb0e22794517dae4a8ddf80b0e892d3eee73fe0e6e8ceece08a63"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "phase6.5-exceptions",
+        "message": "berl-standalone-slo-deferred expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "sunset",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup",
+        "issuer": "team-scientist",
+        "issuer_field": "owner",
+        "record": "exception[id=berl-standalone-slo-deferred]",
+        "registry": "architecture/packages/berl.toml",
+        "registry_sha256_at_slice_base": "2ce6e72580fdb9453dac94874e0c35e192c9b85fecc70d5e5e14417a9232e258"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-10-01",
+        "gate": "phase6.5-exceptions",
+        "message": "calibration-ruff-package-ratchet expired"
+      },
+      "source_authority": {
+        "expires": "2026-10-01",
+        "expiry_field": "sunset",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup",
+        "issuer": "team-scientist",
+        "issuer_field": "owner",
+        "record": "exception[id=calibration-ruff-package-ratchet]",
+        "registry": "architecture/packages/calibration.toml",
+        "registry_sha256_at_slice_base": "40f54cf64fd635ed1c9da6ceab175b6eefc4e4de7e8f09e3963519b8018551a9"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "phase6.5-exceptions",
+        "message": "calibration-standalone-slo-deferred expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "sunset",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup",
+        "issuer": "team-scientist",
+        "issuer_field": "owner",
+        "record": "exception[id=calibration-standalone-slo-deferred]",
+        "registry": "architecture/packages/calibration.toml",
+        "registry_sha256_at_slice_base": "40f54cf64fd635ed1c9da6ceab175b6eefc4e4de7e8f09e3963519b8018551a9"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "phase6.5-exceptions",
+        "message": "common-dependent-slo expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "sunset",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup",
+        "issuer": "team-core",
+        "issuer_field": "owner",
+        "record": "exception[id=common-dependent-slo]",
+        "registry": "architecture/packages/common.toml",
+        "registry_sha256_at_slice_base": "b268e360963a41e05afec960be1cd21f6acb0778c841cfeb3584c35d79d6aa2e"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "phase6.5-exceptions",
+        "message": "ddm-standalone-slo-deferred expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "sunset",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup",
+        "issuer": "team-scientist",
+        "issuer_field": "owner",
+        "record": "exception[id=ddm-standalone-slo-deferred]",
+        "registry": "architecture/packages/ddm.toml",
+        "registry_sha256_at_slice_base": "e7247f1d6a06b6b5fc5118441387d5bb6e64e55fff325fb36f98c407a8e6d669"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-10-01",
+        "gate": "phase6.5-exceptions",
+        "message": "fabric-ruff-ratchet expired"
+      },
+      "source_authority": {
+        "expires": "2026-10-01",
+        "expiry_field": "sunset",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup",
+        "issuer": "team-fabric",
+        "issuer_field": "owner",
+        "record": "exception[id=fabric-ruff-ratchet]",
+        "registry": "architecture/packages/fabric.toml",
+        "registry_sha256_at_slice_base": "3ccf899bff4d89c4dcb3cac8f8ab56c55293e62125b9e1ffe70514ba7b040d8c"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-09-01",
+        "gate": "phase6.5-exceptions",
+        "message": "benchmarks-conftest-transition expired"
+      },
+      "source_authority": {
+        "expires": "2026-09-01",
+        "expiry_field": "expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion",
+        "issuer": "team-quality",
+        "issuer_field": "owner",
+        "record": "pytest_universe_exception[id=benchmarks-conftest-transition]",
+        "registry": "architecture/tests/ratchets.toml",
+        "registry_sha256_at_slice_base": "1f434f9f05a7f3c8501211f39cece92f04e18222de57d31eaafeeee8e3b503d7"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-06-15",
+        "gate": "phase6.5-exceptions",
+        "message": "fabric.mirror_regression_exception expired"
+      },
+      "source_authority": {
+        "expires": "2026-06-15",
+        "expiry_field": "mirror_regression_exception_expires",
+        "issue_or_adr": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#wave-6---repository-polish-gate-organization-and-stub-cleanup",
+        "issuer": "team-fabric",
+        "issuer_field": "mirror_regression_exception_owner",
+        "record": "package_ratchet[name=fabric].mirror_regression_exception",
+        "registry": "architecture/tests/ratchets.toml",
+        "registry_sha256_at_slice_base": "1f434f9f05a7f3c8501211f39cece92f04e18222de57d31eaafeeee8e3b503d7"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-06-15",
+        "gate": "phase6.5-exceptions",
+        "message": "fabric.strict_mirror_regression_exception expired"
+      },
+      "source_authority": {
+        "expires": "2026-06-15",
+        "expiry_field": "strict_mirror_regression_exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-71---final-verification-and-closeout-artifact",
+        "issuer": "team-fabric",
+        "issuer_field": "strict_mirror_regression_exception_owner",
+        "record": "package_ratchet[name=fabric].strict_mirror_regression_exception",
+        "registry": "architecture/tests/ratchets.toml",
+        "registry_sha256_at_slice_base": "1f434f9f05a7f3c8501211f39cece92f04e18222de57d31eaafeeee8e3b503d7"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-06-15",
+        "gate": "phase6.5-exceptions",
+        "message": "foundry.mirror_regression_exception expired"
+      },
+      "source_authority": {
+        "expires": "2026-06-15",
+        "expiry_field": "mirror_regression_exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-71---final-verification-and-closeout-artifact",
+        "issuer": "team-foundry",
+        "issuer_field": "mirror_regression_exception_owner",
+        "record": "package_ratchet[name=foundry].mirror_regression_exception",
+        "registry": "architecture/tests/ratchets.toml",
+        "registry_sha256_at_slice_base": "1f434f9f05a7f3c8501211f39cece92f04e18222de57d31eaafeeee8e3b503d7"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-06-15",
+        "gate": "phase6.5-exceptions",
+        "message": "foundry.strict_mirror_regression_exception expired"
+      },
+      "source_authority": {
+        "expires": "2026-06-15",
+        "expiry_field": "strict_mirror_regression_exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion",
+        "issuer": "team-quality",
+        "issuer_field": "strict_mirror_regression_exception_owner",
+        "record": "package_ratchet[name=foundry].strict_mirror_regression_exception",
+        "registry": "architecture/tests/ratchets.toml",
+        "registry_sha256_at_slice_base": "1f434f9f05a7f3c8501211f39cece92f04e18222de57d31eaafeeee8e3b503d7"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-06-15",
+        "gate": "phase6.5-exceptions",
+        "message": "ir.mirror_regression_exception expired"
+      },
+      "source_authority": {
+        "expires": "2026-06-15",
+        "expiry_field": "mirror_regression_exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion",
+        "issuer": "team-quality",
+        "issuer_field": "mirror_regression_exception_owner",
+        "record": "package_ratchet[name=ir].mirror_regression_exception",
+        "registry": "architecture/tests/ratchets.toml",
+        "registry_sha256_at_slice_base": "1f434f9f05a7f3c8501211f39cece92f04e18222de57d31eaafeeee8e3b503d7"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-06-15",
+        "gate": "phase6.5-exceptions",
+        "message": "lex.strict_mirror_regression_exception expired"
+      },
+      "source_authority": {
+        "expires": "2026-06-15",
+        "expiry_field": "strict_mirror_regression_exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-71---final-verification-and-closeout-artifact",
+        "issuer": "team-lex",
+        "issuer_field": "strict_mirror_regression_exception_owner",
+        "record": "package_ratchet[name=lex].strict_mirror_regression_exception",
+        "registry": "architecture/tests/ratchets.toml",
+        "registry_sha256_at_slice_base": "1f434f9f05a7f3c8501211f39cece92f04e18222de57d31eaafeeee8e3b503d7"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-06-15",
+        "gate": "phase6.5-exceptions",
+        "message": "runtime.mirror_regression_exception expired"
+      },
+      "source_authority": {
+        "expires": "2026-06-15",
+        "expiry_field": "mirror_regression_exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion",
+        "issuer": "team-runtime",
+        "issuer_field": "mirror_regression_exception_owner",
+        "record": "package_ratchet[name=runtime].mirror_regression_exception",
+        "registry": "architecture/tests/ratchets.toml",
+        "registry_sha256_at_slice_base": "1f434f9f05a7f3c8501211f39cece92f04e18222de57d31eaafeeee8e3b503d7"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-06-15",
+        "gate": "phase6.5-exceptions",
+        "message": "scientist.strict_mirror_regression_exception expired"
+      },
+      "source_authority": {
+        "expires": "2026-06-15",
+        "expiry_field": "strict_mirror_regression_exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion",
+        "issuer": "team-scientist",
+        "issuer_field": "strict_mirror_regression_exception_owner",
+        "record": "package_ratchet[name=scientist].strict_mirror_regression_exception",
+        "registry": "architecture/tests/ratchets.toml",
+        "registry_sha256_at_slice_base": "1f434f9f05a7f3c8501211f39cece92f04e18222de57d31eaafeeee8e3b503d7"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-10-01",
+        "gate": "phase6.5-exceptions",
+        "message": "fabric-ruff-package-ratchet expired"
+      },
+      "source_authority": {
+        "expires": "2026-10-01",
+        "expiry_field": "sunset",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-55---tool-config-split-and-overrides-lane",
+        "issuer": "team-fabric",
+        "issuer_field": "owner",
+        "record": "override_scope[id=fabric-ruff-package-ratchet]",
+        "registry": "architecture/tooling/static_analysis_overrides.toml",
+        "registry_sha256_at_slice_base": "2cc00df3ff4124b3f8f81b42a00e6b95056861f341eab5a545776da50cee2109"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-10-01",
+        "gate": "phase6.5-exceptions",
+        "message": "fabric-mypy-module-ratchet expired"
+      },
+      "source_authority": {
+        "expires": "2026-10-01",
+        "expiry_field": "sunset",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-55---tool-config-split-and-overrides-lane",
+        "issuer": "team-fabric",
+        "issuer_field": "owner",
+        "record": "override_scope[id=fabric-mypy-module-ratchet]",
+        "registry": "architecture/tooling/static_analysis_overrides.toml",
+        "registry_sha256_at_slice_base": "2cc00df3ff4124b3f8f81b42a00e6b95056861f341eab5a545776da50cee2109"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-10-01",
+        "gate": "phase6.5-exceptions",
+        "message": "ir-ruff-package-ratchet expired"
+      },
+      "source_authority": {
+        "expires": "2026-10-01",
+        "expiry_field": "sunset",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-55---tool-config-split-and-overrides-lane",
+        "issuer": "team-ir",
+        "issuer_field": "owner",
+        "record": "override_scope[id=ir-ruff-package-ratchet]",
+        "registry": "architecture/tooling/static_analysis_overrides.toml",
+        "registry_sha256_at_slice_base": "2cc00df3ff4124b3f8f81b42a00e6b95056861f341eab5a545776da50cee2109"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-10-01",
+        "gate": "phase6.5-exceptions",
+        "message": "ir-mypy-module-ratchet expired"
+      },
+      "source_authority": {
+        "expires": "2026-10-01",
+        "expiry_field": "sunset",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-55---tool-config-split-and-overrides-lane",
+        "issuer": "team-ir",
+        "issuer_field": "owner",
+        "record": "override_scope[id=ir-mypy-module-ratchet]",
+        "registry": "architecture/tooling/static_analysis_overrides.toml",
+        "registry_sha256_at_slice_base": "2cc00df3ff4124b3f8f81b42a00e6b95056861f341eab5a545776da50cee2109"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "phase6.5-exceptions",
+        "message": "common expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion",
+        "issuer": "team-core",
+        "issuer_field": "exception_owner",
+        "record": "component_contract[component=common]#0",
+        "registry": "architecture/component_observability.toml",
+        "registry_sha256_at_slice_base": "89fc0c1a50ce985bd7ca9022f60dd8120e9603310d72dbc897c413afbdd2bb43"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "phase6.5-exceptions",
+        "message": "berl expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion",
+        "issuer": "team-architecture",
+        "issuer_field": "exception_owner",
+        "record": "component_contract[component=berl]#10",
+        "registry": "architecture/component_observability.toml",
+        "registry_sha256_at_slice_base": "89fc0c1a50ce985bd7ca9022f60dd8120e9603310d72dbc897c413afbdd2bb43"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "phase6.5-exceptions",
+        "message": "ddm expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion",
+        "issuer": "team-architecture",
+        "issuer_field": "exception_owner",
+        "record": "component_contract[component=ddm]#11",
+        "registry": "architecture/component_observability.toml",
+        "registry_sha256_at_slice_base": "89fc0c1a50ce985bd7ca9022f60dd8120e9603310d72dbc897c413afbdd2bb43"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "phase6.5-exceptions",
+        "message": "calibration expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion",
+        "issuer": "team-foundry",
+        "issuer_field": "exception_owner",
+        "record": "component_contract[component=calibration]#12",
+        "registry": "architecture/component_observability.toml",
+        "registry_sha256_at_slice_base": "89fc0c1a50ce985bd7ca9022f60dd8120e9603310d72dbc897c413afbdd2bb43"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "phase6.5-exceptions",
+        "message": "security expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion",
+        "issuer": "team-security",
+        "issuer_field": "exception_owner",
+        "record": "component_contract[component=security]#13",
+        "registry": "architecture/component_observability.toml",
+        "registry_sha256_at_slice_base": "89fc0c1a50ce985bd7ca9022f60dd8120e9603310d72dbc897c413afbdd2bb43"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "phase6.5-exceptions",
+        "message": "common expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion",
+        "issuer": "team-core",
+        "issuer_field": "exception_owner",
+        "record": "component[id=common]#0",
+        "registry": "ops/components/index.toml",
+        "registry_sha256_at_slice_base": "11dccd87b0446249e0ad8cc2bf8ce6971fd892d36427465096f50fd129881f4a"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "phase6.5-exceptions",
+        "message": "berl expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion",
+        "issuer": "team-architecture",
+        "issuer_field": "exception_owner",
+        "record": "component[id=berl]#10",
+        "registry": "ops/components/index.toml",
+        "registry_sha256_at_slice_base": "11dccd87b0446249e0ad8cc2bf8ce6971fd892d36427465096f50fd129881f4a"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "phase6.5-exceptions",
+        "message": "ddm expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion",
+        "issuer": "team-architecture",
+        "issuer_field": "exception_owner",
+        "record": "component[id=ddm]#11",
+        "registry": "ops/components/index.toml",
+        "registry_sha256_at_slice_base": "11dccd87b0446249e0ad8cc2bf8ce6971fd892d36427465096f50fd129881f4a"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "phase6.5-exceptions",
+        "message": "calibration expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion",
+        "issuer": "team-foundry",
+        "issuer_field": "exception_owner",
+        "record": "component[id=calibration]#12",
+        "registry": "ops/components/index.toml",
+        "registry_sha256_at_slice_base": "11dccd87b0446249e0ad8cc2bf8ce6971fd892d36427465096f50fd129881f4a"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "phase6.5-exceptions",
+        "message": "security expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion",
+        "issuer": "team-security",
+        "issuer_field": "exception_owner",
+        "record": "component[id=security]#13",
+        "registry": "ops/components/index.toml",
+        "registry_sha256_at_slice_base": "11dccd87b0446249e0ad8cc2bf8ce6971fd892d36427465096f50fd129881f4a"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "phase6.5-exceptions",
+        "message": "common expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "slo_exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion",
+        "issuer": "team-core",
+        "issuer_field": "slo_exception_owner",
+        "record": "component_contract[component=common]#0",
+        "registry": "architecture/runbook_coverage.toml",
+        "registry_sha256_at_slice_base": "7fcae0572dfb14d42ececf6a047023af287618437d0dad4665b84d6f7593fdce"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "phase6.5-exceptions",
+        "message": "security expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "slo_exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion",
+        "issuer": "team-security",
+        "issuer_field": "slo_exception_owner",
+        "record": "component_contract[component=security]#10",
+        "registry": "architecture/runbook_coverage.toml",
+        "registry_sha256_at_slice_base": "7fcae0572dfb14d42ececf6a047023af287618437d0dad4665b84d6f7593fdce"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "phase6.5-exceptions",
+        "message": "calibration expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "slo_exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion",
+        "issuer": "team-foundry",
+        "issuer_field": "slo_exception_owner",
+        "record": "component_contract[component=calibration]#11",
+        "registry": "architecture/runbook_coverage.toml",
+        "registry_sha256_at_slice_base": "7fcae0572dfb14d42ececf6a047023af287618437d0dad4665b84d6f7593fdce"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "phase6.5-exceptions",
+        "message": "berl expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "slo_exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion",
+        "issuer": "team-architecture",
+        "issuer_field": "slo_exception_owner",
+        "record": "component_contract[component=berl]#12",
+        "registry": "architecture/runbook_coverage.toml",
+        "registry_sha256_at_slice_base": "7fcae0572dfb14d42ececf6a047023af287618437d0dad4665b84d6f7593fdce"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-08-01",
+        "gate": "phase6.5-exceptions",
+        "message": "ddm expired"
+      },
+      "source_authority": {
+        "expires": "2026-08-01",
+        "expiry_field": "slo_exception_expires",
+        "issue_or_adr": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion",
+        "issuer": "team-architecture",
+        "issuer_field": "slo_exception_owner",
+        "record": "component_contract[component=ddm]#13",
+        "registry": "architecture/runbook_coverage.toml",
+        "registry_sha256_at_slice_base": "7fcae0572dfb14d42ececf6a047023af287618437d0dad4665b84d6f7593fdce"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-10-01",
+        "gate": "phase6.5-exceptions",
+        "message": "discovery sunset expired"
+      },
+      "source_authority": {
+        "expires": "2026-10-01",
+        "expiry_field": "sunset",
+        "issue_or_adr": null,
+        "issuer": "team-architecture",
+        "issuer_field": "owner",
+        "record": "rename_backlog[name=discovery]",
+        "registry": "architecture/name_registry.toml",
+        "registry_sha256_at_slice_base": "833d89be3a9aa6192d994cdbfaa22a6b286ed61ea99467c56b8bc9e9c4f308a0"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-10-01",
+        "gate": "phase6.5-exceptions",
+        "message": "runtime sunset expired"
+      },
+      "source_authority": {
+        "expires": "2026-10-01",
+        "expiry_field": "sunset",
+        "issue_or_adr": null,
+        "issuer": "team-foundry/team-scientist",
+        "issuer_field": "owner",
+        "record": "rename_backlog[name=runtime]",
+        "registry": "architecture/name_registry.toml",
+        "registry_sha256_at_slice_base": "833d89be3a9aa6192d994cdbfaa22a6b286ed61ea99467c56b8bc9e9c4f308a0"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-06-15",
+        "gate": "phase6.5-exceptions",
+        "message": "causal sunset expired"
+      },
+      "source_authority": {
+        "expires": "2026-06-15",
+        "expiry_field": "sunset",
+        "issue_or_adr": null,
+        "issuer": "team-foundry",
+        "issuer_field": "owner",
+        "record": "rename_backlog[name=causal]",
+        "registry": "architecture/name_registry.toml",
+        "registry_sha256_at_slice_base": "833d89be3a9aa6192d994cdbfaa22a6b286ed61ea99467c56b8bc9e9c4f308a0"
+      }
+    },
+    {
+      "finding": {
+        "detail": "2026-10-01",
+        "gate": "phase6.5-exceptions",
+        "message": "errors sunset expired"
+      },
+      "source_authority": {
+        "expires": "2026-10-01",
+        "expiry_field": "sunset",
+        "issue_or_adr": null,
+        "issuer": "team-architecture",
+        "issuer_field": "owner",
+        "record": "rename_backlog[name=errors]",
+        "registry": "architecture/name_registry.toml",
+        "registry_sha256_at_slice_base": "833d89be3a9aa6192d994cdbfaa22a6b286ed61ea99467c56b8bc9e9c4f308a0"
+      }
+    }
+  ],
+  "schema": "policyos.e02.sota_expiry_issuer_inventory.v1",
+  "slice_base": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+  "source_gate": "repository-sota-closeout --contract-only",
+  "total_expiry_findings": 82
+}

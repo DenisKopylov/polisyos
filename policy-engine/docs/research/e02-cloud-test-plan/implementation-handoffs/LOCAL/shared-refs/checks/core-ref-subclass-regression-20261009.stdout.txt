@@ -1,0 +1,4 @@
+preflight polisyos=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/__init__.py sha256=5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c
+preflight polisyos.core.artifacts.ir_adapter=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/core/artifacts/ir_adapter.py sha256=c97f00888b1a90d6e4e1930ea0c36dc0da8a09e631d7252adbcaa1dc5b45bb36
+...                                                                      [100%]
+loaded_polisyos_modules=87 outside_candidate=0

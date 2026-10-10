@@ -1,0 +1,219 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_persisted_backtest_report_readback_produces_neutral_empirical_interval_hit_evidence _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1309/test_persisted_backtest_report0')
+
+    def test_persisted_backtest_report_readback_produces_neutral_empirical_interval_hit_evidence(
+        tmp_path: Path,
+    ) -> None:
+        """Observed bounds are recomputed from the persisted report, not self-attested flags."""
+    
+        store, report_ref, persisted, refs = _persist_report(
+            tmp_path,
+            label="neutral",
+            observations=(True, False),
+        )
+        bridge = _bridge()
+        evidence = bridge.produce_empirical_calibration_evidence(
+            store,
+            report_ref,
+            context=_context(refs),
+        )
+    
+        assert persisted.report_id == "frc02-bridge-neutral"
+        assert evidence.evidence_kind == "observed_interval_comparisons"
+        assert evidence.empirical_observations_available is True
+>       assert evidence.context_bound is True
+E       AssertionError: assert False is True
+E        +  where False = EmpiricalCalibrationEvidence(schema_version='1.1', report_id='frc02-bridge-neutral', report_ref=BacktestReportRef(arti...ef_invalid:source_lineage', 'provenance_ref_invalid:method_lineage', 'calibration_threshold_relation_not_established')).context_bound
+
+tests/unit/remediation/test_frc_02_bridge.py:531: AssertionError
+____ test_missing_wrong_kind_or_foreign_evidence_ref_fails_closed[missing] _____
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1309/test_missing_wrong_kind_or_for0')
+bad_ref = 'missing', expected_code = 'empirical_evidence_ref_missing'
+
+    @pytest.mark.parametrize(
+        ("bad_ref", "expected_code"),
+        [
+            pytest.param("missing", "empirical_evidence_ref_missing", id="missing"),
+            pytest.param(
+                "wrong_kind",
+                "empirical_evidence_ref_kind_mismatch",
+                id="wrong_kind",
+            ),
+            pytest.param("foreign", "empirical_evidence_ref_unresolved", id="foreign"),
+        ],
+    )
+    def test_missing_wrong_kind_or_foreign_evidence_ref_fails_closed(
+        tmp_path: Path,
+        bad_ref: str,
+        expected_code: str,
+    ) -> None:
+        """The gateway must resolve the typed evidence ref in its injected CAS."""
+    
+>       store, report_ref, evidence_ref, _evidence, _ = _persist_loaded_evidence(
+            tmp_path,
+            label=f"bad-ref-{bad_ref}",
+            observations=(True, True),
+            threshold=1.0,
+        )
+
+tests/unit/remediation/test_frc_02_s10.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/remediation/test_frc_02_s10.py:417: in _persist_loaded_evidence
+    evidence_ref = bridge.persist_empirical_calibration_evidence(store, evidence)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x11ec32120>
+evidence = EmpiricalCalibrationEvidence(schema_version='1.1', report_id='frc02-s10-bad-ref-missing', report_ref=BacktestReportRef...ef_invalid:source_lineage', 'provenance_ref_invalid:method_lineage', 'calibration_threshold_relation_not_established'))
+
+    def persist_empirical_calibration_evidence(
+        store: ArtifactStore,
+        evidence: EmpiricalCalibrationEvidence,
+    ) -> EmpiricalCalibrationEvidenceRef:
+        """Persist neutral evidence and return its typed CAS reference."""
+    
+        if evidence.schema_version != EVIDENCE_SCHEMA_VERSION:
+            raise ValueError(
+                "legacy empirical calibration evidence must not be repersisted"
+            )
+        expected = _reproduce_evidence(store, evidence)
+        if expected.schema_version != EVIDENCE_SCHEMA_VERSION:
+            raise ValueError("new empirical calibration evidence must use schema 1.1")
+        if not expected.context_bound or any(
+            code not in _PERSISTENCE_ALLOWED_LIMITATIONS for code in expected.failure_codes
+        ):
+>           raise ValueError("blocked empirical calibration evidence cannot be persisted")
+E           ValueError: blocked empirical calibration evidence cannot be persisted
+
+src/polisyos/calibration/forecast_bridge.py:528: ValueError
+___ test_missing_wrong_kind_or_foreign_evidence_ref_fails_closed[wrong_kind] ___
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1309/test_missing_wrong_kind_or_for1')
+bad_ref = 'wrong_kind', expected_code = 'empirical_evidence_ref_kind_mismatch'
+
+    @pytest.mark.parametrize(
+        ("bad_ref", "expected_code"),
+        [
+            pytest.param("missing", "empirical_evidence_ref_missing", id="missing"),
+            pytest.param(
+                "wrong_kind",
+                "empirical_evidence_ref_kind_mismatch",
+                id="wrong_kind",
+            ),
+            pytest.param("foreign", "empirical_evidence_ref_unresolved", id="foreign"),
+        ],
+    )
+    def test_missing_wrong_kind_or_foreign_evidence_ref_fails_closed(
+        tmp_path: Path,
+        bad_ref: str,
+        expected_code: str,
+    ) -> None:
+        """The gateway must resolve the typed evidence ref in its injected CAS."""
+    
+>       store, report_ref, evidence_ref, _evidence, _ = _persist_loaded_evidence(
+            tmp_path,
+            label=f"bad-ref-{bad_ref}",
+            observations=(True, True),
+            threshold=1.0,
+        )
+
+tests/unit/remediation/test_frc_02_s10.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/remediation/test_frc_02_s10.py:417: in _persist_loaded_evidence
+    evidence_ref = bridge.persist_empirical_calibration_evidence(store, evidence)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x11ec7a710>
+evidence = EmpiricalCalibrationEvidence(schema_version='1.1', report_id='frc02-s10-bad-ref-wrong_kind', report_ref=BacktestReport...ef_invalid:source_lineage', 'provenance_ref_invalid:method_lineage', 'calibration_threshold_relation_not_established'))
+
+    def persist_empirical_calibration_evidence(
+        store: ArtifactStore,
+        evidence: EmpiricalCalibrationEvidence,
+    ) -> EmpiricalCalibrationEvidenceRef:
+        """Persist neutral evidence and return its typed CAS reference."""
+    
+        if evidence.schema_version != EVIDENCE_SCHEMA_VERSION:
+            raise ValueError(
+                "legacy empirical calibration evidence must not be repersisted"
+            )
+        expected = _reproduce_evidence(store, evidence)
+        if expected.schema_version != EVIDENCE_SCHEMA_VERSION:
+            raise ValueError("new empirical calibration evidence must use schema 1.1")
+        if not expected.context_bound or any(
+            code not in _PERSISTENCE_ALLOWED_LIMITATIONS for code in expected.failure_codes
+        ):
+>           raise ValueError("blocked empirical calibration evidence cannot be persisted")
+E           ValueError: blocked empirical calibration evidence cannot be persisted
+
+src/polisyos/calibration/forecast_bridge.py:528: ValueError
+____ test_missing_wrong_kind_or_foreign_evidence_ref_fails_closed[foreign] _____
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1309/test_missing_wrong_kind_or_for2')
+bad_ref = 'foreign', expected_code = 'empirical_evidence_ref_unresolved'
+
+    @pytest.mark.parametrize(
+        ("bad_ref", "expected_code"),
+        [
+            pytest.param("missing", "empirical_evidence_ref_missing", id="missing"),
+            pytest.param(
+                "wrong_kind",
+                "empirical_evidence_ref_kind_mismatch",
+                id="wrong_kind",
+            ),
+            pytest.param("foreign", "empirical_evidence_ref_unresolved", id="foreign"),
+        ],
+    )
+    def test_missing_wrong_kind_or_foreign_evidence_ref_fails_closed(
+        tmp_path: Path,
+        bad_ref: str,
+        expected_code: str,
+    ) -> None:
+        """The gateway must resolve the typed evidence ref in its injected CAS."""
+    
+>       store, report_ref, evidence_ref, _evidence, _ = _persist_loaded_evidence(
+            tmp_path,
+            label=f"bad-ref-{bad_ref}",
+            observations=(True, True),
+            threshold=1.0,
+        )
+
+tests/unit/remediation/test_frc_02_s10.py:908: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/remediation/test_frc_02_s10.py:417: in _persist_loaded_evidence
+    evidence_ref = bridge.persist_empirical_calibration_evidence(store, evidence)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x11f310050>
+evidence = EmpiricalCalibrationEvidence(schema_version='1.1', report_id='frc02-s10-bad-ref-foreign', report_ref=BacktestReportRef...ef_invalid:source_lineage', 'provenance_ref_invalid:method_lineage', 'calibration_threshold_relation_not_established'))
+
+    def persist_empirical_calibration_evidence(
+        store: ArtifactStore,
+        evidence: EmpiricalCalibrationEvidence,
+    ) -> EmpiricalCalibrationEvidenceRef:
+        """Persist neutral evidence and return its typed CAS reference."""
+    
+        if evidence.schema_version != EVIDENCE_SCHEMA_VERSION:
+            raise ValueError(
+                "legacy empirical calibration evidence must not be repersisted"
+            )
+        expected = _reproduce_evidence(store, evidence)
+        if expected.schema_version != EVIDENCE_SCHEMA_VERSION:
+            raise ValueError("new empirical calibration evidence must use schema 1.1")
+        if not expected.context_bound or any(
+            code not in _PERSISTENCE_ALLOWED_LIMITATIONS for code in expected.failure_codes
+        ):
+>           raise ValueError("blocked empirical calibration evidence cannot be persisted")
+E           ValueError: blocked empirical calibration evidence cannot be persisted
+
+src/polisyos/calibration/forecast_bridge.py:528: ValueError
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_frc_02_bridge.py::test_persisted_backtest_report_readback_produces_neutral_empirical_interval_hit_evidence
+FAILED tests/unit/remediation/test_frc_02_s10.py::test_missing_wrong_kind_or_foreign_evidence_ref_fails_closed[missing]
+FAILED tests/unit/remediation/test_frc_02_s10.py::test_missing_wrong_kind_or_foreign_evidence_ref_fails_closed[wrong_kind]
+FAILED tests/unit/remediation/test_frc_02_s10.py::test_missing_wrong_kind_or_foreign_evidence_ref_fails_closed[foreign]

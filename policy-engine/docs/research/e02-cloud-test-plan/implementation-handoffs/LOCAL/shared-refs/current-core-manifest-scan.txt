@@ -1,0 +1,7 @@
+Python source denominator: 2707 *.py under src/polisyos; parse errors: 0; selected .get_manifest(...artifact_id) calls: 6
+src/polisyos/core/artifacts/backends/caching_store.py:251 fn=_manifest_input_views_match base=input_ref type=? call=self._remote.get_manifest(input_ref.artifact_id)
+src/polisyos/core/artifacts/backends/caching_store.py:252 fn=_manifest_input_views_match base=input_ref type=? call=self._local.get_manifest(input_ref.artifact_id)
+src/polisyos/foundry/calibration/identifiability.py:1375 fn=_response_input_ref base=item type=InputRef call=store.get_manifest(item.artifact_id)
+src/polisyos/runtime/quality/workspace/foundry_consumption.py:1431 fn=_verified_method_input_refs base=item type=? call=store.get_manifest(item.artifact_id)
+src/polisyos/runtime/quality/workspace/scientist_node_adapters.py:833 fn=_reference_closure.visit base=parent type=? call=store.get_manifest(parent.artifact_id)
+src/polisyos/scientist/methods/backtesting/orchestrator.py:325 fn=_resolve_manifest_inputs base=item type=? call=store.get_manifest(item.artifact_id)

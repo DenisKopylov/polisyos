@@ -1,0 +1,51 @@
+F.                                                                       [100%]
+=================================== FAILURES ===================================
+________ test_normalize_artifact_ref_uses_the_strict_shared_ref_schema _________
+
+    def test_normalize_artifact_ref_uses_the_strict_shared_ref_schema() -> None:
+        legacy = ArtifactRefModel(
+            artifact_id="sha256:" + "1" * 64,
+            kind="ir.example",
+            media_type="application/json",
+        )
+        selected = {
+            "artifact_id": "sha256:" + "2" * 64,
+            "kind": "ir.example",
+            "media_type": "application/json",
+            "manifest_profile_sha256": "sha256:" + "3" * 64,
+        }
+    
+        assert normalize_artifact_ref(legacy) == dict(legacy)
+        assert normalize_artifact_ref(selected) == selected
+        with pytest.raises(ValidationError):
+>           normalize_artifact_ref({**selected, "selection_hint": "unknown"})
+
+tests/unit/ir/registry/test_refs.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/artifacts/contracts.py:254: in normalize_artifact_ref
+    _refuse_unknown_model_fields(_selector_public_fields(ref), ArtifactRefModel.model_fields)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+supplied = {'artifact_id', 'kind', 'manifest_profile_sha256', 'media_type', 'selection_hint'}
+allowed = {'artifact_id': FieldInfo(annotation=ArtifactID, required=True), 'kind': FieldInfo(annotation=str, required=True), 'ma...a=[_PydanticGeneralMetadata(pattern='^sha256:[0-9a-f]{64}$')]), 'media_type': FieldInfo(annotation=str, required=True)}
+
+    def _refuse_unknown_model_fields(
+        supplied: object,
+        allowed: Mapping[str, Any],
+    ) -> None:
+        """Refuse declared selector fields outside the canonical ref model."""
+        if isinstance(supplied, Mapping):
+            supplied_fields = set(supplied)
+        elif isinstance(supplied, set):
+            supplied_fields = supplied
+        else:
+            return
+        unknown = supplied_fields - set(allowed)
+        if unknown:
+            names = ", ".join(sorted(unknown))
+>           raise TypeError(f"Artifact reference selector has unexpected field(s): {names}")
+E           TypeError: Artifact reference selector has unexpected field(s): selection_hint
+
+src/polisyos/ir/artifacts/contracts.py:345: TypeError
+=========================== short test summary info ============================
+FAILED tests/unit/ir/registry/test_refs.py::test_normalize_artifact_ref_uses_the_strict_shared_ref_schema

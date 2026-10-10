@@ -1,0 +1,14 @@
+PREFLIGHT polisyos.core.artifacts.ir_adapter /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/core/artifacts/ir_adapter.py sha256=c97f00888b1a90d6e4e1930ea0c36dc0da8a09e631d7252adbcaa1dc5b45bb36
+PREFLIGHT polisyos.scientist.policy_design.phase3 /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/policy_design/phase3.py sha256=79fa755962184aeed93e0473f52a7aa47e413710dd1d735cf9a69322cb1d657d
+PREFLIGHT polisyos.core.artifacts.manifest /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/core/artifacts/manifest.py sha256=fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d
+CANDIDATE_ROOT /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine
+....                                                                     [100%]
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+LOADED_POLISYOS_MODULES 802
+MODULE_PATH_CENSUS /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/shared-refs/checks/selector-owner-test-loaded-modules.txt
+OUTSIDE_CANDIDATE []

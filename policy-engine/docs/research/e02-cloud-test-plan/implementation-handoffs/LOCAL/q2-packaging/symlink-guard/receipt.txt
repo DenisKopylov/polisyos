@@ -1,0 +1,5 @@
+baseline_revision=314dc4100a1982cac1d2ddcdde230f2b9ba71a06
+baseline_command=python3 -m pytest -q tests/repo_quality/tools/test_gcp_package_assets.py::test_gcp_archive_refuses_symlinked_or_missing_source_paths
+baseline_exit=1
+fixed_command=python3 -m pytest -q tests/repo_quality/tools/test_gcp_package_assets.py
+fixed_exit=0

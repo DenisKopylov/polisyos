@@ -1,0 +1,165 @@
+current-only files=80
+{'wrapper_only': 0, 'mixed_or_other': 80, 'no_diff': 0}
+other/mixed files:
+src/polisyos/foundry/methods/catalog/causal/space_time_dscm.py
+src/polisyos/foundry/methods/catalog/causal/strategic.py
+src/polisyos/foundry/methods/catalog/distributional/mobility.py
+src/polisyos/foundry/methods/catalog/distributional/mobility_latent_adapter.py
+src/polisyos/foundry/methods/catalog/econometrics/dynamic_panel.py
+src/polisyos/foundry/methods/catalog/econometrics/mobility_latent.py
+src/polisyos/foundry/methods/catalog/microsim/advanced.py
+src/polisyos/foundry/methods/catalog/microsim/calibration.py
+src/polisyos/foundry/methods/catalog/microsim/inverse.py
+src/polisyos/foundry/methods/catalog/microsim/static.py
+src/polisyos/foundry/methods/catalog/simulation/demography.py
+src/polisyos/foundry/methods/catalog/survey/causal_frontier.py
+src/polisyos/foundry/methods/catalog/survey/dr.py
+src/polisyos/foundry/methods/catalog/survey/estimation.py
+src/polisyos/runtime/quality/open_world_risk.py
+src/polisyos/scientist/governance/backtest_matrix.py
+src/polisyos/scientist/governance/passes/confidence_pass.py
+src/polisyos/scientist/governance/passes/strategic_response_pass.py
+src/polisyos/scientist/methods/backtesting/composition_bridge.py
+src/polisyos/scientist/methods/backtesting/forecast_owner.py
+src/polisyos/scientist/methods/backtesting/orchestrator.py
+src/polisyos/scientist/methods/causal/readiness.py
+src/polisyos/scientist/methods/search/funnel/level2_causal.py
+src/polisyos/scientist/methods/search/funnel/orchestrator.py
+src/polisyos/scientist/methods/search/judge_stack.py
+src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py
+src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py
+src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py
+src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py
+src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py
+src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py
+src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py
+src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py
+src/polisyos/scientist/nodes/builtins/planning/build_method_catalog_snapshot.py
+src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py
+src/polisyos/scientist/policy_design/phase3.py
+tests/integration/test_c7_synthetic_full_pipeline.py
+tests/unit/core/artifacts/test_ir_adapter.py
+tests/unit/foundry/methods/catalog/causal/test_causal_engine.py
+tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py
+tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py
+tests/unit/foundry/methods/catalog/causal/test_hedge_fallback.py
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py
+tests/unit/foundry/methods/catalog/causal/test_scm_result_semantics.py
+tests/unit/foundry/methods/catalog/causal/test_space_time_dscm.py
+tests/unit/foundry/methods/catalog/distributional/test_mobility.py
+tests/unit/foundry/methods/catalog/microsim/test_advanced.py
+tests/unit/ir/analytics/test_causal_identification_candidate.py
+tests/unit/ir/analytics/test_continuous_abstraction.py
+tests/unit/ir/analytics/test_distributional_bounds_bundle.py
+tests/unit/ir/analytics/test_endogenous_inequality.py
+tests/unit/ir/analytics/test_latent_bridge_synthesis.py
+tests/unit/ir/analytics/test_local_independence_contract.py
+tests/unit/ir/analytics/test_mechanism_design.py
+tests/unit/ir/analytics/test_phase1_closure_contracts.py
+tests/unit/ir/analytics/test_phase_c_contracts.py
+tests/unit/ir/analytics/test_phase_d_contracts.py
+tests/unit/ir/analytics/test_phase_f_contracts.py
+tests/unit/ir/analytics/test_proof_composability_contract.py
+tests/unit/ir/analytics/test_recourse_manifold.py
+tests/unit/ir/analytics/test_rough_path_semantics.py
+tests/unit/ir/analytics/test_welfare_bundle.py
+tests/unit/ir/test_causal_graph_networkx_roundtrip.py
+tests/unit/ir/test_regime_shift_certificate_contract.py
+tests/unit/ir/test_structural_causal_model_versions.py
+tests/unit/remediation/test_frc_02_owner.py
+tests/unit/scientist/governance/test_causal_confidence_candidate.py
+tests/unit/scientist/governance/test_confidence_pass.py
+tests/unit/scientist/methods/causal/test_execution.py
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py
+tests/unit/scientist/methods/causal/test_phase14_causal_ensemble_e2e.py
+tests/unit/scientist/methods/causal/test_readiness.py
+tests/unit/scientist/methods/causal/test_resolve_parameters_node.py
+tests/unit/scientist/methods/causal/test_run_abm_consistency_node.py
+tests/unit/scientist/methods/causal/test_run_causal_ensemble_node.py
+tests/unit/scientist/methods/causal/test_run_causal_queries_node.py
+tests/unit/scientist/methods/causal/test_run_transportability_node.py
+tests/unit/scientist/nodes/builtins/simulate/test_run_distributional_analysis.py
+tests/unit/scientist/policy_design/test_phase3_decision_layer.py
+tests/unit/scientist/search/test_policy_blueprint_runtime_guards.py
+
+first-diff samples:
+--- src/polisyos/foundry/methods/catalog/causal/space_time_dscm.py ---
+-        persist_space_time_causal_certificate(_ensure_ir_artifact_store(artifact_store), space_time_certificate)
++        persist_space_time_causal_certificate(
++            _ensure_ir_artifact_store(artifact_store), space_time_certificate
++        )
+--- src/polisyos/foundry/methods/catalog/causal/strategic.py ---
+-    strategic_closure_ref = persist_strategic_closure_summary(_ensure_ir_artifact_store(store), closure_summary, inputs=inputs)
++    strategic_closure_ref = persist_strategic_closure_summary(
++        _ensure_ir_artifact_store(store), closure_summary, inputs=inputs
++    )
+-    bundle_ref = persist_strategic_response_bundle(_ensure_ir_artifact_store(store), bundle, inputs=inputs)
++    bundle_ref = persist_strategic_response_bundle(
++        _ensure_ir_artifact_store(store), bundle, inputs=inputs
++    )
+--- src/polisyos/foundry/methods/catalog/distributional/mobility.py ---
+-            persist_mobility_report(_ensure_ir_artifact_store(artifact_store), report) if artifact_store is not None else None
++            persist_mobility_report(_ensure_ir_artifact_store(artifact_store), report)
++            if artifact_store is not None
++            else None
+-                bounds_ref = persist_bounds_bundle(_ensure_ir_artifact_store(artifact_store), bounds_bundle)
++                bounds_ref = persist_bounds_bundle(
++                    _ensure_ir_artifact_store(artifact_store), bounds_bundle
++                )
+-            persist_mobility_report(_ensure_ir_artifact_store(artifact_store), report) if artifact_store is not None else None
++            persist_mobility_report(_ensure_ir_artifact_store(artifact_store), report)
++            if artifact_store is not None
++            else None
+-                bounds_ref = persist_bounds_bundle(_ensure_ir_artifact_store(artifact_store), bounds_bundle)
++                bounds_ref = persist_bounds_bundle(
++                    _ensure_ir_artifact_store(artifact_store), bounds_bundle
++                )
+-            persist_mobility_report(_ensure_ir_artifact_store(artifact_store), report) if artifact_store is not None else None
++            persist_mobility_report(_ensure_ir_artifact_store(artifact_store), report)
++            if artifact_store is not None
++            else None
+--- src/polisyos/foundry/methods/catalog/distributional/mobility_latent_adapter.py ---
+-            persist_mobility_report(_ensure_ir_artifact_store(artifact_store), report) if artifact_store is not None else None
++            persist_mobility_report(_ensure_ir_artifact_store(artifact_store), report)
++            if artifact_store is not None
++            else None
+--- src/polisyos/foundry/methods/catalog/econometrics/dynamic_panel.py ---
+-    dependence_ref = persist_dependence_structure(_ensure_ir_artifact_store(artifact_store), dependence_structure)
++    dependence_ref = persist_dependence_structure(
++        _ensure_ir_artifact_store(artifact_store), dependence_structure
++    )
+--- src/polisyos/foundry/methods/catalog/econometrics/mobility_latent.py ---
+-            persist_mobility_report(_ensure_ir_artifact_store(artifact_store), report) if artifact_store is not None else None
++            persist_mobility_report(_ensure_ir_artifact_store(artifact_store), report)
++            if artifact_store is not None
++            else None
+--- src/polisyos/foundry/methods/catalog/microsim/advanced.py ---
+-            report = load_dynamic_microsim_validation_report(_ensure_ir_artifact_store(artifact_store), typed_report_ref)
++            report = load_dynamic_microsim_validation_report(
++                _ensure_ir_artifact_store(artifact_store), typed_report_ref
++            )
+--- src/polisyos/foundry/methods/catalog/microsim/calibration.py ---
+-                persist_microsim_calibration_report(_ensure_ir_artifact_store(artifact_store), calibration_report)
++                persist_microsim_calibration_report(
++                    _ensure_ir_artifact_store(artifact_store), calibration_report
++                )
+--- src/polisyos/foundry/methods/catalog/microsim/inverse.py ---
+-            persist_microsim_calibration_report(_ensure_ir_artifact_store(artifact_store), calibration_report)
++            persist_microsim_calibration_report(
++                _ensure_ir_artifact_store(artifact_store), calibration_report
++            )
+--- src/polisyos/foundry/methods/catalog/microsim/static.py ---
+-        return load_microsim_calibration_report(_ensure_ir_artifact_store(artifact_store), ref).model_dump(mode="json")
++        return load_microsim_calibration_report(
++            _ensure_ir_artifact_store(artifact_store), ref
++        ).model_dump(mode="json")
+--- src/polisyos/foundry/methods/catalog/simulation/demography.py ---
+-        report = load_microsim_calibration_report(_ensure_ir_artifact_store(artifact_store), ref).model_dump(mode="json")
++        report = load_microsim_calibration_report(
++            _ensure_ir_artifact_store(artifact_store), ref
++        ).model_dump(mode="json")
+--- src/polisyos/foundry/methods/catalog/survey/causal_frontier.py ---
+-            persist_dependence_structure(_ensure_ir_artifact_store(artifact_store), dependence_structure)
++            persist_dependence_structure(
++                _ensure_ir_artifact_store(artifact_store), dependence_structure
++            )

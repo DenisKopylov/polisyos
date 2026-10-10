@@ -1,0 +1,1 @@
+{"callbacks_alive": [false, false], "capacity": 1, "errors": [], "peak_inline_dispatches": 2}

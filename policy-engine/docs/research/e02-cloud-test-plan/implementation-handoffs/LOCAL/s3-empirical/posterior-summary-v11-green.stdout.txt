@@ -1,0 +1,19 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python3
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 5 items
+
+tests/unit/ir/analytics/test_posterior_summary.py::test_b201_keeps_named_point_functional_separate_from_equal_tail_interval[posterior_mean-1.0] PASSED [ 20%]
+tests/unit/ir/analytics/test_posterior_summary.py::test_b201_keeps_named_point_functional_separate_from_equal_tail_interval[posterior_median-0.0] PASSED [ 40%]
+tests/unit/ir/analytics/test_posterior_summary.py::test_b202_keeps_exact_joint_draw_rows_for_matched_marginals PASSED [ 60%]
+tests/unit/ir/analytics/test_posterior_summary.py::test_posterior_draw_artifact_refuses_mismatched_axis_shapes PASSED [ 80%]
+tests/integration/foundry/uncertainty/test_posterior_summary_persistence.py::test_native_bayesian_method_evidence_persists_candidate_summary PASSED [100%]
+
+============================== 5 passed in 4.48s ===============================

@@ -1,0 +1,202 @@
+{
+  "branch": "codex/e02-unified-local-20261009",
+  "c05_pre_change_base_after_boot0": "9e89dddfbcc3d8c44a421cc1fc143ec84f3753ae",
+  "g_compatible_cluster_entry_base": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+  "source_blob_census": {
+    "review_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/orch02-r2-20261008/delivery/reviews/c05-independent-G-proposal-review-0e7a4658.json",
+    "denominator_key": "held14supplier_paths",
+    "denominator": 14,
+    "g_only_resources": 1,
+    "other_13_candidate_blobs": {
+      "exact_g": 3,
+      "exact_c05_source": 3,
+      "neither_g_nor_c05_source": 7,
+      "exact_proposal": 3
+    },
+    "held14_exact_proposal_matches": 4,
+    "recompute_script": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/i1-c05/checks/held14-source-provenance.py"
+  },
+  "ready_implementation_paths": [
+    "policy-engine/src/polisyos/core/contracts/__init__.py",
+    "policy-engine/src/polisyos/core/contracts/control.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/embedder.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/embedding_projection.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/registry.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/selection.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/source_modules.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/sources/__init__.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/sources/core.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/sources/open_data.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/sources/sdmx.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/sources/specialized.py",
+    "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+    "policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py",
+    "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+    "policy-engine/src/polisyos/fabric/catalog/README.md",
+    "policy-engine/src/polisyos/fabric/retrieval/service.py",
+    "policy-engine/src/polisyos/runtime/http/app.py",
+    "policy-engine/src/polisyos/runtime/http/container.py",
+    "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+    "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+    "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+    "policy-engine/src/polisyos/runtime/http/services/control_registry_providers.py",
+    "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py",
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+    "policy-engine/tests/repo_quality/tools/test_gy_d1_catalog_wiring.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_pipeline.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_store.py",
+    "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py",
+    "policy-engine/tests/unit/fabric/test_retrieval_fetch_custody.py",
+    "policy-engine/tests/unit/remediation/test_acq_01.py",
+    "policy-engine/tests/unit/remediation/test_dfi_03.py",
+    "policy-engine/tests/unit/remediation/test_dfk_02.py",
+    "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+    "policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py",
+    "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py",
+    "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle.py",
+    "policy-engine/release-fragments/unreleased/2026-10-08-e02-c05-catalog-profile-currentness.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-08-e02-c05-loader-contracts-r2.toml"
+  ],
+  "excluded_shared_owner_paths": [
+    "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+    "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+    "policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py",
+    "policy-engine/tests/unit/remediation/test_emb_03.py"
+  ],
+  "shared_owner_dependencies": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+      "symbols": [
+        "EmbeddingGenerationRef",
+        "build_embedding_generation",
+        "embedding_generation_manifest",
+        "embedding_generation_matches_encoder",
+        "resolve_embedding_generation"
+      ],
+      "contract_use": "Catalog producer passes its exact loaded encoder object to generation building; Catalog fresh readers resolve the selected generation and verify the loaded query encoder's assets, intent, and dimension before vector use."
+    }
+  ],
+  "catalog_profile_contract": {
+    "owner_path": "policy-engine/src/polisyos/core/contracts/control.py",
+    "canonical_type": "CatalogRunProfile",
+    "values": [
+      "prod_full",
+      "prod_core_blocking",
+      "rest_backfill",
+      "catalog_refresh",
+      "preflight_core",
+      "observations_backfill"
+    ],
+    "request_field": "DataResolveRequest.catalog_run_profile",
+    "generated_client_field": "catalog_run_profile?: CatalogRunProfile",
+    "generated_client_owner": "root",
+    "selection_semantics": "explicit request or runtime configuration; no default; missing or conflict refuses catalog selection"
+  },
+  "related_changed_paths_reviewed_not_c05_owned": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/README.md",
+      "reason": "The current diff documents Academic PreparedSKGRead exports only. Catalog already has a package-level read_api description; this hunk is not a C05-owned mechanism or companion."
+    }
+  ],
+  "verification": {
+    "profile_context_tests": {
+      "workdir": "policy-engine",
+      "result": "passed",
+      "summary": "11 focused profile/currentness and HTTP bridge tests, 1 recursive N6 profile propagation test, and 1 complete 4-constructor source-registration test passed",
+      "commands": [
+        "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 .venv/bin/python -m pytest -o addopts= -q -ra tests/unit/runtime/http/test_control_service_di.py::test_runtime_api_preserves_explicit_catalog_run_profile tests/unit/runtime/http/test_control_service_di.py::test_data_resolve_uses_server_profile_and_refuses_conflict tests/unit/runtime/http/test_control_service_di.py::test_control_service_forwards_catalog_profile_to_recursive_http_bridge tests/unit/runtime/http/test_control_service_di.py::test_control_service_preserves_real_catalog_ownership tests/unit/runtime/quality/test_promotion_sequence.py::test_real_measurement_root_resolves_and_binds_into_n9 tests/unit/runtime/quality/test_acquisition_planner.py::test_catalog_binding_must_join_registered_source_and_connector tests/unit/runtime/quality/test_acquisition_planner.py::test_real_owner_gateway_refuses_catalog_route_without_selected_profile tests/unit/runtime/quality/test_acquisition_planner.py::test_real_owner_gateway_rejects_malformed_catalog_run_profile",
+        "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 .venv/bin/python -m pytest -o addopts= -q -ra tests/unit/runtime/quality/test_recursive_generation_cycle.py::test_real_leaf_result_survives_later_independent_sibling_failure",
+        "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 .venv/bin/python -m pytest -o addopts= -q -ra tests/repo_quality/tools/test_gy_d1_catalog_wiring.py::test_actual_constructor_resolves_catalog"
+      ],
+      "logs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/i1-c05/checks/c05-profile-context/profile-and-currentness-focused-v2.log",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/i1-c05/checks/c05-profile-context/recursive-profile-propagation.log",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/i1-c05/checks/c05-profile-context/registered-producer-and-constructor-sources.log",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/i1-c05/checks/c05-profile-context/metadata-parse.log"
+      ]
+    },
+    "profile_context_ruff_check": {
+      "command": "cd policy-engine && .venv/bin/python -m ruff check --output-format concise for all 51 .py paths in ready-files.json",
+      "result": "passed",
+      "summary": "All checks passed",
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/i1-c05/checks/c05-profile-context/ruff-all-c05-and-profile.log"
+    },
+    "profile_context_ruff_format": {
+      "command": "cd policy-engine && .venv/bin/python -m ruff format --check for all 51 .py paths in ready-files.json",
+      "result": "not_green",
+      "summary": "14 of 51 files would be reformatted; all 14 are among the 18 added runtime/profile paths; no whole-file reformat was applied because these are large touched modules with broad diffs",
+      "P41_attribution": "not_established",
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/i1-c05/checks/c05-profile-context/ruff-all-c05-and-profile-format.log"
+    },
+    "focused_tests": {
+      "command": "cd policy-engine && .venv/bin/python -m pytest -q -ra -o addopts= tests/unit/data_forge/domains/catalog/batch/test_pipeline.py tests/unit/data_forge/domains/catalog/knowledge/test_store.py tests/unit/fabric/test_retrieval_service_catalog.py tests/unit/remediation/test_dfi_03.py tests/unit/remediation/test_dfk_02.py",
+      "result": "passed",
+      "summary": "132 passed in 23.91s",
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/i1-c05/checks/catalog-proxy-structural-lane-tests.log"
+    },
+    "ruff_format": {
+      "command": "cd policy-engine && .venv/bin/python -m ruff format --check on the 33-path pre-profile C05 Python slice",
+      "result": "passed",
+      "summary": "33 original C05 Python files already formatted",
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/i1-c05/checks/catalog-proxy-structural-ruff-format.log"
+    },
+    "ruff_critical_rules": {
+      "command": "cd policy-engine && .venv/bin/python -m ruff check --select E501,B020,N806,S608 [core_sources/api.py, core_sources/registry.py, core_sources/validators.py]",
+      "result": "passed"
+    },
+    "ruff_full": {
+      "command": "cd policy-engine && .venv/bin/python -m ruff check --output-format concise on all 51 .py paths in ready-files.json",
+      "result": "passed",
+      "diagnostics": 0,
+      "checked_python_files": 51,
+      "summary": "All checks passed",
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/i1-c05/checks/c05-profile-context/ruff-all-c05-and-profile.log"
+    },
+    "ruff_full_before_structural_repair": {
+      "result": "failed",
+      "diagnostics": 363,
+      "checked_python_files": 33,
+      "affected_paths": [
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py"
+      ],
+      "P41_attribution": "not_established",
+      "superseded_by": "ruff_full"
+    }
+  },
+  "P40": {
+    "class": "same Catalog currentness class, deeper receipt-time and producer/caller profile-join escapes",
+    "structural_closure": "producer and fresh query receiver recompute material projection basis and live encoder asset identity before vector use; catalog acquisition context now threads an explicit typed profile from request or runtime composition through HTTP, NL, and recursive N6 routes, refusing absence and conflict",
+    "structural_falsifier": "retain an executable catalog route while removing the selected profile; expect catalog_run_profile_unresolved. Supply a different request and server profile; expect catalog_run_profile_conflict before resolver I/O.",
+    "declared_residuals": [
+      {
+        "scope": "replace the encoder's executable encode behavior while keeping the same declared hashed model assets",
+        "smallest_missing_capability": "trusted immutable executable/runtime identity bound to the persisted generation",
+        "falsifier": "replace encode while leaving hashed model assets unchanged and require vector refusal before encode"
+      },
+      {
+        "scope": "effective request/auth policy, including headers, credentials, and environment auth overlays, is excluded from currentness basis",
+        "smallest_missing_capability": "owner-supplied non-secret effective-policy revision or explicit invalidation contract",
+        "falsifier": "change Accept or auth overlay while holding the current run_signature constant"
+      }
+    ]
+  },
+  "production_currentness_established": false
+}

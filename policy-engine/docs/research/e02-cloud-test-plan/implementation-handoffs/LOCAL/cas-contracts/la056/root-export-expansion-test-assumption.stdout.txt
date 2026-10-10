@@ -1,0 +1,81 @@
+.F....................                                                   [100%]
+=================================== FAILURES ===================================
+______ test_root_and_integration_facades_forward_one_event_contract_owner ______
+
+name = 'CalibrationValidityProjection'
+
+    def __getattr__(
+        name: str,
+    ) -> (
+        type[DDMWindowResult]
+        | type[DriftAndDegradationMonitor]
+        | type[ModelRegistryReadinessRecord]
+        | type[RegistryGateDecision]
+    ):
+        """Load orchestration exports only when a caller requests them."""
+    
+        try:
+>           module_name, attribute_name = _LAZY_EXPORTS[name]
+                                          ^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'CalibrationValidityProjection'
+
+src/polisyos/ddm/__init__.py:59: KeyError
+
+The above exception was the direct cause of the following exception:
+
+    def test_root_and_integration_facades_forward_one_event_contract_owner() -> None:
+        """Legacy and public facades must expose the same event model objects."""
+    
+        import polisyos.ddm as ddm
+        import polisyos.ddm.integration as integration
+        from polisyos.ddm.contracts import events as canonical
+        from polisyos.ddm.integration import events as legacy
+    
+        contract_names = (
+            "AffectedFeature",
+            "AffectedSlice",
+            "CalibrationAudit",
+            "CalibrationValidityProjection",
+            "DataQualitySignal",
+            "IncidentPayload",
+            "MetricDirection",
+            "MonitoringWindow",
+            "PerformanceDegradationEvent",
+            "ReadinessState",
+            "ReadinessStateEvent",
+            "RootCauseBundle",
+            "ShiftDetectedEvent",
+            "ShiftRiskEvent",
+        )
+    
+        for name in contract_names:
+            owner = getattr(canonical, name)
+            assert getattr(legacy, name) is owner
+            assert getattr(integration, name) is owner
+>           assert getattr(ddm, name) is owner
+                   ^^^^^^^^^^^^^^^^^^
+
+tests/unit/ddm/test_facade.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'CalibrationValidityProjection'
+
+    def __getattr__(
+        name: str,
+    ) -> (
+        type[DDMWindowResult]
+        | type[DriftAndDegradationMonitor]
+        | type[ModelRegistryReadinessRecord]
+        | type[RegistryGateDecision]
+    ):
+        """Load orchestration exports only when a caller requests them."""
+    
+        try:
+            module_name, attribute_name = _LAZY_EXPORTS[name]
+        except KeyError as exc:
+>           raise AttributeError(f"module {__name__!r} has no attribute {name!r}") from exc
+E           AttributeError: module 'polisyos.ddm' has no attribute 'CalibrationValidityProjection'
+
+src/polisyos/ddm/__init__.py:61: AttributeError
+=========================== short test summary info ============================
+FAILED tests/unit/ddm/test_facade.py::test_root_and_integration_facades_forward_one_event_contract_owner

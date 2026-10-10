@@ -1,0 +1,74 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______ test_ruff_pre_commit_settings_and_collection_match_product_root ________
+
+    def test_ruff_pre_commit_settings_and_collection_match_product_root() -> None:
+        git_root = Path(
+            subprocess.check_output(
+                ["git", "rev-parse", "--show-toplevel"], cwd=REPO_ROOT, text=True
+            ).strip()
+        )
+        product_prefix = REPO_ROOT.relative_to(git_root).as_posix()
+        pre_commit = yaml.safe_load(
+            (REPO_ROOT / ".pre-commit-config.yaml").read_text(encoding="utf-8")
+        )
+        ruff_repositories = [
+            repository
+            for repository in pre_commit["repos"]
+            if repository["repo"] == "https://github.com/astral-sh/ruff-pre-commit"
+        ]
+        assert len(ruff_repositories) == 1
+        ruff_hooks = [
+            hook
+            for hook in ruff_repositories[0]["hooks"]
+            if hook["id"] in {"ruff", "ruff-format"}
+        ]
+        config_arguments = {
+            argument
+            for hook in ruff_hooks
+            for argument in hook.get("args", [])
+            if argument.startswith("--config=")
+        }
+        assert len(ruff_hooks) == 2
+        assert len(config_arguments) == 1
+        pre_commit_config = next(iter(config_arguments)).removeprefix("--config=")
+    
+        def run_ruff(cwd: Path, config: str | None, path: str, option: str) -> str:
+            command = [sys.executable, "-m", "ruff", "check", option]
+            if config is not None:
+                command.extend(["--config", config])
+            command.append(path)
+            result = subprocess.run(command, cwd=cwd, text=True, capture_output=True)
+            assert result.returncode == 0, result.stderr
+            return result.stdout
+    
+        product_target = "tests/unit/scientist/search/funnel/test_level4_full.py"
+        workspace_target = f"{product_prefix}/{product_target}"
+        product_settings = run_ruff(REPO_ROOT, None, product_target, "--show-settings")
+        workspace_settings = run_ruff(
+            git_root, pre_commit_config, workspace_target, "--show-settings"
+        )
+        product_matchers = set(
+            re.findall(r'^\s*absolute_matcher = "([^"]+)"$', product_settings, re.MULTILINE)
+        )
+        workspace_matchers = set(
+            re.findall(
+                r'^\s*absolute_matcher = "([^"]+)"$', workspace_settings, re.MULTILINE
+            )
+        )
+        assert product_matchers
+>       assert workspace_matchers == product_matchers
+E       AssertionError: assert {'/Users/deni...ommon/*', ...} == {'/Users/deni...ommon/*', ...}
+E         
+E         Extra items in the left set:
+E         '/Users/deniskopylov/.codex/src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py'
+E         '/Users/deniskopylov/.codex/src/polisyos/fabric/world/query.py'
+E         '/Users/deniskopylov/.codex/tests/unit/scientist/**'
+E         '/Users/deniskopylov/.codex/src/polisyos/schemas/abi_models.py'
+E         '/Users/deniskopylov/.codex/tools/registry.py'...
+E         
+E         ...Full output truncated (477 lines hidden), use '-vv' to show
+
+tests/repo_quality/tools/test_tool_config_split.py:82: AssertionError
+=========================== short test summary info ============================
+FAILED tests/repo_quality/tools/test_tool_config_split.py::test_ruff_pre_commit_settings_and_collection_match_product_root

@@ -1,0 +1,126 @@
+{
+  "captured_after_calibration_annotation_fix": true,
+  "source_denominator": {
+    "root": "src/polisyos/calibration",
+    "python_file_count": 9,
+    "physical_line_count": 4133,
+    "owner_slice_paths": [
+      "adapters.py",
+      "diagnostics.py",
+      "multiclass.py"
+    ],
+    "remaining_paths": [
+      "__init__.py",
+      "_sklearn_compat.py",
+      "continuous.py",
+      "curve.py",
+      "forecast_bridge.py",
+      "recalibration.py"
+    ],
+    "files": [
+      {
+        "path": "src/polisyos/calibration/__init__.py",
+        "physical_lines": 31,
+        "bytes": 851,
+        "sha256": "2a4a6888990dc62d9e92b5f87898e7d2e3abe605ec9001377f4de07d1ad1e70b"
+      },
+      {
+        "path": "src/polisyos/calibration/_sklearn_compat.py",
+        "physical_lines": 85,
+        "bytes": 3301,
+        "sha256": "88f5f768ededcf9367e97a68263792c86a361826e1e91ace99af1e14bd4526e5"
+      },
+      {
+        "path": "src/polisyos/calibration/adapters.py",
+        "physical_lines": 206,
+        "bytes": 7181,
+        "sha256": "602144bdf6d7ef099a44d8b4b6f4fc0f75bc996859488d0b7d87d4b1a54df0c1"
+      },
+      {
+        "path": "src/polisyos/calibration/continuous.py",
+        "physical_lines": 394,
+        "bytes": 15234,
+        "sha256": "abde79ab0573b342b76886c81fb827784d257660477faf01e4019ae23a6fc59c"
+      },
+      {
+        "path": "src/polisyos/calibration/curve.py",
+        "physical_lines": 114,
+        "bytes": 3814,
+        "sha256": "3e4efb2865b8c2d1a7ed9d3263ae57a84560967f14caecb299716a9c462a04ee"
+      },
+      {
+        "path": "src/polisyos/calibration/diagnostics.py",
+        "physical_lines": 732,
+        "bytes": 26427,
+        "sha256": "87736e2f931721b24d13cc6c6eb0d5e15cb668e54da2e770a32311559d416e80"
+      },
+      {
+        "path": "src/polisyos/calibration/forecast_bridge.py",
+        "physical_lines": 1558,
+        "bytes": 63750,
+        "sha256": "7bebad3018e5fb6414955ceb4474c30d97954328292d8b06a7e87db44b2d610c"
+      },
+      {
+        "path": "src/polisyos/calibration/multiclass.py",
+        "physical_lines": 281,
+        "bytes": 10579,
+        "sha256": "a441c41418e6e39d8604689affd5eb3f64f5a6f4d6d0938e4cbd8263a250376e"
+      },
+      {
+        "path": "src/polisyos/calibration/recalibration.py",
+        "physical_lines": 732,
+        "bytes": 26450,
+        "sha256": "25880b1ecd3a104071ff42f7563ad9499b0f3e34d78e28de70de0b84ee27c3cb"
+      }
+    ]
+  },
+  "test_denominator": {
+    "root": "tests/unit/calibration",
+    "python_file_count": 7,
+    "physical_line_count": 624,
+    "files": [
+      {
+        "path": "tests/unit/calibration/conftest.py",
+        "physical_lines": 3,
+        "bytes": 107,
+        "sha256": "4be2df3812b20de1ca887caf34333a48dc1a9de371fdc862ed62ba8aaa2ae8c2"
+      },
+      {
+        "path": "tests/unit/calibration/test_adapters.py",
+        "physical_lines": 62,
+        "bytes": 2258,
+        "sha256": "c1fa0e1daf9caded0b4e8a63bfe6104969352a1ceed19daa59ecbd2da9edd345"
+      },
+      {
+        "path": "tests/unit/calibration/test_continuous.py",
+        "physical_lines": 248,
+        "bytes": 9581,
+        "sha256": "444f08da02da37cfde5cfeebc89e3e200e8c6a7bf968e514544cb43fb5fc978f"
+      },
+      {
+        "path": "tests/unit/calibration/test_curve.py",
+        "physical_lines": 137,
+        "bytes": 5507,
+        "sha256": "8c88103c98e64048086852d962bd10a91c4fad64cfb70aa2313b47b3b504595f"
+      },
+      {
+        "path": "tests/unit/calibration/test_diagnostics.py",
+        "physical_lines": 67,
+        "bytes": 2244,
+        "sha256": "f53af4f42abdbda38a221ddb0ee1fae078cfc15e912db9017dbd97d2c8e345d8"
+      },
+      {
+        "path": "tests/unit/calibration/test_multiclass.py",
+        "physical_lines": 46,
+        "bytes": 1523,
+        "sha256": "a23008fe5f7c34f3d02a0f554077e59a1d12021e22b8238f30eab1a797cb1164"
+      },
+      {
+        "path": "tests/unit/calibration/test_recalibration.py",
+        "physical_lines": 61,
+        "bytes": 1875,
+        "sha256": "d126609ca97ef19bf7933212a233595d2a0f6f33595a1fd45364076895080bc5"
+      }
+    ]
+  }
+}

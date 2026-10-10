@@ -1,0 +1,6 @@
+{
+  "command": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python -m pytest -q -ra tests/unit/calibration",
+  "exit_code": 0,
+  "stdout": "..................................................................       [100%]\n",
+  "stderr": ""
+}

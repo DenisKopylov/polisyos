@@ -1,0 +1,3 @@
+Would reformat: policy-engine/src/polisyos/core/artifacts/backends/caching_store.py
+Would reformat: policy-engine/tests/unit/core/artifacts/test_ir_adapter.py
+2 files would be reformatted, 3 files already formatted

@@ -1,0 +1,290 @@
+{
+  "schema_version": "1.0",
+  "title": "V5 native Search, GP, MethodJob, CAS and B157 final-wave command plan",
+  "created_on": "2026-10-09",
+  "status": "plan_only",
+  "execution_performed_by_this_plan_author": false,
+  "workspace": {
+    "project_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "plan_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v5-search/final-wave-command-plan.json",
+    "source_anchor_provided_by_root": {
+      "commit": "9e02a9f49c8b01026327a9f7c7e18711b13a96f2",
+      "tree_prefix": "881a950...",
+      "verified_here": false,
+      "reason": "This task was read-only with respect to Git; the supplied tree is incomplete and was not independently verified."
+    },
+    "freeze_gate": "Do not execute until root confirms the pending native-checker repair is complete and freezes the final source. Recompute every listed input SHA256 against that frozen source first; any changed hash invalidates this command plan until refreshed."
+  },
+  "scope": {
+    "included": [
+      "Configured native BoTorch SingleTaskGP fit through BayesianCandidateGenerator and SearchLoopRunner.",
+      "Actual MethodJobBenchmarkEvaluator execution, CAS persistence, fresh-reader verification and same-context WarmStartBridge receiver in the native GP witness.",
+      "Native DR MethodJob source-bound L3/L4 witness with actual bootstrap-loop counts 40/80/80 on one DataSnapshot.",
+      "Separate injected/fallback and policy-funnel boundary controls, explicitly not graded as native scientific execution."
+    ],
+    "excluded": [
+      "No policy-effect mapping or fiscal authority is claimed from dimensionless/scientific test fixtures.",
+      "No claim that a MethodJob diagnostic packet is joined to the default policy funnel's scientific outcome producer.",
+      "No native test or expensive numerical fit was run while writing this plan."
+    ]
+  },
+  "acceptance_basis": {
+    "B157_source": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "B157_source_lines": "4117-4128",
+    "B157_source_sha256_at_plan_time": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "B157_original_acceptance_ru": "Приёмка: сравнить прямую L4 с L3→L4 на одном исходном запросе; effective full-конфигурация и допустимые выходы должны совпасть, caller-context неизменен, L3 действительно остаётся более дешёвым. Не выключать L3 и не запускать всё в максимальной точности.",
+    "b157_required_quantities": {
+      "same_source": "Same original request, candidate/input, seed, method profile and DataSnapshot.",
+      "direct_l4": "Effective full-L4 configuration, allowed result and actual executed bootstrap work.",
+      "l3_then_l4": "Effective reduced L3 configuration and actual L3 work, followed by the same effective full-L4 configuration/result as direct L4.",
+      "caller_context": "Unchanged after both routes.",
+      "cost_comparison": "Measured L3 actual completed bootstrap work must be lower than L4; a requested draw count alone is not evidence."
+    }
+  },
+  "runtime_snapshot": {
+    "python": "3.14.3",
+    "pytest": "9.0.2",
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "numpy": "2.3.5",
+    "pydantic": "2.12.5",
+    "device_policy": "CPU/default runtime; no GPU selection or numerical settings are changed by this plan.",
+    "source_hash_semantics": "SHA256 over files read from the worktree at plan time. This is a scoped source/test manifest, not a complete transitive import closure; refresh it at freeze."
+  },
+  "input_sha256_manifest": [
+    {"path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md", "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"},
+    {"path": "docs/reference/policy-design-case-failure-patterns.md", "sha256": "a64956e284b411276a16a612afffb1fb42daf03ffef8f7ef1c3f3f9bc25d0349"},
+    {"path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v5-search/receipt.md", "sha256": "23704000e350cea56b1f47eb28415f45c563bbb0f4a43e4bd87b3ce3c13eacbc"},
+    {"path": "pyproject.toml", "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"},
+    {"path": "uv.lock", "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"},
+    {"path": "src/polisyos/scientist/methods/autotune/bayesian_generator.py", "sha256": "c7d31383d6a1ff19d01d63e0a6763c432ce342cc7ccf333a910b0a352aabbd3d"},
+    {"path": "src/polisyos/scientist/methods/autotune/models.py", "sha256": "48ed1ee01ae6fdbfb51e60c38c41e8c6c462368b675a761602d38c13c82104ae"},
+    {"path": "src/polisyos/scientist/methods/autotune/warm_start.py", "sha256": "32c1627e65bd7e33d6ca996dbcdbd6979e97fc29ad81106d953565a3a415e1b0"},
+    {"path": "src/polisyos/scientist/methods/autotune/runtime.py", "sha256": "556c7cc698e32114df203a917cd3606a6a4ad0e6d948761a95b040f40fbf0285"},
+    {"path": "src/polisyos/scientist/methods/autotune/execution_work.py", "sha256": "de7ee6dc44d83b3f2b8eaea9f8850978b81ac11e1fd30d20a4a399f2501fc7f5"},
+    {"path": "src/polisyos/scientist/methods/autotune/registry.py", "sha256": "88ac42086ded026fc0a3cccab442d3c08a426e9b044a3c6dbcde74ce88ae396c"},
+    {"path": "src/polisyos/scientist/methods/search/strategies/bayesian.py", "sha256": "71ad27f905b5d7274870230d26fb2d8cb065507882f9a01c2b7fb36722d5fb15"},
+    {"path": "src/polisyos/scientist/compute/job_spec.py", "sha256": "528a7cf0af7fba461c8c0ee15f9f3a33abdcc2dc9128b221223f44e290ec6bc3"},
+    {"path": "src/polisyos/scientist/compute/runner.py", "sha256": "67f7775317609a40f679bd9836a40d3616960bbde1fe901c02514b7a8bd916fe"},
+    {"path": "src/polisyos/foundry/methods/catalog/causal/ci_backends.py", "sha256": "6580ab2ba2a341ae0059999337d5311c3f20ddcd480bb4783ae3d253a5da230c"},
+    {"path": "src/polisyos/foundry/methods/catalog/causal/advanced_designs.py", "sha256": "db5cb8d4a15db4d040ee172f5995e4d48b4f118316a5f4b638800209a88971f3"},
+    {"path": "src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py", "sha256": "2cc4b6a8686a967615acc4024247570b44581fbcbf4b3728610435ddd7e0c040"},
+    {"path": "src/polisyos/scientist/methods/search/funnel/types.py", "sha256": "aaaff554a58b48a529b7b1628d33692ddee238ce4de3e2cfd09d57ad6c3b15e4"},
+    {"path": "src/polisyos/scientist/methods/search/funnel/level3_medium.py", "sha256": "a0d21146a1cc1bd3593c4d4997f9d3f14f0d44588322b6b73ac820dc53b7d46f"},
+    {"path": "src/polisyos/scientist/methods/search/funnel/level4_full.py", "sha256": "04a451c45182d26bcdcde474a0d06c9a56773e3bf56a44eb7073a0e100350c22"},
+    {"path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py", "sha256": "21af5bc3689d51f8306c56bce0b04ba4fdf0609b8246646c4a821109a9bd83fe"},
+    {"path": "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py", "sha256": "0890dfbf8553504a094813d4d6e54248e82cca8628d1f04ca759db4bdd2d7d6d"},
+    {"path": "src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py", "sha256": "52b9c72ea998926fe7474b995795f0b8010ec2ed0dce59c37672cff58a291fac"},
+    {"path": "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py", "sha256": "2138d3634704b4ff94aee12d906f914c5d66f33c0cdc805f007ba6249f501904"},
+    {"path": "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py", "sha256": "07f83cc7360e5be0c253d59ade9e563571f35c96f3f8e25964edd46c68bb0b06"},
+    {"path": "tests/unit/scientist/search/strategies/test_bayesian.py", "sha256": "e4c14d45a08ce745892bb71cbd20d9e2459e1c8a5a51c9a7d43bdc994304e650"},
+    {"path": "tests/unit/scientist/methods/autotune/test_bayesian_generator.py", "sha256": "aaba520bf2281fc79b85105e3764af26023cb095af0ffea98826bdcb847ecaa1"},
+    {"path": "tests/unit/scientist/methods/autotune/test_warm_start.py", "sha256": "3599f0d3039751d71762ce402b8c68329c9cdc6bf92ce74c76be994d877e48d2"},
+    {"path": "tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py", "sha256": "9ccbd78a85856bbeb637de8b55fce332ec1ed7e4f4e14ff0af0d6724d7b4e039"}
+  ],
+  "historical_receipts": {
+    "native_gp": {
+      "status": "historical 1-pass receipt exists; not a receipt for the final frozen source unless its listed hashes still match",
+      "file": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v5-search/native-gp-positive-final.txt",
+      "observed_file_sha256": "8b050b8597c8b691aebab2ea08ab5ba16cd0f4eb8e0a6489a88556ea1771fd86",
+      "receipt_text_sha256_claim": "4bbc57cc2f89d2f3b78e197800c1bde06783a09c",
+      "receipt_hash_matches_current_file": false,
+      "wall_time": "UNMEASURED",
+      "warnings": ["Python 3.14 torch.jit.script deprecation", "BoTorch ExpectedImprovement numerical warning recommending LogExpectedImprovement"]
+    },
+    "native_b157_dr": {
+      "status": "UNRUN; the prior preflight skipped the env-gated fit",
+      "preflight_file": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v5-search/v5-method-work-native-witness-preflight.txt",
+      "preflight_sha256": "901b2f3189ebd9d15f8e0383d25f53a4c64a5695c3adfb2ab5a666e101f7492e",
+      "preflight_result": "one native DR L3/L4 test skipped because POLISYOS_RUN_NATIVE_METHODJOB_WORK was not enabled",
+      "wall_time": "UNMEASURED"
+    },
+    "controlled_methodjob": {
+      "status": "historical controlled witness passed; nuisance and tau fit layers patched, actual bootstrap loop and MethodJob/CAS fresh reader exercised",
+      "file": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v5-search/methodjob-full-dispatch-binding-focused-tests.txt",
+      "sha256": "ff7302cd30f5584f99f3c484fb2eb2493668d64974a47e551af41fcc1eab3ed5",
+      "wall_time": "UNMEASURED"
+    }
+  },
+  "execution_policy": {
+    "order": ["light_boundary_controls", "native_gp_search", "native_b157_dr"],
+    "concurrency": "Run strictly sequentially. The GP and DR commands share one serialized numerical slot; do not overlap either command with another native fit or collection.",
+    "timeout_seconds_per_command": 900,
+    "timeout_note": "No reliable prior wall-time measurement is recorded. The 900-second value is a first-wave safety ceiling, not a performance estimate. If exceeded, preserve partial output and report timed_out/UNRUN; do not classify timeout as a product failure.",
+    "capture": {
+      "raw_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-native-final-wave",
+      "required_files_per_command": ["stdout.bin", "stderr.bin", "junit.xml", "metadata.json"],
+      "metadata_fields": ["argv", "cwd", "explicit_environment_overrides", "nonsecret_runtime_environment_allowlist", "input_sha256_manifest", "start_utc", "end_utc", "monotonic_elapsed_seconds", "exit_code", "timed_out", "stdout_sha256", "stderr_sha256", "junit_sha256"],
+      "runner": "Use a subprocess capture wrapper that writes stdout and stderr as raw bytes, records monotonic elapsed time, and persists partial bytes on timeout. Do not rely on the visible terminal output as the retained receipt. Do not persist secret environment values.",
+      "junit_acceptance": "Both native selectors must show exactly one passed testcase and zero skipped testcases. A successful process exit with a skipped gated selector is UNRUN, not pass."
+    }
+  },
+  "commands": [
+    {
+      "id": "light_boundary_controls",
+      "purpose": "Prove injection/fallback remains distinct from configured native GP; exercise the actual controlled MethodJob dispatch binding and the policy-funnel invocation packet's fail-closed boundary. These controls are not native numerical evidence.",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        "./.venv/bin/python", "-m", "pytest", "-o", "addopts=", "-q", "-p", "no:cacheprovider", "--tb=long", "--color=no",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-native-final-wave/light-boundary-controls/junit.xml",
+        "tests/unit/scientist/methods/autotune/test_bayesian_generator.py::test_injected_optimizer_is_not_admitted_as_native_gp_profile",
+        "tests/unit/scientist/methods/autotune/test_bayesian_generator.py::test_injected_optimizer_without_effective_corpus_keeps_training_unknown",
+        "tests/unit/scientist/search/strategies/test_bayesian.py::test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus",
+        "tests/unit/scientist/search/strategies/test_bayesian.py::test_canonical_warm_start_rejects_a_profile_for_another_target_context",
+        "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_method_job_evaluator_uses_real_runner_and_returns_cas_provenance",
+        "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_search_runner_preserves_bayesian_payload_and_fresh_reads_job_chain",
+        "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_source_bound_methodjob_work_packet_supports_same_input_l3_to_l4_witness",
+        "tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py::test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations",
+        "tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py::test_work_packet_consumer_rejects_wrong_run_or_draw_binding",
+        "tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py::test_policy_runtime_reports_work_packet_unavailable_without_run_binding"
+      ],
+      "expected_cases": 11,
+      "expected_result": "All cases pass, zero skipped. The MethodJob controlled case uses patched nuisance/tau layers; the funnel tests use a test-fixture evaluator and deliberately retain null draw counts.",
+      "environment_overrides": {
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "PYTEST_ADDOPTS": "",
+        "POLISYOS_RUN_NATIVE_GP_HEAVY": "0",
+        "POLISYOS_RUN_NATIVE_METHODJOB_WORK": "0"
+      },
+      "output_paths": {
+        "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-native-final-wave/light-boundary-controls/stdout.bin",
+        "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-native-final-wave/light-boundary-controls/stderr.bin",
+        "junit": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-native-final-wave/light-boundary-controls/junit.xml",
+        "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-native-final-wave/light-boundary-controls/metadata.json"
+      },
+      "historical_wall_time": "UNMEASURED"
+    },
+    {
+      "id": "native_gp_search",
+      "purpose": "Configured native BayesianCandidateGenerator fit -> actual SearchLoopRunner/MethodJobBenchmarkEvaluator -> CAS evaluation and fresh read -> source-profile recomputation -> WarmStartBridge/TransferLearningManager -> compatible target run and GP training.",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        "./.venv/bin/python", "-m", "pytest", "-o", "addopts=", "-q", "-p", "no:cacheprovider", "--tb=long", "--color=no",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-native-final-wave/native-gp-search/junit.xml",
+        "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_fitted_native_gp_profile_round_trips_into_same_context_search"
+      ],
+      "expected_cases": 1,
+      "expected_result": "Exactly one passed and zero skipped. The test must produce a real configured SingleTaskGP, persist its recomputed fit profile alongside MethodJob/CAS lineage, admit one compatible source observation into the target generator's training corpus, and complete a same-context receiving search.",
+      "environment_overrides": {
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "PYTEST_ADDOPTS": "",
+        "POLISYOS_RUN_NATIVE_GP_HEAVY": "1",
+        "POLISYOS_RUN_NATIVE_METHODJOB_WORK": "0"
+      },
+      "input_refs": ["B_r19_original.md", "pyproject.toml", "uv.lock", "autotune/generator+models+warm_start+runtime", "native GP test", "configured optimizer test controls", "current runtime snapshot"],
+      "output_paths": {
+        "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-native-final-wave/native-gp-search/stdout.bin",
+        "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-native-final-wave/native-gp-search/stderr.bin",
+        "junit": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-native-final-wave/native-gp-search/junit.xml",
+        "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-native-final-wave/native-gp-search/metadata.json"
+      },
+      "native_input_fixture": {
+        "method": "_V5ScoreMethod test method",
+        "context": {"policy_context": {"year": 2032, "unit": "dimensionless"}},
+        "source_generator_seed": 31,
+        "target_generator_seed": 37,
+        "source_iterations": 4,
+        "target_iterations": 3,
+        "native_optimizer_controls": {"num_restarts": 1, "raw_samples": 16, "refit_interval": 1},
+        "transfer_index": "_V5VectorIndex test fixture; receiving WarmStartBridge is exercised, but retrieval-index behavior is not deployment authority"
+      },
+      "historical_wall_time": "UNMEASURED",
+      "known_warnings": ["torch.jit.script Python 3.14 deprecation", "BoTorch ExpectedImprovement numerics warning; do not suppress or treat as a fit failure"]
+    },
+    {
+      "id": "native_b157_dr",
+      "purpose": "Unpatched configured DR estimator through MethodJob -> persisted typed execution-work packet -> CAS fresh reader; compare same-input direct L4 80, L3 40 then L4 80.",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        "./.venv/bin/python", "-m", "pytest", "-o", "addopts=", "-q", "-p", "no:cacheprovider", "--tb=long", "--color=no",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-native-final-wave/native-b157-dr/junit.xml",
+        "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_native_source_bound_methodjob_direct_l4_matches_l3_to_l4"
+      ],
+      "expected_cases": 1,
+      "expected_result": "Exactly one passed and zero skipped. Reconcile requested/effective/actual draw counts separately; expect actual completed counts 80 direct-L4, 40 L3, 80 chained-L4; same 40-row DataSnapshot, seed 17, full L4 effective config/result/profile; unchanged caller context; all candidates remain diagnostic_only and nonpromotable.",
+      "environment_overrides": {
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "PYTEST_ADDOPTS": "",
+        "POLISYOS_RUN_NATIVE_GP_HEAVY": "0",
+        "POLISYOS_RUN_NATIVE_METHODJOB_WORK": "1"
+      },
+      "input_refs": ["B_r19_original.md", "pyproject.toml", "uv.lock", "causal CI backend+DR estimator+MethodJob runtime+execution-work packet", "native B157 test"],
+      "output_paths": {
+        "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-native-final-wave/native-b157-dr/stdout.bin",
+        "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-native-final-wave/native-b157-dr/stderr.bin",
+        "junit": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-native-final-wave/native-b157-dr/junit.xml",
+        "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-native-final-wave/native-b157-dr/metadata.json"
+      },
+      "native_input_fixture": {
+        "source": "Synthetic 40-row DataSnapshot created by the test; X/treatment/outcome are persisted in CAS, with X_alternative for the swap falsifier.",
+        "requested_full_bootstrap_draws": 80,
+        "L3_effective_bootstrap_draws": 40,
+        "direct_L4_effective_bootstrap_draws": 80,
+        "chained_L4_effective_bootstrap_draws": 80,
+        "seed": 17,
+        "estimator": "DRLearnerEstimator with configured lightweight nuisance family; no nuisance/tau monkeypatch in this native selector"
+      },
+      "historical_wall_time": "UNMEASURED",
+      "historical_native_status": "UNRUN"
+    }
+  ],
+  "native_vs_injected_classification": {
+    "native_evidence": [
+      "Only native_gp_search and native_b157_dr selectors above count as configured native numerical evidence.",
+      "The GP witness uses the default configured BayesianOptimizer and asserts a fitted live SingleTaskGP plus actual learned transform/noise state fingerprints.",
+      "The DR witness calls the configured estimator and counts at its actual bootstrap loop; the fresh CAS reader rechecks packet/result/config/source bindings."
+    ],
+    "injected_or_fixture_only": [
+      "test_injected_optimizer_is_not_admitted_as_native_gp_profile and test_injected_optimizer_without_effective_corpus_keeps_training_unknown test profile separation, not native fitting.",
+      "test_source_bound_methodjob_work_packet_supports_same_input_l3_to_l4_witness patches nuisance/tau fitting; it proves the actual bootstrap loop, packet, CAS and reader controls only.",
+      "policy funnel packet tests use _PassingPolicyEvaluationBackend with degradation_mode=test_fixture and explicitly state that no scientific draw loop is exercised; requested counts remain config values and actual draw counters remain null.",
+      "test_whole_and_warm_split_use_the_same_permitted_acquisition_plan installs SingleTaskGP in a controlled _fit_gp and patches optimize_acqf; it is acquisition-routing control only, not native fit evidence."
+    ]
+  },
+  "adversarial_and_removal_controls": {
+    "existing_controls_in_light_boundary_command": [
+      "Keep the native/injected profile marker adversary: injected optimizer with botorch_available=True but no live native model must remain ineligible.",
+      "Keep the missing effective corpus adversary: training count/fingerprint remain unknown and warm-start eligibility stays false.",
+      "Keep the foreign target-context and malformed provenance/corpus records rejected from warm-start training.",
+      "Keep B157 count/result mismatch, forged candidate self-label, and same-length X-to-X_alternative dispatch swap rejected while declared row count/mapping markers stay unchanged.",
+      "Keep funnel wrong-run and wrong-draw binding rejected, and missing run identity unavailable; retain requested_draw_count separately from null actual counters."
+    ],
+    "native_checker_repair_blocker": "The current test_source_profile_uses_canonical_effective_fit_profile control supplies a fake effective_fit_profile callback returning configured_native_gp strings and warm_start_eligible=true. Current injected-optimizer negatives do not remove or replace the actual live fitted GP while preserving the saved profile markers. Before freeze, the pending native-checker repair must add a behavioral removal falsifier: retain the persisted/source compatibility markers but make the actual fit/model or required live learned state unavailable or mismatched; recomputation and admission must reject the row. Do not consider marker-only test_source_profile_uses_canonical_effective_fit_profile a native property proof.",
+    "removal_gate": "Run the new repair's exact selector in the light controls phase; the result must fail admission with the saved markers intact. If it is absent or skipped, stop before native wave and classify native fit-profile verification as verification_missing."
+  },
+  "internal_consumer_bridge_gaps": [
+    {
+      "capability_state": "bridge_missing",
+      "property": "A policy funnel stage consumes source-bound completed scientific work from the same candidate, immutable DataSnapshot, actual X/T/Y dispatch, method result, run/evaluation/attempt and stage.",
+      "current_consumer": "FunnelOrchestrator._admit_executed_work_packet admits scientist.search.funnel_native_work_packet; MethodJobExecutionWorkPacket is consumed by the separate SearchLoopRunner path.",
+      "divergent_case": "A source-bound MethodJob packet with genuine 40/80 bootstrap counts exists, but FunnelStageResult cannot hand that packet family to the funnel consumer. A funnel invocation packet can have the requested draw count configured while all actual draw counts are null.",
+      "routine_engineering_candidate": "Add a typed, additive MethodJob-packet input to the canonical stage result/consumer and verify full artifact selectors, candidate, DataSnapshot, actual dispatch binding, method result, run/evaluation/attempt and stage before projecting measured work; absent any join key, leave work unavailable. Keep the existing policy_runtime_evaluator_invocation packet distinct and do not infer counts from it.",
+      "remaining_semantic_boundary": "This adapter alone cannot create a policy-candidate-to-DataSnapshot/effect mapping. Until that upstream mapping is supplied and admitted, the packet is diagnostic work only and cannot make a policy outcome scientific or promotable."
+    },
+    {
+      "capability_state": "verification_missing",
+      "property": "Actual configured native fit state, not a self-described profile, is the authority for native-GP warm-start eligibility.",
+      "current_test_gap": "No current removal probe preserves all stored profile markers while deleting or corrupting the live fitted model/state and then demonstrates rejection at the receiving consumer.",
+      "routine_engineering_candidate": "Complete the native-checker repair before the frozen numerical wave and run its new selector with the light controls."
+    }
+  ],
+  "closure_limits": {
+    "B157_default_policy_funnel": "Still not closed by these commands. Native causal work is source-bound to a synthetic DataSnapshot and diagnostic MethodJob, but no same-run policy effect mapping or default funnel consumer bridge is established.",
+    "authority": "All tested candidates/evaluations remain diagnostic/candidate-grade; no policy, fiscal, or institutional authority is inferred.",
+    "pattern_pass": ["P01", "P02", "P05", "P10", "P12", "P14", "P27", "P29", "P31", "P32", "P37", "P38", "P40", "P41"],
+    "P40_bucket": "Same work-count producer/consumer class one level deeper: the diagnostic MethodJob has actual work evidence and a SearchLoop consumer, while the default policy funnel lacks the scientific producer-to-policy-effect join. Do not repair this with a requested-count proxy or a one-site assertion."
+  }
+}

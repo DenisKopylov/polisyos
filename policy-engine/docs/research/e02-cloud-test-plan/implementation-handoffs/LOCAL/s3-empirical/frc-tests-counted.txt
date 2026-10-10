@@ -1,0 +1,129 @@
+....FF......................................                             [100%]
+=================================== FAILURES ===================================
+________ test_calibration_time_roles_are_preserved_from_bound_evidence _________
+
+    def test_calibration_time_roles_are_preserved_from_bound_evidence() -> None:
+        """Prediction, observation, effective, valid, and window times stay distinct."""
+    
+        build_inputs = _generation_cycle("_build_s10_forecast_inputs")
+        prediction_time = datetime(2025, 1, 15, 8, 30, tzinfo=UTC)
+        observation_time = datetime(2025, 4, 20, 9, 45, tzinfo=UTC)
+        policy_effective_time = datetime(2025, 2, 1, 0, 0, tzinfo=UTC)
+        data_valid_time = datetime(2025, 4, 1, 0, 0, tzinfo=UTC)
+        window_start = datetime(2025, 3, 1, 0, 0, tzinfo=UTC)
+        window_end = datetime(2025, 4, 30, 23, 59, tzinfo=UTC)
+        world_record = SimpleNamespace(
+            world_model_record_id="world_model_record_frc01",
+            content_hash="sha256:" + "a" * 64,
+            valid_time_scope="2025-Q2",
+            region_or_jurisdiction="UA",
+        )
+        problem = SimpleNamespace(
+            design_problem_id="frc01-problem",
+            outcome_of_interest=SimpleNamespace(target_variable="firm_survival"),
+        )
+        candidate = SimpleNamespace(candidate_id="frc01-candidate")
+        method_result = SimpleNamespace(
+            output={"report": _finite_estimator_report()}
+        )
+    
+        inputs = build_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+            method_result=method_result,
+            selected_method_fqn="foundry.methods.example",
+            forecast_tier="observable_calibrated",
+            calibration_status="limit",
+            policy_context_ref="policy-context://world_model_record_frc01",
+            expected_policy_context_ref="policy-context://world_model_record_frc01",
+            false_clear_counts={},
+            calibration_evidence={
+                "denominator": 0,
+                "numerator": 0,
+                "pass_rate": 0.0,
+                "floor_passed": False,
+                "counterfactual_credibility": "insufficient_history",
+                "prediction_time": prediction_time.isoformat(),
+                "observation_time": observation_time.isoformat(),
+                "policy_effective_time": policy_effective_time.isoformat(),
+                "data_valid_time": data_valid_time.isoformat(),
+                "calibration_window_start": window_start.isoformat(),
+                "calibration_window_end": window_end.isoformat(),
+                "observed_outcome_ref": "outcome://frc01/observed",
+                "historical_implementation_ref": "implementation://frc01/history",
+                "evaluation_design_ref": "evaluation://frc01/design",
+                "credible_evaluation_evidence_ref": "evidence://frc01/credible",
+                "source_lineage_refs": ["lineage://frc01/source"],
+                "method_lineage_refs": ["lineage://frc01/method"],
+            },
+        )
+        record = inputs["forecast_calibration_record"]
+    
+>       assert record.prediction_time == prediction_time
+               ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'prediction_time'
+
+tests/unit/remediation/test_frc_01.py:158: AttributeError
+__________ test_missing_calibration_evidence_refs_stays_typed_blocked __________
+
+    def test_missing_calibration_evidence_refs_stays_typed_blocked() -> None:
+        """Temporal dates alone cannot mint a calibration record or pass-through tier."""
+    
+        build_inputs = _generation_cycle("_build_s10_forecast_inputs")
+        timestamp = datetime(2025, 1, 15, 8, 30, tzinfo=UTC).isoformat()
+        world_record = SimpleNamespace(
+            world_model_record_id="world_model_record_frc01",
+            content_hash="sha256:" + "a" * 64,
+            valid_time_scope="2025-Q2",
+            region_or_jurisdiction="UA",
+        )
+        problem = SimpleNamespace(
+            design_problem_id="frc01-problem",
+            outcome_of_interest=SimpleNamespace(target_variable="firm_survival"),
+        )
+        candidate = SimpleNamespace(candidate_id="frc01-candidate")
+        method_result = SimpleNamespace(output={"report": _finite_estimator_report()})
+    
+        inputs = build_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+            method_result=method_result,
+            selected_method_fqn="foundry.methods.example",
+            forecast_tier="observable_calibrated",
+            calibration_status="limit",
+            policy_context_ref="policy-context://world_model_record_frc01",
+            expected_policy_context_ref="policy-context://world_model_record_frc01",
+            false_clear_counts={},
+            calibration_evidence={
+                "counterfactual_credibility": "insufficient_history",
+                "prediction_time": timestamp,
+                "observation_time": timestamp,
+                "policy_effective_time": timestamp,
+                "data_valid_time": timestamp,
+                "calibration_window_start": timestamp,
+                "calibration_window_end": timestamp,
+            },
+        )
+    
+        support = inputs["forecast_support"]
+        assert inputs["forecast_calibration_record"] is None
+        assert support.forecast_tier == "blocked"
+        assert support.calibration_record_ref is None
+>       assert "s10://calibration/fail-closed/insufficient-history" in support.s6_limitation_refs
+E       AssertionError: assert 's10://calibration/fail-closed/insufficient-history' in []
+E        +  where [] = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...owth', 's13_accountability_closure', 's14_universality'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').s6_limitation_refs
+
+tests/unit/remediation/test_frc_01.py:224: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_frc_01.py::test_calibration_time_roles_are_preserved_from_bound_evidence
+FAILED tests/unit/remediation/test_frc_01.py::test_missing_calibration_evidence_refs_stays_typed_blocked
+2 failed, 42 passed, 2 warnings in 19.86s

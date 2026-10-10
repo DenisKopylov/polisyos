@@ -1,0 +1,75 @@
+..FFF.F..................................                                [100%]
+=================================== FAILURES ===================================
+_______ test_wrong_role_human_click_is_persisted_and_never_fires_effect ________
+tests/unit/runtime/quality/test_agent_action_authority.py:921: in test_wrong_role_human_click_is_persisted_and_never_fires_effect
+    gateway, _, _ = _prepare_gateway(
+tests/unit/runtime/quality/test_agent_action_authority.py:535: in _prepare_gateway
+    contract_ref = contract_ref_override or _persist_signed(
+tests/unit/runtime/quality/test_agent_action_authority.py:441: in _persist_signed
+    harness.store.sign_artifact(
+src/polisyos/core/artifacts/store.py:1755: in sign_artifact
+    return _sign_artifact(
+src/polisyos/core/artifacts/_signature_ops.py:165: in sign_artifact
+    write_signature(artifact_id, signature)
+src/polisyos/core/artifacts/store.py:1761: in <lambda>
+    write_signature=lambda selected_id, signature: self.put_signature(selected, signature),
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:1638: in put_signature
+    raise ArtifactIntegrityError("immutable signature sidecar conflicts")
+E   polisyos.core.artifacts._integrity_ops.ArtifactIntegrityError: immutable signature sidecar conflicts
+___________ test_human_decision_v1_replays_as_revalidation_required ____________
+tests/unit/runtime/quality/test_agent_action_authority.py:966: in test_human_decision_v1_replays_as_revalidation_required
+    gateway, _, _ = _prepare_gateway(
+tests/unit/runtime/quality/test_agent_action_authority.py:535: in _prepare_gateway
+    contract_ref = contract_ref_override or _persist_signed(
+tests/unit/runtime/quality/test_agent_action_authority.py:441: in _persist_signed
+    harness.store.sign_artifact(
+src/polisyos/core/artifacts/store.py:1755: in sign_artifact
+    return _sign_artifact(
+src/polisyos/core/artifacts/_signature_ops.py:165: in sign_artifact
+    write_signature(artifact_id, signature)
+src/polisyos/core/artifacts/store.py:1761: in <lambda>
+    write_signature=lambda selected_id, signature: self.put_signature(selected, signature),
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:1638: in put_signature
+    raise ArtifactIntegrityError("immutable signature sidecar conflicts")
+E   polisyos.core.artifacts._integrity_ops.ArtifactIntegrityError: immutable signature sidecar conflicts
+___________ test_envelope_is_decisive_while_happy_path_remains_valid ___________
+tests/unit/runtime/quality/test_agent_action_authority.py:1952: in test_envelope_is_decisive_while_happy_path_remains_valid
+    stripped_gateway, _, _ = _prepare_gateway(
+tests/unit/runtime/quality/test_agent_action_authority.py:583: in _prepare_gateway
+    mandate_authority_mapping[MANDATE_OWNER_REF] = _persist_signed(
+tests/unit/runtime/quality/test_agent_action_authority.py:441: in _persist_signed
+    harness.store.sign_artifact(
+src/polisyos/core/artifacts/store.py:1755: in sign_artifact
+    return _sign_artifact(
+src/polisyos/core/artifacts/_signature_ops.py:165: in sign_artifact
+    write_signature(artifact_id, signature)
+src/polisyos/core/artifacts/store.py:1761: in <lambda>
+    write_signature=lambda selected_id, signature: self.put_signature(selected, signature),
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:1638: in put_signature
+    raise ArtifactIntegrityError("immutable signature sidecar conflicts")
+E   polisyos.core.artifacts._integrity_ops.ArtifactIntegrityError: immutable signature sidecar conflicts
+______ test_human_approval_cannot_replay_after_invocation_content_changes ______
+tests/unit/runtime/quality/test_agent_action_authority.py:2186: in test_human_approval_cannot_replay_after_invocation_content_changes
+    first_gateway, _, _ = _prepare_gateway(
+tests/unit/runtime/quality/test_agent_action_authority.py:565: in _prepare_gateway
+    admission_ref = _persist_signed(
+tests/unit/runtime/quality/test_agent_action_authority.py:441: in _persist_signed
+    harness.store.sign_artifact(
+src/polisyos/core/artifacts/store.py:1755: in sign_artifact
+    return _sign_artifact(
+src/polisyos/core/artifacts/_signature_ops.py:165: in sign_artifact
+    write_signature(artifact_id, signature)
+src/polisyos/core/artifacts/store.py:1761: in <lambda>
+    write_signature=lambda selected_id, signature: self.put_signature(selected, signature),
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:1638: in put_signature
+    raise ArtifactIntegrityError("immutable signature sidecar conflicts")
+E   polisyos.core.artifacts._integrity_ops.ArtifactIntegrityError: immutable signature sidecar conflicts
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_agent_action_authority.py::test_wrong_role_human_click_is_persisted_and_never_fires_effect
+FAILED tests/unit/runtime/quality/test_agent_action_authority.py::test_human_decision_v1_replays_as_revalidation_required
+FAILED tests/unit/runtime/quality/test_agent_action_authority.py::test_envelope_is_decisive_while_happy_path_remains_valid
+FAILED tests/unit/runtime/quality/test_agent_action_authority.py::test_human_approval_cannot_replay_after_invocation_content_changes

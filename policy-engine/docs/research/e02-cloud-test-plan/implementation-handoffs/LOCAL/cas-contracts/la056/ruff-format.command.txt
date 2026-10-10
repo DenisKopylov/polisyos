@@ -1,0 +1,1 @@
+PYTHONPATH=src .venv/bin/python -m ruff format --check tests/unit/ddm/test_facade.py tests/unit/ddm/test_readiness_mapping.py tests/unit/ddm/test_contract_compatibility.py

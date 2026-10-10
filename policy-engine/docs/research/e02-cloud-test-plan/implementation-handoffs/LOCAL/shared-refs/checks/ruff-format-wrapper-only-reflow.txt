@@ -1,0 +1,97 @@
+current-only format paths=80
+wrapper-anchored formatter hunks applied=76 files
+other/non-wrapper formatter hunks left untouched=15
+files with no changes=0
+applied files:
+src/polisyos/foundry/methods/catalog/causal/space_time_dscm.py
+src/polisyos/foundry/methods/catalog/causal/strategic.py
+src/polisyos/foundry/methods/catalog/distributional/mobility.py
+src/polisyos/foundry/methods/catalog/distributional/mobility_latent_adapter.py
+src/polisyos/foundry/methods/catalog/econometrics/dynamic_panel.py
+src/polisyos/foundry/methods/catalog/econometrics/mobility_latent.py
+src/polisyos/foundry/methods/catalog/microsim/advanced.py
+src/polisyos/foundry/methods/catalog/microsim/calibration.py
+src/polisyos/foundry/methods/catalog/microsim/inverse.py
+src/polisyos/foundry/methods/catalog/microsim/static.py
+src/polisyos/foundry/methods/catalog/simulation/demography.py
+src/polisyos/foundry/methods/catalog/survey/causal_frontier.py
+src/polisyos/foundry/methods/catalog/survey/dr.py
+src/polisyos/foundry/methods/catalog/survey/estimation.py
+src/polisyos/scientist/governance/backtest_matrix.py
+src/polisyos/scientist/governance/passes/strategic_response_pass.py
+src/polisyos/scientist/methods/backtesting/composition_bridge.py
+src/polisyos/scientist/methods/backtesting/forecast_owner.py
+src/polisyos/scientist/methods/backtesting/orchestrator.py
+src/polisyos/scientist/methods/causal/readiness.py
+src/polisyos/scientist/methods/search/funnel/level2_causal.py
+src/polisyos/scientist/methods/search/judge_stack.py
+src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py
+src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py
+src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py
+src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py
+src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py
+src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py
+src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py
+src/polisyos/scientist/nodes/builtins/planning/build_method_catalog_snapshot.py
+src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py
+src/polisyos/scientist/policy_design/phase3.py
+tests/integration/test_c7_synthetic_full_pipeline.py
+tests/unit/core/artifacts/test_ir_adapter.py
+tests/unit/foundry/methods/catalog/causal/test_causal_engine.py
+tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py
+tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py
+tests/unit/foundry/methods/catalog/causal/test_hedge_fallback.py
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py
+tests/unit/foundry/methods/catalog/causal/test_scm_result_semantics.py
+tests/unit/foundry/methods/catalog/causal/test_space_time_dscm.py
+tests/unit/foundry/methods/catalog/distributional/test_mobility.py
+tests/unit/foundry/methods/catalog/microsim/test_advanced.py
+tests/unit/ir/analytics/test_causal_identification_candidate.py
+tests/unit/ir/analytics/test_continuous_abstraction.py
+tests/unit/ir/analytics/test_distributional_bounds_bundle.py
+tests/unit/ir/analytics/test_endogenous_inequality.py
+tests/unit/ir/analytics/test_latent_bridge_synthesis.py
+tests/unit/ir/analytics/test_local_independence_contract.py
+tests/unit/ir/analytics/test_mechanism_design.py
+tests/unit/ir/analytics/test_phase1_closure_contracts.py
+tests/unit/ir/analytics/test_phase_c_contracts.py
+tests/unit/ir/analytics/test_phase_d_contracts.py
+tests/unit/ir/analytics/test_phase_f_contracts.py
+tests/unit/ir/analytics/test_proof_composability_contract.py
+tests/unit/ir/analytics/test_recourse_manifold.py
+tests/unit/ir/analytics/test_rough_path_semantics.py
+tests/unit/ir/analytics/test_welfare_bundle.py
+tests/unit/ir/test_causal_graph_networkx_roundtrip.py
+tests/unit/ir/test_regime_shift_certificate_contract.py
+tests/unit/ir/test_structural_causal_model_versions.py
+tests/unit/remediation/test_frc_02_owner.py
+tests/unit/scientist/governance/test_causal_confidence_candidate.py
+tests/unit/scientist/governance/test_confidence_pass.py
+tests/unit/scientist/methods/causal/test_execution.py
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py
+tests/unit/scientist/methods/causal/test_phase14_causal_ensemble_e2e.py
+tests/unit/scientist/methods/causal/test_readiness.py
+tests/unit/scientist/methods/causal/test_resolve_parameters_node.py
+tests/unit/scientist/methods/causal/test_run_abm_consistency_node.py
+tests/unit/scientist/methods/causal/test_run_causal_ensemble_node.py
+tests/unit/scientist/methods/causal/test_run_causal_queries_node.py
+tests/unit/scientist/methods/causal/test_run_transportability_node.py
+tests/unit/scientist/nodes/builtins/simulate/test_run_distributional_analysis.py
+tests/unit/scientist/policy_design/test_phase3_decision_layer.py
+tests/unit/scientist/search/test_policy_blueprint_runtime_guards.py
+non-wrapper hunks:
+src/polisyos/runtime/quality/open_world_risk.py:619-621 other-hunk old='            provenance_manifest = self._store.get_manifest(\n                expected_verifier_provenance_ref\n            )\n' new='            provenance_manifest = self._store.get_manifest(expected_verifier_provenance_ref)\n'
+src/polisyos/scientist/governance/passes/confidence_pass.py:144-144 other-hunk old='                    limitations = ",".join(admission.limitation_codes) or "admission_not_established"\n' new='                    limitations = (\n                        ",".join(admission.limitation_codes) or "admission_not_established"\n                    )\n'
+src/polisyos/scientist/governance/passes/confidence_pass.py:150-151 other-hunk old='                                f"Persisted uncertainty for \'{metric_id}\' is limited: "\n                                f"{limitations}"\n' new='                                f"Persisted uncertainty for \'{metric_id}\' is limited: {limitations}"\n'
+src/polisyos/scientist/methods/backtesting/orchestrator.py:549-549 other-hunk old='                    limitations = ",".join(admission.limitation_codes) or "admission_not_established"\n' new='                    limitations = (\n                        ",".join(admission.limitation_codes) or "admission_not_established"\n                    )\n'
+src/polisyos/scientist/methods/search/funnel/orchestrator.py:320-322 other-hunk old='        "reported"\n        if all(step.compute_cost_origin == "reported" for step in steps)\n        else "estimated"\n' new='        "reported" if all(step.compute_cost_origin == "reported" for step in steps) else "estimated"\n'
+src/polisyos/scientist/methods/search/funnel/orchestrator.py:1065-1067 other-hunk old='        if store is None or not all(\n            hasattr(store, name) for name in ("get_bytes", "get_manifest")\n        ):\n' new='        if store is None or not all(hasattr(store, name) for name in ("get_bytes", "get_manifest")):\n'
+src/polisyos/scientist/methods/search/funnel/orchestrator.py:1078-1080 other-hunk old='            ticket.context.get("source_run_id")\n            or ticket.context.get("run_id")\n            or transfer_run_id\n' new='            ticket.context.get("source_run_id") or ticket.context.get("run_id") or transfer_run_id\n'
+src/polisyos/scientist/methods/search/funnel/orchestrator.py:1100-1102 other-hunk old='            packet_inputs = {\n                item.role: str(item.artifact_id) for item in packet_manifest.inputs\n            }\n' new='            packet_inputs = {item.role: str(item.artifact_id) for item in packet_manifest.inputs}\n'
+src/polisyos/scientist/methods/search/funnel/orchestrator.py:1104-1106 other-hunk old='                str(item.artifact_id)\n                for item in result_manifest.inputs\n                if item.role == "candidate"\n' new='                str(item.artifact_id) for item in result_manifest.inputs if item.role == "candidate"\n'
+src/polisyos/scientist/methods/search/funnel/orchestrator.py:1151-1152 other-hunk old='                or packet.backend_kind\n                != result.feedback.get("policy_runtime_backend_kind")\n' new='                or packet.backend_kind != result.feedback.get("policy_runtime_backend_kind")\n'
+src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:2770-2772 other-hunk old='            str(simulation_result_ref.artifact_id)\n            if simulation_result_ref is not None\n            else None\n' new='            str(simulation_result_ref.artifact_id) if simulation_result_ref is not None else None\n'
+src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py:278-284 other-hunk old='        work_packet_ref, work_packet_unavailability_reason = (\n            _persist_policy_runtime_work_packet(\n                initial_state=initial_state,\n                fidelit' new='        work_packet_ref, work_packet_unavailability_reason = _persist_policy_runtime_work_packet(\n            initial_state=initial_state,\n            fidelity=self._fidelity,\n    '
+src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py:306-308 other-hunk old='            feedback["policy_runtime_work_packet_ref"] = work_packet_ref.model_dump(\n                mode="json"\n            )\n' new='            feedback["policy_runtime_work_packet_ref"] = work_packet_ref.model_dump(mode="json")\n'
+src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py:356-356 other-hunk old='    if not all(isinstance(value, str) and value.strip() for value in (run_id, ticket_id, candidate_hash)):\n' new='    if not all(\n        isinstance(value, str) and value.strip() for value in (run_id, ticket_id, candidate_hash)\n    ):\n'
+tests/unit/core/artifacts/test_ir_adapter.py:145-148 other-hunk old='    assert (\n        output_manifest.inputs[0].manifest_profile_sha256\n        == selected_ref.manifest_profile_sha256\n    )\n' new='    assert output_manifest.inputs[0].manifest_profile_sha256 == selected_ref.manifest_profile_sha256\n'

@@ -1,0 +1,9 @@
+/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/search/funnel/__init__.py
+/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/search/funnel/test_level0_static.py
+/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/search/funnel/test_level1_heuristic.py
+/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/search/funnel/test_level2_causal.py
+/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/search/funnel/test_level3_medium.py
+/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/search/funnel/test_level4_full.py
+/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py
+/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py
+/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/search/funnel/test_types.py

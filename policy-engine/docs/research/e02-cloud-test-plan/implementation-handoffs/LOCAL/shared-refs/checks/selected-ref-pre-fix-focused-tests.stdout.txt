@@ -1,0 +1,596 @@
+........................................................................ [ 67%]
+.................FFFFF...........F.                                      [100%]
+=================================== FAILURES ===================================
+_ test_authority_surface_loaders_reject_forged_persisted_payloads[calibration-SimulationCalibrationReceiptRef-load_simulation_calibration_receipt-ir.simulation_calibration_receipt-accepted] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1208/test_authority_surface_loaders0')
+surface = 'calibration'
+ref_type = <class 'polisyos.ir.registry.refs.SimulationCalibrationReceiptRef'>
+loader = <function load_simulation_calibration_receipt at 0x1390a96f0>
+kind = 'ir.simulation_calibration_receipt', mutation = 'accepted'
+
+    @pytest.mark.parametrize(
+        ("surface", "ref_type", "loader", "kind", "mutation"),
+        [
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "accepted",
+            ),
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "source",
+            ),
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "tier",
+            ),
+            (
+                "bridge",
+                SimulationProofBridgeRef,
+                load_simulation_proof_bridge,
+                "ir.simulation_proof_bridge",
+                "calibration_status",
+            ),
+            (
+                "bridge",
+                SimulationProofBridgeRef,
+                load_simulation_proof_bridge,
+                "ir.simulation_proof_bridge",
+                "identified",
+            ),
+        ],
+    )
+    def test_authority_surface_loaders_reject_forged_persisted_payloads(
+        tmp_path,
+        surface,
+        ref_type,
+        loader,
+        kind,
+        mutation,
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        raw_ref = store.put_json(
+            _mutate_authority_surface(surface, mutation),
+            PutOptions(kind=kind, media_type="application/json"),
+        )
+        ref = ref_type.model_validate(raw_ref.model_dump(mode="json"))
+    
+        with pytest.raises(ValueError, match="producer/verifier"):
+>           loader(store, ref)
+
+tests/unit/ir/analytics/test_simulation_proof_bridge.py:363: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/simulation_proof_bridge.py:237: in load_simulation_calibration_receipt
+    payload = get_json_artifact(store, ref)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:148: in get_json_artifact
+    canon = _raw_manifest_canon(store, selector)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:122: in _raw_manifest_canon
+    manifest_bytes = get_manifest_bytes(selector)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.ownership._RootTransactionCoordinator object at 0x13bac7a70>
+artifact_id = {'artifact_id': 'sha256:6d777ed08e368bb2cd5396430cf8415bd31238d2a2f36de26a0de96e85d77800', 'kind': 'ir.simulation_calibration_receipt', 'media_type': 'application/json'}
+
+    @contextmanager
+    def artifact_lease(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        exclusive: bool,
+    ) -> Iterator[_ArtifactTransactionLease]:
+        """Hold root-shared then one stable artifact stripe in lock-order sequence."""
+        active = getattr(self._active, "leases", None)
+        if active is None:
+            active = {}
+            self._active.leases = active
+>       existing = active.get(artifact_id.hex)
+                              ^^^^^^^^^^^^^^^
+E       AttributeError: 'dict' object has no attribute 'hex'
+
+src/polisyos/core/artifacts/ownership.py:239: AttributeError
+_ test_authority_surface_loaders_reject_forged_persisted_payloads[calibration-SimulationCalibrationReceiptRef-load_simulation_calibration_receipt-ir.simulation_calibration_receipt-source] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1208/test_authority_surface_loaders1')
+surface = 'calibration'
+ref_type = <class 'polisyos.ir.registry.refs.SimulationCalibrationReceiptRef'>
+loader = <function load_simulation_calibration_receipt at 0x1390a96f0>
+kind = 'ir.simulation_calibration_receipt', mutation = 'source'
+
+    @pytest.mark.parametrize(
+        ("surface", "ref_type", "loader", "kind", "mutation"),
+        [
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "accepted",
+            ),
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "source",
+            ),
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "tier",
+            ),
+            (
+                "bridge",
+                SimulationProofBridgeRef,
+                load_simulation_proof_bridge,
+                "ir.simulation_proof_bridge",
+                "calibration_status",
+            ),
+            (
+                "bridge",
+                SimulationProofBridgeRef,
+                load_simulation_proof_bridge,
+                "ir.simulation_proof_bridge",
+                "identified",
+            ),
+        ],
+    )
+    def test_authority_surface_loaders_reject_forged_persisted_payloads(
+        tmp_path,
+        surface,
+        ref_type,
+        loader,
+        kind,
+        mutation,
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        raw_ref = store.put_json(
+            _mutate_authority_surface(surface, mutation),
+            PutOptions(kind=kind, media_type="application/json"),
+        )
+        ref = ref_type.model_validate(raw_ref.model_dump(mode="json"))
+    
+        with pytest.raises(ValueError, match="producer/verifier"):
+>           loader(store, ref)
+
+tests/unit/ir/analytics/test_simulation_proof_bridge.py:363: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/simulation_proof_bridge.py:237: in load_simulation_calibration_receipt
+    payload = get_json_artifact(store, ref)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:148: in get_json_artifact
+    canon = _raw_manifest_canon(store, selector)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:122: in _raw_manifest_canon
+    manifest_bytes = get_manifest_bytes(selector)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.ownership._RootTransactionCoordinator object at 0x13bb3de50>
+artifact_id = {'artifact_id': 'sha256:9786660071f4741efca38c2205257890c18fd02522f28c117a70a299ca10e6ea', 'kind': 'ir.simulation_calibration_receipt', 'media_type': 'application/json'}
+
+    @contextmanager
+    def artifact_lease(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        exclusive: bool,
+    ) -> Iterator[_ArtifactTransactionLease]:
+        """Hold root-shared then one stable artifact stripe in lock-order sequence."""
+        active = getattr(self._active, "leases", None)
+        if active is None:
+            active = {}
+            self._active.leases = active
+>       existing = active.get(artifact_id.hex)
+                              ^^^^^^^^^^^^^^^
+E       AttributeError: 'dict' object has no attribute 'hex'
+
+src/polisyos/core/artifacts/ownership.py:239: AttributeError
+_ test_authority_surface_loaders_reject_forged_persisted_payloads[calibration-SimulationCalibrationReceiptRef-load_simulation_calibration_receipt-ir.simulation_calibration_receipt-tier] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1208/test_authority_surface_loaders2')
+surface = 'calibration'
+ref_type = <class 'polisyos.ir.registry.refs.SimulationCalibrationReceiptRef'>
+loader = <function load_simulation_calibration_receipt at 0x1390a96f0>
+kind = 'ir.simulation_calibration_receipt', mutation = 'tier'
+
+    @pytest.mark.parametrize(
+        ("surface", "ref_type", "loader", "kind", "mutation"),
+        [
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "accepted",
+            ),
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "source",
+            ),
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "tier",
+            ),
+            (
+                "bridge",
+                SimulationProofBridgeRef,
+                load_simulation_proof_bridge,
+                "ir.simulation_proof_bridge",
+                "calibration_status",
+            ),
+            (
+                "bridge",
+                SimulationProofBridgeRef,
+                load_simulation_proof_bridge,
+                "ir.simulation_proof_bridge",
+                "identified",
+            ),
+        ],
+    )
+    def test_authority_surface_loaders_reject_forged_persisted_payloads(
+        tmp_path,
+        surface,
+        ref_type,
+        loader,
+        kind,
+        mutation,
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        raw_ref = store.put_json(
+            _mutate_authority_surface(surface, mutation),
+            PutOptions(kind=kind, media_type="application/json"),
+        )
+        ref = ref_type.model_validate(raw_ref.model_dump(mode="json"))
+    
+        with pytest.raises(ValueError, match="producer/verifier"):
+>           loader(store, ref)
+
+tests/unit/ir/analytics/test_simulation_proof_bridge.py:363: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/simulation_proof_bridge.py:237: in load_simulation_calibration_receipt
+    payload = get_json_artifact(store, ref)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:148: in get_json_artifact
+    canon = _raw_manifest_canon(store, selector)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:122: in _raw_manifest_canon
+    manifest_bytes = get_manifest_bytes(selector)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.ownership._RootTransactionCoordinator object at 0x13bac5d10>
+artifact_id = {'artifact_id': 'sha256:ab6894024ed2005b23a21b14895ab9402558112a6525b2e4c8cc4e70b1f576b5', 'kind': 'ir.simulation_calibration_receipt', 'media_type': 'application/json'}
+
+    @contextmanager
+    def artifact_lease(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        exclusive: bool,
+    ) -> Iterator[_ArtifactTransactionLease]:
+        """Hold root-shared then one stable artifact stripe in lock-order sequence."""
+        active = getattr(self._active, "leases", None)
+        if active is None:
+            active = {}
+            self._active.leases = active
+>       existing = active.get(artifact_id.hex)
+                              ^^^^^^^^^^^^^^^
+E       AttributeError: 'dict' object has no attribute 'hex'
+
+src/polisyos/core/artifacts/ownership.py:239: AttributeError
+_ test_authority_surface_loaders_reject_forged_persisted_payloads[bridge-SimulationProofBridgeRef-load_simulation_proof_bridge-ir.simulation_proof_bridge-calibration_status] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1208/test_authority_surface_loaders3')
+surface = 'bridge'
+ref_type = <class 'polisyos.ir.registry.refs.SimulationProofBridgeRef'>
+loader = <function load_simulation_proof_bridge at 0x1390a9010>
+kind = 'ir.simulation_proof_bridge', mutation = 'calibration_status'
+
+    @pytest.mark.parametrize(
+        ("surface", "ref_type", "loader", "kind", "mutation"),
+        [
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "accepted",
+            ),
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "source",
+            ),
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "tier",
+            ),
+            (
+                "bridge",
+                SimulationProofBridgeRef,
+                load_simulation_proof_bridge,
+                "ir.simulation_proof_bridge",
+                "calibration_status",
+            ),
+            (
+                "bridge",
+                SimulationProofBridgeRef,
+                load_simulation_proof_bridge,
+                "ir.simulation_proof_bridge",
+                "identified",
+            ),
+        ],
+    )
+    def test_authority_surface_loaders_reject_forged_persisted_payloads(
+        tmp_path,
+        surface,
+        ref_type,
+        loader,
+        kind,
+        mutation,
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        raw_ref = store.put_json(
+            _mutate_authority_surface(surface, mutation),
+            PutOptions(kind=kind, media_type="application/json"),
+        )
+        ref = ref_type.model_validate(raw_ref.model_dump(mode="json"))
+    
+        with pytest.raises(ValueError, match="producer/verifier"):
+>           loader(store, ref)
+
+tests/unit/ir/analytics/test_simulation_proof_bridge.py:363: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/simulation_proof_bridge.py:272: in load_simulation_proof_bridge
+    payload = get_json_artifact(store, ref)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:148: in get_json_artifact
+    canon = _raw_manifest_canon(store, selector)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:122: in _raw_manifest_canon
+    manifest_bytes = get_manifest_bytes(selector)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.ownership._RootTransactionCoordinator object at 0x13bac5770>
+artifact_id = {'artifact_id': 'sha256:d387a9c1211c8f21958ec5a2f392fad94e206e5c9542967d3b9fd7bd0e9c45c2', 'kind': 'ir.simulation_proof_bridge', 'media_type': 'application/json'}
+
+    @contextmanager
+    def artifact_lease(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        exclusive: bool,
+    ) -> Iterator[_ArtifactTransactionLease]:
+        """Hold root-shared then one stable artifact stripe in lock-order sequence."""
+        active = getattr(self._active, "leases", None)
+        if active is None:
+            active = {}
+            self._active.leases = active
+>       existing = active.get(artifact_id.hex)
+                              ^^^^^^^^^^^^^^^
+E       AttributeError: 'dict' object has no attribute 'hex'
+
+src/polisyos/core/artifacts/ownership.py:239: AttributeError
+_ test_authority_surface_loaders_reject_forged_persisted_payloads[bridge-SimulationProofBridgeRef-load_simulation_proof_bridge-ir.simulation_proof_bridge-identified] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1208/test_authority_surface_loaders4')
+surface = 'bridge'
+ref_type = <class 'polisyos.ir.registry.refs.SimulationProofBridgeRef'>
+loader = <function load_simulation_proof_bridge at 0x1390a9010>
+kind = 'ir.simulation_proof_bridge', mutation = 'identified'
+
+    @pytest.mark.parametrize(
+        ("surface", "ref_type", "loader", "kind", "mutation"),
+        [
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "accepted",
+            ),
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "source",
+            ),
+            (
+                "calibration",
+                SimulationCalibrationReceiptRef,
+                load_simulation_calibration_receipt,
+                "ir.simulation_calibration_receipt",
+                "tier",
+            ),
+            (
+                "bridge",
+                SimulationProofBridgeRef,
+                load_simulation_proof_bridge,
+                "ir.simulation_proof_bridge",
+                "calibration_status",
+            ),
+            (
+                "bridge",
+                SimulationProofBridgeRef,
+                load_simulation_proof_bridge,
+                "ir.simulation_proof_bridge",
+                "identified",
+            ),
+        ],
+    )
+    def test_authority_surface_loaders_reject_forged_persisted_payloads(
+        tmp_path,
+        surface,
+        ref_type,
+        loader,
+        kind,
+        mutation,
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        raw_ref = store.put_json(
+            _mutate_authority_surface(surface, mutation),
+            PutOptions(kind=kind, media_type="application/json"),
+        )
+        ref = ref_type.model_validate(raw_ref.model_dump(mode="json"))
+    
+        with pytest.raises(ValueError, match="producer/verifier"):
+>           loader(store, ref)
+
+tests/unit/ir/analytics/test_simulation_proof_bridge.py:363: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/ir/analytics/simulation_proof_bridge.py:272: in load_simulation_proof_bridge
+    payload = get_json_artifact(store, ref)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:148: in get_json_artifact
+    canon = _raw_manifest_canon(store, selector)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/ir/artifacts/io.py:122: in _raw_manifest_canon
+    manifest_bytes = get_manifest_bytes(selector)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:393: in wrapped
+    with self._coordinator.artifact_lease(aid, exclusive=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.ownership._RootTransactionCoordinator object at 0x13bb3e350>
+artifact_id = {'artifact_id': 'sha256:eb30c07829d4e09dc85721f23820dfca4445b10f46922d7b75830d174c094ae4', 'kind': 'ir.simulation_proof_bridge', 'media_type': 'application/json'}
+
+    @contextmanager
+    def artifact_lease(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        exclusive: bool,
+    ) -> Iterator[_ArtifactTransactionLease]:
+        """Hold root-shared then one stable artifact stripe in lock-order sequence."""
+        active = getattr(self._active, "leases", None)
+        if active is None:
+            active = {}
+            self._active.leases = active
+>       existing = active.get(artifact_id.hex)
+                              ^^^^^^^^^^^^^^^
+E       AttributeError: 'dict' object has no attribute 'hex'
+
+src/polisyos/core/artifacts/ownership.py:239: AttributeError
+____ test_manifest_input_resolution_preserves_selected_profile_on_fresh_cas ____
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1208/test_manifest_input_resolution0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13ba1abe0>
+
+    def test_manifest_input_resolution_preserves_selected_profile_on_fresh_cas(
+        tmp_path, monkeypatch
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        payload = b'{"stable":"payload"}'
+        kind = "test.backtest.selected_input"
+        default_ref = store.put_bytes(
+            payload,
+            ArtifactWriteOptions(
+                kind=kind,
+                media_type="application/json",
+                schema=CoreSchemaInfo(name=kind, version="1.0"),
+                canon=CoreCanonInfo(max_depth=0),
+            ),
+        )
+        selected_ref = store.put_bytes(
+            payload,
+            ArtifactWriteOptions(
+                kind=kind,
+                media_type="application/json",
+                schema=CoreSchemaInfo(name=kind, version="2.0"),
+                canon=CoreCanonInfo(max_depth=8),
+            ),
+        )
+        assert selected_ref.artifact_id == default_ref.artifact_id
+        assert selected_ref.manifest_profile_sha256 is not None
+    
+        selectors = []
+        get_manifest = store.get_manifest
+    
+        def record_manifest(selector):
+            selectors.append(selector)
+            return get_manifest(selector)
+    
+        monkeypatch.setattr(store, "get_manifest", record_manifest)
+        input_ref = {
+            "artifact_id": str(selected_ref.artifact_id),
+            "role": "selected_source",
+            "manifest_profile_sha256": selected_ref.manifest_profile_sha256,
+        }
+        normalized = orchestrator_module._resolve_manifest_inputs(store, [input_ref])
+    
+        assert normalized is not None
+        assert normalized[0].manifest_profile_sha256 == selected_ref.manifest_profile_sha256
+>       assert len(selectors) == 2
+E       AssertionError: assert 3 == 2
+E        +  where 3 = len([ArtifactID(root='sha256:b8e596a40edbe59de29f5583456ff1e699d6787aa80edf909067acb8f0d104ca'), ArtifactRef(artifact_id=A...46d021b76c88468f3936ec65'), ArtifactID(root='sha256:b8e596a40edbe59de29f5583456ff1e699d6787aa80edf909067acb8f0d104ca')])
+
+tests/unit/scientist/methods/backtesting/test_backtesting.py:186: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/ir/analytics/test_simulation_proof_bridge.py::test_authority_surface_loaders_reject_forged_persisted_payloads[calibration-SimulationCalibrationReceiptRef-load_simulation_calibration_receipt-ir.simulation_calibration_receipt-accepted]
+FAILED tests/unit/ir/analytics/test_simulation_proof_bridge.py::test_authority_surface_loaders_reject_forged_persisted_payloads[calibration-SimulationCalibrationReceiptRef-load_simulation_calibration_receipt-ir.simulation_calibration_receipt-source]
+FAILED tests/unit/ir/analytics/test_simulation_proof_bridge.py::test_authority_surface_loaders_reject_forged_persisted_payloads[calibration-SimulationCalibrationReceiptRef-load_simulation_calibration_receipt-ir.simulation_calibration_receipt-tier]
+FAILED tests/unit/ir/analytics/test_simulation_proof_bridge.py::test_authority_surface_loaders_reject_forged_persisted_payloads[bridge-SimulationProofBridgeRef-load_simulation_proof_bridge-ir.simulation_proof_bridge-calibration_status]
+FAILED tests/unit/ir/analytics/test_simulation_proof_bridge.py::test_authority_surface_loaders_reject_forged_persisted_payloads[bridge-SimulationProofBridgeRef-load_simulation_proof_bridge-ir.simulation_proof_bridge-identified]
+FAILED tests/unit/scientist/methods/backtesting/test_backtesting.py::test_manifest_input_resolution_preserves_selected_profile_on_fresh_cas

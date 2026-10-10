@@ -1,0 +1,11 @@
+COMMAND ['.venv/bin/python', '-m', 'pytest', '-q', '-o', 'addopts=', 'tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py', '-k', 'matches_branch_state_ref_identity or normalizes_structured_branch_state_ref or fails_closed_on_malformed_structured_ref or rejects_nonemitted_ref_identity or rejects_matching_wrong_manifest_header or binds_actual_manifest']
+..............                                                           [100%]
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+14 passed, 19 deselected, 2 warnings in 16.72s
+EXIT 0

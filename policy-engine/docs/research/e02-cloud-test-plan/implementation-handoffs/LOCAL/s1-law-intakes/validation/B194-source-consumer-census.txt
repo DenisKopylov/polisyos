@@ -1,0 +1,68 @@
+actual Python files under src/polisyos: 2707
+tracked Python files under src/polisyos: 2702
+untracked Python files under src/polisyos: 5
+lexical-hit Python files: 17
+LEX src/polisyos/core/contracts/foundry.py
+  1712: uncertainty_envelopes: Mapping[str, UncertaintyEnvelopeRef] | None = None
+  1719: propagation_report_ref: ArtifactRef | None = None
+LEX src/polisyos/fabric/claims/conflicts/resolve.py
+  841: "uncertainty_envelopes_emitted": len(uncertainty_envelope_artifact_ids),
+LEX src/polisyos/foundry/calibration/calibrator.py
+  1816: report = report.model_copy(update={"uncertainty_envelopes": envelopes})
+LEX src/polisyos/foundry/calibration/report.py
+  140: uncertainty_envelopes: Mapping[str, UncertaintyEnvelope] | None = Field(
+LEX src/polisyos/foundry/methods/backends/dispatch.py
+  657: validated_artifacts["validated_uncertainty_envelopes"] = serialized_envelopes
+LEX src/polisyos/foundry/validation/release_acceptance.py
+  46: "propagation_report_ref",
+LEX src/polisyos/ir/analytics/phase4_dynamics.py
+  311: uncertainty_envelopes: Mapping[str, UncertaintyEnvelopeRef] | None = None
+  318: propagation_report_ref: ArtifactRefModel | None = None
+LEX src/polisyos/ir/analytics/simulation_proof_bridge.py
+  79: "uncertainty_envelopes",
+  86: "propagation_report_ref",
+LEX src/polisyos/ir/analytics/uncertainty.py
+  2237: envelopes = simulation_payload.get("uncertainty_envelopes")
+  2274: report_raw = simulation_payload.get("propagation_report_ref")
+  2278: tuple(dict.fromkeys([*limitations, "propagation_report_ref_missing"])),
+LEX src/polisyos/runtime/quality/semantic_binding.py
+  704: uncertainty_envelopes: tuple[dict[str, Any], ...] = Field(default=())
+  738: "uncertainty_envelopes",
+  2114: "uncertainty_envelopes": _mapping_tuple_from(foundry_report, "uncertainty_envelopes")
+LEX src/polisyos/scientist/governance/passes/confidence_pass.py
+  109: if sim_result.uncertainty_envelopes:
+  110: for metric_id, ref in sim_result.uncertainty_envelopes.items():
+  147: path=["uncertainty_envelopes", str(metric_id)],
+  183: path=["uncertainty_envelopes", str(metric_id)],
+  203: path=["uncertainty_envelopes", str(metric_id), "confidence_interval"],
+  218: path=["uncertainty_envelopes", str(metric_id), "confidence_interval"],
+  235: path=["uncertainty_envelopes"],
+LEX src/polisyos/scientist/methods/backtesting/orchestrator.py
+  512: envelopes = sim_payload.get("uncertainty_envelopes")
+LEX src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py
+  2741: if sim_result.uncertainty_envelopes:
+  2742: for metric_id, ref in sim_result.uncertainty_envelopes.items():
+LEX src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py
+  327: for ref in (simulation_result.uncertainty_envelopes or {}).values()
+  330: and simulation_result.uncertainty_envelopes is not None
+  1008: if simulation_result is not None and simulation_result.uncertainty_envelopes is not None:
+  1009: if simulation_result.propagation_report_ref is not None:
+  1012: artifact_id=str(simulation_result.propagation_report_ref.artifact_id),
+  1023: for metric_id, ref in simulation_result.uncertainty_envelopes.items():
+LEX src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py
+  198: "uncertainty_envelopes": envelope_refs,
+  200: "propagation_report_ref": report_ref,
+  308: if report.uncertainty_envelopes:
+  309: for name, env in report.uncertainty_envelopes.items():
+LEX src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py
+  466: diagnostics["propagation_report_ref"] = str(propagation.report_ref.artifact_id)
+  814: elif report.uncertainty_envelopes:
+  815: for name, env in report.uncertainty_envelopes.items():
+LEX src/polisyos/scientist/nodes/builtins/state_keys.py
+  62: ARTIFACT_PROPAGATION_REPORT_REF = "propagation_report_ref"
+AST direct .uncertainty_envelopes reads: 5 files
+AST src/polisyos/scientist/governance/passes/confidence_pass.py: [109, 110]
+AST src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py: [2741, 2742]
+AST src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py: [327, 330, 1008, 1023]
+AST src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py: [308, 309]
+AST src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py: [814, 815]

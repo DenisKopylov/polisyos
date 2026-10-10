@@ -1,0 +1,59 @@
+UP040 Type alias `_MetadataOption` uses `TypeAlias` annotation instead of the `type` keyword
+   --> policy-engine/src/polisyos/ir/artifacts/contracts.py:123:1
+    |
+123 | _MetadataOption: TypeAlias = BaseModel | Mapping[str, Any]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: Use the `type` keyword
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> policy-engine/tests/unit/core/artifacts/test_ir_adapter.py:1:1
+   |
+ 1 | / from __future__ import annotations
+ 2 | |
+ 3 | | from collections.abc import Mapping
+ 4 | | from copy import deepcopy
+ 5 | | from decimal import Decimal
+ 6 | | from hashlib import sha256
+ 7 | | from types import MappingProxyType
+ 8 | |
+ 9 | | import pytest
+10 | |
+11 | | from polisyos.core.artifacts.ir_adapter import (
+12 | |     CoreToIRArtifactStoreAdapter,
+13 | |     ensure_ir_artifact_store,
+14 | | )
+15 | | from polisyos.core.artifacts.manifest import (
+16 | |     ArtifactAuthorityInfo,
+17 | |     ArtifactGovernanceInfo,
+18 | |     ArtifactRef as CoreArtifactRef,
+19 | |     ArtifactSameInputClosureInfo,
+20 | |     ArtifactTenantContextInfo,
+21 | |     CanonInfo as CoreCanonInfo,
+22 | |     EnvInfo,
+23 | |     InputRef as CoreInputRef,
+24 | |     ProducerInfo,
+25 | |     SchemaInfo as CoreSchemaInfo,
+26 | |     WarningRecord,
+27 | | )
+28 | | from polisyos.core.artifacts.store import FileSystemCAS
+29 | | from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+30 | | from polisyos.core.canon import CanonSpec as CoreCanonSpec
+31 | | from polisyos.core.canon import from_canonical_bytes as from_core_canonical_bytes
+32 | | from polisyos.ir.analytics.backtest import (
+33 | |     BacktestReport,
+34 | |     load_backtest_report,
+35 | |     persist_backtest_report,
+36 | | )
+37 | | from polisyos.ir.artifacts.contracts import CanonInfo as IRCanonInfo
+38 | | from polisyos.ir.artifacts.io import get_json_artifact, put_json_artifact
+39 | | from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
+40 | | from polisyos.ir.model_layer.canon import CanonViolation as IRCanonViolation
+   | |____________________________________________________________________________^
+41 |
+42 |   _IR_INCOMPATIBLE_TAG_PAYLOADS = [
+   |
+help: Organize imports
+
+Found 2 errors.
+[*] 1 fixable with the `--fix` option (1 hidden fix can be enabled with the `--unsafe-fixes` option).

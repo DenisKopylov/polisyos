@@ -1,0 +1,227 @@
+## codex/e02-unified-local-20261009...origin/codex/e02-unified-local-20261009 [ahead 1]
+ M policy-engine/apps/runtime-dashboard/src/api/validators.test.ts
+ M policy-engine/apps/runtime-dashboard/src/api/validators.ts
+ M policy-engine/apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx
+ M policy-engine/apps/runtime-dashboard/src/features/runs/components/pipelinePanels.test.tsx
+ M policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx
+ M policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx
+ M policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json
+ M policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/ru.json
+ M policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json
+ M policy-engine/apps/runtime-dashboard/src/shared/lib/domain/agents.test.ts
+ M policy-engine/apps/runtime-dashboard/src/shared/lib/domain/agents.ts
+ M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json
+ M policy-engine/ops/cloud/gcp/package_repo.sh
+ M policy-engine/src/polisyos/core/artifacts/README.md
+ M policy-engine/src/polisyos/core/artifacts/__init__.py
+ M policy-engine/src/polisyos/core/artifacts/_transfer_ops.py
+ M policy-engine/src/polisyos/core/artifacts/async_store.py
+ M policy-engine/src/polisyos/core/artifacts/ir_adapter.py
+ M policy-engine/src/polisyos/core/artifacts/store.py
+ M policy-engine/src/polisyos/core/contracts/README.md
+ M policy-engine/src/polisyos/core/contracts/__init__.py
+ M policy-engine/src/polisyos/core/contracts/control.py
+ M policy-engine/src/polisyos/core/contracts/runtime.py
+ M policy-engine/src/polisyos/core/contracts/value_outer_set.py
+ M policy-engine/src/polisyos/core/llm/README.md
+ M policy-engine/src/polisyos/core/llm/response.py
+ M policy-engine/src/polisyos/core/llm/traced_client.py
+ M policy-engine/src/polisyos/data_forge/README.md
+ M policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md
+ M policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py
+ M policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py
+ M policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py
+ M policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py
+ M policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py
+ M policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py
+ M policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py
+ M policy-engine/src/polisyos/data_forge/domains/catalog/batch/embedder.py
+ M policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py
+ M policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py
+ M policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py
+ M policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py
+ M policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py
+ M policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py
+ M policy-engine/src/polisyos/data_forge/domains/catalog/registry.py
+ M policy-engine/src/polisyos/data_forge/domains/catalog/source_modules.py
+ M policy-engine/src/polisyos/data_forge/domains/catalog/sources/__init__.py
+ M policy-engine/src/polisyos/data_forge/domains/catalog/sources/core.py
+ M policy-engine/src/polisyos/data_forge/domains/catalog/sources/open_data.py
+ M policy-engine/src/polisyos/data_forge/domains/catalog/sources/sdmx.py
+ M policy-engine/src/polisyos/data_forge/domains/catalog/sources/specialized.py
+ M policy-engine/src/polisyos/data_forge/domains/legal/batch/README.md
+ M policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py
+ M policy-engine/src/polisyos/data_forge/kernel/README.md
+ M policy-engine/src/polisyos/data_forge/kernel/embeddings.py
+ M policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py
+ M policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py
+ M policy-engine/src/polisyos/data_forge/read_api/academic.py
+ M policy-engine/src/polisyos/data_forge/read_api/catalog.py
+ M policy-engine/src/polisyos/data_forge/read_api/legal.py
+ M policy-engine/src/polisyos/fabric/connectors/README.md
+ M policy-engine/src/polisyos/fabric/connectors/pool.py
+ M policy-engine/src/polisyos/fabric/data_plane/README.md
+ M policy-engine/src/polisyos/fabric/data_plane/modes.py
+ M policy-engine/src/polisyos/fabric/data_plane/streaming.py
+ M policy-engine/src/polisyos/fabric/retrieval/service.py
+ M policy-engine/src/polisyos/ir/artifacts/README.md
+ M policy-engine/src/polisyos/ir/artifacts/contracts.py
+ M policy-engine/src/polisyos/lex/knowledge/README.md
+ M policy-engine/src/polisyos/lex/knowledge/__init__.py
+ M policy-engine/src/polisyos/lex/knowledge/benchmark.py
+ M policy-engine/src/polisyos/lex/knowledge/search.py
+ M policy-engine/src/polisyos/lex/knowledge/store.py
+ M policy-engine/src/polisyos/runtime/http/container.py
+ M policy-engine/src/polisyos/runtime/http/routes/runs.py
+ M policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py
+ M policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py
+ M policy-engine/src/polisyos/runtime/http/services/control/lex_search_projection.py
+ M policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py
+ M policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py
+ M policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py
+ M policy-engine/src/polisyos/runtime/http/services/debug.py
+ M policy-engine/src/polisyos/runtime/quality/generation_cycle.py
+ M policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py
+ M policy-engine/src/polisyos/scientist/agent/knowledge_tools.py
+ M policy-engine/src/polisyos/scientist/methods/autotune/__init__.py
+ M policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py
+ M policy-engine/src/polisyos/scientist/methods/autotune/models.py
+ M policy-engine/src/polisyos/scientist/methods/autotune/runtime.py
+ M policy-engine/src/polisyos/scientist/methods/search/funnel/level0_static.py
+ M policy-engine/src/polisyos/scientist/methods/search/funnel/level1_heuristic.py
+ M policy-engine/src/polisyos/scientist/methods/search/funnel/level2_causal.py
+ M policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py
+ M policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py
+ M policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py
+ M policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py
+ M policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py
+ M policy-engine/src/polisyos/scientist/methods/search/funnel/types.py
+ M policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py
+ M policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py
+ M policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py
+ M policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py
+ M policy-engine/src/polisyos/scientist/orchestration/engine/README.md
+ M policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py
+ M policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py
+ M policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py
+ M policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py
+ M policy-engine/src/polisyos/scientist/orchestration/engine/executor.py
+ M policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py
+ M policy-engine/src/polisyos/scientist/orchestration/engine/retry.py
+ M policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py
+ M policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py
+ M policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py
+ M policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py
+ M policy-engine/src/polisyos/scientist/orchestration/llm/README.md
+ M policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py
+ M policy-engine/src/polisyos/scientist/orchestration/llm/factory.py
+ M policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py
+ M policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py
+ M policy-engine/tests/_helpers/runtime_http.py
+ M policy-engine/tests/repo_quality/tools/test_hatch_packaging.py
+ M policy-engine/tests/unit/core/artifacts/test_ir_adapter.py
+ M policy-engine/tests/unit/core/contracts/test_value_outer_set.py
+ M policy-engine/tests/unit/data_forge/domains/catalog/batch/test_pipeline.py
+ M policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_store.py
+ M policy-engine/tests/unit/data_forge/legal_batch/test_embed_local.py
+ M policy-engine/tests/unit/fabric/data_plane/test_processing_guarantees.py
+ M policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py
+ M policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py
+ M policy-engine/tests/unit/lex/test_benchmark.py
+ M policy-engine/tests/unit/remediation/test_dfi_03.py
+ M policy-engine/tests/unit/remediation/test_dfk_02.py
+ M policy-engine/tests/unit/remediation/test_emb_03.py
+ M policy-engine/tests/unit/runtime/http/services/test_lex_pipeline.py
+ M policy-engine/tests/unit/runtime/http/test_control_service_di.py
+ M policy-engine/tests/unit/runtime/http/test_insights_api.py
+ M policy-engine/tests/unit/runtime/http/test_runtime_service_container.py
+ M policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py
+ M policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py
+ M policy-engine/tests/unit/scientist/nodes/test_build_policy_output_bundle.py
+ M policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py
+ M policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py
+ M policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py
+ M policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py
+ M policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py
+ M policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py
+ M policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py
+ M policy-engine/tests/unit/scientist/search/funnel/test_level0_static.py
+ M policy-engine/tests/unit/scientist/search/funnel/test_level1_heuristic.py
+ M policy-engine/tests/unit/scientist/search/funnel/test_level2_causal.py
+ M policy-engine/tests/unit/scientist/search/funnel/test_level3_medium.py
+ M policy-engine/tests/unit/scientist/search/funnel/test_level4_full.py
+ M policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py
+ M policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py
+ M policy-engine/tests/unit/scientist/search/funnel/test_types.py
+ M policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py
+ M policy-engine/tests/unit/scientist/search/test_voi_scheduler.py
+?? LOCAL/
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/can-options/
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cas-contracts/
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/dx0-native/
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/finding-proposals.json
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/i1-c05/
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/i4-c12/
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r1-prepared-b/
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r3-monetary/
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s3-empirical/
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/shared-embeddings/
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v1-v2/
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v6-partial/
+?? policy-engine/release-fragments/unreleased/2026-10-06-e02-checkpoint-publication-budget.toml
+?? policy-engine/release-fragments/unreleased/2026-10-06-e02-current-pool-admission.toml
+?? policy-engine/release-fragments/unreleased/2026-10-07-e02-b53-producer-publication-reconciliation.toml
+?? policy-engine/release-fragments/unreleased/2026-10-08-e02-c05-catalog-profile-currentness.toml
+?? policy-engine/release-fragments/unreleased/2026-10-08-e02-c05-loader-contracts-r2.toml
+?? policy-engine/release-fragments/unreleased/2026-10-09-e02-can-options-mapping.toml
+?? policy-engine/release-fragments/unreleased/2026-10-09-e02-r3-llm-cost-status.toml
+?? policy-engine/release-fragments/unreleased/2026-10-09-e02-s3-native-statistical-bounds.toml
+?? policy-engine/release-fragments/unreleased/2026-10-09-e02-shared-embedding-identity.toml
+?? policy-engine/release-fragments/unreleased/2026-10-09-e02-stream-admission-recovery.toml
+?? policy-engine/release-fragments/unreleased/2026-10-09-e02-v5-search-methodjob-cas.toml
+?? policy-engine/release-fragments/unreleased/2026-10-09-legal-generation-intent-consumer.toml
+?? policy-engine/src/polisyos/core/llm/settlement.py
+?? policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py
+?? policy-engine/src/polisyos/data_forge/domains/catalog/embedding_projection.py
+?? policy-engine/src/polisyos/data_forge/domains/catalog/selection.py
+?? policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py
+?? policy-engine/src/polisyos/fabric/data_plane/schema_rows.py
+?? policy-engine/src/polisyos/scientist/methods/autotune/README.md
+?? policy-engine/src/polisyos/scientist/orchestration/engine/skg_snapshot.py
+?? policy-engine/tests/repo_quality/tools/test_gcp_package_assets.py
+?? policy-engine/tests/unit/core/artifacts/test_bound_import_preservation.py
+?? policy-engine/tests/unit/core/artifacts/test_transfer_import_fresh_process.py
+?? policy-engine/tests/unit/core/llm/
+?? policy-engine/tests/unit/data_forge/kernel/test_encoder_identity.py
+?? policy-engine/tests/unit/fabric/connectors/test_pool_e02.py
+?? policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py
+?? policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py
+?? policy-engine/tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py
+?? policy-engine/tests/unit/fabric/data_plane/test_stream_pool_physical_cleanup_oracle.py
+?? policy-engine/tests/unit/runtime/http/services/test_response_shapes_monetary.py
+?? policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py
+?? policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle.py
+?? policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py
+?? policy-engine/tests/unit/scientist/orchestration/engine/_retry_setup_probe.py
+?? policy-engine/tests/unit/scientist/orchestration/engine/fixtures/
+?? policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py
+?? policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py
+?? policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py
+?? policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py
+?? policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py
+?? policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py
+?? policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py
+?? policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py
+?? policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py
+?? policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py
+?? policy-engine/tests/unit/scientist/orchestration/engine/test_producer_validation_graph_oracle.py
+?? policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py
+?? policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py
+?? policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_scope_admission.py

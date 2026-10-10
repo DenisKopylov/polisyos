@@ -1,0 +1,11 @@
+# Current source formatting boundary
+
+This is an author receipt for a bounded formatting operation before the final source freeze. It is not a native repository closeout or finding proposal. The branch remained `codex/e02-unified-local-20261009` at implementation base `4699fdf8419dd2c89609f68a3edf5f3bfb7c851a`.
+
+The complete input set was the union of modified tracked and non-ignored untracked Python files outside LOCAL, plus the proposal emitter and its crosswalk Python companions; removed files were omitted from the executable input set. This file-type denominator contained 216 existing Python files. Canonical `ruff format --check` reported 37 needing formatting and 179 already formatted. Only the 37 named files were passed to `python -m ruff format`; no import-fixing command was used.
+
+Every before/after Python AST was equal with location attributes excluded. The retained manifest gives each path's byte hashes and both AST hashes. The reversible formatting patch is ignored local evidence, not a substitute for the committed source. The subsequent canonical Ruff lint command covered all 216 inputs, returned zero diagnostics, and recorded no input drift. This scope does not include other LOCAL harness scripts, later authored companions, or the entire repository.
+
+The complete arguments, deciding streams, input hashes and reversible patch are available locally under `LOCAL/raw/source-footprint-format-current/`: `command.json` SHA-256 `8c7502db5777ff7275dcfe34a625c8e6dc4ff77b303c91bbf4ffeb42050019e7`; `format-receipt.json` `ffc5849e3f3e26325f27ce3cee3ad5e048d766a9c81645144775758129972e0c`; `format.stdout.txt` `d6a051d6a0b03b712fc801a2625bac5b0b420ca003999a013e3b2f07e831046e`; `formatting-only.patch` `8ac530264f6b5b7ae44d7ff694a31be618fad8a398699652567eb0e3a2c97861`; `post-format-lint-receipt.json` `cfaad4646142a46964e157d703070cd798e81f755af97411b89d212277d90159`; lint stdout `4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945`. Both stderr streams are empty (SHA-256 `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`).
+
+P35/P41: the denominator was recomputed from the whole current dirty source set; neither prior partial lint results nor whole-repository inheritance were inferred. Next check: reconcile later companions and run the required native gates against the final committed freeze.

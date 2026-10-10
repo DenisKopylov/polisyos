@@ -1,0 +1,252 @@
+..........FF....................F......                                  [100%]
+=================================== FAILURES ===================================
+______ test_promotion_coordinator_persists_readiness_and_updates_champion ______
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1075/test_promotion_coordinator_per0')
+
+    def test_promotion_coordinator_persists_readiness_and_updates_champion(tmp_path) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
+        coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
+    
+        candidate = _candidate(evidence_depth="replicated")
+        candidate_ref = persist_policy_candidate_schema(store, candidate)
+        selection_eval, hidden_holdout = _benchmark(candidate_ref, holdout_score=0.94)
+        evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+        replay_ref, replay_verification_ref = _persist_replay_support(
+            store,
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+        )
+        vector = _evaluation_vector(candidate)
+        bundle = coordinator.build_input_bundle(
+            candidate=candidate,
+            phase3_gate=_phase3_passed(),
+            benchmark_evaluation=selection_eval,
+            hidden_holdout_evaluation=hidden_holdout,
+            evaluation_vector=vector,
+            distributional_report=_distributional_report(),
+            causal_effect_report=_causal_effect_report(),
+            data_readiness_report=build_data_readiness_report(
+                sample_size=120,
+                measurement_quality="known_good",
+                fallback_data_available=True,
+            ),
+            cross_graph_profile=_cross_graph_profile(),
+            prior_knowledge_bundle=_prior_knowledge_bundle(status="ok", coverage_complete=True),
+            governance_report={"verdict": "approve", "issues": []},
+            uncertainty_envelope=_uncertainty(0.1),
+            replay_bundle_ref=replay_ref,
+            replay_verification_ref=replay_verification_ref,
+            budget_state=BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("10.0"))},
+                spent={"run": Decimal("1.0")},
+            ),
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+            state={
+                "checkpoints": [
+                    {"stage": "data_loaded", "timestamp": "2026-03-25T10:00:00Z"},
+                    {"stage": "estimation_complete", "timestamp": "2026-03-25T10:01:00Z"},
+                ],
+                "verified_claims": [{"source_ref": "source:1", "confidence": 0.9}],
+                "data_sources": [{"name": "dataset", "last_updated": "2026-03-01T00:00:00+00:00"}],
+                "knowledge_metadata": {"last_updated": "2026-03-01T00:00:00+00:00"},
+                "pii_scan_results": {"max_severity": "none", "total_entities_found": 0},
+                "audit_lineage_complete": True,
+            },
+            compute_cost_usd=1.0,
+            replay_cost_usd=0.5,
+            expected_improvement=2.0,
+            timeout_risk=0.1,
+        )
+    
+        result = coordinator.coordinate_promotion(
+            loop_id="policy_loop",
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+            promotion_policy=PromotionPolicy(loop_id="policy_loop", primary_metric="score"),
+            judge_input=bundle,
+        )
+    
+>       assert result.promotion_decision.promoted is True
+E       AssertionError: assert False is True
+E        +  where False = PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None).promoted
+E        +    where PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None) = PolicyPromotionResult(judge_verdict=JudgeVerdict(per_judge={'structural': SingleJudgeVerdict(judge_name='structural', ...olicy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None)).promotion_decision
+
+tests/unit/scientist/search/test_phase_b_policy_runtime.py:1200: AssertionError
+____ test_missing_prior_knowledge_caps_readiness_below_recommendation_ready ____
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1075/test_missing_prior_knowledge_c0')
+
+    def test_missing_prior_knowledge_caps_readiness_below_recommendation_ready(tmp_path) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
+        coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
+    
+        candidate = _candidate(evidence_depth="replicated")
+        candidate_ref = persist_policy_candidate_schema(store, candidate)
+        selection_eval, hidden_holdout = _benchmark(candidate_ref, holdout_score=0.94)
+        evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+        replay_ref, replay_verification_ref = _persist_replay_support(
+            store,
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+        )
+    
+        bundle = coordinator.build_input_bundle(
+            candidate=candidate,
+            phase3_gate=_phase3_passed(),
+            benchmark_evaluation=selection_eval,
+            hidden_holdout_evaluation=hidden_holdout,
+            evaluation_vector=_evaluation_vector(candidate),
+            distributional_report=_distributional_report(),
+            causal_effect_report=_causal_effect_report(),
+            data_readiness_report=build_data_readiness_report(
+                sample_size=120,
+                measurement_quality="known_good",
+                fallback_data_available=True,
+            ),
+            cross_graph_profile=_cross_graph_profile(),
+            governance_report={"verdict": "approve", "issues": []},
+            uncertainty_envelope=_uncertainty(0.1),
+            replay_bundle_ref=replay_ref,
+            replay_verification_ref=replay_verification_ref,
+            budget_state=BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("10.0"))},
+                spent={"run": Decimal("1.0")},
+            ),
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+            state={
+                "checkpoints": [
+                    {"stage": "data_loaded", "timestamp": "2026-03-25T10:00:00Z"},
+                    {"stage": "estimation_complete", "timestamp": "2026-03-25T10:01:00Z"},
+                ],
+                "verified_claims": [{"source_ref": "source:1", "confidence": 0.9}],
+                "data_sources": [{"name": "dataset", "last_updated": "2026-03-01T00:00:00+00:00"}],
+                "knowledge_metadata": {"last_updated": "2026-03-01T00:00:00+00:00"},
+                "pii_scan_results": {"max_severity": "none", "total_entities_found": 0},
+                "audit_lineage_complete": True,
+            },
+            compute_cost_usd=1.0,
+            replay_cost_usd=0.5,
+            expected_improvement=2.0,
+            timeout_risk=0.1,
+        )
+    
+        result = coordinator.coordinate_promotion(
+            loop_id="policy_loop",
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+            promotion_policy=PromotionPolicy(loop_id="policy_loop", primary_metric="score"),
+            judge_input=bundle,
+        )
+    
+>       assert result.promotion_decision.promoted is True
+E       AssertionError: assert False is True
+E        +  where False = PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None).promoted
+E        +    where PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None) = PolicyPromotionResult(judge_verdict=JudgeVerdict(per_judge={'structural': SingleJudgeVerdict(judge_name='structural', ...olicy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None)).promotion_decision
+
+tests/unit/scientist/search/test_phase_b_policy_runtime.py:1290: AssertionError
+___ test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler ____
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1075/test_promotion_coordinator_pub0')
+
+    def test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler(tmp_path) -> None:
+        class _Scheduler:
+            def __init__(self) -> None:
+                self.calls: list[dict[str, object]] = []
+    
+            def observe_promotion_outcome(self, **kwargs) -> None:
+                self.calls.append(kwargs)
+    
+        store = FileSystemCAS(tmp_path / "cas")
+        registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
+        coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
+        candidate = _candidate(evidence_depth="replicated")
+        candidate_ref = persist_policy_candidate_schema(store, candidate)
+        selection_eval, hidden_holdout = _benchmark(candidate_ref, holdout_score=0.94)
+        evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+        scheduler = _Scheduler()
+        replay_ref, replay_verification_ref = _persist_replay_support(
+            store,
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+        )
+    
+        bundle = coordinator.build_input_bundle(
+            candidate=candidate,
+            phase3_gate=_phase3_passed(),
+            benchmark_evaluation=selection_eval,
+            hidden_holdout_evaluation=hidden_holdout,
+            evaluation_vector=_evaluation_vector(candidate),
+            distributional_report=_distributional_report(),
+            causal_effect_report=_causal_effect_report(),
+            data_readiness_report=build_data_readiness_report(
+                sample_size=120,
+                measurement_quality="known_good",
+                fallback_data_available=True,
+            ),
+            cross_graph_profile=_cross_graph_profile(),
+            prior_knowledge_bundle=_prior_knowledge_bundle(status="ok", coverage_complete=True),
+            governance_report={"verdict": "approve", "issues": []},
+            uncertainty_envelope=_uncertainty(0.1),
+            replay_bundle_ref=replay_ref,
+            replay_verification_ref=replay_verification_ref,
+            budget_state=BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("10.0"))},
+                spent={"run": Decimal("1.0")},
+            ),
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+            state={
+                "current_pareto_position": "frontier",
+                "checkpoints": [
+                    {"stage": "data_loaded", "timestamp": "2026-03-25T10:00:00Z"},
+                    {"stage": "estimation_complete", "timestamp": "2026-03-25T10:01:00Z"},
+                ],
+                "verified_claims": [{"source_ref": "source:1", "confidence": 0.9}],
+                "data_sources": [{"name": "dataset", "last_updated": "2026-03-01T00:00:00+00:00"}],
+                "knowledge_metadata": {"last_updated": "2026-03-01T00:00:00+00:00"},
+                "pii_scan_results": {"max_severity": "none", "total_entities_found": 0},
+                "audit_lineage_complete": True,
+            },
+            voi_scheduler=scheduler,
+            compute_cost_usd=1.0,
+            replay_cost_usd=0.5,
+            expected_improvement=2.0,
+            timeout_risk=0.1,
+        )
+    
+        result = coordinator.coordinate_promotion(
+            loop_id="policy_loop",
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+            promotion_policy=PromotionPolicy(loop_id="policy_loop", primary_metric="score"),
+            judge_input=bundle,
+        )
+    
+>       assert result.promotion_decision.promoted is True
+E       AssertionError: assert False is True
+E        +  where False = PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None).promoted
+E        +    where PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None) = PolicyPromotionResult(judge_verdict=JudgeVerdict(per_judge={'structural': SingleJudgeVerdict(judge_name='structural', ...olicy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None)).promotion_decision
+
+tests/unit/scientist/search/test_phase_b_policy_runtime.py:2285: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_search_controller_revalidates_reloaded_objective_result
+tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_pareto_registry_rejects_malformed_owner_vector_before_write
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `ObjectiveChannelValue` - serialized value may not be as expected [field_name='primary', input_value='not-a-channel', input_type=str])
+    return self.__pydantic_serializer__.to_python(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_promotion_coordinator_persists_readiness_and_updates_champion
+FAILED tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_missing_prior_knowledge_caps_readiness_below_recommendation_ready
+FAILED tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler

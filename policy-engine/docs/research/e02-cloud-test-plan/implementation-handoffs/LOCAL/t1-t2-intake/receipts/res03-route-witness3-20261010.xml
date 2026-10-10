@@ -1,0 +1,535 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="37.610" timestamp="2026-10-10T01:20:09.973142+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.integration.scientist.test_res_03_real_simulation_route" name="test_res_03_real_simulation_later_failure_reaches_user_route" time="17.558"><failure message="AssertionError: assert 'simulation_result_binding_unavailable' == 'simulation_result_binding_tenant_mismatch'&#10;  &#10;  - simulation_result_binding_tenant_mismatch&#10;  ?                           ^^  ^^^^ ^^ ^^^&#10;  + simulation_result_binding_unavailable&#10;  ?                           ^  ^^ ^ ^^^">tmp_path = PosixPath('/private/tmp/e02-res03-c05c.IoSYUE/pytest/popen-gw0/test_res_03_real_simulation_la0')
+request = &lt;FixtureRequest for &lt;Function test_res_03_real_simulation_later_failure_reaches_user_route&gt;&gt;
+
+    def test_res_03_real_simulation_later_failure_reaches_user_route(
+        tmp_path,
+        request: pytest.FixtureRequest,
+    ) -&gt; None:
+        """Persist a real simulation, then expose the later failure and invalidation."""
+        store = _TenantScopedCAS(tmp_path / "cas", tenant_id=_TENANT_ID, cell_id=_CELL_ID)
+        run_id = "R_res03_real_route"
+    
+        with tenant_scope(None, tenant_id=_TENANT_ID, cell_id=_CELL_ID):
+            registry_bundle = build_default_registry_bundle(store)
+            trinity, data_snapshot_ref = _build_real_trinity(store, registry_bundle.bundle_ref)
+            trinity_ref = store.put_json(
+                trinity,
+                PutOptions(
+                    kind="ir.trinity_bundle",
+                    media_type="application/json",
+                    schema=SchemaInfo(
+                        name="polisyos.ir.TrinityBundle",
+                        version=trinity.schema_version,
+                    ),
+                ),
+            )
+            state = ExperimentState(
+                run_id=run_id,
+                inputs={
+                    "trinity_bundle_ref": trinity_ref,
+                    "registry_bundle_ref": registry_bundle.bundle_ref,
+                    "data_snapshot_ref": data_snapshot_ref,
+                },
+                params={
+                    # The state-snapshot compatibility path loads the source state
+                    # verbatim.  Bind one real slot so the persisted bound snapshot
+                    # has distinct bytes before CAS adds its input lineage profile.
+                    "foundry_input_binding_rules": [
+                        FoundryInputBindingRule(
+                            binding_id="res03.fixture_tax_rate",
+                            source_path="fixture.tax_rate",
+                            target_slot_id="global.tax_rate",
+                            default_value=Decimal("0.1"),
+                            notes=["test fixture makes bound snapshot distinct"],
+                        )
+                    ]
+                },
+            )
+    
+            later_failure = _LaterFailureNode()
+            dependent = _DependentNode()
+            independent = _IndependentSiblingNode()
+            registry: NodeRegistry = build_registry_with_builtin_nodes(include_discovered_nodes=False)
+            registry.register(later_failure)
+            registry.register(dependent)
+            registry.register(independent)
+    
+            ctx = build_execution_context(
+                store,
+                registry_bundle.bundle_ref,
+                run_id=run_id,
+                foundry=DefaultFoundryPort(),
+            )
+            result = WorkflowExecutor(ctx, registry).execute(_build_workflow(), state)
+    
+        records = {record.alias: record for record in result.report.nodes}
+        simulation_ref = result.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF]
+        simulation_manifest = store.get_manifest(simulation_ref.artifact_id)
+        simulation_result = SimulationResult.model_validate(
+            from_canonical_bytes(store.get_bytes(simulation_ref.artifact_id))
+        )
+    
+        assert result.report.status == "fail"
+        assert simulation_result.exec_plan_ref is not None
+        assert records["run_simulation"].status == "ok"
+        assert records["later_failure"].status == "fail"
+        assert records["later_failure"].error is not None
+        assert records["later_failure"].error.code == "res03.later_failure"
+        assert records["later_failure"].error.details["scope"]["simulation_result_ref"] == str(
+            simulation_ref.artifact_id
+        )
+        assert records["dependent_after_failure"].status == "skip"
+        assert records["dependent_after_failure"].skip_reason == "upstream_failed"
+        assert not records["dependent_after_failure"].artifacts
+        assert records["independent_sibling"].status == "ok"
+        simulation_ref_identity = _artifact_ref_contract_identity(simulation_ref)
+        assert _artifact_ref_contract_identity(later_failure.seen_simulation_ref) == (
+            simulation_ref_identity
+        )
+        assert _artifact_ref_contract_identity(independent.seen_simulation_ref) == (
+            simulation_ref_identity
+        )
+        assert _artifact_ref_contract_identity(
+            simulation_ref.model_copy(update={"kind": "foundry.other_artifact"})
+        ) != simulation_ref_identity
+        assert _artifact_ref_contract_identity(
+            simulation_ref.model_copy(
+                update={"manifest_profile_sha256": f"sha256:{'a' * 64}"}
+            )
+        ) != simulation_ref_identity
+        assert result.state.params["res03_independent_ran"] is True
+        assert "res03_dependent_output" not in result.state.params
+    
+        input_roles = {item.role for item in simulation_manifest.inputs}
+        assert {
+            "exec_plan",
+            "input.input_bindings_ref",
+            "input.data_snapshot_ref",
+            "input.bound_state_snapshot_ref",
+            "state_snapshot",
+        } &lt;= input_roles
+    
+        app = create_runtime_api_app(
+            cas_root=store.root,
+            core_runs_root=store.root / "runs",
+            allow_unscoped_artifacts=True,
+            allow_fixture_identity=True,
+            enable_security_middlewares=False,
+        )
+        client_lifecycle = ExitStack()
+        request.addfinalizer(client_lifecycle.close)
+        client = client_lifecycle.enter_context(TestClient(app, raise_server_exceptions=False))
+        workflow_response = client.get(f"/api/v1/runs/{run_id}/workflow")
+        errors_response = client.get(f"/api/v1/debug/runs/{run_id}/errors")
+        candidate_response = client.get(
+            f"/api/v1/debug/runs/{run_id}/nodes/run_simulation/simulation-result"
+        )
+        wrong_node_response = client.get(
+            f"/api/v1/debug/runs/{run_id}/nodes/later_failure/simulation-result"
+        )
+        missing_node_response = client.get(
+            f"/api/v1/debug/runs/{run_id}/nodes/missing_node/simulation-result"
+        )
+        wrong_ref_response = client.get(
+            f"/api/v1/debug/runs/{run_id}/nodes/run_simulation/simulation-result",
+            params={"artifact_id": str(data_snapshot_ref.artifact_id)},
+        )
+        wrong_run_response = client.get(
+            "/api/v1/debug/runs/R_res03_foreign/nodes/later_failure/simulation-result"
+        )
+        manifest_response = client.get(f"/api/v1/artifacts/{simulation_ref.artifact_id}")
+        content_response = client.get(f"/api/v1/artifacts/{simulation_ref.artifact_id}/content")
+        lineage_response = client.get(f"/api/v1/artifacts/{simulation_ref.artifact_id}/lineage")
+    
+        blob_path, _manifest_path = store._paths(simulation_ref.artifact_id)
+        original_bytes = blob_path.read_bytes()
+        blob_path.write_bytes(original_bytes + b"tampered")
+        try:
+            tampered_response = client.get(
+                f"/api/v1/debug/runs/{run_id}/nodes/run_simulation/simulation-result"
+            )
+        finally:
+            blob_path.write_bytes(original_bytes)
+    
+        workflow_report_ref = result.state.reports_index["workflow_report"]
+        report_blob_path, _report_manifest_path = store._paths(
+            workflow_report_ref.artifact_id
+        )
+        report_original_bytes = report_blob_path.read_bytes()
+        report_blob_path.write_bytes(report_original_bytes + b"tampered")
+        try:
+            binding_tampered_response = client.get(
+                f"/api/v1/debug/runs/{run_id}/nodes/run_simulation/simulation-result"
+            )
+        finally:
+            report_blob_path.write_bytes(report_original_bytes)
+    
+        runtime_context = app.state.runtime_container.runtime_api_context
+        indexed_run = runtime_context.run_index.get_run(run_id)
+        rebound_fixture_counter = 0
+    
+        def _get_candidate_in_owner_scope(run: Any, *, alias: str) -&gt; Any:
+            """Call the service as the persisted run owner, as HTTP middleware does."""
+            tenant_id = run.details.tenant_id
+            cell_id = run.details.cell_id
+            assert (tenant_id, cell_id) == (_TENANT_ID, _CELL_ID)
+            with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+                return runtime_context.debug.get_simulation_result_candidate(
+                    run, alias=alias
+                )
+    
+        def _run_rebound_to(
+            candidate_ref: ArtifactRef,
+            *,
+            state_run_id: str = run_id,
+            report_run_id: str = run_id,
+            state_tenant_id: str = _TENANT_ID,
+            state_cell_id: str | None = _CELL_ID,
+            report_tenant_id: str = _TENANT_ID,
+            report_cell_id: str | None = _CELL_ID,
+            state_schema_version: str | None = None,
+            report_schema_version: str | None = None,
+            state_payload_schema_version: str | None = None,
+            report_payload_schema_version: str | None = None,
+            state_ref_kind: str | None = None,
+            state_ref_media_type: str | None = None,
+            report_ref_kind: str | None = None,
+            report_ref_media_type: str | None = None,
+            node_ref_kind: str | None = None,
+            node_ref_media_type: str | None = None,
+            node_ref_conflicting_kind: str | None = None,
+            node_ref_conflicting_media_type: str | None = None,
+        ) -&gt; Any:
+            nonlocal rebound_fixture_counter
+            rebound_fixture_counter += 1
+            # Keep each rebound payload unique: deliberate tenant/schema profile changes
+            # must not collide with the CAS's immutable manifest profile.
+            rebound_state = result.state.model_copy(update={"run_id": state_run_id}, deep=True)
+            rebound_state.params["res03_fixture_variant"] = rebound_fixture_counter
+            rebound_state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF] = candidate_ref
+            state_payload = (
+                rebound_state.model_copy(
+                    update={"schema_version": state_payload_schema_version}
+                )
+                if state_payload_schema_version is not None
+                else rebound_state
+            )
+            state_options = PutOptions(
+                kind="scientist.experiment_state",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.scientist.orchestration.engine.ExperimentState",
+                    version=state_schema_version or result.state.schema_version,
+                ),
+            )
+            if (state_tenant_id, state_cell_id) == (_TENANT_ID, _CELL_ID):
+                state_ref = store.put_json(
+                    state_payload,
+                    state_options,
+                    canon_spec=CanonSpec(forbid_floats=False),
+                )
+            else:
+                state_ref = store.put_json_for_tenant(
+                    state_payload,
+                    state_options,
+                    tenant_id=state_tenant_id,
+                    cell_id=state_cell_id,
+                    canon_spec=CanonSpec(forbid_floats=False),
+                )
+            if state_ref_kind is not None or state_ref_media_type is not None:
+                state_ref = state_ref.model_copy(
+                    update={
+                        key: value
+                        for key, value in {
+                            "kind": state_ref_kind,
+                            "media_type": state_ref_media_type,
+                        }.items()
+                        if value is not None
+                    }
+                )
+            rebound_nodes = []
+            for node in result.report.nodes:
+                if node.alias != "run_simulation":
+                    if node.alias == "independent_sibling":
+                        rebound_nodes.append(
+                            node.model_copy(
+                                update={
+                                    "duration_ms": node.duration_ms + rebound_fixture_counter
+                                }
+                            )
+                        )
+                    else:
+                        rebound_nodes.append(node)
+                    continue
+                node_artifacts = [
+                    candidate_ref
+                    if ref.artifact_id == simulation_ref.artifact_id
+                    else ref
+                    for ref in node.artifacts
+                ]
+                if node_ref_kind is not None or node_ref_media_type is not None:
+                    node_artifacts = [
+                        ref.model_copy(
+                            update={
+                                key: value
+                                for key, value in {
+                                    "kind": node_ref_kind,
+                                    "media_type": node_ref_media_type,
+                                }.items()
+                                if value is not None
+                            }
+                        )
+                        if ref.artifact_id == candidate_ref.artifact_id
+                        else ref
+                        for ref in node_artifacts
+                    ]
+                if (
+                    node_ref_conflicting_kind is not None
+                    or node_ref_conflicting_media_type is not None
+                ):
+                    node_artifacts.append(
+                        candidate_ref.model_copy(
+                            update={
+                                key: value
+                                for key, value in {
+                                    "kind": node_ref_conflicting_kind,
+                                    "media_type": node_ref_conflicting_media_type,
+                                }.items()
+                                if value is not None
+                            }
+                        )
+                    )
+                rebound_nodes.append(node.model_copy(update={"artifacts": node_artifacts}))
+            report_options = PutOptions(
+                kind="scientist.workflow_report",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.scientist.orchestration.engine.WorkflowReport",
+                    version=report_schema_version or "1.0",
+                ),
+            )
+            report_payload = result.report.model_copy(
+                update={
+                    "nodes": rebound_nodes,
+                    "run_id": report_run_id,
+                    **(
+                        {"schema_version": report_payload_schema_version}
+                        if report_payload_schema_version is not None
+                        else {}
+                    ),
+                }
+            )
+            if (report_tenant_id, report_cell_id) == (_TENANT_ID, _CELL_ID):
+                report_ref = store.put_json(report_payload, report_options)
+            else:
+                report_ref = store.put_json_for_tenant(
+                    report_payload,
+                    report_options,
+                    tenant_id=report_tenant_id,
+                    cell_id=report_cell_id,
+                )
+            if report_ref_kind is not None or report_ref_media_type is not None:
+                report_ref = report_ref.model_copy(
+                    update={
+                        key: value
+                        for key, value in {
+                            "kind": report_ref_kind,
+                            "media_type": report_ref_media_type,
+                        }.items()
+                        if value is not None
+                    }
+                )
+            return replace(
+                indexed_run,
+                experiment_state_ref=state_ref,
+                workflow_report_ref=report_ref,
+            )
+    
+        unscoped_ref = store.put_json_unscoped(
+            simulation_result.model_copy(
+                update={"notes": [*simulation_result.notes, "RES-03 unscoped negative"]}
+            ),
+            PutOptions(
+                kind="foundry.simulation_result",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.core.SimulationResult", version="1.3"),
+            ),
+        )
+        foreign_ref = store.put_json_for_tenant(
+            simulation_result.model_copy(
+                update={"notes": [*simulation_result.notes, "RES-03 foreign-tenant negative"]}
+            ),
+            PutOptions(
+                kind="foundry.simulation_result",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.core.SimulationResult", version="1.3"),
+            ),
+            tenant_id="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            cell_id="cell-b",
+        )
+        foreign_owner_store = store.for_tenant("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "cell-b")
+        with tenant_scope(None, tenant_id="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", cell_id="cell-b"):
+            foreign_manifest = foreign_owner_store.get_manifest(foreign_ref.artifact_id)
+            foreign_integrity = foreign_owner_store.verify(foreign_ref.artifact_id)
+        assert foreign_manifest.tenant_context == ArtifactTenantContextInfo(
+            tenant_id="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            cell_id="cell-b",
+        )
+        assert foreign_integrity.ok
+        malformed_ref = store.put_json(
+            {"schema_version": "1.3"},
+            PutOptions(
+                kind="foundry.simulation_result",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.core.SimulationResult", version="1.3"),
+            ),
+        )
+        wrong_schema_ref = store.put_json_for_tenant(
+            simulation_result.model_copy(
+                update={"notes": [*simulation_result.notes, "RES-03 schema negative"]}
+            ),
+            PutOptions(
+                kind="foundry.simulation_result",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.core.SimulationResult", version="9.9"),
+            ),
+            tenant_id=_TENANT_ID,
+            cell_id=_CELL_ID,
+        )
+        wrong_kind_ref = foreign_ref.model_copy(update={"kind": "wrong.artifact_kind"})
+        wrong_media_ref = foreign_ref.model_copy(update={"media_type": "text/plain"})
+        with pytest.raises(SimulationResultProjectionError) as unscoped_error:
+            _get_candidate_in_owner_scope(
+                _run_rebound_to(unscoped_ref),
+                alias="run_simulation",
+            )
+        with pytest.raises(SimulationResultProjectionError) as foreign_error:
+            _get_candidate_in_owner_scope(
+                _run_rebound_to(foreign_ref),
+                alias="run_simulation",
+            )
+        with pytest.raises(SimulationResultProjectionError) as malformed_error:
+            _get_candidate_in_owner_scope(
+                _run_rebound_to(malformed_ref),
+                alias="run_simulation",
+            )
+        with pytest.raises(SimulationResultProjectionError) as wrong_schema_error:
+            _get_candidate_in_owner_scope(
+                _run_rebound_to(wrong_schema_ref),
+                alias="run_simulation",
+            )
+        with pytest.raises(SimulationResultProjectionError) as wrong_kind_error:
+            _get_candidate_in_owner_scope(
+                _run_rebound_to(wrong_kind_ref),
+                alias="run_simulation",
+            )
+        with pytest.raises(SimulationResultProjectionError) as wrong_media_error:
+            _get_candidate_in_owner_scope(
+                _run_rebound_to(wrong_media_ref),
+                alias="run_simulation",
+            )
+        with pytest.raises(SimulationResultProjectionError) as stale_state_error:
+            _get_candidate_in_owner_scope(
+                _run_rebound_to(unscoped_ref, state_run_id="R_res03_stale"),
+                alias="run_simulation",
+            )
+        with pytest.raises(SimulationResultProjectionError) as missing_state_error:
+            _get_candidate_in_owner_scope(
+                replace(_run_rebound_to(foreign_ref), experiment_state_ref=None),
+                alias="run_simulation",
+            )
+        with pytest.raises(SimulationResultProjectionError) as foreign_cell_state_error:
+            _get_candidate_in_owner_scope(
+                _run_rebound_to(simulation_ref, state_cell_id="cell-foreign"),
+                alias="run_simulation",
+            )
+        with pytest.raises(SimulationResultProjectionError) as foreign_cell_report_error:
+            _get_candidate_in_owner_scope(
+                _run_rebound_to(simulation_ref, report_cell_id="cell-foreign"),
+                alias="run_simulation",
+            )
+        with pytest.raises(SimulationResultProjectionError) as unsupported_state_schema_error:
+            _get_candidate_in_owner_scope(
+                _run_rebound_to(simulation_ref, state_schema_version="9.9"),
+                alias="run_simulation",
+            )
+        with pytest.raises(SimulationResultProjectionError) as unsupported_report_schema_error:
+            _get_candidate_in_owner_scope(
+                _run_rebound_to(simulation_ref, report_schema_version="9.9"),
+                alias="run_simulation",
+            )
+        with pytest.raises(SimulationResultProjectionError) as state_ref_kind_error:
+            _get_candidate_in_owner_scope(
+                _run_rebound_to(
+                    simulation_ref,
+                    state_ref_kind="wrong.binding_kind",
+                ),
+                alias="run_simulation",
+            )
+        with pytest.raises(SimulationResultProjectionError) as report_ref_media_error:
+            _get_candidate_in_owner_scope(
+                _run_rebound_to(
+                    simulation_ref,
+                    report_ref_media_type="text/plain",
+                ),
+                alias="run_simulation",
+            )
+        with pytest.raises(SimulationResultProjectionError) as node_ref_kind_error:
+            _get_candidate_in_owner_scope(
+                _run_rebound_to(
+                    simulation_ref,
+                    node_ref_kind="wrong.binding_kind",
+                ),
+                alias="run_simulation",
+            )
+        with pytest.raises(SimulationResultProjectionError) as node_ref_media_error:
+            _get_candidate_in_owner_scope(
+                _run_rebound_to(
+                    simulation_ref,
+                    node_ref_media_type="text/plain",
+                ),
+                alias="run_simulation",
+            )
+        with pytest.raises(SimulationResultProjectionError) as mixed_node_ref_error:
+            _get_candidate_in_owner_scope(
+                _run_rebound_to(
+                    simulation_ref,
+                    node_ref_conflicting_kind="wrong.binding_kind",
+                ),
+                alias="run_simulation",
+            )
+        with pytest.raises(SimulationResultProjectionError) as state_payload_schema_error:
+            _get_candidate_in_owner_scope(
+                _run_rebound_to(
+                    simulation_ref,
+                    state_payload_schema_version="9.9",
+                ),
+                alias="run_simulation",
+            )
+        with pytest.raises(SimulationResultProjectionError) as report_payload_schema_error:
+            _get_candidate_in_owner_scope(
+                _run_rebound_to(
+                    simulation_ref,
+                    report_payload_schema_version="9.9",
+                ),
+                alias="run_simulation",
+            )
+        assert unscoped_error.value.code == "simulation_result_tenant_unscoped"
+        # A correctly B-owned artifact is refused by A's CAS reader before the
+        # projection service can inspect or disclose the foreign tenant manifest.
+        assert foreign_error.value.code == "simulation_result_unavailable"
+        assert malformed_error.value.code == "simulation_result_payload_invalid"
+        assert wrong_schema_error.value.code == "simulation_result_schema_mismatch"
+        assert wrong_kind_error.value.code == "simulation_result_ref_manifest_mismatch"
+        assert wrong_media_error.value.code == "simulation_result_ref_manifest_mismatch"
+        assert stale_state_error.value.code == "simulation_result_binding_run_mismatch"
+        assert missing_state_error.value.code == "simulation_result_binding_missing"
+&gt;       assert foreign_cell_state_error.value.code == "simulation_result_binding_tenant_mismatch"
+E       AssertionError: assert 'simulation_result_binding_unavailable' == 'simulation_result_binding_tenant_mismatch'
+E         
+E         - simulation_result_binding_tenant_mismatch
+E         ?                           ^^  ^^^^ ^^ ^^^
+E         + simulation_result_binding_unavailable
+E         ?                           ^  ^^ ^ ^^^
+
+tests/integration/scientist/test_res_03_real_simulation_route.py:936: AssertionError</failure></testcase></testsuite></testsuites>

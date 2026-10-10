@@ -1,0 +1,56 @@
+source_root=policy-engine/src/polisyos
+file_type=*.py path_denominator=2707
+term='SentenceTransformer' occurrence_count=24 file_count=8
+  policy-engine/src/polisyos/data_forge/domains/academic/knowledge/search.py:69: from sentence_transformers import SentenceTransformer
+  policy-engine/src/polisyos/data_forge/domains/academic/knowledge/search.py:71: self._embedder = SentenceTransformer(self._embedding_model_name)
+  policy-engine/src/polisyos/data_forge/domains/catalog/batch/embedder.py:55: A normal embed run keeps SentenceTransformer's existing model resolution
+  policy-engine/src/polisyos/data_forge/domains/catalog/batch/embedder.py:78: from sentence_transformers import SentenceTransformer
+  policy-engine/src/polisyos/data_forge/domains/catalog/batch/embedder.py:80: encoder = SentenceTransformer(
+  policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py:338: from sentence_transformers import SentenceTransformer
+  policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py:340: self._embedder = SentenceTransformer(
+  policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py:354: from sentence_transformers import SentenceTransformer
+  policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py:357: model = SentenceTransformer(
+  policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py:363: model = SentenceTransformer(embedding_model, device=embedding_device)
+  policy-engine/src/polisyos/data_forge/kernel/embeddings.py:77: from sentence_transformers import SentenceTransformer
+  policy-engine/src/polisyos/data_forge/kernel/embeddings.py:79: model = SentenceTransformer(embedding_model, device=embedding_device)
+  policy-engine/src/polisyos/data_forge/kernel/embeddings.py:166: from sentence_transformers import SentenceTransformer
+  policy-engine/src/polisyos/data_forge/kernel/embeddings.py:168: encoder = SentenceTransformer(embedding_model, device=embedding_device)
+  policy-engine/src/polisyos/foundry/__init__.py:31: SentenceTransformerEmbedder,
+  policy-engine/src/polisyos/foundry/__init__.py:68: "SentenceTransformerEmbedder",
+  policy-engine/src/polisyos/foundry/__init__.py:148: "SentenceTransformerEmbedder": (
+  policy-engine/src/polisyos/foundry/__init__.py:150: "SentenceTransformerEmbedder",
+  policy-engine/src/polisyos/foundry/methods/backends/protocol.py:115: class SentenceTransformerEmbedder:
+  policy-engine/src/polisyos/foundry/methods/backends/protocol.py:120: from sentence_transformers import SentenceTransformer  # type: ignore[import-not-found]
+  policy-engine/src/polisyos/foundry/methods/backends/protocol.py:123: "sentence-transformers is required for SentenceTransformerEmbedder.  "
+  policy-engine/src/polisyos/foundry/methods/backends/protocol.py:126: self._model = SentenceTransformer(model_name)
+  policy-engine/src/polisyos/foundry/methods/catalog/policy/frontier.py:12: SentenceTransformerEmbedder,
+  policy-engine/src/polisyos/foundry/methods/catalog/policy/frontier.py:675: embedder = SentenceTransformerEmbedder()
+term='derive_encoder_identity' occurrence_count=14 file_count=6
+  policy-engine/src/polisyos/data_forge/domains/catalog/batch/embedder.py:19: derive_encoder_identity,
+  policy-engine/src/polisyos/data_forge/domains/catalog/batch/embedder.py:84: identity = derive_encoder_identity(encoder)
+  policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py:28: derive_encoder_identity,
+  policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py:288: current_encoder_identity = derive_encoder_identity(model)
+  policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py:372: encoder_identity = derive_encoder_identity(model)
+  policy-engine/src/polisyos/data_forge/kernel/embeddings.py:170: encoder_identity = derive_encoder_identity(encoder)
+  policy-engine/src/polisyos/data_forge/kernel/embeddings.py:595: encoder_identity = derive_encoder_identity(encoder)
+  policy-engine/src/polisyos/data_forge/kernel/embeddings.py:627: def derive_encoder_identity(encoder: object) -> GenerationIdentity:
+  policy-engine/src/polisyos/data_forge/kernel/embeddings.py:1110: "derive_encoder_identity",
+  policy-engine/src/polisyos/data_forge/read_api/legal.py:45: "derive_encoder_identity": "polisyos.data_forge.kernel.embeddings",
+  policy-engine/src/polisyos/lex/knowledge/store.py:1256: legal_read_api.derive_encoder_identity(query.encoder)
+  policy-engine/src/polisyos/lex/knowledge/store.py:1286: identity_after = legal_read_api.derive_encoder_identity(query.encoder)
+  policy-engine/src/polisyos/runtime/http/container.py:100: identity = legal_read_api.derive_encoder_identity(self.encoder)
+  policy-engine/src/polisyos/runtime/http/container.py:119: identity = legal_read_api.derive_encoder_identity(self.encoder)
+term='encoder_provider' occurrence_count=12 file_count=2
+  policy-engine/src/polisyos/runtime/http/container.py:157: legal_query_encoder_provider: LegalQueryEncoderProvider | None = None
+  policy-engine/src/polisyos/runtime/http/container.py:228: legal_query_encoder_provider: LegalQueryEncoderProvider | None = None
+  policy-engine/src/polisyos/runtime/http/container.py:299: overrides.legal_query_encoder_provider is not None
+  policy-engine/src/polisyos/runtime/http/container.py:300: and type(overrides.legal_query_encoder_provider) is not LegalQueryEncoderProvider
+  policy-engine/src/polisyos/runtime/http/container.py:302: raise ValueError("legal_query_encoder_provider_invalid")
+  policy-engine/src/polisyos/runtime/http/container.py:424: legal_query_encoder_provider=overrides.legal_query_encoder_provider,
+  policy-engine/src/polisyos/runtime/http/container.py:510: control_service.bind_legal_query_encoder_provider(self.legal_query_encoder_provider)
+  policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py:75: def bind_legal_query_encoder_provider(
+  policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py:83: raise TypeError("legal_query_encoder_provider_invalid")
+  policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py:84: self._legal_query_encoder_provider = provider
+  policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py:360: provider = getattr(self, "_legal_query_encoder_provider", None)
+  policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py:369: "query_encoder_provider_invalid"
+term='canonical_encoder' occurrence_count=0 file_count=0

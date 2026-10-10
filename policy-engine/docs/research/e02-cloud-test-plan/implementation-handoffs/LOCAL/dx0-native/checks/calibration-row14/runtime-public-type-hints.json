@@ -1,0 +1,6 @@
+{
+  "command": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python -c 'from typing import get_type_hints; from polisyos.calibration import evaluate_binary, evaluate_multiclass, to_validation_report; [get_type_hints(function) for function in (evaluate_binary, evaluate_multiclass, to_validation_report)]; print(\"runtime public annotations resolvable: 3/3\")'",
+  "exit_code": 0,
+  "stdout": "runtime public annotations resolvable: 3/3\n",
+  "stderr": ""
+}

@@ -1,0 +1,87 @@
+Repository SOTA Phase 5 closeout gate FAILED:
+- [docs-freshness] docs freshness exception baseline expired
+- [import-exceptions] E-2026-04-LEX-FOUNDRY-001 expired :: 2026-07-01
+- [import-exceptions] E-2026-04-LEX-SCIENTIST-001 expired :: 2026-07-01
+- [import-exceptions] E-2026-05-DATA-FORGE-LEGAL-BATCH-LEX-001 expired :: 2026-07-30
+- [import-exceptions] E-2026-05-DATA-FORGE-LEGAL-BATCH-SCIENTIST-001 expired :: 2026-07-30
+- [import-exceptions] E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-FOUNDRY-001 expired :: 2026-07-30
+- [import-exceptions] E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-LEX-001 expired :: 2026-07-30
+- [import-exceptions] E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-SCIENTIST-001 expired :: 2026-07-30
+- [import-exceptions] E-2026-04-ACADEMIC-SCIENTIST-001 expired :: 2026-07-01
+- [import-exceptions] E-2026-04-IR-OBS-FOUNDRY-001 expired :: 2026-07-01
+- [import-exceptions] E-2026-04-IR-OBS-SCIENTIST-001 expired :: 2026-07-01
+- [import-exceptions] E-2026-04-IR-ANALYTICS-FOUNDRY-001 expired :: 2026-07-01
+- [import-exceptions] E-2026-04-IR-ANALYTICS-SCIENTIST-001 expired :: 2026-07-01
+- [import-exceptions] E-2026-04-IR-PANDAS-001 expired :: 2026-07-01
+- [import-exceptions] E-2026-04-IR-JAX-001 expired :: 2026-07-01
+- [import-exceptions] E-2026-04-FOUNDRY-SCIENTIST-001 expired :: 2026-07-01
+- [import-exceptions] E-2026-04-FOUNDRY-LEX-001 expired :: 2026-07-01
+- [import-exceptions] E-2026-04-FABRIC-WORLD-DEEP-001 expired :: 2026-07-01
+- [import-exceptions] E-2026-05-FOUNDRY-FABRIC-QUALITY-001 expired :: 2026-07-30
+- [import-exceptions] E-2026-05-IR-ANALYTICS-CORE-DYNAMICS-001 expired :: 2026-07-30
+- [import-exceptions] E-2026-05-IR-ANALYTICS-CORE-SIMULATION-PROOF-001 expired :: 2026-07-30
+- [import-exceptions] E-2026-04-IR-PASSES-FOUNDRY-KERNEL-LOWERING-001 expired :: 2026-07-01
+- [complexity] src/polisyos/lex/interventions.py expired :: 2026-08-01
+- [complexity] src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py expired :: 2026-08-15
+- [complexity] src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py expired :: 2026-08-15
+- [complexity] src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py expired :: 2026-08-15
+- [complexity] src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py expired :: 2026-08-15
+- [complexity] src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py expired :: 2026-08-15
+- [complexity] src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py expired :: 2026-08-15
+- [complexity] src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py expired :: 2026-08-15
+- [complexity] src/polisyos/scientist/nodes/builtins/governance/run_governance.py expired :: 2026-08-15
+- [shims] product-install-sh-to-workspace-bootstrap expired :: 2026-08-01
+- [shims] product-migrate-py-to-tools-migrations expired :: 2026-08-01
+- [shims] product-jax-bootstrap-to-workspace-vendor expired :: 2026-08-01
+- [shims] repo-filter-topics-to-tools-research expired :: 2026-07-01
+- [shims] repo-organize-relevant-topics-to-tools-research expired :: 2026-07-01
+- [shims] imports-policy-config-relocation expired :: 2026-09-01
+- [shims] imports-exceptions-config-relocation expired :: 2026-09-01
+- [shims] imports-exceptions-registry-relocation expired :: 2026-09-01
+- [shims] imports-gate-baseline-relocation expired :: 2026-09-01
+- [shims] imports-gate-summary-relocation expired :: 2026-09-01
+- [shims] freeze-policy-relocation expired :: 2026-09-01
+- [shims] data-requirement-family-fallback-from-hardcoded-heuristic expired :: 2026-06-30
+- [phase6.5-exceptions] dynamic_imports expired :: 2026-08-04
+- [phase6.5-exceptions] berl-standalone-slo-deferred expired :: 2026-08-01
+- [phase6.5-exceptions] calibration-ruff-package-ratchet expired :: 2026-10-01
+- [phase6.5-exceptions] calibration-standalone-slo-deferred expired :: 2026-08-01
+- [phase6.5-exceptions] common-dependent-slo expired :: 2026-08-01
+- [phase6.5-exceptions] ddm-standalone-slo-deferred expired :: 2026-08-01
+- [phase6.5-exceptions] fabric-ruff-ratchet expired :: 2026-10-01
+- [phase6.5-exceptions] benchmarks-conftest-transition expired :: 2026-09-01
+- [phase6.5-exceptions] fabric.mirror_regression_exception expired :: 2026-06-15
+- [phase6.5-exceptions] fabric.strict_mirror_regression_exception expired :: 2026-06-15
+- [phase6.5-exceptions] foundry.mirror_regression_exception expired :: 2026-06-15
+- [phase6.5-exceptions] foundry.strict_mirror_regression_exception expired :: 2026-06-15
+- [phase6.5-exceptions] ir.mirror_regression_exception expired :: 2026-06-15
+- [phase6.5-exceptions] lex.strict_mirror_regression_exception expired :: 2026-06-15
+- [phase6.5-exceptions] runtime.mirror_regression_exception expired :: 2026-06-15
+- [phase6.5-exceptions] scientist.strict_mirror_regression_exception expired :: 2026-06-15
+- [phase6.5-exceptions] fabric-ruff-package-ratchet expired :: 2026-10-01
+- [phase6.5-exceptions] fabric-mypy-module-ratchet expired :: 2026-10-01
+- [phase6.5-exceptions] ir-ruff-package-ratchet expired :: 2026-10-01
+- [phase6.5-exceptions] ir-mypy-module-ratchet expired :: 2026-10-01
+- [phase6.5-exceptions] common expired :: 2026-08-01
+- [phase6.5-exceptions] berl expired :: 2026-08-01
+- [phase6.5-exceptions] ddm expired :: 2026-08-01
+- [phase6.5-exceptions] calibration expired :: 2026-08-01
+- [phase6.5-exceptions] security expired :: 2026-08-01
+- [phase6.5-exceptions] common expired :: 2026-08-01
+- [phase6.5-exceptions] berl expired :: 2026-08-01
+- [phase6.5-exceptions] ddm expired :: 2026-08-01
+- [phase6.5-exceptions] calibration expired :: 2026-08-01
+- [phase6.5-exceptions] security expired :: 2026-08-01
+- [phase6.5-exceptions] common expired :: 2026-08-01
+- [phase6.5-exceptions] security expired :: 2026-08-01
+- [phase6.5-exceptions] calibration expired :: 2026-08-01
+- [phase6.5-exceptions] berl expired :: 2026-08-01
+- [phase6.5-exceptions] ddm expired :: 2026-08-01
+- [phase6.5-exceptions] discovery sunset expired :: 2026-10-01
+- [phase6.5-exceptions] runtime sunset expired :: 2026-10-01
+- [phase6.5-exceptions] causal sunset expired :: 2026-06-15
+- [phase6.5-exceptions] errors sunset expired :: 2026-10-01
+- [public-polish] published doc links to excluded plan evidence :: docs/reference/frontend/atlas-live-application-audit.md:22
+- [public-polish] published doc links to excluded plan evidence :: docs/brand/ATLAS_SOURCE_OF_TRUTH.md:43
+- [public-polish] published doc links to excluded plan evidence :: docs/brand/ATLAS_SOURCE_OF_TRUTH.md:69
+- [public-polish] published doc links to excluded plan evidence :: docs/brand/ATLAS_SOURCE_OF_TRUTH.md:84

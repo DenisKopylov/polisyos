@@ -1,0 +1,25 @@
+{
+  "scope": "all locale JSON files in apps/runtime-dashboard/src/shared/i18n/locales",
+  "file_type_denominator": ".json",
+  "file_count": 3,
+  "files": [
+    {
+      "file": "en.json",
+      "file_type": ".json",
+      "leaf_count": 2952
+    },
+    {
+      "file": "ru.json",
+      "file_type": ".json",
+      "leaf_count": 2485
+    },
+    {
+      "file": "uk.json",
+      "file_type": ".json",
+      "leaf_count": 2952
+    }
+  ],
+  "ru_key_count": 2485,
+  "ru_key_set_sha256": "246672ca2e2a483b99142b0b00b6918ff66519b16a5963a0cdc52c9b55a88de0",
+  "ru_leaf_value_sha256": "ce8480d3a1c4a8876d1a007d7aa2d3d13f2ee8e4e1f33d0cbaa948f69d0e669c"
+}

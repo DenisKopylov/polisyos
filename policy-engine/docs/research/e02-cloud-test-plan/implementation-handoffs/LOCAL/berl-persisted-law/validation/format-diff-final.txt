@@ -1,0 +1,136 @@
+--- policy-engine/src/polisyos/berl/contracts/validation_rules.py
++++ policy-engine/src/polisyos/berl/contracts/validation_rules.py
+@@ -66,9 +66,7 @@
+             violations.append(f"infidelity_not_heldout:{method.method_id}")
+ 
+     upper_bounds = tuple(
+-        method.infidelity.upper_bound
+-        for method in bundle.methods
+-        if method.infidelity is not None
++        method.infidelity.upper_bound for method in bundle.methods if method.infidelity is not None
+     )
+     if upper_bounds:
+         p95 = _quantile(upper_bounds, 0.95)
+@@ -245,9 +243,7 @@
+     if bundle.disagreement is None:
+         return 0.0
+     features = {
+-        attribution.feature
+-        for method in bundle.methods
+-        for attribution in method.attributions
++        attribution.feature for method in bundle.methods for attribution in method.attributions
+     }
+     if not features:
+         return 0.0
+
+--- policy-engine/src/polisyos/runtime/quality/explanation_reliability.py
++++ policy-engine/src/polisyos/runtime/quality/explanation_reliability.py
+@@ -280,8 +280,7 @@
+             row.get("empirical_bounds") or row.get("empirical_reliability_bounds")
+         ),
+         "local_infidelity_diagnostics": _explicit_sequence(
+-            row.get("local_infidelity_diagnostics")
+-            or row.get("infidelity_diagnostics")
++            row.get("local_infidelity_diagnostics") or row.get("infidelity_diagnostics")
+         ),
+     }
+     issues: list[WarrantReliabilityIssue] = []
+
+--- policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py
++++ policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py
+@@ -40,11 +40,7 @@
+     )
+     unbounded_component = _explanation_component_for(
+         valid_bundle.model_copy(
+-            update={
+-                "methods": [
+-                    valid_bundle.methods[0].model_copy(update={"infidelity": None})
+-                ]
+-            }
++            update={"methods": [valid_bundle.methods[0].model_copy(update={"infidelity": None})]}
+         )
+     )
+ 
+@@ -67,9 +63,7 @@
+         artifact_kind="scientist.explanation_bundle",
+     )
+     return next(
+-        component
+-        for component in report.phase5_components
+-        if component.name == "explanation"
++        component for component in report.phase5_components if component.name == "explanation"
+     )
+ 
+ 
+
+--- policy-engine/tests/unit/runtime/quality/test_berl_warrant_reliability.py
++++ policy-engine/tests/unit/runtime/quality/test_berl_warrant_reliability.py
+@@ -32,9 +32,7 @@
+     result = validate_claim_argument_case_surfaces(case)
+ 
+     assert result.status == "fail"
+-    assert {
+-        issue.code for issue in result.issues
+-    } >= {"policy_design_warrant_berl_refs_missing"}
++    assert {issue.code for issue in result.issues} >= {"policy_design_warrant_berl_refs_missing"}
+ 
+ 
+ def test_warrant_reliability_record_blocks_failed_berl_thresholds() -> None:
+@@ -58,9 +56,9 @@
+     result = validate_claim_argument_case_surfaces(case)
+ 
+     assert result.status == "fail"
+-    assert {
+-        issue.code for issue in result.issues
+-    } >= {"policy_design_warrant_berl_threshold_failed"}
++    assert {issue.code for issue in result.issues} >= {
++        "policy_design_warrant_berl_threshold_failed"
++    }
+ 
+ 
+ def test_warrant_reliability_ref_must_resolve_to_a_record() -> None:
+@@ -73,9 +71,9 @@
+     result = validate_claim_argument_case_surfaces(case)
+ 
+     assert result.status == "fail"
+-    assert {
+-        issue.code for issue in result.issues
+-    } >= {"policy_design_warrant_berl_reliability_record_missing"}
++    assert {issue.code for issue in result.issues} >= {
++        "policy_design_warrant_berl_reliability_record_missing"
++    }
+ 
+ 
+ def test_warrant_reliability_record_must_carry_bundle_thresholds_bounds_and_infidelity() -> None:
+@@ -95,9 +93,7 @@
+     result = validate_claim_argument_case_surfaces(case)
+ 
+     assert result.status == "fail"
+-    assert {
+-        issue.code for issue in result.issues
+-    } >= {
++    assert {issue.code for issue in result.issues} >= {
+         "policy_design_warrant_berl_bundle_ref_missing",
+         "policy_design_warrant_berl_threshold_decision_missing",
+         "policy_design_warrant_berl_empirical_bounds_missing",
+@@ -243,16 +239,12 @@
+                 "independent_alternative_analyses": [
+                     {
+                         "alternative_id": "baseline-no-action",
+-                        "conclusion": (
+-                            "no action has lower fiscal risk but worse survival impact"
+-                        ),
++                        "conclusion": ("no action has lower fiscal risk but worse survival impact"),
+                         "evidence_refs": [sha("1")],
+                     },
+                     {
+                         "alternative_id": "untargeted-subsidy",
+-                        "conclusion": (
+-                            "untargeted subsidy is rejected on distributional grounds"
+-                        ),
++                        "conclusion": ("untargeted subsidy is rejected on distributional grounds"),
+                         "evidence_refs": [sha("2")],
+                     },
+                 ],
+
+4 files would be reformatted, 3 files already formatted

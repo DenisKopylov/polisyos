@@ -1,0 +1,16 @@
+Would reformat: src/polisyos/calibration/forecast_bridge.py
+Would reformat: src/polisyos/ir/analytics/alignment_certification.py
+Would reformat: src/polisyos/ir/analytics/dependent_sensitivity.py
+Would reformat: src/polisyos/ir/analytics/distributional.py
+Would reformat: src/polisyos/ir/analytics/dynamic_causal_semantics.py
+Would reformat: src/polisyos/ir/analytics/forecasting_uncertainty.py
+Would reformat: src/polisyos/ir/analytics/ncm.py
+Would reformat: src/polisyos/ir/analytics/partial_identification.py
+Would reformat: src/polisyos/ir/analytics/phase4_dynamics.py
+Would reformat: src/polisyos/ir/analytics/proximal.py
+Would reformat: src/polisyos/ir/analytics/regime_shift_forecast.py
+Would reformat: src/polisyos/ir/analytics/shift_diagnostics.py
+Would reformat: src/polisyos/ir/analytics/simulation_proof_bridge.py
+Would reformat: src/polisyos/ir/analytics/strategic.py
+Would reformat: src/polisyos/ir/analytics/transportability.py
+15 files would be reformatted, 63 files already formatted

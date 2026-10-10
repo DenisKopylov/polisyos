@@ -1,0 +1,8 @@
+Census method: complete physical-file walk of tests/ and docs/research/e02-cloud-test-plan/implementation-handoffs/; enumerate all .pkl/.pickle files.
+
+Path denominator: tests/ and docs/research/e02-cloud-test-plan/implementation-handoffs/
+File-type denominator: 2 files with suffix .pkl or .pickle
+DDM pickle fixtures: 0
+Files in denominator:
+- tests/_data/checkpoint_compat/foundry/agent_sim_experiment_result.pkl
+- tests/_data/checkpoint_compat/scientist/engine_checkpoint_artifact.pkl

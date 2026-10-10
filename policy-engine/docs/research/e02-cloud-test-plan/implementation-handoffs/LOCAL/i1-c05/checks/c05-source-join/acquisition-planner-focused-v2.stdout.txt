@@ -1,0 +1,49 @@
+....F............                                                        [100%]
+=================================== FAILURES ===================================
+_ test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_growth _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1570/test_real_owner_gateway_opt_in0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x142e7dd00>
+
+    def test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_growth(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """The explicit capture lane records real CAS refs and remains resolve-only for N7."""
+    
+        from polisyos.core import artifacts, canon
+        from polisyos.data_forge.read_api import catalog as catalog_read_api
+        from polisyos.fabric.retrieval import custody
+        from polisyos.fabric.retrieval.custody import FabricFetchReceipt
+        from polisyos.fabric.retrieval.service import RetrievalService
+        from polisyos.runtime.http.resilience import guard_runtime_cas
+        from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
+    
+        capture_root = tmp_path / "runtime-cas"
+        runtime_store = guard_runtime_cas(
+            FileSystemCAS(capture_root).for_tenant("tenant-n7", cell_id="cell-a")
+        )
+        foreign_store = FileSystemCAS(capture_root).for_tenant("tenant-other", cell_id="cell-a")
+        services: list[RetrievalService] = []
+        source_id = _install_recorded_file_catalog_supplier(monkeypatch)
+    
+        with build_recorded_file_fetch_owner(
+            tmp_path, canonicalize_catalog_source=True
+        ) as owner:
+            binding = owner.graph.resolve_metric_bindings("metric.test", top_k=1)[0]
+>           assert binding.source == source_id
+E           AssertionError: assert '' == 'recorded_file_fixture'
+E             
+E             - recorded_file_fixture
+
+tests/unit/runtime/quality/test_acquisition_planner.py:2059: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_acquisition_planner.py::test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_growth
+1 failed, 16 passed, 60 deselected, 2 warnings in 14.26s

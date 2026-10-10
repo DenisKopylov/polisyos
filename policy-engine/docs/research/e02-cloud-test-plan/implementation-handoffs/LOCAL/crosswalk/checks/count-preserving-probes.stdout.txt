@@ -1,0 +1,65 @@
+{
+  "denominator": {
+    "bundles": 127,
+    "finding_ids": 282,
+    "canonical_occurrences": 291
+  },
+  "count_preserving_corruptions_rejected": 11,
+  "cases": [
+    {
+      "case": "duplicate_id_same_row_count",
+      "result": "rejected",
+      "denominator_preserved": true
+    },
+    {
+      "case": "wrong_original_criterion_sha_same_count",
+      "result": "rejected",
+      "denominator_preserved": true
+    },
+    {
+      "case": "changed_route_pointer_same_counts",
+      "result": "rejected",
+      "denominator_preserved": true
+    },
+    {
+      "case": "historical_B198_decision_rewritten",
+      "result": "rejected",
+      "denominator_preserved": true
+    },
+    {
+      "case": "source_freeze_tree_proxy",
+      "result": "rejected",
+      "denominator_preserved": true
+    },
+    {
+      "case": "author_card_mapping_overclaimed",
+      "result": "rejected",
+      "denominator_preserved": true
+    },
+    {
+      "case": "duplicate_C_LA031_occurrence_pointer",
+      "result": "rejected",
+      "denominator_preserved": true
+    },
+    {
+      "case": "closed_candidate_proposal_without_occurrence_evidence",
+      "result": "rejected",
+      "denominator_preserved": true
+    },
+    {
+      "case": "unbucketed_P40_escape",
+      "result": "rejected",
+      "denominator_preserved": true
+    },
+    {
+      "case": "candidate_evaluation_before_final_freeze",
+      "result": "rejected",
+      "denominator_preserved": true
+    },
+    {
+      "case": "formal_closure_claim",
+      "result": "rejected",
+      "denominator_preserved": true
+    }
+  ]
+}

@@ -1,0 +1,659 @@
+.............FFF.                                                        [100%]
+=================================== FAILURES ===================================
+_ test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs[tampered_receipt] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1571/test_real_owner_gateway_captur9')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x14185b710>
+mutation = 'tampered_receipt'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "missing_receipt",
+            "foreign_payload",
+            "foreign_binding",
+            "tampered_receipt",
+            "missing_binding",
+            "tampered_binding",
+        ],
+    )
+    def test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        mutation: str,
+    ) -> None:
+        """Capture mode never emits an owner artifact for an incomplete CAS chain."""
+    
+        from dataclasses import replace
+    
+        from polisyos.core import artifacts, canon
+        from polisyos.core.artifacts import ArtifactRef
+        from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
+        from polisyos.fabric.retrieval import custody
+        from polisyos.fabric.retrieval.custody import FabricFetchReceipt
+        from polisyos.fabric.retrieval.service import RetrievalService
+        from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
+    
+        runtime_store = build_artifact_store(
+            ArtifactStoreConfig(backend="filesystem", root=str(tmp_path / "fetch-capture-cas"))
+        )
+        _install_recorded_file_catalog_supplier(monkeypatch)
+        with build_recorded_file_fetch_owner(
+            tmp_path, canonicalize_catalog_source=True
+        ) as owner:
+    
+            original_execute = RetrievalService.execute_fetch_plans
+            original_get_bytes = FileSystemCAS.get_bytes
+            original_get_manifest = FileSystemCAS.get_manifest
+    
+            def _execute_and_mutate(
+                service: RetrievalService,
+                plans: list[object],
+                *,
+                persist_payload: bool = False,
+                allow_fallback: bool = True,
+            ) -> object:
+                outcome = original_execute(
+                    service,
+                    plans,
+                    persist_payload=persist_payload,
+                    allow_fallback=allow_fallback,
+                )
+                metric = outcome.data_context.metrics[0]
+                if mutation == "missing_receipt":
+                    mutated_metric = metric.model_copy(update={"fetch_receipt_ref": None})
+                elif mutation == "foreign_payload":
+                    mutated_metric = metric.model_copy(
+                        update={
+                            "payload_ref": ArtifactRef.model_validate(
+                                {
+                                    "artifact_id": "sha256:" + "f" * 64,
+                                    "kind": "fabric.fetch_payload",
+                                    "media_type": "application/json",
+                                }
+                            )
+                        }
+                    )
+                elif mutation == "foreign_binding":
+                    plan = plans[0]
+                    receipt_ref = metric.fetch_receipt_ref
+                    assert receipt_ref is not None
+                    receipt_store = runtime_store
+                    receipt = FabricFetchReceipt.model_validate(
+                        canon.from_canonical_bytes(
+                            original_get_bytes(receipt_store, receipt_ref.artifact_id)
+                        )
+                    )
+                    payload_ref = metric.payload_ref
+                    assert payload_ref is not None
+                    foreign_binding = owner.graph.bind_fetch_target(
+                        metric_id=plan.metric_id,
+                        connector_id=plan.connector_id,
+                        request_dataset_id="fallback",
+                        profile_id=plan.profile_id,
+                        filters=plan.filters,
+                    )
+                    foreign_binding_ref = custody._put_json(
+                        receipt_store,
+                        foreign_binding,
+                        kind="fabric.catalog_fetch_binding",
+                        schema="polisyos.data_forge.catalog_fetch_binding.v1",
+                        inputs=[],
+                    )
+                    foreign_receipt = receipt.model_copy(
+                        update={"catalog_binding_ref": foreign_binding_ref}
+                    )
+                    foreign_receipt_ref = custody._put_json(
+                        receipt_store,
+                        foreign_receipt,
+                        kind="fabric.fetch_receipt",
+                        schema="polisyos.fabric.fetch_receipt.v1",
+                        inputs=[
+                            artifacts.InputRef(
+                                artifact_id=payload_ref.artifact_id,
+                                role="fetched_payload",
+                            ),
+                            artifacts.InputRef(
+                                artifact_id=foreign_binding_ref.artifact_id,
+                                role="catalog_binding",
+                            ),
+                        ],
+                    )
+                    mutated_metric = metric.model_copy(
+                        update={"fetch_receipt_ref": foreign_receipt_ref}
+                    )
+                elif mutation == "tampered_receipt":
+                    receipt_ref = metric.fetch_receipt_ref
+                    assert receipt_ref is not None
+    
+                    def _tampered_get_bytes(store: FileSystemCAS, artifact_id: object) -> bytes:
+                        data = original_get_bytes(store, artifact_id)
+                        if str(artifact_id) == str(receipt_ref.artifact_id):
+                            return data + b"tampered"
+                        return data
+    
+                    monkeypatch.setattr(FileSystemCAS, "get_bytes", _tampered_get_bytes)
+                    mutated_metric = metric
+                else:
+                    receipt_ref = metric.fetch_receipt_ref
+                    assert receipt_ref is not None
+                    receipt_store = runtime_store
+                    receipt = FabricFetchReceipt.model_validate(
+                        canon.from_canonical_bytes(
+                            original_get_bytes(receipt_store, receipt_ref.artifact_id)
+                        )
+                    )
+                    binding_ref = receipt.catalog_binding_ref
+                    if mutation == "missing_binding":
+    
+                        def _missing_binding_manifest(
+                            store: FileSystemCAS, artifact_id: object
+                        ) -> object:
+                            if str(artifact_id) == str(binding_ref.artifact_id):
+                                raise FileNotFoundError(str(binding_ref.artifact_id))
+                            return original_get_manifest(store, artifact_id)
+    
+                        monkeypatch.setattr(
+                            FileSystemCAS, "get_manifest", _missing_binding_manifest
+                        )
+                    else:
+    
+                        def _tampered_binding_get_bytes(
+                            store: FileSystemCAS, artifact_id: object
+                        ) -> bytes:
+                            data = original_get_bytes(store, artifact_id)
+                            if str(artifact_id) == str(binding_ref.artifact_id):
+                                return data + b"tampered"
+                            return data
+    
+                        monkeypatch.setattr(
+                            FileSystemCAS, "get_bytes", _tampered_binding_get_bytes
+                        )
+                    mutated_metric = metric
+                mutated_context = outcome.data_context.model_copy(update={"metrics": [mutated_metric]})
+                return replace(outcome, data_context=mutated_context)
+    
+            monkeypatch.setattr(RetrievalService, "execute_fetch_plans", _execute_and_mutate)
+    
+            base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
+            base_spec.update(
+                {
+                    "requirement_id": f"data-requirement:fetch-capture-{mutation}",
+                    "claim_id": f"claim-fetch-capture-{mutation}",
+                    "required_data_families": ("metric.test",),
+                    "metadata": {"fabric_capture_mode": "persisted_payload"},
+                }
+            )
+            gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
+            report = plan_requirement_gap_acquisition(
+                run_id=f"run-n7-fetch-capture-{mutation}",
+                requirement_gaps=(gap,),
+                generated_at=datetime(2026, 7, 17, tzinfo=UTC),
+            )
+            gateway = RealAcquisitionOwnerGateway(
+                repo_root=tmp_path,
+                dataset_catalog_factory=lambda _db_path, _index_dir: owner.graph,
+                retrieval_service_factory=lambda curated_dir, store, graph: RetrievalService(
+                    curated_dir=curated_dir,
+                    artifact_store=store,
+                    dataset_catalog=graph,
+                    providers=owner.providers,
+                ),
+                artifact_store=runtime_store,
+                captured_at=datetime(2026, 7, 17, tzinfo=UTC),
+            )
+    
+>           assert (
+                gateway.acquire(
+                    record=report.acquisition_records[0],
+                    compiled_requirement_spec=base_spec,
+                )
+                is None
+            )
+E           AssertionError: assert AcquisitionOwnerArtifact(owner_component='fabric.retrieval', requirement_ref='data-requirement:fetch-capture-tampered_...17, 0, 0, tzinfo=datetime.timezone.utc), capture_mode='local_substrate_owner', network_call=False, journal_first=True)) is None
+E            +  where AcquisitionOwnerArtifact(owner_component='fabric.retrieval', requirement_ref='data-requirement:fetch-capture-tampered_...17, 0, 0, tzinfo=datetime.timezone.utc), capture_mode='local_substrate_owner', network_call=False, journal_first=True)) = acquire(record=AcquisitionActionRecord(schema_version='policyos.runtime.acquisition_planner.v1', acquisition_id='acquisition:run-n7-f...tisfaction', 'data_quality', 'method_validity', 'participation_representativeness', 'claim_support', 'closeout_pass')}), compiled_requirement_spec={'admissibility_predicates': ['source_family_matches_compiled_requirement'], 'authority_profile_refs': ['authority_profile.production'], 'claim_family': None, 'claim_id': 'claim-fetch-capture-tampered_receipt', ...})
+E            +    where acquire = <polisyos.runtime.quality.acquisition_planner.RealAcquisitionOwnerGateway object at 0x141877890>.acquire
+
+tests/unit/runtime/quality/test_acquisition_planner.py:2703: AssertionError
+_ test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs[missing_binding] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1571/test_real_owner_gateway_captur10')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1418a9650>
+mutation = 'missing_binding'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "missing_receipt",
+            "foreign_payload",
+            "foreign_binding",
+            "tampered_receipt",
+            "missing_binding",
+            "tampered_binding",
+        ],
+    )
+    def test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        mutation: str,
+    ) -> None:
+        """Capture mode never emits an owner artifact for an incomplete CAS chain."""
+    
+        from dataclasses import replace
+    
+        from polisyos.core import artifacts, canon
+        from polisyos.core.artifacts import ArtifactRef
+        from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
+        from polisyos.fabric.retrieval import custody
+        from polisyos.fabric.retrieval.custody import FabricFetchReceipt
+        from polisyos.fabric.retrieval.service import RetrievalService
+        from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
+    
+        runtime_store = build_artifact_store(
+            ArtifactStoreConfig(backend="filesystem", root=str(tmp_path / "fetch-capture-cas"))
+        )
+        _install_recorded_file_catalog_supplier(monkeypatch)
+        with build_recorded_file_fetch_owner(
+            tmp_path, canonicalize_catalog_source=True
+        ) as owner:
+    
+            original_execute = RetrievalService.execute_fetch_plans
+            original_get_bytes = FileSystemCAS.get_bytes
+            original_get_manifest = FileSystemCAS.get_manifest
+    
+            def _execute_and_mutate(
+                service: RetrievalService,
+                plans: list[object],
+                *,
+                persist_payload: bool = False,
+                allow_fallback: bool = True,
+            ) -> object:
+                outcome = original_execute(
+                    service,
+                    plans,
+                    persist_payload=persist_payload,
+                    allow_fallback=allow_fallback,
+                )
+                metric = outcome.data_context.metrics[0]
+                if mutation == "missing_receipt":
+                    mutated_metric = metric.model_copy(update={"fetch_receipt_ref": None})
+                elif mutation == "foreign_payload":
+                    mutated_metric = metric.model_copy(
+                        update={
+                            "payload_ref": ArtifactRef.model_validate(
+                                {
+                                    "artifact_id": "sha256:" + "f" * 64,
+                                    "kind": "fabric.fetch_payload",
+                                    "media_type": "application/json",
+                                }
+                            )
+                        }
+                    )
+                elif mutation == "foreign_binding":
+                    plan = plans[0]
+                    receipt_ref = metric.fetch_receipt_ref
+                    assert receipt_ref is not None
+                    receipt_store = runtime_store
+                    receipt = FabricFetchReceipt.model_validate(
+                        canon.from_canonical_bytes(
+                            original_get_bytes(receipt_store, receipt_ref.artifact_id)
+                        )
+                    )
+                    payload_ref = metric.payload_ref
+                    assert payload_ref is not None
+                    foreign_binding = owner.graph.bind_fetch_target(
+                        metric_id=plan.metric_id,
+                        connector_id=plan.connector_id,
+                        request_dataset_id="fallback",
+                        profile_id=plan.profile_id,
+                        filters=plan.filters,
+                    )
+                    foreign_binding_ref = custody._put_json(
+                        receipt_store,
+                        foreign_binding,
+                        kind="fabric.catalog_fetch_binding",
+                        schema="polisyos.data_forge.catalog_fetch_binding.v1",
+                        inputs=[],
+                    )
+                    foreign_receipt = receipt.model_copy(
+                        update={"catalog_binding_ref": foreign_binding_ref}
+                    )
+                    foreign_receipt_ref = custody._put_json(
+                        receipt_store,
+                        foreign_receipt,
+                        kind="fabric.fetch_receipt",
+                        schema="polisyos.fabric.fetch_receipt.v1",
+                        inputs=[
+                            artifacts.InputRef(
+                                artifact_id=payload_ref.artifact_id,
+                                role="fetched_payload",
+                            ),
+                            artifacts.InputRef(
+                                artifact_id=foreign_binding_ref.artifact_id,
+                                role="catalog_binding",
+                            ),
+                        ],
+                    )
+                    mutated_metric = metric.model_copy(
+                        update={"fetch_receipt_ref": foreign_receipt_ref}
+                    )
+                elif mutation == "tampered_receipt":
+                    receipt_ref = metric.fetch_receipt_ref
+                    assert receipt_ref is not None
+    
+                    def _tampered_get_bytes(store: FileSystemCAS, artifact_id: object) -> bytes:
+                        data = original_get_bytes(store, artifact_id)
+                        if str(artifact_id) == str(receipt_ref.artifact_id):
+                            return data + b"tampered"
+                        return data
+    
+                    monkeypatch.setattr(FileSystemCAS, "get_bytes", _tampered_get_bytes)
+                    mutated_metric = metric
+                else:
+                    receipt_ref = metric.fetch_receipt_ref
+                    assert receipt_ref is not None
+                    receipt_store = runtime_store
+                    receipt = FabricFetchReceipt.model_validate(
+                        canon.from_canonical_bytes(
+                            original_get_bytes(receipt_store, receipt_ref.artifact_id)
+                        )
+                    )
+                    binding_ref = receipt.catalog_binding_ref
+                    if mutation == "missing_binding":
+    
+                        def _missing_binding_manifest(
+                            store: FileSystemCAS, artifact_id: object
+                        ) -> object:
+                            if str(artifact_id) == str(binding_ref.artifact_id):
+                                raise FileNotFoundError(str(binding_ref.artifact_id))
+                            return original_get_manifest(store, artifact_id)
+    
+                        monkeypatch.setattr(
+                            FileSystemCAS, "get_manifest", _missing_binding_manifest
+                        )
+                    else:
+    
+                        def _tampered_binding_get_bytes(
+                            store: FileSystemCAS, artifact_id: object
+                        ) -> bytes:
+                            data = original_get_bytes(store, artifact_id)
+                            if str(artifact_id) == str(binding_ref.artifact_id):
+                                return data + b"tampered"
+                            return data
+    
+                        monkeypatch.setattr(
+                            FileSystemCAS, "get_bytes", _tampered_binding_get_bytes
+                        )
+                    mutated_metric = metric
+                mutated_context = outcome.data_context.model_copy(update={"metrics": [mutated_metric]})
+                return replace(outcome, data_context=mutated_context)
+    
+            monkeypatch.setattr(RetrievalService, "execute_fetch_plans", _execute_and_mutate)
+    
+            base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
+            base_spec.update(
+                {
+                    "requirement_id": f"data-requirement:fetch-capture-{mutation}",
+                    "claim_id": f"claim-fetch-capture-{mutation}",
+                    "required_data_families": ("metric.test",),
+                    "metadata": {"fabric_capture_mode": "persisted_payload"},
+                }
+            )
+            gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
+            report = plan_requirement_gap_acquisition(
+                run_id=f"run-n7-fetch-capture-{mutation}",
+                requirement_gaps=(gap,),
+                generated_at=datetime(2026, 7, 17, tzinfo=UTC),
+            )
+            gateway = RealAcquisitionOwnerGateway(
+                repo_root=tmp_path,
+                dataset_catalog_factory=lambda _db_path, _index_dir: owner.graph,
+                retrieval_service_factory=lambda curated_dir, store, graph: RetrievalService(
+                    curated_dir=curated_dir,
+                    artifact_store=store,
+                    dataset_catalog=graph,
+                    providers=owner.providers,
+                ),
+                artifact_store=runtime_store,
+                captured_at=datetime(2026, 7, 17, tzinfo=UTC),
+            )
+    
+>           assert (
+                gateway.acquire(
+                    record=report.acquisition_records[0],
+                    compiled_requirement_spec=base_spec,
+                )
+                is None
+            )
+E           AssertionError: assert AcquisitionOwnerArtifact(owner_component='fabric.retrieval', requirement_ref='data-requirement:fetch-capture-missing_b...17, 0, 0, tzinfo=datetime.timezone.utc), capture_mode='local_substrate_owner', network_call=False, journal_first=True)) is None
+E            +  where AcquisitionOwnerArtifact(owner_component='fabric.retrieval', requirement_ref='data-requirement:fetch-capture-missing_b...17, 0, 0, tzinfo=datetime.timezone.utc), capture_mode='local_substrate_owner', network_call=False, journal_first=True)) = acquire(record=AcquisitionActionRecord(schema_version='policyos.runtime.acquisition_planner.v1', acquisition_id='acquisition:run-n7-f...tisfaction', 'data_quality', 'method_validity', 'participation_representativeness', 'claim_support', 'closeout_pass')}), compiled_requirement_spec={'admissibility_predicates': ['source_family_matches_compiled_requirement'], 'authority_profile_refs': ['authority_profile.production'], 'claim_family': None, 'claim_id': 'claim-fetch-capture-missing_binding', ...})
+E            +    where acquire = <polisyos.runtime.quality.acquisition_planner.RealAcquisitionOwnerGateway object at 0x141980410>.acquire
+
+tests/unit/runtime/quality/test_acquisition_planner.py:2703: AssertionError
+_ test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs[tampered_binding] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1571/test_real_owner_gateway_captur11')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1418ab490>
+mutation = 'tampered_binding'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "missing_receipt",
+            "foreign_payload",
+            "foreign_binding",
+            "tampered_receipt",
+            "missing_binding",
+            "tampered_binding",
+        ],
+    )
+    def test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        mutation: str,
+    ) -> None:
+        """Capture mode never emits an owner artifact for an incomplete CAS chain."""
+    
+        from dataclasses import replace
+    
+        from polisyos.core import artifacts, canon
+        from polisyos.core.artifacts import ArtifactRef
+        from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
+        from polisyos.fabric.retrieval import custody
+        from polisyos.fabric.retrieval.custody import FabricFetchReceipt
+        from polisyos.fabric.retrieval.service import RetrievalService
+        from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
+    
+        runtime_store = build_artifact_store(
+            ArtifactStoreConfig(backend="filesystem", root=str(tmp_path / "fetch-capture-cas"))
+        )
+        _install_recorded_file_catalog_supplier(monkeypatch)
+        with build_recorded_file_fetch_owner(
+            tmp_path, canonicalize_catalog_source=True
+        ) as owner:
+    
+            original_execute = RetrievalService.execute_fetch_plans
+            original_get_bytes = FileSystemCAS.get_bytes
+            original_get_manifest = FileSystemCAS.get_manifest
+    
+            def _execute_and_mutate(
+                service: RetrievalService,
+                plans: list[object],
+                *,
+                persist_payload: bool = False,
+                allow_fallback: bool = True,
+            ) -> object:
+                outcome = original_execute(
+                    service,
+                    plans,
+                    persist_payload=persist_payload,
+                    allow_fallback=allow_fallback,
+                )
+                metric = outcome.data_context.metrics[0]
+                if mutation == "missing_receipt":
+                    mutated_metric = metric.model_copy(update={"fetch_receipt_ref": None})
+                elif mutation == "foreign_payload":
+                    mutated_metric = metric.model_copy(
+                        update={
+                            "payload_ref": ArtifactRef.model_validate(
+                                {
+                                    "artifact_id": "sha256:" + "f" * 64,
+                                    "kind": "fabric.fetch_payload",
+                                    "media_type": "application/json",
+                                }
+                            )
+                        }
+                    )
+                elif mutation == "foreign_binding":
+                    plan = plans[0]
+                    receipt_ref = metric.fetch_receipt_ref
+                    assert receipt_ref is not None
+                    receipt_store = runtime_store
+                    receipt = FabricFetchReceipt.model_validate(
+                        canon.from_canonical_bytes(
+                            original_get_bytes(receipt_store, receipt_ref.artifact_id)
+                        )
+                    )
+                    payload_ref = metric.payload_ref
+                    assert payload_ref is not None
+                    foreign_binding = owner.graph.bind_fetch_target(
+                        metric_id=plan.metric_id,
+                        connector_id=plan.connector_id,
+                        request_dataset_id="fallback",
+                        profile_id=plan.profile_id,
+                        filters=plan.filters,
+                    )
+                    foreign_binding_ref = custody._put_json(
+                        receipt_store,
+                        foreign_binding,
+                        kind="fabric.catalog_fetch_binding",
+                        schema="polisyos.data_forge.catalog_fetch_binding.v1",
+                        inputs=[],
+                    )
+                    foreign_receipt = receipt.model_copy(
+                        update={"catalog_binding_ref": foreign_binding_ref}
+                    )
+                    foreign_receipt_ref = custody._put_json(
+                        receipt_store,
+                        foreign_receipt,
+                        kind="fabric.fetch_receipt",
+                        schema="polisyos.fabric.fetch_receipt.v1",
+                        inputs=[
+                            artifacts.InputRef(
+                                artifact_id=payload_ref.artifact_id,
+                                role="fetched_payload",
+                            ),
+                            artifacts.InputRef(
+                                artifact_id=foreign_binding_ref.artifact_id,
+                                role="catalog_binding",
+                            ),
+                        ],
+                    )
+                    mutated_metric = metric.model_copy(
+                        update={"fetch_receipt_ref": foreign_receipt_ref}
+                    )
+                elif mutation == "tampered_receipt":
+                    receipt_ref = metric.fetch_receipt_ref
+                    assert receipt_ref is not None
+    
+                    def _tampered_get_bytes(store: FileSystemCAS, artifact_id: object) -> bytes:
+                        data = original_get_bytes(store, artifact_id)
+                        if str(artifact_id) == str(receipt_ref.artifact_id):
+                            return data + b"tampered"
+                        return data
+    
+                    monkeypatch.setattr(FileSystemCAS, "get_bytes", _tampered_get_bytes)
+                    mutated_metric = metric
+                else:
+                    receipt_ref = metric.fetch_receipt_ref
+                    assert receipt_ref is not None
+                    receipt_store = runtime_store
+                    receipt = FabricFetchReceipt.model_validate(
+                        canon.from_canonical_bytes(
+                            original_get_bytes(receipt_store, receipt_ref.artifact_id)
+                        )
+                    )
+                    binding_ref = receipt.catalog_binding_ref
+                    if mutation == "missing_binding":
+    
+                        def _missing_binding_manifest(
+                            store: FileSystemCAS, artifact_id: object
+                        ) -> object:
+                            if str(artifact_id) == str(binding_ref.artifact_id):
+                                raise FileNotFoundError(str(binding_ref.artifact_id))
+                            return original_get_manifest(store, artifact_id)
+    
+                        monkeypatch.setattr(
+                            FileSystemCAS, "get_manifest", _missing_binding_manifest
+                        )
+                    else:
+    
+                        def _tampered_binding_get_bytes(
+                            store: FileSystemCAS, artifact_id: object
+                        ) -> bytes:
+                            data = original_get_bytes(store, artifact_id)
+                            if str(artifact_id) == str(binding_ref.artifact_id):
+                                return data + b"tampered"
+                            return data
+    
+                        monkeypatch.setattr(
+                            FileSystemCAS, "get_bytes", _tampered_binding_get_bytes
+                        )
+                    mutated_metric = metric
+                mutated_context = outcome.data_context.model_copy(update={"metrics": [mutated_metric]})
+                return replace(outcome, data_context=mutated_context)
+    
+            monkeypatch.setattr(RetrievalService, "execute_fetch_plans", _execute_and_mutate)
+    
+            base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
+            base_spec.update(
+                {
+                    "requirement_id": f"data-requirement:fetch-capture-{mutation}",
+                    "claim_id": f"claim-fetch-capture-{mutation}",
+                    "required_data_families": ("metric.test",),
+                    "metadata": {"fabric_capture_mode": "persisted_payload"},
+                }
+            )
+            gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
+            report = plan_requirement_gap_acquisition(
+                run_id=f"run-n7-fetch-capture-{mutation}",
+                requirement_gaps=(gap,),
+                generated_at=datetime(2026, 7, 17, tzinfo=UTC),
+            )
+            gateway = RealAcquisitionOwnerGateway(
+                repo_root=tmp_path,
+                dataset_catalog_factory=lambda _db_path, _index_dir: owner.graph,
+                retrieval_service_factory=lambda curated_dir, store, graph: RetrievalService(
+                    curated_dir=curated_dir,
+                    artifact_store=store,
+                    dataset_catalog=graph,
+                    providers=owner.providers,
+                ),
+                artifact_store=runtime_store,
+                captured_at=datetime(2026, 7, 17, tzinfo=UTC),
+            )
+    
+>           assert (
+                gateway.acquire(
+                    record=report.acquisition_records[0],
+                    compiled_requirement_spec=base_spec,
+                )
+                is None
+            )
+E           AssertionError: assert AcquisitionOwnerArtifact(owner_component='fabric.retrieval', requirement_ref='data-requirement:fetch-capture-tampered_...17, 0, 0, tzinfo=datetime.timezone.utc), capture_mode='local_substrate_owner', network_call=False, journal_first=True)) is None
+E            +  where AcquisitionOwnerArtifact(owner_component='fabric.retrieval', requirement_ref='data-requirement:fetch-capture-tampered_...17, 0, 0, tzinfo=datetime.timezone.utc), capture_mode='local_substrate_owner', network_call=False, journal_first=True)) = acquire(record=AcquisitionActionRecord(schema_version='policyos.runtime.acquisition_planner.v1', acquisition_id='acquisition:run-n7-f...tisfaction', 'data_quality', 'method_validity', 'participation_representativeness', 'claim_support', 'closeout_pass')}), compiled_requirement_spec={'admissibility_predicates': ['source_family_matches_compiled_requirement'], 'authority_profile_refs': ['authority_profile.production'], 'claim_family': None, 'claim_id': 'claim-fetch-capture-tampered_binding', ...})
+E            +    where acquire = <polisyos.runtime.quality.acquisition_planner.RealAcquisitionOwnerGateway object at 0x1419109f0>.acquire
+
+tests/unit/runtime/quality/test_acquisition_planner.py:2703: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_acquisition_planner.py::test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs[tampered_receipt]
+FAILED tests/unit/runtime/quality/test_acquisition_planner.py::test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs[missing_binding]
+FAILED tests/unit/runtime/quality/test_acquisition_planner.py::test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs[tampered_binding]
+3 failed, 14 passed, 60 deselected, 2 warnings in 15.91s

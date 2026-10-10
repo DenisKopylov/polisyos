@@ -1,0 +1,12 @@
+{'pid': 91364, 'group': None, 'ready': False, 'start_method': 'spawn'}
+{'exception': '_WorkerDeliveryTimeout', 'message': '', 'exitcode': None, 'alive': True, 'group': None, 'elapsed_s': 7.105422665947117}
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/i1-c05/checks/b61-typed-worker/spawn-task-smoke.py", line 84, in <module>
+    main()
+    ~~~~^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/i1-c05/checks/b61-typed-worker/spawn-task-smoke.py", line 64, in main
+    _join_worker_until(process, deadline=time.monotonic() + 1.0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py", line 1715, in _join_worker_until
+    raise _WorkerDeliveryTimeout
+polisyos.scientist.orchestration.engine.retry._WorkerDeliveryTimeout

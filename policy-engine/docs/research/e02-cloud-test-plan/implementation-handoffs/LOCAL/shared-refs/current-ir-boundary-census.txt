@@ -1,0 +1,8 @@
+reexport-aware known IR-store API scan
+indexed API definitions=283
+Python files considered=5563
+source_calls=310
+source_wrapped=310
+tests_calls=914
+tests_wrapped=914
+unwrapped calls:

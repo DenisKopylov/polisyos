@@ -1,0 +1,62 @@
+[python-src] denominator=2709 files; extensions=['.py']
+  LegalQueryProfile.from_generation: 0 occurrences
+  LegalQueryGenerationIntentV1 call sites: 0 occurrences
+  query_generation_intent references: 2 occurrences
+    src/polisyos/core/contracts/control.py:1752: query_generation_intent: tuple[LegalQueryGenerationIntentV1, ...] | None = None
+    src/polisyos/runtime/http/services/control/lex_pipeline.py:38: intent = request.query_generation_intent
+  Catalog last_query_metrics references: 5 occurrences
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:313: self._last_query_metrics: QueryMetrics | None = None
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:623: self._last_query_metrics = QueryMetrics(
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:701: self._last_query_metrics = QueryMetrics(
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:739: def last_query_metrics(self) -> QueryMetrics | None:
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:740: return self._last_query_metrics
+  Catalog vector_search_refusal references: 17 occurrences
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:231: vector_search_refusal: str | None = None
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:312: self._last_vector_search_refusal: str | None = None
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:317: self._last_vector_search_refusal = None
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:319: self._last_vector_search_refusal = "query_encoder_disabled"
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:323: self._last_vector_search_refusal = (
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:328: self._last_vector_search_refusal = "query_embedding_model_mismatch"
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:332: self._last_vector_search_refusal = "selected_generation_intent_unavailable"
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:348: self._last_vector_search_refusal = "query_encoder_intent_unavailable"
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:357: self._last_vector_search_refusal = (
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:370: self._last_vector_search_refusal = "query_encoder_execution_failed"
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:560: vector_search_refusal: str | None = None,
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:579: if vector_search_refusal is not None:
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:580: explanation["vector_search_refusal"] = vector_search_refusal
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:614: self._last_vector_search_refusal = self._store.vector_index_refusal_reason
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:634: vector_search_refusal=self._last_vector_search_refusal,
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:648: vector_search_refusal=self._last_vector_search_refusal,
+    src/polisyos/data_forge/domains/catalog/knowledge/search.py:710: vector_search_refusal=None,
+[dashboard-src] denominator=1117 files; extensions=['.ts', '.tsx']
+  LegalQueryProfile.from_generation: 0 occurrences
+  LegalQueryGenerationIntentV1 call sites: 0 occurrences
+  query_generation_intent references: 9 occurrences
+    apps/runtime-dashboard/src/api/types.ts:11794: query_generation_intent?:
+    apps/runtime-dashboard/src/api/validators.test.ts:350: expect(missingIntent.query_generation_intent).toBeUndefined();
+    apps/runtime-dashboard/src/api/validators.test.ts:354: query_generation_intent: [intent],
+    apps/runtime-dashboard/src/api/validators.test.ts:356: expect(typedIntent.query_generation_intent).toEqual([intent]);
+    apps/runtime-dashboard/src/api/validators.test.ts:360: query_generation_intent: [],
+    apps/runtime-dashboard/src/api/validators.test.ts:362: expect(emptyIntent.query_generation_intent).toEqual([]);
+    apps/runtime-dashboard/src/api/validators.test.ts:397: query_generation_intent: [
+    apps/runtime-dashboard/src/api/validators.test.ts:405: query_generation_intent: [
+    apps/runtime-dashboard/src/api/validators.ts:1913: query_generation_intent: z
+  Catalog last_query_metrics references: 0 occurrences
+  Catalog vector_search_refusal references: 0 occurrences
+[AST caller census] denominator=2709 Python files; parse_errors=0
+  dataset_graph_calls: 6 calls
+    src/polisyos/data_forge/domains/catalog/batch/benchmark.py:1314
+    src/polisyos/data_forge/domains/catalog/batch/cli.py:149
+    src/polisyos/runtime/http/services/control/nl_pipeline.py:5365
+    src/polisyos/runtime/http/services/control/run_lifecycle.py:2235
+    src/polisyos/runtime/quality/acquisition_planner.py:1388
+    src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py:1950
+  toolkit_catalog_injections: 0 calls
+  toolkit_empty_calls: 3 calls
+    src/polisyos/runtime/http/services/control_registry_providers.py:273
+    src/polisyos/scientist/agent/fabric.py:321
+    src/polisyos/scientist/validation/policy_verified/service.py:635
+  format_dataset_context_calls: 0 calls
+  knowledge_registry_calls: 2 calls
+    src/polisyos/runtime/http/services/control_registry_providers.py:273
+    src/polisyos/runtime/quality/workspace/agent_proposal_bridge.py:79

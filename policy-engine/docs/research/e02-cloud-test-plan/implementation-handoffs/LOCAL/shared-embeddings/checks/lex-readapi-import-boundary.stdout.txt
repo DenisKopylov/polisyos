@@ -1,0 +1,10 @@
+{
+  "file_type_denominator": "*.py",
+  "files_scanned": 47,
+  "forbidden_prefixes": [
+    "polisyos.data_forge.kernel",
+    "polisyos.data_forge.domains"
+  ],
+  "path_denominator": "src/polisyos/lex",
+  "violations": []
+}

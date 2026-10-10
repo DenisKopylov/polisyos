@@ -1,0 +1,8 @@
+Command: .venv/bin/python - <<'PY' ...
+Working directory: policy-engine/
+Probe state: ExperimentState(run_id=...); then nested mutation state.params['probe'] = CopyProbe()
+
+_validate_producer_state(state) -> accepted; callback_calls_after_admission=[]
+snapshot_state(state) -> callback_calls_after_snapshot=['deepcopy']
+
+The custom object is nested under the mutable dict[str, Any] portion of params after Pydantic construction. This demonstrates the bounded out-of-profile residual only; it is not a claim that custom runtime objects belong to the supported JSON state profile. The existing engine README explicitly excludes arbitrary custom runtime objects.

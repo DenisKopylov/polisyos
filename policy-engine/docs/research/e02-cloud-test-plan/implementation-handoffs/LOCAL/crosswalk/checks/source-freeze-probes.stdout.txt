@@ -1,0 +1,9 @@
+{
+  "typed_direct_slice_handoff": "accepted",
+  "mechanism_code": "rejected",
+  "nested_json": "rejected",
+  "untyped_local_config": "rejected",
+  "slice_candidate_mismatch": "rejected",
+  "slice_shape_missing_footprint": "rejected",
+  "q0_receipt_and_full_occurrence_ledger": "accepted"
+}

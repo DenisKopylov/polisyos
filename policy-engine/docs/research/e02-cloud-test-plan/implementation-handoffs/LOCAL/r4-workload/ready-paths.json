@@ -1,0 +1,111 @@
+{
+  "purpose": "R4 shared process-local MethodJob admission source, test, and documentation write set",
+  "observed_head": "80f043c0c007ca14dfd4927f980e391f4fcdc62a",
+  "tree_claim": "This is a scoped ownership/path receipt, not a claim that the shared checkout is clean or frozen.",
+  "readiness": "R4 source/docs are ready for root's composed freeze; the corrected cap-1/cap-2/removal integration command remains for the root final wave.",
+  "production_authority": "not_established; configured profiles are synthetic candidate-only process-local profiles",
+  "source": [
+    "policy-engine/src/polisyos/common/async_tools.py",
+    "policy-engine/src/polisyos/runtime/http/app.py",
+    "policy-engine/src/polisyos/runtime/http/container.py",
+    "policy-engine/src/polisyos/scientist/compute/runner.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py"
+  ],
+  "mixed_file_hunks": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/container.py",
+      "r4_hunks": [
+        "Import SharedExecutorProfile, configure_shared_executor_profile, and resolve_shared_executor_profile from common.async_tools.",
+        "RuntimeContainerConfig adds optional process_worker_capacity and process_worker_profile_revision, resolves them once, and exposes shared_executor_profile().",
+        "RuntimeServiceContainer.build pins the resolved profile into the existing process-wide executor before composing services."
+      ],
+      "coexisting_peer_changes": [
+        "R3 LLM producer settlement store and budget fields/imports.",
+        "Legal query encoder provider fields and startup wiring."
+      ],
+      "staging_note": "Stage only R4 profile hunks after all shared writers are frozen; do not stage the whole container file as an R4-only change."
+    }
+  ],
+  "dependencies": [
+    "create_runtime_api_app forwards the paired optional capacity/revision into RuntimeContainerConfig.",
+    "RuntimeContainerConfig rejects incomplete explicit profiles and retains a candidate host-derived fallback when both fields are absent.",
+    "RuntimeServiceContainer.build configures the one existing common.async_tools shared executor and refuses a conflicting second profile.",
+    "Scientist MethodBackend sends actual method dispatch through run_shared_executor_sync; nested same-owner work executes inline.",
+    "MethodBackend's default CAS store retains ambient tenant/cell ownership enforcement; dispatch slot release occurs before result/evidence CAS writes.",
+    "RunCausalEvaluationNode materialization/readback compares canonical full ArtifactRef identities and validates refusal lineage for the actual Runtime route."
+  ],
+  "readmes": [
+    "policy-engine/src/polisyos/common/README.md",
+    "policy-engine/src/polisyos/scientist/compute/README.md"
+  ],
+  "tests": [
+    "policy-engine/tests/unit/common/test_async_tools.py",
+    "policy-engine/tests/unit/runtime/http/test_shared_executor_composition.py",
+    "policy-engine/tests/unit/scientist/compute/test_runner_polyglot.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py",
+    "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py"
+  ],
+  "release": [
+    "policy-engine/release-fragments/unreleased/2026-10-09-e02-r4-shared-method-admission.toml"
+  ],
+  "local_receipts_not_product_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/decision.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/ready-paths.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/outputs/current-native-attempt.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/outputs/callback-cap-full-unit.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/outputs/callback-cap-regression-green.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/outputs/callback-cap-property-removal.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/root-canonical-ref-final-checks.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/cap1-postfix-native-confirmation.stdout.txt"
+  ],
+  "excluded_peer_paths": [
+    "policy-engine/tests/_helpers/runtime_http.py",
+    "policy-engine/tests/unit/runtime/http/test_runtime_service_container.py",
+    "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py"
+  ],
+  "native_harness": {
+    "full_matrix_command": "POLISYOS_R4_CAP1_DIAGNOSTIC_ONLY=0 POLISYOS_R4_RECEIPT_DIR=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 LOG_LEVEL=WARNING .venv/bin/pytest -v -s tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py::test_runtime_control_worker_shared_method_admission_and_removal_probe",
+    "warning": "Do not set POLISYOS_R4_CAP1_DIAGNOSTIC_ONLY=1 for the final matrix; that branch executes cap 1 only and returns before cap 2/removal.",
+    "child_environment": "The child runner explicitly sets capacity/revision, dev/local profiles, and BLAS/OpenMP thread counts to 1; each child process has a 180-second timeout and fold/pre-dispatch barriers have 60-second timeouts. POLISYOS_R4_RECEIPT_DIR causes complete stdout/stderr to be written per child before parsing or parent assertions, including partial output on timeout.",
+    "child_receipt_names": [
+      "cap-1-configured.stdout.txt",
+      "cap-1-configured.stderr.txt",
+      "cap-2-configured.stdout.txt",
+      "cap-2-configured.stderr.txt",
+      "cap-1-removal.stdout.txt",
+      "cap-1-removal.stderr.txt"
+    ],
+    "cap1_receipt": "R4_NATIVE_CAP1_DIAGNOSTIC is printed before outer property assertions. The retained post-fix cap-1 receipt records both actual worker results, 12/12 observed folds, dispatch peak 1, final result/evidence linkage, and fresh admitted-scope CAS ownership. The first wrapper invocation exited nonzero only because its new assertion expected 'success' instead of declared NodeStatus 'ok'; the assertion is corrected in source but has not been rerun.",
+    "cap2_removal_basis": "The earlier pre-reference-fix cap-2/removal receipts establish physical dispatch peaks and complete folds only. They do not establish final linkage after the canonical-ref fix; the root final wave must rerun both."
+  },
+  "verification": {
+    "canonical_ref_micro_suite": "14 passed; retained raw SHA-256 980f333ce5e21868f03378e377c7dc08fa0aecf49896bd733bf7e6820e0fa136.",
+    "native_cap1_stdout_sha256": "cce40590cf82b1278142c0fd3e5b98cba77b5923c9ea305ed6c07dbe6de93e26",
+    "late_callback_cap_fix": {
+      "property": "Actual simultaneous run_shared_executor_sync dispatches from external late Future callbacks never exceed the configured physical worker capacity.",
+      "classification": "P40 same aggregate-admission class at the callback/inline boundary; P38 proxy was the logical callback marker.",
+      "focused_command": ".venv/bin/python -m pytest -vv tests/unit/common/test_async_tools.py::test_late_callback_sync_dispatch_obeys_physical_worker_capacity_and_context tests/unit/common/test_async_tools.py::test_nested_sync_method_dispatch_runs_inline_on_the_current_shared_worker tests/unit/common/test_async_tools.py::test_late_callback_refuses_nested_work_under_new_full_workers",
+      "focused_result": "4 passed in 0.44s; cap 1/2 measured actual concurrent dispatch; callback ContextVars preserved; physical worker inline and direct nested-submit refusal retained.",
+      "full_unit_suite": "32 passed in 0.74s; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/outputs/callback-cap-full-unit.stdout.txt SHA-256 09d5fffd970bbc9e660d8bc2d4e9d0cb8ddbb83f9321a7b69f2c1a18950a8000.",
+      "ruff_files": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/tests/unit/common/test_async_tools.py"
+      ],
+      "property_removal_probe": "Overriding the physical-worker predicate with the former logical active marker while leaving callback markers intact gives capacity 1, both callbacks complete, peak_inline_dispatches 2; this falsifies the cap regression.",
+      "green_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/outputs/callback-cap-regression-green.stdout.txt SHA-256 b9023d9bbc048eaa3eb60bdac0d43446862cccecfb960767007588860f210fb3.",
+      "property_removal_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-workload/outputs/callback-cap-property-removal.stdout.txt SHA-256 fd27a1c52044b3b51497f09633f6b9ccf5d92591266ac0cbb1d070007fc4a9ff"
+    },
+    "ruff_files": [
+      "policy-engine/src/polisyos/common/async_tools.py",
+      "policy-engine/src/polisyos/runtime/http/app.py",
+      "policy-engine/src/polisyos/runtime/http/container.py",
+      "policy-engine/src/polisyos/scientist/compute/runner.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "policy-engine/tests/unit/common/test_async_tools.py",
+      "policy-engine/tests/unit/runtime/http/test_shared_executor_composition.py",
+      "policy-engine/tests/unit/scientist/compute/test_runner_polyglot.py",
+      "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py",
+      "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py"
+    ]
+  }
+}

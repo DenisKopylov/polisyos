@@ -1,0 +1,502 @@
+{
+  "schema": "policyos.e02.r1_r4_final_wave_command_plan.v1",
+  "purpose": "Read-only final-wave command plan. No test, collection, Git command, source edit, production-data read, or production census was performed for this plan.",
+  "planning_source": {
+    "candidate_commit": "9e02a9f49c8b01026327a9f7c7e18711b13a96f2",
+    "candidate_tree_prefix_only": "881a950",
+    "status": "Planning anchor only; final source freeze is pending native checker repair.",
+    "execution_precondition": "Root must pin the repaired final source commit and full tree, confirm the listed test/source bytes at that freeze, and record final fingerprints before running. Do not report the planning anchor as the executed source."
+  },
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+  "execution_order": [
+    "R1 prepared-B 13-consumer contour plus defining producer suite",
+    "R4 focused shared-owner and canonical-ref tests",
+    "K3 real Foundry replicas using seeds 31/32/33",
+    "R4 native cap-1/cap-2/removal matrix"
+  ],
+  "concurrency": {
+    "max_parallel_commands": 1,
+    "numerical_threads": 1,
+    "env_overrides": {
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1"
+    },
+    "rationale": "Run commands sequentially. The native R4 cap profiles touch the process-scoped shared executor and real TMLE fitter."
+  },
+  "input_fixtures": {
+    "r1_prepared_b": {
+      "characterization": "Synthetic unit/tmp_path fixtures across the 13 affected consumer files and the separate defining producer reconciliation file; no single shared fixture file and no production census.",
+      "shared_fixture_bytes_sha256": "not_applicable",
+      "current_definition_fingerprints": [
+        {
+          "path": "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+          "sha256": "7ed69a33cb1b73057179fb52d1f10df8788c5c957fe27c8b0bbffb28f84416c7"
+        },
+        {
+          "path": "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+          "sha256": "0919a7fd58885d25f0c2b0dd5b6b55efae68fd8806b2aebada3900a2b8ed8c28"
+        }
+      ],
+      "fingerprint_status": "Observed now, not a final-source pin; recheck after root freeze."
+    },
+    "r4_native": {
+      "fixture_source": "tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+      "fixture_source_sha256": "3544eb100db855100d8d8d8e28cbf85b024fc0b6c9cb33b1b154f6c889a72103",
+      "controlled_roster": {
+        "runtime_instances": 2,
+        "observations_per_study": 240,
+        "rng_seeds": [
+          811,
+          812
+        ],
+        "method": "TMLE; 3 folds × 2 repeats; parallel_folds=false; max_parallel_folds=1",
+        "study_0_repeat_seeds": [
+          18,
+          1015
+        ],
+        "study_1_repeat_seeds": [
+          19,
+          1016
+        ],
+        "expected_real_fold_identities": {
+          "study_0": [
+            [
+              18,
+              0
+            ],
+            [
+              18,
+              1
+            ],
+            [
+              18,
+              2
+            ],
+            [
+              1015,
+              0
+            ],
+            [
+              1015,
+              1
+            ],
+            [
+              1015,
+              2
+            ]
+          ],
+          "study_1": [
+            [
+              19,
+              0
+            ],
+            [
+              19,
+              1
+            ],
+            [
+              19,
+              2
+            ],
+            [
+              1016,
+              0
+            ],
+            [
+              1016,
+              1
+            ],
+            [
+              1016,
+              2
+            ]
+          ]
+        },
+        "total_expected_real_fitter_calls": 12
+      },
+      "materialized_input_bytes_sha256": "not_established before run: generated NumPy observations are written to child CAS, while current child report does not emit the input ref/payload digest. Do not treat the test-source hash as the input-byte hash. Root must record the exact input CAS bytes/ref before child teardown if that digest is required, or preserve this field as not_established."
+    },
+    "k3_foundry": {
+      "fixture_source": "tests/integration/scientist/methods/backtesting/test_backtest_foundry_replicas.py",
+      "fixture_source_sha256": "5d883f6686d1e92f2851c91f87b8e992c3311a2b7a7f06c72ad8e59f18c9fd70",
+      "exact_history_fixture": {
+        "relative_path": "tmp_path/masked-backtest-history.json",
+        "utf8_bytes_no_newline": "{\"metric\": [1.0, 2.0, 900.0, 901.0], \"time_index\": [\"t0\", \"t1\", \"t2\", \"t3\"]}",
+        "sha256": "249e6a9a41afec3cb638b781fc14f471bd0f2b4ca0b23b12d2b821199270aa89",
+        "cutoff": "t2",
+        "expected_bound_values": [
+          1,
+          2
+        ],
+        "expected_exec_config_seeds": [
+          31,
+          32,
+          33
+        ]
+      },
+      "qualification": "Synthetic local history only; not production historical data or an IID claim."
+    }
+  },
+  "commands": [
+    {
+      "id": "R1_PREPARED_B_13_CONTOURS",
+      "order": 1,
+      "sources": [
+        "execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/R1",
+        "implementation-handoffs/LOCAL/r1-prepared-b/receipt.md"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1-prepared-b/final-freeze-20261009/r1-prepared-b-13-contours.junit.xml",
+        "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+        "tests/unit/scientist/orchestration/engine/test_state_merge.py",
+        "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+        "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+        "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1"
+      },
+      "capture": {
+        "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1-prepared-b/final-freeze-20261009/r1-prepared-b-13-contours.stdout.txt",
+        "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1-prepared-b/final-freeze-20261009/r1-prepared-b-13-contours.stderr.txt",
+        "junit": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1-prepared-b/final-freeze-20261009/r1-prepared-b-13-contours.junit.xml",
+        "preserve_full_stream_before_classification": true
+      },
+      "test_classification": {
+        "real_producer_cases": [
+          "test_producer_scope_reconciliation.py::test_real_producer_grants_reconcile_with_reopened_cache_intent",
+          "test_producer_scope_reconciliation.py::test_model_boundary_reaches_real_cache_and_current_consumer",
+          "test_producer_scope_reconciliation.py::test_unsupported_model_hooks_refuse_before_real_producer_effects",
+          "test_producer_scope_reconciliation.py::test_nested_custom_leaf_is_refused_before_producer_or_deepcopy",
+          "test_producer_scope_reconciliation.py::test_canonical_budget_model_preserves_guard_and_neutral_completion"
+        ],
+        "contour_limit": "The 13 consumer files are a mixed regression contour; do not label every unit test as an end-to-end producer test. Use JUnit nodeids for actual per-case classification."
+      },
+      "expected_signal": "All selected cases complete on the final frozen source with no unexpected failures/errors/skips; record the actual JUnit denominator. The adjacent prior receipt recorded 267 passes (206 contour + 61 defining) but did not retain wall time and is not this final-source result.",
+      "previous_wall_time": "UNMEASURED; retained prior contour output has no elapsed time.",
+      "setup_argv": [
+        "mkdir",
+        "-p",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1-prepared-b/final-freeze-20261009"
+      ]
+    },
+    {
+      "id": "R4_FOCUSED_OWNER_TESTS",
+      "order": 2,
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009/r4-focused-owner.junit.xml",
+        "tests/unit/common/test_async_tools.py",
+        "tests/unit/runtime/http/test_shared_executor_composition.py",
+        "tests/unit/scientist/compute/test_runner_polyglot.py"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1"
+      },
+      "capture": {
+        "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009/r4-focused-owner.stdout.txt",
+        "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009/r4-focused-owner.stderr.txt",
+        "junit": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009/r4-focused-owner.junit.xml",
+        "preserve_full_stream_before_classification": true
+      },
+      "property_selectors": [
+        "test_async_tools.py::test_late_callback_sync_dispatch_obeys_physical_worker_capacity_and_context",
+        "test_async_tools.py::test_nested_sync_method_dispatch_runs_inline_on_the_current_shared_worker",
+        "test_async_tools.py::test_late_callback_refuses_nested_work_under_new_full_workers",
+        "test_shared_executor_composition.py",
+        "test_runner_polyglot.py"
+      ],
+      "expected_signal": "Physical late-callback dispatch peaks obey the cap; ContextVars are preserved; real-worker nested dispatch stays inline; saturated nested work refuses; Runtime profile composition and MethodBackend owner bridge pass.",
+      "previous_wall_time": "Prior source only: full async_tools suite 0.74s; late-callback focused selectors 0.44s. Exact final combined command is UNMEASURED.",
+      "setup_argv": [
+        "mkdir",
+        "-p",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009"
+      ]
+    },
+    {
+      "id": "R4_CANONICAL_REF_MICRO_SUITE",
+      "order": 2,
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009/r4-canonical-ref.junit.xml",
+        "tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py",
+        "-k",
+        "matches_branch_state_ref_identity or normalizes_structured_branch_state_ref or fails_closed_on_malformed_structured_ref or rejects_nonemitted_ref_identity or rejects_matching_wrong_manifest_header or binds_actual_manifest"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1"
+      },
+      "capture": {
+        "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009/r4-canonical-ref.stdout.txt",
+        "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009/r4-canonical-ref.stderr.txt",
+        "junit": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009/r4-canonical-ref.junit.xml",
+        "preserve_full_stream_before_classification": true
+      },
+      "expected_signal": "Typed/structured current branch-state refs normalize through the canonical identity owner; malformed, wrong-kind/media/profile, foreign-current, and non-emitted refs refuse; real CAS refusal-header controls remain effective.",
+      "previous_wall_time": "UNMEASURED; prior 14-test micro-suite passed, but retained record does not state elapsed time.",
+      "setup_argv": [
+        "mkdir",
+        "-p",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009"
+      ]
+    },
+    {
+      "id": "K3_BACKTEST_FOUNDRY_THREE_SEEDS",
+      "order": 3,
+      "sources": [
+        "implementation-handoffs/LOCAL/reviews/e-original-criteria.md#B166/B170",
+        "integration/checks/2026-10-06-seventh-wave/reviews/1930-E-r2-remaining-work.md",
+        "tests/integration/scientist/methods/backtesting/test_backtest_foundry_replicas.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009/k3-foundry-replicas.junit.xml",
+        "tests/integration/scientist/methods/backtesting/test_backtest_foundry_replicas.py"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1"
+      },
+      "capture": {
+        "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009/k3-foundry-replicas.stdout.txt",
+        "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009/k3-foundry-replicas.stderr.txt",
+        "junit": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009/k3-foundry-replicas.junit.xml",
+        "preserve_full_stream_before_classification": true
+      },
+      "test_classification": {
+        "real_positive": "The K=3 success case wraps DefaultFoundryPort.execute only to capture the request and calls the original method for all three replicas; it reaches the real Foundry execute API and freshly reads the persisted BacktestReport/cohort.",
+        "controlled_failure": "The middle-replica failure case injects one exception at the DefaultFoundryPort seam and lets the other two call the real method. Classify as controlled bridge failure, not native backend failure.",
+        "refusals": "Other selected file cases assert fail-before-snapshot/Foundry behavior; report exact JUnit nodeids."
+      },
+      "expected_signal": "Three distinct physical requests/run IDs and ExecConfig seeds [31,32,33]; masked source binds [1,2] and excludes 900/901; fresh report/cohort readback remains linked; projection is explicitly unsupported. Failure case retains requested=3, completed=2, failed=1, identity, and no success projection.",
+      "previous_wall_time": "UNMEASURED; no exact final-source K3 execution receipt was located.",
+      "setup_argv": [
+        "mkdir",
+        "-p",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009"
+      ]
+    },
+    {
+      "id": "R4_NATIVE_CAP1_CAP2_REMOVAL_MATRIX",
+      "order": 4,
+      "sources": [
+        "implementation-handoffs/LOCAL/r4-workload/ready-paths.json#/native_harness",
+        "execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/R4",
+        "implementation-handoffs/LOCAL/r4-workload/decision.md#Exact B56 coverage binding"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        ".venv/bin/pytest",
+        "-v",
+        "-s",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009/r4-native.junit.xml",
+        "tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py::test_runtime_control_worker_shared_method_admission_and_removal_probe"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src",
+        "POLISYOS_R4_CAP1_DIAGNOSTIC_ONLY": "0",
+        "POLISYOS_R4_RECEIPT_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009",
+        "POLISYOS_EXECUTION_PROFILE": "dev",
+        "POLISYOS_RUNNER_BACKEND": "local",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "LOG_LEVEL": "WARNING"
+      },
+      "child_env_set_by_test": {
+        "POLISYOS_R4_CHILD": "1",
+        "POLISYOS_R4_CAPACITY_sequence": [
+          "1",
+          "2",
+          "1"
+        ],
+        "POLISYOS_R4_BYPASS_sequence": [
+          "0",
+          "0",
+          "1"
+        ],
+        "POLISYOS_EXECUTION_PROFILE": "dev",
+        "POLISYOS_RUNNER_BACKEND": "local",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "LOG_LEVEL": "WARNING",
+        "child_process_timeout_seconds": 180,
+        "cap_two_or_removal_barrier_timeout_seconds": 60,
+        "worker_future_result_timeout_seconds": 120
+      },
+      "capture": {
+        "outer_stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009/r4-native-full.stdout.txt",
+        "outer_stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009/r4-native-full.stderr.txt",
+        "junit": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009/r4-native.junit.xml",
+        "child_streams_before_assertion": [
+          "cap-1-configured.stdout.txt",
+          "cap-1-configured.stderr.txt",
+          "cap-2-configured.stdout.txt",
+          "cap-2-configured.stderr.txt",
+          "cap-1-removal.stdout.txt",
+          "cap-1-removal.stderr.txt"
+        ],
+        "per_profile_json": "Each child stdout contains R4_NATIVE_RESULT=<JSON>; outer stdout contains R4_NATIVE_PROFILES=<JSON> for all three profiles. Current harness emits no separate per-cap .json files."
+      },
+      "actual_route": {
+        "chain": [
+          "two Runtime containers/services sharing one process profile",
+          "ControlWorker.dispatch_once",
+          "RunLifecycle._run_legacy_scientist_workflow strict DTO mapper",
+          "scientist.api.run_experiment",
+          "run_selected_workflow / causal-full builder",
+          "synchronous WorkflowExecutor",
+          "RunCausalEvaluationNode -> run_job",
+          "MethodBackend.run -> shared run_shared_executor_sync owner",
+          "MethodDispatcher.dispatch -> real TMLE _fit_crossfit_fold",
+          "result/evidence CAS writes -> fresh tenant-enforced reads -> final state link checks"
+        ],
+        "source_paths": [
+          "src/polisyos/runtime/http/services/control_worker.py",
+          "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+          "src/polisyos/scientist/api.py",
+          "src/polisyos/scientist/orchestration/workflows/builder.py",
+          "src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+          "src/polisyos/scientist/compute/runner.py",
+          "src/polisyos/common/async_tools.py",
+          "src/polisyos/runtime/http/app.py",
+          "src/polisyos/runtime/http/container.py",
+          "src/polisyos/foundry/methods/backends/dispatch.py",
+          "src/polisyos/foundry/methods/catalog/causal/treatment_effects/tmle_core.py",
+          "tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+          "tests/_helpers/runtime_http.py"
+        ],
+        "cleanup": "One isolated child process per capacity/bypass profile because the executor is process-scoped and refuses conflicting capacity. _run_child closes both Runtime environments in finally; the harness restores monkeypatches in finally; child process exit releases its physical ThreadPoolExecutor. The test bypasses only the distinct causal-evaluation safety gate."
+      },
+      "expected_properties": {
+        "cap1": "revision r4-native-method-cap-1-v1; two jobs and true worker futures; two producer/MethodBackend submissions; dispatch count 2, measured actual dispatcher peak 1; 12/12 unique real fitter fold identities; nodes status ok; linked result/evidence refs; fresh CAS owner scope admitted_scope.",
+        "cap2": "revision r4-native-method-cap-2-v1; same two jobs/producers and 12/12 unique real folds; measured dispatcher peak 2; complete numerical/report/envelope output equals cap1 per study.",
+        "removal": "profile capacity 1 with Runtime admission bridge bypassed; two dispatches do not run on shared workers; measured actual dispatch peak 2; same 12/12 fitter identities. This is the remove-the-property control."
+      },
+      "equality_oracles": [
+        "Derive expected fold denominator from the declared finite profile per study; compare exact set and multiplicity to calls observed at the real fitter, never to result-field declarations.",
+        "Both actual ControlWorker futures and persisted jobs complete; cap-2/removal barriers observe two real dispatch entries before release.",
+        "Cap 1 and cap 2 have equal per-study result, standard error, interval, full report/envelope, fold identity set, fresh CAS reads, owner claims, and final state links.",
+        "Do not use configured worker count, roster declaration, exit code, or job submission counters as the cap property."
+      ],
+      "bounded_scope": [
+        "Safety/admissibility/promotion are not tested because only the separate causal safety gate is bypassed to isolate compute admission.",
+        "Synthetic process-local capacity/profile is candidate-grade; deployed cap/roster and cross-process resource ownership remain not_established."
+      ],
+      "prior_wall_times": {
+        "measured": [
+          "A post-canonical-fix cap1-only attempt took 39.48s but outer assertion still expected status 'success' instead of declared NodeStatus 'ok'.",
+          "An earlier 39.48s pre-ref-fix attempt failed final output linking."
+        ],
+        "final_three_profile_matrix": "UNMEASURED; no corrected full cap1/cap2/removal run is retained."
+      },
+      "setup_argv": [
+        "mkdir",
+        "-p",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-workload/final-freeze-20261009"
+      ],
+      "expected_signal": "PASS only after all three full child stream pairs are persisted before parsing/assertion and all cap/fold/dispatch/CAS/link/equality checks pass. Missing output, deadlock/timeout, lost fold, owner mismatch, or missing link is red."
+    },
+    {
+      "id": "B13_RES03_AUTHENTIC_SERVED_ROUTE",
+      "order": "bounded_skip",
+      "source_basis": [
+        "docs/research/e02-cloud-test-plan/closure-decisions/B.md#bundle-res-03",
+        "docs/research/e02-cloud-test-plan/bundle-catalog.md#res-03",
+        "docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings[id=B13]"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv_if_inputs_are_admitted": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1-prepared-b/final-freeze-20261009/b13-res03-served-route.junit.xml",
+        "tests/integration/scientist/test_res_03_real_simulation_route.py"
+      ],
+      "env_overrides_if_admitted": {
+        "PYTHONPATH": "src",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1"
+      },
+      "skip_reason": "The original B13/RES-03 requirement needs the local read-only catalog and authentic served TestClient route. Its pinned input is production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb plus the actually requested registry/input. This plan did not inspect or census production data or establish current availability/permissions/admission. Do not run or claim present/absent; resume only after the owner admits the exact input.",
+      "expected_if_later_run": "Real successful producer then later failure; fresh served/audit consumer reads exact success artifact ref, failed status, dependency invalidation, and no promotion; missing/tampered/cross-tenant/schema/node mismatch controls refuse.",
+      "prior_wall_time": "UNMEASURED"
+    }
+  ],
+  "classification": {
+    "production_capacity_and_roster": "not_established",
+    "B56_closure": "not_adjudicated",
+    "P37_P38": "Configured cap/roster are synthetic candidate-grade. Property must be recomputed from actual dispatch activity, fitter identities, worker futures, fresh CAS reads, and numerical/uncertainty equality.",
+    "source_exit_only_checks": "None selected as an acceptance oracle; report exact test nodes and measured properties."
+  },
+  "no_run_receipt": {
+    "executed": false,
+    "commands_executed": [],
+    "reason": "The requested work is planning only; final native checker repair/source freeze is still pending."
+  }
+}

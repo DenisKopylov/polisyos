@@ -1,0 +1,13 @@
+Complete source denominator: 2707 Python files under src/polisyos
+All target call/definition rows: 7
+Complete target rows:
+  definition: src/polisyos/berl/contracts/validation_rules.py:40 validate_explanation_bundle
+  definition: src/polisyos/berl/contracts/validation_rules.py:107 validate_persisted_explanation_bundle_payload
+  call: src/polisyos/berl/contracts/validation_rules.py:131 validate_explanation_bundle
+  call: src/polisyos/berl/contracts/validation_rules.py:213 validate_explanation_bundle
+  call: src/polisyos/berl/service.py:272 validate_explanation_bundle
+  call: src/polisyos/runtime/quality/explanation_reliability.py:390 validate_persisted_explanation_bundle_payload
+  call: src/polisyos/scientist/validation/phase5_preflight.py:1107 validate_persisted_explanation_bundle_payload
+Persisted-consumer call-site denominator: 2
+  src/polisyos/runtime/quality/explanation_reliability.py:390 validate_persisted_explanation_bundle_payload
+  src/polisyos/scientist/validation/phase5_preflight.py:1107 validate_persisted_explanation_bundle_payload

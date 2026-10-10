@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py", line 4259, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py", line 4235, in main
+    probe_result = self_check(ledger, snapshot)
+  File "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py", line 3718, in self_check
+    raise ValueError(f"self-check accepted slice handoff mutation: {name}")
+ValueError: self-check accepted slice handoff mutation: partial_decision_mapping

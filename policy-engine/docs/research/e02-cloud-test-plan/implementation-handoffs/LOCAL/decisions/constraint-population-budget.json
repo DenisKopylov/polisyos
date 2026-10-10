@@ -1,0 +1,177 @@
+{
+  "schema": "policyos.e02.constraint_population_budget_decision.v1",
+  "decision_id": "DEC0-constraint-population-budget",
+  "decision_state": "G_DECISION_PENDING",
+  "capability_state": "semantic_test_missing",
+  "scope": {
+    "question": "How should the actual Runtime constraint producer preserve or refuse a full owner-derived population larger than the current inline snapshot limit?",
+    "property": "The actual owner-derived requirement population must be available to every downstream consumer in full, or the persisted decision must explicitly identify an incomplete, budget-limited result. A count limit cannot silently become a complete denominator or change source authority.",
+    "implementation_tested": "Pydantic validates constraint_records length <= 40 after the producer has built the full list.",
+    "not_an_external_fact": "40 is a current schema max_length, not a limit established by an external fact, authority decision, or original criterion."
+  },
+  "p40_bucket": {
+    "classification": "same_class_deeper",
+    "class": "producer-to-artifact-to-consumer completeness of the actual owner-derived population",
+    "scope_note": "The graph and populated inputs compile successfully; the deeper escape is at the typed snapshot and reader boundary. This is not a claim that cardinality is the same defect as the earlier import-direction violation.",
+    "required_disposition": "Widen to the full population, or record a typed budget-limited refusal with a falsifier. G must choose the population contract; this packet does not accept the choice."
+  },
+  "original_bindings": {
+    "criterion_id": "LA-046",
+    "source_file": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+    "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "source_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+    "source_lines_inclusive": [3034, 3068],
+    "source_span_sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38",
+    "coverage_occurrences": [
+      {
+        "pointer": "docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/270/criterion_refs/0",
+        "card_binding": "REQ-01"
+      },
+      {
+        "pointer": "docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/270/criterion_refs/1",
+        "card_binding": "ACQ-01"
+      }
+    ],
+    "task_routes": {
+      "I4": "docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/I4/finding_ids/1",
+      "V3": "docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V3/finding_ids/4"
+    },
+    "criterion_scope": "LA-046 requires explicit compiler inputs and a real runtime consumer. REQ-01 requires explicit pilot profile, opaque IDs, text/request, declared scope/date/jurisdiction, and negation; ACQ-01 separately requires admitted N7 inputs to alter WMR. A recording resolver is insufficient.",
+    "criterion_boundary": "LA-046 does not define a 40-record cardinality limit or decide inline, reference, paged, or refusal semantics. This budget decision is not an LA-046 closure. The local deterministic fixture is not admitted N7 authority or an authority-grade production decision.",
+    "neighbor_not_binding": "LA-045 is the private data-family helper cleanup criterion; it is not the source criterion for ConstraintStoreSnapshot cardinality."
+  },
+  "prototype": {
+    "kind": "Actual ConstraintStoreIngestor producer, DataRequirementCompiler, and FileSystemCAS path using the existing canonical design-problem builder and test helpers.",
+    "command_record": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/constraint-population-budget/attempt1/run.json",
+    "stdout": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/constraint-population-budget/attempt1/stdout.txt@6e7bef42c8770616a9c77b51ccfd42c214b674211aa6ef002fd6f487e383797e",
+    "stderr": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/constraint-population-budget/attempt1/stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "process_exit_code": 0,
+    "process_wall_seconds": 16.2,
+    "harness_runtime_seconds": 14.553725,
+    "source_sha256_stable_start_to_end": true,
+    "input": {
+      "problem_statement": "Provide a means-tested housing voucher subsidy for low-income renters in Kyiv oblast through municipal service centres, with annual appropriations.",
+      "problem_builder": "Existing _constraint_canonical_problem() helper evaluates the tracked _design_problem constructor in tools/quality/validation/check_layer3_gy_phase2_artifacts.py.",
+      "basis": "Actual _authority_profile(PolicyLayerLevel.LOCAL) and _concept_spine_refs(problem.design_problem_id); one CAS-persisted fixture.constraint_source ref with no source-authority admission.",
+      "input_sha256_excluding_generated_at": "f6cec7a70cda14c94d5cc6f3f6da22cb99a77f3c9d248883b364ef1a69971437",
+      "exact_producer_request_sha256_including_generated_at": "e8b5a8007dd2cb2b2c79d2ada4ecefbb4011e902821b9860823b3dcb96973c43"
+    },
+    "observed": {
+      "grammar_status": "compiled",
+      "actual_obligation_graph": {
+        "bundle_ledger_count": 56,
+        "blocking_frontier_count": 25,
+        "deferred_or_rejected_count": 31
+      },
+      "constraint_records_before_snapshot_validation": 108,
+      "snapshot_constraint_records_max_length": 40,
+      "failure": {
+        "type": "ValidationError",
+        "loc": ["constraint_records"],
+        "type_code": "too_long",
+        "message": "List should have at most 40 items after validation, not 108",
+        "max_length": 40,
+        "actual_length": 108
+      },
+      "persisted_decision": {
+        "blocks_promotion": true,
+        "downgrades_authority": true,
+        "blocking_constraint_ids": ["constraint_requirement_basis_unverified"],
+        "missing_basis": ["constraint_requirement_basis_unverified"]
+      },
+      "persisted_failure_packet": {
+        "snapshot_present": false,
+        "population_present": false,
+        "parent_roles": ["design_problem"],
+        "source_authority_missing_id_retained": false
+      },
+      "fresh_cas_replay_byte_equal": true,
+      "authority_observation": "The request contains one readable fixture source ref but no authority admission. Recompute marks constraint_source_authority_verification_missing before compilation; the overflow catch replaces missing_basis with constraint_requirement_basis_unverified and returns only a design_problem parent ref. No positive authority is inferred."
+    },
+    "raw_output_policy": "Full deciding stdout/stderr are retained under ignored LOCAL/raw; the runner records counts, error location/message/context, and hashes, not the 108 record values.",
+    "prior_suite_capture": {
+      "state": "capture_incomplete",
+      "reported_unit_summary": "4 passed, 2 warnings in 22.64s",
+      "reported_integration_summary": "1 passed, 2 warnings in 17.65s",
+      "reason": "Full deciding stdout/stderr were not retained as files. These summaries are not deciding receipts; replay the relevant suites in the final frozen wave and retain full outputs."
+    }
+  },
+  "source_observations": {
+    "schema_cap": "src/polisyos/pdc/_impl/layer2_design_search.py:721-731 defines ConstraintStoreSnapshot.constraint_records with max_length=40 under S2 v1.",
+    "snapshot_order": "src/polisyos/runtime/quality/workspace/foundry_consumption.py:1293-1314 persists the complete gy.constraint_snapshot_basis candidate before constructing the capped PDC model.",
+    "failure_mapping": "src/polisyos/runtime/quality/workspace/foundry_consumption.py:820-850 catches ValueError/OSError, emits only constraint_requirement_basis_unverified, and persists design_problem as its sole parent.",
+    "decision_composition": "src/polisyos/runtime/quality/workspace/foundry_consumption.py:1365-1378 blocks promotion and downgrades authority for any missing basis reason.",
+    "reader_surface": "Consumers currently iterate constraint_records in pdc/_impl/layer2_design_search.py at 2573, 2643, 2734, 2821, 2935; runtime/quality/proving_ground/proving_ground_conversion.py at 2549; and runtime/quality/proving_ground/proof_carrying_analytics_search.py at 3082. A reference-only design must update these actual consumers; removing inline rows would currently expose an empty population.",
+    "rule_and_time": "Runtime producer version is policyos.gy.phase2.foundry.v3; PDC S2 schema is policyos.policy_design_case.layer2_s2_design_search.v1. Preserve one frozen generated_at, source/profile closure, rule/schema version, and lineage across all pages/refs. Historical records must not be silently rewritten."
+  },
+  "options": [
+    {
+      "id": "reuse_existing_refs_and_recompute",
+      "summary": "Use persisted obligation graph, claim ledger, participation evaluations, and method-preflight refs as the complete input basis. Reconstruct the full ConstraintStoreEntry population at the consumer or resolve snapshot_ref to the complete source artifact; never treat a missing inline list as empty.",
+      "current_fit": "Upstream artifacts and the raw snapshot-basis candidate are persisted before the typed model rejects it, but the failed packet drops those refs, the PDC DTO has no page-ref contract, and current readers iterate constraint_records. Existing refs are not a working substitute without a real bridge/reader change.",
+      "migration_impact": "Keep prior inline v1 snapshots readable. Add a versioned resolver/recompute path and route every real consumer through it; reconcile reconstructed entry identities/statuses with exact source artifacts.",
+      "status_impact": "Complete only if the consumer recomputes the whole population and reconciles a frozen count/digest. Missing, corrupt, or mismatched inputs remain blocking; no zero default.",
+      "authority_impact": "Refs establish lineage, not institutional authority. Preserve source-authority-verification-missing separately.",
+      "time_impact": "Use refs from one producer request/run and exact generated_at/rule version; do not combine current graph refs with historical entries.",
+      "falsifier": "Run the actual 108-record producer and fresh consumer, reconcile all entry IDs/statuses/routes, then remove or corrupt one referenced artifact while leaving its marker and require refusal. Keep source authority missing independently visible."
+    },
+    {
+      "id": "extend_inline_cap",
+      "summary": "Increase max_length or remove it so all entries remain embedded in constraint_records.",
+      "current_fit": "The observed case needs at least 108; it does not establish 108 as a general upper bound or justify an unbounded list.",
+      "migration_impact": "Changes PDC validation/JSON schema. Old readers capped at 40 reject new snapshots, so preserve v1 reads and define a compatible versioned contract. Measure resource bounds before choosing a maximum.",
+      "status_impact": "Under-limit snapshots may still be incomplete if a producer truncates. Validate complete IDs/counts from the owner graph, not only list length; over-limit remains fail-closed.",
+      "authority_impact": "More rows confer no authority. Keep source authority and candidate status separately composed.",
+      "time_impact": "Preserve generated_at/rule-version binding; do not reinterpret historical v1 records under the widened validator.",
+      "falsifier": "Run actual populations at 40, 41, and 108; verify full IDs/statuses in fresh reads and failure on one removed item. Any proposed maximum needs an owner-derived bound+1 case and measured resource rationale."
+    },
+    {
+      "id": "paged_complete_snapshot",
+      "summary": "Keep a bounded page size (candidate 40) and persist a versioned manifest referencing all immutable pages and source artifacts. Investigate existing snapshot_ref as the handle; if its contract cannot carry that meaning, G must authorize a typed companion/versioned DTO first.",
+      "current_fit": "Supports a larger full population while keeping per-object payloads bounded. Requires real PDC and Runtime consumer changes; persisting page markers alone does not complete the capability.",
+      "migration_impact": "Add versioned page/manifest representation and readers. Keep v1 inline artifacts historical. Bind schema/rule version, run/snapshot identity, page ordinal/count/digest, total record count, source/profile refs, and generated_at. Each page stays <=40.",
+      "status_impact": "Only a fully resolved, content-bound, duplicate-free page set reconciling to the total is complete. Missing/corrupt/mixed-run pages block. Preserve entry status/refinement route.",
+      "authority_impact": "Pages preserve evidence/status but do not establish source authority. An unverified source remains separately blocking after complete readback.",
+      "time_impact": "All pages share the same frozen time, source closure, profile, and rule version; never mix runs or backfill old artifacts silently.",
+      "falsifier": "Use actual complete populations of 40, 41, and 108. Fresh-read and reconcile all entry IDs/statuses/routes. Missing, duplicate, reordered, corrupted, or foreign-run pages must refuse while preserving the separate source-authority reason."
+    },
+    {
+      "id": "retain_cap_with_typed_budget_refusal",
+      "summary": "Keep the 40 total cap and refuse completeness above it with an explicit budget-limited result; never truncate to 40 or claim a complete/empty population.",
+      "current_fit": "Smallest interim behavior, but the current catch does not communicate it: it returns generic basis-unverified and drops source refs. Status name/composition are not adjudicated; no new PDC/Core field or status is authorized by this packet.",
+      "migration_impact": "No snapshot schema increase, but failure packet/API/readers need a versioned persisted reason, actual count, and source refs. Existing generic-reason consumers must continue to block; old <=40 artifacts retain meaning.",
+      "status_impact": "Keep blocking and authority-downgrading while incomplete. Budget limitation and source-authority verification are distinct and may coexist; never convert to success/warn-only/empty.",
+      "authority_impact": "Readable source bytes are not authority. Preserve the source-authority reason independently of the capacity reason.",
+      "time_impact": "Bind measured count and cap reason to exact input refs, generated_at, and producer rule version; recompute on readback.",
+      "falsifier": "At 40, full snapshot/readback succeeds only if source authority is separately admitted. At 41/108, persist a specific blocking budget refusal; fresh replay keeps both capacity and source-authority reasons and does not drop refs or return empty."
+    }
+  ],
+  "recommendation_for_g_decision": {
+    "selected_narrow_variant": "paged_complete_snapshot, keeping 40 only as a candidate per-page bound and routing complete pages through every actual consumer",
+    "why": "108 is a measured actual population, not a justified general cap. Pages preserve the full owner population and bound each payload. Reuse current CAS refs for lineage; current readers do not consume them as a full population today.",
+    "interim_safety": "Until G selects representation and status/schema semantics, retain fail-closed behavior and make no full-population or positive-authority claim. Current generic refusal is safe against promotion but loses a distinct capacity reason, source-authority reason, and compiled refs; this is an implementation gap, not an accepted budget posture.",
+    "g_decision_required": "Decide whether snapshot_ref can carry a complete paged manifest under its current contract or a versioned PDC/Runtime DTO is required; decide whether 40 remains a page size; define status composition and compatibility readers. This recommendation is not G acceptance."
+  },
+  "patterns": {
+    "P01_P02": "Producer emits 108 rows but the typed artifact and real consumer cannot read a complete population; close producer/artifact/bridge/consumer together.",
+    "P04": "Current error mapping collapses snapshot size failure into generic basis-unverified; define mixed status composition and preserve every limitation.",
+    "P05_P32": "Readable CAS bytes and a local profile do not establish source authority; fail closed until independent authority is resolved and bound.",
+    "P07_P08": "Version schema/rule and generated_at consistently across pages/readers; old artifacts retain their original replay semantics.",
+    "P10_P29": "Evidence comes from an actual owner/compiler/CAS run; final semantic verification still needs the real fresh consumer.",
+    "P38": "Property is full population or an explicit refusal; implementation currently tests inline list length <=40. The measured 108-record case distinguishes them.",
+    "P40": "Same producer-population closure class, one level deeper at snapshot/fresh-reader; widen to complete pages or keep a bounded, falsified refusal.",
+    "P41": "Not assessed or claimed; no inherited failure attribution is made."
+  },
+  "next_discriminating_checks": {
+    "first": "G selects representation/status semantics before any PDC/Core contract change.",
+    "positive": "Run the actual 108-record source through a persisted manifest/pages into a fresh default consumer; reconcile all IDs/statuses/routes and denominator.",
+    "negative_cases": ["40/41 boundary", "missing page", "duplicate page", "corrupt page bytes", "foreign-run page with matching marker", "source ref present but unadmitted", "source authority admission absent"],
+    "test_capture": "Prior focused unit/integration output remains capture_incomplete; final frozen replay must retain full stdout/stderr and process exit. No further suite was run for this packet."
+  },
+  "no_changes_performed": {
+    "implementation_paths_edited": false,
+    "Core_or_PDC_contract_edited": false,
+    "git_or_native_fit_invoked": false,
+    "children_spawned": false
+  }
+}

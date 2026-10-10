@@ -1,0 +1,24 @@
+Pinned `HEAD` = 9e89dddfbcc3d8c44a421cc1fc143ec84f3753ae; tree = 35a4d69f7302b0969d89f16ffdc8a4885bdbdcf7.
+Path@blob (all resolved by `git rev-parse HEAD:<path>`):
+
+- `policy-engine/src/polisyos/runtime/http/services/control_worker.py`@9584c2a30ef59cd0dbdfdad1186bc0d2c9032c6f
+- `policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py`@57554e1c1b63dd685f81f545ec8dae2201ab2466
+- `policy-engine/src/polisyos/scientist/api.py`@00a723f27c161fd8304d494e24525ffd9529c378
+- `policy-engine/src/polisyos/scientist/orchestration/workflows/builder.py`@52de4ccb6a4d9989265c8c2b4213dd02bf8b048f
+- `policy-engine/src/polisyos/scientist/orchestration/engine/executor.py`@fe0aadf975873aa54d35008d5020b66c6c6778fa
+- `policy-engine/src/polisyos/scientist/orchestration/engine/retry.py`@a237488d539374e4424b309a9dca3ede9096d3d8
+- `policy-engine/src/polisyos/scientist/orchestration/engine/runner/config.py`@c23adac6ae72e81dd0f1128d8255c171cbe6454a
+- `policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_runner.py`@3d789d27667fb75bbcac07e03a446a5255b31b82
+- `policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_pool.py`@1c57325b0133222154b0298c814a701b568ccc50
+- `policy-engine/src/polisyos/scientist/orchestration/engine/runner/worker_pool.py`@4f872336aa5c2c89eed1f396e050345674c92829
+- `policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py`@8756fd0a66cdf91c18e8b7c3bb60872926af05be
+- `policy-engine/src/polisyos/scientist/compute/runner.py`@1212dad9803b1ed65376d500c59d87b32935f6bb
+- `policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py`@d4997734d2a0240d4cab19bf58d702cbc8c0b2a5
+- `policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py`@96a9006df3f35174c549cf57b2d6b6927fbe556a
+- `policy-engine/src/polisyos/scientist/orchestration/engine/budget.py`@1a2fbb73bb87d60674d168791a214f882e79347f
+- `policy-engine/src/polisyos/common/async_tools.py`@d6255d4fcfa1d63693c700d752458ccffb081530
+- `policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py`@630265e9216390b58c4eb3e2c2aa5bdaa0ae17a5
+
+The working tree has concurrent peer changes. The executor/async executor content currently retains the cited route calls, but these blob IDs identify committed `HEAD` only. No peer file was edited by this investigation.
+- `policy-engine/src/polisyos/scientist/orchestration/engine/context.py`@938e25daf571f2b95e50f40b421fe16f3f21892e
+- `policy-engine/src/polisyos/scientist/compute/job_spec.py`@420fe9cb32ed4eec6e6f120c9a96c200e312b3d2

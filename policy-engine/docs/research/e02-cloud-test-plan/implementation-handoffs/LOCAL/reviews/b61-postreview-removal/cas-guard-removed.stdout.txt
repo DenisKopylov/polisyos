@@ -1,0 +1,88 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___ test_spawn_timeout_worker_cannot_write_cas_after_parent_revocation[True] ___
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1556/test_spawn_timeout_worker_cann0')
+revoke_before_release = True
+
+    @pytest.mark.parametrize("revoke_before_release", [False, True])
+    def test_spawn_timeout_worker_cannot_write_cas_after_parent_revocation(
+        tmp_path: Path,
+        revoke_before_release: bool,
+    ) -> None:
+        """A delayed canonical node can write only while its shared owner stays active."""
+        with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+            _, store, _, ctx, state, _ = _workflow_fixture(tmp_path)
+            task = retry_module._build_spawn_timeout_task(
+                ResolveParametersNode(),
+                ctx,
+                state,
+                alias="resolve-late-write-probe",
+            )
+            baseline_files = {
+                path.relative_to(store.root) for path in store.root.rglob("*") if path.is_file()
+            }
+    
+        process_context = mp.get_context("spawn")
+        authority_active = process_context.Value("b", True, lock=False)
+        started = process_context.Event()
+        release = process_context.Event()
+        result_receiver, result_sender = process_context.Pipe(duplex=False)
+        deadline_monotonic = _time.monotonic() + 30.0
+        process = process_context.Process(
+            target=run_delayed_timeout_task_after_release,
+            args=(
+                task,
+                authority_active,
+                deadline_monotonic,
+                started,
+                release,
+                result_sender,
+            ),
+        )
+        process.start()
+        result_sender.close()
+        try:
+            assert started.wait(timeout=10.0)
+            if revoke_before_release:
+                authority_active.value = False
+            release.set()
+            process.join(timeout=20.0)
+            if process.is_alive():
+                process.terminate()
+                process.join(timeout=5.0)
+            assert not process.is_alive(), "typed timeout probe worker did not stop"
+            assert result_receiver.poll(timeout=5.0), "typed timeout worker returned no outcome"
+            status, _payload = result_receiver.recv()
+        finally:
+            release.set()
+            if process.is_alive():
+                process.terminate()
+                process.join(timeout=5.0)
+            result_receiver.close()
+    
+        final_files = {path.relative_to(store.root) for path in store.root.rglob("*") if path.is_file()}
+        if revoke_before_release:
+>           assert final_files == baseline_files
+E           AssertionError: assert {PosixPath('a...d.json'), ...} == {PosixPath('a...d.json'), ...}
+E             
+E             Extra items in the left set:
+E             PosixPath('artifacts/sha256/a1/dc/a1dcca30ccf7aac312c202aaa33864b65d4a670b94991ecad2bf99f40c44581b.view.fa19143ec71ee07bff5c891184880b043fa295a397c36a0f932aefa8ce306b58.manifest.json')
+E             PosixPath('artifacts/sha256/a1/dc/a1dcca30ccf7aac312c202aaa33864b65d4a670b94991ecad2bf99f40c44581b.manifest.json')
+E             PosixPath('artifacts/ownership/transactions/locks/stripe-27.lock')
+E             PosixPath('artifacts/ownership/generations/bec45d8d463dfbe1eb0f7c98a13043909baa0649da0d61d34ccbf7d210f09e8d.json')
+E             PosixPath('artifacts/ownership/generations/d5d5ab25ca07e3f02a2833e77957ac3d9d1f92c80102d0cab21251c5ae71dc64.json')...
+E             
+E             ...Full output truncated (2 lines hidden), use '-vv' to show
+
+tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py:613: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py::test_spawn_timeout_worker_cannot_write_cas_after_parent_revocation[True]
+1 failed, 2 warnings in 13.92s

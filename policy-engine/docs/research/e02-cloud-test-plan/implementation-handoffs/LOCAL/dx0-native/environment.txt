@@ -1,0 +1,3 @@
+cwd=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine
+git_root=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos
+ruff=ruff 0.14.10

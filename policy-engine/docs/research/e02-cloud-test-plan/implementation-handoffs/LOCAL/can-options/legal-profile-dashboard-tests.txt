@@ -1,0 +1,9 @@
+
+ RUN  v4.1.5 /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard
+
+
+ Test Files  5 passed (5)
+      Tests  88 passed (88)
+   Start at  21:04:29
+   Duration  3.51s (transform 2.29s, setup 2.12s, import 4.53s, tests 1.36s, environment 2.90s)
+

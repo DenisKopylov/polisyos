@@ -140,6 +140,22 @@ git -C "$repo" fsck --connectivity-only --no-reflogs HEAD >/dev/null || fail "at
 printf 'worker Git identities pass; object-store mode=%s\n' "$storage_mode"
 WORKER_GIT_CHECK
 }
+q2_output_action() {
+  local role=$1 exists=$2 is_dir=$3 symlink=$4
+  if [[ $symlink == yes ]]; then
+    printf 'refuse\n'
+  elif [[ $role == root && $exists == yes && $is_dir == yes ]]; then
+    printf 'reuse-root\n'
+  elif [[ $role == parent && $exists == yes && $is_dir == yes ]]; then
+    printf 'reuse-parent\n'
+  elif [[ $role == parent && $exists == no && $is_dir == no ]]; then
+    printf 'create-parent\n'
+  elif [[ $role == target && $exists == no && $is_dir == no ]]; then
+    printf 'create-target\n'
+  else
+    printf 'refuse\n'
+  fi
+}
 q2_copy_action() {
   local tracked=$1 exists=$2 regular=$3 symlink=$4 actual_sha=$5 expected_sha=$6
   if [[ $tracked == yes ]]; then
@@ -176,7 +192,28 @@ copy_decision_self_test() {
   expect_action ignored-exact reuse-exact no yes yes no "$expected" "$expected"
   expect_action untracked-changed refuse no yes yes no "$actual" "$expected"
   expect_action untracked-symlink refuse no yes yes yes "$expected" "$expected"
-  printf 'Q2 copy decision self-test passed: %d cases; no Git/Docker/filesystem changes\n' "$cases"
+  local output_cases=0
+  expect_output_action() {
+    local label=$1 wanted=$2
+    shift 2
+    local got
+    got=$(q2_output_action "$@")
+    [[ $got == "$wanted" ]] || die "Q2 output path decision $label: expected $wanted, got $got"
+    output_cases=$((output_cases + 1))
+  }
+  expect_output_action root-real-directory reuse-root root yes yes no
+  expect_output_action root-dangling-symlink refuse root no no yes
+  expect_output_action parent-existing-directory reuse-parent parent yes yes no
+  expect_output_action parent-missing create-parent parent no no no
+  expect_output_action parent-dangling-symlink refuse parent no no yes
+  expect_output_action parent-symlink-to-directory refuse parent yes yes yes
+  expect_output_action parent-nondirectory refuse parent yes no no
+  expect_output_action target-missing create-target target no no no
+  expect_output_action target-existing-directory refuse target yes yes no
+  expect_output_action target-existing-file refuse target yes no no
+  expect_output_action target-dangling-symlink refuse target no no yes
+  expect_output_action target-symlink-to-directory refuse target yes yes yes
+  printf 'Q2 copy/output path decision self-test passed: %d copy cases, %d output-path cases; no Git/Docker/filesystem changes\n' "$cases" "$output_cases"
 }
 check_q2_inputs() {
   [[ -f "$Q2_HOST/raw/run.py" && -f "$Q2_HOST/raw/timeout_driver.py" ]] || die "Q2 runner/driver missing"
@@ -553,12 +590,9 @@ q2() {
   verify_copy_hashes
   worker_env_check
 
-  docker_e02 exec -i -w "$REPO" \
-    -e E02_FREEZE_SHA="$freeze_sha" \
-    -e E02_FREEZE_TREE="$freeze_tree" \
-    -e E02_FREEZE_BRANCH="$branch" \
-    -e E02_ATTEMPT="$attempt" \
-    "$CONTAINER" /bin/bash -s <<'WORKER_SCRIPT'
+  {
+    declare -f q2_output_action
+    cat <<'WORKER_SCRIPT'
 set -euo pipefail
 repo=/workspace/polisyos
 worker_origin=$(git -C "$repo" remote get-url origin)
@@ -580,8 +614,33 @@ root_python=/scratch/root-venv/bin/python
 run_root="/scratch/e02-q2-runs/$E02_FREEZE_SHA/$E02_ATTEMPT"
 primary_output="$run_root/primary-runs"
 supplement_output="$run_root/supplement-runs"
-test ! -e "$run_root" || { echo "retained Q2 attempt already exists: $run_root" >&2; exit 1; }
-mkdir -p "$run_root/orchestration"
+q2_output_directory() {
+  local role=$1 path=$2 exists=no is_dir=no symlink=no action
+  [[ -e $path ]] && exists=yes
+  [[ -d $path ]] && is_dir=yes
+  [[ -L $path ]] && symlink=yes
+  action=$(q2_output_action "$role" "$exists" "$is_dir" "$symlink")
+  case $action in
+    reuse-root|reuse-parent) ;;
+    create-parent)
+      mkdir -m 700 -- "$path" || fail "cannot create Q2 output parent: $path"
+      ;;
+    *) fail "Q2 output path component is missing, indirect, or not a directory: $path ($action)" ;;
+  esac
+  [[ -d $path && ! -L $path ]] || fail "Q2 output parent changed or is indirect: $path"
+}
+q2_output_directory root /scratch
+q2_output_directory parent /scratch/e02-q2-runs
+q2_output_directory parent "/scratch/e02-q2-runs/$E02_FREEZE_SHA"
+target_exists=no target_is_dir=no target_is_symlink=no
+[[ -e $run_root ]] && target_exists=yes
+[[ -d $run_root ]] && target_is_dir=yes
+[[ -L $run_root ]] && target_is_symlink=yes
+[[ $(q2_output_action target "$target_exists" "$target_is_dir" "$target_is_symlink") == create-target ]] || fail "retained, indirect, or invalid Q2 attempt path: $run_root"
+mkdir -m 700 -- "$run_root" || fail "cannot exclusively create Q2 attempt path: $run_root"
+[[ -d $run_root && ! -L $run_root ]] || fail "created Q2 attempt path is indirect: $run_root"
+mkdir -m 700 -- "$run_root/orchestration" || fail "cannot exclusively create Q2 orchestration path"
+[[ -d $run_root/orchestration && ! -L $run_root/orchestration ]] || fail "Q2 orchestration path is indirect"
 printf 'scratch-before='; df -Pk /scratch | tail -n 1
 printf 'transport-bytes='; du -sb "$worker_bare" "$repo"
 printf 'cgroup-current='; cat /sys/fs/cgroup/memory.current
@@ -682,6 +741,12 @@ printf 'cgroup-current='; cat /sys/fs/cgroup/memory.current
 printf 'cgroup-events:\n'; cat /sys/fs/cgroup/memory.events
 printf 'cgroup-pressure:\n'; cat /sys/fs/cgroup/memory.pressure
 WORKER_SCRIPT
+  } | docker_e02 exec -i -w "$REPO" \
+    -e E02_FREEZE_SHA="$freeze_sha" \
+    -e E02_FREEZE_TREE="$freeze_tree" \
+    -e E02_FREEZE_BRANCH="$branch" \
+    -e E02_ATTEMPT="$attempt" \
+    "$CONTAINER" /bin/bash -s
 }
 
 case "$MODE" in

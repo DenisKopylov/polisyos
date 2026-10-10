@@ -61,11 +61,6 @@ from polisyos.runtime.quality.semantic_binding import (
     PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION,
     build_semantic_binding_ledger,
 )
-from polisyos.runtime.quality.tenant_cas_approval_governance import (
-    PASS1B_PDD_REQUIRED_SURFACES,
-    PASS1B_REQUIRED_CASE_BINDING_FIELDS,
-    build_pass1b_tenant_cas_approval_governance_record,
-)
 from polisyos.scholar import build_scholar_academic_evidence_report
 from tools.ops_runners.runtime.canary_evidence import assemble_canary_evidence
 from tools.ops_runners.runtime.quality_scenarios import (
@@ -616,9 +611,9 @@ def _with_embedded_runtime_quality_evidence(
     merged.update(deepcopy(evidence))
     details["runtime_quality_evidence"] = merged
     details["deterministic_canary_runtime_backfill"] = {
-        "status": "pass",
+        "status": "candidate_only",
         "source": "tools.ops_runners.runtime.local_production_canary",
-        "counts_toward_serious_closeout": True,
+        "counts_toward_serious_closeout": False,
         "evidence_keys": sorted(merged),
     }
     runtime_refs = _runtime_quality_refs_from_payloads(job_payload=updated, run_payload=None)
@@ -1107,63 +1102,6 @@ def _phase28_3_records(identity: dict[str, str]) -> dict[str, Any]:
     }
 
 
-def _pass1b_record(identity: dict[str, str], refs: dict[str, str]) -> dict[str, Any]:
-    case_bindings: dict[str, dict[str, Any]] = {}
-    for surface, fields in PASS1B_REQUIRED_CASE_BINDING_FIELDS.items():
-        binding: dict[str, Any] = {"status": "pass"}
-        for field in fields:
-            if field == "tenant_id":
-                binding[field] = identity["tenant_id"]
-            elif field == "cell_id":
-                binding[field] = identity["cell_id"]
-            elif field == "read_scope_enforced":
-                binding[field] = True
-            elif field == "non_overridable_blockers_enforced":
-                binding[field] = True
-            elif field == "effective_oversight":
-                binding[field] = True
-            elif field == "rubber_stamp_risk":
-                binding[field] = "low"
-            elif field == "signature_class":
-                binding[field] = "internal_reviewer_attestation"
-            elif field == "trust_status":
-                binding[field] = "verified"
-            elif field == "projection_policy":
-                binding[field] = "scorecard_readiness_required"
-            elif field.endswith("_refs"):
-                binding[field] = [_stable_runtime_ref("pass1b", surface, field)]
-            elif field == "runtime_event_ref":
-                binding[field] = f"event://policy-design-case/pass1b/{surface}"
-            else:
-                binding[field] = refs.get(field) or _stable_runtime_ref("pass1b", surface, field)
-        case_bindings[surface] = binding
-    pdd_bindings = [
-        {
-            "pdd_id": pdd_id,
-            "surface": surfaces[0],
-            "surfaces": list(surfaces),
-            "record_ref": _stable_runtime_ref("pass1b", pdd_id, "record"),
-            "evidence_ref": _stable_runtime_ref("pass1b", pdd_id, "evidence"),
-            "runtime_event_ref": f"event://policy-design-case/pass1b/{pdd_id}",
-            "owner": "team-runtime-quality",
-            "status": "pass",
-        }
-        for pdd_id, surfaces in PASS1B_PDD_REQUIRED_SURFACES.items()
-    ]
-    return build_pass1b_tenant_cas_approval_governance_record(
-        record_id=f"pass1b-hardening-{identity['run_id']}",
-        case_id=f"pdc-{identity['run_id']}",
-        run_id=identity["run_id"],
-        job_id=identity["job_id"],
-        tenant_id=identity["tenant_id"],
-        cell_id=identity["cell_id"],
-        case_bindings=case_bindings,
-        pdd_bindings=pdd_bindings,
-        evidence_ref=_stable_runtime_ref("pass1b", identity["run_id"]),
-        runtime_event_ref="event://policy-design-case/pass1b/tenant-cas-approval-governance",
-    )
-
-
 def _capability_ledger(identity: dict[str, str]) -> dict[str, Any]:
     duties = [
         build_capability_duty_record(
@@ -1548,7 +1486,6 @@ def _deterministic_policy_design_case(
     case["substrate_residual_verification"] = _phase28_2_substrate_record(identity)
     case.update(_phase28_3_records(identity))
     case.update(_phase29_records(identity))
-    case["pass1b_tenant_cas_approval_governance"] = _pass1b_record(identity, refs)
     case["policy_design_case_ref"] = _runtime_ref(
         refs,
         "policy_design_case_ref",

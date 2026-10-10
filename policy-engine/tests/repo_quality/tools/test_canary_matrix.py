@@ -151,7 +151,12 @@ def test_local_canary_runner_accepts_profile_specific_matrix_args() -> None:
     assert request["execution_profile"] == "production"
 
 
-def test_simulated_serious_lane_embeds_deterministic_evidence_as_runtime_owned() -> None:
+def test_simulated_serious_lane_keeps_unobserved_pass1b_limited() -> None:
+    from polisyos.runtime.quality.scorecard import (
+        build_quality_scorecard,
+        normalize_quality_evidence,
+    )
+
     scenario = local_production_canary.load_quality_scenario_contract(
         "ukraine_msme_wartime_credit_support",
         scenarios_file=REPO_ROOT / "tools/ops_runners/runtime/golden_quality_scenarios.json",
@@ -159,6 +164,8 @@ def test_simulated_serious_lane_embeds_deterministic_evidence_as_runtime_owned()
     job_payload = {
         "job_id": "job-deterministic-closeout",
         "run_id": "R_deterministic_closeout",
+        "tenant_id": "tenant-local",
+        "cell_id": "cell-local",
         "state": "completed",
         "progress": {
             "details": {
@@ -176,6 +183,22 @@ def test_simulated_serious_lane_embeds_deterministic_evidence_as_runtime_owned()
                 "input_bindings_ref": "sha256:" + "a" * 64,
                 "registry_bundle_ref": "sha256:" + "b" * 64,
                 "quality_report_ref": "sha256:" + "c" * 64,
+                "runtime_quality_evidence": {
+                    "policy_design_case": {
+                        "run_id": "R_foreign_input",
+                        "tenant_id": "tenant-foreign-input",
+                        "cell_id": "cell-foreign-input",
+                        "pass1b_tenant_cas_approval_governance": {
+                            "status": "pass",
+                            "tenant_id": "tenant-foreign-input",
+                            "cell_id": "cell-foreign-input",
+                            "read_scope_enforced": True,
+                            "non_overridable_blockers_enforced": True,
+                            "effective_oversight": True,
+                            "rubber_stamp_risk": "low",
+                        },
+                    }
+                },
             }
         },
     }
@@ -198,9 +221,38 @@ def test_simulated_serious_lane_embeds_deterministic_evidence_as_runtime_owned()
         "identification_requirements"
     ]
     assert runtime_evidence["scholar_evidence"]["status"] == "pass"
-    assert runtime_evidence["policy_design_case"]["pass1b_tenant_cas_approval_governance"][
-        "status"
-    ] == "pass"
+    policy_design_case = runtime_evidence["policy_design_case"]
+    assert policy_design_case["run_id"] == job_payload["run_id"]
+    assert policy_design_case["tenant_id"] == job_payload["tenant_id"]
+    assert policy_design_case["job_id"] == job_payload["job_id"]
+    # The runtime PDC builder has no top-level cell_id field; do not copy one
+    # from the foreign case supplied in the input payload.
+    assert "cell_id" not in policy_design_case
+    assert "pass1b_tenant_cas_approval_governance" not in policy_design_case
+
+    details = embedded["progress"]["details"]
+    backfill = details["deterministic_canary_runtime_backfill"]
+    assert backfill["status"] == "candidate_only"
+    assert backfill["counts_toward_serious_closeout"] is False
+    assert backfill["evidence_keys"]
+
+    scorecard = build_quality_scorecard(
+        canary_kind="production",
+        job_id=job_payload["job_id"],
+        run_id=job_payload["run_id"],
+        execution_status=job_payload["state"],
+        job_payload=embedded,
+        run_payload=None,
+        provider_preflight={"status": "passed"},
+        quality_evidence=normalize_quality_evidence(
+            runtime_evidence,
+            canary_kind="production",
+        ),
+    )
+    blocking_codes = {
+        failure["code"] for failure in scorecard["blocking_quality_failures"]
+    }
+    assert "policy_design_pass1b_hardening_record_missing" in blocking_codes
     claim_registry = runtime_evidence["policy_design_case"]["claim_registry"]
     claim_row = claim_registry["claims"][0]
     assert claim_row["claim_id"] == "rec_1"

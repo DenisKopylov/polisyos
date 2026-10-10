@@ -2,5 +2,12 @@
 
 from __future__ import annotations
 
-from polisyos.scientist.nodes.builtins.decide.decision_packet.api import *  # noqa: F403
-from polisyos.scientist.nodes.builtins.decide.decision_packet.api import __all__  # noqa: F401
+from polisyos.scientist.nodes.builtins.decide.decision_packet import (
+    api as _decision_packet_api,
+)
+
+__all__ = _decision_packet_api.__all__
+globals().update(
+    {name: getattr(_decision_packet_api, name) for name in __all__}
+)
+del _decision_packet_api

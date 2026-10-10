@@ -10,7 +10,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.core.artifacts.manifest import ArtifactRef  # noqa: TC001
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.evidence.claims.models import (
     ClaimLedger,
     ClaimPublishability,

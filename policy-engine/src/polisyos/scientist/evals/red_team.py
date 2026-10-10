@@ -7,7 +7,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.artifacts.manifest import ArtifactRef  # noqa: TC001
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.evals.challenge_factory import (
     REQUIRED_CHALLENGE_CLASSES,
     ChallengeClass,

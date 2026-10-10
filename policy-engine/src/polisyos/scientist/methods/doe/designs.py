@@ -233,7 +233,7 @@ def _derive_backend_seed(seed: int | None, stream: str) -> int | None:
     """
     if seed is None:
         return None
-    payload = f"polisyos-doe-seed-v1:{seed}:{stream}".encode("utf-8")
+    payload = f"polisyos-doe-seed-v1:{seed}:{stream}".encode()
     digest = hashlib.blake2b(payload, digest_size=8).digest()
     return int.from_bytes(digest, byteorder="little") % (2**32)
 

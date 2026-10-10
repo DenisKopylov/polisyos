@@ -63,7 +63,8 @@ def test_legacy_sobol_checkpoint_fails_closed_with_exact_reason(
     legacy = StrategyState(
         strategy_name="RandomSearchStrategy",
         iteration=1,
-        rng_state={"python": random.Random(123).getstate()},
+        # Seeded PRNG state is deterministic fixture data, never a security token.
+        rng_state={"python": random.Random(123).getstate()},  # noqa: S311
     )
 
     restored.set_state(legacy)
@@ -148,7 +149,8 @@ def test_checkpoint_rejects_foreign_strategy_before_mutating_state(
     foreign = StrategyState(
         strategy_name="GridSearchStrategy",
         iteration=99,
-        rng_state={"python": random.Random(123).getstate()},
+        # Seeded PRNG state is deterministic fixture data, never a security token.
+        rng_state={"python": random.Random(123).getstate()},  # noqa: S311
     )
 
     with pytest.raises(ValueError, match="strategy identity changed"):

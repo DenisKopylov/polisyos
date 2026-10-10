@@ -873,12 +873,12 @@ def _build_entry(
     drift_action, drift_reasons = _drift_decision(metrics, thresholds=thresholds)
     if metrics.system_confounded_sample_count:
         drift_reasons = sorted(
-            set([*drift_reasons, "system_confounded_samples_excluded"])
+            {*drift_reasons, "system_confounded_samples_excluded"}
         )
         if metrics.decision_sample_count <= 0:
             drift_action = "require_review"
             drift_reasons = sorted(
-                set([*drift_reasons, "controlled_evidence_bound_task_required"])
+                {*drift_reasons, "controlled_evidence_bound_task_required"}
             )
         elif drift_action == "approve":
             drift_action = "require_review"

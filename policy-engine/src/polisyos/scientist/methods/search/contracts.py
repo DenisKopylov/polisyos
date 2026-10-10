@@ -15,6 +15,12 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 if TYPE_CHECKING:
+    from polisyos.scientist.methods.search.adapters import (
+        LegacySearchServiceAdapter as LegacySearchServiceAdapter,
+    )
+    from polisyos.scientist.methods.search.adapters import (
+        OrchestratorFunnelService as OrchestratorFunnelService,
+    )
     from polisyos.scientist.methods.search.funnel.orchestrator import (
         FunnelOutcome,
         FunnelTicket,

@@ -485,7 +485,15 @@ def test_lex_worker_keeps_completion_diagnostic_under_admitted_scope(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    import polisyos.runtime.http.services.control.job_diagnostics as job_diagnostics
+
     service = _build_control_service(tmp_path)
+    diagnostic_logs: list[tuple[object, ...]] = []
+    monkeypatch.setattr(
+        job_diagnostics.logger,
+        "debug",
+        lambda *args, **_kwargs: diagnostic_logs.append(args),
+    )
 
     async def completed_pipeline(_config: object) -> None:
         return None
@@ -510,6 +518,60 @@ def test_lex_worker_keeps_completion_diagnostic_under_admitted_scope(
             ),
             principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
         )
+        admission_events = service._control_store.list_diagnostic_events(  # noqa: SLF001
+            job_id=launch.job_id
+        )
+        assert [event.event.phase for event in admission_events] == [
+            "job_admission",
+            "job_admission",
+            "job_admission",
+        ]
+        admitted_job = service._control_store.get_job(launch.job_id)  # noqa: SLF001
+        assert admitted_job is not None
+        created_source = service._control_store._get_job_created_source_event_record(  # noqa: SLF001
+            launch.job_id
+        )
+        from polisyos.runtime.http.services.control_plane_store import (
+            _control_job_execution_scope_from_event,
+        )
+
+        created_payload = service._control_store.get_job_created_event_payload(  # noqa: SLF001
+            launch.job_id
+        )
+        admission_scope = _control_job_execution_scope_from_event(created_payload)
+        false_admission_attempt = service._emit_runtime_diagnostic_event(  # noqa: SLF001
+            execution_scope=admission_scope,
+            job_id=launch.job_id,
+            run_id=admitted_job.run_id,
+            execution_profile=admitted_job.effective_execution_profile,
+            phase="job_admission",
+            event_type="polisyos.runtime.diagnostic.phase_transition.v1",
+            event_payload={"attempt": 1},
+        )
+        assert false_admission_attempt.status == "not_persisted"
+        for event in admission_events:
+            assert event.payload_inline is not None
+            binding = event.payload_inline["control_job_execution_binding"]
+            assert binding["proof_phase"] == "job_admission"
+            assert binding["control_job_id"] == launch.job_id
+            assert binding["control_run_id"] == admitted_job.run_id
+            assert binding["source_event_job_state"] == "pending"
+            assert binding["control_worker_id"] is None
+            assert binding["control_worker_attempt"] is None
+            assert binding["source_event_type"] == "job_created"
+            assert binding["source_event_id"] > 0
+            assert binding["source_event_created_at"]
+            assert binding["source_event_payload_sha256"].startswith("sha256:")
+            assert binding["source_event_id"] == created_source.event_id
+            assert binding[
+                "source_event_created_at"
+            ] == created_source.created_at.isoformat().replace("+00:00", "Z")
+            assert binding["source_event_payload_sha256"] == created_source.payload_sha256
+            assert binding["bound_job_record_refs"] == [
+                ref
+                for ref in (admitted_job.payload_ref, admitted_job.capability_manifest_ref)
+                if ref is not None
+            ]
         dispatch_one_control_job(
             store=service._control_store,  # noqa: SLF001
             handler=service._process_control_job,  # noqa: SLF001
@@ -518,19 +580,251 @@ def test_lex_worker_keeps_completion_diagnostic_under_admitted_scope(
 
         job = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert job is not None and job.state == "completed"
+        records = service._control_store.list_diagnostic_events(  # noqa: SLF001
+            job_id=launch.job_id
+        )
         event = next(
-            record
-            for record in service._control_store.list_diagnostic_events(  # noqa: SLF001
-                job_id=launch.job_id
-            )
-            if record.event.phase == "lex_pipeline" and record.event.state_after == "completed"
+            (
+                record
+                for record in records
+                if record.event.phase == "lex_pipeline" and record.event.state_after == "completed"
+            ),
+            None,
+        )
+        assert event is not None, (
+            f"completed diagnostic missing; persisted_events={records!r}; "
+            f"diagnostic_logs={diagnostic_logs!r}"
         )
         assert event.event.tenant_id == _fixture_claims().tenant_id
         assert event.event.cell_id == _fixture_claims().cell_id
         assert event.payload_inline is not None
         assert event.payload_inline["execution_scope"]["status"] == "established"
         assert event.payload_inline["execution_scope"]["source"] == "job_admission"
+        completed_binding = event.payload_inline["control_job_execution_binding"]
+        assert completed_binding["proof_phase"] == "completed"
+        assert completed_binding["source_event_job_state"] == "completed"
+        assert completed_binding["control_job_id"] == launch.job_id
+        assert completed_binding["control_worker_id"]
+        assert completed_binding["control_worker_attempt"] == job.attempt
+        assert completed_binding["source_event_type"] == "job_completed"
+        assert completed_binding["source_event_id"] > 0
+        assert completed_binding["source_event_created_at"]
+        assert completed_binding["source_event_payload_sha256"].startswith("sha256:")
+        start_event = next(
+            record
+            for record in records
+            if record.event.phase == "job_execution"
+            and record.event.event_type == "polisyos.runtime.diagnostic.producer_execution.v1"
+        )
+        assert start_event.payload_inline is not None
+        running_binding = start_event.payload_inline["control_job_execution_binding"]
+        assert running_binding["proof_phase"] == "running"
+        assert running_binding["source_event_job_state"] == "running"
+        assert running_binding["control_job_id"] == launch.job_id
+        assert running_binding["control_worker_id"]
+        assert running_binding["control_worker_attempt"] == job.attempt
+        assert running_binding["source_event_type"] == "job_running"
+        assert running_binding["source_event_id"] > 0
+        assert running_binding["source_event_created_at"]
+        assert running_binding["source_event_payload_sha256"].startswith("sha256:")
     finally:
+        service.close()
+
+
+@pytest.mark.parametrize("terminal_state", ["completed", "failed"])
+def test_terminal_handler_diagnostic_rejects_foreign_and_replaced_attempt(
+    tmp_path,
+    terminal_state: str,
+) -> None:
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+
+    service = _build_control_service(tmp_path)
+    store = service._control_store  # noqa: SLF001
+    scope_payload = {
+        "schema_version": "polisyos.runtime.control_execution_scope.v1",
+        "status": "established",
+        "tenant_id": "tenant-diagnostic-owner",
+        "cell_id": "cell-diagnostic-owner",
+        "actor_subject": "diagnostic-owner",
+        "actor_authenticated": True,
+        "actor_roles": ["analyst"],
+    }
+    job_id = f"job-diagnostic-{terminal_state}-proof"
+    run_id = f"run-diagnostic-{terminal_state}-proof"
+    admin_store = None
+    try:
+        store.create_job(
+            job_id=job_id,
+            kind="workflow_run",
+            run_id=run_id,
+            pipeline_id=None,
+            requested_execution_profile=None,
+            effective_execution_profile="dev",
+            policy_flags={},
+            capability_manifest_ref="sha256:manifest-diagnostic",
+            payload_ref="sha256:payload-diagnostic",
+            submitted_by="diagnostic-owner",
+            creation_event_payload={
+                "job_id": job_id,
+                "run_id": run_id,
+                "job_kind": "workflow_run",
+                "pipeline_id": None,
+                "payload_ref": "sha256:payload-diagnostic",
+                "submitted_by": "diagnostic-owner",
+                "requested_execution_profile": None,
+                "effective_execution_profile": "dev",
+                "policy_flags": {},
+                "capability_manifest_ref": "sha256:manifest-diagnostic",
+                "execution_scope": scope_payload,
+            },
+        )
+        leased = store.lease_next_job(worker_id="diagnostic-proof-worker", lease_seconds=60)
+        assert leased is not None and leased.job_id == job_id
+        with store.job_execution_fence(
+            job_id=job_id,
+            worker_id="diagnostic-proof-worker",
+            attempt=leased.attempt,
+        ):
+            admission = store.current_execution_job_admission()
+            assert admission.scope.tenant_id == scope_payload["tenant_id"]
+            assert admission.scope.cell_id == scope_payload["cell_id"]
+            if terminal_state == "completed":
+                store.complete_job(
+                    job_id=job_id,
+                    progress={"phase": "completed"},
+                )
+            else:
+                store.fail_job(
+                    job_id=job_id,
+                    error_message="controlled worker failure",
+                    progress={"phase": "failed"},
+                )
+            event_args = {
+                "execution_scope": admission.scope,
+                "job_id": job_id,
+                "run_id": run_id,
+                "execution_profile": "dev",
+                "phase": "worker_terminal",
+                "event_type": "polisyos.runtime.diagnostic.phase_transition.v1",
+                "state_before": "running",
+                "state_after": terminal_state,
+                "payload": {},
+                "event_payload": {},
+            }
+            raw_store = store._target  # noqa: SLF001
+            admin_store = ControlPlaneStore(
+                backend="sqlite",
+                sqlite_path=raw_store._sqlite_path,  # noqa: SLF001
+            )
+            terminal_event_type = f"job_{terminal_state}"
+            terminal_row = raw_store._fetchone(  # noqa: SLF001
+                "SELECT payload_json FROM control_job_events "
+                "WHERE job_id = ? AND event_type = ? ORDER BY event_id DESC LIMIT 1",
+                (job_id, terminal_event_type),
+            )
+            assert terminal_row is not None
+            terminal_payload_json = terminal_row[0]
+            admin_store._execute(  # noqa: SLF001
+                "UPDATE control_job_events SET payload_json = ? "
+                "WHERE job_id = ? AND event_type = ?",
+                ("{", job_id, terminal_event_type),
+            )
+            malformed_source = service._emit_runtime_diagnostic_event(  # noqa: SLF001
+                **event_args
+            )
+            assert malformed_source.status == "not_persisted"
+            assert store.list_diagnostic_events(job_id=job_id) == []
+            admin_store._execute(  # noqa: SLF001
+                "UPDATE control_job_events SET payload_json = ? "
+                "WHERE job_id = ? AND event_type = ?",
+                (terminal_payload_json, job_id, terminal_event_type),
+            )
+
+            foreign_scope = replace(
+                admission.scope,
+                tenant_id="tenant-diagnostic-foreign",
+            )
+            misbound_scope = service._emit_runtime_diagnostic_event(  # noqa: SLF001
+                **{**event_args, "execution_scope": foreign_scope}
+            )
+            assert misbound_scope.status == "not_persisted"
+
+            for invalid_attempt in (100, True, "1", None):
+                wrong_attempt = service._emit_runtime_diagnostic_event(  # noqa: SLF001
+                    **{**event_args, "event_payload": {"attempt": invalid_attempt}}
+                )
+                assert wrong_attempt.status == "not_persisted"
+            forged_binding = service._emit_runtime_diagnostic_event(  # noqa: SLF001
+                **{
+                    **event_args,
+                    "event_payload": {
+                        "control_job_execution_binding": {
+                            "schema_version": ("polisyos.runtime.control_job_execution_binding.v1"),
+                            "control_worker_attempt": leased.attempt,
+                        }
+                    },
+                }
+            )
+            assert forged_binding.status == "not_persisted"
+
+            accepted = service._emit_runtime_diagnostic_event(**event_args)  # noqa: SLF001
+            assert accepted.status == "persisted"
+            accepted_with_attempt = service._emit_runtime_diagnostic_event(  # noqa: SLF001
+                **{**event_args, "event_payload": {"attempt": leased.attempt}}
+            )
+            assert accepted_with_attempt.status == "persisted"
+
+            foreign = service._emit_runtime_diagnostic_event(  # noqa: SLF001
+                **{**event_args, "job_id": "job-diagnostic-foreign"}
+            )
+            assert foreign.status == "not_persisted"
+
+            admin_store.mark_running(
+                job_id=job_id,
+                worker_id="replacement-diagnostic-worker",
+                lease_seconds=60,
+            )
+            stale_attempt = service._emit_runtime_diagnostic_event(  # noqa: SLF001
+                **event_args
+            )
+            assert stale_attempt.status == "not_persisted"
+
+        events = store.list_diagnostic_events(job_id=job_id)
+        assert len(events) == 2
+        for event in events:
+            assert event.event.event_type == "polisyos.runtime.diagnostic.phase_transition.v1"
+            assert event.event.tenant_id == scope_payload["tenant_id"]
+            assert event.event.cell_id == scope_payload["cell_id"]
+            assert event.payload_inline is not None
+            binding = event.payload_inline["control_job_execution_binding"]
+            assert binding["schema_version"] == (
+                "polisyos.runtime.control_job_execution_binding.v1"
+            )
+            assert binding["proof_phase"] == terminal_state
+            assert binding["control_job_id"] == job_id
+            assert binding["control_run_id"] == run_id
+            assert binding["control_worker_id"] == "diagnostic-proof-worker"
+            assert binding["control_worker_attempt"] == leased.attempt
+            assert binding["source_event_type"] == f"job_{terminal_state}"
+            assert binding["source_event_id"] > 0
+            assert binding["source_event_created_at"]
+            assert binding["source_event_payload_sha256"].startswith("sha256:")
+            assert binding["bound_job_record_refs"] == [
+                "sha256:payload-diagnostic",
+                "sha256:manifest-diagnostic",
+            ]
+            source_event = raw_store._latest_control_job_lifecycle_event_record(  # noqa: SLF001
+                job_id=job_id,
+                event_type=f"job_{terminal_state}",
+            )
+            assert binding["source_event_id"] == source_event.event_id
+            assert binding[
+                "source_event_created_at"
+            ] == source_event.created_at.isoformat().replace("+00:00", "Z")
+            assert binding["source_event_payload_sha256"] == source_event.payload_sha256
+    finally:
+        if admin_store is not None:
+            admin_store.close()
         service.close()
 
 
@@ -1404,8 +1698,14 @@ async def test_simulate_only_served_worker_persists_computation_without_s8_or_pu
     from polisyos.runtime.http.services.control import nl_pipeline
     from polisyos.runtime.quality.generation_source import (
         GenerationSourceRepository,
-        N4CandidateProposalSimulationRecord,
+        N4CandidateProposalRecordV3,
     )
+    from polisyos.scientist.orchestration.engine.budget import BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRunBinding,
+        FileBudgetLedger,
+    )
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
     from tests.unit.runtime.http.test_nl_pipeline_materialization import (
         _design_problem_tool_args,
         _FakeDesignProblemGateway,
@@ -1440,13 +1740,29 @@ async def test_simulate_only_served_worker_persists_computation_without_s8_or_pu
         "build_design_problem_from_nl_request",
         run_real_compiler,
     )
-    monkeypatch.setattr(
-        __import__("polisyos.scientist.orchestration.llm.factory", fromlist=["factory"]),
-        "create_traced_gateway_client",
-        lambda **_kwargs: generation_gateway,
+    llm_factory = __import__("polisyos.scientist.orchestration.llm.factory", fromlist=["factory"])
+    from polisyos.scientist.orchestration.llm.factory import GatewayLLMConfig
+
+    fixture_gateway_config = GatewayLLMConfig(
+        base_url="https://controlled-gateway.invalid/v1",
+        api_key="sk-controlled-fixture-key",
+        default_provider="recorded_gateway_replay",
+        enable_prompt_sanitizer=False,
     )
+    monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "0")
+    monkeypatch.setattr(
+        GatewayLLMConfig,
+        "from_env",
+        classmethod(lambda _cls: fixture_gateway_config),
+    )
+    monkeypatch.setattr(llm_factory, "GatewayLLMClient", lambda **_kwargs: generation_gateway)
 
     service = _build_control_service(tmp_path)
+    settlement_store = BudgetMiddleware(
+        BudgetState(),
+        ledger=FileBudgetLedger(tmp_path / "producer-ledger.json"),
+    )
+    service.bind_llm_producer_settlement_store(settlement_store)
     context = _intent_context(as_of="2026-05-15")
     context["evaluation_safety_attempt"] = _valid_intake_for_mode("simulate_only").model_dump(
         mode="json"
@@ -1501,11 +1817,17 @@ async def test_simulate_only_served_worker_persists_computation_without_s8_or_pu
             "resolve_generation_value_choices",
             lambda **_kwargs: pytest.fail("simulate_only reached normative S8"),
         )
-        monkeypatch.setattr(
-            service,
-            "_publish_generation_run",
-            lambda **_kwargs: pytest.fail("simulate_only published a recursive run"),
-        )
+        publication_calls: list[dict[str, object]] = []
+        original_publish_generation_run = service._publish_generation_run  # noqa: SLF001
+
+        def publish_candidate_core_output(**kwargs: object) -> object:
+            assert kwargs.get("proposal_ref") is not None
+            assert kwargs.get("compiled_run_ref") is None
+            assert kwargs.get("normative_disposition_ref") is None
+            publication_calls.append(dict(kwargs))
+            return original_publish_generation_run(**kwargs)  # type: ignore[arg-type]
+
+        monkeypatch.setattr(service, "_publish_generation_run", publish_candidate_core_output)
 
         dispatch_one_control_job(
             store=service._control_store,  # noqa: SLF001
@@ -1530,21 +1852,73 @@ async def test_simulate_only_served_worker_persists_computation_without_s8_or_pu
         assert "publication_status" not in progress
         assert "compiled_recursive_generation_cycle_ref" not in progress
         assert "normative_disposition_ref" not in progress
-        assert "manifest_ref" not in progress
+        assert progress["manifest_ref"]
         assert progress["candidate_proposal_ref"]
+        assert len(publication_calls) == 1
 
         repository = GenerationSourceRepository(service._artifact_store)
+        from polisyos.runtime.quality.generation_source import N4CandidateProposalLocator
+
+        proposal_locator = N4CandidateProposalLocator.model_validate(
+            progress["candidate_proposal_ref"]
+        )
         proposal = repository.load_candidate_proposal_for_served_job(
-            progress["candidate_proposal_ref"],
+            proposal_locator,
             job_id=launch.job_id,
             run_id=str(job.run_id),
             tenant_id="tenant-fixture",
             cell_id="cell-fixture",
             raw_request=request.request,
         )
-        assert isinstance(proposal, N4CandidateProposalSimulationRecord)
+        assert isinstance(proposal, N4CandidateProposalRecordV3)
         assert proposal.proposal.trinity_bundle.policy_spec.interventions
         assert proposal.simulation_disposition.execution_intent_band == ("simulate_only_attempt")
+
+        from polisyos.runtime.http.services.adapters.core_run import (
+            load_completed_control_job_core_run_source,
+        )
+
+        terminal = load_completed_control_job_core_run_source(
+            store=service._artifact_store,
+            core_runs_root=service._core_runs_root,  # noqa: SLF001
+            job=completed,
+            expected_control_run_id=str(job.run_id),
+            tenant_id="tenant-fixture",
+            cell_id="cell-fixture",
+        )
+        assert progress["manifest_ref"] == str(terminal.manifest_ref.artifact_id)
+        assert terminal.manifest.outputs == [proposal_locator.artifact_ref]
+        assert all(
+            ref.kind
+            not in {
+                "runtime.compiled_recursive_generation_cycle",
+                "runtime.normative_generation_composition",
+                "runtime.n8_joint_simulation",
+                "runtime.s8_normative_disposition",
+            }
+            for ref in terminal.manifest.outputs
+        )
+
+        binding = BudgetLedgerProducerRunBinding(
+            run_id=str(job.run_id),
+            tenant_id="tenant-fixture",
+            cell_id="cell-fixture",
+            profile_id=job.effective_execution_profile,
+            control_job_id=job.job_id,
+        )
+        producer_records = settlement_store.list_producer_events_for_run_safe(binding)
+        assert producer_records
+        assert {event.event_id for event in proposal.producer_cost_events} == {
+            record.event_id for record in producer_records
+        }
+
+        with pytest.raises(ValueError, match="control_job_core_run_output_shape_invalid"):
+            original_publish_generation_run(
+                **{
+                    **publication_calls[0],
+                    "compiled_run_ref": proposal_locator.artifact_ref,
+                }
+            )
     finally:
         service.close()
 

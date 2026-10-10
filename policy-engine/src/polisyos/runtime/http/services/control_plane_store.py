@@ -1046,6 +1046,29 @@ class ControlJobExecutionAdmission:
 
 
 @dataclass(frozen=True)
+class _ControlJobLifecycleSourceEventRecord:
+    """Reconcile one persisted lifecycle event row and its exact stored payload."""
+
+    event_id: int
+    job_id: str
+    event_type: str
+    payload: dict[str, Any]
+    created_at: datetime
+    payload_sha256: str
+
+
+@dataclass(frozen=True)
+class _ControlJobExecutionLifecycleProof:
+    """Bind one worker attempt to its persisted lifecycle event under a store transaction."""
+
+    record: ControlJobRecord
+    proof_phase: Literal["job_admission", "running", "completed", "failed"]
+    worker_id: str | None
+    attempt: int | None
+    source_event: _ControlJobLifecycleSourceEventRecord
+
+
+@dataclass(frozen=True)
 class ControlDiagnosticEventRecord:
     """Represent one durable append-only runtime diagnostic event record."""
 
@@ -1534,6 +1557,39 @@ class ControlPlaneStore:
             worker_id=worker_id,
             attempt=attempt,
         )
+
+    def _current_execution_running_job_proof(self) -> _ControlJobExecutionLifecycleProof:
+        """Reconcile the live worker lease with its latest persisted running event."""
+        with self._job_transaction():
+            bound = self._job_execution_fence.get()
+            if bound is None:
+                raise ControlJobLeaseLostError(
+                    "control job execution identity is not bound to this handler"
+                )
+            job_id, worker_id, attempt = bound
+            record = self._require_current_job_execution_record(
+                job_id=job_id,
+                worker_id=worker_id,
+                attempt=attempt,
+            )
+            source_event = self._latest_control_job_lifecycle_event_record(
+                job_id=job_id,
+                event_type="job_running",
+            )
+            if (
+                source_event.payload.get("state") != "running"
+                or source_event.payload.get("lease_owner") != worker_id
+                or type(source_event.payload.get("attempt")) is not int
+                or source_event.payload["attempt"] != attempt
+            ):
+                raise ControlJobLeaseLostError("control job running event does not bind handler")
+            return _ControlJobExecutionLifecycleProof(
+                record=record,
+                proof_phase="running",
+                worker_id=worker_id,
+                attempt=attempt,
+                source_event=source_event,
+            )
 
     def current_execution_job_admission(self) -> ControlJobExecutionAdmission:
         """Resolve the leased job's creation-time tenant/cell admission envelope.
@@ -3292,6 +3348,98 @@ class ControlPlaneStore:
             raise RuntimeError("control_job_created_event_payload_not_object")
         return dict(payload)
 
+    def _get_job_created_source_event_record(
+        self,
+        job_id: str,
+    ) -> _ControlJobLifecycleSourceEventRecord:
+        """Read the unique job-created event with its immutable row identity and digest."""
+        rows = self._fetchall(
+            """
+            SELECT event_id, job_id, event_type, payload_json, created_at
+            FROM control_job_events
+            WHERE job_id = ? AND event_type = ?
+            ORDER BY event_id ASC
+            """,
+            (job_id, "job_created"),
+        )
+        if len(rows) != 1:
+            raise ControlJobLeaseLostError("control job created event count is not one")
+        return self._control_job_lifecycle_event_record_from_row(
+            rows[0],
+            expected_job_id=job_id,
+            expected_event_type="job_created",
+        )
+
+    def _latest_control_job_lifecycle_event_record(
+        self,
+        *,
+        job_id: str,
+        event_type: Literal["job_running", "job_completed", "job_failed"],
+    ) -> _ControlJobLifecycleSourceEventRecord:
+        """Read the newest exact lifecycle event row for one job and event type."""
+        row = self._fetchone(
+            """
+            SELECT event_id, job_id, event_type, payload_json, created_at
+            FROM control_job_events
+            WHERE job_id = ? AND event_type = ?
+            ORDER BY event_id DESC LIMIT 1
+            """,
+            (job_id, event_type),
+        )
+        if row is None:
+            raise ControlJobLeaseLostError(
+                f"control job {event_type.removeprefix('job_')} event is unavailable"
+            )
+        try:
+            return self._control_job_lifecycle_event_record_from_row(
+                row,
+                expected_job_id=job_id,
+                expected_event_type=event_type,
+            )
+        except (TypeError, ValueError, json.JSONDecodeError) as exc:
+            raise ControlJobLeaseLostError(
+                f"control job {event_type.removeprefix('job_')} event is malformed"
+            ) from exc
+
+    @staticmethod
+    def _control_job_lifecycle_event_record_from_row(
+        row: Any,
+        *,
+        expected_job_id: str,
+        expected_event_type: str,
+    ) -> _ControlJobLifecycleSourceEventRecord:
+        """Parse a lifecycle row without normalizing its raw payload bytes."""
+        if isinstance(row, Mapping):
+            event_id = row.get("event_id")
+            job_id = row.get("job_id")
+            event_type = row.get("event_type")
+            raw_payload = row.get("payload_json")
+            raw_created_at = row.get("created_at")
+        else:
+            event_id, job_id, event_type, raw_payload, raw_created_at = row[:5]
+        if (
+            type(event_id) is not int
+            or event_id < 1
+            or job_id != expected_job_id
+            or event_type != expected_event_type
+            or not isinstance(raw_payload, str)
+        ):
+            raise ValueError("control_job_lifecycle_event_identity_invalid")
+        payload = json.loads(raw_payload)
+        if not isinstance(payload, dict):
+            raise ValueError("control_job_lifecycle_event_payload_not_object")
+        created_at = _parse_dt(raw_created_at)
+        if created_at is None or created_at.tzinfo is None:
+            raise ValueError("control_job_lifecycle_event_created_at_invalid")
+        return _ControlJobLifecycleSourceEventRecord(
+            event_id=event_id,
+            job_id=job_id,
+            event_type=event_type,
+            payload=dict(payload),
+            created_at=created_at.astimezone(timezone.utc),
+            payload_sha256="sha256:" + hashlib.sha256(raw_payload.encode("utf-8")).hexdigest(),
+        )
+
     def get_job_created_outbox_event(self, job_id: str) -> ControlOutboxRecord | None:
         """Read exactly one matching job-created event from the durable outbox owner."""
         rows = self._fetchall(
@@ -3372,14 +3520,57 @@ class ControlPlaneStore:
 
     def current_execution_completed_job_record(self) -> ControlJobRecord:
         """Resolve this handler's exact completed attempt without granting a new lease."""
+        return self._current_execution_completed_job_proof().record
+
+    def _current_execution_completed_job_proof(self) -> _ControlJobExecutionLifecycleProof:
+        """Resolve the exact completed attempt and durable event under transaction."""
         with self._job_transaction(purpose="completed_proof"):
-            return self._require_current_job_completion_record()
+            return self._require_current_job_completion_proof()
+
+    def current_execution_failed_job_record(self) -> ControlJobRecord:
+        """Resolve this handler's exact failed attempt without granting a new lease."""
+        return self._current_execution_failed_job_proof().record
+
+    def _current_execution_failed_job_proof(self) -> _ControlJobExecutionLifecycleProof:
+        """Resolve the exact failed attempt and durable event under transaction."""
+        with self._job_transaction(purpose="failed_proof"):
+            return self._require_current_job_failure_proof()
 
     def _require_current_job_completion_record(self) -> ControlJobRecord:
         """Reconcile the bound attempt with its durable completion event under transaction."""
+        return self._require_current_job_terminal_record(state="completed")
+
+    def _require_current_job_failure_record(self) -> ControlJobRecord:
+        """Reconcile the bound attempt with its durable failure event under transaction."""
+        return self._require_current_job_terminal_record(state="failed")
+
+    def _require_current_job_completion_proof(self) -> _ControlJobExecutionLifecycleProof:
+        """Return the exact completion source event and its bound worker attempt."""
+        return self._require_current_job_terminal_proof(state="completed")
+
+    def _require_current_job_failure_proof(self) -> _ControlJobExecutionLifecycleProof:
+        """Return the exact failure source event and its bound worker attempt."""
+        return self._require_current_job_terminal_proof(state="failed")
+
+    def _require_current_job_terminal_record(
+        self,
+        *,
+        state: Literal["completed", "failed"],
+    ) -> ControlJobRecord:
+        """Reconcile one bound terminal attempt with its exact durable event."""
+        return self._require_current_job_terminal_proof(state=state).record
+
+    def _require_current_job_terminal_proof(
+        self,
+        *,
+        state: Literal["completed", "failed"],
+    ) -> _ControlJobExecutionLifecycleProof:
+        """Return the event-bound worker proof for one exact terminal attempt."""
         bound = self._job_execution_fence.get()
+        terminal_name = "completion" if state == "completed" else "failure"
+        event_type = "job_completed" if state == "completed" else "job_failed"
         if bound is None:
-            raise ControlJobLeaseLostError("control job completion identity is not bound")
+            raise ControlJobLeaseLostError(f"control job {terminal_name} identity is not bound")
         job_id, worker_id, attempt = bound
         lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
         row = self._fetchone(
@@ -3388,40 +3579,38 @@ class ControlPlaneStore:
         record = self.get_job(job_id) if row is not None else None
         if (
             record is None
-            or record.state != "completed"
+            or record.state != state
             or record.attempt != attempt
             or record.lease_owner is not None
             or record.lease_expires_at is not None
         ):
-            raise ControlJobLeaseLostError(
-                "control job completed attempt no longer matches handler"
-            )
-        event = self._fetchone(
-            """
-            SELECT payload_json FROM control_job_events
-            WHERE job_id = ? AND event_type = 'job_completed'
-            ORDER BY event_id DESC LIMIT 1
-            """,
-            (job_id,),
-        )
-        raw = (
-            event[0]
-            if event is not None and not isinstance(event, Mapping)
-            else (event.get("payload_json") if event is not None else None)
-        )
+            raise ControlJobLeaseLostError(f"control job {state} attempt no longer matches handler")
         try:
-            payload = json.loads(str(raw or "{}"))
-        except (TypeError, json.JSONDecodeError) as exc:
-            raise ControlJobLeaseLostError("control job completion event is unavailable") from exc
+            source_event = self._latest_control_job_lifecycle_event_record(
+                job_id=job_id,
+                event_type=event_type,
+            )
+        except ControlJobLeaseLostError as exc:
+            raise ControlJobLeaseLostError(
+                f"control job {terminal_name} event is unavailable"
+            ) from exc
+        payload = source_event.payload
         if (
-            not isinstance(payload, dict)
-            or payload.get("state") != "completed"
+            payload.get("state") != state
             or payload.get("lease_owner") != worker_id
             or type(payload.get("attempt")) is not int
             or payload["attempt"] != attempt
         ):
-            raise ControlJobLeaseLostError("control job completion event does not bind handler")
-        return record
+            raise ControlJobLeaseLostError(
+                f"control job {terminal_name} event does not bind handler"
+            )
+        return _ControlJobExecutionLifecycleProof(
+            record=record,
+            proof_phase=state,
+            worker_id=worker_id,
+            attempt=attempt,
+            source_event=source_event,
+        )
 
     def publish_completed_job_proof(
         self,
@@ -3568,6 +3757,7 @@ class ControlPlaneStore:
                     "state": "running",
                     "lease_owner": worker_id,
                     "lease_expires_at": _iso(record.lease_expires_at),
+                    "attempt": record.attempt,
                 }
                 self.append_event(job_id=record.job_id, event_type="job_running", payload=payload)
                 self._emit_job_outbox_event(
@@ -3591,26 +3781,23 @@ class ControlPlaneStore:
                 """,
                 ("running", _iso(now), worker_id, _iso(lease_expires_at), job_id),
             )
-            self.append_event(
-                job_id=job_id,
-                event_type="job_running",
-                payload={
-                    "state": "running",
-                    "lease_owner": worker_id,
-                    "lease_expires_at": _iso(lease_expires_at),
-                },
-            )
             record = self.get_job(job_id)
-            if record is not None:
-                self._emit_job_outbox_event(
-                    record=record,
-                    event_type="job_running",
-                    payload={
-                        "state": "running",
-                        "lease_owner": worker_id,
-                        "lease_expires_at": _iso(lease_expires_at),
-                    },
+            if record is None:
+                raise ControlJobLeaseLostError(
+                    f"control job row disappeared while marking running: {job_id}"
                 )
+            payload = {
+                "state": "running",
+                "lease_owner": worker_id,
+                "lease_expires_at": _iso(lease_expires_at),
+                "attempt": record.attempt,
+            }
+            self.append_event(job_id=job_id, event_type="job_running", payload=payload)
+            self._emit_job_outbox_event(
+                record=record,
+                event_type="job_running",
+                payload=payload,
+            )
 
     def complete_job(
         self,
@@ -5076,7 +5263,7 @@ class ControlPlaneStore:
         self,
         resource: Any,
         *,
-        purpose: Literal["execution", "completed_proof"],
+        purpose: Literal["execution", "completed_proof", "failed_proof"],
     ) -> Iterator[None]:
         """Resolve the bound source job while holding the publication transaction.
 
@@ -5097,8 +5284,11 @@ class ControlPlaneStore:
             yield
             return
         job_id, worker_id, attempt = bound
-        if purpose == "completed_proof":
-            self._require_current_job_completion_record()
+        if purpose in {"completed_proof", "failed_proof"}:
+            state: Literal["completed", "failed"] = (
+                "completed" if purpose == "completed_proof" else "failed"
+            )
+            self._require_current_job_terminal_record(state=state)
             expires_at = None
         else:
             where, params = self._job_fence_where(
@@ -5123,7 +5313,9 @@ class ControlPlaneStore:
 
     @contextmanager
     def _job_transaction(
-        self, *, purpose: Literal["execution", "completed_proof"] = "execution"
+        self,
+        *,
+        purpose: Literal["execution", "completed_proof", "failed_proof"] = "execution",
     ) -> Iterator[None]:
         """Admit bound-source effects and publish all SQL rows atomically."""
         existing_sqlite = getattr(self._human_decision_transaction, "sqlite_connection", None)

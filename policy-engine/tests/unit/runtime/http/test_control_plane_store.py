@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import sqlite3
 import threading
@@ -1612,6 +1613,172 @@ def _fence_leased_execution(
         worker_id=worker_id,
         attempt=leased.attempt,
     )
+
+
+@pytest.mark.parametrize("guarded", [False, True])
+def test_failed_terminal_record_resolves_exact_worker_attempt(
+    tmp_path: Path,
+    guarded: bool,
+) -> None:
+    raw = _make_store(tmp_path)
+    store = guard_runtime_control_store(raw) if guarded else raw
+    job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+    with _fence_leased_execution(store, job=job):
+        store.fail_job(
+            job_id=job.job_id,
+            error_message="controlled worker failure",
+            progress={"phase": "failed"},
+        )
+        failed = store.current_execution_failed_job_record()
+        assert failed.job_id == job.job_id
+        assert failed.state == "failed"
+        assert failed.attempt == 1
+    with pytest.raises(ControlJobLeaseLostError, match="identity is not bound"):
+        store.current_execution_failed_job_record()
+
+
+@pytest.mark.parametrize("guarded", [False, True])
+def test_running_lifecycle_proof_resolves_exact_source_event(
+    tmp_path: Path,
+    guarded: bool,
+) -> None:
+    raw = _make_store(tmp_path)
+    store = guard_runtime_control_store(raw) if guarded else raw
+    job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+    with _fence_leased_execution(store, job=job):
+        proof = store._current_execution_running_job_proof()  # noqa: SLF001
+        assert proof.proof_phase == "running"
+        assert proof.record.job_id == job.job_id
+        assert proof.worker_id == "worker-execution-admission"
+        assert proof.attempt == 1
+        assert proof.source_event.event_type == "job_running"
+        assert proof.source_event.payload["state"] == "running"
+        assert proof.source_event.payload["lease_owner"] == proof.worker_id
+        assert proof.source_event.payload["attempt"] == proof.attempt
+        row = raw._fetchone(
+            "SELECT event_id, created_at, payload_json FROM control_job_events "
+            "WHERE job_id = ? AND event_type = ? ORDER BY event_id DESC LIMIT 1",
+            (job.job_id, "job_running"),
+        )
+        assert row is not None
+        raw_payload = row[2]
+        raw_created_at = row[1]
+        assert proof.source_event.event_id == row[0]
+        assert proof.source_event.payload_sha256 == (
+            "sha256:" + hashlib.sha256(raw_payload.encode("utf-8")).hexdigest()
+        )
+        assert proof.source_event.created_at == datetime.fromisoformat(raw_created_at)
+    raw.close()
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ["missing_attempt", "wrong_attempt", "wrong_owner", "malformed_payload", "missing_event"],
+)
+def test_running_lifecycle_proof_refuses_missing_or_foreign_source_event(
+    tmp_path: Path,
+    mutation: str,
+) -> None:
+    raw = _make_store(tmp_path)
+    admin = _make_store(tmp_path)
+    job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+    leased = raw.lease_next_job(worker_id="worker-execution-admission", lease_seconds=30)
+    assert leased is not None and leased.job_id == job.job_id
+    payload = {
+        "state": "running",
+        "lease_owner": "worker-execution-admission",
+        "attempt": leased.attempt,
+    }
+    if mutation == "missing_attempt":
+        payload.pop("attempt")
+        admin.append_event(job_id=job.job_id, event_type="job_running", payload=payload)
+    elif mutation == "wrong_attempt":
+        payload["attempt"] = leased.attempt + 1
+        admin.append_event(job_id=job.job_id, event_type="job_running", payload=payload)
+    elif mutation == "wrong_owner":
+        payload["lease_owner"] = "foreign-worker"
+        admin.append_event(job_id=job.job_id, event_type="job_running", payload=payload)
+    elif mutation == "malformed_payload":
+        admin._execute(
+            "UPDATE control_job_events SET payload_json = ? WHERE job_id = ? AND event_type = ?",
+            ("{", job.job_id, "job_running"),
+        )
+    else:
+        admin._execute(
+            "DELETE FROM control_job_events WHERE job_id = ? AND event_type = ?",
+            (job.job_id, "job_running"),
+        )
+
+    with (
+        raw.job_execution_fence(
+            job_id=job.job_id,
+            worker_id="worker-execution-admission",
+            attempt=leased.attempt,
+        ),
+        pytest.raises(ControlJobLeaseLostError),
+    ):
+        raw._current_execution_running_job_proof()  # noqa: SLF001
+    admin.close()
+    raw.close()
+
+
+@pytest.mark.parametrize("guarded", [False, True])
+@pytest.mark.parametrize(
+    "mutation",
+    ["foreign_owner", "wrong_event_attempt", "row_attempt", "restarted", "missing_event"],
+)
+def test_failed_terminal_record_refuses_foreign_or_replaced_attempt(
+    tmp_path: Path,
+    guarded: bool,
+    mutation: str,
+) -> None:
+    raw = _make_store(tmp_path)
+    admin = _make_store(tmp_path)
+    store = guard_runtime_control_store(raw) if guarded else raw
+    job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+    with _fence_leased_execution(store, job=job):
+        store.fail_job(
+            job_id=job.job_id,
+            error_message="controlled worker failure",
+            progress={"phase": "failed"},
+        )
+        if mutation == "foreign_owner":
+            admin.append_event(
+                job_id=job.job_id,
+                event_type="job_failed",
+                payload={
+                    "state": "failed",
+                    "lease_owner": "foreign-worker",
+                    "attempt": 1,
+                },
+            )
+        elif mutation == "wrong_event_attempt":
+            admin.append_event(
+                job_id=job.job_id,
+                event_type="job_failed",
+                payload={
+                    "state": "failed",
+                    "lease_owner": "worker-execution-admission",
+                    "attempt": 2,
+                },
+            )
+        elif mutation == "row_attempt":
+            admin._execute(
+                "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?",
+                (job.job_id,),
+            )
+        elif mutation == "restarted":
+            admin.mark_running(job_id=job.job_id, worker_id="replacement-worker")
+        else:
+            admin._execute(
+                "DELETE FROM control_job_events WHERE job_id = ? AND event_type = ?",
+                (job.job_id, "job_failed"),
+            )
+
+        with pytest.raises(ControlJobLeaseLostError):
+            store.current_execution_failed_job_record()
+    admin.close()
+    raw.close()
 
 
 @pytest.mark.parametrize("guarded", [False, True])

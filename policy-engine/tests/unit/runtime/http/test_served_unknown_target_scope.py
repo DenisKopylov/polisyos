@@ -57,7 +57,17 @@ async def test_served_unknown_scope_job_keeps_candidate_n4_without_default_ua_wo
     import polisyos.runtime.quality.generation_source as generation_source
     import polisyos.runtime.quality.intervention_substrate as intervention_substrate
     from polisyos.runtime.http.execution_policy import RuntimePrincipal
+    from polisyos.runtime.http.services.adapters.core_run import (
+        load_completed_control_job_core_run_source,
+    )
     from polisyos.runtime.http.services.control import nl_pipeline
+    from polisyos.runtime.quality.generation_source import N4CandidateProposalLocator
+    from polisyos.scientist.orchestration.engine.budget import BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRunBinding,
+        FileBudgetLedger,
+    )
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
     from tests.unit.runtime.http import test_control_service_di as fixtures
     from tests.unit.runtime.http.test_nl_pipeline_materialization import (
         _design_problem_tool_args,
@@ -97,11 +107,22 @@ async def test_served_unknown_scope_job_keeps_candidate_n4_without_default_ua_wo
         "build_design_problem_from_nl_request",
         run_real_compiler,
     )
-    monkeypatch.setattr(
-        __import__("polisyos.scientist.orchestration.llm.factory", fromlist=["factory"]),
-        "create_traced_gateway_client",
-        lambda **_kwargs: generation_gateway,
+    llm_factory = __import__("polisyos.scientist.orchestration.llm.factory", fromlist=["factory"])
+    from polisyos.scientist.orchestration.llm.factory import GatewayLLMConfig
+
+    fixture_gateway_config = GatewayLLMConfig(
+        base_url="https://controlled-gateway.invalid/v1",
+        api_key="sk-controlled-fixture-key",
+        default_provider="recorded_gateway_replay",
+        enable_prompt_sanitizer=False,
     )
+    monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "0")
+    monkeypatch.setattr(
+        GatewayLLMConfig,
+        "from_env",
+        classmethod(lambda _cls: fixture_gateway_config),
+    )
+    monkeypatch.setattr(llm_factory, "GatewayLLMClient", lambda **_kwargs: generation_gateway)
 
     def forbidden_default_wmr(*_args, **_kwargs):
         pytest.fail("unknown selector consumed the implicit UA WMR")
@@ -118,6 +139,11 @@ async def test_served_unknown_scope_job_keeps_candidate_n4_without_default_ua_wo
     )
 
     service = fixtures._build_control_service(tmp_path)
+    settlement_store = BudgetMiddleware(
+        BudgetState(),
+        ledger=FileBudgetLedger(tmp_path / "producer-ledger.json"),
+    )
+    service.bind_llm_producer_settlement_store(settlement_store)
     try:
         intent_context = _intent_context(as_of="2026-05-12")
         if simulate_only:
@@ -159,11 +185,17 @@ async def test_served_unknown_scope_job_keeps_candidate_n4_without_default_ua_wo
             "resolve_generation_value_choices",
             lambda **_kwargs: pytest.fail("candidate proposal reached S8"),
         )
-        monkeypatch.setattr(
-            service,
-            "_publish_generation_run",
-            lambda **_kwargs: pytest.fail("candidate proposal published a recursive run"),
-        )
+        publication_calls: list[dict[str, object]] = []
+        original_publish_generation_run = service._publish_generation_run  # noqa: SLF001
+
+        def publish_candidate_core_output(**kwargs: object) -> object:
+            assert kwargs.get("proposal_ref") is not None
+            assert kwargs.get("compiled_run_ref") is None
+            assert kwargs.get("normative_disposition_ref") is None
+            publication_calls.append(dict(kwargs))
+            return original_publish_generation_run(**kwargs)  # type: ignore[arg-type]
+
+        monkeypatch.setattr(service, "_publish_generation_run", publish_candidate_core_output)
         monkeypatch.setattr(
             generation_cycle_service,
             "build_default_recursive_generation_cycle_controller",
@@ -195,10 +227,14 @@ async def test_served_unknown_scope_job_keeps_candidate_n4_without_default_ua_wo
             assert completed.progress["execution_intent_band"] == "candidate_only"
             assert "simulation_status" not in completed.progress
         assert completed.progress["candidate_proposal_ref"]
+        assert len(publication_calls) == 1
+        proposal_locator = N4CandidateProposalLocator.model_validate(
+            completed.progress["candidate_proposal_ref"]
+        )
         proposal = generation_source.GenerationSourceRepository(
             service._artifact_store
         ).load_candidate_proposal_for_served_job(
-            completed.progress["candidate_proposal_ref"],
+            proposal_locator,
             job_id=launch.job_id,
             run_id=str(job.run_id),
             tenant_id="tenant-fixture",
@@ -208,14 +244,45 @@ async def test_served_unknown_scope_job_keeps_candidate_n4_without_default_ua_wo
         assert proposal.problem.nl_provenance.raw_request == raw_request
         assert proposal.proposal.trinity_bundle.policy_spec.interventions
         assert proposal.proposal.limitation_code == "cycle_substrate_context_unavailable"
+        terminal = load_completed_control_job_core_run_source(
+            store=service._artifact_store,
+            core_runs_root=service._core_runs_root,  # noqa: SLF001
+            job=completed,
+            expected_control_run_id=str(job.run_id),
+            tenant_id="tenant-fixture",
+            cell_id="cell-fixture",
+        )
+        assert terminal.manifest.outputs == [proposal_locator.artifact_ref]
+        assert all(
+            ref.kind
+            not in {
+                "runtime.compiled_recursive_generation_cycle",
+                "runtime.normative_generation_composition",
+                "runtime.n8_joint_simulation",
+                "runtime.s8_normative_disposition",
+            }
+            for ref in terminal.manifest.outputs
+        )
+        binding = BudgetLedgerProducerRunBinding(
+            run_id=str(job.run_id),
+            tenant_id="tenant-fixture",
+            cell_id="cell-fixture",
+            profile_id=job.effective_execution_profile,
+            control_job_id=job.job_id,
+        )
+        producer_records = settlement_store.list_producer_events_for_run_safe(binding)
+        assert producer_records
+        assert {event.event_id for event in proposal.producer_cost_events} == {
+            record.event_id for record in producer_records
+        }
         if simulate_only:
-            assert proposal.schema_version.endswith(".v2")
+            assert proposal.schema_version.endswith(".v3")
             assert proposal.simulation_disposition.status == "simulation_unavailable"
             assert proposal.simulation_disposition.reason_code == (
                 "cycle_substrate_context_not_established"
             )
         else:
-            assert proposal.schema_version.endswith(".v1")
+            assert proposal.schema_version.endswith(".v3")
     finally:
         service.close()
 
@@ -308,12 +375,24 @@ def test_eval_safety_source_reader_rejects_missing_artifact_schema_as_typed_erro
         ref = service._persist_job_payload(job_kind="natural_language_run", payload=payload)
         reader = service._evaluation_safety_persistence_service
         store = reader._artifact_store
+        assert (
+            reader._read_promotion_source_json(
+                ref,
+                kind=kind,
+                schema_name=schema_name,
+                inputs_read=[],
+                read_attempts=[],
+            )
+            == payload
+        )
         original_manifest = store.get_manifest(ref)
         malformed_manifest = original_manifest.model_copy(update={"artifact_schema": None})
 
         class _MissingSchemaStore:
-            def get_manifest(self, artifact_ref: str) -> object:
-                if artifact_ref == ref:
+            def get_manifest(self, artifact_ref: object) -> object:
+                from polisyos.core.artifacts import ArtifactID
+
+                if isinstance(artifact_ref, ArtifactID) and str(artifact_ref) == ref:
                     return malformed_manifest
                 return store.get_manifest(artifact_ref)
 

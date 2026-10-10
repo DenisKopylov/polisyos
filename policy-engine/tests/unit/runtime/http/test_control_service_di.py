@@ -3333,10 +3333,10 @@ async def test_served_nl_job_projects_n4_gateway_unavailable_without_artifact_or
         service.close()
 
 
-def test_diagnostic_events_bind_admitted_scope_and_declare_unknown_attribution(tmp_path) -> None:
-    from polisyos.runtime.http.services.control_plane_store import (
-        ControlJobExecutionScope,
-    )
+def test_diagnostic_events_bind_authenticated_scope_and_declare_unknown_attribution(
+    tmp_path,
+) -> None:
+    from polisyos.core.security.access_scope import AccessScope
 
     service = _build_control_service(tmp_path)
 
@@ -3350,13 +3350,10 @@ def test_diagnostic_events_bind_admitted_scope_and_declare_unknown_attribution(t
 
     log = RecordingEventLog()
     service._diagnostic_event_log = log
-    unknown_scope = ControlJobExecutionScope(
-        status="not_established",
-        tenant_id=None,
+    unknown_scope = AccessScope.for_service(
+        tenant_id="tenant-unknown",
         cell_id=None,
-        actor_subject=None,
-        actor_authenticated=False,
-        actor_roles=(),
+        spiffe_id="spiffe://runtime/unknown-scope-test",
     )
     try:
         omitted = service._emit_runtime_diagnostic_event(
@@ -3389,13 +3386,10 @@ def test_diagnostic_events_bind_admitted_scope_and_declare_unknown_attribution(t
         assert log.events[-1].cell_id == "cell-unknown"
 
         emitted = service._emit_runtime_diagnostic_event(
-            execution_scope=ControlJobExecutionScope(
-                status="established",
+            execution_scope=AccessScope.for_service(
                 tenant_id="tenant-real",
                 cell_id="cell-real",
-                actor_subject="diagnostic-owner",
-                actor_authenticated=True,
-                actor_roles=("analyst",),
+                spiffe_id="spiffe://runtime/diagnostic-owner",
             ),
             job_id="job-scoped",
             run_id="run-scoped",

@@ -22,6 +22,11 @@ projections. Route handlers should stay thin and delegate behavior here.
 - **Artifact inspection** - renders CAS manifest/content/schema/lineage views with redaction hooks.
 - **Lineage traversal** - builds lineage graphs and completeness summaries.
 - **Control-plane orchestration** - launches or reissues runs and bridges into `scientist`, `fabric`, and `lex`.
+- **Control-job diagnostic binding** - admission diagnostics bind only to the persisted
+  `job_created` record and carry no worker attempt; running, completed, and failed diagnostics
+  bind to the exact persisted lifecycle event, its row time and raw-payload digest, and the job's
+  stored artifact references. The generic top-level `attempt` remains the control-worker lease
+  attempt; evaluation-step attempts stay in their own nested rows.
 - **Guarded confidence risk spend** - resolves the governed N11 source through
   its real isolated owner validator, preserves source/dependency/registry and
   semantic identities, and composes the strict reviewer-only four-arm packet.

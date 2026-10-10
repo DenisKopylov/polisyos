@@ -3,6 +3,7 @@ from __future__ import annotations
 from itertools import permutations
 
 import pytest
+from pydantic import ValidationError
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -16,6 +17,7 @@ from polisyos.ir.analytics.causal_graph import (
     load_causal_graph_model,
     persist_causal_graph_model,
 )
+from polisyos.ir.artifacts import get_json_artifact, put_json_artifact
 from polisyos.ir.registry.refs import CausalGraphModelRef
 
 
@@ -107,6 +109,134 @@ def test_causal_graph_valid_dag_cpdag_pag() -> None:
         edges=[CausalEdge(src="M", dst="N", mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.ARROW)],
     )
     assert pag.graph_type is GraphType.PAG
+
+
+@pytest.mark.parametrize(
+    "edges",
+    [
+        pytest.param(
+            [
+                {
+                    "src": "X",
+                    "dst": "Y",
+                    "mark_src": "tail",
+                    "mark_dst": "arrow",
+                    "metadata": {"producer_marker": "directed"},
+                },
+                {
+                    "src": "X",
+                    "dst": "Y",
+                    "mark_src": "arrow",
+                    "mark_dst": "arrow",
+                    "metadata": {"producer_marker": "bidirected"},
+                },
+            ],
+            id="directed-plus-bidirected-bow",
+        ),
+        pytest.param(
+            [
+                {"src": "X", "dst": "Y", "mark_src": "tail", "mark_dst": "arrow"},
+                {"src": "Y", "dst": "X", "mark_src": "arrow", "mark_dst": "tail"},
+            ],
+            id="duplicate-same-orientation-reversed-storage",
+        ),
+        pytest.param(
+            [
+                {"src": "X", "dst": "Y", "mark_src": "tail", "mark_dst": "arrow"},
+                {"src": "Y", "dst": "X", "mark_src": "tail", "mark_dst": "arrow"},
+            ],
+            id="opposing-directed-rows",
+        ),
+        pytest.param(
+            [
+                {"src": "X", "dst": "Y", "mark_src": "circle", "mark_dst": "circle"},
+                {"src": "Y", "dst": "X", "mark_src": "arrow", "mark_dst": "arrow"},
+            ],
+            id="uncertain-versus-bidirected-endpoints",
+        ),
+        pytest.param(
+            [
+                {"src": "X", "dst": "Y", "mark_src": "tail", "mark_dst": "arrow", "lag": 1},
+                {"src": "Y", "dst": "X", "mark_src": "arrow", "mark_dst": "tail", "lag": 2},
+            ],
+            id="lag-does-not-hide-pair-collision",
+        ),
+        pytest.param(
+            [
+                {"src": "X", "dst": "Y", "mark_src": "tail", "mark_dst": "arrow", "lag": 1},
+                {"src": "X", "dst": "Y", "mark_src": "arrow", "mark_dst": "arrow", "lag": None},
+            ],
+            id="lagged-directed-plus-contemporaneous-bidirected",
+        ),
+        pytest.param(
+            [
+                {"src": "Y", "dst": "X", "mark_src": "arrow", "mark_dst": "arrow", "lag": None},
+                {"src": "X", "dst": "Y", "mark_src": "tail", "mark_dst": "arrow", "lag": 1},
+            ],
+            id="reverse-storage-contemporaneous-bidirected-plus-lagged-directed",
+        ),
+    ],
+)
+def test_causal_graph_model_validate_refuses_duplicate_pag_unordered_adjacencies(
+    edges: list[dict[str, object]],
+) -> None:
+    with pytest.raises(
+        ValidationError,
+        match="PAG requires at most one edge per unordered node pair",
+    ):
+        CausalGraphModel.model_validate(
+            {"graph_type": "pag", "nodes": ["X", "Y"], "edges": edges}
+        )
+
+
+def test_causal_graph_preserves_single_pag_edge_and_admg_bow() -> None:
+    reversed_pag_edge = CausalEdge(
+        src="Y",
+        dst="X",
+        mark_src=EdgeMark.ARROW,
+        mark_dst=EdgeMark.TAIL,
+        metadata={"producer_marker": "single-edge"},
+    )
+    pag = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=["X", "Y"],
+        edges=[reversed_pag_edge],
+    )
+    assert pag.edges == [reversed_pag_edge]
+    bow = CausalGraphModel(
+        graph_type=GraphType.ADMG,
+        nodes=["X", "Y"],
+        edges=[
+            CausalEdge(src="X", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+            CausalEdge(src="X", dst="Y", mark_src=EdgeMark.ARROW, mark_dst=EdgeMark.ARROW),
+        ],
+    )
+    assert len(bow.edges) == 2
+
+
+def test_causal_graph_model_copy_preserves_pag_admission_invariant() -> None:
+    pag = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y")],
+    )
+    with pytest.raises(
+        ValueError,
+        match="PAG requires at most one edge per unordered node pair",
+    ):
+        pag.model_copy(
+            update={
+                "edges": [
+                    CausalEdge(src="X", dst="Y"),
+                    CausalEdge(
+                        src="Y",
+                        dst="X",
+                        mark_src=EdgeMark.ARROW,
+                        mark_dst=EdgeMark.TAIL,
+                    ),
+                ]
+            }
+        )
 
 
 def test_causal_graph_rejects_unknown_nodes_in_edges() -> None:
@@ -406,3 +536,82 @@ def test_causal_graph_rejects_out_of_range_id_confidence() -> None:
             pag_identification_policy=PAGIdentificationPolicy.PROBABILISTIC,
             id_confidence_under_pag=1.2,
         )
+
+
+def test_causal_graph_pag_artifact_roundtrip_uses_fresh_reader(tmp_path) -> None:
+    cas_root = tmp_path / "cas"
+    writer = _ensure_ir_artifact_store(FileSystemCAS(cas_root))
+    graph = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=["X", "Y"],
+        edges=[
+            CausalEdge(
+                src="Y",
+                dst="X",
+                mark_src=EdgeMark.CIRCLE,
+                mark_dst=EdgeMark.ARROW,
+                metadata={"producer_marker": "single-pag-row"},
+            )
+        ],
+        discovery_method="fci",
+        metadata={"producer_marker": "fresh-reader-control"},
+    )
+
+    ref = persist_causal_graph_model(writer, graph)
+    fresh_reader = _ensure_ir_artifact_store(FileSystemCAS(cas_root))
+    loaded = load_causal_graph_model(fresh_reader, ref)
+
+    assert isinstance(ref, CausalGraphModelRef)
+    assert loaded == graph
+    assert loaded.graph_type is GraphType.PAG
+    assert len(loaded.edges) == 1
+    assert loaded.edges[0].metadata["producer_marker"] == "single-pag-row"
+
+
+def test_causal_graph_pag_artifact_reader_refuses_persisted_duplicate_adjacencies(
+    tmp_path,
+) -> None:
+    cas_root = tmp_path / "cas"
+    writer = _ensure_ir_artifact_store(FileSystemCAS(cas_root))
+    # A raw mapping deliberately bypasses CausalGraphModel's producer-side validation.
+    payload = {
+        "schema_version": "1.0",
+        "graph_type": "pag",
+        "nodes": ["X", "Y"],
+        "edges": [
+            {
+                "src": "X",
+                "dst": "Y",
+                "mark_src": "tail",
+                "mark_dst": "arrow",
+                "metadata": {"producer_marker": "persisted-row-one"},
+            },
+            {
+                "src": "Y",
+                "dst": "X",
+                "mark_src": "arrow",
+                "mark_dst": "tail",
+                "metadata": {"producer_marker": "persisted-row-two"},
+            },
+        ],
+        "discovery_method": "external-producer",
+    }
+    raw_ref = put_json_artifact(
+        writer,
+        payload,
+        kind="ir.causal_graph_model",
+        schema_name="ir.causal_graph_model",
+        schema_version="1.0",
+    )
+    ref = CausalGraphModelRef.model_validate(raw_ref)
+    fresh_reader = _ensure_ir_artifact_store(FileSystemCAS(cas_root))
+    stored_payload = get_json_artifact(fresh_reader, ref)
+
+    assert [
+        edge["metadata"]["producer_marker"] for edge in stored_payload["edges"]
+    ] == ["persisted-row-one", "persisted-row-two"]
+    with pytest.raises(
+        ValidationError,
+        match="PAG requires at most one edge per unordered node pair",
+    ):
+        load_causal_graph_model(fresh_reader, ref)

@@ -170,3 +170,90 @@ def test_discovery_failure_discloses_only_actual_requested_noop(monkeypatch, req
         assert report.metadata["reconciliation"]["applied"] is False
         assert report.metadata["reconciliation"]["reason"] == "discovery_failed"
         assert "reconciliation_not_applied:discovery_failed" in report.warnings
+
+
+def test_temporal_and_static_same_pair_are_separated_in_persisted_discovery_report(
+    tmp_path,
+) -> None:
+    """Real PCMCI/PC output stays in separate temporal and static graph fields."""
+    pytest.importorskip("tigramite")
+
+    rng = np.random.default_rng(7)
+    n = 500
+    x = np.zeros(n, dtype=float)
+    y = np.zeros(n, dtype=float)
+    for t in range(1, n):
+        x[t] = 0.9 * x[t - 1] + rng.normal(0.0, 0.1)
+        y[t] = 0.8 * x[t - 1] + 0.5 * y[t - 1] + rng.normal(0.0, 0.1)
+    state = UnifiedDiscoveryData(data=np.column_stack((x, y)), variable_names=["X", "Y"])
+
+    store = FileSystemCAS(tmp_path / "cas")
+    source_ref = store.put_json(
+        state.model_dump(mode="json"),
+        PutOptions(
+            kind="tests.synthetic.unified_discovery_data",
+            media_type="application/json",
+            schema=SchemaInfo(name="tests.UnifiedDiscoveryData", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    MethodRegistry.get_instance().register(UnifiedCausalDiscovery, override=True)
+    job = run_job(
+        JobSpec(
+            job_kind="method",
+            method_fqn=UnifiedCausalDiscovery.signature.fqn,
+            method_params={
+                "force_algorithms": "pcmci,pc",
+                "is_time_series": True,
+                "max_lag": 1,
+                "n_bootstrap": 0,
+                "ci_backend": "numpy",
+                "timeout_seconds": 120,
+            },
+            input_refs={"discovery_data": source_ref},
+            seed=71,
+        ),
+        cas_root=store.root,
+        method_state=state,
+    )
+    assert not job.issues and job.method_result_ref is not None, job.issues
+
+    fresh_reader = _ensure_ir_artifact_store(FileSystemCAS(store.root))
+    payload = get_json_artifact(fresh_reader, job.method_result_ref.artifact_id)
+    report = DiscoveryPipelineReport.model_validate(payload["discovery_pipeline_report"])
+    assert payload["report"] == payload["discovery_pipeline_report"]
+    assert report.n_algorithms_run == 2
+
+    pcmci = next(result for result in report.individual_results if result.method == "pcmci+")
+    pc = next(result for result in report.individual_results if result.method == "pc")
+    assert any(
+        edge.src == "X" and edge.dst == "Y" and edge.lag == 1 for edge in pcmci.graph.edges
+    )
+    assert any(
+        {edge.src, edge.dst} == {"X", "Y"} and edge.lag in (None, 0)
+        for edge in pc.graph.edges
+    )
+
+    assert report.temporal_dag is not None
+    assert any(
+        edge.src == "X" and edge.dst == "Y" and edge.lag == 1
+        for edge in report.temporal_dag.edges
+    )
+    static_pair = [
+        edge for edge in report.unified_pag.edges if {edge.src, edge.dst} == {"X", "Y"}
+    ]
+    assert len(static_pair) == 1
+    assert static_pair[0].lag in (None, 0)
+    assert all(edge.lag in (None, 0) for edge in report.unified_pag.edges)
+
+    from polisyos.foundry.methods.catalog.causal.admg_ops import (
+        UnsupportedStaticADMGProfileError,
+    )
+    from polisyos.foundry.methods.catalog.causal.id_engine import core as id_core
+
+    with pytest.raises(UnsupportedStaticADMGProfileError, match="lag=1"):
+        id_core.id_algorithm(
+            treatment=frozenset({"X"}),
+            outcome=frozenset({"Y"}),
+            graph=report.temporal_dag,
+        )

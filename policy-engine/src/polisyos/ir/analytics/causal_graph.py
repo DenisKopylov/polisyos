@@ -276,6 +276,9 @@ class CausalGraphModel(BaseModel):
                         "positive lagged directed edge"
                     )
 
+        if self.graph_type is GraphType.PAG:
+            self._ensure_pag_unique_adjacencies()
+
         if self.graph_type is GraphType.DAG:
             for edge in self.edges:
                 if edge.mark_src is not EdgeMark.TAIL or edge.mark_dst is not EdgeMark.ARROW:
@@ -303,6 +306,28 @@ class CausalGraphModel(BaseModel):
                 )
         return self
 
+    def _pag_duplicate_adjacencies(self) -> tuple[tuple[str, str], ...]:
+        """Return unordered endpoint pairs represented by multiple PAG edge rows."""
+        seen: set[tuple[str, str]] = set()
+        duplicates: set[tuple[str, str]] = set()
+        for edge in self.edges:
+            first, second = edge.src, edge.dst
+            pair = (first, second) if first <= second else (second, first)
+            if pair in seen:
+                duplicates.add(pair)
+            seen.add(pair)
+        return tuple(sorted(duplicates))
+
+    def _ensure_pag_unique_adjacencies(self) -> None:
+        """Refuse PAG edge rows that collapse to the same endpoint-keyed adjacency."""
+        duplicates = self._pag_duplicate_adjacencies()
+        if duplicates:
+            src, dst = duplicates[0]
+            raise ValueError(
+                "PAG requires at most one edge per unordered node pair; "
+                f"duplicate adjacency ({src!r}, {dst!r})"
+            )
+
     def model_post_init(self, __context: Any) -> None:
         self._freeze_collections()
 
@@ -321,6 +346,8 @@ class CausalGraphModel(BaseModel):
         deep: bool = False,
     ) -> Self:
         copied = super().model_copy(update=update, deep=deep)
+        if copied.graph_type == GraphType.PAG:
+            copied._ensure_pag_unique_adjacencies()
         copied._freeze_collections()
         copied.__dict__.pop("kuzu_node_rows", None)
         copied.__dict__.pop("kuzu_edge_rows", None)

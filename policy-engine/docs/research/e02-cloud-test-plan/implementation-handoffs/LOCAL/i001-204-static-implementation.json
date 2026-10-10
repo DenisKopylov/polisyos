@@ -1,0 +1,169 @@
+{
+  "schema": "policyos.e02.local_slice_handoff.v1",
+  "recorded_on": "2026-10-11",
+  "slice_id": "i001-204-static-import-order-implementation",
+  "proposal_scope": "native source import-order implementation only",
+  "slice_base": {
+    "commit": "405e685b72f94455f93a5f0d9848a4df68ffd3e2",
+    "tree": "459f2205dd90d1ff23c87ea673f9c73b0692be2e"
+  },
+  "candidate_source": {
+    "commit": "e536bab756ca5538b105205f27a627625dd1da72",
+    "tree": "628231210da7056efa55f850157efd30e154f0ae"
+  },
+  "parents": [
+    "405e685b72f94455f93a5f0d9848a4df68ffd3e2"
+  ],
+  "publication": {
+    "status": "remote_exact_checkpoint_verified",
+    "remote_ref": "origin/codex/e02-unified-local-20261009",
+    "remote_tip": {
+      "commit": "e536bab756ca5538b105205f27a627625dd1da72",
+      "tree": "628231210da7056efa55f850157efd30e154f0ae"
+    },
+    "verified_changed_files": 204,
+    "exact_changed_files_and_bytes": true,
+    "readback": {
+      "path": "LOCAL/raw/i001-204-implementation-checkpoint-20261011/remote-readback.json",
+      "sha256": "b23070c67804166226d20c0e203beb561710728b225e6e288e112cb8599b38ec"
+    }
+  },
+  "source_footprint": {
+    "path_count": 204,
+    "file_types": {
+      ".py": 204
+    },
+    "path_classes": {
+      "policy-engine/src/polisyos": 52,
+      "policy-engine/tests": 142,
+      "policy-engine/tools": 10
+    },
+    "test_subdirectories": {
+      "_helpers": 3,
+      "contract": 7,
+      "integration": 2,
+      "performance": 2,
+      "property": 1,
+      "repo_quality": 1,
+      "unit": 126
+    },
+    "tool_subdirectories": {
+      "ci": 5,
+      "ops_runners": 2,
+      "quality": 3
+    },
+    "complete_candidate_manifest": {
+      "path": "LOCAL/raw/i001-204-implementation-checkpoint-20261011/precommit-selected-footprint.json",
+      "sha256": "d0058cb1cfea10603b3243dbbae3ee5e01a479c7b10c20adc472ba537fb44916"
+    },
+    "source_readback": {
+      "path": "LOCAL/raw/i001-204-implementation-checkpoint-20261011/readback.json",
+      "sha256": "c7c8279488727b83339b35b6f68439ac8deb7c80e4c37edd3caae2ec029292d4"
+    },
+    "readback_matches_complete_manifest": true
+  },
+  "independent_static_review": {
+    "path": "LOCAL/reviews/i001-204-current-import-order-independent-20261011.md",
+    "sha256": "c93c44bc9f056f8824ea3e45bd98b74faa0d6d513d66fbdeefdd4d7fba4f6504",
+    "disposition": "Static GO for this exact 204-path source boundary; runtime verification pending.",
+    "p40_classification": "SAME_CLASS_DEEPER",
+    "reviewed_source_version": {
+      "commit": "405e685b72f94455f93a5f0d9848a4df68ffd3e2",
+      "tree": "459f2205dd90d1ff23c87ea673f9c73b0692be2e"
+    },
+    "candidate_bytes_match_manifest_and_readback": true
+  },
+  "static_import_order_findings": {
+    "scope": "Complete 204-path Python footprint in the cited manifest and review.",
+    "non_import_ast_equal": 204,
+    "scoped_import_binding_multiset_equal": 204,
+    "comment_token_sequence_equal": 204,
+    "__all___assignment_signatures_equal": 204,
+    "all_ast_import_target_sequence_changed": 201,
+    "all_ast_distinct_target_first_order_changed": 193,
+    "target_sequence_unchanged_but_imported_name_order_changed": 3,
+    "ast_import_node_count_changed_by_split_or_regroup": 9,
+    "module_execution_statement_sequence_changed": 194,
+    "module_execution_target_sequence_changed": 185,
+    "module_execution_distinct_target_first_order_changed": 179,
+    "deferred_function_local_import_sequence_changed": 11,
+    "product_source_subset": {
+      "path_count": 52,
+      "file_type": ".py",
+      "module_execution_statement_sequence_changed": 52,
+      "module_execution_target_sequence_changed": 51,
+      "module_execution_distinct_target_first_order_changed": 50
+    },
+    "static_runtime_mode_graph": {
+      "reordered_target_pairs_within_runtime_scc": 0,
+      "type_checking_edges_excluded": true,
+      "qualification": "Static graph evidence only; it does not execute third-party initializers or application import paths."
+    },
+    "interpretation": "Import execution order changed in this cohort. Do not describe it as alias-order-only, unchanged order, or runtime-equivalent."
+  },
+  "execution": {
+    "tests": "UNRUN",
+    "product_imports": "UNRUN",
+    "formatters": "UNRUN",
+    "runtime_gates": "UNRUN",
+    "global_source_freeze": "UNRUN",
+    "manifest_runtime_verification": "pending_composed_replay"
+  },
+  "next_runtime_evidence": {
+    "status": "UNRUN",
+    "recommended_consumer_paths_from_review": [
+      "Data Forge snapshot provenance finalizer",
+      "Scholar academic evidence reader",
+      "scientist builtins error import path",
+      "Foundry checkpoint and compiler imports",
+      "changed scientist translation and planning modules"
+    ],
+    "qualification": "Run source-bound fresh-process/importer checks after the 204-path source and runtime-input freeze; preserve unsupported backends as SKIP or UNRUN."
+  },
+  "bounded_adjacent_work": [
+    "Pointer-hash changes are separate.",
+    "Source-profile compatibility work is separate.",
+    "Native Ruff-root work is separate.",
+    "The remaining anomaly and semantic work is separate; this static import-order slice does not adjudicate it."
+  ],
+  "capability_assessment": {
+    "state": "verification_missing",
+    "scope": "Runtime equivalence of affected import initializers and composed application consumers is not established by this static source review."
+  },
+  "pattern_pass": [
+    "P29: this record reports a static AST/import-graph review only; it makes no behavioral or runtime-gate claim.",
+    "P35: footprint and order counts derive from the complete 204-row .py manifest, with the source/test/tool denominator stated.",
+    "P38: the reviewed property is source import ordering; static AST and SCC checks do not establish runtime initialization equivalence. Third-party initializer or application-path behavior is the divergent case still requiring execution evidence.",
+    "P40: the independent review classifies this as SAME_CLASS_DEEPER and directs a composed runtime check instead of another source-only instance review.",
+    "P41: this handoff pins the exact candidate/readback and remote commit; no test or gate result is called inherited or green."
+  ],
+  "decision_refs": [
+    {
+      "path": "LOCAL/raw/i001-204-implementation-checkpoint-20261011/precommit-selected-footprint.json",
+      "sha256": "d0058cb1cfea10603b3243dbbae3ee5e01a479c7b10c20adc472ba537fb44916"
+    },
+    {
+      "path": "LOCAL/raw/i001-204-implementation-checkpoint-20261011/readback.json",
+      "sha256": "c7c8279488727b83339b35b6f68439ac8deb7c80e4c37edd3caae2ec029292d4"
+    },
+    {
+      "path": "LOCAL/raw/i001-204-implementation-checkpoint-20261011/remote-readback.json",
+      "sha256": "b23070c67804166226d20c0e203beb561710728b225e6e288e112cb8599b38ec"
+    },
+    {
+      "path": "LOCAL/reviews/i001-204-current-import-order-independent-20261011.md",
+      "sha256": "c93c44bc9f056f8824ea3e45bd98b74faa0d6d513d66fbdeefdd4d7fba4f6504"
+    },
+    {
+      "path": "LOCAL/raw/i001-held-cause-current-20261010.json",
+      "sha256": "f031f508027aa4ab85557cf6b4da33f2b8377243d0a8d2f688f40015136712c8"
+    },
+    {
+      "path": "LOCAL/reviews/source-boundary-triage-20261011.json",
+      "sha256": "ea8f322434079383accd34f457568dc5fbf65d45f2ddd5748470eed98ad29714"
+    }
+  ],
+  "proposal_ids": [],
+  "formal_closure_ids": [],
+  "closure_ids": []
+}

@@ -1,0 +1,503 @@
+{
+  "schema": "policyos.econml_v4_posthoc_binding_v3_execution.v1",
+  "record_status": "executed_candidate_posthoc_binding_only",
+  "authority": "candidate_computation_only",
+  "closure_ids": [],
+  "original_criterion_proposal": {
+    "ids": [],
+    "disposition": "no_original_criterion_closure_proposed",
+    "reason": "This post-hoc CAS reconciliation establishes a narrow candidate computation binding only. It does not establish the original producer-emitted MethodJob lineage, structured input ABI, causal identification, calibration, a product consumer, or production backend support. Do not promote this execution to a whole-criterion closure."
+  },
+  "execution_source": {
+    "execution_head": "e536bab756ca5538b105205f27a627625dd1da72",
+    "execution_tree": "628231210da7056efa55f850157efd30e154f0ae",
+    "tree_evidence": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/econml-v4-cas-binding-v3-independent-20261011.md",
+      "sha256": "1029abd5e750115d473d8ac1cb619c75daeabcea0e82f71e176524421682ef86",
+      "scope": "pre-run source review recorded this exact HEAD/tree; it is not the post-run behavioral review"
+    },
+    "post_run_source_checkpoint": {
+      "candidate": "c7c696fe1e6efbbb81d73c0788e59df6b2925b9d",
+      "tree": "9192fd6db01f5ff02f730ceae997db8578655570",
+      "parents": [
+        "e536bab756ca5538b105205f27a627625dd1da72"
+      ],
+      "branch": "codex/e02-unified-local-20261009",
+      "local_readback": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-posthoc-binding-source-checkpoint-20261011/readback.json",
+        "sha256": "7d34bebc11efae273d8b9c69459f7c1a16949383a7526e815e1e8c5b5cf7d0b6",
+        "bytes": 1174
+      },
+      "remote_readback": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-posthoc-binding-source-checkpoint-20261011/remote-readback.json",
+        "sha256": "4acc3a138ddc20159708dfdc4426265f4c9d682b4115b56e802abb97ead4e76c",
+        "bytes": 1132
+      },
+      "remote_ref": "origin/codex/e02-unified-local-20261009",
+      "local_remote_match": true,
+      "prototype_source_files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/reconcile_v4_cas.py",
+          "sha256": "44116673642f46cd02627c9fabe69ce747db7cba3949b7e97167ce45253fd1ea"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/DESIGN.md",
+          "sha256": "3f120abc35928d7b9480bc34f192394ee8c45e86e9d79d80cb360462c4599064"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/command-plan.json",
+          "sha256": "e05875c72ce803d1f0b7cbb0a7010365d4b1d1b967327188d7bb6a1552de68a1"
+        }
+      ]
+    },
+    "actual_run_source_relation": "The actual writer and fresh-reader commands ran at e536bab. The c7c696... checkpoint is the later source readback; its parent is the execution HEAD and the three V3 file hashes match the bytes captured before/after the run."
+  },
+  "historical_v4_execution": {
+    "record_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/econml-macos-arm64-worker-prototype.json",
+    "record_sha256": "b6482af1701ddb2d44defee4fc39d8ee682b0672a599c0397d31551337ea16ab",
+    "record_status": "executed_candidate_computation_only",
+    "execution_head": "297b0557511234bb4b1bd3b09991cef0bd050a3f",
+    "execution_tree": "ad9ecc1c4bf2acd57b187b5a2534aa9f3b2d3ffd",
+    "method_job_id": "job:81d7cc9123fe6824a9f87e376a08471091e8d1662e4448c44769aeb3c32fa1fa",
+    "historical_fit_repeated_by_v3": false,
+    "v4_source_profile_checkpoint": {
+      "head": "19b0486608f0c134fcbff174c88d32fef82edafe",
+      "tree": "b193643df4dcc876b1ccb8202411db099610f79e",
+      "parent": "297b0557511234bb4b1bd3b09991cef0bd050a3f",
+      "local_readback": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-prototype-source-checkpoint-20261010/readback.json",
+        "sha256": "54f5b03a181f2b443934d4ccf6693c9685de8561bed3aae27a1f07abed9dfee2"
+      },
+      "remote_readback": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-prototype-source-checkpoint-20261010/remote-readback.json",
+        "sha256": "7b6b827288354289a5b48eff480cfb3ac4d5de1ef576d557436324a0a3391fe7"
+      },
+      "profile_source_files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/.python-version",
+          "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/README.md",
+          "sha256": "16ade74cdf2f2dea8e31c09ed31c22bcca8fb416bceb7344e010ca680d588e7e"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/__init__.py",
+          "sha256": "78c552cca6ab9fc4fdfd1ce7224334638b2151a764fc5581e2007420f56f6822"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/bridge.py",
+          "sha256": "3d2aa2c2997117dfeebd5d712017b5a243f733b3ba5acbe4318ea9adecb9c5e8"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/method_job_harness.py",
+          "sha256": "f59cda52d2178abc0eb3ef7d576ec186356aa0e2366a1cb47960baf94e166a6d"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/protocol.py",
+          "sha256": "8fac20b4d13dfeb4e53b9b1d5d8a58ffb2da060d22693bb61da0570fa1ddedc2"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/pyproject.toml",
+          "sha256": "bd25749dfdb5a7bcf8833d2c23916a823e61cdf09d874c336e033b599fb1c15b"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/uv.lock",
+          "sha256": "5016a249a7dbe37ad22a3e0e15ab495b9e63a5a2d7c3f68cbcba04ad09fbfb0d"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/worker.py",
+          "sha256": "39828653fe092413f140203a93854864b2c61fceca62fd54a6c5c478d7cc8855"
+        }
+      ]
+    },
+    "existing_v4_cas_artifacts_unchanged": [
+      {
+        "role": "source",
+        "artifact_ref": {
+          "artifact_id": "sha256:b1d4e29a4dc5a77cb617572f087f497bfb50abae19f900f2b40e70e0f3c3b9dc",
+          "kind": "prototype.hte_observational_data",
+          "media_type": "application/json"
+        },
+        "manifest_sha256": "66c0e7e7e58a89d7a3ddc4166f5effd21fd8d3a28e141a5a6d9858dab41443c3",
+        "schema": {
+          "name": "prototype.HTEObservationalData",
+          "version": "1.0.0"
+        },
+        "manifest_inputs": []
+      },
+      {
+        "role": "adapter",
+        "artifact_ref": {
+          "artifact_id": "sha256:3c22f5e16e3d21ffe5ef7e9ccd405f8474b48db6ff117eed861c48cad1ff1241",
+          "kind": "scientist.unified_dag_adapter",
+          "media_type": "application/json"
+        },
+        "manifest_sha256": "b031f16516428da4dd7e1eba9b0ad9b5c372fa3327f7075da2120ea135cb62ba",
+        "schema": {
+          "name": "polisyos.scientist.UnifiedDagAdapter",
+          "version": "0.1.0"
+        },
+        "manifest_inputs": []
+      },
+      {
+        "role": "method_result",
+        "artifact_ref": {
+          "artifact_id": "sha256:436675a2a5440340ee9ef0c058fdfe01c4fb8282e778db880778ba9f9be45303",
+          "kind": "scientist.method_result.causal.hte",
+          "media_type": "application/json"
+        },
+        "manifest_sha256": "563735986c2bd020eae495acf8af629f0615a8281824f32d158ccbd3c1fb2d5c",
+        "schema": {
+          "name": "polisyos.scientist.MethodResult",
+          "version": "0.1.0"
+        },
+        "manifest_inputs": [
+          {
+            "artifact_id": "sha256:b1d4e29a4dc5a77cb617572f087f497bfb50abae19f900f2b40e70e0f3c3b9dc",
+            "role": "input:hte_data"
+          }
+        ]
+      },
+      {
+        "role": "method_evidence",
+        "artifact_ref": {
+          "artifact_id": "sha256:43cacb0bbf2a68939165b9d537de6d79949846afa7a3642dbede829e2b28d241",
+          "kind": "scientist.method_evidence",
+          "media_type": "application/json"
+        },
+        "manifest_sha256": "897107e96098dcafef2bdd2575e9712484e7635ff148acfcc38a567529906778",
+        "schema": {
+          "name": "polisyos.scientist.MethodExecutionEvidence",
+          "version": "0.1.0"
+        },
+        "manifest_inputs": [
+          {
+            "artifact_id": "sha256:436675a2a5440340ee9ef0c058fdfe01c4fb8282e778db880778ba9f9be45303",
+            "role": "method_result"
+          }
+        ]
+      }
+    ]
+  },
+  "selected_profile_and_inputs": {
+    "profile_id": "econml-0.16.0-py312-macos-arm64-v4-prototype",
+    "method_fqn": "causal.hte.double_ml_worker_prototype@0.2.0",
+    "method_signature_sha256": "d7a98b743df9f1b5909c2eb07b5fc5dcac0fd4049d420eb4408c021aa5bb985e",
+    "dispatch_backend": "numpy",
+    "worker": {
+      "python_version": "3.12.12",
+      "implementation": "CPython",
+      "machine": "arm64",
+      "macos_version": "27.0.1",
+      "sys_platform": "darwin",
+      "executable": "/Users/deniskopylov/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/bin/python3.12",
+      "estimator_fqn": "econml.dml.LinearDML",
+      "distribution_count": 25,
+      "distributions": {
+        "cloudpickle": "3.1.2",
+        "econml": "0.16.0",
+        "formulaic": "1.2.2",
+        "interface-meta": "2.0.1",
+        "joblib": "1.6.0",
+        "lightgbm": "4.7.0",
+        "llvmlite": "0.50.0",
+        "narwhals": "2.27.1",
+        "numba": "0.68.0",
+        "numpy": "2.5.3",
+        "packaging": "26.3",
+        "pandas": "3.0.6",
+        "patsy": "1.0.3",
+        "python-dateutil": "2.9.0.post0",
+        "scikit-learn": "1.6.1",
+        "scipy": "1.18.1",
+        "shap": "0.48.0",
+        "six": "1.17.0",
+        "slicer": "0.0.8",
+        "sparse": "0.19.2",
+        "statsmodels": "0.15.0",
+        "threadpoolctl": "3.7.0",
+        "tqdm": "4.70.1",
+        "typing-extensions": "4.16.0",
+        "wrapt": "2.5.0"
+      },
+      "lock_sha256": "5016a249a7dbe37ad22a3e0e15ab495b9e63a5a2d7c3f68cbcba04ad09fbfb0d"
+    },
+    "method_job_host": {
+      "implementation": "CPython",
+      "machine": "arm64",
+      "macos_version": "27.0.1",
+      "python_version": "3.14.3",
+      "sys_platform": "darwin"
+    },
+    "fixture": {
+      "authority_note": "controlled repository fixture, not an independently issued observational dataset",
+      "data_sha256": "50e2046901039accd048451a3d7759c0bb7aee505a1b7d29370552cf6951896a",
+      "producer_function": "_synthetic_hte_data(n=400, seed=42)",
+      "producer_path": "tests/unit/foundry/methods/catalog/causal/test_hte_methods.py",
+      "producer_sha256": "0abb23a8e056aa7d77601647c2834945bfce7b97c67d3d9bd3b31dd2d19f6127",
+      "request_id": "58555d0c665d92b77b44c68080c5027d3d33b66396886a600196852c6970524e",
+      "request_sha256": "9893ae87238ad505d6aaf8436dcb0c285eecd0c929f3d9581dd8e9c47bc5281b",
+      "row_order_sha256": "27062dbb3a90ce7aa097f4bee5f61ee736b22131c02ae3fd701765864dfa440d",
+      "rows": 400,
+      "seed": 42,
+      "source_artifact_ref": {
+        "artifact_id": "sha256:b1d4e29a4dc5a77cb617572f087f497bfb50abae19f900f2b40e70e0f3c3b9dc",
+        "kind": "prototype.hte_observational_data",
+        "media_type": "application/json"
+      },
+      "source_content_sha256": "b1d4e29a4dc5a77cb617572f087f497bfb50abae19f900f2b40e70e0f3c3b9dc"
+    },
+    "method_configuration": {
+      "confidence_level": {
+        "_type": "float",
+        "repr": "0.94999999999999996"
+      },
+      "control_value": 0,
+      "cv_folds": 3,
+      "discrete_treatment": true,
+      "estimator_fqn": "econml.dml.LinearDML",
+      "model_t": "auto",
+      "model_y": "auto",
+      "treatment_value": 1
+    },
+    "direct_reference_evidence": {
+      "comparison": "separate direct LinearDML fit on the same serialized rows, estimator configuration, and seed; exact equality asserted for ATE, all CATE entries, and the ATE interval",
+      "configuration": {
+        "confidence_level": {
+          "_type": "float",
+          "repr": "0.94999999999999996"
+        },
+        "control_value": 0,
+        "cv_folds": 3,
+        "discrete_treatment": true,
+        "estimator_fqn": "econml.dml.LinearDML",
+        "model_t": "auto",
+        "model_y": "auto",
+        "treatment_value": 1
+      },
+      "reference": "exact_same_data_config_seed_match",
+      "worker_observed": {
+        "ate": {
+          "_type": "float",
+          "repr": "-0.02827941536086603"
+        },
+        "ate_ci_lower": {
+          "_type": "float",
+          "repr": "-0.10944755413574433"
+        },
+        "ate_ci_upper": {
+          "_type": "float",
+          "repr": "0.052888723414012268"
+        },
+        "cate_count": 400
+      }
+    },
+    "diagnostic_only": {
+      "cate_rmse_against_dgp": 0.05343729401821093,
+      "known_sample_ate": 0.0014882616631714308
+    }
+  },
+  "v3_posthoc_binding": {
+    "identity": "candidate.econml.v4.posthoc_cas_binding@0.3.0",
+    "envelope_ref": {
+      "artifact_id": "sha256:67be93d89c721459bd0abb7206c0cd9b891a4a91f632ce399dae7c1b8f27577c",
+      "kind": "candidate.econml.historical_methodjob_binding.v3",
+      "media_type": "application/json"
+    },
+    "authority": "candidate_computation_only",
+    "result_gate_eligible": false,
+    "binding_refs": {
+      "adapter": {
+        "artifact_id": "sha256:3c22f5e16e3d21ffe5ef7e9ccd405f8474b48db6ff117eed861c48cad1ff1241",
+        "kind": "scientist.unified_dag_adapter",
+        "media_type": "application/json"
+      },
+      "binding_producer_source": {
+        "artifact_id": "sha256:44116673642f46cd02627c9fabe69ce747db7cba3949b7e97167ce45253fd1ea",
+        "kind": "candidate.econml.posthoc_binding_producer_source",
+        "media_type": "application/octet-stream"
+      },
+      "method_evidence": {
+        "artifact_id": "sha256:43cacb0bbf2a68939165b9d537de6d79949846afa7a3642dbede829e2b28d241",
+        "kind": "scientist.method_evidence",
+        "media_type": "application/json"
+      },
+      "method_result": {
+        "artifact_id": "sha256:436675a2a5440340ee9ef0c058fdfe01c4fb8282e778db880778ba9f9be45303",
+        "kind": "scientist.method_result.causal.hte",
+        "media_type": "application/json"
+      },
+      "remote_checkpoint_readback": {
+        "artifact_id": "sha256:7b6b827288354289a5b48eff480cfb3ac4d5de1ef576d557436324a0a3391fe7",
+        "kind": "candidate.econml.v4_remote_profile_source_readback",
+        "media_type": "application/json"
+      },
+      "source": {
+        "artifact_id": "sha256:b1d4e29a4dc5a77cb617572f087f497bfb50abae19f900f2b40e70e0f3c3b9dc",
+        "kind": "prototype.hte_observational_data",
+        "media_type": "application/json"
+      },
+      "source_checkpoint_readback": {
+        "artifact_id": "sha256:54f5b03a181f2b443934d4ccf6693c9685de8561bed3aae27a1f07abed9dfee2",
+        "kind": "candidate.econml.v4_profile_source_readback",
+        "media_type": "application/json"
+      },
+      "v4_execution_record": {
+        "artifact_id": "sha256:b6482af1701ddb2d44defee4fc39d8ee682b0672a599c0397d31551337ea16ab",
+        "kind": "candidate.econml.v4_execution_record",
+        "media_type": "application/json"
+      },
+      "worker_profile": {
+        "artifact_id": "sha256:539bc2e15b63035e7d2d55d4660aa6839376147ec44ca1127f61bedeb8d78d14",
+        "kind": "candidate.econml.worker_profile_reconciliation.v3",
+        "media_type": "application/json"
+      }
+    },
+    "writer_profile_asset_count": 9,
+    "writer_cas_write_count": 15,
+    "all_22_negative_controls_refused": true,
+    "negative_control_count": 22,
+    "negative_control_details_source": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/fresh-reader-output.json",
+      "sha256": "3aa0e3251a325b5d4fdf4111fa1208cd1afab47eacc7a89f91ef2d05a2a33ef5",
+      "bytes": 9031
+    },
+    "limitations": [
+      "posthoc_reconciliation_not_a_profile_ref_emitted_by_the_historical_method_job",
+      "candidate_computation_only_not_causal_identification_or_calibration",
+      "no_generic_structured_slot_abi_or_product_methodjob_lineage_extension",
+      "unsigned_local_prototype_no_external_verifier_or_production_support"
+    ],
+    "descriptor_selected_for_execution": false
+  },
+  "execution_commands": {
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "head": "e536bab756ca5538b105205f27a627625dd1da72",
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    },
+    "capture_source_sha256": "080a695e7f712a31e30acb47654b27f87ba4f82e82d4981e3d67b0a34093ec88",
+    "writer": {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/reconcile_v4_cas.py",
+        "write",
+        "--pointer",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/binding-ref.json"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 5.7136847919318825,
+      "capture": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-v4-posthoc-cas-binding-v3-writer-20261011/command.json",
+        "sha256": "02a6e3fb0f1eb3b365bff08bd24803b6852207244ba58e7d62f4c16c3d1a1b5e",
+        "bytes": 824121
+      },
+      "stdout": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-v4-posthoc-cas-binding-v3-writer-20261011/stdout.txt",
+        "sha256": "9cc9587f4121e27a3459aba34f17646dd5a2c60f723c78bf27d283b059d95635",
+        "bytes": 873
+      },
+      "stderr": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-v4-posthoc-cas-binding-v3-writer-20261011/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "expected_status_observed": "written_candidate_only_posthoc_binding",
+      "semantic_output": {
+        "authority": "candidate_computation_only",
+        "cas_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-mac-real-methodjob-cas-fresh-reader-prototype-v4/cas",
+        "cas_writes": 15,
+        "envelope_ref": {
+          "artifact_id": "sha256:67be93d89c721459bd0abb7206c0cd9b891a4a91f632ce399dae7c1b8f27577c",
+          "kind": "candidate.econml.historical_methodjob_binding.v3",
+          "media_type": "application/json"
+        },
+        "pointer_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/binding-ref.json",
+        "profile_asset_count": 9,
+        "record_sha256": "b6482af1701ddb2d44defee4fc39d8ee682b0672a599c0397d31551337ea16ab",
+        "status": "written_candidate_only_posthoc_binding"
+      }
+    },
+    "fresh_reader": {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/reconcile_v4_cas.py",
+        "read",
+        "--pointer",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/binding-ref.json",
+        "--output",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/fresh-reader-output.json"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 5.97097262495663,
+      "capture": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-v4-posthoc-cas-binding-v3-fresh-reader-20261011/command.json",
+        "sha256": "d9d6f19b8ee2244f77360dc99b75b9c9c201fea09f16476bcdd260389d840585",
+        "bytes": 825640
+      },
+      "stdout": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-v4-posthoc-cas-binding-v3-fresh-reader-20261011/stdout.txt",
+        "sha256": "9c0ae3e89da18037e6ac8046d1469277c5c09d9abd4afacd83f8bc2e6b7dd042",
+        "bytes": 10873
+      },
+      "stderr": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-v4-posthoc-cas-binding-v3-fresh-reader-20261011/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "expected_status_observed": "fresh_process_candidate_binding_read_succeeded",
+      "semantic_output": {
+        "authority": "candidate_computation_only",
+        "binding_identity": "candidate.econml.v4.posthoc_cas_binding@0.3.0",
+        "method_job_id": "job:81d7cc9123fe6824a9f87e376a08471091e8d1662e4448c44769aeb3c32fa1fa",
+        "method_fqn": "causal.hte.double_ml_worker_prototype@0.2.0",
+        "profile_id": "econml-0.16.0-py312-macos-arm64-v4-prototype",
+        "source_rows": 400,
+        "result_gate_eligible": false
+      },
+      "output_artifact": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-v4-cas-binding-prototype-v3-20261011/fresh-reader-output.json",
+        "sha256": "3aa0e3251a325b5d4fdf4111fa1208cd1afab47eacc7a89f91ef2d05a2a33ef5",
+        "bytes": 9031
+      }
+    }
+  },
+  "claim_boundaries_and_remaining_choices": {
+    "status": "candidate computation only; independent post-run behavioral review returned GO, scoped to post-hoc binding",
+    "pre_run_source_review": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/econml-v4-cas-binding-v3-independent-20261011.md",
+      "sha256": "1029abd5e750115d473d8ac1cb619c75daeabcea0e82f71e176524421682ef86",
+      "verdict_scope": "source-only GO for the bounded attempt; review explicitly preceded execution"
+    },
+    "post_run_independent_behavioral_review": {
+      "status": "go_scoped_posthoc_candidate_binding_only",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/econml-v4-posthoc-cas-binding-v3-independent-readonly-20261011.md",
+      "sha256": "a41e0ec3fb884f4499c7529affa6f1f9ea92ca5844f157bb72c01ede9d897c3f",
+      "disposition": "Independent read-only review is GO for the exact V3 post-hoc writer/fresh-reader result, scoped to candidate computation binding over the historical V4 run.",
+      "explicit_nonclaims": [
+        "descriptor_selected_for_execution is false; the descriptor does not attest that this profile was selected by the historical MethodJob execution.",
+        "The binding was not emitted by the original MethodJob producer and is not original producer attestation.",
+        "No causal identification, calibration, governance/admissibility authority, or policy-validity claim follows.",
+        "No external custody, issuer signature, or currentness attestation follows.",
+        "No package-byte identity claim follows; host, worker, and backend evidence remain distinct runtime scopes.",
+        "No product MethodJob structured-input ABI or production backend support is established."
+      ],
+      "verified_preservation": "All four original V4 CAS refs and their recorded manifests were independently read back and matched; the 22 distinct negative controls all refused."
+    },
+    "g_choices_and_limits": [
+      "V3 creates a post-hoc binding; it was not emitted as a profile reference by the historical MethodJob producer.",
+      "The original DML method declares hte_data as MATRIX while the executed wrapper consumes a structured HTEObservationalData value. V3 does not resolve that slot ABI or close the original four HTE methods.",
+      "This local prototype has no external verifier signature or production backend-support claim.",
+      "The successful fit and same-data/config/seed direct LinearDML comparison support computational equivalence only. The DGP RMSE/sample ATE are diagnostics, not causal-identification, accuracy, calibration, external-validity, or policy-admissibility evidence.",
+      "Host and isolated-worker dependency inventories are separate scopes. This record binds selected worker lock/source and observed worker inventory; it does not assert installed package byte identity or make host inventory a worker proxy.",
+      "No formal original criterion closure is requested or inferred. The narrow execution can be linked as candidate-computation evidence only where a criterion admits that exact property, with all other source/consumer dependencies evaluated separately."
+    ],
+    "next_decision": "Independent post-run review must read the immutable V3 source, exact writer and fresh-reader captures, and the 22 refusal outputs. Any structured-slot ABI or original-producer profile lineage change requires separate G adjudication; do not retrofit V3 as historical producer evidence."
+  }
+}

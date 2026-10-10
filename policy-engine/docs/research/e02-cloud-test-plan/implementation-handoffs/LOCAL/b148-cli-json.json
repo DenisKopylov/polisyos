@@ -1,0 +1,262 @@
+{
+  "schema": "policyos.e02.local_slice_handoff.v1",
+  "recorded_on": "2026-10-11",
+  "slice_id": "b148-cli-json-refusal-projection",
+  "related_criterion_ids": [
+    "B148"
+  ],
+  "slice_base": {
+    "commit": "2f2ad171b448fb9ed17cd2d97b977c3ed2ad6377",
+    "tree": "8af00c363e7bb890495f4ac666fc3c65b396a42c"
+  },
+  "candidate_source": {
+    "commit": "405e685b72f94455f93a5f0d9848a4df68ffd3e2",
+    "tree": "459f2205dd90d1ff23c87ea673f9c73b0692be2e"
+  },
+  "parents": [
+    "2f2ad171b448fb9ed17cd2d97b977c3ed2ad6377"
+  ],
+  "source_freeze": "pending",
+  "source_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/core/components/_cli_replay.py",
+      "change": "M",
+      "git_blob": "b410f2934aa4830ba1e337b103340a0fd8529f6a",
+      "sha256": "44519d13c82169a16e61bfe0eab31dd4139a41888595657f91bd78124a49a138"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/components/test_cli_replay.py",
+      "change": "A",
+      "git_blob": "e326defcfee4410a746a99971d2d7dc68279e1b9",
+      "sha256": "3939b4a97e39b957ae859b7dd9e0e1176c24db763427fd19ac04301570c8533e"
+    }
+  ],
+  "source_footprint_file_types": {
+    ".py": 2
+  },
+  "publication": {
+    "status": "remote_checkpoint_verified",
+    "verified_checkpoint": "405e685b72f94455f93a5f0d9848a4df68ffd3e2",
+    "remote_tip": {
+      "commit": "405e685b72f94455f93a5f0d9848a4df68ffd3e2",
+      "tree": "459f2205dd90d1ff23c87ea673f9c73b0692be2e"
+    },
+    "verified_changed_files": 2,
+    "exact_changed_files_and_bytes": true,
+    "readback": {
+      "path": "LOCAL/raw/b148-cli-json-implementation-checkpoint-20261011/remote-readback.json",
+      "sha256": "00ef46d7dd98613a1c2e1b3b0f8becc8db4fadbeccd706be0df95cf18939bb1f"
+    }
+  },
+  "selected_inputs": [
+    {
+      "profile": "Product source checkout; focused pytest and Ruff checks",
+      "pytest_selectors": [
+        "tests/unit/core/components/test_cli_replay.py::test_replay_export_json_reports_refused_bundle_import",
+        "tests/unit/remediation/test_cas_02.py::test_import_verifies_before_publication_and_preserves_prior_generation",
+        "tests/unit/remediation/test_cas_02.py::test_import_preserves_distinct_manifest_profile_as_selected_view",
+        "tests/unit/core/artifacts/test_transfer_import_fresh_process.py::test_imported_view_survives_fresh_process_and_rejects_disk_corruption"
+      ],
+      "test_input_denominator": {
+        "captured_paths": 6158,
+        "file_types": {
+          ".py": 6151,
+          ".pyi": 5,
+          ".toml": 1,
+          ".lock": 1
+        },
+        "before_after_equal": true,
+        "candidate_source_and_test_bytes_match_before_and_after": true
+      },
+      "purpose": "Exercise the real replay CLI's refused-bundle JSON projection alongside selected importer preservation, profile-view, and fresh-process corruption controls."
+    }
+  ],
+  "commands": [
+    {
+      "command_id": "b148-cli-refusal-and-real-import-preservation-20261011",
+      "status": "PASS",
+      "exit_code": 0,
+      "command_head": "2f2ad171b448fb9ed17cd2d97b977c3ed2ad6377",
+      "wrapper_wall_seconds": 9.901905542006716,
+      "pytest_result": {
+        "passed": 5,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "junit_inner_seconds": 6.839,
+        "parameterized_case_count": 2
+      },
+      "source_capture": {
+        "captured_paths_unchanged": true,
+        "candidate_cli_source_matches_before_and_after": true,
+        "candidate_test_source_matches_before_and_after": true,
+        "command_head_is_slice_base": true,
+        "qualification": "The command ran at the slice-base HEAD with the exact candidate source and test bytes already present in the worktree and captured unchanged before and after; the run is not described as executing candidate HEAD."
+      },
+      "command_record": {
+        "path": "LOCAL/raw/batched-blocking-focused-20261010/b148-cli-refusal-and-real-import-preservation-20261011/command.json",
+        "sha256": "2986089c816b9822cf99feef271f764efc00a1e2667ecfa6543110f429015651"
+      },
+      "outputs": {
+        "stdout": {
+          "path": "LOCAL/raw/batched-blocking-focused-20261010/b148-cli-refusal-and-real-import-preservation-20261011/stdout.txt",
+          "sha256": "afcb2e8dfb513e9466be3afe30ee90d749e81a5df9716c581095a522e26f6712"
+        },
+        "stderr": {
+          "path": "LOCAL/raw/batched-blocking-focused-20261010/b148-cli-refusal-and-real-import-preservation-20261011/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "junit": {
+          "path": "LOCAL/raw/batched-blocking-focused-20261010/b148-cli-refusal-and-real-import-preservation-20261011/junit.xml",
+          "sha256": "053fcee31a70619abf0cdb457b5c126f7aa83d1b6353ca458fad027e1aadecbe"
+        }
+      }
+    },
+    {
+      "command_id": "b148-cli-two-path-canonical-ruff-20261011",
+      "status": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.1066247500712052,
+      "input_denominator": {
+        "captured_paths": 5,
+        "file_types": {
+          ".py": 2,
+          ".toml": 3
+        },
+        "all_inputs_stable_before_after": true
+      },
+      "command_record": {
+        "path": "LOCAL/raw/batched-blocking-focused-20261010/b148-cli-two-path-canonical-ruff-20261011/command.json",
+        "sha256": "36d87e0df4a5b57781496d62c02cf0f6164fa4f5bb71ae43535d0976de05a6a4"
+      },
+      "outputs": {
+        "stdout": {
+          "path": "LOCAL/raw/batched-blocking-focused-20261010/b148-cli-two-path-canonical-ruff-20261011/stdout.txt",
+          "bytes": 2,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "stderr": {
+          "path": "LOCAL/raw/batched-blocking-focused-20261010/b148-cli-two-path-canonical-ruff-20261011/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ],
+  "chain": {
+    "producer": "The replay CLI imports a directory bundle into its temporary FileSystemCAS through the existing artifact importer.",
+    "artifact": "On a corrupted single-member bundle, the importer returns its typed ImportReport with the verification-failed artifact ID and no staged files.",
+    "bridge": "The real runtime_cli.main replay dispatch observes the missing root graph and projects the import report into the CLI JSON response instead of hiding it behind the generic graph-unavailable error.",
+    "consumer": "The test parses stdout JSON and asserts graph-unavailable status, the full bundle_import refusal fields, exit code 1, and empty stderr."
+  },
+  "controls": [
+    {
+      "case": "test_replay_export_json_reports_refused_bundle_import",
+      "result": "PASS",
+      "property": "Corrupt the exported artifact blob while keeping the bundle inventory, invoke the actual replay CLI, and require the refusal report to remain visible in JSON when no complete graph can be loaded.",
+      "observed_refusal": {
+        "imported_files": 0,
+        "imported_artifacts": 1,
+        "verification_failed": "the corrupted artifact ID"
+      }
+    },
+    {
+      "cases": [
+        "test_import_verifies_before_publication_and_preserves_prior_generation[False-directory]",
+        "test_import_verifies_before_publication_and_preserves_prior_generation[True-tar]"
+      ],
+      "result": "PASS",
+      "property": "The API-level importer refuses corrupted input before publication and preserves the previously readable generation for both directory and tar sources."
+    },
+    {
+      "case": "test_import_preserves_distinct_manifest_profile_as_selected_view",
+      "result": "PASS",
+      "property": "The selected read view retains its distinct manifest profile."
+    },
+    {
+      "case": "test_imported_view_survives_fresh_process_and_rejects_disk_corruption",
+      "result": "PASS",
+      "property": "A fresh process can read the imported view and rejects subsequent disk corruption; this does not make the CLI test itself a fresh-process or persistent-store test."
+    }
+  ],
+  "quality_check": {
+    "status": "PASS",
+    "command_record": {
+      "path": "LOCAL/raw/batched-blocking-focused-20261010/b148-cli-two-path-canonical-ruff-20261011/command.json",
+      "sha256": "36d87e0df4a5b57781496d62c02cf0f6164fa4f5bb71ae43535d0976de05a6a4"
+    },
+    "diagnostics": 0,
+    "scope": "The two changed Python paths under three captured canonical Ruff TOML configurations; no broader Ruff claim."
+  },
+  "consumer_surface": {
+    "path": "policy-engine/tools/ops_runners/runtime_cli.py replay command with --bundle, --export, and --json",
+    "qualification": "Actual in-process source-tree CLI consumer path with a real CAS-backed corrupted bundle and a controlled synthetic replay packet; no successful graph/export, persistent tenant store, installed-wheel, external-law, or production invocation claim."
+  },
+  "limitations": [
+    "The CLI test creates a fresh temporary CAS and uses an empty test replay packet before corrupting its only bundle blob. It proves refusal-report projection, not preservation of a prior readable generation through the CLI route.",
+    "The three additional API tests separately cover prior-generation preservation, selected profile view, and a fresh-process read/corruption control; they do not complete the full B148 checked/published/refused outcome contract.",
+    "The valid complete-bundle graph/export path was not run. The new successful-export field and the broader distinct outcome-unit semantics remain unverified.",
+    "The CLI path calls import_subgraph with verify_integrity=False; mandatory artifact/member binding still rejects this corrupted blob before staging, but this does not verify staged-manifest behavior for that route.",
+    "The report fields keep existing meanings: imported_artifacts counts distinct IDs encountered, imported_files counts staged member files on publication and is zero on refusal, and imported_refs is omitted from this CLI projection.",
+    "The reviewed source diff also includes an unrelated import-line reflow in _cli_replay.py.",
+    "The focused checks run with candidate bytes in the worktree at the slice-base HEAD; the global source freeze remains pending."
+  ],
+  "independent_review": {
+    "path": "LOCAL/reviews/b148-cli-json-companion-independent-20261011.md",
+    "sha256": "590f5629f3557c32f9165e0efd8b86e94c517aaaf66306f45f5d1a7a979776f5",
+    "disposition": "GO for this bounded CLI JSON refusal-projection companion; not a B148 closure.",
+    "p40_classification": "SAME_CLASS_DEEPER: B148 import-outcome reporting at the CLI consumer edge."
+  },
+  "decision_refs": [
+    {
+      "path": "LOCAL/raw/b148-cli-json-implementation-checkpoint-20261011/readback.json",
+      "sha256": "6c045edcc84ae0315c8902fe1df6277427333e9d800e37283b0ce332582b7c84"
+    },
+    {
+      "path": "LOCAL/raw/b148-cli-json-implementation-checkpoint-20261011/remote-readback.json",
+      "sha256": "00ef46d7dd98613a1c2e1b3b0f8becc8db4fadbeccd706be0df95cf18939bb1f"
+    },
+    {
+      "path": "LOCAL/reviews/b148-cli-json-companion-independent-20261011.md",
+      "sha256": "590f5629f3557c32f9165e0efd8b86e94c517aaaf66306f45f5d1a7a979776f5"
+    },
+    {
+      "path": "LOCAL/t1-t2-intake/b148-report-surface-decision.md",
+      "sha256": "94ba080f17feb3a21395c0d9dee742508e628ce7c039bbd6e4fd408d4d01d7ca"
+    },
+    {
+      "path": "LOCAL/t1-t2-intake/b148-original-import-consumer-final-readiness-20261010.md",
+      "sha256": "640787235ccf7fb2086687db1cbb1604718ad2f2aa31ebf1c1340fd6190429ff"
+    },
+    {
+      "path": "LOCAL/reviews/q2-installed-read-api-companion-r2-independent-20261010.md",
+      "sha256": "719c86f1d1c930b1216390da3f5b58ba3d2ff3bc86a1968ede8127f833d81412"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "sha256": "0881b924e2bb9d9f602df7d2643dddf09fdbf9d04d0de49ce92e139dd60c09d8"
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/runtime_cli.py",
+      "sha256": "60cb4d4d24986e2e007422d74707a5e870a0961519ed24aca217a2fde08e61b9"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+    }
+  ],
+  "pattern_pass": [
+    "P29: the test executes the actual replay CLI and asserts the projected refusal fields, rather than checking for markers or constructor shape.",
+    "P35: the five JUnit cases are reported against four selected Python selectors; source-input counts use the complete 6,158-path before/after capture and its file-type breakdown.",
+    "P38: the tested property is visibility of the integrity refusal when the graph is unavailable; a corrupted bundle whose report was previously hidden is the divergent case.",
+    "P40: this is the same B148 outcome-reporting class at a deeper consumer edge; the known full-outcome and prior-generation CLI gaps remain bounded rather than triggering another instance patch.",
+    "P41: candidate source bytes are matched before and after the base-HEAD run; the record does not call that run candidate-HEAD execution or a full source freeze."
+  ],
+  "capability_assessment": {
+    "bounded_companion": "The refusal report is now projected through the selected replay CLI JSON consumer and is covered by an actual corrupted-bundle test.",
+    "full_b148_state": "verification_missing",
+    "remaining_scope": "Full checked/published/refused outcome semantics, CLI preservation of an existing readable generation, and successful complete-bundle graph/export behavior are not established by this companion."
+  },
+  "proposal_ids": [],
+  "formal_closure_ids": [],
+  "closure_ids": []
+}

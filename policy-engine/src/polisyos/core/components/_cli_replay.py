@@ -22,9 +22,7 @@ __all__ = [
 
 
 def _cmd_replay(args: Any) -> int:
-    scientist_replay = importlib.import_module(
-        "polisyos.scientist.replay.deterministic"
-    )
+    scientist_replay = importlib.import_module("polisyos.scientist.replay.deterministic")
     normalize_artifact_id = scientist_replay.normalize_artifact_id
     completeness_check = scientist_replay.completeness_check
     VerificationConfig = scientist_replay.VerificationConfig
@@ -79,7 +77,17 @@ def _cmd_replay_with_store(
 
     if args.export:
         if completeness.graph is None:
-            print("ERROR: dependency graph is unavailable", file=sys.stderr)
+            if args.json:
+                payload: dict[str, Any] = {"error": "dependency graph is unavailable"}
+                if import_report is not None:
+                    payload["bundle_import"] = {
+                        "imported_files": import_report.imported_files,
+                        "imported_artifacts": import_report.imported_artifacts,
+                        "verification_failed": import_report.verification_failed,
+                    }
+                print(json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True))
+            else:
+                print("ERROR: dependency graph is unavailable", file=sys.stderr)
             return 1
         export_report = store.export_subgraph(
             completeness.graph.all_artifact_ids(),
@@ -99,6 +107,7 @@ def _cmd_replay_with_store(
                 payload["bundle_import"] = {
                     "imported_files": import_report.imported_files,
                     "imported_artifacts": import_report.imported_artifacts,
+                    "verification_failed": import_report.verification_failed,
                 }
             print(json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True))
         else:

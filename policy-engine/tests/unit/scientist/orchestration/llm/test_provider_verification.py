@@ -630,16 +630,36 @@ async def test_provider_preflight_redacts_nested_mapping_key_and_value_urls() ->
     safe_capability_keys = list(report.capabilities)
     assert safe_capability_keys[0] == "https://capabilities.example/v1"
     assert safe_capability_keys[1].startswith("https://capabilities.example/v1#redacted-")
+    assert report.capabilities[safe_capability_keys[1]] == {"second": "retained"}
     nested = report.capabilities[safe_capability_keys[0]]["nested"]
     assert nested["https://inner.example/endpoint"] == "endpoint https://value.example/path"
     assert report.pricing["source"] == "pricing URL https://pricing.example/v1"
 
 
+def _isolate_loopback_preflight_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    for name in (
+        "HTTP_PROXY",
+        "HTTPS_PROXY",
+        "ALL_PROXY",
+        "http_proxy",
+        "https_proxy",
+        "all_proxy",
+    ):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv("NO_PROXY", "127.0.0.1,localhost")
+    monkeypatch.setenv("no_proxy", "127.0.0.1,localhost")
+    monkeypatch.delenv("POLISYOS_LLM_SIMULATION_MODE", raising=False)
+
+
 @pytest.mark.asyncio
-async def test_provider_preflight_does_not_forward_bearer_to_cross_origin_redirect() -> None:
+async def test_provider_preflight_does_not_forward_bearer_to_cross_origin_redirect(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     import json as json_module
     from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
     from threading import Thread
+
+    _isolate_loopback_preflight_environment(monkeypatch)
 
     origin_authorizations: list[str | None] = []
     redirected_authorizations: list[str | None] = []
@@ -718,3 +738,86 @@ async def test_provider_preflight_does_not_forward_bearer_to_cross_origin_redire
     assert report.checks[0].details["url"] == (
         f"http://127.0.0.1:{origin_server.server_port}/health"
     )
+
+
+@pytest.mark.asyncio
+async def test_provider_preflight_follows_same_origin_redirect_with_bearer(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import json as json_module
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from threading import Thread
+
+    _isolate_loopback_preflight_environment(monkeypatch)
+
+    observed: list[tuple[str, str | None]] = []
+    responses = {
+        "/health-ready": {"status": "ok"},
+        "/v1/models": {"data": [{"id": "model"}]},
+        "/api/models/capabilities": {},
+        "/api/pricing": {},
+    }
+
+    class _Handler(BaseHTTPRequestHandler):
+        def do_GET(self) -> None:
+            observed.append((self.path, self.headers.get("Authorization")))
+            if self.path == "/health":
+                self.send_response(302)
+                self.send_header(
+                    "Location",
+                    f"http://127.0.0.1:{self.server.server_port}/health-ready",
+                )
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+                return
+
+            payload = json_module.dumps(responses[self.path]).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(payload)))
+            self.end_headers()
+            self.wfile.write(payload)
+
+        def log_message(self, _format: str, *_args: object) -> None:
+            return None
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
+    thread = Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    api_key = "sk-provider-preflight-test-key"
+
+    class _Client:
+        async def generate(self, **_kwargs: Any) -> Any:
+            return SimpleNamespace(content='{"status":"ok"}', request_id="req-test")
+
+        async def aclose(self) -> None:
+            return None
+
+    try:
+        report = await run_provider_preflight(
+            models=["model"],
+            base_url=f"http://127.0.0.1:{server.server_port}/v1",
+            api_key=api_key,
+            client_factory=lambda **_kwargs: _Client(),
+            ttl_s=0,
+        )
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+    assert report.status == "ok"
+    assert report.failure is None
+    assert report.checks[0].status == "ok"
+    assert report.checks[0].details["url"] == (
+        f"http://127.0.0.1:{server.server_port}/health"
+    )
+    assert [path for path, _authorization in observed] == [
+        "/health",
+        "/health-ready",
+        "/v1/models",
+        "/api/models/capabilities",
+        "/api/pricing",
+    ]
+    assert all(authorization == f"Bearer {api_key}" for _, authorization in observed)
+    assert api_key not in report.model_dump_json()

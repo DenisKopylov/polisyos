@@ -692,7 +692,7 @@ def derive_encoder_identity(encoder: object) -> GenerationIdentity:
     modules_method = getattr(encoder, "modules", None)
     modules = list(modules_method()) if callable(modules_method) else [encoder]
     module_config: list[dict[str, object]] = []
-    tokenizers: list[tuple[str, object]] = []
+    tokenizers: list[tuple[str, object, object]] = []
     for module_index, module in enumerate(modules):
         module_config.append(
             {
@@ -702,23 +702,39 @@ def derive_encoder_identity(encoder: object) -> GenerationIdentity:
         )
         tokenizer = getattr(module, "tokenizer", None)
         if tokenizer is not None:
-            tokenizers.append((str(module_index), tokenizer))
+            tokenizers.append((str(module_index), tokenizer, module))
     direct_tokenizer = getattr(encoder, "tokenizer", None)
     if direct_tokenizer is not None and all(
-        direct_tokenizer is not existing for _index, existing in tokenizers
+        direct_tokenizer is not existing for _index, existing, _module in tokenizers
     ):
-        tokenizers.append(("direct", direct_tokenizer))
+        tokenizers.append(("direct", direct_tokenizer, encoder))
     if not tokenizers:
         raise ValueError("encoder does not expose its tokenizer assets")
 
     tokenizer_material: list[dict[str, object]] = []
-    for name, tokenizer in tokenizers:
+    for name, tokenizer, owner_module in tokenizers:
         vocab_method = getattr(tokenizer, "get_vocab", None)
         vocabulary = vocab_method() if callable(vocab_method) else None
         if not isinstance(vocabulary, Mapping) or not vocabulary:
             raise ValueError("encoder tokenizer vocabulary is unavailable")
         backend = getattr(tokenizer, "backend_tokenizer", None)
-        backend_json = backend.to_str() if callable(getattr(backend, "to_str", None)) else None
+        if backend is None:
+            backend_json = None
+        else:
+            backend_to_str = getattr(backend, "to_str", None)
+            if not callable(backend_to_str):
+                raise ValueError("encoder tokenizer backend JSON is unavailable")
+            try:
+                backend_json = backend_to_str()
+            except (AttributeError, RuntimeError, TypeError, ValueError) as exc:
+                raise ValueError("encoder tokenizer backend JSON is unavailable") from exc
+            if not isinstance(backend_json, str):
+                raise ValueError("encoder tokenizer backend JSON is malformed")
+            backend_json = _normalize_backend_request_state(
+                backend,
+                backend_json,
+                expected=_tokenizer_request_state(tokenizer, owner_module),
+            )
         sentencepiece = getattr(tokenizer, "sp_model", None)
         sentencepiece_bytes = None
         if callable(getattr(sentencepiece, "serialized_model_proto", None)):
@@ -740,6 +756,126 @@ def derive_encoder_identity(encoder: object) -> GenerationIdentity:
     _hash_frame(digest, _canonical_json(module_config))
     _hash_frame(digest, _canonical_json(tokenizer_material))
     return GenerationIdentity(content_identity=f"sha256:{digest.hexdigest()}")
+
+
+def _tokenizer_request_state(
+    tokenizer: object,
+    owner_module: object,
+) -> dict[str, dict[str, object]] | None:
+    """Describe the fast-tokenizer API state produced by the shared encode call."""
+    padding_side = getattr(tokenizer, "padding_side", None)
+    truncation_side = getattr(tokenizer, "truncation_side", None)
+    pad_token = getattr(tokenizer, "pad_token", None)
+    pad_token_id = getattr(tokenizer, "pad_token_id", None)
+    pad_token_type_id = getattr(tokenizer, "pad_token_type_id", None)
+    max_length = getattr(owner_module, "max_seq_length", None)
+    if (
+        not isinstance(padding_side, str)
+        or padding_side not in {"left", "right"}
+        or not isinstance(truncation_side, str)
+        or truncation_side not in {"left", "right"}
+        or not isinstance(pad_token, str)
+        or type(pad_token_id) is not int
+        or type(pad_token_type_id) is not int
+        or type(max_length) is not int
+        or max_length <= 0
+    ):
+        return None
+    return {
+        "padding": {
+            "direction": padding_side,
+            "length": None,
+            "pad_id": pad_token_id,
+            "pad_to_multiple_of": None,
+            "pad_token": pad_token,
+            "pad_type_id": pad_token_type_id,
+        },
+        "truncation": {
+            "direction": truncation_side,
+            "max_length": max_length,
+            "strategy": "longest_first",
+            "stride": 0,
+        },
+    }
+
+
+def _normalize_backend_request_state(
+    backend: object,
+    backend_json: str,
+    *,
+    expected: dict[str, dict[str, object]] | None,
+) -> str:
+    """Normalize only verified encode-call state using the tokenizer backend API."""
+
+    def _unique_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+        value: dict[str, object] = {}
+        for key, item in pairs:
+            if key in value:
+                raise ValueError("tokenizer backend JSON contains duplicate keys")
+            value[key] = item
+        return value
+
+    def _reject_constant(value: str) -> object:
+        raise ValueError(f"tokenizer backend JSON contains invalid constant: {value}")
+
+    def _parse(raw: str) -> dict[str, object]:
+        try:
+            parsed = json.loads(
+                raw,
+                object_pairs_hook=_unique_object,
+                parse_constant=_reject_constant,
+            )
+        except (json.JSONDecodeError, TypeError, ValueError) as exc:
+            raise ValueError("encoder tokenizer backend JSON is malformed") from exc
+        if not isinstance(parsed, dict):
+            raise ValueError("encoder tokenizer backend JSON must be an object")
+        return parsed
+
+    def _matches(actual: object, wanted: object) -> bool:
+        try:
+            return _canonical_json(_jsonable(actual)) == _canonical_json(wanted)
+        except (TypeError, ValueError):
+            return False
+
+    _parse(backend_json)
+    if expected is None:
+        return backend_json
+    try:
+        api_state = {name: getattr(backend, name) for name in ("padding", "truncation")}
+    except (AttributeError, RuntimeError, TypeError, ValueError):
+        return backend_json
+    if not all(_matches(api_state[name], value) for name, value in expected.items()):
+        return backend_json
+
+    # The backend API exposes request settings in its native property shape;
+    # serialized field spelling varies by tokenizers version. Round-trip the
+    # serialized object and compare API properties before normalizing a clone.
+    from_str = getattr(type(backend), "from_str", None)
+    if not callable(from_str):
+        return backend_json
+    try:
+        clone = from_str(backend_json)
+        clone_state = {name: getattr(clone, name) for name in ("padding", "truncation")}
+    except (AttributeError, RuntimeError, TypeError, ValueError) as exc:
+        raise ValueError("encoder tokenizer backend JSON cannot be reconstructed") from exc
+    if not all(_matches(clone_state[name], api_state[name]) for name in api_state):
+        return backend_json
+
+    no_padding = getattr(clone, "no_padding", None)
+    no_truncation = getattr(clone, "no_truncation", None)
+    to_str = getattr(clone, "to_str", None)
+    if not callable(no_padding) or not callable(no_truncation) or not callable(to_str):
+        return backend_json
+    try:
+        no_padding()
+        no_truncation()
+        normalized = to_str()
+    except (AttributeError, RuntimeError, TypeError, ValueError) as exc:
+        raise ValueError("encoder tokenizer backend request state cannot be normalized") from exc
+    if not isinstance(normalized, str):
+        raise ValueError("encoder tokenizer backend JSON is malformed")
+    _parse(normalized)
+    return normalized
 
 
 def _tensor_bytes(value: object) -> tuple[bytes, str, tuple[int, ...]]:

@@ -556,10 +556,10 @@ allowed_targets = []
 notes = "Dynamic pattern has no static in-repo target."
 
 [[pattern]]
-id = "dynamic-9f97f1d8cc1e"
+id = "dynamic-64c1f74b1dea"
 pattern = "torch"
 source_file = "src/polisyos/data_forge/kernel/embeddings.py"
-line = 755
+line = 891
 call = "__import__"
 owner = "team-architecture"
 target = "torch"

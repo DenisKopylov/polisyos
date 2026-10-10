@@ -19,6 +19,19 @@
   encoder's executable `encode` behavior, so admission must be supplied by a
   trusted local encoder provider. Unsupported asset shapes are recorded as
   `encoder=unbound`, which cannot match an identified query encoder.
+- The identity derivation canonicalizes only fast-tokenizer backend `padding`
+  and `truncation` values that exactly match the shared SentenceTransformer
+  encode request: tokenizer side, pad token and IDs, and the owning module's
+  `max_seq_length`. It checks the backend's native API properties and confirms
+  that deserializing its JSON reproduces those properties before clearing
+  request settings on a separate backend copy. This prevents request-time
+  state from changing the asset identity while preserving other backend
+  material and all high-level tokenizer/module settings. A present malformed
+  backend JSON refuses identity derivation. This remains a loaded-asset
+  compatibility identity, not proof of arbitrary executable encode behavior.
+  Previously selected generations retain their recorded digest; they are not
+  rewritten in place and may require a real regeneration before the current
+  profile can admit vector reuse or queries.
 - Runtime consumers use the lazy Legal and Catalog read facades for shared
   generation references and identity helpers. `embedding_generation_matches_encoder()`
   recomputes the supplied live encoder identity and compares the selected

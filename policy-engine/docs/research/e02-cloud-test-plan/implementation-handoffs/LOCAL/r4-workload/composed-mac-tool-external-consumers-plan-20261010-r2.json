@@ -270,7 +270,7 @@
           "BLIS_NUM_THREADS": "1",
           "PYTHONDONTWRITEBYTECODE": "1"
         },
-        "purpose": "Keep the separately named docs-accuracy invocation distinct from the aggregate SOTA command, whose freshness gate currently short-circuits on expiry before running it.",
+        "purpose": "Keep the separately named docs-accuracy invocation distinct from the aggregate SOTA command. Current expected_violation_count=0 means the aggregate executes this as its eighteenth child even with the past baseline date; retain the actual child output and qualify any reused result by its exact command and frozen source. The existing zero-count path does not emit a docs-baseline expiry finding; other issuer-owned exception expiry findings remain separate.",
         "outputs": {
           "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/docs-accuracy",
           "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r2/tools/docs-accuracy/stdout.bin",

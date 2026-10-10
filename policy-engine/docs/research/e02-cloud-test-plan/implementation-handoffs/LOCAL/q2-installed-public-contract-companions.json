@@ -1,0 +1,123 @@
+{
+  "schema": "policyos.e02.local_slice_author_capture.v1",
+  "registered_handoff_admission": "NOT_ADMITTED: author preparation only; installed runtime bodies are UNRUN",
+  "slice_id": "q2-installed-public-contract-companions",
+  "slice_base": {
+    "commit": "4123b31bdb84ffc39f9c356a47a3360ebc55182d",
+    "tree": "ec696bdc64f24b5a2ae425b74b1bbba63e288ad8"
+  },
+  "candidate_source": {
+    "commit": "492c8690afeb9481dbf22058f6acbbd477ebdc85",
+    "tree": "2a002f17104e4509fb89e89f3a4c3855a05da296"
+  },
+  "parents": [
+    "4123b31bdb84ffc39f9c356a47a3360ebc55182d"
+  ],
+  "source_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/final-source-linux-wave.sh",
+      "git_blob": "7dcf87885006c7738f429d1018a1547d62b4a3ff",
+      "sha256": "9241d6d695a27e673cd36f6416cfbf03fbc1c383368d642827d7380cfbc71d81"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-manifest.json",
+      "git_blob": "cbddd3e9684a7616eba8ffa5d489d992c322711c",
+      "sha256": "1656e209631d8fa401ed65a87c8fff90e07f5996bf8435da4f860e2dc987f277"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-recipe.md",
+      "git_blob": "6816dcd1545d957de97239cac31e1a132a5d4fae",
+      "sha256": "8b56d6053cc02f5d81e990bd3e93214e5802bfcc98cc61dab57ceb99daf2ab96"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py",
+      "git_blob": "2c48d3942c626b5ee28711f77204e6f795d0a343",
+      "sha256": "a64bab2a692e9f3a88b0693887a430aa3ee2f78e2ca4fa847ed5871ec0c7a3b0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py",
+      "git_blob": "d55486b7df7752df50e3bd79480fae5f9ebfefec",
+      "sha256": "0f6ae40c5fa0a9959718b6eb365c3fa3f4ad172fbae565702c3be357759be312"
+    }
+  ],
+  "selected_input_profile_backend": {
+    "backend": "local macOS Python 3.14.3 syntax preparation; future installed Linux profiles separately frozen",
+    "profile": "source-wheel / rebuilt-sdist-wheel / rebuilt-gcp-archive-wheel preparation",
+    "numerical_threads": 1
+  },
+  "verification": [
+    {
+      "kind": "STATIC_PREPARATION_ONLY",
+      "command": [
+        ".venv/bin/python",
+        "-B",
+        "-c",
+        "import ast,json,pathlib,subprocess; p=pathlib.Path(\"docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL\"); [ast.parse((p/x).read_text()) for x in (\"q2-packaging/raw/run.py\",\"q2-packaging/raw/timeout_driver.py\")]; json.loads((p/\"q2-packaging/installed-wave-manifest.json\").read_text()); subprocess.run([\"/bin/bash\",\"-n\",str(p/\"linux-profile/raw/final-source-linux-wave.sh\")],check=True); print(\"AST/JSON/bash syntax PASS; installed consumer execution UNRUN\")"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "execution_head": "492c8690afeb9481dbf22058f6acbbd477ebdc85",
+      "exit_code": 0,
+      "result": "AST/JSON/bash syntax PASS; installed runtime execution UNRUN",
+      "before_sha256": {
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-manifest.json": "1656e209631d8fa401ed65a87c8fff90e07f5996bf8435da4f860e2dc987f277",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py": "a64bab2a692e9f3a88b0693887a430aa3ee2f78e2ca4fa847ed5871ec0c7a3b0",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py": "0f6ae40c5fa0a9959718b6eb365c3fa3f4ad172fbae565702c3be357759be312",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/final-source-linux-wave.sh": "9241d6d695a27e673cd36f6416cfbf03fbc1c383368d642827d7380cfbc71d81",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-recipe.md": "8b56d6053cc02f5d81e990bd3e93214e5802bfcc98cc61dab57ceb99daf2ab96"
+      },
+      "after_sha256": {
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-manifest.json": "1656e209631d8fa401ed65a87c8fff90e07f5996bf8435da4f860e2dc987f277",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py": "a64bab2a692e9f3a88b0693887a430aa3ee2f78e2ca4fa847ed5871ec0c7a3b0",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py": "0f6ae40c5fa0a9959718b6eb365c3fa3f4ad172fbae565702c3be357759be312",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/final-source-linux-wave.sh": "9241d6d695a27e673cd36f6416cfbf03fbc1c383368d642827d7380cfbc71d81",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-recipe.md": "8b56d6053cc02f5d81e990bd3e93214e5802bfcc98cc61dab57ceb99daf2ab96"
+      },
+      "full_deciding_output": [
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-current-driver-static-verification-20261010/command.json",
+          "sha256": "f6f72f9d371a70f8bc899bb552701daf6c69a85166c3739e88d7b33348595ee0",
+          "bytes": 3139
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-current-driver-static-verification-20261010/stdout.txt",
+          "sha256": "f9cb9f1a0811e9aa57f28fc8471039eac0aa8e4b468b0cd45ed24007ec888c84",
+          "bytes": 62
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-current-driver-static-verification-20261010/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ]
+    }
+  ],
+  "real_chain": "Frozen source archive -> wheel/rebuilt sdist/GCP archive wheel -> installed import prefix -> generic manifest-derived test argv -> Core facade export and catalog normalizer actual identity consumers. Chain is prepared; runtime bodies not yet executed.",
+  "controls": "Historical 100-ID subset unchanged; selected 127-ID denominator includes exactly two new public-contract consumers; 11 force-included resource declarations preserved; owned-bare admission block unchanged. These are static preparation facts, not capability positives.",
+  "consumer_surface": [
+    "tests/repo_quality/architecture/test_public_surface_export_resolution.py::test_catalog_run_profile_is_exported_from_core_contracts_facade",
+    "tests/unit/data_forge/read_api/test_catalog_graph_builders.py::test_country_normalizer_is_exported_by_catalog_read_api"
+  ],
+  "limitations": [
+    "Final candidate/input/backend freeze and all three installed bodies remain required.",
+    "Static parse/selector/digest checks do not prove installed capability.",
+    "Runtime outputs, environments and assets stay ignored; three small execution drivers are tracked explicitly for independent Git review."
+  ],
+  "decision_pointers": [
+    "q2-packaging/q2-installed-read-api-companion-note-r3.md"
+  ],
+  "independent_reviews": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q2-installed-read-api-companion-r3-independent-20261010.md",
+      "sha256": "673c3e6bbfc41ef0e6bd1c62ab9f3a6e070e295b78610f6101fcd7efdd20a364",
+      "bytes": 5366
+    }
+  ],
+  "closure_ids": [],
+  "proposal_fields": {
+    "task_ids": [
+      "Q2"
+    ],
+    "finding_ids": [],
+    "scope": "selected consumer preparation; no original finding closure"
+  }
+}

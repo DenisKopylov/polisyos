@@ -5461,8 +5461,8 @@
                 "path": "src/polisyos/berl/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 1007,
-                "sha256": "b3aa418869b3a4523088770fda6b1e622842f8d4059c85b4ef1a132c8fcfb1b0"
+                "bytes": 1162,
+                "sha256": "5a11422a24c790eeba15bfd432435b360aa89e975fa3c0491e36c274c886c799"
               },
               {
                 "path": "src/polisyos/__init__.py",
@@ -5494,6 +5494,8 @@
               "empirical_bernstein_upper_bound",
               "estimate_local_infidelity",
               "hoeffding_upper_bound",
+              "load_explanation_bundle",
+              "persist_explanation_bundle",
               "summarize_explanation_response",
               "validate_explanation_bundle"
             ],

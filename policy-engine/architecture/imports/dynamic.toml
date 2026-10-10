@@ -1384,10 +1384,10 @@ allowed_targets = []
 notes = "User/plugin supplied module name; call site is inventoried for review."
 
 [[pattern]]
-id = "dynamic-6f17b69e35f7"
+id = "dynamic-97cd29680b53"
 pattern = "psycopg"
 source_file = "src/polisyos/runtime/http/services/control_plane_store.py"
-line = 5245
+line = 5437
 call = "importlib.import_module"
 owner = "team-architecture"
 target = "psycopg"

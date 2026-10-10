@@ -1,0 +1,596 @@
+{
+  "bounded_lineage_claim": {
+    "chain": [
+      {
+        "behavior": "UnsupportedStaticADMGProfileError carries limitation code unsupported_static_admg_profile for unsupported static profiles.",
+        "source": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py@0f3ee0c59df8423c074432faf705ff46e45e30716277c5b15ba34e3e335c1542",
+        "stage": "guard"
+      },
+      {
+        "behavior": "The unsupported-profile path yields a typed oracle_needed/limited result, not an identified effect.",
+        "source": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py@20d053be981aab1270fd984d3810f73b7c5db91000c45d68ede39e2656b0f372",
+        "stage": "typed_result"
+      },
+      {
+        "behavior": "The real utility judge, aggregator, and GraphPriorBuilder preserve the candidate-level identification limitation through their selected output projections.",
+        "sources": [
+          "policy-engine/src/polisyos/scientist/methods/discovery/utility_judge.py@18820e9f12eb97c42b2771323d8277c5cbbeb0faf995f47573fb9518338f4b32",
+          "policy-engine/src/polisyos/scientist/methods/discovery/aggregator.py@0126f9548a719a6a42c999d55391be60da3c698a5f1314333a68392310bcb86b",
+          "policy-engine/src/polisyos/scientist/methods/discovery/priors.py@ec5dc82d749036a4f3f963fc1574e5e2b745a4b59a7c981c437f7abc0bcecce8"
+        ],
+        "stage": "discovery_projection"
+      },
+      {
+        "behavior": "DiscoveryArtifactBuilder persists the full task/hypothesis/matrix/stability/utility/GraphPrior chain. profile_bound_written_ref materializes and verifies the exact CAS manifest view after a successful write or reuse.",
+        "sources": [
+          "policy-engine/src/polisyos/scientist/methods/discovery/artifact_refs.py@cbac1b09dd69f719095a704dd553098538366ad8369f43055fd9ad03b0a2b555",
+          "policy-engine/src/polisyos/scientist/methods/discovery/output.py@ed8eca99149eda4b431e0f2421d75ade240487fd636f59ae62d7d0901c4ee4dc"
+        ],
+        "stage": "persisted_artifacts"
+      },
+      {
+        "behavior": "Fresh consumer resolves profile-bound source refs, recomputes the full selected matrix and GraphPrior projection and identification status, and marks unresolved/mismatched source projections not_established.",
+        "source": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py@393f8984ab32dfb0c631db5f65ac47a95e7f956f289254071964c9d3189c2136",
+        "stage": "fresh_source_reconciliation"
+      },
+      {
+        "behavior": "The cross-graph profile carries INSUFFICIENT evidence, requires expert review, and emits the discovery identification limitation; the strict pass and preflight retain blocker outcomes.",
+        "source": "policy-engine/src/polisyos/scientist/governance/passes/cross_graph_evidence_pass.py@57d91e8b65190f6ee0c5abc386a5fae56b5cf57374be1e2e58abf2219f7b2ab9",
+        "stage": "strict_consumption"
+      }
+    ],
+    "claim_scope": "The controlled candidate demonstrates a persisted typed limitation and exact selected discovery-view lineage consumed by the cross-graph compiler and strict pass.",
+    "exact_view_semantics": {
+      "does_not_prove": [
+        "that this invocation uniquely created the manifest",
+        "the producer’s intent or authority",
+        "external truth of a causal claim"
+      ],
+      "label": "reader_materialized_exact_view",
+      "producer": "successful immutable CAS write or reuse returns a selector; helper derives the stored manifest profile, resolves that selected view, and verifies integrity",
+      "producer_attestation": "not_established"
+    },
+    "not_claimed": [
+      "external causal authority",
+      "producer attestation from the CAS profile selector",
+      "full PAG/CPDAG completion or reconciliation",
+      "temporal-PAG inference",
+      "institutional or live-world facts"
+    ],
+    "predicate_provenance": [
+      {
+        "basis": "derived from stored manifest and CAS exact-view/integrity checks",
+        "classification": "recomputed",
+        "predicate": "selected manifest view and its profile digest"
+      },
+      {
+        "basis": "consumer reruns the existing aggregation/GraphPrior/identification projection from selected persisted inputs",
+        "classification": "recomputed",
+        "predicate": "fresh matrix/GraphPrior source projection and identification status"
+      },
+      {
+        "basis": "current consumer does not independently recreate all score channels and their full production basis",
+        "classification": "not_established",
+        "predicate": "non-identification of all utility score channels and bootstrap score production inputs"
+      },
+      {
+        "basis": "not established by reader-materialized profile identity or this controlled fixture",
+        "classification": "not_established",
+        "predicate": "producer attestation and external issuer/world facts"
+      }
+    ],
+    "question": "Does the static-ADMG limitation emitted for a candidate PAG stay source-bound through discovery persistence, fresh cross-graph consumption, and strict validation?"
+  },
+  "candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "closure_ids": [],
+    "commit": "524caa44fd3b4172c3fd327ab0cddb8435b10512",
+    "full_composed_freeze": "pending",
+    "local_readback": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pag17-implementation-checkpoint-20261011/readback.json",
+      "sha256": "923cd62a784d730208193013e9760efa96b2adc3874abbfa5db96f2b73cf438f"
+    },
+    "parent": "af1f92c82be5ee8e268945b0ce6c77dac9086b8c",
+    "precommit_selected_footprint": {
+      "base": "af1f92c82be5ee8e268945b0ce6c77dac9086b8c",
+      "code_scope": "typed static-profile refusal and discovery selected-view lineage/fresh consumer; full source freeze pending; broader temporal/PAG law not established",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pag17-implementation-checkpoint-20261011/precommit-selected-footprint.json",
+      "sha256": "8db443c4b7bce74f8a3fd0d1672b7f2855ba62154dbb3078385aff5ed2f75b69"
+    },
+    "remote_readback": {
+      "local_readback_sha256_matches": true,
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pag17-implementation-checkpoint-20261011/remote-readback.json",
+      "sha256": "6a3af4da660388bd8aad4891e4a30db1675cfb56d847ac1df0a145ef0fb7ff42"
+    },
+    "remote_ref": "origin/codex/e02-unified-local-20261009",
+    "remote_sha": "524caa44fd3b4172c3fd327ab0cddb8435b10512",
+    "remote_tree": "46c633446eff2092635112334f4118d7d8d172ca",
+    "selected_files": [
+      {
+        "base_sha256": null,
+        "candidate_sha256": "a702c742d26c31b502cfbf6367dfe59b6a0223c8871edd290b7bfea920bfded2",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-10-e02-pag-identification-lineage.toml"
+      },
+      {
+        "base_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a",
+        "candidate_sha256": "0f3ee0c59df8423c074432faf705ff46e45e30716277c5b15ba34e3e335c1542",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py"
+      },
+      {
+        "base_sha256": "7a03ec9c0aae92b309088f4490a6ae1f7bfeddebceeb5a574a95e882e4acbdf7",
+        "candidate_sha256": "20d053be981aab1270fd984d3810f73b7c5db91000c45d68ede39e2656b0f372",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py"
+      },
+      {
+        "base_sha256": "d213d925a817b53141c2b2fdc90c8888405714b26198cb90d239ae2fdb805f2e",
+        "candidate_sha256": "57d91e8b65190f6ee0c5abc386a5fae56b5cf57374be1e2e58abf2219f7b2ab9",
+        "path": "policy-engine/src/polisyos/scientist/governance/passes/cross_graph_evidence_pass.py"
+      },
+      {
+        "base_sha256": "ed8628c5f61db68549aea5604ff49502d9fb00875fcc974736aff4ffa1c572a9",
+        "candidate_sha256": "bb95baaf328e5c94afcb1331d78c7cdb88215fbb98e0bffce0b27868835a6b1b",
+        "path": "policy-engine/src/polisyos/scientist/methods/discovery/README.md"
+      },
+      {
+        "base_sha256": "0100042094f32d9e667a593adee9ce4f6b1a1f69d2a6c6be03a218cd79bf5d3d",
+        "candidate_sha256": "0126f9548a719a6a42c999d55391be60da3c698a5f1314333a68392310bcb86b",
+        "path": "policy-engine/src/polisyos/scientist/methods/discovery/aggregator.py"
+      },
+      {
+        "base_sha256": null,
+        "candidate_sha256": "cbac1b09dd69f719095a704dd553098538366ad8369f43055fd9ad03b0a2b555",
+        "path": "policy-engine/src/polisyos/scientist/methods/discovery/artifact_refs.py"
+      },
+      {
+        "base_sha256": "b697b4c4058a7376bdf0278152e65dcd7f2023e8543e11f243581a7798893206",
+        "candidate_sha256": "ed8eca99149eda4b431e0f2421d75ade240487fd636f59ae62d7d0901c4ee4dc",
+        "path": "policy-engine/src/polisyos/scientist/methods/discovery/output.py"
+      },
+      {
+        "base_sha256": "b8cfd4d5d7555269eb754d9cd992d1788c85a6615b04797cbafa40995982a831",
+        "candidate_sha256": "ec5dc82d749036a4f3f963fc1574e5e2b745a4b59a7c981c437f7abc0bcecce8",
+        "path": "policy-engine/src/polisyos/scientist/methods/discovery/priors.py"
+      },
+      {
+        "base_sha256": "3846e515f6663d3ce5d7242321a37cf6bd2dcbea7aaf8d4a0893953b6d5b44ad",
+        "candidate_sha256": "fe8041bf05d9b1aa6645ed56feb492bae5a6b9409fc5c42d5278102c46567dfb",
+        "path": "policy-engine/src/polisyos/scientist/methods/discovery/schema.py"
+      },
+      {
+        "base_sha256": "c59d048bb5dde4095d8866744bfdb7f4e75a8a272861d03642697e6ecdaa6fd1",
+        "candidate_sha256": "931bb745fb828d988ad86735ab00550f4f02d8b2c06d7288a2eae8a574a0c023",
+        "path": "policy-engine/src/polisyos/scientist/methods/discovery/stability.py"
+      },
+      {
+        "base_sha256": "a61033c5edabb3f50c3a7f4fe4426a1fefecabfb6c5122fe30a9b4d73d2de35d",
+        "candidate_sha256": "18820e9f12eb97c42b2771323d8277c5cbbeb0faf995f47573fb9518338f4b32",
+        "path": "policy-engine/src/polisyos/scientist/methods/discovery/utility_judge.py"
+      },
+      {
+        "base_sha256": "465bb796ec021be6c833d15b1953bf3a02fc4e70000706a2db986c4d8e5da457",
+        "candidate_sha256": "393f8984ab32dfb0c631db5f65ac47a95e7f956f289254071964c9d3189c2136",
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py"
+      },
+      {
+        "base_sha256": "f3f6b9ace213662fcc74ed213edcd0c4a58d7bc1a1ce547c07fca8e05dbb6e65",
+        "candidate_sha256": "b3fafeb22dc95fc6546156bee3cde860a0b0721871dbfc3f9c8849905fe3e208",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py"
+      },
+      {
+        "base_sha256": "757ad2848200bf9ec118d50fcc6a62b409080b3cca505a8b06edcf3bb45b706d",
+        "candidate_sha256": "33ecb387bc4fa11599a53d5c66f9be48c897ab7277ad5f57957cdd813d42f586",
+        "path": "policy-engine/tests/unit/scientist/discovery/test_output.py"
+      },
+      {
+        "base_sha256": "d834a194c801461d73fdac38a7f4e83c0664ed131057b149f108f6fd47191c2a",
+        "candidate_sha256": "0923586b9427fc265fad38590ef828072679f28dad96482fb8f8de6a0a6936f0",
+        "path": "policy-engine/tests/unit/scientist/discovery/test_utility_judge.py"
+      },
+      {
+        "base_sha256": "8ff0008a26610c9f824e5bddd7de1b2a71eee9147e2756fddbb81e9b4958fbe7",
+        "candidate_sha256": "d0493d7fd9aaa86cb907c4d9b3dc3c49b9f37fee4072bf40aec7c48be8448a8c",
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_compile_cross_graph_evidence.py"
+      }
+    ],
+    "selected_path_count": 17,
+    "selected_paths_match_working_readback": true,
+    "tree": "46c633446eff2092635112334f4118d7d8d172ca",
+    "whole_worktree_claimed_as_frozen": false
+  },
+  "historical_v5_artifact_identity": {
+    "available_note_bytes": {
+      "matches_reported_v5_note_hash": false,
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pag-v5-preserved-current-20261011/v5-note-88d995a44163b7c4400ea40cfbd8c3b4b92663a92a341cedad92e33f163e5583.md",
+      "sha256": "88d995a44163b7c4400ea40cfbd8c3b4b92663a92a341cedad92e33f163e5583"
+    },
+    "available_refinement_patch": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pag-v5-preserved-current-20261011/v5-patch-414455712389b7005c3fc3038dd98a72b838def875c64492b049dff4fd6a9b21.patch",
+      "sha256": "414455712389b7005c3fc3038dd98a72b838def875c64492b049dff4fd6a9b21"
+    },
+    "byte_recovery_state": "reported_hash_bytes_unavailable_not_restored",
+    "independent_v5_review": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/pag-v5-wholechain-strict-gate-companion-independent-20261011.md",
+      "sha256": "619290d60c9aa1a0087ba2b75666b3d8c5878bae0a3979b08b1b7576dc12d45e",
+      "treatment": "its NO-GO is bound to observed 414455 patch; it explicitly notes the earlier hash and note drift; no claim is made that 9fc/8702/b7bd bytes were restored or reviewed"
+    },
+    "reported_original_note_sha256": "8702e30b262ea9ac01c2ecdae2ca3f0e3ae0696775dfff6f2291d25f9e6f15bf",
+    "reported_original_patch_sha256": "9fccecb6d4561405b331be7f36def21cf1f1cd3f20480ac9e7ab23209f17a270",
+    "reported_refinement_note_sha256": "b7bd4492fe603ca1ed7881c601aed7fdd439e647bb6f69be8338b62f05706eee"
+  },
+  "independent_reviews": [
+    {
+      "disposition": "NO-GO as complete source-bound bridge; historical V2 review",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/pag-status-bridge-source-bound-independent-20261011.md",
+      "sha256": "ff7ff58f0a13dda784f696053bb354e44883618b17241245754caf11a4ab2d1c"
+    },
+    {
+      "disposition": "PARTIAL / STATIC GO; no behavioral closure",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/pag-status-bridge-basis-identity-v3-independent-20261011.md",
+      "sha256": "c2770f95fcc1ede6082cf669caf49ce3fda1b92dabdb5667d392d263da9979ff"
+    },
+    {
+      "disposition": "GO for bounded exact-view handshake; not producer attestation",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/pag-status-bridge-basis-identity-v4-producer-profile-delta-independent-20261011.md",
+      "sha256": "2691171c730aac10722907c1d92de43d77b153c37e7ab096f0c80db833508429"
+    },
+    {
+      "disposition": "GO for static completion patch; not an execution receipt",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/pag-fresh-reader-companion-independent-20261010.md",
+      "sha256": "e4841fc0892559d60625ee8fea79a2faa0baad011a0f496b5b9884cfb333f10c"
+    },
+    {
+      "disposition": "NO-GO: V5 role-based lineage assertion and artifact identity drift",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/pag-v5-wholechain-strict-gate-companion-independent-20261011.md",
+      "sha256": "619290d60c9aa1a0087ba2b75666b3d8c5878bae0a3979b08b1b7576dc12d45e"
+    },
+    {
+      "disposition": "GO to apply and execute targeted verification; later receipts are separate",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/pag-v6-exact-lineage-wholechain-independent-20261011.md",
+      "sha256": "25afacc0780a9a507bf367b38880f6df1cfae3a36423e4b22b18d8bc12a19ada"
+    },
+    {
+      "disposition": "GO to apply and rerun targeted selector/lint; later receipts are separate",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/pag17-canonical-style-delta-independent-20261011.md",
+      "sha256": "bec36d8e165ba513f5c16cd8b78f10f65fb598b1ac9e2b2d4e563f9494d4cd0f"
+    }
+  ],
+  "open_boundaries": [
+    {
+      "basis": "the commit readback explicitly leaves full_composed_freeze pending and closure_ids empty",
+      "capability_label": "verification_missing",
+      "scope": "full E02 composed candidate / source-input-backend freeze"
+    },
+    {
+      "basis": "fresh GraphPrior/identification recomputation does not independently recompute every upstream utility score channel or its production inputs",
+      "predicate_classification": "not_established",
+      "scope": "full utility score channels and bootstrap-score production inputs"
+    },
+    {
+      "basis": "the tested chain proves a typed static-profile limitation, not a general PAG completion law or temporal consumer",
+      "capability_label": "absent/unallocated",
+      "scope": "broader PAG/CPDAG completion and temporal graph inference"
+    },
+    {
+      "basis": "no issuer or external-world evidence is part of this controlled source-lineage candidate",
+      "capability_label": "surface_out_of_scope",
+      "scope": "external institutional authority and live-world facts"
+    },
+    {
+      "basis": "the ref identifies the exact persisted view after write or reuse, not unique creation or producer intent",
+      "predicate_classification": "not_established",
+      "scope": "producer identity/attestation from an exact CAS profile ref"
+    }
+  ],
+  "original_finding_boundaries": {
+    "closure_claim": false,
+    "findings": [
+      {
+        "boundary": "Query-specific supported DAG/ADMG/PAG operations and persisted limitation; does not require complete PAG reconciliation beyond the original criterion.",
+        "current_treatment": "proposal/boundary reference only; no formal closure claimed",
+        "id": "B214",
+        "source": "docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md@e88b59dd714a192e88ab674e2d1aba376c3881a336f89e88f6ec8093762e16df"
+      },
+      {
+        "boundary": "Historical static-ADMG profile slice identifier.",
+        "current_treatment": "historical reference only; no current formal closure claimed",
+        "id": "B216",
+        "source": "docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json@d71112938c6ee404c4436979df7139a2b6c7948d34fea1597de48ec2d0704818"
+      },
+      {
+        "boundary": "Historical static-ADMG profile slice identifier.",
+        "current_treatment": "historical reference only; no current formal closure claimed",
+        "id": "B217",
+        "source": "docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json@d71112938c6ee404c4436979df7139a2b6c7948d34fea1597de48ec2d0704818"
+      },
+      {
+        "boundary": "Related historical graph/profile finding; does not establish temporal-PAG or broader graph semantics.",
+        "current_treatment": "proposal/boundary reference only; no formal closure claimed",
+        "id": "B220",
+        "source": "docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json@d71112938c6ee404c4436979df7139a2b6c7948d34fea1597de48ec2d0704818"
+      }
+    ],
+    "formal_closure_ids": [],
+    "historical_bundle_ids": [
+      "GRF-01",
+      "GRF-02"
+    ],
+    "source_documents": {
+      "decisions": {
+        "path": "docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+        "sha256": "e88b59dd714a192e88ab674e2d1aba376c3881a336f89e88f6ec8093762e16df"
+      },
+      "failure_repair_register": {
+        "path": "docs/reference/policy-design-case-failure-patterns.md",
+        "sha256": "a64956e284b411276a16a612afffb1fb42daf03ffef8f7ef1c3f3f9bc25d0349"
+      },
+      "historical_static_admg_slice": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json",
+        "sha256": "d71112938c6ee404c4436979df7139a2b6c7948d34fea1597de48ec2d0704818"
+      }
+    }
+  },
+  "pattern_pass": {
+    "acceptance_signal": "fresh producer and strict-consumer selectors pass, exact selected refs are compared, strict blockers remain, and all broader claims stay bounded",
+    "anti_pattern_found": "role/name/profile presence alone can stand in for exact source identity or current algorithm replay",
+    "closure": "none; this record is not a formal closure artifact",
+    "relevant_ids": [
+      "P32",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "target_pattern": "resolve exact selected CAS views, content-bind identity/profile, recompute the whole selected GraphPrior/identification projection, and preserve the limited status into the strict consumer"
+  },
+  "record": "pag-static-profile-source-lineage",
+  "record_date": "2026-10-11",
+  "record_status": "bounded_candidate_committed_remote_readback_verified",
+  "schema": "policyos.e02.pag_static_profile_source_lineage.v1",
+  "verification_receipts": {
+    "historical_v3_failure": {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "-ra",
+        "--basetemp=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v3-whole-producer-profile-matrix-prior-fresh-consumers-20261011/pytest-owned",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v3-whole-producer-profile-matrix-prior-fresh-consumers-20261011/junit.xml",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py",
+        "tests/unit/scientist/discovery/test_output.py",
+        "tests/unit/scientist/discovery/test_utility_judge.py",
+        "tests/unit/scientist/nodes/builtins/planning/test_compile_cross_graph_evidence.py"
+      ],
+      "before_after_maps_equal": true,
+      "captured_input_path_count": 6158,
+      "command_json": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v3-whole-producer-profile-matrix-prior-fresh-consumers-20261011/command.json",
+        "sha256": "597e252bd450bf2bf90e47d37cdf277bfdf7ec712140a19b136aeed8dfc65ef4"
+      },
+      "directory": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v3-whole-producer-profile-matrix-prior-fresh-consumers-20261011",
+      "exit_code": 1,
+      "head": "e536bab756ca5538b105205f27a627625dd1da72",
+      "junit": {
+        "cases": 604,
+        "errors": 1,
+        "failed": 13,
+        "passed": 590,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v3-whole-producer-profile-matrix-prior-fresh-consumers-20261011/junit.xml",
+        "sha256": "221378020ef4b008a646fa62c6c0e62fa84bea400d4478da9f2b3b06a155cb22",
+        "skipped": 0
+      },
+      "result_role": "preserved historical failure; 590 passed, 13 failed, 1 error, 0 skipped; not erased by later passes",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "55357f37753fffb2f9f897a385d11471e65f609c5bd97c717fd8442b00dbae9f",
+      "wall_seconds": 14.204199875006452
+    },
+    "historical_v4_failure": {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=short",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py",
+        "tests/unit/scientist/discovery/test_output.py",
+        "tests/unit/scientist/discovery/test_utility_judge.py",
+        "tests/unit/scientist/nodes/builtins/planning/test_compile_cross_graph_evidence.py",
+        "tests/unit/remediation/test_cas_01.py::test_distinct_profiles_get_honest_views_of_one_blob",
+        "--junitxml",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v4-producer-exact-profile-and-fresh-strict-gate-20261011/junit.xml",
+        "--basetemp",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v4-producer-exact-profile-and-fresh-strict-gate-20261011/pytest-tmp"
+      ],
+      "before_after_maps_equal": true,
+      "captured_input_path_count": 6160,
+      "command_json": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v4-producer-exact-profile-and-fresh-strict-gate-20261011/command.json",
+        "sha256": "33dfd13fcb0f38bd10d45baad48b02d65129cebfa3b30597c10142af370e68b3"
+      },
+      "denominator_erratum": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/pag-v5-v4-run-denominator-erratum-20261011.md",
+        "sha256": "22a5e55b23ce4cacb1a39817fbd44014554d89d17f4a1d3ab24139cfa03f02ff"
+      },
+      "directory": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v4-producer-exact-profile-and-fresh-strict-gate-20261011",
+      "exit_code": 1,
+      "head": "3e73f32f71e5fd15c538000a482da1b718a1737c",
+      "junit": {
+        "cases": 605,
+        "errors": 0,
+        "failed": 1,
+        "passed": 604,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v4-producer-exact-profile-and-fresh-strict-gate-20261011/junit.xml",
+        "sha256": "0d3ea702ce2277cb3e20a46accd3d142156957caaa1286b948c3e9698a1c1759",
+        "skipped": 0
+      },
+      "result_role": "preserved historical order-sensitive failure; separate erratum distinguishes 6,160 input paths from 605 JUnit cases",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "6c24cebd01f11a6c8c49a16de43292b02386952fd1686ec1952fdebf88f979a8",
+      "wall_seconds": 15.606155375018716
+    },
+    "post_style_fresh_producer_and_strict_consumers": {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=short",
+        "tests/unit/scientist/nodes/builtins/planning/test_compile_cross_graph_evidence.py::test_pag_identification_limit_survives_discovery_cas_and_strict_gate",
+        "tests/unit/scientist/nodes/builtins/planning/test_compile_cross_graph_evidence.py::test_actual_discovery_producer_source_chain_is_recomputed_by_fresh_consumer",
+        "--junitxml",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag17-post-style-fresh-producer-strict-gate-20261011/junit.xml",
+        "--basetemp",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag17-post-style-fresh-producer-strict-gate-20261011/pytest-tmp"
+      ],
+      "before_after_maps_equal": true,
+      "captured_input_path_count": 6160,
+      "command_json": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag17-post-style-fresh-producer-strict-gate-20261011/command.json",
+        "sha256": "acefaeb682de090a3a5dfa29b4ffd25b7918d623cf6d01ab977d63f1fbfc6c8a"
+      },
+      "directory": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag17-post-style-fresh-producer-strict-gate-20261011",
+      "exit_code": 0,
+      "head": "af1f92c82be5ee8e268945b0ce6c77dac9086b8c",
+      "junit": {
+        "cases": 2,
+        "errors": 0,
+        "failed": 0,
+        "passed": 2,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag17-post-style-fresh-producer-strict-gate-20261011/junit.xml",
+        "sha256": "b72e823249f5c03222e4dd013a24f6875846231c6c0dd2981972f6efeb84d7fb",
+        "skipped": 0
+      },
+      "result_role": "two real producer-to-CAS-to-compiler-to-strict-gate selectors pass after style application",
+      "selected_candidate_python_paths_in_snapshot": 15,
+      "selected_candidate_python_paths_matching_snapshot": 15,
+      "selected_non_python_paths_absent_from_this_test_snapshot": [
+        "policy-engine/release-fragments/unreleased/2026-10-10-e02-pag-identification-lineage.toml",
+        "policy-engine/src/polisyos/scientist/methods/discovery/README.md"
+      ],
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "78a6f17583a53a93b819dbeca9979de222bbc392defd60ca2a14513ad020dd60",
+      "wall_seconds": 11.777446584077552
+    },
+    "post_style_ruff": {
+      "all_17_selected_candidate_hashes_match_after_snapshot": true,
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "ruff.toml",
+        "--output-format",
+        "json",
+        "src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+        "src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+        "src/polisyos/scientist/governance/passes/cross_graph_evidence_pass.py",
+        "src/polisyos/scientist/methods/discovery/aggregator.py",
+        "src/polisyos/scientist/methods/discovery/artifact_refs.py",
+        "src/polisyos/scientist/methods/discovery/output.py",
+        "src/polisyos/scientist/methods/discovery/priors.py",
+        "src/polisyos/scientist/methods/discovery/schema.py",
+        "src/polisyos/scientist/methods/discovery/stability.py",
+        "src/polisyos/scientist/methods/discovery/utility_judge.py",
+        "src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py",
+        "tests/unit/scientist/discovery/test_output.py",
+        "tests/unit/scientist/discovery/test_utility_judge.py",
+        "tests/unit/scientist/nodes/builtins/planning/test_compile_cross_graph_evidence.py"
+      ],
+      "before_after_maps_equal": true,
+      "captured_input_path_count": 20,
+      "captured_path_denominator": 20,
+      "command_json": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag17-post-style-canonical-ruff-20261011/command.json",
+        "sha256": "3cc5899edc87fd4b3a8f8e5a0ec2faab0d21779e2926dd70f92bba8fe972831f"
+      },
+      "diagnostic_count": 0,
+      "diagnostics_json_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag17-post-style-canonical-ruff-20261011/stdout.txt",
+      "diagnostics_json_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "directory": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag17-post-style-canonical-ruff-20261011",
+      "exit_code": 0,
+      "explicit_python_target_count": 15,
+      "explicit_python_targets": [
+        "src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+        "src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+        "src/polisyos/scientist/governance/passes/cross_graph_evidence_pass.py",
+        "src/polisyos/scientist/methods/discovery/aggregator.py",
+        "src/polisyos/scientist/methods/discovery/artifact_refs.py",
+        "src/polisyos/scientist/methods/discovery/output.py",
+        "src/polisyos/scientist/methods/discovery/priors.py",
+        "src/polisyos/scientist/methods/discovery/schema.py",
+        "src/polisyos/scientist/methods/discovery/stability.py",
+        "src/polisyos/scientist/methods/discovery/utility_judge.py",
+        "src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py",
+        "tests/unit/scientist/discovery/test_output.py",
+        "tests/unit/scientist/discovery/test_utility_judge.py",
+        "tests/unit/scientist/nodes/builtins/planning/test_compile_cross_graph_evidence.py"
+      ],
+      "head": "af1f92c82be5ee8e268945b0ce6c77dac9086b8c",
+      "result_role": "exit 0, empty Ruff diagnostics JSON; 20 captured paths and 15 explicit Python targets",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "wall_seconds": 0.10815687500871718
+    },
+    "selected_file_readback": {
+      "current_working_file_hashes_match_candidate": true,
+      "local_remote_file_manifests_equal": true,
+      "matched_path_count": 17,
+      "remote_readback_file_count": 17,
+      "remote_readback_tree": "46c633446eff2092635112334f4118d7d8d172ca"
+    },
+    "v6_pre_style_focused_run": {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=short",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py",
+        "tests/unit/scientist/discovery/test_output.py",
+        "tests/unit/scientist/discovery/test_utility_judge.py",
+        "tests/unit/scientist/nodes/builtins/planning/test_compile_cross_graph_evidence.py",
+        "tests/unit/scientist/discovery/test_schema.py",
+        "tests/unit/scientist/discovery/test_aggregator.py",
+        "tests/unit/scientist/discovery/test_stability.py",
+        "tests/unit/scientist/discovery/test_priors.py",
+        "tests/unit/remediation/test_cas_01.py::test_distinct_profiles_get_honest_views_of_one_blob",
+        "--junitxml",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v6-whole-discovery-writers-fresh-consumers-and-profile-contract-20261011/junit.xml",
+        "--basetemp",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v6-whole-discovery-writers-fresh-consumers-and-profile-contract-20261011/pytest-tmp"
+      ],
+      "before_after_maps_equal": true,
+      "captured_input_path_count": 6160,
+      "command_json": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v6-whole-discovery-writers-fresh-consumers-and-profile-contract-20261011/command.json",
+        "sha256": "c7eaee02c37524baa509e48e087a6d6bfe15490f8deb0fee06c84ecc8837d45e"
+      },
+      "directory": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v6-whole-discovery-writers-fresh-consumers-and-profile-contract-20261011",
+      "exit_code": 0,
+      "head": "af1f92c82be5ee8e268945b0ce6c77dac9086b8c",
+      "junit": {
+        "cases": 620,
+        "errors": 0,
+        "failed": 0,
+        "passed": 620,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v6-whole-discovery-writers-fresh-consumers-and-profile-contract-20261011/junit.xml",
+        "sha256": "9de69c12b954a34a0e596cddeab69cb0dd5fc755e5c98724e43db32ceecad918",
+        "skipped": 0
+      },
+      "result_role": "620/620 focused tests pass before the final style-only delta; not a post-style full-suite run",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "214eb2aceff7e31dfba6401616499a876fd708b5af7462c70efbf7569c0fef9f",
+      "wall_seconds": 12.090742166968994
+    }
+  }
+}

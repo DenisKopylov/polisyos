@@ -248,6 +248,11 @@ class MethodJobBenchmarkEvaluator:
         self._split = split
         self._seed = int(seed)
 
+    @property
+    def requires_source_bound_execution_work_packet(self) -> bool:
+        """Require admission whenever the MethodJob consumes DataSnapshot slots."""
+        return bool(self._data_snapshot_bindings)
+
     def evaluate(
         self,
         candidate_ref: ArtifactRef,
@@ -869,6 +874,118 @@ def read_method_job_execution_work_packet(
     return packet
 
 
+def _search_work_packet_admission_failure(
+    *,
+    store: FileSystemCAS,
+    evaluation: BenchmarkEvaluation,
+    evaluator: MethodJobBenchmarkEvaluator | None,
+    candidate_ref: ArtifactRef,
+    suite_ref: ArtifactRef,
+    policy: PromotionPolicy,
+    context: Mapping[str, Any],
+    run_id: str,
+    evaluation_id: str,
+    evaluation_attempt_id: str,
+) -> str | None:
+    """Reconcile a claimed Search score with its current source-bound MethodJob."""
+    if (
+        evaluation.execution_work_packet_status != "available"
+        or evaluation.execution_work_packet_ref is None
+    ):
+        return "search_work_packet_not_available"
+    if (
+        evaluation.candidate_ref != candidate_ref
+        or evaluation.loop_id != policy.loop_id
+        or evaluation.method_result_ref is None
+        or evaluation.method_evidence_ref is None
+        or evaluation.method_job_key is None
+    ):
+        return "search_work_packet_evaluation_binding_mismatch"
+
+    try:
+        work_packet = read_method_job_execution_work_packet(
+            store, evaluation.execution_work_packet_ref
+        )
+        raw_snapshot_ref = context.get("data_snapshot_ref")
+        if raw_snapshot_ref is None:
+            return "search_work_packet_context_snapshot_unavailable"
+        expected_snapshot_ref = (
+            raw_snapshot_ref
+            if isinstance(raw_snapshot_ref, ArtifactRef)
+            else ArtifactRef.model_validate(raw_snapshot_ref)
+        )
+        suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
+        if not isinstance(suite, BenchmarkSuite):
+            return "search_work_packet_suite_unavailable"
+        if (
+            work_packet.candidate_ref != candidate_ref
+            or work_packet.benchmark_suite_ref != suite_ref
+            or work_packet.method_result_ref != evaluation.method_result_ref
+            or work_packet.method_evidence_ref != evaluation.method_evidence_ref
+            or work_packet.method_job_key != evaluation.method_job_key
+            or work_packet.run_id != run_id
+            or work_packet.evaluation_id != evaluation_id
+            or work_packet.evaluation_attempt_id != evaluation_attempt_id
+            or work_packet.data_snapshot_ref != expected_snapshot_ref
+            or evaluation.suite_id != suite.suite_id
+            or evaluation.suite_version != suite.suite_version
+        ):
+            return "search_work_packet_evaluation_binding_mismatch"
+
+        if evaluator is not None:
+            expected_seed = context.get("method_job_seed", evaluator._seed)
+            if isinstance(expected_seed, bool) or not isinstance(expected_seed, int):
+                return "search_work_packet_request_seed_unavailable"
+            if (
+                work_packet.method_fqn != evaluator._method_fqn
+                or work_packet.method_version != evaluator._method_version
+                or work_packet.method_seed != expected_seed
+                or work_packet.configured_method_params != evaluator._method_params
+                or work_packet.candidate_slot_bindings != evaluator._candidate_input_bindings
+                or work_packet.data_slot_bindings != evaluator._data_snapshot_bindings
+            ):
+                return "search_work_packet_method_request_mismatch"
+
+        method_output = load_json_artifact(store, work_packet.method_result_ref)
+        if not isinstance(method_output, Mapping):
+            return "search_work_packet_method_result_unavailable"
+        metric_output = method_output.get("result")
+        metric_source = metric_output if isinstance(metric_output, Mapping) else method_output
+        reported_value = evaluation.primary_value(
+            split=policy.compare_split,
+            metric=policy.primary_metric,
+        )
+        if reported_value is not None and isfinite(reported_value):
+            raw_metric = metric_source.get(policy.primary_metric)
+            source_units = metric_source.get("metric_units")
+            source_unit = (
+                source_units.get(policy.primary_metric)
+                if isinstance(source_units, Mapping)
+                else None
+            )
+            if isinstance(raw_metric, bool) or raw_metric is None:
+                return "search_work_packet_metric_binding_mismatch"
+            actual_value = float(raw_metric)
+            if (
+                not isfinite(actual_value)
+                or actual_value != reported_value
+                or (policy.unit is not None and source_unit != policy.unit)
+                or evaluation.metadata.get("metric_unit") != source_unit
+            ):
+                return "search_work_packet_metric_binding_mismatch"
+    except (
+        KeyError,
+        OSError,
+        OverflowError,
+        RuntimeError,
+        TypeError,
+        ValueError,
+        ValidationError,
+    ):
+        return "search_work_packet_cas_admission_failed"
+    return None
+
+
 class SearchLoopRunner:
     """Search loop runner public type."""
 
@@ -1006,41 +1123,64 @@ class SearchLoopRunner:
                         "status": "source_profile_conflict",
                     }
                 )
-        if (
-            evaluation.execution_work_packet_status == "available"
-            and evaluation.execution_work_packet_ref is not None
-        ):
-            try:
-                work_packet = read_method_job_execution_work_packet(
-                    self._store,
-                    evaluation.execution_work_packet_ref,
-                )
-                expected_snapshot = context.get("data_snapshot_ref")
-                if expected_snapshot is None:
-                    raise ValueError("work_packet_context_snapshot_unavailable")
-                if not isinstance(expected_snapshot, ArtifactRef):
-                    expected_snapshot = ArtifactRef.model_validate(expected_snapshot)
-                if (
-                    work_packet.candidate_ref != candidate_ref
-                    or work_packet.method_result_ref != evaluation.method_result_ref
-                    or work_packet.method_evidence_ref != evaluation.method_evidence_ref
-                    or work_packet.method_job_key != evaluation.method_job_key
-                    or work_packet.run_id != str(context.get("run_id") or "")
-                    or work_packet.evaluation_id != evaluation_id
-                    or work_packet.evaluation_attempt_id != evaluation_attempt_id
-                    or (
-                        expected_snapshot is not None
-                        and work_packet.data_snapshot_ref != expected_snapshot
-                    )
-                ):
-                    raise ValueError("work_packet_evaluation_binding_mismatch")
-            except (KeyError, OSError, RuntimeError, TypeError, ValueError, ValidationError):
-                evaluation = evaluation.model_copy(
-                    update={
+        benchmark_evaluator = spec.benchmark_evaluator
+        source_bound_work_expected = (
+            isinstance(benchmark_evaluator, MethodJobBenchmarkEvaluator)
+            and benchmark_evaluator.requires_source_bound_execution_work_packet
+        )
+        packet_admission_failure: str | None = None
+        if source_bound_work_expected or evaluation.execution_work_packet_status == "available":
+            packet_admission_failure = _search_work_packet_admission_failure(
+                store=self._store,
+                evaluation=evaluation,
+                evaluator=(
+                    benchmark_evaluator
+                    if isinstance(benchmark_evaluator, MethodJobBenchmarkEvaluator)
+                    else None
+                ),
+                candidate_ref=candidate_ref,
+                suite_ref=suite_ref,
+                policy=spec.promotion_policy,
+                context=context,
+                run_id=str(context.get("run_id") or ""),
+                evaluation_id=evaluation_id,
+                evaluation_attempt_id=evaluation_attempt_id,
+            )
+        source_profile_conflict = evaluation.status == "source_profile_conflict"
+        search_source_rejected = packet_admission_failure is not None or source_profile_conflict
+        if search_source_rejected:
+            rejected_note = packet_admission_failure or "search_source_profile_conflict"
+            rejected_update: dict[str, Any] = {
+                "selection_metrics": {
+                    name: value
+                    for name, value in evaluation.selection_metrics.items()
+                    if name != spec.promotion_policy.primary_metric
+                },
+                "holdout_metrics": {
+                    name: value
+                    for name, value in evaluation.holdout_metrics.items()
+                    if name != spec.promotion_policy.primary_metric
+                },
+                "promotable": False,
+                "status": (
+                    "source_work_packet_rejected"
+                    if packet_admission_failure is not None
+                    else evaluation.status
+                ),
+                "guardrails": {
+                    **evaluation.guardrails,
+                    "primary_metric_available": False,
+                },
+                "notes": [*evaluation.notes, rejected_note],
+            }
+            if packet_admission_failure is not None:
+                rejected_update.update(
+                    {
                         "execution_work_packet_status": "rejected",
-                        "execution_work_packet_note": "search_evaluation_work_packet_binding_mismatch",
+                        "execution_work_packet_note": packet_admission_failure,
                     }
                 )
+            evaluation = evaluation.model_copy(update=rejected_update)
         primary_value = evaluation.primary_value(
             split=spec.promotion_policy.compare_split,
             metric=spec.promotion_policy.primary_metric,
@@ -1059,7 +1199,9 @@ class SearchLoopRunner:
                     "selection_metrics": selection_metrics,
                     "holdout_metrics": holdout_metrics,
                     "promotable": False,
-                    "status": "metric_unavailable",
+                    "status": (
+                        evaluation.status if search_source_rejected else "metric_unavailable"
+                    ),
                     "guardrails": {
                         **evaluation.guardrails,
                         "primary_metric_available": False,

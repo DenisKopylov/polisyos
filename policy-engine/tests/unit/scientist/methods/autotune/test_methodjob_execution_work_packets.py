@@ -35,6 +35,10 @@ from polisyos.scientist.methods.autotune import (
     persist_method_job_execution_work_packet,
     persist_mutation_artifact,
 )
+from polisyos.scientist.methods.autotune.bayesian_generator import (
+    BayesianCandidateGenerator,
+    SearchSpace,
+)
 from polisyos.scientist.methods.autotune.execution_work import (
     fingerprint_method_input_value,
 )
@@ -45,6 +49,11 @@ from polisyos.scientist.methods.autotune.runtime import (
     SequenceCandidateGenerator,
     read_method_job_execution_work_packet,
 )
+from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge
+from polisyos.scientist.methods.search.strategies.transfer import (
+    RunFingerprint,
+    TransferLearningManager,
+)
 
 
 class _DiagnosticCausalCandidate(MutationArtifact):
@@ -53,6 +62,29 @@ class _DiagnosticCausalCandidate(MutationArtifact):
 
 class _NonDiagnosticCausalCandidate(MutationArtifact):
     candidate_status: Literal["candidate"] = "candidate"
+
+
+class _NativeSearchDiagnosticCandidate(_DiagnosticCausalCandidate):
+    search_coordinate: float = 0.5
+
+
+class _MethodJobVectorIndex:
+    dim = 1
+
+    def __init__(self) -> None:
+        self._records: dict[str, dict[str, Any]] = {}
+
+    def add(self, *, key: str, embedding: list[float], metadata: dict[str, Any]) -> None:
+        del embedding
+        self._records[key] = dict(metadata)
+
+    def query(
+        self,
+        embedding: list[float],
+        top_k: int,
+    ) -> list[tuple[str, float, dict[str, Any]]]:
+        del embedding
+        return [(key, 0.0, dict(metadata)) for key, metadata in list(self._records.items())[:top_k]]
 
 
 @pytest.fixture(autouse=True)
@@ -447,6 +479,7 @@ def test_source_bound_methodjob_work_packet_supports_same_input_l3_to_l4_witness
     )
     assert isinstance(search_evaluation, BenchmarkEvaluation)
     assert search_evaluation.execution_work_packet_status == "available"
+    assert stage_b_results["ate"] == search_evaluation.selection_metrics["ate"]
     assert stage_b_results["execution_work_packet_ref"] == str(
         search_evaluation.execution_work_packet_ref.artifact_id
     )
@@ -502,6 +535,372 @@ def test_source_bound_methodjob_work_packet_supports_same_input_l3_to_l4_witness
             fresh_reader,
             swapped_input_evaluation.execution_work_packet_ref,
         )
+
+
+def test_search_loop_rejects_score_after_source_bound_dispatch_swap(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    MethodRegistry.get_instance().register(advanced_designs.DRLearnerEstimator, override=True)
+    store = FileSystemCAS(tmp_path / "cas")
+    _, suite_ref, snapshot_ref = _persist_source_inputs(store)
+    _patch_lightweight_nuisance_layers(monkeypatch, 40)
+    snapshot = load_model_artifact(store, snapshot_ref, DataSnapshot)
+    assert isinstance(snapshot, DataSnapshot)
+    source_data = load_json_artifact(store, snapshot.data_ref)
+    assert isinstance(source_data, dict)
+    run_job = compute_runner.run_job
+
+    def _swap_dispatched_x(spec, *, cas_root, method_state):
+        swapped_state = dict(method_state)
+        swapped_state["X"] = source_data["X_alternative"]
+        return run_job(spec, cas_root=cas_root, method_state=swapped_state)
+
+    monkeypatch.setattr(compute_runner, "run_job", _swap_dispatched_x)
+    evaluator = MethodJobBenchmarkEvaluator(
+        method_fqn=advanced_designs.DRLearnerEstimator.signature.fqn,
+        method_version=advanced_designs.DRLearnerEstimator.signature.version,
+        candidate_input_bindings={},
+        data_snapshot_bindings={"X": "X", "treatment": "treatment", "outcome": "outcome"},
+        method_params={
+            "capture_execution_work": True,
+            "bootstrap_draws": 40,
+            "nuisance_model_family": "lightweight",
+            "random_seed": 17,
+            "crossfit_folds": 2,
+            "n_repeats": 1,
+        },
+        split=BenchmarkSplit.SELECTION,
+        seed=17,
+    )
+    spec = SearchLoopSpec(
+        loop_id="b157_diagnostic",
+        mutation_codec=PydanticMutationCodec(_DiagnosticCausalCandidate),
+        candidate_generator=SequenceCandidateGenerator(
+            [_DiagnosticCausalCandidate(loop_id="b157_diagnostic")]
+        ),
+        benchmark_evaluator=evaluator,
+        promotion_policy=PromotionPolicy(
+            loop_id="b157_diagnostic",
+            primary_metric="ate",
+            direction=MetricDirection.MAXIMIZE,
+            compare_split=BenchmarkSplit.SELECTION,
+            min_sample_count=1,
+        ),
+    )
+    result = SearchLoopRunner(
+        store=store,
+        registry=ChampionRegistry(root=tmp_path / "registry", store=store),
+    ).run(
+        spec,
+        suite_ref=suite_ref,
+        context={"data_snapshot_ref": snapshot_ref},
+        max_iterations=1,
+    )
+
+    stage_b = result.history[0].stage_b_result
+    assert stage_b is not None
+    evaluation = load_model_artifact(
+        FileSystemCAS(tmp_path / "cas"),
+        stage_b["simulation_results"]["evaluation_ref"],
+        BenchmarkEvaluation,
+    )
+    assert isinstance(evaluation, BenchmarkEvaluation)
+    assert evaluation.execution_work_packet_status == "rejected"
+    assert evaluation.execution_work_packet_ref is not None
+    fresh_reader = FileSystemCAS(tmp_path / "cas")
+    with pytest.raises(ValueError, match="method_work_packet_dispatch_binding_mismatch"):
+        read_method_job_execution_work_packet(
+            fresh_reader,
+            evaluation.execution_work_packet_ref,
+        )
+
+    # The source evaluator records a finite ATE, but rejected source proof must
+    # prevent that value from entering the SearchLoop score or promotion path.
+    assert "ate" not in stage_b["simulation_results"]
+    assert stage_b["feedback"]["promotion_decision"]["promoted"] is False
+
+
+@pytest.mark.parametrize(
+    "failure_mode",
+    [
+        "missing_packet",
+        "unreadable_packet",
+        "metric_mismatch",
+        "capture_omitted",
+        "capture_disabled",
+    ],
+)
+def test_search_loop_suppresses_unreconciled_source_bound_score(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+    failure_mode: str,
+) -> None:
+    MethodRegistry.get_instance().register(advanced_designs.DRLearnerEstimator, override=True)
+    store = FileSystemCAS(tmp_path / "cas")
+    _, suite_ref, snapshot_ref = _persist_source_inputs(store)
+    _patch_lightweight_nuisance_layers(monkeypatch, 40)
+    method_params: dict[str, Any] = {
+        "bootstrap_draws": 40,
+        "nuisance_model_family": "lightweight",
+        "random_seed": 17,
+        "crossfit_folds": 2,
+        "n_repeats": 1,
+    }
+    if failure_mode != "capture_omitted":
+        method_params["capture_execution_work"] = failure_mode != "capture_disabled"
+    evaluator = MethodJobBenchmarkEvaluator(
+        method_fqn=advanced_designs.DRLearnerEstimator.signature.fqn,
+        method_version=advanced_designs.DRLearnerEstimator.signature.version,
+        candidate_input_bindings={},
+        data_snapshot_bindings={"X": "X", "treatment": "treatment", "outcome": "outcome"},
+        method_params=method_params,
+        split=BenchmarkSplit.SELECTION,
+        seed=17,
+    )
+    evaluate = evaluator.evaluate
+
+    def _alter_evaluation(candidate_ref, current_suite_ref, context):
+        evaluation = evaluate(candidate_ref, current_suite_ref, context)
+        if failure_mode in {"capture_omitted", "capture_disabled"}:
+            assert np.isfinite(evaluation.selection_metrics["ate"])
+            return evaluation
+        if failure_mode == "missing_packet":
+            return evaluation.model_copy(
+                update={
+                    "execution_work_packet_ref": None,
+                    "execution_work_packet_status": "unavailable",
+                    "execution_work_packet_note": "test_removed_packet_ref",
+                }
+            )
+        if failure_mode == "unreadable_packet":
+            ref = ArtifactRef(
+                artifact_id="sha256:" + "f" * 64,
+                kind="scientist.autotune.method_execution_work_packet",
+                media_type="application/json",
+            )
+            return evaluation.model_copy(
+                update={
+                    "execution_work_packet_ref": ref,
+                    "execution_work_packet_status": "available",
+                }
+            )
+        return evaluation.model_copy(
+            update={
+                "selection_metrics": {
+                    **evaluation.selection_metrics,
+                    "ate": evaluation.selection_metrics["ate"] + 1.0,
+                }
+            }
+        )
+
+    monkeypatch.setattr(evaluator, "evaluate", _alter_evaluation)
+    spec = SearchLoopSpec(
+        loop_id="b157_diagnostic",
+        mutation_codec=PydanticMutationCodec(_DiagnosticCausalCandidate),
+        candidate_generator=SequenceCandidateGenerator(
+            [_DiagnosticCausalCandidate(loop_id="b157_diagnostic")]
+        ),
+        benchmark_evaluator=evaluator,
+        promotion_policy=PromotionPolicy(
+            loop_id="b157_diagnostic",
+            primary_metric="ate",
+            direction=MetricDirection.MAXIMIZE,
+            compare_split=BenchmarkSplit.SELECTION,
+            min_sample_count=1,
+        ),
+    )
+    result = SearchLoopRunner(
+        store=store,
+        registry=ChampionRegistry(root=tmp_path / "registry", store=store),
+    ).run(
+        spec,
+        suite_ref=suite_ref,
+        context={"data_snapshot_ref": snapshot_ref},
+        max_iterations=1,
+    )
+
+    stage_b = result.history[0].stage_b_result
+    assert stage_b is not None
+    evaluation = load_model_artifact(
+        FileSystemCAS(tmp_path / "cas"),
+        stage_b["simulation_results"]["evaluation_ref"],
+        BenchmarkEvaluation,
+    )
+    assert isinstance(evaluation, BenchmarkEvaluation)
+    assert evaluation.execution_work_packet_status == "rejected"
+    assert evaluation.promotable is False
+    assert evaluation.status == "source_work_packet_rejected"
+    assert "ate" not in stage_b["simulation_results"]
+    assert stage_b["feedback"]["promotion_decision"]["promoted"] is False
+
+
+@pytest.mark.skipif(
+    os.environ.get("POLISYOS_RUN_NATIVE_METHODJOB_WORK") != "1",
+    reason="native GP and DR MethodJob use the serialized numerical verification slot",
+)
+def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(tmp_path) -> None:
+    MethodRegistry.get_instance().register(advanced_designs.DRLearnerEstimator, override=True)
+    store = FileSystemCAS(tmp_path / "cas")
+    _, suite_ref, snapshot_ref = _persist_source_inputs(store)
+    context = {
+        "data_snapshot_ref": snapshot_ref.model_dump(mode="json"),
+        "policy_context": {"case": "b157_source_bound_diagnostic"},
+    }
+
+    def _spec(generator: BayesianCandidateGenerator) -> SearchLoopSpec:
+        return SearchLoopSpec(
+            loop_id="b157_diagnostic",
+            mutation_codec=PydanticMutationCodec(_NativeSearchDiagnosticCandidate),
+            candidate_generator=generator,
+            benchmark_evaluator=MethodJobBenchmarkEvaluator(
+                method_fqn=advanced_designs.DRLearnerEstimator.signature.fqn,
+                method_version=advanced_designs.DRLearnerEstimator.signature.version,
+                candidate_input_bindings={},
+                data_snapshot_bindings={
+                    "X": "X",
+                    "treatment": "treatment",
+                    "outcome": "outcome",
+                },
+                method_params={
+                    "capture_execution_work": True,
+                    "bootstrap_draws": 40,
+                    "nuisance_model_family": "lightweight",
+                    "random_seed": 17,
+                    "crossfit_folds": 2,
+                    "n_repeats": 1,
+                },
+                split=BenchmarkSplit.SELECTION,
+                seed=17,
+            ),
+            promotion_policy=PromotionPolicy(
+                loop_id="b157_diagnostic",
+                primary_metric="ate",
+                direction=MetricDirection.MAXIMIZE,
+                compare_split=BenchmarkSplit.SELECTION,
+                min_sample_count=1,
+            ),
+        )
+
+    generator = BayesianCandidateGenerator(
+        SearchSpace(bounds=[{"name": "search_coordinate", "lower": 0.0, "upper": 1.0}]),
+        primary_metric="ate",
+        direction=MetricDirection.MAXIMIZE,
+        compare_split=BenchmarkSplit.SELECTION,
+        n_initial=2,
+        seed=17,
+    )
+    assert generator.botorch_available is True
+    source_result = SearchLoopRunner(
+        store=store,
+        registry=ChampionRegistry(root=tmp_path / "source-registry", store=store),
+    ).run(
+        _spec(generator),
+        suite_ref=suite_ref,
+        context=context,
+        max_iterations=3,
+    )
+    assert len(source_result.history) == 3
+
+    fresh_reader = FileSystemCAS(tmp_path / "cas")
+    for item in source_result.history:
+        stage_b = item.stage_b_result
+        assert stage_b is not None
+        evaluation = load_model_artifact(
+            fresh_reader,
+            stage_b["simulation_results"]["evaluation_ref"],
+            BenchmarkEvaluation,
+        )
+        assert isinstance(evaluation, BenchmarkEvaluation)
+        assert evaluation.execution_work_packet_status == "available"
+        assert evaluation.execution_work_packet_ref is not None
+        assert stage_b["feedback"]["execution_work_packet_status"] == "available"
+        assert stage_b["simulation_results"]["ate"] == evaluation.selection_metrics["ate"]
+        packet = read_method_job_execution_work_packet(
+            fresh_reader, evaluation.execution_work_packet_ref
+        )
+        assert packet.actual_sample_count == 40
+        assert _work(packet).completed_draw_count == 40
+        assert evaluation.promotable is False
+
+    last_stage_b = source_result.history[-1].stage_b_result
+    assert last_stage_b is not None
+    source_evaluation = load_model_artifact(
+        fresh_reader,
+        last_stage_b["simulation_results"]["evaluation_ref"],
+        BenchmarkEvaluation,
+    )
+    assert isinstance(source_evaluation, BenchmarkEvaluation)
+    profile = source_evaluation.search_source_profile
+    assert profile is not None
+    assert profile.profile_kind == "configured_native_gp"
+    assert profile.proposal_source == "bayesian_acquisition"
+    assert profile.gp_model_fqn == "botorch.models.gp_regression.SingleTaskGP"
+    assert profile.warm_start_eligible is True
+    assert profile.training_observation_count is not None
+    assert profile.training_observation_count >= 2
+
+    source_evaluations = generator._history_to_evaluations(source_result.history)
+    assert len(source_evaluations) == 3
+    assert all(evaluation.is_valid for evaluation in source_evaluations)
+    source_fingerprint = RunFingerprint(
+        run_id="b157-native-source-run",
+        space_hash=generator._search_space._native.sobol_space_fingerprint(),
+        objective_names=["ate"],
+        bounds={"search_coordinate": {"lower": 0.0, "upper": 1.0}},
+        split=BenchmarkSplit.SELECTION.value,
+        units={},
+        origin="b157-native-methodjob-test",
+        objective_directions={"ate": "maximize"},
+        embedding=[1.0],
+        num_evaluations=len(source_evaluations),
+    )
+    transfer = TransferLearningManager(fresh_reader, _MethodJobVectorIndex())
+    assert transfer.register_run(source_fingerprint, source_evaluations) is not None
+    bridge = WarmStartBridge(transfer)
+    target_fingerprint = source_fingerprint.model_copy(update={"run_id": "b157-native-target-run"})
+    assert bridge.load_warm_start(target_fingerprint)
+
+    target_generator = BayesianCandidateGenerator(
+        SearchSpace(bounds=[{"name": "search_coordinate", "lower": 0.0, "upper": 1.0}]),
+        primary_metric="ate",
+        direction=MetricDirection.MAXIMIZE,
+        compare_split=BenchmarkSplit.SELECTION,
+        n_initial=2,
+        seed=23,
+    )
+    assert target_generator.botorch_available is True
+    target_result = SearchLoopRunner(
+        store=store,
+        registry=ChampionRegistry(root=tmp_path / "target-registry", store=store),
+    ).run(
+        _spec(target_generator),
+        suite_ref=suite_ref,
+        context=context,
+        max_iterations=1,
+        warm_start_bridge=bridge,
+        warm_start_fingerprint=target_fingerprint,
+    )
+    assert target_generator._warm_start_accepted_count > 0
+    target_stage_b = target_result.history[0].stage_b_result
+    assert target_stage_b is not None
+    target_evaluation = load_model_artifact(
+        FileSystemCAS(tmp_path / "cas"),
+        target_stage_b["simulation_results"]["evaluation_ref"],
+        BenchmarkEvaluation,
+    )
+    assert isinstance(target_evaluation, BenchmarkEvaluation)
+    assert target_evaluation.execution_work_packet_status == "available"
+    assert target_evaluation.execution_work_packet_ref is not None
+    target_packet = read_method_job_execution_work_packet(
+        FileSystemCAS(tmp_path / "cas"), target_evaluation.execution_work_packet_ref
+    )
+    assert target_packet.actual_sample_count == 40
+    assert _work(target_packet).completed_draw_count == 40
+    assert target_evaluation.search_source_profile is not None
+    assert target_evaluation.search_source_profile.profile_kind == "configured_native_gp"
+    assert "ate" in target_stage_b["simulation_results"]
+    assert target_stage_b["feedback"]["promotion_decision"]["promoted"] is False
 
 
 @pytest.mark.skipif(

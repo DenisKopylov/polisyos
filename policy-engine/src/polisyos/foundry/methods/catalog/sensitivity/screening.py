@@ -51,7 +51,7 @@ class MorrisSensitivityEstimator:
                 ),
                 SlotSpec(
                     "parameter_levels",
-                    SlotType.MATRIX,
+                    SlotType.TENSOR,
                     Unit("level", "value"),
                     shape=("n_trajectories", "n_factors_plus_1", "n_factors"),
                 ),

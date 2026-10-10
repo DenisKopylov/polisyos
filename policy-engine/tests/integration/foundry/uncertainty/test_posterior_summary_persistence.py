@@ -15,7 +15,7 @@ from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.catalog.bayesian import ensure_bayesian_methods_registered
 from polisyos.foundry.methods.ml import TabularData
 from polisyos.foundry.methods.registry import MethodRegistry
-from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
+from polisyos.foundry.uncertainty import MonteCarloPropagator
 from polisyos.ir.analytics.posterior_summary import PosteriorPointRole, PosteriorSummaryRef
 from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
 from polisyos.scientist.compute.job_spec import JobSpec

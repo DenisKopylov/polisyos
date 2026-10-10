@@ -815,3 +815,14 @@ class TestArtifactIntegration:
         assert method_manifest.kind == "foundry.method_artifact"
         assert chain_manifest.kind == "foundry.chain_artifact"
         assert evidence_manifest.kind == "foundry.execution_evidence"
+
+
+def test_artifacts_facade_exports_bind_all_parts_owners() -> None:
+    from polisyos.foundry.methods import artifacts
+    from polisyos.foundry.methods.artifacts import parts
+
+    expected_names = tuple(parts.__all__)
+    assert tuple(artifacts.__all__) == expected_names
+
+    for name in expected_names:
+        assert getattr(artifacts, name) is getattr(parts, name)

@@ -256,3 +256,24 @@ def _drop_module(module_name: str) -> None:
     for loaded_name in list(sys.modules):
         if loaded_name == module_name or loaded_name.startswith(f"{module_name}."):
             sys.modules.pop(loaded_name, None)
+
+
+def test_identity_facade_exports_bind_all_manifest_owners() -> None:
+    from polisyos.fabric import identity
+    from polisyos.fabric.identity import manifest, segment_manifest
+
+    manifest_exports = getattr(manifest, "__all__", None)
+    if manifest_exports is None:
+        manifest_exports = tuple(
+            name for name in vars(manifest) if not name.startswith("_")
+        )
+
+    for name in manifest_exports:
+        assert getattr(identity, name) is getattr(manifest, name)
+
+    for name in identity.__all__:
+        owners = [
+            module for module in (manifest, segment_manifest) if hasattr(module, name)
+        ]
+        assert len(owners) == 1
+        assert getattr(identity, name) is getattr(owners[0], name)

@@ -1,0 +1,136 @@
+{
+  "schema": "policyos.e02.local_slice_author_capture.v1",
+  "slice_id": "v6-owned-lifecycle-readers",
+  "registered_handoff_admission": "NOT_ADMITTED: complete environment v1 is not supplied; partial observations require the recorded G schema decision",
+  "slice_base": {
+    "commit": "5a6cc9306b4b4d4002c3fe9566ef757a3516c2ba",
+    "tree": "a9061b7ee5f35e96b24983ea93c92e4fc1b9468f"
+  },
+  "candidate_source": {
+    "commit": "6782339ffbdbcc1f96cfde94c3023e0398a2cd48",
+    "tree": "bed2bde4818d214b0d48717d259f381f4eb66642"
+  },
+  "parents": [
+    "5a6cc9306b4b4d4002c3fe9566ef757a3516c2ba"
+  ],
+  "source_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "git_blob": "27fd55cf592d504e929ce08826f6f02f049d780b",
+      "sha256": "c4492d44e17df4c18364bf1e23aee3dd9c346d3a12f3b689e341e86c288f35c9"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "git_blob": "3cd2429e07e0d6d834a6b142ab97ff899bfbe62a",
+      "sha256": "37e684a084405a6a6d6f41419980dfea9176e2c1dbab0520cd3f4511554ed524"
+    }
+  ],
+  "selected_input_profile_backend": {
+    "input": "controlled candidate N5 with real selected historical L2 confidence withheld; local synthetic sibling graph is explicitly separate",
+    "l2_sha256": "583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967",
+    "backend": "local macOS candidate .venv Python3.14.3, numerical thread1",
+    "full_environment_freeze": "pending final composed capture"
+  },
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/time",
+        "-l",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "--color=no",
+        "--basetemp=_build/e02-repair-fixtures/v6-whole-lifecycle-owner-reader-verification-20261010",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-whole-lifecycle-owner-reader-verification-20261010/junit.xml",
+        "tests/unit/runtime/http/test_control_service_di.py::test_fresh_run_details_get_projects_the_persisted_candidate_simulation",
+        "tests/unit/runtime/http/test_control_service_di.py::test_fresh_run_details_get_keeps_local_n5_and_sibling_failure_checkpoint"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "execution_head": "5a6cc9306b4b4d4002c3fe9566ef757a3516c2ba",
+      "source_before": {
+        "src/polisyos/runtime/http/services/control/generation_cycle.py": "c4492d44e17df4c18364bf1e23aee3dd9c346d3a12f3b689e341e86c288f35c9",
+        "tests/unit/runtime/http/test_control_service_di.py": "37e684a084405a6a6d6f41419980dfea9176e2c1dbab0520cd3f4511554ed524"
+      },
+      "source_after": {
+        "src/polisyos/runtime/http/services/control/generation_cycle.py": "c4492d44e17df4c18364bf1e23aee3dd9c346d3a12f3b689e341e86c288f35c9",
+        "tests/unit/runtime/http/test_control_service_di.py": "37e684a084405a6a6d6f41419980dfea9176e2c1dbab0520cd3f4511554ed524"
+      },
+      "exit_code": 0,
+      "status": "PASS",
+      "result": "2 PASS: owned fresh candidate GET withholding + local N5 sibling failure checkpoint",
+      "wall_seconds": 33.814063249970786,
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-whole-lifecycle-owner-reader-verification-20261010/command.json",
+          "sha256": "458dd4e81a73c73068602658a22faaf65d04a18707fbf4f71ce8de04640821c3",
+          "bytes": 2409,
+          "availability": "available_local_readback"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-whole-lifecycle-owner-reader-verification-20261010/stdout.txt",
+          "sha256": "6d25f28412c4dd0b6c0c9493d2533ac5d0bcd5ae705fe02ef4f3f6e74d21f082",
+          "bytes": 696,
+          "availability": "available_local_readback"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-whole-lifecycle-owner-reader-verification-20261010/stderr.txt",
+          "sha256": "27d261fcf989f62c6eba9452a70c9b1cfeb736bfd2b0a22fbec6cbc152cec4ea",
+          "bytes": 777,
+          "availability": "available_local_readback"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-whole-lifecycle-owner-reader-verification-20261010/junit.xml",
+          "sha256": "bd0a70339ab10ce7e34e0aa33015a655c11e11490aeb5b3c07f7e68035b866d0",
+          "bytes": 588,
+          "availability": "available_local_readback"
+        }
+      ]
+    }
+  ],
+  "chain": "fixture profile/NCM/source/context/N5 writes through tenant CAS -> compiled recursive cycle -> fresh API constructor and original lifespan under the same fixture owner -> independently identity-scoped GET projection",
+  "controls": [
+    "foreign tenant/cell reads of the same persisted recursive source ref raise ArtifactOwnershipError",
+    "historical L2 produces generation_unavailable and no recursive child-profile bindings",
+    "candidate N5 confidence stays withheld and has no forwarded credal reference",
+    "local sibling failure preserves prior persisted result and fresh reader checkpoint"
+  ],
+  "consumer_surface": "actual fresh runtime RunDetails HTTP GET and CAS source repository",
+  "limitations": [
+    "The local sibling graph is synthetic and is not an actual derived N4 child producer.",
+    "No qualified current L2/profile input exists for the source-derived V6 positive; that criterion remains held/unrun.",
+    "The optional root N4 client seam is additive and was not a real-model positive in this command.",
+    "No production currentness, causal confidence, issuer authority or formal G acceptance follows from these controls."
+  ],
+  "decision_refs": [
+    "decisions/v6-current-l2-alternatives-20261010.md",
+    "decisions/v6-candidate-alternative-prototype-executed-20261010.md",
+    "decisions/v6-whole-api-lifecycle-owner-scope-20261010.md"
+  ],
+  "independent_reviews": [
+    "reviews/v6-fixture-owner-scope-independent-20261010.md",
+    "reviews/v6-whole-api-lifecycle-owner-scope-independent-20261010.md"
+  ],
+  "proposal_ids": [
+    "B13"
+  ],
+  "proposal_occurrences": [
+    {
+      "finding_id": "B13",
+      "occurrence_pointer": "/findings/42/criterion_refs/0",
+      "criterion_sha256": "8718ad1c767f83c1f9e5cf47c86e84a80b44005a548d2a109c9d15cc0ebbc799"
+    }
+  ],
+  "closure_ids": [],
+  "formal_closure_ids": [],
+  "proposal_fields": {
+    "status": "limited",
+    "source_derived_positive": "held pending qualified current L2/producer input",
+    "individual_outcomes": "full occurrence proposal report, never automatic closure from 2 PASS"
+  }
+}

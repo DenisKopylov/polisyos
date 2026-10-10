@@ -18,17 +18,25 @@ transportability layer over the dataset catalog built by the batch pipeline.
   `search_mode="text"` keeps text matches as candidates and carries the selected-generation or
   encoder refusal reason when vector admission is unavailable. Deterministic lookup results that
   did not run a search leave both fields unset.
+- Query rows and the atomic response also carry `query_generation_context`, with an explicit
+  `selected`, `absent`, `refused`, or `unknown` state. A selected context includes the persisted
+  generation/profile and the live reader encoder profile checked for that query, including the
+  content identity used by the compatibility check. The identity describes loaded encoder assets;
+  it does not prove executable `encode` behavior, trusted provider ownership, ranking quality, or
+  policy authority. Legacy list callers cannot preserve status for empty results; use the atomic
+  response where query-local context matters.
 - `DatasetCatalogGraph.search_datasets_with_status` returns one `DatasetSearchResponse` envelope
   containing the rows and mode/refusal from that same query, so a vector refusal remains visible
   when text fallback finds no rows. `DatasetCatalogGraph.search_datasets` and the direct
   `KnowledgeToolkit.search_datasets` method retain their legacy list return. The registered
   `search_datasets` knowledge tool uses the envelope bridge and serializes `results`,
-  `search_mode`, `vector_refusal_code`, and any `limitation_code` together. A missing catalog
-  or legacy reader without per-query status reports a limitation instead of an unqualified empty
-  result.
+  `search_mode`, `vector_refusal_code`, `limitation_code`, and `query_generation_context` together.
+  A missing catalog or legacy reader without per-query status reports a limitation and unknown
+  query context instead of an unqualified empty result.
 - Measurement-root artifacts and semantic benchmark runs preserve status from the same query
   envelope; they do not reconstruct it from the graph's last-query diagnostic metrics. A v2
-  semantic benchmark run carries query-local status while v1 serialization remains unchanged.
+  semantic benchmark run carries query-local status and generation context while v1 serialization
+  remains unchanged.
 - **Dataset registry** - `DatasetRegistry` resolves datasets for canonical variables and P*(Z) estimates.
 - **Proxy resolution** - `proxy_resolver.py` builds fallback chains when direct observations are missing.
 - **Variable alignment** - `variable_alignment.py` maps canonical SKG variables onto dataset variables.

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass
 from threading import RLock
 from typing import TYPE_CHECKING, Literal
@@ -12,7 +13,11 @@ import numpy as np
 
 from polisyos.common.logger import get_logger
 from polisyos.data_forge.domains.catalog.knowledge.store import DatasetCatalogStore
-from polisyos.data_forge.domains.catalog.knowledge.types import DatasetSearchResponse
+from polisyos.data_forge.domains.catalog.knowledge.types import (
+    CatalogEmbeddingProfile,
+    CatalogQueryGenerationContext,
+    DatasetSearchResponse,
+)
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -27,6 +32,7 @@ if TYPE_CHECKING:
         MetricBindingMatch,
         ResolvedFetchTarget,
     )
+    from polisyos.data_forge.kernel.embeddings import EmbeddingGenerationRef
 
 logger = get_logger(__name__)
 _TEXT_QUERY_EXPANSIONS: tuple[tuple[str, str], ...] = (
@@ -290,6 +296,59 @@ def _effective_encoder_dimension(encoder: object) -> int | None:
     return int(dimension) if int(dimension) > 0 else None
 
 
+def _profile_from_generation(
+    generation: EmbeddingGenerationRef,
+) -> CatalogEmbeddingProfile | None:
+    """Project the validated generation's encoder profile without its local paths."""
+    inventory = generation.inventory
+    basis = inventory.get("basis")
+    model = inventory.get("embedding_model")
+    device = inventory.get("embedding_device")
+    dimension = inventory.get("embedding_dimension")
+    if (
+        not isinstance(basis, Mapping)
+        or not isinstance(model, str)
+        or not model.strip()
+        or not isinstance(device, str)
+        or not device.strip()
+        or isinstance(dimension, bool)
+        or not isinstance(dimension, int)
+        or dimension != generation.dimension
+    ):
+        return None
+    basis_kind = basis.get("basis_kind")
+    generator_rule_version = basis.get("generator_rule_version")
+    basis_digest = basis.get("basis_digest")
+    if (
+        not isinstance(basis_kind, str)
+        or not basis_kind.strip()
+        or not isinstance(generator_rule_version, str)
+        or not generator_rule_version.strip()
+        or not isinstance(basis_digest, str)
+        or re.fullmatch(r"sha256:[0-9a-f]{64}", basis_digest) is None
+    ):
+        return None
+    encoder_marker = "|encoder="
+    encoder_identity = (
+        generator_rule_version.rsplit(encoder_marker, maxsplit=1)[1]
+        if encoder_marker in generator_rule_version
+        else None
+    )
+    if encoder_identity == "unbound" or not re.fullmatch(
+        r"sha256:[0-9a-f]{64}", encoder_identity or ""
+    ):
+        encoder_identity = None
+    return CatalogEmbeddingProfile(
+        embedding_model=model,
+        embedding_device=device,
+        embedding_dimension=dimension,
+        encoder_asset_identity=encoder_identity,
+        basis_kind=basis_kind,
+        generator_rule_version=generator_rule_version,
+        basis_digest=basis_digest,
+    )
+
+
 class DatasetCatalogGraph:
     """Read-only access to the dataset catalog with hybrid search."""
 
@@ -314,23 +373,73 @@ class DatasetCatalogGraph:
         self._last_query_metrics: QueryMetrics | None = None
         self._query_lock = RLock()
 
-    def _get_query_embedding(self, query: str) -> tuple[np.ndarray | None, str | None, str | None]:
-        """Return the query vector, selected generation ID, and local refusal."""
-        if self._embedding_disabled:
-            return None, None, "query_encoder_disabled"
+    def _get_query_embedding(
+        self, query: str
+    ) -> tuple[
+        np.ndarray | None,
+        str | None,
+        str | None,
+        CatalogQueryGenerationContext,
+    ]:
+        """Return the query vector, selected generation, refusal, and checked context."""
         generation = self._store._current_dataset_generation()
+        generation_reason = self._store.vector_index_refusal_reason
+
+        def generation_context(
+            state: Literal["selected", "absent", "refused", "unknown"],
+            *,
+            reader_profile: CatalogEmbeddingProfile | None = None,
+        ) -> CatalogQueryGenerationContext:
+            if generation is None:
+                return CatalogQueryGenerationContext(state=state)
+            return CatalogQueryGenerationContext(
+                state=state,
+                selected_generation_id=generation.generation_id,
+                selected_profile=_profile_from_generation(generation),
+                reader_profile=reader_profile,
+            )
+
+        if self._embedding_disabled:
+            state = (
+                "absent"
+                if generation is None and generation_reason == "selected_generation_unavailable"
+                else "refused"
+            )
+            return None, None, "query_encoder_disabled", generation_context(state)
         if generation is None:
+            refusal_code = generation_reason or "selected_generation_unavailable"
+            state = "absent" if refusal_code == "selected_generation_unavailable" else "refused"
             return (
                 None,
                 None,
-                self._store.vector_index_refusal_reason or "selected_generation_unavailable",
+                refusal_code,
+                generation_context(state),
+            )
+        selected_profile = _profile_from_generation(generation)
+        if selected_profile is None:
+            return (
+                None,
+                generation.generation_id,
+                "query_encoder_intent_unavailable",
+                generation_context("refused"),
             )
         if generation.inventory.get("embedding_model") != self._embedding_model_name:
-            return None, None, "query_embedding_model_mismatch"
+            return (
+                None,
+                generation.generation_id,
+                "query_embedding_model_mismatch",
+                generation_context("refused"),
+            )
         raw_device = generation.inventory.get("embedding_device")
         if not isinstance(raw_device, str) or not raw_device.strip():
-            return None, None, "selected_generation_intent_unavailable"
+            return (
+                None,
+                generation.generation_id,
+                "selected_generation_intent_unavailable",
+                generation_context("refused"),
+            )
         generation_device = raw_device.strip()
+        reader_profile: CatalogEmbeddingProfile | None = None
         try:
             generation_intent = (self._embedding_model_name, generation_device)
             if self._embedder is None or self._embedder_generation_intent != generation_intent:
@@ -344,7 +453,32 @@ class DatasetCatalogGraph:
             dimension = _effective_encoder_dimension(self._embedder)
             device = _effective_encoder_device(self._embedder, requested=generation_device)
             if dimension is None or device is None:
-                return None, None, "query_encoder_intent_unavailable"
+                return (
+                    None,
+                    generation.generation_id,
+                    "query_encoder_intent_unavailable",
+                    generation_context("refused"),
+                )
+            try:
+                from polisyos.data_forge.kernel.embeddings import derive_encoder_identity
+
+                identity = derive_encoder_identity(self._embedder)
+                reader_profile = CatalogEmbeddingProfile(
+                    embedding_model=self._embedding_model_name,
+                    embedding_device=device,
+                    embedding_dimension=dimension,
+                    encoder_asset_identity=identity.content_identity,
+                )
+            except (
+                AttributeError,
+                ImportError,
+                OSError,
+                OverflowError,
+                RuntimeError,
+                TypeError,
+                ValueError,
+            ):
+                reader_profile = None
             if not self._store._query_generation_matches_encoder(
                 generation=generation,
                 encoder=self._embedder,
@@ -354,15 +488,21 @@ class DatasetCatalogGraph:
             ):
                 return (
                     None,
-                    None,
+                    generation.generation_id,
                     self._store.vector_index_refusal_reason
                     or "query_encoder_generation_intent_mismatch",
+                    generation_context("refused", reader_profile=reader_profile),
                 )
             vec = self._embedder.encode([query])[0].astype(np.float32)
             norm = np.linalg.norm(vec)
             if norm > 0:
                 vec = vec / norm
-            return vec, generation.generation_id, None
+            return (
+                vec,
+                generation.generation_id,
+                None,
+                generation_context("selected", reader_profile=reader_profile),
+            )
         except Exception as exc:
             self._embedding_disabled = True
             if not self._embedding_warning_logged:
@@ -370,7 +510,12 @@ class DatasetCatalogGraph:
                     "Failed to enable query embeddings; falling back to text-only search: {}", exc
                 )
                 self._embedding_warning_logged = True
-            return None, None, "query_encoder_execution_failed"
+            return (
+                None,
+                generation.generation_id,
+                "query_encoder_execution_failed",
+                generation_context("refused", reader_profile=reader_profile),
+            )
 
     @staticmethod
     def _expanded_text_queries(query: str) -> list[str]:
@@ -556,11 +701,13 @@ class DatasetCatalogGraph:
         explain: bool,
         search_mode: Literal["text", "vector"],
         vector_search_refusal: str | None = None,
+        query_generation_context: CatalogQueryGenerationContext,
     ) -> DatasetSearchResult:
         result_update = {
             "similarity": final_score,
             "search_mode": search_mode,
             "vector_refusal_code": vector_search_refusal,
+            "query_generation_context": query_generation_context,
         }
         if not explain:
             return item.model_copy(update=result_update)
@@ -646,7 +793,12 @@ class DatasetCatalogGraph:
         text_ms = (time.perf_counter() - text_start) * 1000.0
 
         vector_ms = 0.0
-        vec, query_generation_id, vector_refusal_code = self._get_query_embedding(query)
+        (
+            vec,
+            query_generation_id,
+            vector_refusal_code,
+            query_generation_context,
+        ) = self._get_query_embedding(query)
         vector_results: list[DatasetSearchResult] = []
         if vec is not None:
             vector_start = time.perf_counter()
@@ -659,6 +811,9 @@ class DatasetCatalogGraph:
             vector_ms = (time.perf_counter() - vector_start) * 1000.0
             if self._store.vector_index_refusal_reason is not None:
                 vector_refusal_code = self._store.vector_index_refusal_reason
+                query_generation_context = query_generation_context.model_copy(
+                    update={"state": "refused"}
+                )
                 vec = None
                 vector_results = []
                 vector_ms = 0.0
@@ -695,6 +850,7 @@ class DatasetCatalogGraph:
                     explain=explain,
                     search_mode="text",
                     vector_search_refusal=vector_refusal_code,
+                    query_generation_context=query_generation_context,
                 )
                 for item in results
             ]
@@ -702,6 +858,7 @@ class DatasetCatalogGraph:
                 results=projected_results,
                 search_mode="text",
                 vector_refusal_code=vector_refusal_code,
+                query_generation_context=query_generation_context,
             )
 
         scores: dict[str, float] = {}
@@ -748,6 +905,7 @@ class DatasetCatalogGraph:
                     final_score=score,
                     explain=explain,
                     search_mode="vector",
+                    query_generation_context=query_generation_context,
                 )
             )
             if len(out) >= top_k:
@@ -765,7 +923,11 @@ class DatasetCatalogGraph:
             vector_search_refusal=None,
             search_mode="vector",
         )
-        return DatasetSearchResponse(results=out, search_mode="vector")
+        return DatasetSearchResponse(
+            results=out,
+            search_mode="vector",
+            query_generation_context=query_generation_context,
+        )
 
     def suggest_related(self, dataset_id: str, *, top_k: int = 5) -> list[DatasetSearchResult]:
         base_dataset = self._store.get_dataset(dataset_id)

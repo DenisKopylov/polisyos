@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class DistributionResult(BaseModel):
@@ -28,6 +31,85 @@ class DistributionResult(BaseModel):
     checksum: str = ""
     default_filters: dict[str, list[str]] = Field(default_factory=dict)
     quality_score: float = 0.0
+
+
+class CatalogEmbeddingProfile(BaseModel):
+    """Persisted or live encoder profile observed during Catalog query admission.
+
+    This profile records retrieval compatibility inputs only. It does not attest
+    executable encoder behavior, production ownership, model quality, or policy
+    authority.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    embedding_model: str = Field(min_length=1)
+    embedding_device: str = Field(min_length=1)
+    embedding_dimension: int = Field(gt=0)
+    encoder_asset_identity: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    basis_kind: str | None = Field(default=None, min_length=1)
+    generator_rule_version: str | None = Field(default=None, min_length=1)
+    basis_digest: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+
+    @field_validator("embedding_model", "embedding_device")
+    @classmethod
+    def _nonblank_profile_value(cls, value: str) -> str:
+        normalized = value.strip()
+        if not normalized:
+            raise ValueError("embedding profile values cannot be blank")
+        return normalized
+
+
+class CatalogQueryGenerationContext(BaseModel):
+    """Carry the selected generation and live reader profile for one query."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    state: Literal["selected", "absent", "refused", "unknown"] = "unknown"
+    selected_generation_id: str | None = Field(default=None, min_length=1)
+    selected_profile: CatalogEmbeddingProfile | None = None
+    reader_profile: CatalogEmbeddingProfile | None = None
+
+    @model_validator(mode="after")
+    def _consistent_generation_context(self) -> CatalogQueryGenerationContext:
+        if self.state == "selected" and (
+            not self.selected_generation_id
+            or self.selected_profile is None
+            or self.reader_profile is None
+        ):
+            raise ValueError("selected query generation requires validated profiles")
+        if self.state == "selected":
+            if self.selected_profile is None or self.reader_profile is None:
+                raise ValueError("selected query generation requires validated profiles")
+            selected = self.selected_profile
+            reader = self.reader_profile
+            if (
+                selected.embedding_model != reader.embedding_model
+                or selected.embedding_device != reader.embedding_device
+                or selected.embedding_dimension != reader.embedding_dimension
+                or selected.encoder_asset_identity is None
+                or selected.encoder_asset_identity != reader.encoder_asset_identity
+            ):
+                raise ValueError("selected query generation requires a matching live encoder")
+        if self.state == "absent" and (
+            self.selected_generation_id is not None
+            or self.selected_profile is not None
+            or self.reader_profile is not None
+        ):
+            raise ValueError("absent query generation cannot carry a selected profile")
+        if self.state == "unknown" and (
+            self.selected_generation_id is not None
+            or self.selected_profile is not None
+            or self.reader_profile is not None
+        ):
+            raise ValueError("unknown query generation cannot claim profile context")
+        return self
 
 
 class DatasetSearchResult(BaseModel):
@@ -78,6 +160,12 @@ class DatasetSearchResult(BaseModel):
         default=None,
         description="Named reason vector retrieval was refused for this query, if any.",
     )
+    query_generation_context: CatalogQueryGenerationContext | None = Field(
+        default=None,
+        description=(
+            "Selected generation and reader profile checked for this query, when available."
+        ),
+    )
     search_explanation: dict[str, object] | None = None
 
     def embedding_text(self) -> str:
@@ -117,6 +205,50 @@ class DatasetSearchResponse(BaseModel):
         default=None,
         description="Reason this query's retrieval status could not be established.",
     )
+    query_generation_context: CatalogQueryGenerationContext = Field(
+        default_factory=CatalogQueryGenerationContext,
+        description="Selected generation and reader profile checked for this query.",
+    )
+
+    @classmethod
+    def from_result_rows(cls, results: Sequence[DatasetSearchResult]) -> DatasetSearchResponse:
+        """Build a status envelope from legacy row results without inventing context.
+
+        Older adapters return only rows. A true empty result therefore cannot
+        establish retrieval status and is represented as a limitation. When row
+        status is consistent, any shared generation context is retained; missing
+        or divergent row context remains explicitly unknown.
+        """
+        if not results:
+            return cls(limitation_code="query_status_unavailable")
+
+        search_modes = {getattr(result, "search_mode", None) for result in results}
+        refusal_codes = {getattr(result, "vector_refusal_code", None) for result in results}
+        if len(search_modes) != 1 or len(refusal_codes) != 1:
+            return cls(results=list(results), limitation_code="query_status_unavailable")
+
+        search_mode = next(iter(search_modes))
+        refusal_code = next(iter(refusal_codes))
+        if (
+            search_mode is None
+            or (search_mode == "text" and not refusal_code)
+            or (search_mode == "vector" and refusal_code is not None)
+        ):
+            return cls(results=list(results), limitation_code="query_status_unavailable")
+
+        contexts = [getattr(result, "query_generation_context", None) for result in results]
+        first_context = contexts[0]
+        query_context = (
+            first_context
+            if first_context is not None and all(context == first_context for context in contexts)
+            else CatalogQueryGenerationContext()
+        )
+        return cls(
+            results=list(results),
+            search_mode=search_mode,
+            vector_refusal_code=refusal_code,
+            query_generation_context=query_context,
+        )
 
     @model_validator(mode="after")
     def _consistent_query_status(self) -> DatasetSearchResponse:

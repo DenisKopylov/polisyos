@@ -119,37 +119,11 @@ class KnowledgeToolkit:
         if callable(status_search):
             return status_search(query, domain_filter=domain, top_k=top_k)
 
-        # Keep adapters around older catalog implementations usable. Their empty
-        # result cannot establish query status, so do not infer it from diagnostics.
+        # Keep adapters around older catalog implementations usable. The shared
+        # envelope mapper preserves only status and context carried by every row;
+        # an empty result remains an explicit limitation.
         results = self.search_datasets(query, domain=domain, top_k=top_k)
-        if not results:
-            return DatasetSearchResponse(
-                results=results,
-                limitation_code="query_status_unavailable",
-            )
-        search_modes = {result.search_mode for result in results}
-        refusal_codes = {result.vector_refusal_code for result in results}
-        if len(search_modes) != 1 or len(refusal_codes) != 1:
-            return DatasetSearchResponse(
-                results=results,
-                limitation_code="query_status_unavailable",
-            )
-        search_mode = next(iter(search_modes))
-        refusal_code = next(iter(refusal_codes))
-        if (
-            search_mode is None
-            or (search_mode == "text" and not refusal_code)
-            or (search_mode == "vector" and refusal_code is not None)
-        ):
-            return DatasetSearchResponse(
-                results=results,
-                limitation_code="query_status_unavailable",
-            )
-        return DatasetSearchResponse(
-            results=results,
-            search_mode=search_mode,
-            vector_refusal_code=refusal_code,
-        )
+        return DatasetSearchResponse.from_result_rows(results)
 
     def find_datasets_for_metric(
         self,

@@ -234,31 +234,7 @@ def _search_catalog_with_status(
             return DatasetSearchResponse(limitation_code="query_status_unavailable")
 
     rows = catalog_graph.search_datasets(query, top_k=top_k, explain=explain)
-    if not rows:
-        return DatasetSearchResponse(limitation_code="query_status_unavailable")
-    search_modes = {row.search_mode for row in rows}
-    refusal_codes = {row.vector_refusal_code for row in rows}
-    if len(search_modes) != 1 or len(refusal_codes) != 1:
-        return DatasetSearchResponse(
-            results=rows,
-            limitation_code="query_status_unavailable",
-        )
-    search_mode = next(iter(search_modes))
-    refusal_code = next(iter(refusal_codes))
-    if (
-        search_mode is None
-        or (search_mode == "text" and not refusal_code)
-        or (search_mode == "vector" and refusal_code is not None)
-    ):
-        return DatasetSearchResponse(
-            results=rows,
-            limitation_code="query_status_unavailable",
-        )
-    return DatasetSearchResponse(
-        results=rows,
-        search_mode=search_mode,
-        vector_refusal_code=refusal_code,
-    )
+    return DatasetSearchResponse.from_result_rows(rows)
 
 
 class _SourceRequirementScopeProtocol(Protocol):

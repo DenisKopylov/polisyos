@@ -127,6 +127,8 @@ def test_catalog_read_api_exports_shared_generation_currentness_helpers() -> Non
     from polisyos.data_forge.read_api import catalog
 
     expected = {
+        "CatalogEmbeddingProfile",
+        "CatalogQueryGenerationContext",
         "EmbeddingGenerationRef",
         "embedding_generation_matches_encoder",
         "generation_basis_matches_members",
@@ -391,6 +393,19 @@ def test_toolkit_reports_selected_generation_refusal_without_explanation(
         assert compatible_results
         assert compatible_results[0].search_mode == "vector"
         assert compatible_results[0].vector_refusal_code is None
+        selected_context = compatible_results[0].query_generation_context
+        assert selected_context is not None
+        assert selected_context.state == "selected"
+        assert selected_context.selected_generation_id
+        assert selected_context.selected_profile is not None
+        assert selected_context.reader_profile is not None
+        assert (
+            selected_context.selected_profile.encoder_asset_identity
+            == selected_context.reader_profile.encoder_asset_identity
+        )
+        actual_generation = compatible_graph._store._current_dataset_generation()
+        assert actual_generation is not None
+        assert selected_context.selected_generation_id == actual_generation.generation_id
     finally:
         compatible_graph.close()
 
@@ -411,6 +426,16 @@ def test_toolkit_reports_selected_generation_refusal_without_explanation(
         assert results[0].search_mode == "text"
         assert results[0].vector_refusal_code == "query_encoder_generation_intent_mismatch"
         assert results[0].search_explanation is None
+        refused_context = results[0].query_generation_context
+        assert refused_context is not None
+        assert refused_context.state == "refused"
+        assert refused_context.selected_generation_id
+        assert refused_context.selected_profile is not None
+        assert refused_context.reader_profile is not None
+        assert (
+            refused_context.selected_profile.encoder_asset_identity
+            != refused_context.reader_profile.encoder_asset_identity
+        )
         assert incompatible_encoder.encode_calls == 0
         context = toolkit.format_dataset_context(results)
         assert "query_encoder_generation_intent_mismatch" in context
@@ -431,6 +456,8 @@ def test_toolkit_reports_selected_generation_refusal_without_explanation(
         assert tool_result.result["vector_refusal_code"] == (
             "query_encoder_generation_intent_mismatch"
         )
+        assert tool_result.result["query_generation_context"]["state"] == "refused"
+        assert tool_result.result["query_generation_context"]["selected_generation_id"]
     finally:
         incompatible_graph.close()
 
@@ -447,6 +474,8 @@ def test_toolkit_reports_selected_generation_refusal_without_explanation(
         assert wrong_profile_results[0].search_mode == "text"
         assert wrong_profile_results[0].vector_refusal_code == "query_embedding_model_mismatch"
         assert wrong_profile_results[0].search_explanation is None
+        assert wrong_profile_results[0].query_generation_context is not None
+        assert wrong_profile_results[0].query_generation_context.state == "refused"
     finally:
         wrong_profile_graph.close()
 
@@ -485,6 +514,21 @@ def test_registered_search_tool_keeps_refusal_for_empty_query_results(
     selector_before = selector_path.read_bytes()
     query = "unmatched planetary query"
 
+    absent_graph = DatasetCatalogGraph(db_path, tmp_path / "no-selected-generation")
+    try:
+        absent_tool_result = build_knowledge_tool_registry(
+            KnowledgeToolkit(dataset_catalog=absent_graph)
+        ).execute("search_datasets", {"query": query, "top_k": 1})
+        assert absent_tool_result.error is None
+        assert absent_tool_result.result["results"] == []
+        assert absent_tool_result.result["search_mode"] == "text"
+        assert absent_tool_result.result["vector_refusal_code"] == (
+            "selected_generation_unavailable"
+        )
+        assert absent_tool_result.result["query_generation_context"] == {"state": "absent"}
+    finally:
+        absent_graph.close()
+
     refusing_encoder = _CatalogEncoder(weight=(0.0, 1.0))
     monkeypatch.setitem(
         sys.modules,
@@ -501,11 +545,18 @@ def test_registered_search_tool_keeps_refusal_for_empty_query_results(
             {"query": query, "top_k": 1},
         )
         assert tool_result.error is None
-        assert tool_result.result == {
-            "results": [],
-            "search_mode": "text",
-            "vector_refusal_code": "query_encoder_generation_intent_mismatch",
-        }
+        assert tool_result.result["results"] == []
+        assert tool_result.result["search_mode"] == "text"
+        assert tool_result.result["vector_refusal_code"] == (
+            "query_encoder_generation_intent_mismatch"
+        )
+        assert tool_result.result["query_generation_context"]["state"] == "refused"
+        assert tool_result.result["query_generation_context"]["selected_generation_id"]
+        refused_context = tool_result.result["query_generation_context"]
+        assert (
+            refused_context["selected_profile"]["encoder_asset_identity"]
+            != (refused_context["reader_profile"]["encoder_asset_identity"])
+        )
         assert refusing_encoder.encode_calls == 0
     finally:
         refusing_graph.close()
@@ -525,15 +576,43 @@ def test_registered_search_tool_keeps_refusal_for_empty_query_results(
             {"query": query, "top_k": 1, "domain": "no-such-theme"},
         )
         assert compatible_tool_result.error is None
-        assert compatible_tool_result.result == {
-            "results": [],
-            "search_mode": "vector",
-        }
+        assert compatible_tool_result.result["results"] == []
+        assert compatible_tool_result.result["search_mode"] == "vector"
+        assert "vector_refusal_code" not in compatible_tool_result.result
+        assert compatible_tool_result.result["query_generation_context"]["state"] == "selected"
+        assert compatible_tool_result.result["query_generation_context"]["selected_generation_id"]
+        compatible_context = compatible_tool_result.result["query_generation_context"]
+        assert (
+            compatible_context["selected_profile"]["encoder_asset_identity"]
+            == (compatible_context["reader_profile"]["encoder_asset_identity"])
+        )
         assert compatible_encoder.encode_calls > 0
     finally:
         compatible_graph.close()
 
     assert selector_path.read_bytes() == selector_before
+
+
+def test_legacy_empty_search_remains_limited_with_unknown_generation_context() -> None:
+    class LegacyCatalog:
+        def search_datasets(
+            self,
+            _query: str,
+            *,
+            domain_filter: str | None = None,
+            top_k: int = 10,
+        ) -> list[object]:
+            del domain_filter, top_k
+            return []
+
+    toolkit = KnowledgeToolkit(dataset_catalog=LegacyCatalog())  # type: ignore[arg-type]
+    response = toolkit.search_datasets_with_status("empty legacy response")
+
+    assert response.results == []
+    assert response.search_mode is None
+    assert response.vector_refusal_code is None
+    assert response.limitation_code == "query_status_unavailable"
+    assert response.query_generation_context.state == "unknown"
 
 
 def test_overlapping_queries_keep_their_own_encoder_status(monkeypatch, tmp_path: Path) -> None:

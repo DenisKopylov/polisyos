@@ -3797,6 +3797,13 @@ class WorkspaceLoop:
                 "dataset_id": hit.id,
                 "search_mode": getattr(hit, "search_mode", None),
                 "vector_refusal_code": getattr(hit, "vector_refusal_code", None),
+                "query_generation_context": (
+                    hit.query_generation_context.model_dump(mode="json", exclude_none=True)
+                    if hit.query_generation_context is not None
+                    else search_response.query_generation_context.model_dump(
+                        mode="json", exclude_none=True
+                    )
+                ),
                 "calibrated_relevance": _calibrated_relevance(
                     hit=hit,
                     manifest=manifest,
@@ -3813,6 +3820,7 @@ class WorkspaceLoop:
                     search_mode=search_response.search_mode,
                     vector_refusal_code=search_response.vector_refusal_code,
                     limitation_code=search_response.limitation_code,
+                    query_generation_context=search_response.query_generation_context,
                 )
             ],
         )

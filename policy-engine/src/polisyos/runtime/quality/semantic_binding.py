@@ -18,6 +18,7 @@ from pydantic import (
     model_validator,
 )
 
+from polisyos.data_forge.read_api.catalog import CatalogQueryGenerationContext
 from polisyos.runtime.quality.candidate_firewall import (
     candidate_firewall_issues_for_payload,
 )
@@ -81,7 +82,7 @@ class GySemanticBenchmark(BaseModel):
 
 
 class SemanticBenchmarkQueryStatus(BaseModel):
-    """Retrieval mode and refusal/limitation for one exact benchmark query."""
+    """Retrieval status and checked Catalog generation context for one query."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -89,6 +90,10 @@ class SemanticBenchmarkQueryStatus(BaseModel):
     search_mode: Literal["text", "vector"] | None = None
     vector_refusal_code: str | None = None
     limitation_code: str | None = None
+    query_generation_context: CatalogQueryGenerationContext = Field(
+        default_factory=CatalogQueryGenerationContext,
+        description="Selected Catalog generation and live reader profile checked for this query.",
+    )
 
     @model_validator(mode="after")
     def _consistent_status(self) -> SemanticBenchmarkQueryStatus:

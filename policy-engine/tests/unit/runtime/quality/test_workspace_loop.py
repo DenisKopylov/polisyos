@@ -362,10 +362,20 @@ def test_slice0_semantic_benchmark_feeds_incompleteness_record(tmp_path: Path) -
             "search_mode": "text",
             "vector_refusal_code": "selected_generation_unavailable",
             "limitation_code": None,
+            "query_generation_context": {
+                "state": "absent",
+                "selected_generation_id": None,
+                "selected_profile": None,
+                "reader_profile": None,
+            },
         }
     ]
     assert benchmark_run["returned_hits"]
     assert all(hit["search_mode"] == "text" for hit in benchmark_run["returned_hits"])
+    assert all(
+        hit["query_generation_context"] == {"state": "absent"}
+        for hit in benchmark_run["returned_hits"]
+    )
     assert all(
         hit["vector_refusal_code"] == "selected_generation_unavailable"
         for hit in benchmark_run["returned_hits"]
@@ -571,10 +581,17 @@ def test_measurement_root_producer_resolves_catalog_and_persists_cas(tmp_path: P
     assert payload["measurement_rows"][0]["source_ref"].startswith("https://api.worldbank.org/")
     assert payload["catalog_result"]["search_mode"] == "text"
     assert payload["catalog_result"]["vector_refusal_code"] == "selected_generation_unavailable"
+    assert payload["catalog_result"]["query_generation_context"] == {
+        "state": "absent",
+        "selected_generation_id": None,
+        "selected_profile": None,
+        "reader_profile": None,
+    }
     assert payload["catalog_search_status"] == {
         "query": manifest.construct_scope_query,
         "search_mode": "text",
         "vector_refusal_code": "selected_generation_unavailable",
+        "query_generation_context": {"state": "absent"},
     }
 
 

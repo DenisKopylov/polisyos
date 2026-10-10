@@ -1,0 +1,18 @@
+# I001 remaining WIP admission — current source readback
+
+Read-only admission at HEAD `50caeb3ec6c0186b90a0611d90f3f8699527c306` (tree `363a1cc29f0d2d8727fc632e0909fb310810a2dc`) in `/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos`. The complete tracked `*.py`/`*.pyi` worktree diff contains **321 paths**. The reviewed I001 patch has 221 unique paths; 219 overlap the current diff and 2 already match HEAD.
+
+**Six paths qualify** under a strict per-file predicate: reverse application check passes; exact reviewed hunks applied to the HEAD blob in memory reproduce the current worktree bytes; normalized non-import AST, lexical-scope/guard import-binding multiset, comments, `__all__`, and the complete ordered scoped import-binding event stream are unchanged. The last comparison is stricter than first-owner module-order equivalence, so no changed import-alias ordering is admitted.
+
+- `policy-engine/src/polisyos/core/canon/canon_json.py` — HEAD `c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95`, current `5ef0eea584ca56817c04be37590b2cd015ab1f6f8f2b176e9b76217bdc674dd0`; exact reviewed postimage and all source invariants pass.
+- `policy-engine/src/polisyos/core/canon/hashing.py` — HEAD `a32caf919317c5667ac02bde68fa6a1d0fa064e1edeb44c89bc066a14a9272c0`, current `cedb873bdcc2970493498af29fd35145d5fa05c641f30e54c7352664d03b2e8d`; exact reviewed postimage and all source invariants pass.
+- `policy-engine/src/polisyos/ir/model_layer/canon.py` — HEAD `4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b`, current `a6ce12cc9b5447b90de56fc11575ee9a2b1ba82fa45178f29d399d47dc620e17`; exact reviewed postimage and all source invariants pass.
+- `policy-engine/tests/unit/foundry/runtime/test_constraints_executor.py` — HEAD `230f4244dd18b0e818683128ffb583cfa8df8229b0277808f8f87eb92b7db0bf`, current `792a2b4e2e3685dddf5e5dff9c2aa4d431735bfcb4bfc78301e0053e660daba5`; exact reviewed postimage and all source invariants pass.
+- `policy-engine/tests/unit/remediation/test_eco_01.py` — HEAD `f0dd85cfd6f0f2c2a92c643b3cf3fb73ab708e984a54d5510fd375f6235b44ad`, current `fb12f9a173d3c34834e2e96b1b56ebe441bd8456952c4986d0960099bab59d5a`; exact reviewed postimage and all source invariants pass.
+- `policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py` — HEAD `46ebf470762385b9f511379e1510e5c10d2455152081999b4c5d14ffd5b2dbc5`, current `af5be0538aafa15e68d1701d75fba5f4108363231ba11002b55da463550101fb`; exact reviewed postimage and all source invariants pass.
+
+The remaining 213 changed paths overlapping the I001 patch are withheld because one or more required postimage/source invariants fail. The other 102 changed paths are outside this patch. P40 bucket: **SAME_CLASS_DEEPER**. This admits only the listed static import-only changes; it is not runtime/test verification.
+
+The full 321-path base/current SHA-256 manifest and per-path decisions are in [`raw/i001-remaining-admission-20261010.json`](../raw/i001-remaining-admission-20261010.json), SHA-256 `bfb15b6c637c66eddf6e10ccf75812030780226cef533d482582ef81d55943c5`. Reviewed patch `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-i001-name-and-group-proposal.patch` SHA-256 `d3d29805b8eecba3ec7414753318cf3aced854e511679ba7796e5634917585e9`; independent static review `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/native-i001-name-and-group-independent-20261010.md` SHA-256 `650307b36dd1819e7b41ee17ad3bb272de236a7b86931c219c61cf7e26e5d7f1`. Selector: `git diff HEAD --name-only -- '*.py' '*.pyi'`.
+
+No tests, Ruff, product imports, numerical runs, or source edits were performed.

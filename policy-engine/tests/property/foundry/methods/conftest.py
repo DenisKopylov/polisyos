@@ -26,4 +26,12 @@ def isolated_registry():
         yield reg
 
 
+@pytest.fixture
+def property_method_dispatcher():
+    """Provide a dispatcher without runtime backend reselection."""
+    from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+
+    return MethodDispatcher(enable_runtime_selection=False)
+
+
 fresh_registry = isolated_registry

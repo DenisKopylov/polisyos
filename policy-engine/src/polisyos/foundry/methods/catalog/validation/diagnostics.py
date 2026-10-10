@@ -78,6 +78,21 @@ class CrossValidationEstimator:
     )
 
     @staticmethod
+    def materialize_input(
+        bound_inputs: Mapping[str, Any],
+        fallback_state: Any,
+    ) -> Mapping[str, Any]:
+        """Preserve the declared ``fold_scores`` name across chain execution."""
+        if bound_inputs:
+            if set(bound_inputs) != {"fold_scores"}:
+                raise ValueError("expected exactly the 'fold_scores' input slot")
+            return dict(bound_inputs)
+
+        if isinstance(fallback_state, Mapping) and "fold_scores" in fallback_state:
+            return fallback_state
+        raise ValueError("fallback state must contain the 'fold_scores' input slot")
+
+    @staticmethod
     def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
         del params
         scores = np.asarray(state["fold_scores"], dtype=float)

@@ -1,6 +1,4 @@
-"""
-Property-based tests for Gaussian Process and variational inference methods.
-"""
+"""Property-based tests for Gaussian Process and variational inference methods."""
 
 from __future__ import annotations
 
@@ -17,21 +15,24 @@ except ImportError:
     HYPOTHESIS_AVAILABLE = False
 
 pytestmark = pytest.mark.skipif(not HYPOTHESIS_AVAILABLE, reason="hypothesis not installed")
-
 sys.path.insert(0, "src")
 
-from tests.unit.foundry.methods.testing.strategies import (
-    bayesian_regression_strategy,
-)
+from tests.unit.foundry.methods.testing.property_invocation import invoke_property_method
+from tests.unit.foundry.methods.testing.strategies import bayesian_regression_strategy
 
 
 def _check_finite(result: dict, fqn: str) -> None:
-    for key, val in result.items():
-        arr = np.asarray(val)
-        if arr.dtype == object:
-            continue
-        if np.issubdtype(arr.dtype, np.floating) and arr.size > 0:
-            assert arr.shape is not None
+    posterior = result["result"]
+    assert posterior.posterior_means, f"{fqn} returned no posterior means"
+    for name, value in posterior.posterior_means.items():
+        assert np.isfinite(value), f"Non-finite posterior mean {name!r} in {fqn}"
+    for name, interval in posterior.credible_intervals.items():
+        bounds = np.asarray(interval, dtype=float)
+        assert np.isfinite(bounds).all(), f"Non-finite interval {name!r} in {fqn}"
+        assert bounds[0] <= bounds[1], f"Reversed interval {name!r} in {fqn}"
+    predictions = np.asarray(result["prediction_result"].predictions, dtype=float)
+    assert predictions.size > 0
+    assert np.isfinite(predictions).all(), f"Non-finite predictions in {fqn}"
 
 
 class TestGaussianProcessProperties:
@@ -41,16 +42,18 @@ class TestGaussianProcessProperties:
         deadline=20000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_gp_regression_output_finite(self, data, isolated_registry):
+    def test_gp_regression_output_finite(self, data, isolated_registry, property_method_dispatcher):
         fqn = "bayesian.gp.gp_regression@1.0.0"
         method = isolated_registry.get(fqn)
-        state = {"features": data["X"], "target": data["y"]}
-        try:
-            result = method.pure_step(state, {"kernel": "rbf", "seed": 42})
-            assert isinstance(result, dict)
-            _check_finite(result, fqn)
-        except Exception:
-            pass
+        result = invoke_property_method(
+            dispatcher=property_method_dispatcher,
+            method_class=method,
+            state={"features": data["X"], "target": data["y"]},
+            params={"kernel": "rbf"},
+            seed=42,
+        )
+        assert isinstance(result.output, dict)
+        _check_finite(result.output, fqn)
 
     @given(data=bayesian_regression_strategy())
     @settings(
@@ -58,19 +61,20 @@ class TestGaussianProcessProperties:
         deadline=20000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_gp_predictive_variance_positive(self, data, isolated_registry):
-        """GP predictive variance should be non-negative."""
-        fqn = "bayesian.gp.gp_regression@1.0.0"
-        method = isolated_registry.get(fqn)
-        state = {"features": data["X"], "target": data["y"]}
-        try:
-            result = method.pure_step(state, {"kernel": "rbf", "seed": 0})
-            if "predictive_variance" in result:
-                var = np.asarray(result["predictive_variance"])
-                if np.all(np.isfinite(var)):
-                    assert np.all(var >= -1e-10), "GP predictive variance is negative"
-        except Exception:
-            pass
+    def test_gp_reported_uncertainty_interval_ordered(
+        self, data, isolated_registry, property_method_dispatcher
+    ):
+        method = isolated_registry.get("bayesian.gp.gp_regression@1.0.0")
+        result = invoke_property_method(
+            dispatcher=property_method_dispatcher,
+            method_class=method,
+            state={"features": data["X"], "target": data["y"]},
+            params={"kernel": "rbf"},
+            seed=0,
+        )
+        lower, upper = result.output["uncertainty_envelope"].confidence_interval
+        assert np.isfinite([lower, upper]).all()
+        assert lower <= upper
 
     @given(data=bayesian_regression_strategy())
     @settings(
@@ -78,16 +82,28 @@ class TestGaussianProcessProperties:
         deadline=20000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_gp_deterministic_same_seed(self, data, isolated_registry):
-        fqn = "bayesian.gp.gp_regression@1.0.0"
-        method = isolated_registry.get(fqn)
+    def test_gp_deterministic_same_seed(self, data, isolated_registry, property_method_dispatcher):
+        method = isolated_registry.get("bayesian.gp.gp_regression@1.0.0")
         state = {"features": data["X"], "target": data["y"]}
-        try:
-            r1 = method.pure_step(state, {"seed": 42})
-            r2 = method.pure_step(state, {"seed": 42})
-            assert set(r1.keys()) == set(r2.keys())
-        except Exception:
-            pass
+        first = invoke_property_method(
+            dispatcher=property_method_dispatcher,
+            method_class=method,
+            state=state,
+            params={},
+            seed=42,
+        )
+        second = invoke_property_method(
+            dispatcher=property_method_dispatcher,
+            method_class=method,
+            state=state,
+            params={},
+            seed=42,
+        )
+        np.testing.assert_array_equal(
+            first.output["prediction_result"].predictions,
+            second.output["prediction_result"].predictions,
+        )
+        assert first.output["rmse_test"] == second.output["rmse_test"]
 
 
 class TestVariationalInferenceProperties:
@@ -97,15 +113,18 @@ class TestVariationalInferenceProperties:
         deadline=20000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_mean_field_vi_output_dict(self, data, isolated_registry):
-        fqn = "bayesian.variational.mean_field_vi@1.0.0"
-        method = isolated_registry.get(fqn)
-        state = {"features": data["X"], "target": data["y"]}
-        try:
-            result = method.pure_step(state, {"n_iterations": 100, "seed": 42})
-            assert isinstance(result, dict)
-        except Exception:
-            pass
+    def test_mean_field_vi_output_dict(self, data, isolated_registry, property_method_dispatcher):
+        method = isolated_registry.get("bayesian.variational.mean_field_vi@1.0.0")
+        result = invoke_property_method(
+            dispatcher=property_method_dispatcher,
+            method_class=method,
+            state={"features": data["X"], "target": data["y"]},
+            params={"max_iter": 100},
+            seed=42,
+        )
+        assert isinstance(result.output, dict)
+        assert result.output["result"].method_name == "mean_field_vi"
+        assert result.output["elbo_history"]
 
     @given(data=bayesian_regression_strategy())
     @settings(
@@ -113,16 +132,15 @@ class TestVariationalInferenceProperties:
         deadline=20000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_elbo_is_finite(self, data, isolated_registry):
-        """ELBO (Evidence Lower BOund) should be finite after convergence."""
-        fqn = "bayesian.variational.mean_field_vi@1.0.0"
-        method = isolated_registry.get(fqn)
-        state = {"features": data["X"], "target": data["y"]}
-        try:
-            result = method.pure_step(state, {"n_iterations": 200, "seed": 0})
-            if "elbo" in result:
-                elbo = float(result["elbo"])
-                # ELBO should be finite (not necessarily converged, but not NaN)
-                assert not np.isnan(elbo), "ELBO is NaN"
-        except Exception:
-            pass
+    def test_elbo_history_is_finite(self, data, isolated_registry, property_method_dispatcher):
+        method = isolated_registry.get("bayesian.variational.mean_field_vi@1.0.0")
+        result = invoke_property_method(
+            dispatcher=property_method_dispatcher,
+            method_class=method,
+            state={"features": data["X"], "target": data["y"]},
+            params={"max_iter": 200},
+            seed=0,
+        )
+        history = np.asarray(result.output["elbo_history"], dtype=float)
+        assert history.size > 0
+        assert np.isfinite(history).all()

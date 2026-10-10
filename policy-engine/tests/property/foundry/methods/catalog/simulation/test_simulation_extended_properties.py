@@ -1,4 +1,4 @@
-"""Property-based tests for simulation methods — stock-flow, discrete event, bootstrap."""
+"""Property-based tests for stock-flow and bootstrap simulation methods."""
 
 from __future__ import annotations
 
@@ -18,9 +18,7 @@ except ImportError:
 pytestmark = pytest.mark.skipif(not HYPOTHESIS_AVAILABLE, reason="hypothesis not installed")
 sys.path.insert(0, "src")
 
-
-def _method_or_skip(registry, fqn):
-    return registry.get(fqn)
+from tests.unit.foundry.methods.testing.property_invocation import invoke_property_method
 
 
 class TestStockFlowProperties:
@@ -36,20 +34,25 @@ class TestStockFlowProperties:
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
     def test_stock_flow_output_finite(
-        self, initial_stock, inflow_rate, outflow_rate, n_steps, isolated_registry
+        self, initial_stock, inflow_rate, outflow_rate, n_steps, isolated_registry,
+        property_method_dispatcher,
     ):
-        method = _method_or_skip(isolated_registry, "simulation.system_dynamics.stock_flow@1.0.0")
-        state = {"initial_stock": initial_stock}
-        params = {"inflow_rate": inflow_rate, "outflow_rate": outflow_rate, "n_steps": n_steps}
-        try:
-            result = method.pure_step(state, params)
-            assert isinstance(result, dict)
-            for key, val in result.items():
-                arr = np.asarray(val)
-                if np.issubdtype(arr.dtype, np.floating) and arr.size > 0:
-                    assert np.any(np.isfinite(arr)), f"No finite in stock_flow/{key}"
-        except Exception:
-            pass
+        method = isolated_registry.get("simulation.system_dynamics.stock_flow@1.0.0")
+        result = invoke_property_method(
+            dispatcher=property_method_dispatcher,
+            method_class=method,
+            state={
+                "initial_stocks": np.asarray([initial_stock, initial_stock / 2.0], dtype=float),
+                "flow_matrix": np.asarray([[0.0, outflow_rate], [inflow_rate, 0.0]], dtype=float),
+            },
+            params={"n_steps": n_steps, "dt": 1.0},
+            seed=42,
+        )
+        payload = result.output["result"]
+        trajectory = np.asarray(payload["trajectory"], dtype=float)
+        assert trajectory.shape == (n_steps + 1, 2)
+        assert np.isfinite(trajectory).all()
+        assert np.isfinite(np.asarray(payload["final_stocks"], dtype=float)).all()
 
 
 class TestBootstrapProperties:
@@ -66,20 +69,27 @@ class TestBootstrapProperties:
         deadline=10000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_bootstrap_ci_covers_mean(self, data, n_boot, isolated_registry):
-        """Bootstrap CI should generally contain the sample mean."""
-        method = _method_or_skip(isolated_registry, "simulation.inference.bootstrap@1.0.0")
-        state = {"data": data}
-        params = {"n_bootstrap": n_boot, "statistic": "mean", "confidence_level": 0.99, "seed": 42}
-        try:
-            result = method.pure_step(state, params)
-            if "ci_lower" in result and "ci_upper" in result:
-                lo = float(result["ci_lower"])
-                hi = float(result["ci_upper"])
-                if np.isfinite(lo) and np.isfinite(hi):
-                    assert lo <= hi, f"CI lower > upper: {lo} > {hi}"
-        except Exception:
-            pass
+    def test_bootstrap_ci_bounds_ordered(
+        self, data, n_boot, isolated_registry, property_method_dispatcher
+    ):
+        method = isolated_registry.get("simulation.inference.bootstrap@1.0.0")
+        result = invoke_property_method(
+            dispatcher=property_method_dispatcher,
+            method_class=method,
+            state={"data": data},
+            params={
+                "n_bootstrap": n_boot,
+                "confidence_level": 0.99,
+                "seed": 42,
+            },
+            seed=42,
+        )
+        interval = result.output["result"]
+        assert interval["n_bootstrap"] == n_boot
+        lo = float(interval["ci_lower"])
+        hi = float(interval["ci_upper"])
+        assert np.isfinite([lo, hi]).all()
+        assert lo <= hi
 
     @given(
         data=st.lists(
@@ -93,18 +103,21 @@ class TestBootstrapProperties:
         deadline=10000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_bootstrap_se_non_negative(self, data, isolated_registry):
-        method = _method_or_skip(isolated_registry, "simulation.inference.bootstrap@1.0.0")
-        state = {"data": data}
-        params = {"n_bootstrap": 100, "statistic": "mean", "seed": 42}
-        try:
-            result = method.pure_step(state, params)
-            if "standard_error" in result:
-                se = float(result["standard_error"])
-                if np.isfinite(se):
-                    assert se >= -1e-10
-        except Exception:
-            pass
+    def test_bootstrap_standard_error_non_negative(
+        self, data, isolated_registry, property_method_dispatcher
+    ):
+        method = isolated_registry.get("simulation.inference.bootstrap@1.0.0")
+        result = invoke_property_method(
+            dispatcher=property_method_dispatcher,
+            method_class=method,
+            state={"data": data},
+            params={"n_bootstrap": 100, "seed": 42},
+            seed=42,
+        )
+        standard_error = float(result.output["result"]["bootstrap_se"])
+        assert result.output["result"]["n_bootstrap"] == 100
+        assert np.isfinite(standard_error)
+        assert standard_error >= 0.0
 
     @given(
         data=st.lists(
@@ -118,16 +131,18 @@ class TestBootstrapProperties:
         deadline=10000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_bootstrap_deterministic_with_seed(self, data, isolated_registry):
-        """Same seed → same bootstrap result."""
-        method = _method_or_skip(isolated_registry, "simulation.inference.bootstrap@1.0.0")
-        state = {"data": data}
-        params = {"n_bootstrap": 100, "statistic": "mean", "seed": 42}
-        try:
-            r1 = method.pure_step(state, params)
-            r2 = method.pure_step(state, params)
-            for k in r1:
-                if k in r2:
-                    np.testing.assert_array_equal(np.asarray(r1[k]), np.asarray(r2[k]))
-        except Exception:
-            pass
+    def test_bootstrap_deterministic_with_seed(
+        self, data, isolated_registry, property_method_dispatcher
+    ):
+        method = isolated_registry.get("simulation.inference.bootstrap@1.0.0")
+        arguments = {
+            "dispatcher": property_method_dispatcher,
+            "method_class": method,
+            "state": {"data": data},
+            "params": {"n_bootstrap": 100, "seed": 42},
+            "seed": 42,
+        }
+        first = invoke_property_method(**arguments).output["result"]
+        second = invoke_property_method(**arguments).output["result"]
+        assert first == second
+        assert first["n_bootstrap"] == second["n_bootstrap"] == 100

@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import datetime as dt
 import os
 import subprocess
 import sys
 import textwrap
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -126,10 +128,7 @@ def test_fabric_world_exact_facade_is_shared_by_release_deep_import_classifier(
     )
 
     edge_keys = {edge.key for edge in current_deep_import_edges}
-    assert (
-        "polisyos.runtime.quality.data_state_substrate->polisyos.fabric.world"
-        not in edge_keys
-    )
+    assert "polisyos.runtime.quality.data_state_substrate->polisyos.fabric.world" not in edge_keys
 
     descendant_edges: dict[str, guardrails.DeepImportEdge] = {}
     guardrails._maybe_add_deep_import(
@@ -140,9 +139,7 @@ def test_fabric_world_exact_facade_is_shared_by_release_deep_import_classifier(
         source_file=guardrails.REPO_ROOT / "src/polisyos/runtime/consumer.py",
         target_module="polisyos.fabric.world.store",
     )
-    assert set(descendant_edges) == {
-        "polisyos.runtime.consumer->polisyos.fabric.world.store"
-    }
+    assert set(descendant_edges) == {"polisyos.runtime.consumer->polisyos.fabric.world.store"}
 
 
 @pytest.mark.parametrize(
@@ -200,14 +197,30 @@ def test_runtime_lex_projection_has_no_unregistered_core_or_lex_edge(
 def test_checkpoint_scope_uses_candidate_security_route(
     current_deep_import_edges: tuple[guardrails.DeepImportEdge, ...],
 ) -> None:
-    security_targets = {
+    source = guardrails.REPO_ROOT / "src/polisyos/scientist/orchestration/engine/checkpoint.py"
+    tree = ast.parse(source.read_text(encoding="utf-8"))
+    security_imports = {
+        alias.name
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Import)
+        for alias in node.names
+        if alias.name.startswith("polisyos.core.security")
+    } | {
+        node.module
+        for node in ast.walk(tree)
+        if isinstance(node, ast.ImportFrom)
+        and node.module is not None
+        and node.module.startswith("polisyos.core.security")
+    }
+    private_security_edges = {
         edge.target_module
         for edge in current_deep_import_edges
         if edge.source_module == "polisyos.scientist.orchestration.engine.checkpoint"
-        and edge.target_module.startswith("polisyos.core.security")
+        and edge.target_module.startswith("polisyos.core.security.")
     }
 
-    assert security_targets == {"polisyos.core.security"}
+    assert security_imports == {"polisyos.core.security"}
+    assert private_security_edges == set()
 
 
 def test_guardrails_exception_registry_requires_declared_id(
@@ -259,6 +272,16 @@ def _generated_client_family(
     source_of_truth: str = "schemas/test.openapi.json",
     output_probe_command: tuple[str, ...] | None = None,
 ) -> guardrails.GeneratedArtifactFamily:
+    repo_root.mkdir(parents=True, exist_ok=True)
+    directory_contract = repo_root / "architecture/policies/directory_contracts.toml"
+    if not directory_contract.exists():
+        directory_contract.parent.mkdir(parents=True, exist_ok=True)
+        directory_contract.write_text(
+            '[[contract]]\npath = ".git"\nstatus = "local_only"\n'
+            '[[contract]]\npath = ".venv"\nstatus = "local_only"\n'
+            '[[contract]]\npath = "production_data"\nstatus = "local_only"\n',
+            encoding="utf-8",
+        )
     writer = textwrap.dedent(
         f"""
         import sys
@@ -295,6 +318,8 @@ def _generated_client_family(
         output_probe_command=output_probe_command
         or (sys.executable, "-c", writer, "{output_root}"),
         retention_days=None,
+        probe_input_roots=(repo_root,),
+        probe_required_paths=(directory_contract,),
     )
 
 
@@ -342,6 +367,7 @@ def test_generated_probe_preserves_caller_editable_binding(
             """),
         encoding="utf-8",
     )
+    (caller / "uv.toml").write_text('cache-dir = "_cache/uv"\n', encoding="utf-8")
     environment = {key: value for key, value in os.environ.items() if not key.startswith("UV_")}
     environment.pop("VIRTUAL_ENV", None)
     subprocess.run(
@@ -375,6 +401,9 @@ def test_generated_probe_preserves_caller_editable_binding(
         emitted_outputs=(),
         output_probe_command=("uv", "run", "--offline", "python", "-c", writer, "{output_root}"),
     )
+    directory_contract = caller / "architecture/policies/directory_contracts.toml"
+    with directory_contract.open("a", encoding="utf-8") as contract:
+        contract.write('[[contract]]\npath = "_cache/uv"\nstatus = "local_only"\n')
     monkeypatch.setattr(guardrails, "REPO_ROOT", caller)
     # Even a caller-selected environment must not redirect the generator's install.
     monkeypatch.setenv("UV_PROJECT_ENVIRONMENT", str(caller / ".venv"))
@@ -699,15 +728,17 @@ def test_isolated_python_import_origin_rejects_canonical_source_with_matching_by
         *,
         uv_cache_dir: Path | None = None,
         offline: bool = False,
+        repo_root: Path | None = None,
+        families: tuple[guardrails.GeneratedArtifactFamily, ...] = (),
     ) -> dict[str, str]:
         environment = environment_builder(
             source_root,
             uv_cache_dir=uv_cache_dir,
             offline=offline,
+            repo_root=repo_root,
+            families=families,
         )
-        environment["PYTHONPATH"] = os.pathsep.join(
-            (str(canonical / "src"), str(canonical))
-        )
+        environment["PYTHONPATH"] = os.pathsep.join((str(canonical / "src"), str(canonical)))
         return environment
 
     monkeypatch.setattr(
@@ -812,7 +843,8 @@ def test_failed_generator_is_unrun_and_cannot_admit_partial_output(
 
 
 def test_non_decodable_generator_output_is_an_unrun_measurement(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Even a zero exit cannot make an unreadable producer response a verdict."""
     source = tmp_path / "source"
@@ -820,7 +852,9 @@ def test_non_decodable_generator_output_is_an_unrun_measurement(
     expected = tmp_path / "expected"
     _write_expected_output(expected, "generated.txt", "expected\n")
     family = _generated_client_family(
-        source, family_id="invalid-encoding", declared_outputs=("generated.txt",),
+        source,
+        family_id="invalid-encoding",
+        declared_outputs=("generated.txt",),
         emitted_outputs=(),
         output_probe_command=(sys.executable, "-c", "import os; os.write(1, b'\\xff')"),
     )
@@ -893,9 +927,7 @@ def test_runtime_openapi_client_cannot_escape_default_check_by_removing_flag(
 def test_runtime_openapi_snapshot_is_a_default_freshness_probe() -> None:
     families = {
         family.family_id: family
-        for family in guardrails._parse_generated_artifacts(
-            guardrails.DEFAULT_GENERATED_MANIFEST
-        )
+        for family in guardrails._parse_generated_artifacts(guardrails.DEFAULT_GENERATED_MANIFEST)
     }
 
     family = families["runtime-openapi-snapshot"]
@@ -903,10 +935,7 @@ def test_runtime_openapi_snapshot_is_a_default_freshness_probe() -> None:
     assert family.default_freshness_check is True
     assert family.output_probe_command is not None
     assert "tools/ops_runners/runtime/export_runtime_openapi.py" in family.output_probe_command
-    assert (
-        "{output_root}/schemas/runtime_api_v1.openapi.json"
-        in family.output_probe_command
-    )
+    assert "{output_root}/schemas/runtime_api_v1.openapi.json" in family.output_probe_command
     assert "consulted dependency basis" in family.freshness_rule
 
 
@@ -931,10 +960,7 @@ def test_guardrails_check_discloses_the_standalone_status_gate(
 
     guardrails.run_check(args)
 
-    assert (
-        guardrails.STATUS_RETIREMENT_STANDALONE_NOTICE
-        in capsys.readouterr().out.splitlines()
-    )
+    assert guardrails.STATUS_RETIREMENT_STANDALONE_NOTICE in capsys.readouterr().out.splitlines()
 
 
 def test_guardrail_cli_cannot_waive_an_unrun_required_measurement(
@@ -981,8 +1007,14 @@ def test_guardrail_cli_reports_interrupted_setup_as_unrun(
     """A user interrupt during freshness setup produces the gate's typed UNRUN verdict."""
     monkeypatch.setattr(sys, "argv", ["guardrails", "check"])
 
-    def prepare_empty_source(_repo_root: Path, destination: Path) -> None:
+    def prepare_empty_source(
+        _repo_root: Path,
+        destination: Path,
+        *,
+        families: tuple[guardrails.GeneratedArtifactFamily, ...] = (),
+    ) -> tuple[tuple[Path, ...], str | None]:
         destination.mkdir(parents=True)
+        return (), None
 
     def interrupted(_source: Path, _environment: dict[str, str]) -> None:
         raise KeyboardInterrupt("test cancellation")
@@ -1039,28 +1071,31 @@ def test_interrupted_generator_is_unrun_and_keeps_completed_findings(
     monkeypatch.setattr(guardrails, "_prepare_isolated_probe_environment", lambda *_: None)
     monkeypatch.setattr(guardrails, "_snapshot_git_visible_worktree", lambda _root: {})
     original_run = subprocess.run
-    calls = 0
 
-    def interrupt_second_family(*args, **kwargs):
-        nonlocal calls
-        calls += 1
-        if calls == 2:
+    def interrupt_active_family(*args, **kwargs):
+        command = args[0] if args else kwargs.get("args", ())
+        if (
+            isinstance(command, (list, tuple))
+            and "-c" in command
+            and Path(str(command[-1])).name == "active-family"
+        ):
             raise KeyboardInterrupt("test cancellation")
         return original_run(*args, **kwargs)
 
-    monkeypatch.setattr(guardrails.subprocess, "run", interrupt_second_family)
+    monkeypatch.setattr(guardrails.subprocess, "run", interrupt_active_family)
 
     with pytest.raises(guardrails.GeneratedArtifactCheckUnrunError) as failure:
         guardrails._run_required_generated_artifact_checks(families, expected_root=expected)
 
-    assert [
-        (item.family_id, item.phase) for item in failure.value.unrun_checks
-    ] == [("active-family", "generator"), ("pending-family", "not_started")]
+    assert [(item.family_id, item.phase) for item in failure.value.unrun_checks] == [
+        ("active-family", "generator"),
+        ("pending-family", "not_started"),
+    ]
     assert "KeyboardInterrupt" in failure.value.unrun_checks[0].diagnostic
     assert "Not started" in failure.value.unrun_checks[1].diagnostic
-    assert [
-        (item.subject, item.detail) for item in failure.value.violations
-    ] == [("completed-family", "completed.txt")]
+    assert [(item.subject, item.detail) for item in failure.value.violations] == [
+        ("completed-family", "completed.txt")
+    ]
 
 
 def test_interrupted_output_comparison_names_pending_family_and_keeps_active_finding(
@@ -1105,12 +1140,13 @@ def test_interrupted_output_comparison_names_pending_family_and_keeps_active_fin
     with pytest.raises(guardrails.GeneratedArtifactCheckUnrunError) as failure:
         guardrails._run_required_generated_artifact_checks(families, expected_root=expected)
 
-    assert [
-        (item.subject, item.detail) for item in failure.value.violations
-    ] == [("active-family", "first.txt")]
-    assert [
-        (item.family_id, item.phase) for item in failure.value.unrun_checks
-    ] == [("active-family", "output_comparison"), ("pending-family", "not_started")]
+    assert [(item.subject, item.detail) for item in failure.value.violations] == [
+        ("active-family", "first.txt")
+    ]
+    assert [(item.family_id, item.phase) for item in failure.value.unrun_checks] == [
+        ("active-family", "output_comparison"),
+        ("pending-family", "not_started"),
+    ]
     assert "KeyboardInterrupt" in failure.value.unrun_checks[0].diagnostic
 
 
@@ -1236,7 +1272,9 @@ def test_required_generator_normal_matching_output_remains_a_pass(
     monkeypatch.setattr(guardrails, "_prepare_isolated_probe_environment", lambda *_: None)
     monkeypatch.setattr(guardrails, "_snapshot_git_visible_worktree", lambda _root: {})
 
-    assert guardrails._run_required_generated_artifact_checks([family], expected_root=expected) == []
+    assert (
+        guardrails._run_required_generated_artifact_checks([family], expected_root=expected) == []
+    )
 
 
 def test_guardrails_rejects_probe_that_rewrites_oracle_and_worktree(
@@ -1339,8 +1377,7 @@ def test_architecture_guardrails_detect_non_gating_trust_posture_step(
     )
     assert trust_step in workflow_text
     marker_only = (
-        "      # run: uv run pytest tests/repo_quality/tools/"
-        "test_trust_claim_posture.py -q\n"
+        "      # run: uv run pytest tests/repo_quality/tools/test_trust_claim_posture.py -q\n"
     )
     if escape == "marker_only":
         mutated = workflow_text.replace(trust_step, marker_only, 1)
@@ -1353,15 +1390,11 @@ def test_architecture_guardrails_detect_non_gating_trust_posture_step(
     elif escape == "step_continue_on_error":
         mutated = workflow_text.replace(
             trust_step,
-            trust_step.replace(
-                "        run:", "        continue-on-error: true\n        run:", 1
-            ),
+            trust_step.replace("        run:", "        continue-on-error: true\n        run:", 1),
             1,
         )
     elif escape == "job_if_false":
-        mutated = workflow_text.replace(
-            "  import-gate:\n", "  import-gate:\n    if: false\n", 1
-        )
+        mutated = workflow_text.replace("  import-gate:\n", "  import-gate:\n    if: false\n", 1)
     else:
         mutated = workflow_text.replace(
             "  import-gate:\n", "  import-gate:\n    continue-on-error: true\n", 1
@@ -1390,17 +1423,14 @@ def test_jobs_collecting_generator_entrypoint_test_install_node_toolchain() -> N
     workflows = {
         "runtime-http": guardrails.REPO_ROOT.parent / ".github/workflows/ci.yml",
         "runtime-contracts": (
-            guardrails.REPO_ROOT.parent
-            / ".github/workflows/core-runtime-release-gate.yml"
+            guardrails.REPO_ROOT.parent / ".github/workflows/core-runtime-release-gate.yml"
         ),
     }
 
     for job, workflow_path in workflows.items():
         workflow = yaml.safe_load(workflow_path.read_text(encoding="utf-8"))
         actions = [
-            step.get("uses")
-            for step in workflow["jobs"][job]["steps"]
-            if isinstance(step, dict)
+            step.get("uses") for step in workflow["jobs"][job]["steps"] if isinstance(step, dict)
         ]
         assert "./.github/actions/setup-runtime-dashboard" in actions
 
@@ -1440,9 +1470,7 @@ def test_guardrails_corruption_names_failed_family_and_keeps_sibling_clean(
         and "does not match" in violation.message
         for violation in violations
     )
-    assert not any(
-        violation.subject == "runtime-dashboard-api-types" for violation in violations
-    )
+    assert not any(violation.subject == "runtime-dashboard-api-types" for violation in violations)
     receipt = capsys.readouterr().out
     assert "runtime-dashboard-api-types" in receipt
     assert "clean" in receipt
@@ -1510,3 +1538,732 @@ def test_guardrails_rejects_declared_output_that_generator_no_longer_emits(
         and "did not emit" in violation.message
         for violation in violations
     )
+
+
+def _family_with_probe_basis(
+    repo_root: Path,
+    *,
+    family_id: str,
+    roots: tuple[str, ...],
+    required: tuple[str, ...],
+) -> guardrails.GeneratedArtifactFamily:
+    family = _generated_client_family(
+        repo_root,
+        family_id=family_id,
+        declared_outputs=(),
+        emitted_outputs=(),
+    )
+    directory_contract = repo_root / "architecture/policies/directory_contracts.toml"
+    if not directory_contract.exists():
+        directory_contract.parent.mkdir(parents=True, exist_ok=True)
+        directory_contract.write_text("", encoding="utf-8")
+    required_paths = tuple(repo_root / item for item in required)
+    if directory_contract not in required_paths:
+        required_paths += (directory_contract,)
+    return replace(
+        family,
+        probe_input_roots=tuple(repo_root / item for item in roots),
+        probe_required_paths=required_paths,
+    )
+
+
+def test_family_source_copy_includes_ignored_untracked_file_read_by_child(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    source_file = repo / "src/polisyos/raw/ignored-source.py"
+    source_file.parent.mkdir(parents=True)
+    source_file.write_text("SOURCE_MARKER = 'from ignored source'\n", encoding="utf-8")
+    (repo / ".gitignore").write_text("src/polisyos/raw/ignored-source.py\n", encoding="utf-8")
+    (repo / "pyproject.toml").write_text("[project]\nname='probe'\n", encoding="utf-8")
+    subprocess.run(("git", "init", "--quiet", str(repo)), check=True)
+    subprocess.run(("git", "-C", str(repo), "add", ".gitignore"), check=True)
+    ignored = subprocess.run(
+        (
+            "git",
+            "-C",
+            str(repo),
+            "check-ignore",
+            "-q",
+            "src/polisyos/raw/ignored-source.py",
+        ),
+        check=False,
+    )
+    assert ignored.returncode == 0
+    family = _family_with_probe_basis(
+        repo,
+        family_id="ignored-source-child-read",
+        roots=("src",),
+        required=("pyproject.toml",),
+    )
+    destination = tmp_path / "retained/source"
+    child = (
+        sys.executable,
+        "-c",
+        "from pathlib import Path; print(Path('src/polisyos/raw/ignored-source.py').read_text())",
+    )
+
+    guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+    first = subprocess.run(child, cwd=destination, capture_output=True, text=True, check=True)
+    source_file.write_text("SOURCE_MARKER = 'updated ignored source'\n", encoding="utf-8")
+    second_destination = tmp_path / "retained/source-after-change"
+    guardrails._copy_isolated_probe_source(repo, second_destination, families=(family,))
+    second = subprocess.run(
+        child, cwd=second_destination, capture_output=True, text=True, check=True
+    )
+
+    assert first.stdout != second.stdout
+    assert "from ignored source" in first.stdout
+    assert "updated ignored source" in second.stdout
+
+
+def test_family_source_copy_rejects_removed_required_input_while_contract_remains(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    (repo / "src").mkdir(parents=True)
+    (repo / "pyproject.toml").write_text(
+        "probe_required_paths = still declared\n", encoding="utf-8"
+    )
+    family = _family_with_probe_basis(
+        repo,
+        family_id="required-source-removal-control",
+        roots=("src",),
+        required=("schemas/runtime_api_v1.openapi.json",),
+    )
+    destination = tmp_path / "retained/source"
+
+    with pytest.raises(OSError, match="required probe input is missing"):
+        guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    assert "probe_required_paths" in (repo / "pyproject.toml").read_text(encoding="utf-8")
+    assert not destination.exists()
+
+
+def test_family_source_copy_rejects_missing_tracked_source_before_destination(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo = tmp_path / "repo"
+    (repo / "src").mkdir(parents=True)
+    (repo / "pyproject.toml").write_text("config\n", encoding="utf-8")
+    family = _family_with_probe_basis(
+        repo,
+        family_id="missing-tracked-source",
+        roots=("src",),
+        required=("pyproject.toml",),
+    )
+    missing = repo / "src/missing.py"
+    monkeypatch.setattr(guardrails, "iter_repository_files", lambda _root: iter((missing,)))
+    destination = tmp_path / "retained/source"
+
+    with pytest.raises(OSError, match="required probe input is missing"):
+        guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    assert not destination.exists()
+
+
+def test_family_source_copy_rejects_symlinked_source_ancestor(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    source = repo / "src"
+    source.mkdir(parents=True)
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "escape.py").write_text("SOURCE_MARKER = True\n", encoding="utf-8")
+    (source / "escape").symlink_to(outside, target_is_directory=True)
+    (repo / "pyproject.toml").write_text("config\n", encoding="utf-8")
+    family = _family_with_probe_basis(
+        repo,
+        family_id="symlink-ancestor-control",
+        roots=("src",),
+        required=("pyproject.toml",),
+    )
+    destination = tmp_path / "retained/source"
+
+    with pytest.raises(OSError, match="symlink"):
+        guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    assert not destination.exists()
+
+
+def test_family_source_copy_fails_closed_on_directory_enumeration_error(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo = tmp_path / "repo"
+    source = repo / "src"
+    source.mkdir(parents=True)
+    (source / "visible.py").write_text("SOURCE_MARKER = True\n", encoding="utf-8")
+    (repo / "pyproject.toml").write_text("config\n", encoding="utf-8")
+    family = _family_with_probe_basis(
+        repo,
+        family_id="denied-descendant-control",
+        roots=("src",),
+        required=("pyproject.toml",),
+    )
+    original_walk = guardrails.os.walk
+
+    from collections.abc import Callable, Iterator
+
+    def denied_walk(
+        path: str | os.PathLike[str],
+        topdown: bool = True,
+        onerror: Callable[[OSError], None] | None = None,
+        followlinks: bool = False,
+    ) -> Iterator[tuple[str, list[str], list[str]]]:
+        if Path(path) == source:
+            assert onerror is not None
+            onerror(PermissionError(13, "denied untracked descendant", str(source)))
+        yield from original_walk(
+            path,
+            topdown=topdown,
+            onerror=onerror,
+            followlinks=followlinks,
+        )
+
+    monkeypatch.setattr(guardrails.os, "walk", denied_walk)
+    destination = tmp_path / "retained/source"
+
+    with pytest.raises(OSError, match="unable to enumerate selected probe source"):
+        guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    assert (source / "visible.py").is_file()
+    assert not destination.exists()
+
+
+def test_family_source_copy_preflights_disk_before_creating_destination(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo = tmp_path / "repo"
+    source = repo / "src/module.py"
+    source.parent.mkdir(parents=True)
+    source.write_text("x = 1\n", encoding="utf-8")
+    (repo / "pyproject.toml").write_text("config\n", encoding="utf-8")
+    family = _family_with_probe_basis(
+        repo,
+        family_id="disk-preflight",
+        roots=("src",),
+        required=("pyproject.toml",),
+    )
+    destination = tmp_path / "retained/nested/source"
+    observed_filesystems: list[Path] = []
+
+    def report_no_space(path: Path) -> object:
+        observed_filesystems.append(path)
+        return type("Usage", (), {"free": 0})()
+
+    monkeypatch.setattr(guardrails.shutil, "disk_usage", report_no_space)
+
+    with pytest.raises(OSError, match="insufficient disk space"):
+        guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    assert observed_filesystems == [tmp_path]
+    assert not (tmp_path / "retained").exists()
+    assert not destination.exists()
+
+
+def test_isolated_probe_ignores_stale_bytecode_in_the_copied_source_basis(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import py_compile
+
+    repo = tmp_path / "repo"
+    source = repo / "src/stale_probe.py"
+    source.parent.mkdir(parents=True)
+    old_source = "VALUE = 'old'\n"
+    current_source = "VALUE = 'new'\n"
+    assert len(old_source) == len(current_source)
+    source.write_text(old_source, encoding="utf-8")
+    cache = Path(py_compile.compile(str(source), doraise=True))
+    source_stat = source.stat()
+    source.write_text(current_source, encoding="utf-8")
+    os.utime(source, ns=(source_stat.st_atime_ns, source_stat.st_mtime_ns))
+    assert cache.is_file()
+
+    (repo / "pyproject.toml").write_text("config\n", encoding="utf-8")
+    family = _family_with_probe_basis(
+        repo,
+        family_id="stale-bytecode-source-control",
+        roots=("src",),
+        required=("pyproject.toml",),
+    )
+    destination = tmp_path / "retained/source"
+    guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+    copied_cache = destination / cache.relative_to(repo)
+    assert copied_cache.read_bytes() == cache.read_bytes()
+
+    child = (sys.executable, "-B", "-c", "import stale_probe; print(stale_probe.VALUE)")
+    plain_environment = os.environ.copy()
+    plain_environment.pop("PYTHONPYCACHEPREFIX", None)
+    plain_environment.update(
+        {
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTHONNOUSERSITE": "1",
+            "PYTHONPATH": str(repo / "src"),
+        }
+    )
+    unisolated = subprocess.run(
+        child,
+        cwd=repo,
+        env=plain_environment,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert unisolated.stdout.strip() == "old"
+
+    monkeypatch.delenv("POLISYOS_GOVERNED_ARTIFACT_ROOT", raising=False)
+    environment = guardrails._isolated_probe_environment(
+        destination,
+        repo_root=repo,
+        families=(family,),
+    )
+    bytecode_cache = Path(environment["PYTHONPYCACHEPREFIX"])
+    assert bytecode_cache == destination.parent / "python-bytecode-cache"
+    assert bytecode_cache.is_absolute()
+    assert not bytecode_cache.is_relative_to(destination)
+    assert not bytecode_cache.is_relative_to(destination.parent / "environment")
+    isolated = subprocess.run(
+        child,
+        cwd=destination,
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert isolated.stdout.strip() == "new"
+
+    marker_only_environment = environment.copy()
+    marker_only_environment.pop("PYTHONPYCACHEPREFIX")
+    marker_only = subprocess.run(
+        child,
+        cwd=destination,
+        env=marker_only_environment,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert marker_only.stdout.strip() == "old"
+
+
+def test_unadmitted_governed_artifact_root_is_refused_before_environment_preparation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo = tmp_path / "repo"
+    (repo / "src").mkdir(parents=True)
+    (repo / "pyproject.toml").write_text("config\n", encoding="utf-8")
+    family = _family_with_probe_basis(
+        repo,
+        family_id="governed-root-control",
+        roots=("src",),
+        required=("pyproject.toml",),
+    )
+    source_root = tmp_path / "retained/source"
+    source_root.mkdir(parents=True)
+    external_root = tmp_path / "external-governed-artifacts"
+    external_root.mkdir()
+    monkeypatch.setenv("POLISYOS_GOVERNED_ARTIFACT_ROOT", str(external_root))
+
+    with pytest.raises(OSError, match="outside the repository"):
+        guardrails._isolated_probe_environment(
+            source_root,
+            repo_root=repo,
+            families=(family,),
+        )
+
+
+def test_trust_probe_basis_includes_actual_compiler_read_receipt(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from tools.lib.fs import admitted_read_bytes
+    from tools.quality.validation import check_trust_claim_posture
+
+    repo = tmp_path / "repo"
+    source = repo / "src/ignored_source.py"
+    source.parent.mkdir(parents=True)
+    source.write_bytes(b"source\n")
+    register = repo / "docs/plans/active/DEBT-REGISTER.md"
+    register.parent.mkdir(parents=True)
+    register.write_bytes(b"debt\n")
+
+    def compile_fixture(root: Path) -> tuple[None, bytes]:
+        admitted_read_bytes(root / "src/ignored_source.py", root)
+        debt = admitted_read_bytes(root / "docs/plans/active/DEBT-REGISTER.md", root)
+        return None, debt
+
+    monkeypatch.setattr(
+        check_trust_claim_posture,
+        "compile_claim_posture_register",
+        compile_fixture,
+    )
+
+    observed = guardrails._trust_claim_posture_compiler_inputs(repo)
+
+    assert set(observed) == {source, register}
+
+
+def test_family_source_copy_preserves_python_files_inside_environment_layout(
+    tmp_path: Path,
+) -> None:
+    from tools.quality.validation.trust_claim_posture_sources import walk_source_files
+
+    repo = tmp_path / "repo"
+    source = repo / "src"
+    environment = source / "toolchain-cache"
+    candidate = environment / "lib/python/site-packages/selected_source.py"
+    (environment / "bin").mkdir(parents=True)
+    candidate.parent.mkdir(parents=True)
+    (environment / "pyvenv.cfg").write_text("home = /usr/bin\n", encoding="utf-8")
+    (environment / "bin/python").write_text("runtime-only\n", encoding="utf-8")
+    candidate.write_text("SOURCE_MARKER = 'trust consumer input'\n", encoding="utf-8")
+    (repo / "pyproject.toml").write_text("config\n", encoding="utf-8")
+    family = _family_with_probe_basis(
+        repo,
+        family_id="environment-layout-source",
+        roots=("src",),
+        required=("pyproject.toml",),
+    )
+    member_paths = {member.path for member in walk_source_files(repo)}
+    relative = candidate.relative_to(repo).as_posix()
+    assert relative in member_paths
+
+    destination = tmp_path / "retained/source"
+    guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+    child = subprocess.run(
+        (
+            sys.executable,
+            "-c",
+            (
+                "from pathlib import Path; print(Path("
+                "'src/toolchain-cache/lib/python/site-packages/selected_source.py').read_text())"
+            ),
+        ),
+        cwd=destination,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+
+    assert "trust consumer input" in child.stdout
+
+
+def test_family_source_copy_refuses_fifo_in_source_root(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    source = repo / "src"
+    source.mkdir(parents=True)
+    os.mkfifo(source / "producer.pipe")
+    (repo / "pyproject.toml").write_text("config\n", encoding="utf-8")
+    family = _family_with_probe_basis(
+        repo,
+        family_id="special-file-control",
+        roots=("src",),
+        required=("pyproject.toml",),
+    )
+    destination = tmp_path / "retained/source"
+
+    with pytest.raises(OSError, match="unsupported special file"):
+        guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    assert not destination.exists()
+
+
+def test_probe_runtime_links_are_typed_and_preserved_as_links(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    runtime_root = repo / "node_modules"
+    (runtime_root / ".pnpm").mkdir(parents=True)
+    (repo / "pnpm-lock.yaml").write_text("lockfileVersion: '9.0'\n", encoding="utf-8")
+    (runtime_root / ".pnpm/lock.yaml").write_bytes((repo / "pnpm-lock.yaml").read_bytes())
+    (runtime_root / ".modules.yaml").write_text("packageManager: pnpm@10.33.2\n", encoding="utf-8")
+    (runtime_root / "package.js").write_text("module.exports = true\n", encoding="utf-8")
+    package_root = repo / "packages/runtime-api-client"
+    package_root.mkdir(parents=True)
+    (package_root / "package.json").write_text("{}\n", encoding="utf-8")
+    package_link = package_root / "node_modules"
+    package_link.symlink_to(runtime_root, target_is_directory=True)
+    family = _family_with_probe_basis(
+        repo,
+        family_id="frontend-runtime-link",
+        roots=("packages/runtime-api-client",),
+        required=("packages/runtime-api-client/package.json", "package.json", "pnpm-lock.yaml"),
+    )
+    (repo / "package.json").write_text('{"packageManager":"pnpm@10.33.2"}\n', encoding="utf-8")
+    family = replace(
+        family,
+        probe_runtime_paths=(
+            repo / "node_modules",
+            repo / "packages/runtime-api-client/node_modules",
+        ),
+    )
+    destination = tmp_path / "retained/source"
+
+    runtime_paths, initial_inventory = guardrails._copy_isolated_probe_source(
+        repo, destination, families=(family,)
+    )
+
+    assert initial_inventory is not None
+    assert len(initial_inventory) == 64
+    assert runtime_paths == (
+        Path("node_modules"),
+        Path("packages/runtime-api-client/node_modules"),
+    )
+    assert (destination / "node_modules").is_symlink()
+    assert (destination / "packages/runtime-api-client/node_modules").is_symlink()
+    assert (destination / "node_modules/package.js").read_text(encoding="utf-8") == (
+        "module.exports = true\n"
+    )
+    (runtime_root / "package.js").write_text("module.exports = false\n", encoding="utf-8")
+    changed_inventory = guardrails._verify_pnpm_install_receipt(
+        repo,
+        frozenset(runtime_paths),
+    )
+    assert changed_inventory != initial_inventory
+
+
+def test_probe_runtime_package_link_rejects_external_resolved_target(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    runtime_root = repo / "node_modules"
+    (runtime_root / ".pnpm").mkdir(parents=True)
+    (repo / "package.json").write_text('{"packageManager":"pnpm@10.33.2"}\n', encoding="utf-8")
+    lock = b"lockfileVersion: '9.0'\n"
+    (repo / "pnpm-lock.yaml").write_bytes(lock)
+    (runtime_root / ".pnpm/lock.yaml").write_bytes(lock)
+    (runtime_root / ".modules.yaml").write_text("packageManager: pnpm@10.33.2\n", encoding="utf-8")
+    package_root = repo / "packages/runtime-api-client"
+    package_root.mkdir(parents=True)
+    external = tmp_path / "unbound-runtime"
+    external.mkdir()
+    (external / "package.js").write_text("EXTERNAL_MARKER = True\n", encoding="utf-8")
+    (package_root / "node_modules").symlink_to(external, target_is_directory=True)
+    family = _family_with_probe_basis(
+        repo,
+        family_id="redirected-package-runtime-link",
+        roots=("packages/runtime-api-client",),
+        required=("package.json", "pnpm-lock.yaml"),
+    )
+    family = replace(
+        family,
+        probe_runtime_paths=(
+            repo / "node_modules",
+            repo / "packages/runtime-api-client/node_modules",
+        ),
+    )
+    destination = tmp_path / "retained/source"
+
+    with pytest.raises(OSError, match="resolves outside the repository"):
+        guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    assert (external / "package.js").read_text(encoding="utf-8") == ("EXTERNAL_MARKER = True\n")
+    assert not destination.exists()
+
+
+def test_probe_runtime_selector_rejects_unregistered_external_path(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    (repo / "src").mkdir(parents=True)
+    (repo / "pyproject.toml").write_text("config\n", encoding="utf-8")
+    family = _family_with_probe_basis(
+        repo,
+        family_id="unknown-runtime-path",
+        roots=("src",),
+        required=("pyproject.toml",),
+    )
+    family = replace(family, probe_runtime_paths=(repo / "external-runtime",))
+    destination = tmp_path / "retained/source"
+
+    with pytest.raises(OSError, match="not an admitted package path"):
+        guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    assert not destination.exists()
+
+
+def test_local_only_roots_follow_owner_contract_not_nested_basenames(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    (repo / "architecture/policies").mkdir(parents=True)
+    (repo / "architecture/policies/directory_contracts.toml").write_text(
+        '[[contract]]\npath = ".polisyos"\nstatus = "local_only"\n'
+        '[[contract]]\npath = "production_data"\nstatus = "local_only"\n'
+        '[[contract]]\npath = "_cache/uv"\nstatus = "local_only"\n',
+        encoding="utf-8",
+    )
+    (repo / "src/.cache").mkdir(parents=True)
+    (repo / "src/_cache/uv").mkdir(parents=True)
+    (repo / ".polisyos").mkdir()
+    (repo / "production_data").mkdir()
+    (repo / "_cache/uv").mkdir(parents=True)
+    (repo / "src/.cache/source.py").write_text("CACHE_NAMED_SOURCE = True\n", encoding="utf-8")
+    (repo / "src/_cache/source.py").write_text("NESTED_SOURCE = True\n", encoding="utf-8")
+    (repo / "src/_cache/uv/source.py").write_text(
+        "NESTED_UV_CACHE_SOURCE = True\n", encoding="utf-8"
+    )
+    (repo / ".polisyos/state.bin").write_bytes(b"local state")
+    (repo / "production_data/snapshot.bin").write_bytes(b"local snapshot")
+    (repo / "_cache/uv/build.bin").write_bytes(b"local cache")
+    (repo / "pyproject.toml").write_text("config\n", encoding="utf-8")
+    family = _family_with_probe_basis(
+        repo,
+        family_id="directory-contract-control",
+        roots=(".",),
+        required=("pyproject.toml",),
+    )
+    destination = tmp_path / "retained/source"
+
+    guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    assert (destination / "src/.cache/source.py").is_file()
+    assert (destination / "src/_cache/source.py").is_file()
+    assert (destination / "src/_cache/uv/source.py").read_text(encoding="utf-8") == (
+        "NESTED_UV_CACHE_SOURCE = True\n"
+    )
+    assert not (destination / ".polisyos").exists()
+    assert not (destination / "production_data").exists()
+    assert not (destination / "_cache/uv").exists()
+
+
+def test_family_source_copy_preserves_python_files_inside_huggingface_layout(
+    tmp_path: Path,
+) -> None:
+    from tools.quality.validation.trust_claim_posture_sources import walk_source_files
+
+    repo = tmp_path / "repo"
+    source = repo / "src"
+    cache = source / "models--fixture--model"
+    candidate = cache / "snapshots/revision/selected_source.py"
+    for member in ("blobs", "refs", "snapshots/revision"):
+        (cache / member).mkdir(parents=True)
+    (cache / "blobs/weight.bin").write_bytes(b"cached model")
+    candidate.write_text("SOURCE_MARKER = 'cache-layout input'\n", encoding="utf-8")
+    (repo / "pyproject.toml").write_text("config\n", encoding="utf-8")
+    family = _family_with_probe_basis(
+        repo,
+        family_id="cache-layout-source",
+        roots=("src",),
+        required=("pyproject.toml",),
+    )
+    relative = candidate.relative_to(repo).as_posix()
+    assert relative in {member.path for member in walk_source_files(repo)}
+
+    destination = tmp_path / "retained/source"
+    guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+    child = subprocess.run(
+        (
+            sys.executable,
+            "-c",
+            (
+                "from pathlib import Path; print(Path("
+                "'src/models--fixture--model/snapshots/revision/selected_source.py').read_text())"
+            ),
+        ),
+        cwd=destination,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+
+    assert "cache-layout input" in child.stdout
+
+
+def test_pnpm_runtime_receipt_must_match_the_declared_lockfile(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    (repo / "node_modules/.pnpm").mkdir(parents=True)
+    (repo / "node_modules/.modules.yaml").write_text(
+        "packageManager: pnpm@10.33.2\n", encoding="utf-8"
+    )
+    (repo / "package.json").write_text('{"packageManager":"pnpm@10.33.2"}\n', encoding="utf-8")
+    (repo / "pnpm-lock.yaml").write_text("declared lock\n", encoding="utf-8")
+    (repo / "node_modules/.pnpm/lock.yaml").write_text("different install lock\n", encoding="utf-8")
+    (repo / "packages/runtime-api-client").mkdir(parents=True)
+    family = _family_with_probe_basis(
+        repo,
+        family_id="pnpm-install-receipt-control",
+        roots=("packages/runtime-api-client",),
+        required=("package.json", "pnpm-lock.yaml"),
+    )
+    family = replace(family, probe_runtime_paths=(repo / "node_modules",))
+    destination = tmp_path / "retained/source"
+
+    with pytest.raises(OSError, match=r"does not match package\.json and the frozen pnpm lockfile"):
+        guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    assert not destination.exists()
+
+
+def test_governed_artifact_root_is_removed_when_parent_did_not_set_it(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo = tmp_path / "repo"
+    (repo / "src").mkdir(parents=True)
+    (repo / "pyproject.toml").write_text("config\n", encoding="utf-8")
+    family = _family_with_probe_basis(
+        repo,
+        family_id="governed-root-unset-control",
+        roots=("src",),
+        required=("pyproject.toml",),
+    )
+    source_root = tmp_path / "retained/source"
+    source_root.mkdir(parents=True)
+    monkeypatch.delenv("POLISYOS_GOVERNED_ARTIFACT_ROOT", raising=False)
+
+    environment = guardrails._isolated_probe_environment(
+        source_root,
+        repo_root=repo,
+        families=(family,),
+    )
+
+    assert "POLISYOS_GOVERNED_ARTIFACT_ROOT" not in environment
+
+
+def test_selected_governed_artifact_root_maps_into_the_isolated_copy(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo = tmp_path / "repo"
+    (repo / "src").mkdir(parents=True)
+    (repo / "pyproject.toml").write_text("config\n", encoding="utf-8")
+    family = _family_with_probe_basis(
+        repo,
+        family_id="governed-root-mapped-control",
+        roots=("src",),
+        required=("pyproject.toml",),
+    )
+    source_root = tmp_path / "retained/source"
+    guardrails._copy_isolated_probe_source(repo, source_root, families=(family,))
+    monkeypatch.setenv("POLISYOS_GOVERNED_ARTIFACT_ROOT", str(repo / "src"))
+
+    environment = guardrails._isolated_probe_environment(
+        source_root,
+        repo_root=repo,
+        families=(family,),
+    )
+
+    assert Path(environment["POLISYOS_GOVERNED_ARTIFACT_ROOT"]) == source_root / "src"
+
+
+def test_internal_symlink_to_unselected_path_is_rejected(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    (repo / "src").mkdir(parents=True)
+    target = repo / "outside-selected-root.py"
+    target.write_text("SOURCE_MARKER = True\n", encoding="utf-8")
+    (repo / "src/linked.py").symlink_to(target)
+    (repo / "pyproject.toml").write_text("config\n", encoding="utf-8")
+    family = _family_with_probe_basis(
+        repo,
+        family_id="internal-unselected-symlink-control",
+        roots=("src",),
+        required=("pyproject.toml",),
+    )
+    destination = tmp_path / "retained/source"
+
+    with pytest.raises(OSError, match="symlink"):
+        guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    assert not destination.exists()

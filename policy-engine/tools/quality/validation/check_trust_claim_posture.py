@@ -300,11 +300,19 @@ def derive_token_sources(repo_root: Path) -> SourceDerivation:
         denied_raw_members: list[AdmittedSourceMember] = []
         denied_only_sites: list[LiteralSite] = []
         candidates = sorted(source_root.rglob("*.py"), key=lambda item: item.as_posix())
-        reads.record(source_root, "rglob", status="enumerated", pattern="*.py", candidate_count=len(candidates))
+        reads.record(
+            source_root,
+            "rglob",
+            status="enumerated",
+            pattern="*.py",
+            candidate_count=len(candidates),
+        )
         for candidate in candidates:
             path = candidate.resolve()
             if not path.is_relative_to(source_root):
-                reads.record(candidate, "source_selection", status="excluded", reason="outside contained src")
+                reads.record(
+                    candidate, "source_selection", status="excluded", reason="outside contained src"
+                )
                 continue
             if "__pycache__" in path.parts:
                 reads.record(candidate, "source_selection", status="excluded", reason="__pycache__")
@@ -1015,9 +1023,7 @@ def derive_page_a11y_receipt(repo_root: Path) -> PageA11yReceiptBinding:
     authored_identities = tuple(
         (item["identity"], item["status"]) for item in raw_authored_identities
     )
-    authored_failures = tuple(
-        (item["identity"], item["status"]) for item in raw_authored_failures
-    )
+    authored_failures = tuple((item["identity"], item["status"]) for item in raw_authored_failures)
     if normalized.get("result") != observed or authored_identities != identities:
         _reject_owner_predicate(
             "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
@@ -1058,7 +1064,9 @@ def derive_page_a11y_receipt(repo_root: Path) -> PageA11yReceiptBinding:
         )
     failure_ids = {item.test_id for item in failures}
     failed_tests = last_run.get("failedTests")
-    if not isinstance(failed_tests, list) or not all(isinstance(item, str) for item in failed_tests):
+    if not isinstance(failed_tests, list) or not all(
+        isinstance(item, str) for item in failed_tests
+    ):
         _reject_owner_predicate(
             "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
             "page_a11y_last_run_shape",
@@ -1164,9 +1172,7 @@ def _derive_page_result_rows(
                         "page_a11y_test_results_shape",
                         "page-a11y test results must be an object list",
                     )
-                if not isinstance(spec.get("file"), str) or not isinstance(
-                    spec.get("title"), str
-                ):
+                if not isinstance(spec.get("file"), str) or not isinstance(spec.get("title"), str):
                     _reject_owner_predicate(
                         "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
                         "page_a11y_spec_identity",
@@ -1531,17 +1537,14 @@ def _compile_semantic_bindings(
         else:
             custody_state = SourceClaimState.BLOCKED
             custody_limitation = (
-                "Closed appointment lacks an admitted closure receipt: "
-                f"{appointment.debt_id}"
+                f"Closed appointment lacks an admitted closure receipt: {appointment.debt_id}"
             )
         bindings.append(
             _semantic_binding(
                 coordinate=identity_coordinate,
                 content_digest=identity.content_digest,
                 source_state=(
-                    custody_state
-                    if identity_is_exact_ratified_source
-                    else SourceClaimState.BLOCKED
+                    custody_state if identity_is_exact_ratified_source else SourceClaimState.BLOCKED
                 ),
                 subject="universal_custody_commitment",
                 family="custody",
@@ -1963,7 +1966,7 @@ def run_generated_family_output_probe(
     if source.is_relative_to(repo) or output.is_relative_to(repo):
         raise ValueError("output probe scratch roots must be outside repo_root")
 
-    guardrails._copy_isolated_probe_source(repo, source)
+    guardrails._copy_isolated_probe_source(repo, source, families=(family,))
     if (source / ".git").exists():
         raise ValueError("output probe source_root must not contain .git")
     output.mkdir(parents=True)
@@ -1993,6 +1996,15 @@ def run_generated_family_output_probe(
         "TMPDIR": str(temporary_root),
         "TZ": "UTC",
     }
+
+    governed_root = guardrails._mapped_governed_artifact_root(
+        repo,
+        source,
+        (family,),
+        os.environ.get("POLISYOS_GOVERNED_ARTIFACT_ROOT"),
+    )
+    if governed_root is not None:
+        environment["POLISYOS_GOVERNED_ARTIFACT_ROOT"] = governed_root
 
     scratch_root = source.parent
     output_prefix = output.relative_to(scratch_root).as_posix()
@@ -3571,11 +3583,16 @@ def _measurement_receipt(
 ) -> dict[str, object]:
     receipt = reads.snapshot(complete_verdict=complete_verdict)
     receipt["finding_coverage"] = finding_coverage
-    receipt["source_python_read_count"] = len({
-        item["path"] for item in receipt["inputs"]
-        if item["operation"] == "read_bytes" and item["status"] == "read"
-        and item["path"].startswith("src/") and item["path"].endswith(".py")
-    })
+    receipt["source_python_read_count"] = len(
+        {
+            item["path"]
+            for item in receipt["inputs"]
+            if item["operation"] == "read_bytes"
+            and item["status"] == "read"
+            and item["path"].startswith("src/")
+            and item["path"].endswith(".py")
+        }
+    )
     receipt["selectors"] = {
         "source": "contained src/**/*.py regular files, excluding __pycache__; case-sensitive authoritative_for/may_not_use_for byte candidates, then AST/tokenize reconciliation",
         "custody_path": _DEBT_REGISTER_PATH.as_posix(),
@@ -3583,18 +3600,21 @@ def _measurement_receipt(
         "custody_rows": "lines beginning | whose tokenized first cell names an accepted ID; exactly five cells and one ID required",
         "identity": _IDENTITY_PATH.as_posix(),
         "accessibility": _A11Y_PATH.as_posix() + " if present with frontmatter",
-        "page_receipt": _PAGE_RECEIPT_PATH.as_posix() + " if directory present; five fixed JSON members",
+        "page_receipt": _PAGE_RECEIPT_PATH.as_posix()
+        + " if directory present; five fixed JSON members",
         "path_containment": "every checker-owned file-presence, byte-read, and text-read operation resolves its path beneath the admitted owner root before access; an escape is typed FAIL before the read or write",
     }
-    receipt["unresolved_by_construction"].extend([
-        "schema_and_evidence_only: this is a declared schema/source and evidence-binding check; runtime execution, external evidence truth, whole-tree capability completeness and current certification remain undecided.",
-        "unselected_authority_documents: documents outside the named identity/accessibility/page-receipt/custody selectors cannot establish or refute this verdict; their authority claims remain undecided.",
-        "unselected_custody_rows: the register is read as bytes, but only appointed IDs are interpreted; other rows and sections do not receive a custody verdict.",
-        "source_discovery: the current filesystem src/**/*.py selector is not a tracked whole-repository denominator; excluded paths, other languages, unsupported/dynamic semantics and inaccessible traversal remain unresolved.",
-        "delegated_reads: the AST owner receives the shared admitted byte-reader, and generated-family parsing receives the already-admitted manifest bytes; guardrails copytree/snapshot internals and the declared generator subprocess remain delegated operations outside this explicit reader receipt, so their internal I/O is unresolved.",
-        "untyped_derivation_failures: source derivation ValueError/SyntaxError without a typed owner predicate remains UNRUN; its semantic classification is not established by this CLI.",
-        "probe_preconditions: unavailable executables, invalid scratch roots, unsupported internal corruption-probe arguments, or unavailable corruption targets prevent the probe from running and remain UNRUN.",
-    ])
+    receipt["unresolved_by_construction"].extend(
+        [
+            "schema_and_evidence_only: this is a declared schema/source and evidence-binding check; runtime execution, external evidence truth, whole-tree capability completeness and current certification remain undecided.",
+            "unselected_authority_documents: documents outside the named identity/accessibility/page-receipt/custody selectors cannot establish or refute this verdict; their authority claims remain undecided.",
+            "unselected_custody_rows: the register is read as bytes, but only appointed IDs are interpreted; other rows and sections do not receive a custody verdict.",
+            "source_discovery: the current filesystem src/**/*.py selector is not a tracked whole-repository denominator; excluded paths, other languages, unsupported/dynamic semantics and inaccessible traversal remain unresolved.",
+            "delegated_reads: the AST owner receives the shared admitted byte-reader, and generated-family parsing receives the already-admitted manifest bytes; guardrails copytree/snapshot internals and the declared generator subprocess remain delegated operations outside this explicit reader receipt, so their internal I/O is unresolved.",
+            "untyped_derivation_failures: source derivation ValueError/SyntaxError without a typed owner predicate remains UNRUN; its semantic classification is not established by this CLI.",
+            "probe_preconditions: unavailable executables, invalid scratch roots, unsupported internal corruption-probe arguments, or unavailable corruption targets prevent the probe from running and remain UNRUN.",
+        ]
+    )
     return receipt
 
 
@@ -3671,13 +3691,16 @@ def main(argv: Sequence[str] | None = None) -> int:
                         ),
                     )
                 inspection_stage = "generated_artifact_byte_read"
-                if _admitted_read_bytes(
-                    target,
-                    target_root,
-                    code="DS11-GENERATED-DRIFT",
-                    stage="generated_artifact_byte_read",
-                    label="generated posture artifact",
-                ) != payload:
+                if (
+                    _admitted_read_bytes(
+                        target,
+                        target_root,
+                        code="DS11-GENERATED-DRIFT",
+                        stage="generated_artifact_byte_read",
+                        label="generated posture artifact",
+                    )
+                    != payload
+                ):
                     raise _PosturePredicateError(
                         "DS11-GENERATED-DRIFT",
                         "generated posture artifact differs from live compilation",
@@ -3741,8 +3764,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             report["unrun_code"] = "DS11-INSPECTION-INCOMPLETE"
             report["error"] = f"{type(error).__name__}: {error}"
             finding_coverage = (
-                f"inspection incomplete at {error.stage}; "
-                "no verdict predicate was established"
+                f"inspection incomplete at {error.stage}; no verdict predicate was established"
             )
             exit_code = 2
         except (OSError, ValueError, SyntaxError) as error:
@@ -3751,8 +3773,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             report["unrun_code"] = "DS11-INSPECTION-INCOMPLETE"
             report["error"] = f"{type(error).__name__}: {error}"
             finding_coverage = (
-                f"inspection incomplete at {inspection_stage}; "
-                "no verdict predicate was established"
+                f"inspection incomplete at {inspection_stage}; no verdict predicate was established"
             )
             exit_code = 2
         except Exception as error:
@@ -3763,8 +3784,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             report["unrun_code"] = "DS11-INSPECTION-INCOMPLETE"
             report["error"] = f"{type(error).__name__}: {error}"
             finding_coverage = (
-                f"inspection incomplete at {inspection_stage}; "
-                "no verdict predicate was established"
+                f"inspection incomplete at {inspection_stage}; no verdict predicate was established"
             )
             exit_code = 2
         else:
@@ -3781,12 +3801,13 @@ def main(argv: Sequence[str] | None = None) -> int:
                 finding_coverage=finding_coverage,
             )
             if args.json:
-                json.dump(report, sys.stdout, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+                json.dump(
+                    report, sys.stdout, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+                )
                 sys.stdout.write("\n")
             else:
                 print(json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2))
     return exit_code
-
 
 
 if __name__ == "__main__":

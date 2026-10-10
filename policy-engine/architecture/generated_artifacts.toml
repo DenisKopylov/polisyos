@@ -735,6 +735,14 @@ verifier = "verifier declared by check_command, drift_gate, workflow, or manual 
 promotion_target = "registered committed outputs listed in outputs"
 stale_output_behavior = "fail"
 source_of_truth = "src/polisyos/runtime/http/** FastAPI app factory and DTO contracts, including the owner-validator consulted dependency basis embedded in governed projection examples"
+probe_input_roots = ["src", "tools", "architecture", "schemas"]
+probe_required_paths = [
+  "pyproject.toml",
+  "uv.lock",
+  "architecture/generated_artifacts.toml",
+  "architecture/policies/directory_contracts.toml",
+  "schemas/runtime_api_v1.openapi.json",
+]
 outputs = ["schemas/runtime_api_v1.openapi.json"]
 regenerate_commands = [
   "PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json",
@@ -791,6 +799,22 @@ verifier = "verifier declared by check_command, drift_gate, workflow, or manual 
 promotion_target = "registered committed outputs listed in outputs"
 stale_output_behavior = "fail"
 source_of_truth = "schemas/runtime_api_v1.openapi.json"
+probe_input_roots = [
+  "packages/runtime-api-client",
+  "tools",
+  "architecture",
+  "schemas",
+]
+probe_required_paths = [
+  "pyproject.toml",
+  "uv.lock",
+  "package.json",
+  "pnpm-workspace.yaml",
+  "pnpm-lock.yaml",
+  "architecture/policies/directory_contracts.toml",
+  "schemas/runtime_api_v1.openapi.json",
+]
+probe_runtime_paths = ["node_modules", "packages/runtime-api-client/node_modules"]
 outputs = [
   "packages/runtime-api-client/types.ts",
   "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
@@ -845,6 +869,27 @@ verifier = "verifier declared by check_command, drift_gate, workflow, or manual 
 promotion_target = "registered committed outputs listed in outputs"
 stale_output_behavior = "fail"
 source_of_truth = "schemas/runtime_api_v1.openapi.json"
+probe_input_roots = [
+  "apps/runtime-dashboard",
+  "packages/runtime-api-client",
+  "tools",
+  "architecture",
+  "schemas",
+]
+probe_required_paths = [
+  "pyproject.toml",
+  "uv.lock",
+  "package.json",
+  "pnpm-workspace.yaml",
+  "pnpm-lock.yaml",
+  "architecture/policies/directory_contracts.toml",
+  "schemas/runtime_api_v1.openapi.json",
+]
+probe_runtime_paths = [
+  "node_modules",
+  "packages/runtime-api-client/node_modules",
+  "apps/runtime-dashboard/node_modules",
+]
 outputs = ["apps/runtime-dashboard/src/api/types.ts"]
 regenerate_commands = ["corepack pnpm --filter @polisyos/runtime-dashboard run generate:api -- --openapi schemas/runtime_api_v1.openapi.json"]
 commit_policy = "committed"
@@ -2190,6 +2235,26 @@ verifier = "DS11 trust claim posture checker and architecture guardrails"
 promotion_target = "static trust posture artifact consumed by the public /trust surface"
 stale_output_behavior = "fail"
 source_of_truth = "tracked posture sources, ratified identity boundary, content-bound accessibility document, and historical page-a11y receipt"
+probe_input_roots = [
+  "src",
+  "tools",
+  "architecture",
+  "apps/runtime-dashboard/src/features/trust",
+]
+probe_required_paths = [
+  "pyproject.toml",
+  "uv.lock",
+  "architecture/generated_artifacts.toml",
+  "architecture/policies/directory_contracts.toml",
+  "docs/system-design-decisions/policyos-identity-and-custody-boundary.md",
+  "docs/compliance/A11Y_AUDIT_2026Q2.md",
+  "docs/plans/active/DEBT-REGISTER.md",
+  "docs/plans/active/atlas-slices/receipts/ds11-page-a11y-base/environment-after.json",
+  "docs/plans/active/atlas-slices/receipts/ds11-page-a11y-base/environment-before.json",
+  "docs/plans/active/atlas-slices/receipts/ds11-page-a11y-base/receipt.json",
+  "docs/plans/active/atlas-slices/receipts/ds11-page-a11y-base/run-1/.last-run.json",
+  "docs/plans/active/atlas-slices/receipts/ds11-page-a11y-base/run-1/results.json",
+]
 outputs = ["apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"]
 regenerate_commands = [
   "uv run python tools/quality/validation/check_trust_claim_posture.py --repo-root . --write --write-generated-reference",

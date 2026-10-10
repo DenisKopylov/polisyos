@@ -14,6 +14,7 @@ import os
 import re
 import shlex
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
@@ -30,6 +31,7 @@ from tools.lib.fs import (
     admitted_file_digest,
     admitted_is_file,
     admitted_read_bytes,
+    iter_repository_files,
     measure_file_reads,
 )
 from tools.lib.imports import repo_root_from
@@ -274,6 +276,9 @@ class GeneratedArtifactFamily:
     default_freshness_check: bool
     output_probe_command: tuple[str, ...] | None
     retention_days: int | None
+    probe_input_roots: tuple[Path, ...] = ()
+    probe_required_paths: tuple[Path, ...] = ()
+    probe_runtime_paths: tuple[Path, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -457,6 +462,15 @@ def _parse_generated_artifacts(path: Path | bytes) -> list[GeneratedArtifactFami
                 output_probe_command=_parse_check_command(item.get("output_probe_command")),
                 retention_days=(
                     int(item["retention_days"]) if item.get("retention_days") is not None else None
+                ),
+                probe_input_roots=tuple(
+                    _ensure_relative(str(value)) for value in item.get("probe_input_roots", [])
+                ),
+                probe_required_paths=tuple(
+                    _ensure_relative(str(value)) for value in item.get("probe_required_paths", [])
+                ),
+                probe_runtime_paths=tuple(
+                    _ensure_relative(str(value)) for value in item.get("probe_runtime_paths", [])
                 ),
             )
         )
@@ -1686,6 +1700,19 @@ def render_generated_artifacts_markdown(families: list[GeneratedArtifactFamily])
         )
         if family.retention_days is not None:
             lines.append(f"- Retention: `{family.retention_days}` days")
+        if family.probe_input_roots:
+            roots = ", ".join(f"`{_repo_display_path(path)}`" for path in family.probe_input_roots)
+            lines.append(f"- Native probe input roots: {roots}")
+        if family.probe_required_paths:
+            required = ", ".join(
+                f"`{_repo_display_path(path)}`" for path in family.probe_required_paths
+            )
+            lines.append(f"- Native probe required inputs: {required}")
+        if family.probe_runtime_paths:
+            runtime_paths = ", ".join(
+                f"`{_repo_display_path(path)}`" for path in family.probe_runtime_paths
+            )
+            lines.append(f"- Native probe runtime links: {runtime_paths}")
         if family.workflow is not None:
             lines.append(f"- Related workflow/config: `{_repo_display_path(family.workflow)}`")
         if family.default_freshness_check:
@@ -2190,32 +2217,513 @@ def _snapshot_filesystem_tree(repo_root: Path) -> dict[str, str]:
     return snapshot
 
 
-def _copy_isolated_probe_source(repo_root: Path, destination: Path) -> None:
-    ignored = shutil.ignore_patterns(
-        ".git",
-        ".cache",
-        ".mypy_cache",
-        ".pytest_cache",
-        ".ruff_cache",
-        ".venv",
-        "__pycache__",
-        "_build",
-        "_cache",
-        "node_modules",
-        "production_data",
-    )
-    shutil.copytree(repo_root, destination, symlinks=True, ignore=ignored)
-    for relative in (
+_PROBE_RUNTIME_LINKS = frozenset(
+    {
         Path("node_modules"),
         Path("packages/runtime-api-client/node_modules"),
         Path("apps/runtime-dashboard/node_modules"),
-    ):
-        source = repo_root / relative
-        if not source.exists():
+    }
+)
+_PROBE_DIRECTORY_CONTRACTS_PATH = Path("architecture/policies/directory_contracts.toml")
+_HUGGINGFACE_CACHE_MEMBERS = ("blobs", "refs", "snapshots")
+
+
+def _local_only_probe_roots(repo_root: Path) -> frozenset[Path]:
+    """Read exact local-only roots from the directory owner contract."""
+    contract_path, _relative = _resolve_probe_member(
+        repo_root, _PROBE_DIRECTORY_CONTRACTS_PATH, required=False
+    )
+    if not contract_path.is_file():
+        return frozenset()
+    try:
+        data = tomllib.loads(contract_path.read_text(encoding="utf-8"))
+    except (OSError, tomllib.TOMLDecodeError) as error:
+        raise OSError(f"unable to read local-only directory contract: {contract_path}") from error
+
+    roots: set[Path] = set()
+    for item in data.get("contract", []):
+        if item.get("status") != "local_only":
             continue
-        linked = destination / relative
-        linked.parent.mkdir(parents=True, exist_ok=True)
-        linked.symlink_to(source, target_is_directory=True)
+        raw_path = item.get("path")
+        if not isinstance(raw_path, str):
+            raise OSError("local-only directory contract has a non-string path")
+        local_path = Path(raw_path)
+        if local_path.is_absolute() or not local_path.parts or ".." in local_path.parts:
+            raise OSError(f"local-only directory contract path is unsafe: {raw_path!r}")
+        roots.add(local_path)
+    return frozenset(roots)
+
+
+def _is_local_only_probe_path(relative: Path, local_roots: frozenset[Path]) -> bool:
+    """Match owner-contract paths, never a directory basename."""
+    return any(relative == local or local in relative.parents for local in local_roots)
+
+
+def _resolve_probe_member(repo_root: Path, value: Path, *, required: bool) -> tuple[Path, Path]:
+    """Resolve a declared member without following a symlink or escaping the checkout."""
+    repository = repo_root.resolve()
+    candidate = value if value.is_absolute() else repository / value
+    try:
+        relative = candidate.relative_to(repository)
+    except ValueError as error:
+        raise OSError(f"probe input is outside the repository: {candidate}") from error
+    current = repository
+    for component in relative.parts:
+        current = current / component
+        try:
+            mode = current.lstat().st_mode
+        except FileNotFoundError as error:
+            if required:
+                raise OSError(f"required probe input is missing: {current}") from error
+            break
+        if stat.S_ISLNK(mode):
+            raise OSError(f"probe input has a symlink component: {current}")
+        if not current.resolve().is_relative_to(repository):
+            raise OSError(f"probe input escapes the repository: {current}")
+    if required and not candidate.exists():
+        raise OSError(f"required probe input is missing: {candidate}")
+    return candidate, relative
+
+
+def _trust_claim_posture_compiler_inputs(repo_root: Path) -> tuple[Path, ...]:
+    """Return explicit compiler reads; imports and subprocess reads stay unobserved."""
+    from tools.quality.validation import check_trust_claim_posture
+
+    with measure_file_reads(repo_root) as reads:
+        check_trust_claim_posture.compile_claim_posture_register(repo_root)
+    snapshot = reads.snapshot(complete_verdict=False)
+    observed: set[Path] = set()
+    for entry in snapshot["inputs"]:
+        if (
+            entry.get("operation") not in {"read_bytes", "read_text"}
+            or entry.get("status") != "read"
+        ):
+            continue
+        recorded = Path(str(entry["path"]))
+        if recorded.is_absolute():
+            raise OSError(f"trust compiler read outside its declared checkout: {recorded}")
+        path, _relative = _resolve_probe_member(repo_root, recorded, required=True)
+        observed.add(path)
+    return tuple(sorted(observed))
+
+
+def _selected_probe_roots(
+    repo_root: Path,
+    families: tuple[GeneratedArtifactFamily, ...],
+) -> tuple[
+    tuple[tuple[Path, Path], ...],
+    tuple[Path, ...],
+    tuple[Path, ...],
+    str | None,
+]:
+    roots: dict[Path, Path] = {}
+    required: set[Path] = set()
+    runtime_links: set[Path] = set()
+    local_only_roots = _local_only_probe_roots(repo_root)
+    _resolve_probe_member(repo_root, _PROBE_DIRECTORY_CONTRACTS_PATH, required=True)
+    for family in families:
+        if (
+            not family.probe_input_roots
+            or not family.probe_required_paths
+            or repo_root / _PROBE_DIRECTORY_CONTRACTS_PATH not in family.probe_required_paths
+        ):
+            raise OSError(f"{family.family_id} has no complete native probe input basis")
+        uses_pnpm = family.output_probe_command is not None and any(
+            "pnpm" in part for part in family.output_probe_command
+        )
+        if uses_pnpm and not family.probe_runtime_paths:
+            raise OSError(f"{family.family_id} has no declared pnpm runtime profile")
+        for value in family.probe_input_roots:
+            path, relative = _resolve_probe_member(repo_root, value, required=True)
+            if _is_local_only_probe_path(relative, local_only_roots):
+                raise OSError(f"probe input root is governed local-only state: {relative}")
+            if not path.is_dir():
+                raise OSError(f"probe input root is not a directory: {path}")
+            roots[relative] = path
+        for value in family.probe_required_paths:
+            path, relative = _resolve_probe_member(repo_root, value, required=True)
+            if _is_local_only_probe_path(relative, local_only_roots):
+                raise OSError(f"required probe input is governed local-only state: {relative}")
+            if any(
+                relative == runtime or runtime in relative.parents
+                for runtime in _PROBE_RUNTIME_LINKS
+            ):
+                raise OSError(
+                    f"required probe input is inside a runtime dependency tree: {relative}"
+                )
+            if path.is_dir():
+                roots[relative] = path
+            else:
+                required.add(relative)
+        for value in family.probe_runtime_paths:
+            candidate = value if value.is_absolute() else repo_root / value
+            try:
+                relative = candidate.relative_to(repo_root.resolve())
+            except ValueError as error:
+                raise OSError(
+                    f"probe runtime link is outside the repository: {candidate}"
+                ) from error
+            if relative not in _PROBE_RUNTIME_LINKS:
+                raise OSError(f"probe runtime link is not an admitted package path: {relative}")
+            _resolve_probe_member(repo_root, relative.parent, required=True)
+            if not candidate.exists() and not candidate.is_symlink():
+                raise OSError(f"required probe runtime dependency is missing: {candidate}")
+            if not candidate.is_dir():
+                raise OSError(f"probe runtime dependency is not a directory: {candidate}")
+            try:
+                resolved_runtime = candidate.resolve(strict=True)
+            except OSError as error:
+                raise OSError(f"probe runtime dependency is unresolved: {candidate}") from error
+            if not resolved_runtime.is_relative_to(repo_root.resolve()):
+                raise OSError(
+                    f"probe runtime dependency resolves outside the repository: "
+                    f"{candidate} -> {resolved_runtime}"
+                )
+            runtime_links.add(relative)
+        if family.probe_runtime_paths:
+            if (
+                repo_root / "package.json" not in family.probe_required_paths
+                or repo_root / "pnpm-lock.yaml" not in family.probe_required_paths
+                or Path("node_modules")
+                not in {
+                    value.relative_to(repo_root)
+                    for value in family.probe_runtime_paths
+                    if value.is_absolute() and value.is_relative_to(repo_root)
+                }
+            ):
+                raise OSError(
+                    f"{family.family_id} runtime profile lacks the frozen pnpm input basis"
+                )
+        if family.family_id == "trust-claim-posture-register":
+            for path in _trust_claim_posture_compiler_inputs(repo_root):
+                _resolved, relative = _resolve_probe_member(repo_root, path, required=True)
+                required.add(relative)
+    runtime_inventory_digest = None
+    if runtime_links:
+        if Path("node_modules") not in runtime_links:
+            raise OSError("frontend runtime profile has no root pnpm dependency link")
+        runtime_inventory_digest = _verify_pnpm_install_receipt(repo_root, frozenset(runtime_links))
+    return (
+        tuple(sorted((path, relative) for relative, path in roots.items())),
+        tuple(sorted(required)),
+        tuple(sorted(runtime_links)),
+        runtime_inventory_digest,
+    )
+
+
+def _pnpm_runtime_entry_digest(
+    path: Path,
+    repository: Path,
+    *,
+    ancestors: frozenset[Path],
+    memo: dict[Path, bytes],
+) -> bytes:
+    """Hash one installed entry, including symlink provenance and resolved contents."""
+    try:
+        mode = path.lstat().st_mode
+    except OSError as error:
+        raise OSError(f"cannot inspect pnpm runtime input: {path}") from error
+
+    if stat.S_ISLNK(mode):
+        try:
+            raw_target = os.readlink(path)
+            resolved = path.resolve(strict=True)
+        except OSError as error:
+            raise OSError(f"pnpm runtime link is unresolved: {path}") from error
+        if not resolved.is_relative_to(repository):
+            raise OSError(f"pnpm runtime link resolves outside the checkout: {path} -> {resolved}")
+        target_digest = _pnpm_runtime_entry_digest(
+            resolved,
+            repository,
+            ancestors=ancestors,
+            memo=memo,
+        )
+        return hashlib.sha256(
+            b"symlink\0"
+            + os.fsencode(raw_target)
+            + b"\0"
+            + resolved.relative_to(repository).as_posix().encode("utf-8")
+            + b"\0"
+            + target_digest
+        ).digest()
+
+    try:
+        resolved = path.resolve(strict=True)
+    except OSError as error:
+        raise OSError(f"pnpm runtime input is unresolved: {path}") from error
+    if not resolved.is_relative_to(repository):
+        raise OSError(f"pnpm runtime input resolves outside the checkout: {path} -> {resolved}")
+    if resolved in memo:
+        return memo[resolved]
+
+    if stat.S_ISREG(mode):
+        digest = hashlib.sha256()
+        digest.update(f"file\0{stat.S_IMODE(mode)}\0".encode("ascii"))
+        try:
+            with path.open("rb") as stream:
+                while chunk := stream.read(1024 * 1024):
+                    digest.update(chunk)
+        except OSError as error:
+            raise OSError(f"cannot read pnpm runtime input: {path}") from error
+        result = digest.digest()
+    elif stat.S_ISDIR(mode):
+        if resolved in ancestors:
+            raise OSError(f"pnpm runtime directory contains a link cycle: {path}")
+        digest = hashlib.sha256()
+        digest.update(f"directory\0{stat.S_IMODE(mode)}\0".encode("ascii"))
+        next_ancestors = ancestors | {resolved}
+        try:
+            children = sorted(path.iterdir(), key=lambda item: item.name)
+        except OSError as error:
+            raise OSError(f"cannot enumerate pnpm runtime directory: {path}") from error
+        for child in children:
+            digest.update(os.fsencode(child.name))
+            digest.update(b"\0")
+            digest.update(
+                _pnpm_runtime_entry_digest(
+                    child,
+                    repository,
+                    ancestors=next_ancestors,
+                    memo=memo,
+                )
+            )
+        result = digest.digest()
+    else:
+        raise OSError(f"pnpm runtime contains an unsupported special file: {path}")
+
+    memo[resolved] = result
+    return result
+
+
+def _pnpm_runtime_inventory_digest(
+    repo_root: Path,
+    runtime_paths: frozenset[Path],
+) -> str:
+    """Derive a complete installed-tree digest from declared runtime paths."""
+    repository = repo_root.resolve()
+    if Path("node_modules") not in runtime_paths:
+        raise OSError("pnpm runtime inventory has no root node_modules tree")
+    inventory = hashlib.sha256()
+    memo: dict[Path, bytes] = {}
+    for relative in sorted(runtime_paths):
+        if relative not in _PROBE_RUNTIME_LINKS:
+            raise OSError(f"pnpm runtime path is not admitted: {relative}")
+        candidate = repository / relative
+        try:
+            resolved = candidate.resolve(strict=True)
+        except OSError as error:
+            raise OSError(f"pnpm runtime path is unresolved: {candidate}") from error
+        if not resolved.is_relative_to(repository):
+            raise OSError(f"pnpm runtime path resolves outside the checkout: {candidate}")
+        if not candidate.is_dir():
+            raise OSError(f"pnpm runtime path is not a directory: {candidate}")
+        inventory.update(relative.as_posix().encode("utf-8"))
+        inventory.update(b"\0")
+        inventory.update(
+            _pnpm_runtime_entry_digest(
+                candidate,
+                repository,
+                ancestors=frozenset(),
+                memo=memo,
+            )
+        )
+    return inventory.hexdigest()
+
+
+def _verify_pnpm_install_receipt(
+    repo_root: Path,
+    runtime_paths: frozenset[Path],
+) -> str:
+    """Bind lock metadata and every installed runtime target/content to this checkout."""
+    package_path = repo_root / "package.json"
+    lock_path = repo_root / "pnpm-lock.yaml"
+    installed_lock_path = repo_root / "node_modules/.pnpm/lock.yaml"
+    modules_path = repo_root / "node_modules/.modules.yaml"
+    paths = (package_path, lock_path, installed_lock_path, modules_path)
+    missing = [path for path in paths if not path.is_file()]
+    if missing:
+        raise OSError(
+            "pnpm runtime link has no complete install receipt: "
+            + ", ".join(str(path) for path in missing)
+        )
+    try:
+        package = json.loads(package_path.read_text(encoding="utf-8"))
+        install = yaml.safe_load(modules_path.read_text(encoding="utf-8"))
+        frozen_lock = lock_path.read_bytes()
+        installed_lock = installed_lock_path.read_bytes()
+    except (OSError, ValueError, yaml.YAMLError) as error:
+        raise OSError("unable to read the pnpm lock/install receipt") from error
+    package_manager = package.get("packageManager") if isinstance(package, dict) else None
+    installed_manager = install.get("packageManager") if isinstance(install, dict) else None
+    if (
+        not isinstance(package_manager, str)
+        or installed_manager != package_manager
+        or installed_lock != frozen_lock
+    ):
+        raise OSError("pnpm node_modules does not match package.json and the frozen pnpm lockfile")
+    return _pnpm_runtime_inventory_digest(repo_root, runtime_paths)
+
+
+def _probe_walk_error(error: OSError) -> None:
+    """Fail admission when a selected source directory cannot be enumerated."""
+    raise OSError(f"unable to enumerate selected probe source: {error}") from error
+
+
+def _copy_isolated_probe_source(
+    repo_root: Path,
+    destination: Path,
+    *,
+    families: tuple[GeneratedArtifactFamily, ...],
+) -> tuple[tuple[Path, ...], str | None]:
+    """Copy the family-declared source basis, including ignored files under its roots."""
+    if destination.exists() or destination.is_symlink():
+        raise FileExistsError(f"isolated probe source already exists: {destination}")
+    repository = repo_root.resolve()
+    families = tuple(families)
+    if not families:
+        raise OSError("isolated probe source requires an explicit family input basis")
+    roots, required_paths, runtime_links, runtime_inventory_digest = _selected_probe_roots(
+        repository, families
+    )
+    if not roots:
+        raise OSError("isolated probe source has no selected filesystem input roots")
+    local_only_roots = _local_only_probe_roots(repository)
+    files: dict[Path, Path] = {}
+    directories: set[Path] = set()
+    root_relatives = tuple(relative for _path, relative in roots)
+    required_relatives = set(required_paths)
+
+    def selected(relative: Path) -> bool:
+        if _is_local_only_probe_path(relative, local_only_roots):
+            return False
+        return relative in required_relatives or any(
+            relative == root or root in relative.parents for root in root_relatives
+        )
+
+    # A complete filesystem walk admits ignored and untracked source. Git supplies an
+    # independent missing-tracked-file check; it does not define the source set.
+    for tracked in iter_repository_files(repository):
+        try:
+            relative = tracked.relative_to(repository)
+        except ValueError as error:
+            raise OSError(f"tracked probe path is outside the repository: {tracked}") from error
+        if selected(relative):
+            if any(relative == runtime or runtime in relative.parents for runtime in runtime_links):
+                continue
+            path, _relative = _resolve_probe_member(repository, relative, required=True)
+            if not path.is_file():
+                raise OSError(f"tracked probe input is not a file: {path}")
+            files[relative] = path
+
+    root_link_relatives = set(runtime_links)
+    for source_root, _root_relative in roots:
+        for current, dirnames, filenames in os.walk(
+            source_root,
+            topdown=True,
+            followlinks=False,
+            onerror=_probe_walk_error,
+        ):
+            current_path = Path(current)
+            relative_current = current_path.relative_to(repository)
+            kept_directories: list[str] = []
+            for name in sorted(dirnames):
+                path = current_path / name
+                relative = path.relative_to(repository)
+                if relative in root_link_relatives:
+                    continue
+                if _is_local_only_probe_path(relative, local_only_roots):
+                    continue
+                _resolve_probe_member(repository, relative, required=True)
+                if path.is_symlink():
+                    raise OSError(f"probe source directory is a symlink: {path}")
+                kept_directories.append(name)
+                directories.add(relative)
+            dirnames[:] = kept_directories
+            for name in sorted(filenames):
+                path = current_path / name
+                relative = path.relative_to(repository)
+                _resolved, _ = _resolve_probe_member(repository, relative, required=True)
+                mode = path.lstat().st_mode
+                if stat.S_ISLNK(mode):
+                    raise OSError(f"probe source file is a symlink: {path}")
+                if not stat.S_ISREG(mode):
+                    raise OSError(f"probe source contains an unsupported special file: {path}")
+                files[relative] = path
+            directories.add(relative_current)
+
+    for relative in required_relatives:
+        path, _relative = _resolve_probe_member(repository, relative, required=True)
+        if not path.is_file():
+            raise OSError(f"required probe input is not a file: {path}")
+        files[relative] = path
+
+    # Preflight space before creating the destination or copying a single source byte.
+    required_bytes = sum(path.stat().st_size for path in files.values())
+    disk_usage_path = destination.parent
+    while not disk_usage_path.exists():
+        parent = disk_usage_path.parent
+        if parent == disk_usage_path:
+            raise OSError(f"unable to locate an existing filesystem for {destination}")
+        disk_usage_path = parent
+    free_bytes = shutil.disk_usage(disk_usage_path).free
+    reserve = max(64 * 1024 * 1024, required_bytes // 10)
+    if free_bytes < required_bytes + reserve:
+        raise OSError(
+            f"insufficient disk space for isolated probe source: "
+            f"need {required_bytes + reserve} bytes, have {free_bytes}"
+        )
+
+    destination.mkdir(parents=True)
+    for relative in sorted(directories, key=lambda item: (len(item.parts), item.as_posix())):
+        (destination / relative).mkdir(parents=True, exist_ok=True)
+    for relative, source in sorted(files.items(), key=lambda item: item[0].as_posix()):
+        target = destination / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+
+    # These paths are runtime package dependencies, not family source. They stay linked
+    # to the frozen workspace installation and are never copied as source.
+    for relative in runtime_links:
+        source = repository / relative
+        if not source.exists() and not source.is_symlink():
+            raise OSError(f"required probe runtime dependency disappeared: {source}")
+        if not source.is_dir():
+            raise OSError(f"declared probe runtime dependency is not a directory: {source}")
+        target = destination / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.symlink_to(source.resolve(), target_is_directory=True)
+    return tuple(sorted(runtime_links)), runtime_inventory_digest
+
+
+def _mapped_governed_artifact_root(
+    repo_root: Path,
+    source_root: Path,
+    families: tuple[GeneratedArtifactFamily, ...],
+    configured_root: str | None,
+) -> str | None:
+    """Map a governed-artifact root into the selected clone or refuse ambient reads."""
+    if configured_root is None or not configured_root.strip():
+        return None
+    repository = repo_root.resolve()
+    configured = Path(configured_root).expanduser()
+    if not configured.is_absolute():
+        configured = repository / configured
+    source, relative = _resolve_probe_member(repository, configured, required=True)
+    roots, required, _runtime_links, _runtime_inventory = _selected_probe_roots(
+        repository, families
+    )
+    if not (
+        relative in set(required)
+        or any(
+            relative == root_relative or root_relative in relative.parents
+            for _path, root_relative in roots
+        )
+    ):
+        raise OSError(f"governed artifact root is outside the selected family basis: {source}")
+    mapped = source_root / relative
+    if not mapped.exists():
+        raise OSError(f"governed artifact root is absent from the isolated source: {mapped}")
+    return str(mapped.resolve())
 
 
 def _isolated_probe_environment(
@@ -2223,15 +2731,20 @@ def _isolated_probe_environment(
     *,
     uv_cache_dir: Path | None = None,
     offline: bool = False,
+    repo_root: Path | None = None,
+    families: tuple[GeneratedArtifactFamily, ...] = (),
 ) -> dict[str, str]:
     """Bind probe imports, private environment, and selected cache to copied source."""
     private_environment = source_root.parent / "environment"
+    bytecode_cache_root = source_root.parent / "python-bytecode-cache"
     cache_root = uv_cache_dir or source_root.parent / "uv-cache"
     environment = os.environ.copy()
+    governed_root = environment.pop("POLISYOS_GOVERNED_ARTIFACT_ROOT", None)
     for name in (
         "VIRTUAL_ENV",
         "CONDA_PREFIX",
         "PYTHONHOME",
+        "PYTHONPYCACHEPREFIX",
         "UV_PROJECT_ENVIRONMENT",
         "UV_NO_SYNC",
         "UV_NO_CONFIG",
@@ -2250,6 +2763,7 @@ def _isolated_probe_environment(
             "UV_PYTHON": sys.executable,
             "UV_NO_ENV_FILE": "1",
             "PYTHONPATH": os.pathsep.join((str(source_root / "src"), str(source_root))),
+            "PYTHONPYCACHEPREFIX": str(bytecode_cache_root),
             "PYTHONDONTWRITEBYTECODE": "1",
             "PYTHONNOUSERSITE": "1",
             "PATH": os.pathsep.join(
@@ -2257,6 +2771,14 @@ def _isolated_probe_environment(
             ),
         }
     )
+    mapped_governed_root = _mapped_governed_artifact_root(
+        repo_root or REPO_ROOT,
+        source_root,
+        families,
+        governed_root,
+    )
+    if mapped_governed_root is not None:
+        environment["POLISYOS_GOVERNED_ARTIFACT_ROOT"] = mapped_governed_root
     if offline:
         environment["UV_OFFLINE"] = "1"
     return environment
@@ -2776,11 +3298,19 @@ def _measure_required_generated_artifacts_in_workspace(
     output_root = scratch_root / "outputs"
     output_root.mkdir(parents=True, exist_ok=True)
     try:
-        _copy_isolated_probe_source(REPO_ROOT, isolated_repo_root)
+        runtime_paths, runtime_inventory_digest = _copy_isolated_probe_source(
+            REPO_ROOT,
+            isolated_repo_root,
+            families=required_families,
+        )
+        if runtime_inventory_digest is not None:
+            print(f"Native pnpm runtime input inventory SHA-256: {runtime_inventory_digest}")
         environment = _isolated_probe_environment(
             isolated_repo_root,
             uv_cache_dir=uv_cache_dir,
             offline=offline,
+            repo_root=REPO_ROOT,
+            families=required_families,
         )
         _prepare_isolated_probe_environment(isolated_repo_root, environment)
         if (REPO_ROOT / "src/polisyos").is_dir():
@@ -2816,6 +3346,21 @@ def _measure_required_generated_artifacts_in_workspace(
             expected_outputs=expected_outputs,
             declared_owners=declared_owners,
         )
+    if runtime_inventory_digest is not None:
+        try:
+            final_runtime_digest = _verify_pnpm_install_receipt(REPO_ROOT, frozenset(runtime_paths))
+        except OSError as error:
+            final_runtime_digest = None
+            diagnostic = f"pnpm runtime input inventory became unavailable: {error}"
+        else:
+            diagnostic = "pnpm runtime input inventory changed during generated-artifact probes"
+        if final_runtime_digest != runtime_inventory_digest:
+            affected = [
+                UnrunGeneratedCheck(family.family_id, "environment", diagnostic)
+                for family in required_families
+                if family.probe_runtime_paths
+            ]
+            raise GeneratedArtifactCheckUnrunError(affected, cursor.violations)
 
 
 def _measure_required_generated_artifacts(

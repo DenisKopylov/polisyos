@@ -733,6 +733,8 @@ uv run python tools/ci/check_fabric_schema_registry.py --update
 - Drift gate: `automated`
 - Owner: `team-polisyos`
 - Approval owner: `team-polisyos`
+- Native probe input roots: `src`, `tools`, `architecture`, `schemas`
+- Native probe required inputs: `pyproject.toml`, `uv.lock`, `architecture/generated_artifacts.toml`, `architecture/policies/directory_contracts.toml`, `schemas/runtime_api_v1.openapi.json`
 - Related workflow/config: `ops/ci/templates/workflows/arch.yml`
 - Required in default freshness check: `true`
 - Generator-observed output probe: `env PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 PYTHONHASHSEED=0 JAX_PLATFORMS=cpu PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output '{output_root}/schemas/runtime_api_v1.openapi.json'`
@@ -759,6 +761,9 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runt
 - Drift gate: `automated`
 - Owner: `team-polisyos`
 - Approval owner: `team-polisyos`
+- Native probe input roots: `packages/runtime-api-client`, `tools`, `architecture`, `schemas`
+- Native probe required inputs: `pyproject.toml`, `uv.lock`, `package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `architecture/policies/directory_contracts.toml`, `schemas/runtime_api_v1.openapi.json`
+- Native probe runtime links: `node_modules`, `packages/runtime-api-client/node_modules`
 - Related workflow/config: `ops/ci/templates/workflows/arch.yml`
 - Required in default freshness check: `true`
 - Generator-observed output probe: `corepack pnpm --filter @polisyos/runtime-api-client run generate -- --openapi schemas/runtime_api_v1.openapi.json --output-root '{output_root}'`
@@ -787,6 +792,9 @@ corepack pnpm --filter @polisyos/runtime-api-client run generate -- --openapi sc
 - Drift gate: `automated`
 - Owner: `team-polisyos`
 - Approval owner: `team-polisyos`
+- Native probe input roots: `apps/runtime-dashboard`, `packages/runtime-api-client`, `tools`, `architecture`, `schemas`
+- Native probe required inputs: `pyproject.toml`, `uv.lock`, `package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `architecture/policies/directory_contracts.toml`, `schemas/runtime_api_v1.openapi.json`
+- Native probe runtime links: `node_modules`, `packages/runtime-api-client/node_modules`, `apps/runtime-dashboard/node_modules`
 - Related workflow/config: `ops/ci/templates/workflows/arch.yml`
 - Required in default freshness check: `true`
 - Generator-observed output probe: `corepack pnpm --filter @polisyos/runtime-dashboard run generate:api -- --openapi schemas/runtime_api_v1.openapi.json --output-root '{output_root}'`
@@ -1989,6 +1997,8 @@ uv run python tools/quality/validation/check_layer3_gy_generation_cycle_disposit
 - Drift gate: `automated`
 - Owner: `team-architecture`
 - Approval owner: `team-architecture`
+- Native probe input roots: `src`, `tools`, `architecture`, `apps/runtime-dashboard/src/features/trust`
+- Native probe required inputs: `pyproject.toml`, `uv.lock`, `architecture/generated_artifacts.toml`, `architecture/policies/directory_contracts.toml`, `docs/system-design-decisions/policyos-identity-and-custody-boundary.md`, `docs/compliance/A11Y_AUDIT_2026Q2.md`, `docs/plans/active/DEBT-REGISTER.md`, `docs/plans/active/atlas-slices/receipts/ds11-page-a11y-base/environment-after.json`, `docs/plans/active/atlas-slices/receipts/ds11-page-a11y-base/environment-before.json`, `docs/plans/active/atlas-slices/receipts/ds11-page-a11y-base/receipt.json`, `docs/plans/active/atlas-slices/receipts/ds11-page-a11y-base/run-1/.last-run.json`, `docs/plans/active/atlas-slices/receipts/ds11-page-a11y-base/run-1/results.json`
 - Related workflow/config: `tools/quality/validation/check_trust_claim_posture.py`
 - Required in default freshness check: `true`
 - Generator-observed output probe: `env PYTHONDONTWRITEBYTECODE=1 python tools/quality/validation/check_trust_claim_posture.py --repo-root . --write --output-root '{output_root}'`

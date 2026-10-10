@@ -1,0 +1,81 @@
+{
+  "schema": "policyos.e02.composed_mac_current_source_replay_plan.v1",
+  "title": "Capture-wrapper self-test source-ownership plan",
+  "created_on": "2026-10-10",
+  "status": "plan_only_not_receipt_unrun",
+  "source_scope": {
+    "worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "product_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "final_commit": null,
+    "final_tree": null,
+    "rule": "Root must bind the exact final source/input manifest after all plans are frozen. The manifest digest is supplied as runtime invocation context because this plan is itself one of the manifest-bound plans; it cannot truthfully contain the digest it helps define.",
+    "runtime_context": {
+      "source_input_manifest_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-source-inputs-20261010-r3.json",
+      "source_input_manifest_hash_argument": "--frozen-source-input-manifest-sha256 is supplied after manifest preparation and captured in actual command metadata; it is not part of this static argv."
+    }
+  },
+  "execution": {
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "output_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r3/tools/capture-selftest",
+    "concurrency": {
+      "max_parallel_commands": 1,
+      "numerical_threads": 1,
+      "xdist": false,
+      "pytest_workers": 1
+    },
+    "common_environment": {
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1",
+      "BLIS_NUM_THREADS": "1"
+    },
+    "freeze_input_manifest": {
+      "source_input_paths": [
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed_mac_capture.py"
+      ],
+      "selected_test_paths": [],
+      "fixture_inputs": []
+    },
+    "commands": [
+      {
+        "id": "CAPTURE_TOOL_SELF_TEST",
+        "order": 1,
+        "phase": "light",
+        "command_type": "python",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "argv": [
+          ".venv/bin/python",
+          "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed_mac_capture.py",
+          "--self-test",
+          "--self-test-output-directory",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r3/tools/capture-selftest/capture-wrapper/self-test-artifacts"
+        ],
+        "environment": {
+          "OPENBLAS_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "VECLIB_MAXIMUM_THREADS": "1",
+          "BLIS_NUM_THREADS": "1",
+          "PYTHONDONTWRITEBYTECODE": "1"
+        },
+        "outputs": {
+          "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r3/tools/capture-selftest/capture-wrapper",
+          "stdout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r3/tools/capture-selftest/capture-wrapper/stdout.bin",
+          "stderr": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r3/tools/capture-selftest/capture-wrapper/stderr.bin",
+          "metadata": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261010-r3/tools/capture-selftest/capture-wrapper/metadata.json",
+          "junit": null
+        },
+        "run_status_before_freeze": "UNRUN",
+        "plan_timeout_seconds": null,
+        "prior_wall_time": {
+          "status": "UNMEASURED",
+          "basis": "New plan-only source-ownership check; no prior execution is claimed."
+        },
+        "purpose": "Run the capture-wrapper self-test with an exact static argv and root-supplied manifest path/hash context. All generated self-test files stay below this command's own declared output directory, separate from wrapper streams."
+      }
+    ]
+  }
+}

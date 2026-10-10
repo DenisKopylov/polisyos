@@ -3,8 +3,11 @@ from __future__ import annotations
 import pytest
 
 from polisyos.core.artifacts.backends.gcs_store import GCSArtifactStore
+from polisyos.core.artifacts.manifest import CanonInfo as CoreCanonInfo
 from polisyos.core.artifacts.manifest import ProducerInfo
 from polisyos.core.artifacts.store import ArtifactIntegrityError, PutOptions
+from polisyos.core.canon import CanonSpec as CoreCanonSpec
+from polisyos.core.canon import CanonViolation as CoreCanonViolation
 
 
 class _MetricsStub:
@@ -56,6 +59,25 @@ class _FakeBucket:
         for key in sorted(self.objects):
             if key.startswith(prefix):
                 yield _FakeBlob(key, self.objects)
+
+
+def test_gcs_store_refuses_canon_spec_mismatch_before_upload() -> None:
+    store = GCSArtifactStore(bucket="test-bucket")
+    bucket = _FakeBucket()
+    store._bucket = bucket
+
+    with pytest.raises(CoreCanonViolation, match="canon metadata must match"):
+        store.put_json(
+            {"present": None},
+            PutOptions(
+                kind="test.core-canon-spec-mismatch",
+                media_type="application/json",
+                canon=CoreCanonInfo(exclude_none=True),
+            ),
+            canon_spec=CoreCanonSpec(exclude_none=False),
+        )
+
+    assert bucket.objects == {}
 
 
 def test_gcs_store_get_bytes_rehashes_blob_on_read() -> None:

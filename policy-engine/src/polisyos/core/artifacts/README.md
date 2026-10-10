@@ -26,6 +26,12 @@ environment fingerprints.
 ## Public API
 
 - storage: `FileSystemCAS`, `PutOptions`
+- JSON writes bind supplied canonical metadata to the selected encoder specification
+  before serialization in the filesystem, S3, GCS, IR adapter, and tenant quota
+  preflight paths. A conflicting profile is refused before persistence. Supplied
+  mapping profiles must include every canonical field; historical profileless reads
+  retain their existing default-view behavior. This coupling describes encoder
+  settings and does not establish producer authority.
 - manifests/refs: `ArtifactManifest`, `ArtifactRef`, `InputRef`, `SchemaInfo`
 - selected-view profile: `artifact_manifest_profile_projection` and
   `artifact_manifest_profile_sha256` delegate to the existing versioned CAS lifecycle

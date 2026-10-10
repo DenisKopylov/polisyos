@@ -22,6 +22,7 @@ from .manifest import (
     ProducerInfo,
     SchemaInfo,
     WarningRecord,
+    _canon_info_for_spec,
 )
 from .manifest import (
     ArtifactRef as CoreArtifactRef,
@@ -78,6 +79,25 @@ def _coerce_model(value: Any | None, model_type: type[Any], field_name: str) -> 
         raise TypeError(f"Invalid adapter option {field_name!r}") from exc
 
 
+def _coerce_canon_option(value: Any | None, field_name: str) -> CanonInfo | None:
+    """Refuse incomplete supplied profiles before model defaults apply."""
+    if value is None or isinstance(value, CanonInfo):
+        return value
+    if isinstance(value, BaseModel):
+        payload = value.model_dump(mode="python")
+        if not isinstance(payload, Mapping):
+            raise TypeError(f"Invalid adapter option {field_name!r}")
+    else:
+        payload = _coerce_payload(value)
+    missing_fields = set(CanonInfo.model_fields) - set(payload)
+    if missing_fields:
+        missing = ", ".join(sorted(missing_fields))
+        raise TypeError(
+            f"Invalid adapter option {field_name!r}: incomplete canon profile ({missing})"
+        )
+    return _coerce_model(payload, CanonInfo, field_name)
+
+
 def _coerce_model_list(
     value: Any | None,
     model_type: type[Any],
@@ -103,7 +123,7 @@ _WRITE_OPTION_NORMALIZERS: dict[str, Any] = {
     "producer": lambda value, name: _coerce_model(value, ProducerInfo, name),
     "env": lambda value, name: _coerce_model(value, EnvInfo, name),
     "inputs": lambda value, name: _coerce_model_list(value, InputRef, name),
-    "canon": lambda value, name: _coerce_model(value, CanonInfo, name),
+    "canon": _coerce_canon_option,
     "governance": lambda value, name: _coerce_model(value, ArtifactGovernanceInfo, name),
     "tenant_context": lambda value, name: _coerce_model(value, ArtifactTenantContextInfo, name),
     "same_input_closure": lambda value, name: _coerce_model(
@@ -263,12 +283,15 @@ class CoreToIRArtifactStoreAdapter:
         import polisyos.ir.model_layer.canon as ir_canon
 
         spec = canon_spec or ir_canon.CanonSpec()
-        data = ir_canon.to_canonical_bytes(obj, spec)
         write_options = _coerce_write_options(opts)
+        canon = _canon_info_for_spec(
+            spec, write_options.canon, violation_type=ir_canon.CanonViolation
+        )
+        data = ir_canon.to_canonical_bytes(obj, spec)
         write_options = replace(
             write_options,
             media_type="application/json",
-            canon=write_options.canon or CanonInfo.from_spec(spec),
+            canon=canon,
         )
         return self.store.put_bytes(data, write_options)
 

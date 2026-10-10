@@ -1,6 +1,7 @@
 """Unit tests for CausalEngine orchestrator."""
 
 import dataclasses
+import json
 
 import numpy as np
 import pytest
@@ -130,7 +131,7 @@ from polisyos.ir.analytics.survey_quality import (
     build_survey_quality_certificate,
     persist_survey_quality_certificate,
 )
-from polisyos.ir.artifacts import get_json_artifact
+from polisyos.ir.artifacts import CanonInfo as IRCanonInfo, get_json_artifact
 from polisyos.ir.governance.phase1 import load_phase1_flagship_dataset_ids
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
@@ -139,6 +140,7 @@ from polisyos.ir.registry.refs import (
     InterventionCertificateRef,
     InterventionQueryRef,
     ProofBundleRef,
+    TemporalIdentificationCertificateRef,
     TemporalInterventionTrajectoryRef,
 )
 
@@ -2311,11 +2313,22 @@ class TestCausalEngineTemporal:
         assert proof.metadata["local_independence_certificate_ref"]["kind"] == (
             "ir.local_independence_weighting_certificate"
         )
+        certificate_ref = LocalIndependenceWeightingCertificateRef.model_validate(
+            proof.metadata["local_independence_certificate_ref"]
+        )
+        fresh_store = FileSystemCAS(tmp_path / "cas")
+        raw_manifest = json.loads(
+            fresh_store.get_manifest_bytes(str(certificate_ref.artifact_id))
+        )
+        assert raw_manifest["canon"] == IRCanonInfo(forbid_floats=False).model_dump(
+            mode="json"
+        )
+        certificate_payload = get_json_artifact(
+            _ensure_ir_artifact_store(fresh_store), certificate_ref
+        )
+        assert certificate_payload["verification_status"] == "identified"
         certificate = load_local_independence_weighting_certificate(
-            _ensure_ir_artifact_store(store),
-            LocalIndependenceWeightingCertificateRef.model_validate(
-                proof.metadata["local_independence_certificate_ref"]
-            ),
+            _ensure_ir_artifact_store(fresh_store), certificate_ref
         )
         assert certificate.verification_status == "identified"
         assert certificate.graph.process_family == "counting_process"
@@ -2416,6 +2429,20 @@ class TestCausalEngineTemporal:
         )
         assert proof.metadata["identification_scope"]["support_status"] == "on_support"
         assert proof.metadata["identification_scope"]["scope_covered"] is True
+        certificate_ref = TemporalIdentificationCertificateRef.model_validate(
+            proof.metadata["temporal_identification_certificate_ref"]
+        )
+        fresh_store = FileSystemCAS(tmp_path / "cas")
+        raw_manifest = json.loads(
+            fresh_store.get_manifest_bytes(str(certificate_ref.artifact_id))
+        )
+        assert raw_manifest["canon"] == IRCanonInfo(forbid_floats=False).model_dump(
+            mode="json"
+        )
+        persisted_certificate = get_json_artifact(
+            _ensure_ir_artifact_store(fresh_store), certificate_ref
+        )
+        assert persisted_certificate["theorem_family"] == proof.theorem_family
 
     def test_temporal_causal_effect_passes_neural_identification_certificate_to_compiler(self):
         engine = CausalEngine(registry=None, knowledge_base=None)

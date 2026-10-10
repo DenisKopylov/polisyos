@@ -5,8 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.manifest import CanonInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec, CanonViolation, to_canonical_bytes
 from polisyos.core.observability import get_metrics
 from polisyos.core.security.quota_enforcer import QuotaExceededError
 from polisyos.core.security.tenant_quota import TenantQuotaLimits
@@ -72,16 +73,52 @@ def test_tenant_scoped_cas_isolates_artifacts_and_enforces_quota(tmp_path: Path)
     assert exported.root == str(store_a.root)
 
 
+def test_tenant_scoped_cas_refuses_profile_mismatch_before_serializing(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    store = TenantScopedCAS(
+        tmp_path / ".polisyos", tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+    )
+    serialization_calls = 0
+
+    def count_serialization(payload: object, spec: CanonSpec | None = None) -> bytes:
+        nonlocal serialization_calls
+        serialization_calls += 1
+        return to_canonical_bytes(payload, spec)
+
+    monkeypatch.setattr(
+        "polisyos.fabric.storage.tenant_cas.to_canonical_bytes", count_serialization
+    )
+    with pytest.raises(CanonViolation, match="canon metadata must match"):
+        store.put_json(
+            {"present": None},
+            PutOptions(
+                kind="fabric.canon-profile-mismatch",
+                media_type="application/json",
+                canon=CanonInfo(exclude_none=True),
+            ),
+            canon_spec=CanonSpec(exclude_none=False),
+        )
+
+    assert serialization_calls == 0
+    assert store.iter_artifact_ids() == []
+
+
 def test_tenant_scoped_connector_cache_isolated_and_metrics_labeled(tmp_path: Path):
     tenant_a = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
     tenant_b = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+    namespace = f"connector_cache/{tmp_path.name}"
     cache_a = ConnectorCacheStore(
         TenantScopedCAS(tmp_path / ".polisyos", tenant_id=tenant_a),
         TTLPolicy(ttl=timedelta(hours=1)),
+        namespace=namespace,
+        tenant_id=tenant_a,
     )
     cache_b = ConnectorCacheStore(
         TenantScopedCAS(tmp_path / ".polisyos", tenant_id=tenant_b),
         TTLPolicy(ttl=timedelta(hours=1)),
+        namespace=namespace,
+        tenant_id=tenant_b,
     )
 
     request = FetchRequest(dataset_id="events")
@@ -129,8 +166,12 @@ def test_tenant_scoped_connector_cache_isolated_and_metrics_labeled(tmp_path: Pa
     metrics = get_metrics()
     assert metrics.connector_cache_entries_total is not None
     gauge_keys = list(metrics.connector_cache_entries_total._values.keys())
-    assert any(("tenant_id", tenant_a) in key for key in gauge_keys)
-    assert any(("tenant_id", tenant_b) in key for key in gauge_keys)
+    assert any(
+        ("tenant_id", tenant_a) in key and ("namespace", namespace) in key for key in gauge_keys
+    )
+    assert any(
+        ("tenant_id", tenant_b) in key and ("namespace", namespace) in key for key in gauge_keys
+    )
 
 
 def test_world_segment_metrics_are_tenant_scoped(tmp_path: Path):

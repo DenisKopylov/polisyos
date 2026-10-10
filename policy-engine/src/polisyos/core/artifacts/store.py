@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING, Any, BinaryIO, Literal
 from pydantic import ValidationError
 
 from ..canon import content_hash
-from ..canon.canon_json import CanonSpec, to_canonical_bytes
+from ..canon.canon_json import CanonSpec, CanonViolation, to_canonical_bytes
 from ..observability import get_metrics, get_tracer
 from ..observability.config import is_hpc_observability_enabled
 from . import _atomic_write as _atomic_write_module
@@ -108,9 +108,12 @@ from .manifest import (
     ArtifactManifest,
     ArtifactRef,
     ArtifactTenantContextInfo,
-    CanonInfo,
+    _canon_info_for_spec,
     _coerce_input_ref,
     artifact_ref_identity_key,
+)
+from .manifest import (
+    CanonInfo as CanonInfo,
 )
 from .manifest import (
     artifact_reference_parts as _artifact_reference,
@@ -2483,8 +2486,8 @@ class FileSystemCAS:
     ) -> ArtifactRef:
         """Canonicalize a JSON-like payload, persist it as CAS bytes, and return its ref."""
         canon_spec = canon_spec or CanonSpec()
+        canon = _canon_info_for_spec(canon_spec, opts.canon, violation_type=CanonViolation)
         data = to_canonical_bytes(obj, canon_spec)
-        canon = opts.canon or CanonInfo.from_spec(canon_spec)
         opts2 = PutOptions(
             kind=opts.kind,
             media_type="application/json",

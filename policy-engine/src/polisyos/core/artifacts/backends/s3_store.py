@@ -9,7 +9,7 @@ import threading
 from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.canon import content_hash
-from polisyos.core.canon.canon_json import CanonSpec, to_canonical_bytes
+from polisyos.core.canon.canon_json import CanonSpec, CanonViolation, to_canonical_bytes
 from polisyos.core.observability import get_metrics
 
 from .._integrity_ops import (
@@ -24,8 +24,11 @@ from ..ids import ArtifactID
 from ..manifest import (
     ArtifactManifest,
     ArtifactRef,
-    CanonInfo,
+    _canon_info_for_spec,
     artifact_reference_parts,
+)
+from ..manifest import (
+    CanonInfo as CanonInfo,
 )
 from ..store import PutOptions
 from ._cache_namespace import cache_namespace
@@ -381,8 +384,8 @@ class S3ArtifactStore:
         canon_spec: CanonSpec | None = None,
     ) -> ArtifactRef:
         canon_spec = canon_spec or CanonSpec()
+        canon = _canon_info_for_spec(canon_spec, opts.canon, violation_type=CanonViolation)
         data = to_canonical_bytes(obj, canon_spec)
-        canon = opts.canon or CanonInfo.from_spec(canon_spec)
         opts2 = PutOptions(
             kind=opts.kind,
             media_type="application/json",

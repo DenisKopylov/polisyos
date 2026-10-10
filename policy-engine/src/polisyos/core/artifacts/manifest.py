@@ -68,6 +68,21 @@ class CanonInfo(BaseModel):
         )
 
 
+def _canon_info_for_spec(
+    spec: Any,
+    supplied: CanonInfo | None,
+    *,
+    violation_type: type[ValueError],
+) -> CanonInfo:
+    """Require persisted canonical metadata to match the encoder settings."""
+    expected = CanonInfo.from_spec(spec)
+    if supplied is not None and supplied != expected:
+        raise violation_type(
+            "canon metadata must match the canonicalization spec used for encoding"
+        )
+    return expected
+
+
 class GitInfo(BaseModel):
     """Capture producer git provenance attached to a manifest."""
 

@@ -6,11 +6,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
+from polisyos.core.artifacts import CanonInfo
 from polisyos.core.artifacts.backends.config import (
     ArtifactStoreConfig,
     build_artifact_store,
 )
-from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.core.canon import CanonSpec, CanonViolation, to_canonical_bytes
 from polisyos.core.security import TenantQuotaRegistry, validate_tenant_id
 
 if TYPE_CHECKING:
@@ -175,6 +176,10 @@ class TenantScopedCAS:
     ) -> ArtifactRef:
         """Persist canonical JSON payload inside the tenant namespace."""
         spec = canon_spec or CanonSpec()
+        if opts.canon is not None and opts.canon != CanonInfo.from_spec(spec):
+            raise CanonViolation(
+                "canon metadata must match the canonicalization spec used for encoding"
+            )
         payload = to_canonical_bytes(obj, spec)
         estimated_delta = len(payload) + 4_096
         self._quota.check_storage_delta(estimated_delta)

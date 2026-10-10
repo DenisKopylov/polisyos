@@ -46,6 +46,7 @@ from polisyos.core.artifacts.protocol import resolve_manifest_by_profile
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec as CoreCanonSpec
+from polisyos.core.canon import CanonViolation as CoreCanonViolation
 from polisyos.core.canon import from_canonical_bytes as from_core_canonical_bytes
 from polisyos.core.contracts.scientist import FailureCardRef
 from polisyos.ir.analytics.backtest import (
@@ -54,7 +55,7 @@ from polisyos.ir.analytics.backtest import (
     persist_backtest_report,
 )
 from polisyos.ir.artifacts.contracts import CanonInfo as IRCanonInfo
-from polisyos.ir.artifacts.contracts import normalize_artifact_ref
+from polisyos.ir.artifacts.contracts import StorePutOptions, normalize_artifact_ref
 from polisyos.ir.artifacts.io import get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
 from polisyos.ir.model_layer.canon import CanonViolation as IRCanonViolation
@@ -573,6 +574,11 @@ def test_ir_adapter_mapping_write_options_preserve_every_core_option_field(tmp_p
             "unexpected": "silently discarded today",
         },
         {"kind": 1, "media_type": "application/json"},
+        {
+            "kind": "test.invalid-mapping",
+            "media_type": "application/json",
+            "canon": {"max_depth": 128},
+        },
     ],
 )
 def test_ir_adapter_refuses_malformed_supplied_mapping_options(tmp_path, invalid_options) -> None:
@@ -581,6 +587,57 @@ def test_ir_adapter_refuses_malformed_supplied_mapping_options(tmp_path, invalid
 
     with pytest.raises((TypeError, ValueError)):
         ensure_ir_artifact_store(store).put_json({"value": 1}, invalid_options)
+
+    assert store.iter_artifact_ids() == []
+
+
+def test_ir_adapter_refuses_canon_spec_mismatch_before_persisting(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    options = StorePutOptions(
+        kind="test.ir-canon-spec-mismatch",
+        media_type="application/json",
+        canon=IRCanonInfo(exclude_none=True).model_dump(mode="python"),
+    )
+
+    with pytest.raises(IRCanonViolation, match="canon metadata must match"):
+        ensure_ir_artifact_store(store).put_json(
+            {"present": None},
+            options,
+            canon_spec=IRCanonSpec(exclude_none=False),
+        )
+
+    assert store.iter_artifact_ids() == []
+
+
+def test_ir_adapter_accepts_typed_ir_canon_info_option(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    spec = IRCanonSpec(exclude_none=False)
+    options = StorePutOptions(
+        kind="test.ir-canon-typed-option",
+        media_type="application/json",
+        canon=IRCanonInfo.from_spec(spec),
+    )
+
+    ref = ensure_ir_artifact_store(store).put_json({"present": None}, options, canon_spec=spec)
+
+    assert store.get_bytes(ref) == b'{"present":null}'
+    assert store.get_manifest(ref).canon.exclude_none is False
+
+
+def test_file_system_put_json_refuses_canon_spec_mismatch_before_persisting(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    options = ArtifactWriteOptions(
+        kind="test.core-canon-spec-mismatch",
+        media_type="application/json",
+        canon=CoreCanonInfo(exclude_none=True),
+    )
+
+    with pytest.raises(CoreCanonViolation, match="canon metadata must match"):
+        store.put_json(
+            {"present": None},
+            options,
+            canon_spec=CoreCanonSpec(exclude_none=False),
+        )
 
     assert store.iter_artifact_ids() == []
 
@@ -1076,8 +1133,8 @@ def test_current_core_only_tags_are_refused_by_fresh_ir_reader(
 def test_actual_persisted_mismatched_profile_refuses_before_bytes(tmp_path, profile) -> None:
     """Current Core metadata cannot make an unsupported profile readable by declaration."""
     root = tmp_path / ".polisyos"
-    ref = FileSystemCAS(root).put_json(
-        {"value": 1},
+    ref = FileSystemCAS(root).put_bytes(
+        b'{"value":1}',
         ArtifactWriteOptions(
             kind="test.persisted-profile-mismatch", media_type="application/json", canon=profile
         ),

@@ -5,8 +5,11 @@ from types import SimpleNamespace
 import pytest
 
 from polisyos.core.artifacts.backends.s3_store import S3ArtifactStore
+from polisyos.core.artifacts.manifest import CanonInfo as CoreCanonInfo
 from polisyos.core.artifacts.manifest import ProducerInfo
 from polisyos.core.artifacts.store import ArtifactIntegrityError, PutOptions
+from polisyos.core.canon import CanonSpec as CoreCanonSpec
+from polisyos.core.canon import CanonViolation as CoreCanonViolation
 
 
 class _MetricsStub:
@@ -88,6 +91,26 @@ def test_s3_store_does_not_mask_head_permission_errors() -> None:
             b"data",
             PutOptions(kind="test.bytes", media_type="application/octet-stream"),
         )
+
+
+def test_s3_store_refuses_canon_spec_mismatch_before_upload() -> None:
+    store = S3ArtifactStore(bucket="test-bucket")
+    client = _FakeS3Client()
+    store._client = client
+
+    with pytest.raises(CoreCanonViolation, match="canon metadata must match"):
+        store.put_json(
+            {"present": None},
+            PutOptions(
+                kind="test.core-canon-spec-mismatch",
+                media_type="application/json",
+                canon=CoreCanonInfo(exclude_none=True),
+            ),
+            canon_spec=CoreCanonSpec(exclude_none=False),
+        )
+
+    assert client.put_calls == []
+    assert client.objects == {}
 
 
 def test_s3_store_get_bytes_rehashes_blob_on_read() -> None:

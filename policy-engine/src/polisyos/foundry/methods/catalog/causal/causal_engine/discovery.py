@@ -2,6 +2,72 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Any, Literal
+
+if TYPE_CHECKING:
+    from .api import (
+        CausalEngine,
+    )
+    from .artifacts import (
+        ArtifactRefModel,
+        BlockingType,
+        CausalGraphModel,
+        CensoringInterventionSpec,
+        ContinuousTimeQuery,
+        CtfQuery,
+        DistributionLawQuery,
+        DynamicReductionStatus,
+        DynamicScopeStatement,
+        DynamicSemanticsAttachment,
+        DynamicSemanticsFamily,
+        EliminabilityCheck,
+        EliminabilityStep,
+        GraphicalMarkovCertificate,
+        GraphicalOracleKind,
+        IdentificationResult,
+        IdentificationStatus,
+        IndependentCensoringCheck,
+        IntensityModelRequirement,
+        InterventionInterpolationPolicy,
+        InterventionKind,
+        InterventionScope,
+        LocalIndependenceAttachment,
+        LocalIndependenceEdge,
+        LocalIndependenceGraphSpec,
+        LocalIndependenceGraphicalChecks,
+        LocalIndependenceIdentificationSpec,
+        LocalIndependenceRuntimeRequirements,
+        LocalIndependenceTarget,
+        LocalIndependenceWeightingCertificate,
+        NegativeCertificate,
+        ProofBundle,
+        SeparationClaim,
+        StrategicAdaptationMode,
+        TemporalIdentificationCertificate,
+        TemporalIdentificationTheoremFamily,
+        TemporalQueryMode,
+        TemporalSamplingScheme,
+        TreatmentIntensityInterventionSpec,
+        WellPosednessStatus,
+        WellPosednessWitness,
+        ancestors,
+        build_dynamic_proof_bundle,
+        build_temporal_identification_certificate,
+        cyclic_id_algorithm,
+        dataclasses,
+        do_operator,
+        has_directed_cycle,
+        id_with_oracle_fallback,
+        idc_algorithm,
+        induced_subgraph,
+        li_id_algorithm,
+        make_distribution_law_estimand,
+        persist_local_independence_weighting_certificate,
+        persist_temporal_identification_certificate,
+        proof_bundle_from_identification_result,
+        well_posedness_check,
+    )
+
 from . import artifacts as _artifacts
 
 globals().update(
@@ -1080,9 +1146,10 @@ class CausalEngineDiscoveryMixin:
             },
         )
         certificate_ref: ArtifactRefModel | None = None
-        if self._artifact_store is not None:
+        ir_store = self._ir_artifact_store
+        if ir_store is not None:
             certificate_ref = persist_local_independence_weighting_certificate(
-                self._artifact_store,
+                ir_store,
                 certificate,
                 inputs=self._temporal_input_refs(
                     (query_ref, "query"),
@@ -1281,6 +1348,7 @@ class CausalEngineDiscoveryMixin:
         | None = None,
         query_ref: str | None = None,
     ) -> ProofBundle:
+        ir_store = self._ir_artifact_store
         temporal_certificate = self._normalize_temporal_identification_certificate(
             identification_certificate,
             query=query,
@@ -1310,9 +1378,9 @@ class CausalEngineDiscoveryMixin:
                 "identification_scope": scope_snapshot,
             }
             temporal_certificate_ref = None
-            if self._artifact_store is not None:
+            if ir_store is not None:
                 temporal_certificate_ref = persist_temporal_identification_certificate(
-                    self._artifact_store,
+                    ir_store,
                     temporal_certificate,
                     inputs=self._temporal_input_refs(
                         (query_ref, "query"),
@@ -1387,9 +1455,9 @@ class CausalEngineDiscoveryMixin:
             metadata["temporal_identification_certificate"] = temporal_certificate.model_dump(
                 mode="json"
             )
-        if proof_status == "identified" and self._artifact_store is not None:
+        if proof_status == "identified" and ir_store is not None:
             temporal_certificate_ref = persist_temporal_identification_certificate(
-                self._artifact_store,
+                ir_store,
                 temporal_certificate,
                 inputs=self._temporal_input_refs(
                     (query.intervention_trajectory_ref, "intervention_trajectory"),

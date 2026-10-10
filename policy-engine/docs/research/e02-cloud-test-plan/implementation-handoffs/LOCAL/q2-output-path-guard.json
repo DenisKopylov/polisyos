@@ -1,0 +1,212 @@
+{
+  "schema": "policyos.e02.local_slice_author_capture.v1",
+  "registered_handoff_admission": "NOT_ADMITTED: bounded author capture; complete registered environment and G acceptance not established",
+  "slice_id": "q2-output-path-guard",
+  "slice_base": {
+    "commit": "01c9a68f5bc10751f890468e4a2cfac1bcfe384b",
+    "tree": "de7e04832477f8714372f896b7c8c3e4ae7844a2"
+  },
+  "candidate_source": {
+    "commit": "7fe2ceca103582a8c2d3d6345effbd79af7e8f8f",
+    "tree": "f2f6b9dff3ddcac843b6ffa912e256836591fd3c"
+  },
+  "parents": [
+    "01c9a68f5bc10751f890468e4a2cfac1bcfe384b"
+  ],
+  "source_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/final-source-linux-wave.sh",
+      "git_blob": "14bdbf78e70486078440bd291b554bdff93bbb5c",
+      "sha256": "545a503585c98145c314df9c81ab42af4012e3ef11550a593d1172096f08116d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2_output_path_behavior_controls.py",
+      "git_blob": "dbb10f770fb183f29473e7544c1ec3eb5d3ff60d",
+      "sha256": "c76cf2608cde1dbee07c851508621d00bb03c03df5b0d57fcc6d880252f71729"
+    }
+  ],
+  "selected_input_profile_backend": {
+    "backend": "local macOS POSIX Bash and candidate .venv Python 3.14.3",
+    "profile": "retained controlled filesystem fixtures; no Docker/test/package body invoked"
+  },
+  "verification": [
+    {
+      "command": [
+        "bash",
+        "-n",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/final-source-linux-wave.sh"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "execution_head": "01c9a68f5bc10751f890468e4a2cfac1bcfe384b",
+      "exit_code": 0,
+      "result": "PASS syntax only",
+      "wall_seconds": 0.005435333005152643,
+      "before_sha256": {
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/final-source-linux-wave.sh": "545a503585c98145c314df9c81ab42af4012e3ef11550a593d1172096f08116d"
+      },
+      "after_sha256": {
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/final-source-linux-wave.sh": "545a503585c98145c314df9c81ab42af4012e3ef11550a593d1172096f08116d"
+      },
+      "full_deciding_output": [
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/q2-path-guard-syntax-20261010/command.json",
+          "sha256": "5b161c43df486ac35ff258571d04fd05a4d26865a0b2b4f93865231430ab3730",
+          "bytes": 1350
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/q2-path-guard-syntax-20261010/stdout.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/q2-path-guard-syntax-20261010/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "command": [
+        "bash",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/final-source-linux-wave.sh",
+        "self-test-copy-decisions"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "execution_head": "01c9a68f5bc10751f890468e4a2cfac1bcfe384b",
+      "exit_code": 0,
+      "result": "PASS 8 copy / 12 path classifier cases",
+      "wall_seconds": 0.0327970830257982,
+      "before_sha256": {
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/final-source-linux-wave.sh": "545a503585c98145c314df9c81ab42af4012e3ef11550a593d1172096f08116d"
+      },
+      "after_sha256": {
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/final-source-linux-wave.sh": "545a503585c98145c314df9c81ab42af4012e3ef11550a593d1172096f08116d"
+      },
+      "full_deciding_output": [
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/q2-path-guard-pure-cases-20261010/command.json",
+          "sha256": "58d27108f84551821e18ef909db88ebdce0d6840ca2fa526002c18cca02fc077",
+          "bytes": 1372
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/q2-path-guard-pure-cases-20261010/stdout.txt",
+          "sha256": "55cbaca59051b8a66c8c3055fd4459f41574877fb80af2129ea10d73744467c9",
+          "bytes": 116
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/q2-path-guard-pure-cases-20261010/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-B",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2_output_path_behavior_controls.py",
+        "--fixture-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/_build/.tmp/e02-q2-path-controls-20261010"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "execution_head": "01c9a68f5bc10751f890468e4a2cfac1bcfe384b",
+      "exit_code": 1,
+      "result": "ERROR owned scratch parent absent; no case ran",
+      "wall_seconds": 0.06462787499185652,
+      "before_sha256": {
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/final-source-linux-wave.sh": "545a503585c98145c314df9c81ab42af4012e3ef11550a593d1172096f08116d",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2_output_path_behavior_controls.py": "c76cf2608cde1dbee07c851508621d00bb03c03df5b0d57fcc6d880252f71729"
+      },
+      "after_sha256": {
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/final-source-linux-wave.sh": "545a503585c98145c314df9c81ab42af4012e3ef11550a593d1172096f08116d",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2_output_path_behavior_controls.py": "c76cf2608cde1dbee07c851508621d00bb03c03df5b0d57fcc6d880252f71729"
+      },
+      "full_deciding_output": [
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/q2-path-guard-real-filesystem-controls-20261010/command.json",
+          "sha256": "b381e29a007b79178e4ee7b83d97e1a905e1f011dee854373e66d4d2ab0cb944",
+          "bytes": 1874
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/q2-path-guard-real-filesystem-controls-20261010/stdout.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/q2-path-guard-real-filesystem-controls-20261010/stderr.txt",
+          "sha256": "4d0c7d6070c3cd665e613c8a86ee651fb00d633dca81de28284f4fd348411247",
+          "bytes": 972
+        }
+      ]
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-B",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2_output_path_behavior_controls.py",
+        "--fixture-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/_build/.tmp/e02-q2-path-controls-20261010"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "execution_head": "01c9a68f5bc10751f890468e4a2cfac1bcfe384b",
+      "exit_code": 0,
+      "result": "PASS 14 filesystem controls / two marker-preserving removals",
+      "wall_seconds": 0.09526266600005329,
+      "before_sha256": {
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/final-source-linux-wave.sh": "545a503585c98145c314df9c81ab42af4012e3ef11550a593d1172096f08116d",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2_output_path_behavior_controls.py": "c76cf2608cde1dbee07c851508621d00bb03c03df5b0d57fcc6d880252f71729"
+      },
+      "after_sha256": {
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/final-source-linux-wave.sh": "545a503585c98145c314df9c81ab42af4012e3ef11550a593d1172096f08116d",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2_output_path_behavior_controls.py": "c76cf2608cde1dbee07c851508621d00bb03c03df5b0d57fcc6d880252f71729"
+      },
+      "full_deciding_output": [
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/q2-path-guard-real-filesystem-controls-20261010-r2/command.json",
+          "sha256": "5c1f211cac1154a98ea634ca8c4801a7a14e8d1c03b737bc53e259760065cee2",
+          "bytes": 1876
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/q2-path-guard-real-filesystem-controls-20261010-r2/stdout.txt",
+          "sha256": "5a0c04d1bfe8386571a15369095e914036b8a2f405fd8debb7cb6bc185b1e3d4",
+          "bytes": 21606
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/q2-path-guard-real-filesystem-controls-20261010-r2/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ]
+    }
+  ],
+  "real_chain": "actual shell output guard -> filesystem predicate -> refusal/exclusive creation -> retained command consumer and receipt",
+  "controls": {
+    "actual_case_count": 14,
+    "property_removals_keep_classifier_markers": 2,
+    "refused_external_target_sentinel_unchanged": true
+  },
+  "consumer_surface": "Q2 output writer and audit receipt; installed wheel/sdist consumers remain UNRUN",
+  "limitations": [
+    "Controlled static paths; privileged concurrent replacement not established",
+    "No Linux installed consumer PASS, production fact, native green, G code acceptance or finding closure"
+  ],
+  "decision_pointers": [
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/q2-output-path-confinement-author-note-20261010.md"
+  ],
+  "independent_reviews": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q2-output-path-confinement-independent-20261010.md",
+      "sha256": "d760977ccf497458a4a1a1769db4d0442de34e9438a859bf373e1125d8812929",
+      "bytes": 3384
+    }
+  ],
+  "closure_ids": [],
+  "proposal_fields": {
+    "task_routes": [
+      "Q2",
+      "DX0"
+    ],
+    "finding_ids": [],
+    "outcome": "bounded_tooling_repair_only; installed replay pending"
+  }
+}

@@ -1,0 +1,29 @@
+# Independent audit: Pass1B simulation-limitation receipt
+
+## Disposition
+
+**Accept as a bounded `LIMITED` receipt; do not treat it as B05 closure.** The captured evidence supports the narrow claim that the deterministic simulated-canary helper no longer supplies a Pass1B record and that the serious scorecard blocks that missing record. It does not establish the original B05 end-to-end simulation boundary.
+
+## Pinned inputs and read-only scope
+
+Reviewed from `/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos`, observed HEAD `f8ff8a9e241badab03fdb4d584d36934970e4e15`, tree `9641b8e4b4eb90078d03ebd6740e9d229aee58e0`. This review did not run tests, import product modules, or modify source.
+
+- Receipt `LOCAL/canary-pass1b-simulation-limitation.json`: SHA-256 `4f622b354b5f979aa8063a9bd16023a717cf105d95e4c4cd4204c393f2d91f05`.
+- Original B05 source is bound to commit `198076863e143dea9f89f02734b13d50dae3eed5`, blob `d800082eebfc12eaf647b0c0257c4f06e135d25a`, lines 253–264. I recomputed the line-slice SHA-256 `7ab0816d8b7cc9f46a900842951a67c92b12ff09362616d87afd82223bcd7970`; it matches both `coverage.json#/findings/4/criterion_refs/0` and the receipt’s occurrence binding. The source criterion requires a genuine N5 result to traverse the genuine adapter into conditional analysis; requires that the same simulation not establish empirical effect, narrow world knowledge, or self-authorize external action; and requires preserving `simulation_only_k_sim_not_world_evidence` and its blockers.
+- The unchanged authority-boundary decision is `LOCAL/decisions/canary-authority-observer-boundary-20261011.md` @ `5a4a40f78182e37a61bd8f56bcc02cab2e16ef87c28dd963396617b18637203e`. The canonical finding-proposals file also matches its bound SHA-256 `1bd47384a114951b89305ec48892593ae061933d9d0b2fa884e63a47b3b97908`.
+
+## Source and execution binding
+
+The receipt binds source checkpoint `8c37b74e68fdbafeca83bf77573fb8c565fbc7a9`, tree `2c6c1215b7ca94c789838bd6c29abfc7fba03b68`, parent/slice base `524caa44fd3b4172c3fd327ab0cddb8435b10512`. I confirmed the commit parent and that its complete product diff is exactly the two declared paths. Git object bytes match their recorded SHA-256 postimages. The execution was recorded at HEAD `524caa…`, with those two working-tree files’ before/after hashes matching the committed postimages; this accurately binds the run to those source bytes without claiming its HEAD was the later checkpoint commit or that the whole worktree was clean.
+
+The source diff removes the deterministic `_pass1b_record` constructor and its only deterministic-PDC call. It changes the backfill marker to `candidate_only` and `counts_toward_serious_closeout: false`. The mirrored test supplies a foreign Pass1B-shaped payload, verifies it is not copied into the generated PDC, keeps the generated run/tenant/job identity assertions, checks the backfill marker, and calls the real `build_quality_scorecard` with `canary_kind="production"` to assert the missing-record blocker. The `production` label selects the serious scorecard gate in this deterministic fixture; the receipt separately records producer mode `deterministic simulated helper` and PDC execution profile `research`, so it does not present this as a production execution.
+
+The captured focused run’s `command.json` (`583bac137c859545d01c2efd55e024ad927daf9f413250a804b8a99add2e5c26`), JUnit (`4cddd0a0c1acff3dd077a51f6c46457691049044def9b27d25d4c67e9bbe4c9a`), stdout (`3beb72ba5fe66943b9e36171fd1fd59f23230cf5d821d50795ae27cde3035ee6`), and empty stderr (`e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`) agree: 9 tests passed, with no failures or skips. The independently retained JUnit has 9 cases and 0 failures/errors. The recorded canonical Ruff check has exit 0 and no diagnostics; its captured JSON output hash is `4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945`. These are reviewed artifacts; I did not rerun either gate.
+
+## B05 boundary and capability state
+
+The receipt’s limits are accurate. This witness does **not** execute a genuine N5 result through the adapter into conditional analysis, trace the `K_sim` marker/blockers through that route, or test the same result against empirical-effect, world-knowledge, and external-action consumers. It also does not produce CAS-scope or protected-blocker observations, nor join human oversight to source audit/readback. The scorecard test proves refusal when this deterministic producer’s Pass1B record is absent; it does not prove that every consumer rejects a complete supplied declaration-only record. No external-world effect, actual approval/oversight, or currentness is established.
+
+The capability labels in the receipt are therefore warranted: the simulated-helper removal is `bounded_behavior_verified`; the CAS-scope/protected-blocker observer remains `producer_missing` / `bridge_missing`; human-oversight-to-Pass1B remains `implemented_but_not_orchestrated`; whole-record behavioral verification remains `verification_missing`; and the canonical B05 occurrence remains `UNRUN`. The receipt’s `closure_ids: []`, null candidate proposal, empty proposal IDs, and `G_closure_field: not_adjudicated` are consistent with this evidence. The receipt has no separate `original_criterion` member; that does not make the criterion unbound: the receipt carries the exact B05 property list plus its source occurrence and line-slice fingerprint.
+
+Pattern pass: P04/P05/P10 and P29/P32/P37/P38 apply because authority/status must follow source observations rather than record shape or declared booleans; P40 is the same producer-to-consumer assertion class. The receipt closes only the simulated-helper fabricated-record path and records the deeper consumer/observer gap rather than claiming the wider property.

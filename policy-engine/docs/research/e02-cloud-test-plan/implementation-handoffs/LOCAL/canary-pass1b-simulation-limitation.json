@@ -1,0 +1,261 @@
+{
+  "record_type": "e02_canary_b05_limited_receipt",
+  "status": "LIMITED",
+  "scope": "Bounded source-and-consumer witness for the simulated deterministic canary lane; not an adjudication of the complete original B05 criterion.",
+  "finding_binding": {
+    "finding_id": "B05",
+    "occurrence": {
+      "pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/4/criterion_refs/0",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        253,
+        264
+      ],
+      "sha256": "7ab0816d8b7cc9f46a900842951a67c92b12ff09362616d87afd82223bcd7970"
+    },
+    "canonical_mapping": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/finding-proposals.json",
+      "sha256": "1bd47384a114951b89305ec48892593ae061933d9d0b2fa884e63a47b3b97908",
+      "schema": "policyos.e02.finding_proposals.v4",
+      "finding_pointer": "/findings/4",
+      "source_author_disposition": "limited",
+      "next_decision": "resolve_named_residual_then_G_adjudication",
+      "candidate_proposal": null,
+      "occurrence_candidate_evaluation": "UNRUN",
+      "candidate_proposal_ids": [],
+      "formal_closure_ids": [],
+      "G_closure_field": "not_adjudicated"
+    },
+    "task_bindings": [
+      {
+        "task_id": "V1",
+        "pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V1",
+        "assignment_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V1/finding_ids/4"
+      },
+      {
+        "task_id": "T2",
+        "pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/T2",
+        "assignment_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/T2/finding_ids/0"
+      }
+    ],
+    "source_author_proposal_ids": [],
+    "candidate_proposal_ids": [],
+    "closure_ids": []
+  },
+  "source_checkpoint": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "8c37b74e68fdbafeca83bf77573fb8c565fbc7a9",
+    "tree": "2c6c1215b7ca94c789838bd6c29abfc7fba03b68",
+    "parents": [
+      "524caa44fd3b4172c3fd327ab0cddb8435b10512"
+    ],
+    "slice_base": "524caa44fd3b4172c3fd327ab0cddb8435b10512",
+    "subject": "fix(e02): keep simulated canary approval evidence candidate-only",
+    "fetch_readback": {
+      "commit": "8c37b74e68fdbafeca83bf77573fb8c565fbc7a9",
+      "tree": "2c6c1215b7ca94c789838bd6c29abfc7fba03b68",
+      "parents": [
+        "524caa44fd3b4172c3fd327ab0cddb8435b10512"
+      ],
+      "status": "verified"
+    },
+    "committed_path_footprint": [
+      {
+        "path": "tools/ops_runners/runtime/local_production_canary.py",
+        "preimage_sha256": "8e930dad1c6789a146cf4f8ed1916d9c1dafe21a2a70e0047142c368dbf03a09",
+        "committed_sha256": "eb5bc9a82018fdd3c2f992af671c98eb2ea00581e661942fc4ce95cd917bb310"
+      },
+      {
+        "path": "tests/repo_quality/tools/test_canary_matrix.py",
+        "preimage_sha256": "fc5bdae5bf1db7c87600d7ce0bb7954c04c64c40d0e855f8e98d73fde2e4f6c3",
+        "committed_sha256": "6cf5c8dceb3728fba56fb5b0df97170180d9ecfd43e58ee0617943b435704240"
+      }
+    ],
+    "local_readback": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/canary-pass1b-source-checkpoint-20261011/readback.json",
+      "sha256": "b0bf68c481d0b2e0d1f139ea36b0d6ae3136586c34212c2f8e6b11a906c160f3"
+    },
+    "remote_readback": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/canary-pass1b-source-checkpoint-20261011/remote-readback.json",
+      "sha256": "e958bddded47f883f41e77cecbff049971cd0a6d75beafc9da423973a6aa9d2b"
+    },
+    "scope_note": "Binds this commit and its two committed paths only; does not claim repository-wide worktree cleanliness."
+  },
+  "execution": {
+    "kind": "focused pytest semantic witness",
+    "command": [
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "--tb=short",
+      "tests/repo_quality/tools/test_canary_matrix.py::test_simulated_serious_lane_keeps_unobserved_pass1b_limited",
+      "tests/unit/runtime/quality/test_tenant_cas_approval_governance.py",
+      "--junitxml",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/canary-pass1b-v3-real-producer-serious-scorecard-20261011/junit.xml",
+      "--basetemp",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/canary-pass1b-v3-real-producer-serious-scorecard-20261011/pytest-tmp"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "execution_head": "524caa44fd3b4172c3fd327ab0cddb8435b10512",
+    "relation_to_committed_source": "Before and after hashes for both changed files equal the committed postimages.",
+    "environment": {
+      "PYTHONPATH": "src:.",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    },
+    "profile": {
+      "scenario_id": "ukraine_msme_wartime_credit_support",
+      "scenario_file": "tools/ops_runners/runtime/golden_quality_scenarios.json",
+      "producer_mode": "deterministic simulated helper path",
+      "scorecard_canary_kind": "production",
+      "fixture_job_state": "completed",
+      "PDC_effective_execution_profile": "research"
+    },
+    "captured_at": "2026-10-11T02:04:35.373901+03:00",
+    "wall_seconds": 17.41383933299221,
+    "result": {
+      "exit_code": 0,
+      "tests": 9,
+      "passed": 9,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "observed_behavior": {
+      "generated_PDC_run_id_tenant_id_job_id_match_fixture": true,
+      "foreign_top_level_cell_id_copied_to_PDC": false,
+      "fabricated_nested_pass1b_record_copied_to_generated_PDC": false,
+      "deterministic_backfill_status": "candidate_only",
+      "deterministic_backfill_counts_toward_serious_closeout": false,
+      "serious_scorecard_blocking_code": "policy_design_pass1b_hardening_record_missing"
+    },
+    "test_cases": [
+      "test_simulated_serious_lane_keeps_unobserved_pass1b_limited",
+      "test_pass1b_hardening_record_binds_phase_28_1_pdds_to_case_records",
+      "test_scorecard_blocks_missing_pass1b_hardening_record_for_production_case",
+      "test_pass1b_gates_reject_status_pass_without_concrete_record_families",
+      "test_runtime_record_family_compiler_binds_pass1b_hardening_record",
+      "test_scorecard_blocks_missing_case_bound_surface_for_each_phase_28_1_pdd",
+      "test_scorecard_blocks_failed_pass1b_record_and_blocked_pdd_binding",
+      "test_scorecard_blocks_digest_only_override_and_frontend_only_public_signature",
+      "test_scorecard_blocks_recall_retraction_without_public_contestability"
+    ],
+    "retained_outputs": [
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/canary-pass1b-v3-real-producer-serious-scorecard-20261011/command.json",
+        "sha256": "583bac137c859545d01c2efd55e024ad927daf9f413250a804b8a99add2e5c26"
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/canary-pass1b-v3-real-producer-serious-scorecard-20261011/junit.xml",
+        "sha256": "4cddd0a0c1acff3dd077a51f6c46457691049044def9b27d25d4c67e9bbe4c9a"
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/canary-pass1b-v3-real-producer-serious-scorecard-20261011/stdout.txt",
+        "sha256": "3beb72ba5fe66943b9e36171fd1fd59f23230cf5d821d50795ae27cde3035ee6"
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/canary-pass1b-v3-real-producer-serious-scorecard-20261011/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ]
+  },
+  "ruff_check": {
+    "command": [
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "-m",
+      "ruff",
+      "check",
+      "--output-format=json",
+      "tools/ops_runners/runtime/local_production_canary.py",
+      "tests/repo_quality/tools/test_canary_matrix.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "execution_head": "524caa44fd3b4172c3fd327ab0cddb8435b10512",
+    "exit_code": 0,
+    "wall_seconds": 0.1322759169852361,
+    "diagnostics": [],
+    "output_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "input_hashes": {
+      "tools/ops_runners/runtime/local_production_canary.py": "eb5bc9a82018fdd3c2f992af671c98eb2ea00581e661942fc4ce95cd917bb310",
+      "tests/repo_quality/tools/test_canary_matrix.py": "6cf5c8dceb3728fba56fb5b0df97170180d9ecfd43e58ee0617943b435704240",
+      "ruff.toml": "8887d0a15457d44ebb1a5b5aee8110dd5101dc9e952649cd0490b845af2d933e",
+      "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    },
+    "retained_outputs": [
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/canary-pass1b-v3-canonical-ruff-20261011/command.json",
+        "sha256": "0af3ffb91bfe095902905f52035f4c8f6428eae82598bac08cf63721b3ae8865"
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/canary-pass1b-v3-canonical-ruff-20261011/stdout.txt",
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "bytes": 2
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/canary-pass1b-v3-canonical-ruff-20261011/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ]
+  },
+  "original_B05_property": [
+    "A genuine N5 result must pass through the genuine adapter into conditional analysis.",
+    "The same simulation result must not establish an empirical effect, narrow world knowledge, or self-authorize external action.",
+    "Preserve the simulation_only_k_sim_not_world_evidence marker and blockers."
+  ],
+  "limitations": [
+    "This was a deterministic fixture/helper test, not a live canary CLI invocation, ordinary HTTP run, or production deployment.",
+    "It proves the simulated helper does not emit/copy a fabricated Pass1B record into this PDC and that the serious scorecard blocks the missing record; it does not recompute Pass1B assertions from observed CAS-scope, protected-blocker, or human-oversight events.",
+    "The genuine N5-to-adapter-to-conditional-analysis chain and K_sim marker continuity from original B05 were not exercised by this suite.",
+    "No external-world effect, world-knowledge narrowing, external action, actual human approval, independent oversight, or currentness is established.",
+    "The general P1B validator/consumer can still accept a supplied record based on declared booleans and references; removing this producer's record does not close the consumer-side property.",
+    "Other deterministic simulated report-shaped outputs remain; candidate-only backfill flags do not prove all authority paths are constrained."
+  ],
+  "capability_state": {
+    "simulated_helper_Pass1B_removal": "bounded_behavior_verified",
+    "CAS_scope_and_protected_blocker_observer": [
+      "producer_missing",
+      "bridge_missing"
+    ],
+    "human_oversight_to_Pass1B": "implemented_but_not_orchestrated",
+    "whole_record_behavioral_property": "verification_missing",
+    "original_B05_evaluation_in_canonical_occurrence": "UNRUN"
+  },
+  "pattern_pass": {
+    "relevant_ids": [
+      "P04",
+      "P05",
+      "P10",
+      "P29",
+      "P32",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "existing_anti_pattern": "The deterministic producer previously asserted enforcement and oversight without source observations; field/reference presence could be mistaken for recomputed authority.",
+    "target_pattern": "Keep this simulated path candidate-only and derive any Pass1B pass from resolved, source-bound observations consumed by the existing serious scorecard.",
+    "P40": "Same producer-to-consumer assertion class. This receipt closes only the simulated-helper fabricated-record path; the general observer/consumer chain remains open."
+  },
+  "decision_reference": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/canary-authority-observer-boundary-20261011.md",
+    "sha256": "5a4a40f78182e37a61bd8f56bcc02cab2e16ef87c28dd963396617b18637203e",
+    "status": "preserved unchanged"
+  },
+  "failure_register_reference": {
+    "path": "docs/reference/policy-design-case-failure-patterns.md",
+    "sha256": "a64956e284b411276a16a612afffb1fb42daf03ffef8f7ef1c3f3f9bc25d0349"
+  },
+  "next_checks": [
+    "Run the original B05 N5-to-adapter-to-conditional-analysis witness with the real source path and preserved K_sim marker/blockers.",
+    "Retain a same-result negative proving the simulated result cannot close empirical-effect claims, narrow world knowledge, or authorize external action.",
+    "Bind CAS-scope to an actual scoped read plus foreign denial, blocker preservation to the protected override path, and human oversight to the existing audit-trail and signed-decision readback.",
+    "Require the serious scorecard to resolve and recompute the full source-bound Pass1B evidence relation, with missing, malformed, foreign, unmatched, and duplicate-event negatives.",
+    "Update the occurrence-level candidate evaluation only after a frozen source/consumer comparison and the cited source-owner or G decision; these nine passes are not closure."
+  ]
+}

@@ -1,0 +1,189 @@
+{
+  "focused_source_runtime": {
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "--tb=short",
+      "tests/unit/fabric/test_semantic_group_imports.py::test_identity_facade_exports_bind_all_manifest_owners",
+      "tests/unit/foundry/methods/test_artifacts.py::test_artifacts_facade_exports_bind_all_parts_owners",
+      "tests/integration/foundry/uncertainty/test_posterior_summary_persistence.py",
+      "--junitxml",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/q2-facade-real-owner-and-posterior-consumer-20261011/junit.xml",
+      "--basetemp",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/q2-facade-real-owner-and-posterior-consumer-20261011/pytest-tmp"
+    ],
+    "candidate_test_bytes_at_run": [
+      {
+        "path": "policy-engine/tests/unit/fabric/test_semantic_group_imports.py",
+        "sha256": "0f3162454ff5b57a451119b62249044108c445a41f28ad07a3dc4e8fd780e611"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/test_artifacts.py",
+        "sha256": "6c58683b86f279a45be7e0f011d29baa4425bb178a92dde38aa193a4a140bf07"
+      },
+      {
+        "path": "policy-engine/tests/integration/foundry/uncertainty/test_posterior_summary_persistence.py",
+        "sha256": "383d64bf0491c6e0aec96aa1f44ec573444dc1eb9c902db630e03307707b392f"
+      }
+    ],
+    "command_record": {
+      "bytes": 1609587,
+      "path": "raw/batched-blocking-focused-20261010/q2-facade-real-owner-and-posterior-consumer-20261011/command.json",
+      "sha256": "bfb0705a23aa49bb680e62c1a422d96ef12f53f6fea2831e680c55ecae9e1324"
+    },
+    "consumer_chain": {
+      "authority_claimed": false,
+      "input_fixture": "synthetic local NumPy arrays",
+      "persisted_chain": [
+        "native MethodJob produces method evidence and posterior-summary refs",
+        "summary persisted from selected method-evidence view to FileSystemCAS",
+        "new FileSystemCAS reader loads the persisted posterior summary",
+        "MonteCarloPropagator imported from polisyos.foundry.uncertainty consumes the median summary and evaluates the actual joint rows"
+      ],
+      "posterior_summary_gate_eligible": false,
+      "producer_method_fqn": "bayesian.sampling.hmc@1.0.0",
+      "runtime_backend": "numpy",
+      "scope_limit": "This demonstrates the public facade call within the existing candidate-only consumer path; it does not establish installed-profile origin, default dispatch, or external scientific authority.",
+      "selected_point_role": "POSTERIOR_MEDIAN",
+      "unit_binding_status": "not_established"
+    },
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "environment": {
+      "MKL_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "src:."
+    },
+    "exit_code": 0,
+    "head_at_run": "8c37b74e68fdbafeca83bf77573fb8c565fbc7a9",
+    "outputs": {
+      "complete_output_and_temp_artifact_ledger": "command_record.outputs in command.json; cite command_record path and SHA-256 instead of duplicating its derived listing",
+      "junit": {
+        "bytes": 722,
+        "path": "raw/batched-blocking-focused-20261010/q2-facade-real-owner-and-posterior-consumer-20261011/junit.xml",
+        "sha256": "e4af7aa7c7dcb8ba4e195dff3a2e6c5d0b7c1f4463f27a53816a1bebb5f1d023"
+      },
+      "stderr": {
+        "bytes": 0,
+        "path": "raw/batched-blocking-focused-20261010/q2-facade-real-owner-and-posterior-consumer-20261011/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 80,
+        "path": "raw/batched-blocking-focused-20261010/q2-facade-real-owner-and-posterior-consumer-20261011/stdout.txt",
+        "sha256": "cf426ab35f3b06fccef8290fde5325d90af130a79da1d1752031518df77c4236"
+      }
+    },
+    "profile_kind": "source checkout, not installed wheel/sdist/GCP archive",
+    "result": {
+      "errors": 0,
+      "failures": 0,
+      "junit_elapsed_seconds": 6.149,
+      "passed": 3,
+      "skipped": 0,
+      "testcases": [
+        {
+          "elapsed_seconds": 0.003,
+          "node_id": "tests/unit/fabric/test_semantic_group_imports.py::test_identity_facade_exports_bind_all_manifest_owners",
+          "status": "PASS"
+        },
+        {
+          "elapsed_seconds": 0.0,
+          "node_id": "tests/unit/foundry/methods/test_artifacts.py::test_artifacts_facade_exports_bind_all_parts_owners",
+          "status": "PASS"
+        },
+        {
+          "elapsed_seconds": 1.81,
+          "node_id": "tests/integration/foundry/uncertainty/test_posterior_summary_persistence.py::test_native_bayesian_method_evidence_persists_candidate_summary",
+          "status": "PASS"
+        }
+      ],
+      "tests": 3
+    },
+    "status": "PASS",
+    "wall_seconds": 9.656637458014302
+  },
+  "format": "q2-facade-consumer-companion-receipt/v1",
+  "implementation_artifacts": {
+    "closure_ids": [],
+    "closure_status": "no product closure claimed or proposed by this receipt",
+    "independent_review": {
+      "disposition": "GO for the bounded three-test-path companion if target preimages match; installed-profile evidence remains UNRUN",
+      "path": "reviews/q2-facade-consumer-companion-independent-20261011.md",
+      "sha256": "a88dfa933f483692a4d2bf336457fb4263dafe4243d7d9cbde91c325b74d6231"
+    },
+    "prior_readiness_preserved": {
+      "path": "q2-packaging/current-contracts-delta-readiness.md",
+      "sha256": "0b7f9152db4746d3c4bd9a1fff5790d9c66baed7968de1c1ea3aa4cb2c59173b"
+    },
+    "proposal_addendum": {
+      "bytes": 5598,
+      "path": "q2-packaging/q2-facade-consumer-companion.md",
+      "sha256": "9e420aef9e665a94b3fa6b6df28570247dc632dbcf34408aef260b392c4c75b4"
+    },
+    "proposal_patch": {
+      "bytes": 2594,
+      "path": "q2-packaging/raw/q2-facade-consumer-companion.patch",
+      "sha256": "bb2d4dd716cf02b5b135e82f8c96188b7bb695a040aa003ed1106bb18a485ead"
+    }
+  },
+  "pattern_pass": {
+    "P40_bucket": "SAME_CLASS_DEEPER: generic facade identity and public consumer reachability evidence; this receipt adds no closure class",
+    "relevant_ids": [
+      "P29",
+      "P32",
+      "P35",
+      "P38",
+      "P39",
+      "P40",
+      "P41"
+    ]
+  },
+  "q2_installed_wave": {
+    "collection_and_junit_reconciliation": "UNRUN",
+    "installed_consumer_profiles": "UNRUN",
+    "installed_origin_guard": "UNRUN",
+    "installed_proof_from_focused_source_runtime": false,
+    "planned_selector_count": 195,
+    "wheel_sdist_archive_builds": "UNRUN"
+  },
+  "record_scope": "documentation-only evidence index; does not replace or overwrite proposal/readiness documents",
+  "record_status": "focused source-runtime PASS; installed Q2 wave UNRUN",
+  "source_checkpoint": {
+    "base_commit": "8c37b74e68fdbafeca83bf77573fb8c565fbc7a9",
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate_commit": "f8ff8a9e241badab03fdb4d584d36934970e4e15",
+    "candidate_tree": "9641b8e4b4eb90078d03ebd6740e9d229aee58e0",
+    "local_source_readback": {
+      "bytes": 1162,
+      "path": "raw/q2-facade-test-source-checkpoint-20261011/readback.json",
+      "sha256": "78c92d6e0dc0c753ade11044d4bced0474d3e7fbe9185d1118e85b148f84ecfe"
+    },
+    "parents": [
+      "8c37b74e68fdbafeca83bf77573fb8c565fbc7a9"
+    ],
+    "remote_tip_provenance": "parent-reported fetched remote commit; this doc-only task did not re-read Git refs",
+    "remote_tip_reported_by_owner": "05dfb7b25858fc8f6d5c2fa71028c27e3297ecc6154d3658d9f61b5554811b87",
+    "test_paths": [
+      {
+        "candidate_sha256": "0f3162454ff5b57a451119b62249044108c445a41f28ad07a3dc4e8fd780e611",
+        "path": "policy-engine/tests/unit/fabric/test_semantic_group_imports.py",
+        "preimage_sha256": "59013de3042b61b14fffb19769864d8ccc686963a478fab5fe7170abce42d968"
+      },
+      {
+        "candidate_sha256": "6c58683b86f279a45be7e0f011d29baa4425bb178a92dde38aa193a4a140bf07",
+        "path": "policy-engine/tests/unit/foundry/methods/test_artifacts.py",
+        "preimage_sha256": "8cd23b1a481ece841ef1dd9f202ad41b68c8b09eb3ff59d9730116c3741e357f"
+      },
+      {
+        "candidate_sha256": "383d64bf0491c6e0aec96aa1f44ec573444dc1eb9c902db630e03307707b392f",
+        "path": "policy-engine/tests/integration/foundry/uncertainty/test_posterior_summary_persistence.py",
+        "preimage_sha256": "ae65b7181b58c20c6a7be193b4388b18d3efce8caac8ae8b9bc92b6dd71d98c8"
+      }
+    ]
+  }
+}

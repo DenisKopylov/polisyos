@@ -17,6 +17,7 @@ if TYPE_CHECKING:
 
 _CATALOG_DOMAIN = "polisyos.data_forge.domains.catalog"
 _EXPORTS = {
+    "normalize_country_code": ("polisyos.data_forge.domains.catalog.knowledge.country_codes"),
     "CATALOG_BASE_SCHEMA_CONTRACTS": _CATALOG_DOMAIN,
     "CATALOG_BASE_SCHEMA_IDS": _CATALOG_DOMAIN,
     "CATALOG_ASSET_GROUP": _CATALOG_DOMAIN,

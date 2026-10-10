@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from contextlib import nullcontext
 from datetime import UTC, datetime
+from pathlib import Path
 from types import SimpleNamespace
+
+import pytest
 
 from polisyos.core.contracts.control import (
     DataNeed,
@@ -12,8 +15,13 @@ from polisyos.core.contracts.control import (
     FetchPlanFallback,
     MetricCandidate,
 )
+from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
+from polisyos.data_forge.domains.catalog.knowledge.search import DatasetCatalogGraph
 from polisyos.data_forge.domains.catalog.knowledge.types import (
+    DatasetCoverage,
+    DatasetRecord,
     DatasetSearchResult,
+    DistributionRecord,
     MetricBindingMatch,
     ResolvedFetchTarget,
 )
@@ -47,6 +55,178 @@ class _BindingCatalog:
                 title="GDP per capita",
             )
         ]
+
+
+class _ScopedBindingCatalog:
+    def __init__(
+        self,
+        *,
+        countries: list[str],
+        time_start: str | None,
+        time_end: str | None,
+        regions: list[str] | None = None,
+    ) -> None:
+        self._coverage = DatasetCoverage(
+            countries=countries,
+            regions=regions or [],
+            time_start=time_start,
+            time_end=time_end,
+        )
+
+    def resolve_metric_bindings(self, metric_name: str, *, top_k: int | None = 20):
+        if metric_name != "scope_metric":
+            return []
+        return [
+            MetricBindingMatch(
+                metric_id="scope_metric",
+                catalog_dataset_id="catalog-scope",
+                distribution_id="dist-scope",
+                connector_id="worldbank.wdi",
+                profile_id="worldbank_wdi",
+                request_dataset_id="scope_dataset",
+                confidence=0.92,
+                execution_tier="fetchable",
+                source="worldbank",
+                title="Scoped fixture",
+            )
+        ]
+
+    def reconciled_metric_binding_population(self, metric_name: str):
+        return self.resolve_metric_bindings(metric_name, top_k=None)
+
+    def get_dataset(self, dataset_id: str):
+        if dataset_id != "catalog-scope":
+            return None
+        return DatasetSearchResult(
+            id=dataset_id,
+            title="Scoped fixture",
+            coverage=self._coverage,
+        )
+
+
+class _RequestIdCollisionCatalog(_ScopedBindingCatalog):
+    def get_dataset(self, dataset_id: str):
+        if dataset_id in {"scope_dataset", "forged-catalog"}:
+            return DatasetSearchResult(
+                id=dataset_id,
+                title="Identifier collision row",
+                coverage=DatasetCoverage(
+                    countries=["DEU"],
+                    time_start="2020",
+                    time_end="2030",
+                ),
+            )
+        return super().get_dataset(dataset_id)
+
+
+class _WrongConnectorScopeCatalog(_ScopedBindingCatalog):
+    def resolve_metric_bindings(self, metric_name: str, *, top_k: int | None = 20):
+        bindings = super().resolve_metric_bindings(metric_name, top_k=top_k)
+        return [
+            binding.model_copy(update={"connector_id": "other.connector"}) for binding in bindings
+        ]
+
+    def reconciled_metric_binding_population(self, metric_name: str):
+        return self.resolve_metric_bindings(metric_name, top_k=None)
+
+
+class _SelectedPlanFastLane:
+    def __init__(self, plan: FetchPlan) -> None:
+        self._plan = plan
+
+    def resolve(self, data_needs: list[DataNeed]) -> FastLaneResolveResult:
+        return FastLaneResolveResult(
+            fetch_plans=(self._plan,),
+            candidates=(),
+            warnings=(),
+        )
+
+
+def _selected_scope_plan(*, metadata: dict[str, object] | None = None) -> FetchPlan:
+    return FetchPlan(
+        plan_id="selected-scope-plan",
+        metric_id="scope_metric",
+        connector_id="worldbank.wdi",
+        dataset_id="scope_dataset",
+        profile_id="worldbank_wdi",
+        source_lane="fastlane",
+        metadata=metadata or {},
+    )
+
+
+def _actual_scope_catalog(tmp_path: Path) -> DatasetCatalogGraph:
+    db_path = tmp_path / "scope-catalog.duckdb"
+    index_dir = tmp_path / "scope-index"
+    index_dir.mkdir()
+    build_graph(
+        records=iter(
+            [
+                DatasetRecord(
+                    id="catalog-scope",
+                    title="Scoped GDP",
+                    source="worldbank",
+                    source_dataset_id="scope_dataset",
+                    polisyos_metrics=["scope_metric"],
+                    execution_tier="fetchable",
+                    distributions=[
+                        DistributionRecord(
+                            id="dist-scope",
+                            connector_type="worldbank.wdi",
+                            source_locator="scope_dataset",
+                            profile_id="worldbank_wdi",
+                            machine_readable=True,
+                            parser_supported=True,
+                        )
+                    ],
+                    preferred_distribution_id="dist-scope",
+                    coverage=DatasetCoverage(
+                        countries=["DEU"],
+                        time_start="2020",
+                        time_end="2030",
+                    ),
+                )
+            ]
+        ),
+        db_path=db_path,
+    )
+    return DatasetCatalogGraph(
+        db_path,
+        index_dir,
+        overlay_path=tmp_path / "missing-overlay.duckdb",
+    )
+
+
+class _OneCandidateExplore:
+    def discover(self, data_needs, *, limits=None):
+        del data_needs, limits
+        return ExploreLaneDiscoverResult(
+            candidates=[
+                DiscoveryCandidate(
+                    candidate_id="explore-scope",
+                    metric_id="scope_metric",
+                    connector_id="worldbank.wdi",
+                    dataset_id="scope_dataset",
+                    profile_id="worldbank_wdi",
+                    confidence=0.9,
+                )
+            ],
+            docs_fetched_total=1,
+            warnings=[],
+        )
+
+
+def _resolve_scoped_need(tmp_path, catalog, need: DataNeed):
+    curated_dir = tmp_path / "curated"
+    curated_dir.mkdir()
+    service = RetrievalService(curated_dir=curated_dir, dataset_catalog=catalog)
+    return service.resolve(
+        DataResolveRequest(
+            data_needs=[need],
+            mode="fastlane",
+            allow_explore_fallback=False,
+        ),
+        run_profile="prod_full",
+    )
 
 
 class _RollingWindowBindingCatalog:
@@ -209,6 +389,740 @@ def test_catalog_resolution_preserves_none_profile_id(tmp_path) -> None:
     assert len(candidates) == 1
     assert plans[0].profile_id is None
     assert candidates[0].profile_id is None
+
+
+def test_catalog_resolution_keeps_country_and_year_compatible_candidate(tmp_path) -> None:
+    catalog = _ScopedBindingCatalog(
+        countries=["DEU"],
+        time_start="2020",
+        time_end="2030",
+    )
+    outcome = _resolve_scoped_need(
+        tmp_path,
+        catalog,
+        DataNeed(
+            metric="scope_metric",
+            geography="DEU",
+            time_start="2025",
+            time_end="2025",
+        ),
+    )
+
+    assert len(outcome.fetch_plans) == 1
+    assert outcome.fetch_plans[0].date_start == "2025"
+    assert outcome.fetch_plans[0].date_end == "2025"
+    assert not any(item.startswith("catalog_scope_") for item in outcome.warnings)
+
+
+def test_catalog_resolution_excludes_known_country_mismatch(tmp_path) -> None:
+    catalog = _ScopedBindingCatalog(
+        countries=["UKR"],
+        time_start="2020",
+        time_end="2030",
+    )
+    outcome = _resolve_scoped_need(
+        tmp_path,
+        catalog,
+        DataNeed(
+            metric="scope_metric",
+            geography="DEU",
+            time_start="2025",
+            time_end="2025",
+        ),
+    )
+
+    assert outcome.fetch_plans == []
+    assert outcome.candidates == []
+    assert "catalog_scope_incompatible:scope_metric:catalog-scope" in outcome.warnings
+
+
+def test_catalog_resolution_excludes_known_year_mismatch(tmp_path) -> None:
+    catalog = _ScopedBindingCatalog(
+        countries=["DEU"],
+        time_start="2020",
+        time_end="2024",
+    )
+    outcome = _resolve_scoped_need(
+        tmp_path,
+        catalog,
+        DataNeed(
+            metric="scope_metric",
+            geography="DEU",
+            time_start="2025",
+            time_end="2025",
+        ),
+    )
+
+    assert outcome.fetch_plans == []
+    assert outcome.candidates == []
+    assert "catalog_scope_incompatible:scope_metric:catalog-scope" in outcome.warnings
+
+
+def test_catalog_resolution_keeps_unknown_coverage_declared_unknown(tmp_path) -> None:
+    catalog = _ScopedBindingCatalog(
+        countries=[],
+        time_start=None,
+        time_end=None,
+    )
+    outcome = _resolve_scoped_need(
+        tmp_path,
+        catalog,
+        DataNeed(
+            metric="scope_metric",
+            geography="DEU",
+            time_start="2025",
+            time_end="2025",
+        ),
+    )
+
+    assert len(outcome.fetch_plans) == 1
+    assert any(
+        item.startswith("catalog_scope_unverified:scope_metric:") for item in outcome.warnings
+    )
+
+
+def test_catalog_resolution_does_not_default_malformed_time_scope(tmp_path) -> None:
+    catalog = _ScopedBindingCatalog(
+        countries=["DEU"],
+        time_start="2020",
+        time_end="2030",
+    )
+    outcome = _resolve_scoped_need(
+        tmp_path,
+        catalog,
+        DataNeed(
+            metric="scope_metric",
+            geography="DEU",
+            time_start="not-a-date",
+            time_end="2025",
+        ),
+    )
+
+    assert len(outcome.fetch_plans) == 1
+    assert outcome.fetch_plans[0].date_start == "not-a-date"
+    assert outcome.fetch_plans[0].date_end == "2025"
+    assert any(
+        item.startswith("catalog_scope_unverified:scope_metric:") for item in outcome.warnings
+    )
+
+
+def test_explore_lane_cannot_reselect_known_incompatible_catalog_target(tmp_path) -> None:
+    curated_dir = tmp_path / "curated"
+    curated_dir.mkdir()
+    catalog = _ScopedBindingCatalog(
+        countries=["UKR"],
+        time_start="2020",
+        time_end="2024",
+    )
+    service = RetrievalService(
+        curated_dir=curated_dir,
+        dataset_catalog=catalog,
+        explore=_OneCandidateExplore(),
+    )
+    outcome = service.resolve(
+        DataResolveRequest(
+            data_needs=[
+                DataNeed(
+                    metric="scope_metric",
+                    geography="DEU",
+                    time_start="2025",
+                    time_end="2025",
+                )
+            ],
+            mode="explorelane",
+        ),
+        run_profile="prod_full",
+    )
+
+    assert outcome.fetch_plans == []
+    assert outcome.candidates == []
+    assert "catalog_scope_incompatible:scope_metric:catalog-scope" in outcome.warnings
+
+
+def test_fastlane_cannot_bypass_known_catalog_scope_mismatch(tmp_path) -> None:
+    curated_dir = tmp_path / "curated"
+    curated_dir.mkdir()
+    (curated_dir / "source_bindings.json").write_text(
+        """{
+          "schema_version": "1.0",
+          "bindings": [{
+            "metric_id": "scope_metric",
+            "connector_id": "worldbank.wdi",
+            "dataset_id": "scope_dataset",
+            "profile_id": "worldbank_wdi",
+            "geography_patterns": ["*"],
+            "granularity": ["annual"],
+            "priority": 10,
+            "trust": 0.9,
+            "filters_template": {},
+            "tags": [],
+            "aliases": []
+          }]
+        }""",
+        encoding="utf-8",
+    )
+    catalog = _ScopedBindingCatalog(
+        countries=["UKR"],
+        time_start="2020",
+        time_end="2024",
+    )
+    service = RetrievalService(curated_dir=curated_dir, dataset_catalog=catalog)
+    outcome = service.resolve(
+        DataResolveRequest(
+            data_needs=[
+                DataNeed(
+                    metric="scope_metric",
+                    geography="DEU",
+                    time_start="2025",
+                    time_end="2025",
+                )
+            ],
+            mode="fastlane",
+            allow_explore_fallback=False,
+        ),
+        run_profile="prod_full",
+    )
+
+    assert outcome.fetch_plans == []
+    assert outcome.candidates == []
+    assert "catalog_scope_incompatible:scope_metric:catalog-scope" in outcome.warnings
+
+
+@pytest.mark.parametrize(
+    ("time_start", "time_end"),
+    [("2019", "2025"), ("2015", "2022"), ("2022", "2028")],
+)
+def test_catalog_resolution_keeps_partial_time_overlap_unverified(
+    tmp_path, time_start: str, time_end: str
+) -> None:
+    catalog = _ScopedBindingCatalog(
+        countries=["DEU"],
+        time_start="2020",
+        time_end="2024",
+    )
+    outcome = _resolve_scoped_need(
+        tmp_path,
+        catalog,
+        DataNeed(
+            metric="scope_metric",
+            geography="DEU",
+            time_start=time_start,
+            time_end=time_end,
+        ),
+    )
+
+    assert len(outcome.fetch_plans) == 1
+    assert any(
+        item == "catalog_scope_unverified:scope_metric:time_coverage_partial_overlap"
+        for item in outcome.warnings
+    )
+    assert not any(item.startswith("catalog_scope_incompatible:") for item in outcome.warnings)
+
+
+@pytest.mark.parametrize(
+    "metadata",
+    [{"catalog_dataset_id": "forged-catalog"}, {}],
+    ids=["metadata-self-label", "request-id-string-collision"],
+)
+def test_fastlane_scope_identity_uses_reconciled_binding_not_metadata_or_id_spelling(
+    tmp_path, metadata: dict[str, object]
+) -> None:
+    curated_dir = tmp_path / "curated"
+    curated_dir.mkdir()
+    catalog = _RequestIdCollisionCatalog(
+        countries=["UKR"],
+        time_start="2020",
+        time_end="2024",
+    )
+    service = RetrievalService(
+        curated_dir=curated_dir,
+        dataset_catalog=catalog,
+        fastlane=_SelectedPlanFastLane(_selected_scope_plan(metadata=metadata)),
+    )
+    outcome = service.resolve(
+        DataResolveRequest(
+            data_needs=[
+                DataNeed(
+                    metric="scope_metric",
+                    geography="DEU",
+                    time_start="2025",
+                    time_end="2025",
+                )
+            ],
+            mode="fastlane",
+            allow_explore_fallback=False,
+        ),
+        run_profile="prod_full",
+    )
+
+    assert outcome.fetch_plans == []
+    assert "catalog_scope_incompatible:scope_metric:catalog-scope" in outcome.warnings
+
+
+def test_fastlane_scope_identity_does_not_accept_wrong_connector_binding(tmp_path) -> None:
+    curated_dir = tmp_path / "curated"
+    curated_dir.mkdir()
+    catalog = _WrongConnectorScopeCatalog(
+        countries=["UKR"],
+        time_start="2020",
+        time_end="2024",
+    )
+    service = RetrievalService(
+        curated_dir=curated_dir,
+        dataset_catalog=catalog,
+        fastlane=_SelectedPlanFastLane(
+            _selected_scope_plan(metadata={"catalog_dataset_id": "catalog-scope"})
+        ),
+    )
+    outcome = service.resolve(
+        DataResolveRequest(
+            data_needs=[
+                DataNeed(
+                    metric="scope_metric",
+                    geography="DEU",
+                    time_start="2025",
+                    time_end="2025",
+                )
+            ],
+            mode="fastlane",
+            allow_explore_fallback=False,
+        ),
+        run_profile="prod_full",
+    )
+
+    assert len(outcome.fetch_plans) == 1
+    assert any(
+        item == "catalog_scope_unverified:scope_metric:catalog_identity_unresolved"
+        for item in outcome.warnings
+    )
+
+
+@pytest.mark.parametrize(
+    "needs",
+    [
+        [
+            DataNeed(metric="scope_metric", geography="UKR", time_start="2025", time_end="2025"),
+            DataNeed(metric="scope_metric"),
+        ],
+        [
+            DataNeed(metric="scope_metric"),
+            DataNeed(metric="scope_metric", geography="UKR", time_start="2025", time_end="2025"),
+        ],
+        [
+            DataNeed(metric="scope_metric", geography="DEU", time_start="2020", time_end="2024"),
+            DataNeed(metric="scope_metric", geography="UKR", time_start="2025", time_end="2025"),
+        ],
+    ],
+    ids=["scoped-then-unscoped", "unscoped-then-scoped", "two-conflicting-scopes"],
+)
+def test_same_metric_need_occurrences_are_not_collapsed_to_last_scope(
+    tmp_path, needs: list[DataNeed]
+) -> None:
+    curated_dir = tmp_path / "curated"
+    curated_dir.mkdir()
+    service = RetrievalService(
+        curated_dir=curated_dir,
+        dataset_catalog=_ScopedBindingCatalog(
+            countries=["DEU"],
+            time_start="2020",
+            time_end="2024",
+        ),
+    )
+
+    retained, warnings = service._filter_known_incompatible_catalog_targets(
+        [_selected_scope_plan()],
+        needs,
+        run_profile="prod_full",
+    )
+
+    assert retained == [_selected_scope_plan()]
+    assert "catalog_scope_incompatible:scope_metric:catalog-scope" in warnings
+    assert "catalog_scope_unverified:scope_metric:duplicate_need_scope_ambiguous" in warnings
+
+
+def test_actual_catalog_route_does_not_publish_incompatible_candidate(tmp_path) -> None:
+    catalog = _actual_scope_catalog(tmp_path)
+    try:
+        outcome = _resolve_scoped_need(
+            tmp_path,
+            catalog,
+            DataNeed(
+                metric="scope_metric",
+                geography="UKR",
+                time_start="2040",
+                time_end="2040",
+            ),
+        )
+    finally:
+        catalog.close()
+
+    assert outcome.fetch_plans == []
+    assert outcome.candidates == []
+    assert any(
+        item.startswith("catalog_scope_incompatible:scope_metric:") for item in outcome.warnings
+    )
+
+
+def test_two_explicitly_incompatible_need_occurrences_publish_no_candidate(tmp_path) -> None:
+    curated_dir = tmp_path / "curated"
+    curated_dir.mkdir()
+    service = RetrievalService(
+        curated_dir=curated_dir,
+        dataset_catalog=_ScopedBindingCatalog(
+            countries=["DEU"],
+            time_start="2020",
+            time_end="2024",
+        ),
+    )
+    outcome = service.resolve(
+        DataResolveRequest(
+            data_needs=[
+                DataNeed(
+                    metric="scope_metric", geography="DEU", time_start="2025", time_end="2025"
+                ),
+                DataNeed(
+                    metric="scope_metric", geography="UKR", time_start="2025", time_end="2025"
+                ),
+            ],
+            mode="fastlane",
+            allow_explore_fallback=False,
+        ),
+        run_profile="prod_full",
+    )
+
+    assert outcome.fetch_plans == []
+    assert outcome.candidates == []
+    assert any(
+        item.startswith("catalog_scope_incompatible:scope_metric:") for item in outcome.warnings
+    )
+
+
+def test_resolve_filters_explore_candidates_and_preserves_raw_index(tmp_path) -> None:
+    """Keep raw discovery indexed while applying each request before ResolveOutcome emission."""
+    curated_dir = tmp_path / "curated"
+    curated_dir.mkdir()
+    service = RetrievalService(
+        curated_dir=curated_dir,
+        dataset_catalog=_ScopedBindingCatalog(
+            countries=["UKR"],
+            time_start="2020",
+            time_end="2024",
+        ),
+        explore=_OneCandidateExplore(),
+    )
+    incompatible = service.resolve(
+        DataResolveRequest(
+            data_needs=[
+                DataNeed(metric="scope_metric", geography="DEU", time_start="2025", time_end="2025")
+            ],
+            mode="explorelane",
+        ),
+        run_profile="prod_full",
+    )
+
+    assert incompatible.fetch_plans == []
+    assert incompatible.candidates == []
+    assert service.get_index_stats().index_docs_total == 1
+
+    compatible = service.resolve(
+        DataResolveRequest(
+            data_needs=[
+                DataNeed(metric="scope_metric", geography="UKR", time_start="2022", time_end="2023")
+            ],
+            mode="explorelane",
+        ),
+        run_profile="prod_full",
+    )
+
+    assert compatible.fetch_plans
+    assert any(item.dataset_id == "scope_dataset" for item in compatible.candidates)
+    assert service.get_index_stats().index_docs_total == 1
+
+
+def test_fallback_with_alternate_metric_uses_parent_request_scope(tmp_path) -> None:
+    class _AlternateMetricFallbackCatalog:
+        _bindings = {
+            "scope_metric": [("catalog-primary", "primary-dataset")],
+            "metric.corrected": [
+                ("catalog-fallback-bad", "fallback-bad"),
+                ("catalog-fallback-good", "fallback-good"),
+            ],
+        }
+        _coverage = {
+            "catalog-primary": DatasetCoverage(
+                countries=["DEU"], time_start="2020", time_end="2030"
+            ),
+            "catalog-fallback-bad": DatasetCoverage(
+                countries=["UKR"], time_start="2020", time_end="2024"
+            ),
+            "catalog-fallback-good": DatasetCoverage(
+                countries=["DEU"], time_start="2020", time_end="2030"
+            ),
+        }
+
+        def reconciled_metric_binding_population(self, metric_name: str):
+            return [
+                MetricBindingMatch(
+                    metric_id=metric_name,
+                    catalog_dataset_id=catalog_id,
+                    distribution_id=f"dist-{request_dataset_id}",
+                    connector_id="worldbank.wdi",
+                    profile_id="worldbank_wdi",
+                    request_dataset_id=request_dataset_id,
+                    execution_tier="fetchable",
+                    source="worldbank",
+                )
+                for catalog_id, request_dataset_id in self._bindings.get(metric_name, [])
+            ]
+
+        def get_dataset(self, dataset_id: str):
+            coverage = self._coverage.get(dataset_id)
+            if coverage is None:
+                return None
+            return DatasetSearchResult(id=dataset_id, title=dataset_id, coverage=coverage)
+
+    curated_dir = tmp_path / "curated"
+    curated_dir.mkdir()
+    plan = FetchPlan(
+        plan_id="scope-with-alternate-metric-fallbacks",
+        metric_id="scope_metric",
+        connector_id="worldbank.wdi",
+        dataset_id="primary-dataset",
+        profile_id="worldbank_wdi",
+        fallbacks=[
+            FetchPlanFallback(
+                connector_id="worldbank.wdi",
+                dataset_id="fallback-bad",
+                metric_id="metric.corrected",
+                profile_id="worldbank_wdi",
+            ),
+            FetchPlanFallback(
+                connector_id="worldbank.wdi",
+                dataset_id="fallback-good",
+                metric_id="metric.corrected",
+                profile_id="worldbank_wdi",
+            ),
+        ],
+    )
+    service = RetrievalService(
+        curated_dir=curated_dir,
+        dataset_catalog=_AlternateMetricFallbackCatalog(),
+        fastlane=_SelectedPlanFastLane(plan),
+    )
+
+    outcome = service.resolve(
+        DataResolveRequest(
+            data_needs=[
+                DataNeed(
+                    metric="scope_metric",
+                    geography="DEU",
+                    time_start="2025",
+                    time_end="2025",
+                )
+            ],
+            mode="fastlane",
+            allow_explore_fallback=False,
+        ),
+        run_profile="prod_full",
+    )
+
+    assert len(outcome.fetch_plans) == 1
+    assert [fallback.dataset_id for fallback in outcome.fetch_plans[0].fallbacks] == [
+        "fallback-good"
+    ]
+    assert "catalog_scope_incompatible:scope_metric:catalog-fallback-bad" in outcome.warnings
+
+
+def test_fallback_without_matching_request_scope_is_unverified(tmp_path) -> None:
+    curated_dir = tmp_path / "curated"
+    curated_dir.mkdir()
+    plan = FetchPlan(
+        plan_id="unmatched-request-fallback",
+        metric_id="unrequested_metric",
+        connector_id="worldbank.wdi",
+        dataset_id="primary-dataset",
+        fallbacks=[
+            FetchPlanFallback(
+                connector_id="worldbank.wdi",
+                dataset_id="fallback-dataset",
+                metric_id="metric.corrected",
+            )
+        ],
+    )
+    service = RetrievalService(
+        curated_dir=curated_dir,
+        fastlane=_SelectedPlanFastLane(plan),
+    )
+
+    outcome = service.resolve(
+        DataResolveRequest(
+            data_needs=[
+                DataNeed(
+                    metric="scope_metric",
+                    geography="DEU",
+                    time_start="2025",
+                    time_end="2025",
+                )
+            ],
+            mode="fastlane",
+            allow_explore_fallback=False,
+        ),
+        run_profile="prod_full",
+    )
+
+    assert len(outcome.fetch_plans) == 1
+    assert [fallback.dataset_id for fallback in outcome.fetch_plans[0].fallbacks] == [
+        "fallback-dataset"
+    ]
+    assert "catalog_scope_unverified:unrequested_metric:request_scope_unmatched" in outcome.warnings
+
+
+def test_known_incompatible_fallback_is_removed_but_unknown_fallback_remains(tmp_path) -> None:
+    class _FallbackCatalog:
+        def reconciled_metric_binding_population(self, metric_name: str):
+            if metric_name != "scope_metric":
+                return []
+            return [
+                MetricBindingMatch(
+                    metric_id="scope_metric",
+                    catalog_dataset_id=catalog_id,
+                    distribution_id=f"dist-{request_id}",
+                    connector_id="worldbank.wdi",
+                    profile_id="worldbank_wdi",
+                    request_dataset_id=request_id,
+                    execution_tier="fetchable",
+                    source="worldbank",
+                )
+                for request_id, catalog_id in (
+                    ("primary-dataset", "catalog-primary"),
+                    ("bad-dataset", "catalog-bad"),
+                    ("good-dataset", "catalog-good"),
+                )
+            ]
+
+        def get_dataset(self, dataset_id: str):
+            coverage = {
+                "catalog-primary": DatasetCoverage(
+                    countries=["DEU"], time_start="2020", time_end="2030"
+                ),
+                "catalog-bad": DatasetCoverage(
+                    countries=["UKR"], time_start="2020", time_end="2024"
+                ),
+                "catalog-good": DatasetCoverage(
+                    countries=["DEU"], time_start="2020", time_end="2030"
+                ),
+            }.get(dataset_id)
+            if coverage is None:
+                return None
+            return DatasetSearchResult(id=dataset_id, title=dataset_id, coverage=coverage)
+
+    curated_dir = tmp_path / "curated"
+    curated_dir.mkdir()
+    service = RetrievalService(curated_dir=curated_dir, dataset_catalog=_FallbackCatalog())
+    plan = FetchPlan(
+        plan_id="scope-with-fallbacks",
+        metric_id="scope_metric",
+        connector_id="worldbank.wdi",
+        dataset_id="primary-dataset",
+        profile_id="worldbank_wdi",
+        fallbacks=[
+            FetchPlanFallback(
+                connector_id="worldbank.wdi",
+                dataset_id="bad-dataset",
+                metric_id="scope_metric",
+                profile_id="worldbank_wdi",
+            ),
+            FetchPlanFallback(
+                connector_id="worldbank.wdi",
+                dataset_id="good-dataset",
+                metric_id="scope_metric",
+                profile_id="worldbank_wdi",
+            ),
+            FetchPlanFallback(
+                connector_id="worldbank.wdi",
+                dataset_id="unknown-dataset",
+                metric_id="scope_metric",
+                profile_id="worldbank_wdi",
+            ),
+        ],
+    )
+
+    retained, warnings = service._filter_known_incompatible_catalog_targets(
+        [plan],
+        [DataNeed(metric="scope_metric", geography="DEU", time_start="2025", time_end="2025")],
+        run_profile="prod_full",
+    )
+
+    assert [fallback.dataset_id for fallback in retained[0].fallbacks] == [
+        "good-dataset",
+        "unknown-dataset",
+    ]
+    assert "catalog_scope_incompatible:scope_metric:catalog-bad" in warnings
+    assert "catalog_scope_unverified:scope_metric:catalog_identity_unresolved" in warnings
+
+
+def test_actual_catalog_route_uses_reconciled_binding_and_exact_dataset_reader(tmp_path) -> None:
+    catalog = _actual_scope_catalog(tmp_path)
+    try:
+        outcome = _resolve_scoped_need(
+            tmp_path,
+            catalog,
+            DataNeed(
+                metric="scope_metric",
+                geography="DEU",
+                time_start="2025",
+                time_end="2025",
+            ),
+        )
+    finally:
+        catalog.close()
+
+    assert len(outcome.fetch_plans) == 1
+    assert outcome.fetch_plans[0].metadata["catalog_dataset_id"] == "catalog-scope"
+    assert not any(item.startswith("catalog_scope_") for item in outcome.warnings)
+
+
+@pytest.mark.parametrize(
+    "refusal",
+    ["reconciliation", "dataset_read"],
+)
+def test_actual_catalog_refusals_are_not_downgraded_to_scope_warnings(
+    tmp_path, monkeypatch, refusal: str
+) -> None:
+    catalog = _actual_scope_catalog(tmp_path)
+    try:
+        if refusal == "reconciliation":
+
+            def refuse_population(_metric_name: str):
+                raise ValueError("catalog_metric_binding_population_identity_drift")
+
+            monkeypatch.setattr(catalog, "reconciled_metric_binding_population", refuse_population)
+            expected = "catalog_metric_binding_population_identity_drift"
+        else:
+            monkeypatch.setattr(catalog, "get_dataset", lambda _dataset_id: None)
+            expected = "catalog_dataset_identity_unresolved"
+
+        curated_dir = tmp_path / "curated"
+        curated_dir.mkdir()
+        service = RetrievalService(curated_dir=curated_dir, dataset_catalog=catalog)
+        with pytest.raises((ValueError, RuntimeError), match=expected):
+            service.resolve(
+                DataResolveRequest(
+                    data_needs=[
+                        DataNeed(
+                            metric="scope_metric",
+                            geography="DEU",
+                            time_start="2025",
+                            time_end="2025",
+                        )
+                    ],
+                    mode="fastlane",
+                    allow_explore_fallback=False,
+                ),
+                run_profile="prod_full",
+            )
+    finally:
+        catalog.close()
 
 
 def test_retrieval_service_bounds_local_index_docs(tmp_path) -> None:

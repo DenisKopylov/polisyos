@@ -1,0 +1,33 @@
+id = "2026-10-10-fabric-catalog-scope-filtering"
+title = "Exclude catalog targets with proven scope mismatch"
+type = "fixed"
+component = "fabric-retrieval"
+owner = "team-polisyos"
+summary = "Retrieval applies one reconciled scope predicate to selected plans, public candidates, fallbacks, and request-scoped ExploreLane output selection while retaining raw local-index metadata; only proven country mismatches or disjoint time ranges are excluded."
+evidence = [
+  "tests/unit/fabric/test_retrieval_service_catalog.py::test_catalog_resolution_keeps_country_and_year_compatible_candidate",
+  "tests/unit/fabric/test_retrieval_service_catalog.py::test_catalog_resolution_excludes_known_country_mismatch",
+  "tests/unit/fabric/test_retrieval_service_catalog.py::test_catalog_resolution_excludes_known_year_mismatch",
+  "tests/unit/fabric/test_retrieval_service_catalog.py::test_catalog_resolution_keeps_partial_time_overlap_unverified",
+  "tests/unit/fabric/test_retrieval_service_catalog.py::test_fastlane_scope_identity_uses_reconciled_binding_not_metadata_or_id_spelling",
+  "tests/unit/fabric/test_retrieval_service_catalog.py::test_same_metric_need_occurrences_are_not_collapsed_to_last_scope",
+  "tests/unit/fabric/test_retrieval_service_catalog.py::test_known_incompatible_fallback_is_removed_but_unknown_fallback_remains",
+  "tests/unit/fabric/test_retrieval_service_catalog.py::test_fallback_with_alternate_metric_uses_parent_request_scope",
+  "tests/unit/fabric/test_retrieval_service_catalog.py::test_fallback_without_matching_request_scope_is_unverified",
+  "tests/unit/fabric/test_retrieval_service_catalog.py::test_actual_catalog_route_uses_reconciled_binding_and_exact_dataset_reader",
+  "tests/unit/fabric/test_retrieval_service_catalog.py::test_actual_catalog_refusals_are_not_downgraded_to_scope_warnings",
+  "tests/unit/fabric/test_retrieval_service_catalog.py::test_fastlane_cannot_bypass_known_catalog_scope_mismatch",
+  "tests/unit/fabric/test_retrieval_service_catalog.py::test_actual_catalog_route_does_not_publish_incompatible_candidate",
+  "tests/unit/fabric/test_retrieval_service_catalog.py::test_two_explicitly_incompatible_need_occurrences_publish_no_candidate",
+  "tests/unit/fabric/test_retrieval_service_catalog.py::test_resolve_filters_explore_candidates_and_preserves_raw_index",
+  "tests/unit/data_forge/read_api/test_catalog_graph_builders.py::test_country_normalizer_is_exported_by_catalog_read_api",
+  "tests/unit/fabric/test_retrieval_service_catalog.py::test_explore_lane_cannot_reselect_known_incompatible_catalog_target",
+]
+compatibility = "DataNeed, FetchPlan, and ResolveOutcome schemas are unchanged. Known-incompatible targets are removed from selected plans, public ResolveOutcome candidates, and plan fallbacks. Partial overlap, identity ambiguity, and missing coverage remain unverified; C05 reconciliation, profile-admission, and exact material-read refusals propagate. The standalone discovery endpoint remains candidate-only and has no selected run-profile."
+change_class = "runtime-selection-behavior"
+surface_classification = "public_stable: polisyos.fabric.retrieval ResolveOutcome warnings, fetch plans, and candidates; public_experimental: polisyos.data_forge.read_api.catalog.normalize_country_code"
+public_surface_inventory_reviewed = false
+migration = "No persisted-artifact migration is required. Consumers should continue to treat FetchPlan as a retrieval candidate and inspect ResolveOutcome.warnings. A C05 or exact catalog-read refusal remains a refusal and is no longer softened to a warning."
+api = "ResolveOutcome omits known-incompatible targets from fetch_plans, candidates, and fallbacks; warnings may include catalog_scope_incompatible:<metric>:<dataset-id> or catalog_scope_unverified:<metric>:<reason>. The existing normalize_country_code implementation is exposed through the lazy catalog read_api facade. No connector-specific filter names are added."
+limitations = "This is selected candidate filtering, not proof of returned-row scope, source truth, or scientific availability. Generic FetchPlan has no request-occurrence reference; mixed same-metric scopes remain unverified and cannot be assigned to individual occurrences. Standalone discovery remains raw candidate metadata because its request carries no selected run-profile and it emits no executable plan."
+generated_client_compatibility = "not_applicable"

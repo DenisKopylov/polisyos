@@ -236,6 +236,7 @@ def build_recorded_file_fetch_owner(
             id=f"catalog-{name}",
             title=f"Recorded {name}",
             dataset_id=name,
+            source="recorded_file",
             source_dataset_id=name,
             polisyos_metrics=["metric.test"],
             execution_tier="transport_ready",
@@ -272,18 +273,38 @@ def build_recorded_file_fetch_owner(
             record_fabric_connector_fetch=lambda **kwargs: None,
         ),
     )
-    with build_real_fetch_owner(
-        tmp_path,
-        connector_id="files.tabular",
-        providers_override=providers,
-        source_location=str(csv_path),
-        patch_fastlane=False,
-        dataset_records=dataset_records,
-    ) as owner:
-        owner.csv_path = csv_path
-        owner.frame = frame
-        owner.rows = frame.to_dict(orient="records")
-        yield owner
+    fixture_source_registry = catalog_api.CatalogSourceRegistrySpec(
+        sources=(
+            catalog_api.CatalogSourceRegistryEntry(
+                source_id="recorded_file",
+                family="controlled_test_fixture",
+                wave="T",
+                endpoint="file://controlled-test-fixture",
+                connector_id="files.tabular",
+                execution_tier="transport_ready",
+                run_lane="empirical",
+                enabled=True,
+            ),
+        )
+    )
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(
+            catalog_api,
+            "load_catalog_source_registry",
+            lambda: fixture_source_registry,
+        )
+        with build_real_fetch_owner(
+            tmp_path,
+            connector_id="files.tabular",
+            providers_override=providers,
+            source_location=str(csv_path),
+            patch_fastlane=False,
+            dataset_records=dataset_records,
+        ) as owner:
+            owner.csv_path = csv_path
+            owner.frame = frame
+            owner.rows = frame.to_dict(orient="records")
+            yield owner
 
 
 @contextmanager

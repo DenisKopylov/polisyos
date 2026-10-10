@@ -5,11 +5,12 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import threading
 import time
 from collections import OrderedDict
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
@@ -145,6 +146,43 @@ def _coerce_filter_map(value: object) -> dict[str, list[str]]:
         elif raw_values is not None:
             normalized[key] = [str(raw_values)]
     return normalized
+
+
+def _scope_date(value: object, *, upper_bound: bool) -> date | None:
+    """Parse year, date, or ISO datetime scope bounds without guessing."""
+    if not isinstance(value, str):
+        return None
+    text = value.strip()
+    if not text:
+        return None
+    if re.fullmatch(r"\d{4}", text):
+        year = int(text)
+        try:
+            return date(year, 12 if upper_bound else 1, 31 if upper_bound else 1)
+        except ValueError:
+            return None
+    normalized = text[:-1] + "+00:00" if text.endswith("Z") else text
+    try:
+        return datetime.fromisoformat(normalized).date()
+    except ValueError:
+        try:
+            return date.fromisoformat(text)
+        except ValueError:
+            return None
+
+
+def _scope_year_range(value: object) -> tuple[date, date] | None:
+    """Parse the catalog's existing inclusive YYYY-YYYY range representation."""
+    if not isinstance(value, str):
+        return None
+    match = re.fullmatch(r"\s*(\d{4})\s*[-–—]\s*(\d{4})\s*", value)
+    if match is None:
+        return None
+    start_year, end_year = (int(part) for part in match.groups())
+    try:
+        return date(start_year, 1, 1), date(end_year, 12, 31)
+    except ValueError:
+        return None
 
 
 def _catalog_selection_error(code: str, detail: str | None = None) -> RuntimeError:
@@ -307,6 +345,353 @@ class RetrievalService:
         date_start = date_end - timedelta(days=int(policy.default_lookback_days))
         return date_start.isoformat(), date_end.isoformat(), policy
 
+    @staticmethod
+    def _has_explicit_scope(need: DataNeed) -> bool:
+        return (
+            need.geography is not None or need.time_start is not None or need.time_end is not None
+        )
+
+    def _catalog_scope_status(
+        self,
+        need: DataNeed,
+        catalog_dataset_id: str,
+    ) -> tuple[str, str]:
+        """Compare an explicit request scope with one exact catalog dataset row."""
+        if not self._has_explicit_scope(need):
+            return "compatible", ""
+        catalog = self._dataset_catalog
+        get_dataset = getattr(catalog, "get_dataset", None)
+        if not callable(get_dataset) or not catalog_dataset_id:
+            return "unknown", "catalog_metadata_unavailable"
+        dataset = get_dataset(catalog_dataset_id)
+        if dataset is None or str(getattr(dataset, "id", "")) != catalog_dataset_id:
+            raise _catalog_selection_error(
+                "catalog_dataset_identity_unresolved",
+                catalog_dataset_id,
+            )
+        coverage = getattr(dataset, "coverage", None)
+        if coverage is None:
+            return "unknown", "catalog_coverage_unavailable"
+
+        dimensions: list[tuple[str, str]] = []
+        if need.geography is not None:
+            normalize_country = cast(
+                "Callable[[object], str]", catalog_read_api.normalize_country_code
+            )
+            country = normalize_country(need.geography.strip())
+            if not country:
+                dimensions.append(("unknown", "geography_scope_unrecognized"))
+            else:
+                raw_countries = getattr(coverage, "countries", None)
+                raw_regions = getattr(coverage, "regions", None)
+                if not isinstance(raw_countries, (list, tuple)):
+                    dimensions.append(("unknown", "geography_coverage_unavailable"))
+                else:
+                    normalized = [normalize_country(value) for value in raw_countries]
+                    if country in normalized:
+                        dimensions.append(("compatible", ""))
+                    elif raw_countries and all(normalized) and not raw_regions:
+                        dimensions.append(("incompatible", "geography_outside_coverage"))
+                    else:
+                        dimensions.append(("unknown", "geography_coverage_unverified"))
+
+        if need.time_start is not None or need.time_end is not None:
+            requested_start = (
+                _scope_date(need.time_start, upper_bound=False)
+                if need.time_start is not None
+                else None
+            )
+            requested_end = (
+                _scope_date(need.time_end, upper_bound=True) if need.time_end is not None else None
+            )
+            if (
+                (need.time_start is not None and requested_start is None)
+                or (need.time_end is not None and requested_end is None)
+                or (
+                    requested_start is not None
+                    and requested_end is not None
+                    and requested_start > requested_end
+                )
+            ):
+                dimensions.append(("unknown", "time_scope_unverified"))
+            else:
+                raw_start = getattr(coverage, "time_start", None)
+                raw_end = getattr(coverage, "time_end", None)
+                if raw_start is None:
+                    raw_start = getattr(dataset, "temporal_start", None)
+                if raw_end is None:
+                    raw_end = getattr(dataset, "temporal_end", None)
+                parsed_range = _scope_year_range(getattr(coverage, "time_range", ""))
+                coverage_start = (
+                    _scope_date(raw_start, upper_bound=False)
+                    if raw_start is not None
+                    else parsed_range[0]
+                    if parsed_range is not None
+                    else None
+                )
+                coverage_end = (
+                    _scope_date(raw_end, upper_bound=True)
+                    if raw_end is not None
+                    else parsed_range[1]
+                    if parsed_range is not None
+                    else None
+                )
+                if (
+                    (raw_start is not None and coverage_start is None)
+                    or (raw_end is not None and coverage_end is None)
+                    or (
+                        coverage_start is not None
+                        and coverage_end is not None
+                        and coverage_start > coverage_end
+                    )
+                ):
+                    dimensions.append(("unknown", "time_coverage_unverified"))
+                elif (
+                    requested_start is not None
+                    and requested_end is not None
+                    and coverage_start is not None
+                    and coverage_end is not None
+                ):
+                    if requested_start > coverage_end or requested_end < coverage_start:
+                        dimensions.append(("incompatible", "time_outside_coverage"))
+                    elif requested_start >= coverage_start and requested_end <= coverage_end:
+                        dimensions.append(("compatible", ""))
+                    else:
+                        dimensions.append(("unknown", "time_coverage_partial_overlap"))
+                elif requested_start is not None and coverage_end is not None:
+                    dimensions.append(
+                        ("incompatible", "time_outside_coverage")
+                        if requested_start > coverage_end
+                        else ("unknown", "time_coverage_unverified")
+                    )
+                elif requested_end is not None and coverage_start is not None:
+                    dimensions.append(
+                        ("incompatible", "time_outside_coverage")
+                        if requested_end < coverage_start
+                        else ("unknown", "time_coverage_unverified")
+                    )
+                else:
+                    dimensions.append(("unknown", "time_coverage_unverified"))
+
+        if any(status == "incompatible" for status, _ in dimensions):
+            reason = next(reason for status, reason in dimensions if status == "incompatible")
+            return "incompatible", reason
+        if any(status == "unknown" for status, _ in dimensions):
+            reason = next(reason for status, reason in dimensions if status == "unknown")
+            return "unknown", reason
+        return "compatible", ""
+
+    def _catalog_dataset_id_for_target(
+        self,
+        *,
+        metric_id: str,
+        connector_id: str,
+        request_dataset_id: str,
+        profile_id: str | None,
+        run_profile: CatalogRunProfile | None,
+        source_name: str | None = None,
+    ) -> str | None:
+        """Join a selected target to one reconciled, profile-admitted catalog row.
+
+        Plan metadata and identifier spelling are not identity evidence. The
+        complete C05 binding population is the sole relation used here; its
+        refusals intentionally propagate to the retrieval caller.
+        """
+        catalog = self._dataset_catalog
+        population_reader = getattr(catalog, "reconciled_metric_binding_population", None)
+        if not callable(population_reader):
+            return None
+
+        bindings = population_reader(metric_id)
+        exact: set[tuple[str, str]] = set()
+        requested_profile = _optional_text(profile_id)
+        for binding in bindings:
+            if str(getattr(binding, "metric_id", "") or "").strip() != metric_id:
+                continue
+            if str(getattr(binding, "connector_id", "") or "").strip() != connector_id:
+                continue
+            if str(getattr(binding, "request_dataset_id", "") or "").strip() != request_dataset_id:
+                continue
+            if _optional_text(getattr(binding, "profile_id", None)) != requested_profile:
+                continue
+
+            binding_source = str(getattr(binding, "source", "") or "").strip()
+            if source_name is not None and binding_source != source_name:
+                continue
+            if not self._catalog_source_is_enabled(
+                binding_source,
+                connector_id=connector_id,
+                run_profile=run_profile,
+            ):
+                continue
+            catalog_dataset_id = str(getattr(binding, "catalog_dataset_id", "") or "").strip()
+            if catalog_dataset_id:
+                exact.add((catalog_dataset_id, binding_source))
+
+        if len(exact) != 1:
+            return None
+        return next(iter(exact))[0]
+
+    def _filter_known_incompatible_catalog_outputs(
+        self,
+        plans: list[FetchPlan],
+        candidates: list[MetricCandidate | DiscoveryCandidate],
+        data_needs: list[DataNeed],
+        *,
+        run_profile: CatalogRunProfile | None = None,
+    ) -> tuple[list[FetchPlan], list[MetricCandidate | DiscoveryCandidate], list[str]]:
+        """Filter known-incompatible outputs at the selected resolve boundary.
+
+        The same target predicate covers executable plans, public candidates,
+        and fallbacks. DataNeed is an occurrence list, not a metric-keyed map;
+        without an occurrence ID, ambiguous mixed scopes remain unverified.
+        """
+        needs_by_metric: dict[str, list[DataNeed]] = {}
+        for need in data_needs:
+            needs_by_metric.setdefault(need.metric, []).append(need)
+        warnings: list[str] = []
+
+        def record(
+            *,
+            need: DataNeed,
+            dataset_id: str | None,
+            status: str,
+            reason: str,
+        ) -> None:
+            if status == "incompatible":
+                warnings.append(
+                    f"catalog_scope_incompatible:{need.metric}:{dataset_id or 'unknown'}"
+                )
+            elif status == "unknown":
+                warnings.append(
+                    f"catalog_scope_unverified:{need.metric}:{reason or 'identity_unresolved'}"
+                )
+
+        def target_status(
+            *,
+            catalog_metric_id: str,
+            request_metric_id: str,
+            connector_id: str,
+            request_dataset_id: str,
+            profile_id: str | None,
+        ) -> str:
+            matching_needs = needs_by_metric.get(request_metric_id, [])
+            if not matching_needs:
+                warnings.append(
+                    f"catalog_scope_unverified:{request_metric_id}:request_scope_unmatched"
+                )
+                return "unknown"
+            scoped_needs = [need for need in matching_needs if self._has_explicit_scope(need)]
+            if not scoped_needs:
+                return "compatible"
+
+            catalog_dataset_id = self._catalog_dataset_id_for_target(
+                metric_id=catalog_metric_id,
+                connector_id=connector_id,
+                request_dataset_id=request_dataset_id,
+                profile_id=profile_id,
+                run_profile=run_profile,
+            )
+            if catalog_dataset_id is None:
+                for need in scoped_needs:
+                    record(
+                        need=need,
+                        dataset_id=None,
+                        status="unknown",
+                        reason="catalog_identity_unresolved",
+                    )
+                return "unknown"
+
+            statuses: list[str] = []
+            for need in scoped_needs:
+                status, reason = self._catalog_scope_status(need, catalog_dataset_id)
+                statuses.append(status)
+                record(
+                    need=need,
+                    dataset_id=catalog_dataset_id,
+                    status=status,
+                    reason=reason,
+                )
+
+            has_unscoped_occurrence = len(scoped_needs) != len(matching_needs)
+            if (
+                not has_unscoped_occurrence
+                and statuses
+                and all(status == "incompatible" for status in statuses)
+            ):
+                return "incompatible"
+            if (
+                not has_unscoped_occurrence
+                and statuses
+                and all(status == "compatible" for status in statuses)
+            ):
+                return "compatible"
+            if len(set(statuses)) > 1 or has_unscoped_occurrence:
+                warnings.append(
+                    f"catalog_scope_unverified:{request_metric_id}:duplicate_need_scope_ambiguous"
+                )
+            return "unknown"
+
+        retained_plans: list[FetchPlan] = []
+        for plan in plans:
+            status = target_status(
+                catalog_metric_id=plan.metric_id,
+                request_metric_id=plan.metric_id,
+                connector_id=plan.connector_id,
+                request_dataset_id=plan.dataset_id,
+                profile_id=plan.profile_id,
+            )
+            if status == "incompatible":
+                continue
+
+            fallbacks = []
+            for fallback in plan.fallbacks:
+                fallback_metric = fallback.metric_id or plan.metric_id
+                fallback_status = target_status(
+                    catalog_metric_id=fallback_metric,
+                    request_metric_id=plan.metric_id,
+                    connector_id=fallback.connector_id,
+                    request_dataset_id=fallback.dataset_id,
+                    profile_id=fallback.profile_id,
+                )
+                if fallback_status != "incompatible":
+                    fallbacks.append(fallback)
+            retained_plans.append(
+                plan
+                if fallbacks == plan.fallbacks
+                else plan.model_copy(update={"fallbacks": fallbacks})
+            )
+
+        retained_candidates = [
+            candidate
+            for candidate in candidates
+            if target_status(
+                catalog_metric_id=candidate.metric_id,
+                request_metric_id=candidate.metric_id,
+                connector_id=candidate.connector_id,
+                request_dataset_id=candidate.dataset_id,
+                profile_id=candidate.profile_id,
+            )
+            != "incompatible"
+        ]
+        return retained_plans, retained_candidates, list(dict.fromkeys(warnings))
+
+    def _filter_known_incompatible_catalog_targets(
+        self,
+        plans: list[FetchPlan],
+        data_needs: list[DataNeed],
+        *,
+        run_profile: CatalogRunProfile | None = None,
+    ) -> tuple[list[FetchPlan], list[str]]:
+        """Keep the existing plan-only helper contract for focused callers."""
+        retained, _, warnings = self._filter_known_incompatible_catalog_outputs(
+            plans,
+            [],
+            data_needs,
+            run_profile=run_profile,
+        )
+        return retained, warnings
+
     def resolve(
         self,
         request: DataResolveRequest,
@@ -337,10 +722,20 @@ class RetrievalService:
             if request.mode in {"fastlane", "hybrid"} and fastlane_enabled:
                 phase_start = time.perf_counter()
                 fast = self._fastlane.resolve(request.data_needs)
-                candidates.extend(fast.candidates)
-                fetch_plans.extend(fast.fetch_plans)
+                fast_plans, scoped_fast_candidates, scope_warnings = (
+                    self._filter_known_incompatible_catalog_outputs(
+                        list(fast.fetch_plans),
+                        list(fast.candidates),
+                        request.data_needs,
+                        run_profile=run_profile,
+                    )
+                )
+                fast_candidates = cast("list[MetricCandidate]", scoped_fast_candidates)
+                candidates.extend(fast_candidates)
+                fetch_plans.extend(fast_plans)
+                warnings.extend(scope_warnings)
                 warnings.extend(fast.warnings)
-                resolved_metrics = {plan.metric_id for plan in fast.fetch_plans}
+                resolved_metrics = {plan.metric_id for plan in fast_plans}
                 unresolved = [
                     need for need in request.data_needs if need.metric not in resolved_metrics
                 ]
@@ -349,10 +744,10 @@ class RetrievalService:
                         "phase": "resolve_fast_lane",
                         "lane": "fastlane",
                         "duration_ms": int((time.perf_counter() - phase_start) * 1000),
-                        "candidates_total": len(fast.candidates),
-                        "candidates_selected": len(fast.fetch_plans),
+                        "candidates_total": len(fast_candidates),
+                        "candidates_selected": len(fast_plans),
                         "docs_fetched": 0,
-                        "route_breakdown": self._route_breakdown(fast.candidates),
+                        "route_breakdown": self._route_breakdown(fast_candidates),
                     }
                 )
             elif request.mode in {"fastlane", "hybrid"} and not fastlane_enabled:
@@ -360,12 +755,24 @@ class RetrievalService:
 
             if unresolved and self._dataset_catalog is not None:
                 phase_start = time.perf_counter()
+                catalog_scope_warnings: list[str] = []
                 catalog_plans, catalog_candidates = self._resolve_via_catalog(
                     unresolved,
                     run_profile=run_profile,
+                    warnings=catalog_scope_warnings,
                 )
-                fetch_plans.extend(catalog_plans)
-                candidates.extend(catalog_candidates)
+                scoped_catalog_plans, scoped_catalog_candidates, scope_warnings = (
+                    self._filter_known_incompatible_catalog_outputs(
+                        catalog_plans,
+                        catalog_candidates,
+                        unresolved,
+                        run_profile=run_profile,
+                    )
+                )
+                warnings.extend(catalog_scope_warnings)
+                warnings.extend(scope_warnings)
+                fetch_plans.extend(scoped_catalog_plans)
+                candidates.extend(cast("list[MetricCandidate]", scoped_catalog_candidates))
                 resolved_metrics = {plan.metric_id for plan in fetch_plans}
                 unresolved = [need for need in unresolved if need.metric not in resolved_metrics]
                 phase_metrics.append(
@@ -373,10 +780,10 @@ class RetrievalService:
                         "phase": "resolve_dataset_catalog",
                         "lane": "catalog",
                         "duration_ms": int((time.perf_counter() - phase_start) * 1000),
-                        "candidates_total": len(catalog_candidates),
-                        "candidates_selected": len(catalog_plans),
+                        "candidates_total": len(scoped_catalog_candidates),
+                        "candidates_selected": len(scoped_catalog_plans),
                         "docs_fetched": 0,
-                        "route_breakdown": self._route_breakdown(catalog_candidates),
+                        "route_breakdown": self._route_breakdown(scoped_catalog_candidates),
                     }
                 )
 
@@ -394,12 +801,35 @@ class RetrievalService:
                         else unresolved
                     )
                     warnings.extend(discover_outcome.warnings)
+                    # The local index remains a raw discovery cache. Bind each
+                    # request's selected scope before candidate/plan emission.
                     self._update_local_index(discover_outcome.candidates)
+                    _, scoped_discovery_candidates, scope_warnings = (
+                        self._filter_known_incompatible_catalog_outputs(
+                            [],
+                            list(discover_outcome.candidates),
+                            request.data_needs,
+                            run_profile=run_profile,
+                        )
+                    )
+                    warnings.extend(scope_warnings)
+                    explore_candidates = cast(
+                        "list[DiscoveryCandidate]", scoped_discovery_candidates
+                    )
                     explore_plans = self._build_plans_from_discovery(
-                        candidates=discover_outcome.candidates,
+                        candidates=explore_candidates,
                         existing_metric_ids={plan.metric_id for plan in fetch_plans},
                         data_needs=request.data_needs,
                     )
+                    explore_plans, _, scope_warnings = (
+                        self._filter_known_incompatible_catalog_outputs(
+                            explore_plans,
+                            [],
+                            request.data_needs,
+                            run_profile=run_profile,
+                        )
+                    )
+                    warnings.extend(scope_warnings)
                     fetch_plans.extend(explore_plans)
                     candidates.extend(
                         [
@@ -420,7 +850,7 @@ class RetrievalService:
                                 match_reason="explore_lane_discovery",
                                 metadata=item.metadata,
                             )
-                            for index, item in enumerate(discover_outcome.candidates)
+                            for index, item in enumerate(explore_candidates)
                         ]
                     )
                     phase_metrics.append(
@@ -428,13 +858,14 @@ class RetrievalService:
                             "phase": "discover_explore_lane",
                             "lane": "explorelane",
                             "duration_ms": int((time.perf_counter() - phase_start) * 1000),
-                            "candidates_total": len(discover_outcome.candidates),
+                            "candidates_total": len(explore_candidates),
                             "candidates_selected": len(explore_plans),
                             "docs_fetched": discover_outcome.docs_fetched_total,
-                            "route_breakdown": self._route_breakdown(discover_outcome.candidates),
+                            "route_breakdown": self._route_breakdown(explore_candidates),
                         }
                     )
 
+            warnings = list(dict.fromkeys(warnings))
             if not fetch_plans:
                 warnings.append("no_fetch_plans_resolved")
 
@@ -808,6 +1239,7 @@ class RetrievalService:
         unresolved: list[DataNeed],
         *,
         run_profile: CatalogRunProfile | None = None,
+        warnings: list[str] | None = None,
     ) -> tuple[list[FetchPlan], list[MetricCandidate]]:
         """Try to resolve data needs via DatasetCatalogGraph."""
         plans: list[FetchPlan] = []
@@ -928,8 +1360,51 @@ class RetrievalService:
                 seen.add(dedupe_key)
                 deduped_rows.append(row)
 
-            fallbacks: list[FetchPlanFallback] = []
+            selectable_rows: list[dict[str, object]] = []
+            for row in deduped_rows:
+                if not self._has_explicit_scope(need):
+                    selectable_rows.append(row)
+                    continue
+                row_catalog_dataset_id = str(row["catalog_dataset_id"] or "").strip()
+                exact_catalog_dataset_id = self._catalog_dataset_id_for_target(
+                    metric_id=need.metric,
+                    connector_id=str(row["connector_id"]),
+                    request_dataset_id=str(row["request_dataset_id"]),
+                    profile_id=_optional_text(row["profile_id"]),
+                    run_profile=run_profile,
+                    source_name=str(row.get("source") or "").strip(),
+                )
+                if (
+                    exact_catalog_dataset_id is None
+                    or exact_catalog_dataset_id != row_catalog_dataset_id
+                ):
+                    status, reason = "unknown", "catalog_identity_unresolved"
+                else:
+                    status, reason = self._catalog_scope_status(
+                        need,
+                        exact_catalog_dataset_id,
+                    )
+                if status == "incompatible":
+                    if warnings is not None:
+                        warnings.append(
+                            f"catalog_scope_incompatible:{need.metric}:"
+                            f"{exact_catalog_dataset_id or 'unknown'}"
+                        )
+                elif status == "unknown":
+                    if warnings is not None:
+                        warnings.append(f"catalog_scope_unverified:{need.metric}:{reason}")
+                    selectable_rows.append(row)
+                else:
+                    selectable_rows.append(row)
+
+            selectable_target_keys = {
+                (str(row["connector_id"]), str(row["request_dataset_id"]))
+                for row in selectable_rows
+            }
             for rank, row in enumerate(deduped_rows, start=1):
+                target_key = (str(row["connector_id"]), str(row["request_dataset_id"]))
+                if target_key not in selectable_target_keys:
+                    continue
                 candidate = MetricCandidate(
                     candidate_id=_stable_id(
                         "cat",
@@ -959,23 +1434,25 @@ class RetrievalService:
                     },
                 )
                 candidates.append(candidate)
-                if rank > 1:
-                    fallbacks.append(
-                        FetchPlanFallback(
-                            connector_id=str(row["connector_id"]),
-                            dataset_id=str(row["request_dataset_id"]),
-                            metric_id=need.metric,
-                            profile_id=_optional_text(row["profile_id"]),
-                            filters=_coerce_filter_map(row["default_filters"]),
-                            metadata={
-                                "resolution_route": "catalog",
-                                "catalog_dataset_id": row["catalog_dataset_id"],
-                                "distribution_id": row["distribution_id"],
-                            },
-                        )
-                    )
 
-            primary = deduped_rows[0]
+            if not selectable_rows:
+                continue
+            fallbacks = [
+                FetchPlanFallback(
+                    connector_id=str(row["connector_id"]),
+                    dataset_id=str(row["request_dataset_id"]),
+                    metric_id=need.metric,
+                    profile_id=_optional_text(row["profile_id"]),
+                    filters=_coerce_filter_map(row["default_filters"]),
+                    metadata={
+                        "resolution_route": "catalog",
+                        "catalog_dataset_id": row["catalog_dataset_id"],
+                        "distribution_id": row["distribution_id"],
+                    },
+                )
+                for row in selectable_rows[1:3]
+            ]
+            primary = selectable_rows[0]
             date_start, date_end, policy = self._catalog_date_window(
                 source_name=str(primary.get("source") or ""),
                 need=need,

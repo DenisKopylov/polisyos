@@ -38,6 +38,24 @@ current MEASUREMENT obligation.
 
 Last updated: 2026-04-17.
 
+## Candidate scope limits
+
+For `resolve()`, retrieval joins each selected target to the complete
+reconciled catalog binding population by metric, connector, request dataset,
+profile, and source admitted for the active run profile before comparing typed
+coverage. Plan metadata and identifier spelling do not establish that relation.
+A mismatch is excluded from `ResolveOutcome.fetch_plans`, public `candidates`,
+and plan fallbacks only when country coverage is definite or time bounds are
+disjoint; partial time overlap remains unverified. Reconciliation, profile,
+and exact dataset-read refusals propagate. Unknown identity or coverage remains
+an unverified candidate. The same predicate gates FastLane, catalog, and
+ExploreLane selections. The local index retains raw discovery facets; each
+resolve request is checked before candidate or plan emission. Standalone
+discovery remains a raw metadata-candidate surface and does not emit selected
+plans or imply a run-profile admission. The country normalizer is reused through
+the catalog read API facade. This does not prove fetched-row scope or scientific
+availability.
+
 ## Purpose
 
 Use this package when you need the bridge between catalog knowledge and actual

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.catalog.causal import gcm_fit as gcm_fit_module
 from polisyos.foundry.methods.catalog.causal.gcm_fit import HybridSCMFit, _pag_to_dag_projection
 from polisyos.foundry.methods.catalog.causal.protocols import SCMFitData

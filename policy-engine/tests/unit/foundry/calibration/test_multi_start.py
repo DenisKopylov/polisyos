@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.foundry.calibration.hessian import HessianResult
 from polisyos.foundry.calibration.identifiability import (
     IdentifiabilityReport,

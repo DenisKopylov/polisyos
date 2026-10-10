@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.foundry.agent_sim.executor import MechanismOrder, PureExecutor
 from polisyos.foundry.agent_sim.mechanism import Mechanism, MechanismSpec
 from polisyos.foundry.agent_sim.mechanisms import TaxationMechanism

@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from polisyos.fabric.world.store import (
     WorldSegmentError,
     WorldSnapshotRecord,

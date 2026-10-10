@@ -5,6 +5,7 @@ from datetime import UTC
 from pathlib import Path
 
 import duckdb
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.data_forge.domains.legal.batch.claim_bridge import (

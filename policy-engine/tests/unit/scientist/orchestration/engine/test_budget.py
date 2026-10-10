@@ -5,6 +5,7 @@ from __future__ import annotations
 from decimal import Decimal
 
 import pytest
+
 from polisyos.scientist.orchestration.engine.budget import (
     BudgetExhaustedError,
     BudgetLimit,

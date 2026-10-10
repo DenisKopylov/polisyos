@@ -8,7 +8,6 @@ from pathlib import Path
 
 from tests._helpers.mirror_contracts import assert_source_stem_has_static_contract
 
-
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
 

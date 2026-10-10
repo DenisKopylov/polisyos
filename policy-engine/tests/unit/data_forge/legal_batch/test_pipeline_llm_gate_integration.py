@@ -6,6 +6,7 @@ import json
 from typing import TYPE_CHECKING
 
 import duckdb
+
 from polisyos.data_forge.domains.legal.batch.config import BatchConfig
 from polisyos.data_forge.domains.legal.batch.pipeline import run_batch_pipeline
 from polisyos.data_forge.domains.legal.batch.provisions_io import _shard_prefix, write_provisions

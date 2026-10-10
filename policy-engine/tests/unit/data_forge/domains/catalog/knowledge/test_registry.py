@@ -5,6 +5,7 @@ import tempfile
 from pathlib import Path
 
 import duckdb
+
 from polisyos.data_forge.domains.catalog.knowledge.registry import DatasetRegistry
 
 

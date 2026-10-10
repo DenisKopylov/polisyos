@@ -6,6 +6,7 @@ from types import SimpleNamespace
 
 import pandas as pd
 import pytest
+
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.fabric.connectors.base import (
     ConnectionConfig,

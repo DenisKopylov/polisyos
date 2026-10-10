@@ -16,6 +16,7 @@ import unittest.mock as mock
 from typing import Any
 
 import pytest
+
 from polisyos.foundry.methods.backends.circuit_breaker import (
     BackendCircuitOpenError,
     CircuitBreaker,

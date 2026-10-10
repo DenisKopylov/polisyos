@@ -210,6 +210,7 @@ class TestPluginImport:
 
     def test_hook_returns_none_for_unknown_decorator(self) -> None:
         from mypy.options import Options
+
         from polisyos.foundry.methods.mypy_plugin import FoundryMethodPlugin
 
         p = FoundryMethodPlugin(Options())
@@ -218,6 +219,7 @@ class TestPluginImport:
 
     def test_hook_returns_callable_for_foundry_method(self) -> None:
         from mypy.options import Options
+
         from polisyos.foundry.methods.mypy_plugin import (
             _FOUNDRY_METHOD_DECORATOR,
             FoundryMethodPlugin,

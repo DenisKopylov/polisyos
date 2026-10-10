@@ -5,6 +5,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
+
 from polisyos.core.security.tee import (
     AttestationFetchError,
     AttestationPolicy,

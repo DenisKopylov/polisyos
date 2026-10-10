@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 from types import SimpleNamespace
 
 import pandas as pd
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.data_plane.quarantine import list_quarantine_records
 from polisyos.fabric.ingestion import _apply_transform_pipeline, _sanitize_fetch_result

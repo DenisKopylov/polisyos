@@ -8,6 +8,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
+
 from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
 from polisyos.fabric.connectors.sources.opendatasoft import OpendatasoftConnector
 from polisyos.fabric.quality.safety import UnsafeFilterExpressionError, UnsafeIdentifierError

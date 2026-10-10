@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.data_forge.domains.academic.knowledge.types import (
     EstimateCandidate,
     ParameterEstimateResult,

@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
+
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.causal_graph_kuzu import (
     CausalGraphKuzuSchemaError,

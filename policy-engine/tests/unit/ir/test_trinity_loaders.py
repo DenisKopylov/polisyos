@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 import yaml
+
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.trinity.loaders import (
     load_model_spec,

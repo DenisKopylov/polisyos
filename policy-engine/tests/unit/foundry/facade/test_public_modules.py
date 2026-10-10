@@ -3,6 +3,7 @@ from decimal import Decimal
 import jax
 import jax.numpy as jnp
 import pytest
+
 from polisyos.foundry.contracts.fidelity import FidelityLevel
 from polisyos.foundry.contracts.specs import (
     get_mechanism_spec,

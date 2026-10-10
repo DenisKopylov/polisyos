@@ -4,6 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 
 import pytest
+
 from polisyos.core.registry.generic import GenericRegistry
 
 

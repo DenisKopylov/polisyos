@@ -15,6 +15,7 @@ from typing import Any, ClassVar
 import numpy as np
 import pandas as pd
 import pytest
+
 from polisyos.fabric.connectors.base import (
     ConnectionConfig,
     ConnectionHandle,

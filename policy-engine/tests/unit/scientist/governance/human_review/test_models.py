@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.scientist.governance.human_review.audit import signature_for_decision
 from polisyos.scientist.governance.human_review.models import (
     FundamentalRightsChecklist,

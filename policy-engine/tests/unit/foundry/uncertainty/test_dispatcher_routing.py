@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher
 from polisyos.ir.analytics.uncertainty import (

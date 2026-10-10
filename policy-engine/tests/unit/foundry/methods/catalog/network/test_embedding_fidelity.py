@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.foundry.methods.network import (
     NetworkResult,
     compute_embedding_fidelity_certificate,

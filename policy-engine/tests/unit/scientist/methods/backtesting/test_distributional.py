@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.scientist.methods.backtesting.distributional import (
     test_residual_autocorrelation as check_autocorrelation,
 )

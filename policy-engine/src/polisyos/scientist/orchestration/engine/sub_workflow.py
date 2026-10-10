@@ -19,7 +19,12 @@ from polisyos.common.logger import get_logger
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.errors import EngineError
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state

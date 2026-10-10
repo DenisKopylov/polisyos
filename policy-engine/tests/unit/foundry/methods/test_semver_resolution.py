@@ -11,6 +11,7 @@ Verifies:
 from __future__ import annotations
 
 import pytest
+
 from polisyos.foundry.methods.exceptions import ResolutionError
 from polisyos.foundry.methods.resolution import (
     parse_pip_specifier,

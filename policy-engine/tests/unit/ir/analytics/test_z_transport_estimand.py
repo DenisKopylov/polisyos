@@ -1,6 +1,7 @@
 """Tests for make_z_transport_estimand() — Z-transport estimand constructor."""
 
 import pytest
+
 from polisyos.ir.analytics.estimand import (
     DistributionDomain,
     DistributionRef,

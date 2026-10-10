@@ -4,6 +4,7 @@ import asyncio
 import json
 
 import duckdb
+
 from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
 from polisyos.data_forge.domains.academic.batch.edge_synthesize import run_edge_synthesize
 from polisyos.data_forge.domains.academic.batch.numeric_extract import run_numeric_extract

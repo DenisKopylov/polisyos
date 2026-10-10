@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.foundry.methods.catalog.causal.distributional_bounds import (
     ATKINSON_POSITIVITY_WARNING,
     GINI_UNIFORM_CERTIFICATE_WARNING,

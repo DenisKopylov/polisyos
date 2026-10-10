@@ -36,7 +36,6 @@ from polisyos.data_forge.domains.ukraine.sharding import (
     lex_pre_shard_pass_name,
 )
 from polisyos.data_forge.read_api.legal import NPADocument, iter_documents
-
 from tools.lib.fs import atomic_write_json
 
 

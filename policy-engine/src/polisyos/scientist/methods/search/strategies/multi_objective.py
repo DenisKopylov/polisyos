@@ -27,7 +27,11 @@ from polisyos.scientist.methods.search.strategies.base import BaseSearchStrategy
 from polisyos.scientist.methods.search.strategies.errors import OptionalDependencyUnavailableError
 from polisyos.scientist.methods.search.strategies.resource_arbiter import ResourceArbiter
 from polisyos.scientist.methods.search.strategies.runtime import apply_torch_runtime_settings
-from polisyos.scientist.methods.search.strategies.types import Evaluation, PolicyCandidate, StrategyState
+from polisyos.scientist.methods.search.strategies.types import (
+    Evaluation,
+    PolicyCandidate,
+    StrategyState,
+)
 
 logger = get_logger(__name__)
 

@@ -91,7 +91,9 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         )
         from polisyos.scientist.agent.tool_contracts import summarize_tool_contracts
         from polisyos.scientist.agent.tools.schema import ToolDefinition
-        from polisyos.scientist.orchestration.engine.frontier_runtime import FrontierCapabilityStatus
+        from polisyos.scientist.orchestration.engine.frontier_runtime import (
+            FrontierCapabilityStatus,
+        )
     except Exception as exc:  # pragma: no cover - surfaced in gate payload.
         return False, [f"phase1_4_import_failed:{exc.__class__.__name__}:{exc}"]
 

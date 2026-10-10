@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.foundry.methods.catalog.causal import dagma_discovery as dagma_module
 from polisyos.foundry.methods.catalog.causal.dagma_discovery import DAGMADiscovery
 from polisyos.foundry.methods.catalog.causal.protocols import TabularCausalDiscoveryData

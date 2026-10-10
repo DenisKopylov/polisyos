@@ -6,6 +6,7 @@ import tempfile
 from pathlib import Path
 
 import duckdb
+
 from polisyos.data_forge.domains.academic.batch.graph_builder import build_graph
 from polisyos.data_forge.domains.academic.knowledge.types import EstimateCandidate, WorkRecord
 

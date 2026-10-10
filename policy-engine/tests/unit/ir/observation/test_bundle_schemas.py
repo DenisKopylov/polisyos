@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib
 
 import pytest
+
 from polisyos.ir.observation.bundles import (
     BACKTEST_PLAN_TARGET,
     DYNAMIC_TREATMENT_TARGET,

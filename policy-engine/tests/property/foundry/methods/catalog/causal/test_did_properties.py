@@ -16,6 +16,7 @@ pytest.importorskip("hypothesis", reason="hypothesis not installed")
 
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
+
 from polisyos.foundry.methods.catalog.causal.did import StandardDifferenceInDifferences
 from tests.unit.foundry.methods.testing.strategies import panel_data_strategy
 

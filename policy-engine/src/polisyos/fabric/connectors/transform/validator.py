@@ -19,7 +19,11 @@ from polisyos.fabric.connectors.transform.pipeline import (
     TransformError,
     TransformLineage,
 )
-from polisyos.fabric.numerics.finite import ensure_finite_float, ensure_probability, is_finite_number
+from polisyos.fabric.numerics.finite import (
+    ensure_finite_float,
+    ensure_probability,
+    is_finite_number,
+)
 
 __all__ = [
     "CompletenessRule",

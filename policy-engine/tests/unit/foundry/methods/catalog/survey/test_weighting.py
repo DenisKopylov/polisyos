@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.catalog.survey import ensure_survey_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry

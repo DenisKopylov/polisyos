@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 import pytest
+
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 from polisyos.foundry.methods.registry import MethodRegistry

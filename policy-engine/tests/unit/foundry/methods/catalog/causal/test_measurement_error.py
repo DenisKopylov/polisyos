@@ -10,6 +10,7 @@ Covers:
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
 from tests.unit.foundry.methods.catalog.causal.test_id_engine_extensions import (
     make_dag,

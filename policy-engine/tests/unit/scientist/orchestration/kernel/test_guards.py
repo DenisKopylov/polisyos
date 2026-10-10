@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.scientist.orchestration.kernel.fsm import Phase
 from polisyos.scientist.orchestration.kernel.guards import advance_phase, require_artifacts
 

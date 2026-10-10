@@ -20,6 +20,7 @@ from typing import Any, ClassVar
 from unittest.mock import MagicMock
 
 import pytest
+
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     FidelityLevel,

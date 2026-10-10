@@ -11,6 +11,7 @@ from datetime import UTC, datetime
 
 import pandas as pd
 import pytest
+
 from polisyos.fabric.connectors.base import (
     ConnectionConfig,
     FetchRequest,

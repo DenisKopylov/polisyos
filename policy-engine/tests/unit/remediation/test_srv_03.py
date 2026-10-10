@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.methods.autotune import (
     BenchmarkEvaluation,

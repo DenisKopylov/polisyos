@@ -6,6 +6,7 @@ import builtins
 
 import numpy as np
 import pytest
+
 from polisyos.scientist.methods.backtesting.cv import (
     forward_chaining_splits,
     run_forward_chaining_cv,

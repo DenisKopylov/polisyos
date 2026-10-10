@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.foundry.methods.catalog.causal.ci_backends import (
     partial_corr,
     partial_corr_batch,

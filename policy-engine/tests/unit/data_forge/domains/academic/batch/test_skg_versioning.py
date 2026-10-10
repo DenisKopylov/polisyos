@@ -5,6 +5,7 @@ import tempfile
 from pathlib import Path
 
 import duckdb
+
 from polisyos.data_forge.domains.academic.knowledge.skg_store import ensure_skg_schema
 from polisyos.data_forge.domains.academic.knowledge.skg_versioning import SKGVersionManager
 

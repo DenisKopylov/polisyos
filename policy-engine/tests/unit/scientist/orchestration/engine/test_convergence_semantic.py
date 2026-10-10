@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 
 import pytest
+
 from polisyos.scientist.orchestration.engine.convergence import (
     ConvergenceConfig,
     ConvergenceDetector,

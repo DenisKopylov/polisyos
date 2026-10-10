@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import jax.numpy as jnp
+
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.methods.loss import policy_loss_fn
 

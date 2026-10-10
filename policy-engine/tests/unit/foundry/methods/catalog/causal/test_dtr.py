@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.catalog.causal.dtr import (
     ALearningDTR,

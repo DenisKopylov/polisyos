@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.catalog.causal.protocols import GraphCausalData
 from polisyos.ir.analytics.sensitivity import BenchmarkResult, SensitivityResult
 

@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes

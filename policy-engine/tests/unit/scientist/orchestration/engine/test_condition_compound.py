@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.scientist.orchestration.engine.condition import (
     ConditionSyntaxError,
     evaluate_condition,

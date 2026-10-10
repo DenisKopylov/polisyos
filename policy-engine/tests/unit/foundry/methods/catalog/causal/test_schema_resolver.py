@@ -1,6 +1,7 @@
 """Tests for SchemaResolver."""
 
 import pytest
+
 from polisyos.foundry.methods.catalog.causal.schema_resolver import (
     SchemaResolutionReport,
     SchemaResolver,

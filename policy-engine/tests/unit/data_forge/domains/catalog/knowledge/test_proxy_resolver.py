@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import pytest
+
 from polisyos.data_forge.domains.catalog.knowledge.proxy_resolver import (
     compose_confidence_chain,
     compose_confidence_harmonic,

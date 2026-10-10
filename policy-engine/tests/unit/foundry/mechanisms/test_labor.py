@@ -1,6 +1,7 @@
 import jax
 import jax.numpy as jnp
 import pytest
+
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute.executor import apply_patch_map
 from polisyos.foundry.mechanisms.labor import LaborMarketMechanism

@@ -1,6 +1,7 @@
 """Tests for Z-transport estimand construction and classifier integration."""
 
 import pytest
+
 from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
     EstimandShape,
     classify_estimand,

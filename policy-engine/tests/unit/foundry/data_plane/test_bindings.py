@@ -6,6 +6,7 @@ from unittest.mock import MagicMock
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
 from polisyos.foundry.data_plane.bindings import InputBindingsBuildResult, _apply_transform
 
 

@@ -11,6 +11,7 @@ from unittest.mock import MagicMock
 
 import pytest
 import yaml
+
 from polisyos.scientist.orchestration.engine.metrics_protocol import (
     EngineMetricsCollector,
     NoopEngineMetrics,
@@ -333,7 +334,10 @@ class TestRetryStatsIntegration:
     @pytest.mark.asyncio
     async def test_retry_stats_populated_on_success(self) -> None:
         from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
-        from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_async
+        from polisyos.scientist.orchestration.engine.retry import (
+            RetryPolicy,
+            execute_with_retry_async,
+        )
         from polisyos.scientist.orchestration.engine.state import ExperimentState
 
         state = ExperimentState(run_id="test-run")
@@ -362,7 +366,10 @@ class TestRetryStatsIntegration:
     async def test_retry_stats_none_is_safe(self) -> None:
         """retry_stats=None (default) should not cause errors."""
         from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
-        from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_async
+        from polisyos.scientist.orchestration.engine.retry import (
+            RetryPolicy,
+            execute_with_retry_async,
+        )
         from polisyos.scientist.orchestration.engine.state import ExperimentState
 
         state = ExperimentState(run_id="test-run")

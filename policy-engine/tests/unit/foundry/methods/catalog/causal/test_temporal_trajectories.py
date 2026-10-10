@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.foundry.methods.catalog.causal.dtr import estimate_dtr_trajectory
 from polisyos.foundry.methods.catalog.causal.event_process_weighting import (
     estimate_event_process_weighting_trajectory,

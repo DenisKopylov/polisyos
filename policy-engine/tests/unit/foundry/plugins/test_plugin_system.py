@@ -1,6 +1,7 @@
 import jax
 import jax.numpy as jnp
 import pytest
+
 from polisyos.foundry.plugins.api import PolisySimulator
 from polisyos.foundry.plugins.composite import (
     CompositeExecutor,

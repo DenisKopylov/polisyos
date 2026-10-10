@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 
 import pytest
+
 from polisyos.scientist.orchestration.engine.runner.local_runner import LocalWorkflowRunner
 from polisyos.scientist.orchestration.engine.runner.protocol import RunnerHealth
 

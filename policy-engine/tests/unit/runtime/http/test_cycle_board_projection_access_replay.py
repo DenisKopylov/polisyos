@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.runtime.http.services.cycle_board_projection import (
     CycleBoardReplayConflictError,
 )
-
 from polisyos.runtime.http.services.governed_projections import ProjectionId
 from tests.unit.runtime.http.test_cycle_board_projection_service import (
     _component_packets,

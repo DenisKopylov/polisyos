@@ -49,7 +49,9 @@ from polisyos.scientist.agent.workers import (
     critique_from_payload,
     draft_from_payload,
 )
-from polisyos.scientist.orchestration.llm.provider_verification import is_provider_capability_verified
+from polisyos.scientist.orchestration.llm.provider_verification import (
+    is_provider_capability_verified,
+)
 
 __all__ = [
     "ScientistAgentFabric",

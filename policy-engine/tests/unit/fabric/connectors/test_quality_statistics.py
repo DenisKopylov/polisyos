@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 
 import pandas as pd
+
 from polisyos.fabric.connectors.base import FetchResult
 from polisyos.fabric.connectors.contracts.schema import (
     DataSchema,

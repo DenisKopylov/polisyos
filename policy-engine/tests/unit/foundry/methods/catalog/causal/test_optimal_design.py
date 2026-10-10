@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
     CausalGraphModel,

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 import duckdb
+
 from polisyos.data_forge.domains.legal.batch.publish import run_publish
 
 

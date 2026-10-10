@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.catalog.network.analysis import NetworkDiffusionEstimator
 from polisyos.foundry.methods.catalog.network.missingness import (
     NetworkMissingnessRequest,

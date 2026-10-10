@@ -7,6 +7,7 @@ import re
 import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
+
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.scientist.orchestration.engine.idempotency import compute_idempotency_key
 from polisyos.scientist.orchestration.engine.protocol import NodeSpec

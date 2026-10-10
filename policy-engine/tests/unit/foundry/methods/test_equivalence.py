@@ -6,6 +6,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 import pytest
+
 from polisyos.core.artifacts.signing import (
     Ed25519Signer,
     Ed25519Verifier,

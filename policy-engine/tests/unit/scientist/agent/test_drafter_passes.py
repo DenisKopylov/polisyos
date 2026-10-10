@@ -5,6 +5,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
+
 from polisyos.scientist.agent._drafter_passes import _DrafterPassesMixin
 from polisyos.scientist.agent.drafter_models import (
     FindingCategory,

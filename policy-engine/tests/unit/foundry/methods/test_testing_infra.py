@@ -8,6 +8,7 @@ from typing import Any
 
 import chex
 import jax.numpy as jnp
+
 from polisyos.foundry.methods import (
     ComplexityClass,
     FidelityLevel,

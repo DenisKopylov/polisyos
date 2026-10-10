@@ -2,6 +2,7 @@ from decimal import Decimal
 
 import jax.numpy as jnp
 import pytest
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.foundry import (

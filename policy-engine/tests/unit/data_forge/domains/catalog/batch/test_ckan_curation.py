@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 
 import aiohttp
+
 from polisyos.data_forge.domains.catalog.batch import harvester as batch_harvester
 from polisyos.data_forge.domains.catalog.batch.ckan_curation import (
     curate_ckan_package,

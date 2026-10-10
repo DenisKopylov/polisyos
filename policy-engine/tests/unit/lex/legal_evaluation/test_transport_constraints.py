@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import duckdb
+
 from polisyos.lex.legal_evaluation.transport_constraints import (
     ConstraintSeverity,
     LegalConstraintBridge,

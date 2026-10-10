@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.data_forge.domains.catalog.knowledge.types import PStarZResult
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel

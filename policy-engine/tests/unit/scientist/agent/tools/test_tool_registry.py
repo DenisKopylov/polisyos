@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.scientist.agent.tools.registry import ToolCallResult, ToolRegistry
 from polisyos.scientist.agent.tools.schema import ToolDefinition
 

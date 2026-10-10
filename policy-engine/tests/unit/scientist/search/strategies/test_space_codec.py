@@ -3,6 +3,7 @@ from __future__ import annotations
 import random
 
 import pytest
+
 from polisyos.scientist.methods.search.strategies.codec import ScalarParameterCodec
 from polisyos.scientist.methods.search.strategies.random import RandomSearchStrategy
 from polisyos.scientist.methods.search.strategies.space import SearchSpace

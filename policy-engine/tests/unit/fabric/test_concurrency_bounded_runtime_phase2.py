@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import ClassVar
 
 import pytest
+
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.fabric.catalog.source_bindings import SourceBinding, SourceBindingRegistry
 from polisyos.fabric.connectors.base import (

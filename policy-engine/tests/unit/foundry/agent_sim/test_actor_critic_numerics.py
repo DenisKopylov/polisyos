@@ -3,6 +3,7 @@ from __future__ import annotations
 import equinox as eqx
 import jax
 import jax.numpy as jnp
+
 from polisyos.foundry.agent_sim.actor_critic import (
     ActorCritic,
     compute_entropy,

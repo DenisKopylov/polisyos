@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.identity import PIIAccessLevel, PolicyOSRole
 from polisyos.fabric.security import (

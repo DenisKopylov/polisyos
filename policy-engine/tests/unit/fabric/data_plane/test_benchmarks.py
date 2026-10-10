@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.fabric.connectors.base import ConnectionConfig

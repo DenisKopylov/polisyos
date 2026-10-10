@@ -5,6 +5,7 @@ from __future__ import annotations
 import jax
 import jax.numpy as jnp
 import pytest
+
 from polisyos.foundry.agent_sim import (
     ActorCritic,
     build_temporal_observations,

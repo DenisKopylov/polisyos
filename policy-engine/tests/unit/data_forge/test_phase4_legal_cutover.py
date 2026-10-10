@@ -8,6 +8,7 @@ import tomllib
 from pathlib import Path
 
 import pytest
+
 from polisyos.data_forge.read_api.legal import (
     compare_lex_shadow_bundles,
     load_lex_shadow_bundle,

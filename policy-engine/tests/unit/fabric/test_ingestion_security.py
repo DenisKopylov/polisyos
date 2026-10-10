@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from polisyos.fabric.connectors.transform.pipeline import TransformPipeline
 from polisyos.fabric.ingestion import _load_transform_pipeline
 

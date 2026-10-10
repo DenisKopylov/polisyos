@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.scientist.orchestration.engine.builtins.emit_artifact import EmitArtifactNode
 from polisyos.scientist.orchestration.engine.builtins.set_state import SetStateNode
 from polisyos.scientist.orchestration.engine.state import ExperimentState

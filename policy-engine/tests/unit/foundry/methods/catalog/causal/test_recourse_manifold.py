@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.foundry.methods.catalog.causal.recourse_manifold import (
     PlannerOptions,
     best_first_support_search,

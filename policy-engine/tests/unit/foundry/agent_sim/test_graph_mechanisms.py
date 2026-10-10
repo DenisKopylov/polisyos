@@ -1,5 +1,6 @@
 import jax
 import jax.numpy as jnp
+
 from polisyos.foundry.agent_sim.graph_mechanisms import (
     InformationDiffusionMechanism,
     LaborNetworkMechanism,

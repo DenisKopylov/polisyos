@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.catalog.policy.evaluation import BudgetImpactEstimator
 from polisyos.foundry.methods.catalog.policy.welfare import (
     AtkinsonSWFEstimator,

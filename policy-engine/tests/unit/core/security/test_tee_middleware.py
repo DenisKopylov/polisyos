@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.core.security.tee import (
     AttestationPolicy,
     AttestationReport,

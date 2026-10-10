@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.foundry.methods.catalog.causal.operator_valued import (
     OperatorApplyProbeMethod,
     OperatorCMEKRREstimator,

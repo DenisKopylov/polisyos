@@ -6,6 +6,7 @@ import asyncio
 from unittest.mock import MagicMock
 
 import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor

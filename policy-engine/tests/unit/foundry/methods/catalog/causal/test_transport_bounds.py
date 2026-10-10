@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.foundry.methods.catalog.causal.transport_bounds import transport_bounds
 from polisyos.foundry.methods.catalog.causal.transport_engine import _run_bounds_only
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType

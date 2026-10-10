@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import jax.numpy as jnp
+
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import StateDelta
 from polisyos.foundry.contracts.state import GlobalState

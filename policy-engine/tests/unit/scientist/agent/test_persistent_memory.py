@@ -7,6 +7,7 @@ from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock
 
 import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.agent.persistent_memory import (
     MemoryEntry,

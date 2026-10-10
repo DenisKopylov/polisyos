@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from zipfile import ZipFile
 
 import pandas as pd
+
 from polisyos.data_forge.domains.ukraine.adapters import (
     SourceExecutionContext,
     TabularSourceAdapter,

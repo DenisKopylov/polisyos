@@ -5,6 +5,7 @@ import sqlite3
 from pathlib import Path
 
 import pytest
+
 from polisyos.fabric.connectors import contract_for_family
 from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
 from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry

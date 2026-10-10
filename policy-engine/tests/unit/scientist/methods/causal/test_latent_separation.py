@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.ir.analytics.causal_discovery import LatentTrustLevel
 from polisyos.scientist.methods.causal.latent_separation import (
     SEPARATION_DIAGNOSTIC_INPUTS_KEY,

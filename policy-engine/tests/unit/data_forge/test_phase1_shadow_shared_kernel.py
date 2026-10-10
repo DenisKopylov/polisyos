@@ -4,6 +4,7 @@ import json
 import sys
 
 import pytest
+
 from polisyos.data_forge.kernel.io import sha256_file
 from polisyos.data_forge.kernel.pipeline import (
     read_manifest,

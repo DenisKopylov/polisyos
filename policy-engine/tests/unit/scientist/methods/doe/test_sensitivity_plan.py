@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.scientist.methods.doe.designs import (
     ParameterSpec,
     SensitivityMethod,

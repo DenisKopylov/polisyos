@@ -30,7 +30,10 @@ class TestExecutorMetricsCalls:
         from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
         from polisyos.scientist.orchestration.engine.registry import NodeRegistry
         from polisyos.scientist.orchestration.engine.state import ExperimentState
-        from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
+        from polisyos.scientist.orchestration.engine.workflow_spec import (
+            NodeInvocation,
+            WorkflowSpec,
+        )
 
         _fake_sha = "sha256:" + "ab" * 32
 
@@ -135,7 +138,10 @@ class TestExecutorMetricsCalls:
         from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
         from polisyos.scientist.orchestration.engine.registry import NodeRegistry
         from polisyos.scientist.orchestration.engine.state import ExperimentState
-        from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
+        from polisyos.scientist.orchestration.engine.workflow_spec import (
+            NodeInvocation,
+            WorkflowSpec,
+        )
 
         _fake_sha = "sha256:" + "ab" * 32
         store = MagicMock()
@@ -186,7 +192,10 @@ class TestExecutorMetricsCalls:
         from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
         from polisyos.scientist.orchestration.engine.registry import NodeRegistry
         from polisyos.scientist.orchestration.engine.state import ExperimentState
-        from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
+        from polisyos.scientist.orchestration.engine.workflow_spec import (
+            NodeInvocation,
+            WorkflowSpec,
+        )
 
         _fake_sha = "sha256:" + "ab" * 32
         store = MagicMock()

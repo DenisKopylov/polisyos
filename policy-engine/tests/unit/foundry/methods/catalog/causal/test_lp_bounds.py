@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.catalog.causal.bounds import BalkePearlBoundsEstimator
 from polisyos.foundry.methods.catalog.causal.lp_bounds import auto_bounds, auto_bounds_with_metadata
 from polisyos.ir.analytics.dual_certificate import (

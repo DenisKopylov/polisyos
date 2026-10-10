@@ -16,6 +16,7 @@ from typing import Any, ClassVar
 from uuid import uuid4
 
 import pytest
+
 from polisyos.foundry.methods.artifacts import (
     ChainArtifact,
     ChainNodeRecord,

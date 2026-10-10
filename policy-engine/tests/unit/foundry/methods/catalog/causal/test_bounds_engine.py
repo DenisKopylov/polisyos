@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.ir.analytics.dual_certificate import (
     StratifiedLPDualCertificateBundle,
     coerce_bounds_certificate_bundle,

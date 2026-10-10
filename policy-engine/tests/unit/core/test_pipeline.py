@@ -5,6 +5,7 @@ import time
 from dataclasses import dataclass
 
 import pytest
+
 from polisyos.core.pipeline import DagPipeline, LinearPipeline, PipelineCycleError
 
 

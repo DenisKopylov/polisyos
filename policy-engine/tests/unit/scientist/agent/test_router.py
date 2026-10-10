@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.scientist.agent.protocols import AgentRole, AgentRouter, RoutingState
 from polisyos.scientist.agent.router import (
     AdaptiveRouter,

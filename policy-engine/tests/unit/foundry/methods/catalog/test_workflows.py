@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods import MethodComposer, execute_heterogeneous_chain
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered

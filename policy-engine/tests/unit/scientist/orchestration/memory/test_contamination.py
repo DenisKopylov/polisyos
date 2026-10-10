@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.scientist.orchestration.memory import (
     MemoryContaminationPolicy,
     assert_reusable_memory_clean,

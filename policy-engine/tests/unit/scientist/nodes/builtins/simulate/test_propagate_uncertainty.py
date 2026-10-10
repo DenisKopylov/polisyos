@@ -5,6 +5,7 @@ from __future__ import annotations
 import jax
 import jax.numpy as jnp
 import pytest
+
 from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
     PropagateUncertaintyNode,
     _build_propagation_fn,

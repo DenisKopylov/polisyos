@@ -6,6 +6,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods import (
     ComplexityClass,

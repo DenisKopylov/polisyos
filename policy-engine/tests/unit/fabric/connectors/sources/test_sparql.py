@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 
 import pytest
+
 from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
 from polisyos.fabric.connectors.sources.sparql import _MAX_LIMIT, SPARQLConnector
 from polisyos.fabric.connectors.types import FetchError

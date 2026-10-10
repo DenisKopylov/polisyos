@@ -4,6 +4,7 @@ from types import SimpleNamespace
 
 import duckdb
 import pytest
+
 from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.data_forge.domains.academic.knowledge.skg_query import SKGQuery

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 import duckdb
+
 from polisyos.data_forge.domains.legal.batch.doc_identity import build_doc_resolution_index
 from polisyos.data_forge.domains.legal.batch.graph_builder import (
     _infer_amendment_target_from_title,

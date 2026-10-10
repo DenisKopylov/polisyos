@@ -12,6 +12,7 @@ import inspect
 from datetime import datetime
 
 import pytest
+
 from polisyos.scientist.agent.base import BaseAgent, MockAgent
 from polisyos.scientist.agent.critic import MockCriticAgent
 from polisyos.scientist.agent.drafter import MockDrafterAgent
@@ -462,6 +463,7 @@ class TestAgentPipeline:
 class TestBackwardCompatibility:
     def test_legacy_mock_agent_still_works(self) -> None:
         import pandas as pd
+
         from polisyos.ir.trinity import TrinityBundle
 
         agent = MockAgent()

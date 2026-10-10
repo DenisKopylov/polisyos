@@ -1,6 +1,10 @@
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.scientist.methods.discovery.aggregator import EdgeConfidenceEntry, EdgeConfidenceMatrix
+from polisyos.scientist.methods.discovery.aggregator import (
+    EdgeConfidenceEntry,
+    EdgeConfidenceMatrix,
+)
 from polisyos.scientist.methods.discovery.priors import (
     GraphPriorBuilder,
     GraphPriorBundle,

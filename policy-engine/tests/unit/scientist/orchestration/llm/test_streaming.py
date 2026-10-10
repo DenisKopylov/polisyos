@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 
 import pytest
+
 from polisyos.scientist.orchestration.llm.streaming import (
     StreamAccumulator,
     StreamChunk,

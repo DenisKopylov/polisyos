@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Any
 
 import pytest
+
 from polisyos.scientist.agent.drafter import (
     FindingCategory,
     FindingSeverity,

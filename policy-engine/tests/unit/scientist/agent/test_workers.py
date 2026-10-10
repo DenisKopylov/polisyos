@@ -3,6 +3,7 @@ from __future__ import annotations
 from decimal import Decimal
 
 import pytest
+
 from polisyos.scholar.search.models import (
     ClaimSupportLink,
     QueryGraph,

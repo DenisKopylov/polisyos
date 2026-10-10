@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.ir.analytics.calibration_diagnostics import (
     CalibrationCurveBin,
     CalibrationDiagnosticIssue,

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
+
 from polisyos.foundry.agent_sim.agents import build_observations
 from polisyos.foundry.contracts.state import GlobalState, QueueRuntimeState
 

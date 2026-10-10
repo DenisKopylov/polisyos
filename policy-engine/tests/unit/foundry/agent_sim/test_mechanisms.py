@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import jax
+
 from polisyos.foundry.agent_sim.mechanisms import (
     ConsumptionMechanism,
     SharedPolicy,

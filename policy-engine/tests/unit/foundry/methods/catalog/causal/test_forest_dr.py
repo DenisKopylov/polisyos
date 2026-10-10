@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.foundry.methods.catalog.causal.forest_dr import ForestDRLearnerEstimator
 from polisyos.ir.analytics.causal import CausalMethod
 

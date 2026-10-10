@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.foundry.contracts.state import GlobalState, QueueRuntimeState
 from polisyos.foundry.execute.executor import export_seed_state_npz, import_seed_state_npz
 

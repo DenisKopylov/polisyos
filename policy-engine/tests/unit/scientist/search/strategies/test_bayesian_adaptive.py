@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.scientist.methods.search.strategies.bayesian import BayesianConfig, BayesianOptimizer
 from polisyos.scientist.methods.search.strategies.types import (
     AcquisitionType,

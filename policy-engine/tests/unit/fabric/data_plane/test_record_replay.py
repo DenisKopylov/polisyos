@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, patch
 
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.data_plane.orchestrator import IngestionResult
 from polisyos.fabric.data_plane.regression import (

@@ -20,6 +20,7 @@ from datetime import UTC, date, datetime
 from decimal import Decimal
 
 import pytest
+
 from polisyos.fabric.connectors.types.coercion import (
     CoercionError,
     CoercionPolicy,

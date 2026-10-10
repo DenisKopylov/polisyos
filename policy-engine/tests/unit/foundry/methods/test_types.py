@@ -5,6 +5,7 @@ Tests for types module, including Units library and utility functions.
 from __future__ import annotations
 
 import pytest
+
 from polisyos.foundry.methods import Unit
 from polisyos.foundry.methods.types.units import (
     Units,

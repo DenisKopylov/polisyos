@@ -12,6 +12,7 @@ Verifies:
 from __future__ import annotations
 
 import pytest
+
 from polisyos.foundry.methods.compat_matrix import (
     CompatibilityCell,
     CompatibilityMatrix,

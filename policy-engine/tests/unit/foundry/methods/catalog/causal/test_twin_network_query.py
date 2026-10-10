@@ -16,6 +16,7 @@ from __future__ import annotations
 import math
 
 import pytest
+
 from polisyos.foundry.methods.catalog.causal.protocols import TwinNetworkQueryData
 from polisyos.foundry.methods.catalog.causal.twin_network_query import TwinNetworkQuery
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType

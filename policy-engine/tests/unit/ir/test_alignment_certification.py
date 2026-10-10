@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentCertificate,
     AlignmentCertificateType,

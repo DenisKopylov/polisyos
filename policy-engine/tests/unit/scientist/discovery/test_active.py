@@ -6,7 +6,10 @@ from polisyos.scientist.methods.discovery.active import (
     ActiveDisambiguationPlanner,
     ActiveDisambiguationPlannerInput,
 )
-from polisyos.scientist.methods.discovery.aggregator import EdgeConfidenceEntry, EdgeConfidenceMatrix
+from polisyos.scientist.methods.discovery.aggregator import (
+    EdgeConfidenceEntry,
+    EdgeConfidenceMatrix,
+)
 from polisyos.scientist.methods.discovery.priors import (
     DisputedEdge,
     GraphPriorBundle,

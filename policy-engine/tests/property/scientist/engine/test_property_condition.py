@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
+
 from polisyos.scientist.orchestration.engine.condition import (
     ConditionSyntaxError,
     evaluate_condition,

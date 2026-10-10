@@ -7,6 +7,7 @@ from types import SimpleNamespace
 
 import pandas as pd
 import pytest
+
 from polisyos.fabric.connectors.base import FetchResult
 from polisyos.fabric.connectors.contracts.schema import (
     DataSchema,

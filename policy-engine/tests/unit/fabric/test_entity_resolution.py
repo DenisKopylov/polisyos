@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.entity_resolution import (
     EntityMatchStore,

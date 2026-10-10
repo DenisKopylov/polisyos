@@ -6,6 +6,7 @@ from types import SimpleNamespace
 import numpy as np
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
+
 from polisyos.core.contracts.foundry import LoweredConstraint
 from polisyos.foundry.validation.constraints_engine import check_constraints
 from polisyos.ir.kernel.merge_rules import MergeRuleRef

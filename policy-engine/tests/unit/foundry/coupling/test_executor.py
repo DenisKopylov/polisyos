@@ -3,6 +3,7 @@ from __future__ import annotations
 import jax
 import jax.numpy as jnp
 import numpy as np
+
 from polisyos.foundry.contracts.state import GlobalState, QueueRuntimeState
 from polisyos.foundry.coupling.abm_kernel import UnemploymentClaimABMKernel
 from polisyos.foundry.coupling.coupler import DefaultPolicyCoupler

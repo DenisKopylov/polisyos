@@ -11,6 +11,7 @@ pytest.importorskip("hypothesis", reason="hypothesis not installed")
 
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
+
 from polisyos.foundry.methods.catalog.bayesian.regression import (
     BayesianLinearRegressionEstimator,
 )

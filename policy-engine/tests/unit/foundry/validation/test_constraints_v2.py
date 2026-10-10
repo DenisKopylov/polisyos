@@ -11,6 +11,7 @@ from types import SimpleNamespace
 
 import numpy as np
 import pytest
+
 from polisyos.core.contracts.foundry import CompositeConstraint, LoweredConstraint
 from polisyos.foundry.validation.constraints_engine import (
     _safe_eval_expression,

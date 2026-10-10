@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import jax
 import numpy as np
+
 from polisyos.foundry.contracts.state import QueueRuntimeState
 from polisyos.foundry.coupling.des_kernel import (
     STATUS_COMPLETED,

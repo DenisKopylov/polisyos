@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 import pytest
+
 from polisyos.ddm.calibration import synthetic_delay_test
 from polisyos.ddm.detectors import adapt_shift_event
 from polisyos.ddm.integration import AffectedSlice, MonitoringWindow, ShiftDetectedEvent

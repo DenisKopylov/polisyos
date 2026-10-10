@@ -29,7 +29,9 @@ if TYPE_CHECKING:
     from polisyos.scientist.agent.eval_harness import AgentPolicyComparisonReport
     from polisyos.scientist.agent.reasoning import ReasoningPolicyGate
     from polisyos.scientist.evals.authority import BenchmarkAuthorityVerdict
-    from polisyos.scientist.methods.search.strategies.advanced_policy import AdvancedSearchPolicyReport
+    from polisyos.scientist.methods.search.strategies.advanced_policy import (
+        AdvancedSearchPolicyReport,
+    )
 
 __all__ = [
     "AgentCapabilityPromotionReport",

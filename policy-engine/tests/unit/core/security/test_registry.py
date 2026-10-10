@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.core.security.cell import CellSpec, CellTier, TenantSpec
 from polisyos.core.security.exceptions import CellCapacityError, TenantNotFoundError
 from polisyos.core.security.registry import CellRegistry

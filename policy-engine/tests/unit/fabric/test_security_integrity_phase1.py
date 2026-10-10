@@ -9,6 +9,7 @@ from typing import Any
 
 import pandas as pd
 import pytest
+
 from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
 from polisyos.fabric.connectors.contracts.schema import (
     DataSchema,

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
 from polisyos.foundry.methods.catalog.causal.structural_time_series import (
     solve_temporal_effect_path,

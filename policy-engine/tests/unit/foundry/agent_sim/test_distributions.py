@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
+
 from polisyos.foundry.agent_sim.distributions import (
     ComputeMode,
     DistributionConfig,

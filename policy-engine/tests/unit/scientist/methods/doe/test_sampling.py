@@ -1,7 +1,12 @@
 from __future__ import annotations
 
 import numpy as np
-from polisyos.scientist.methods.doe.designs import AdversarialPlan, AdversarialStrategy, ParameterSpec
+
+from polisyos.scientist.methods.doe.designs import (
+    AdversarialPlan,
+    AdversarialStrategy,
+    ParameterSpec,
+)
 from polisyos.scientist.methods.doe.sampling import generate_adversarial_samples
 
 

@@ -1,6 +1,7 @@
 """Integration tests for CausalEngine end-to-end pipeline."""
 
 import numpy as np
+
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 from polisyos.ir.analytics.evidence_bundle import EvidenceBundle

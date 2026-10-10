@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.scientist.governance.pass_entrypoints import builtin_governance_pass_factories
 from polisyos.scientist.governance.pass_registry import (

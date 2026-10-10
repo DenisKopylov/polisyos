@@ -7,6 +7,7 @@ import time
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.fan_out import (

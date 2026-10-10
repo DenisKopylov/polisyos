@@ -3,6 +3,7 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
+
 from polisyos.core.security.exceptions import (
     IdentityNotAvailableError,
     IdentityVerificationError,

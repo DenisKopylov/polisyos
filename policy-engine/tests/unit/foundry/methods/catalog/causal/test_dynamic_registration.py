@@ -5,6 +5,7 @@ from __future__ import annotations
 import inspect
 
 import pytest
+
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry

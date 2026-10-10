@@ -16,6 +16,7 @@ Verifies:
 from __future__ import annotations
 
 import pytest
+
 from polisyos.foundry.methods.base import DimVar, SlotSpec, SlotType, Unit
 from polisyos.foundry.methods.types.checker import check_slot_compatibility
 

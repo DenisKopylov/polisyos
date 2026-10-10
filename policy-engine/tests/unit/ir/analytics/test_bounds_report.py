@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.ir.analytics.partial_identification import (
     BoundMethod,
     BoundsReport,

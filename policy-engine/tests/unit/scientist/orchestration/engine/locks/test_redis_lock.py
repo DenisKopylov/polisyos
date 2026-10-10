@@ -6,6 +6,7 @@ import json
 from unittest.mock import MagicMock
 
 import pytest
+
 from polisyos.scientist.orchestration.engine.checkpoint import RunLockError
 from polisyos.scientist.orchestration.engine.lock_protocol import RunLockBackend, RunLockHandle
 

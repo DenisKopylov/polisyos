@@ -8,7 +8,6 @@ and produces structurally valid output, not exact ATE recovery.
 from __future__ import annotations
 
 import pytest
-
 from _helpers.causal_scm_fixtures import (
     backdoor_with_transport_fixture,
     chain_fixture,

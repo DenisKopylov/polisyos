@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
+
 from polisyos.data_forge.domains.ukraine.builders import (
     _ensure_agent_numeric_columns,
     _extract_unresolved_identity_rows,

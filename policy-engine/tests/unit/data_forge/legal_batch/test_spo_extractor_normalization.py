@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 import pytest
+
 from polisyos.data_forge.domains.legal.batch.spo_extractor import (
     _choose_verify_statements,
     _extract_batch_provisions,

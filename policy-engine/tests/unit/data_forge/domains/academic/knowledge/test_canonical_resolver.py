@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import duckdb
+
 from polisyos.data_forge.domains.academic.knowledge.canonical_resolver import (
     CanonicalVariableResolver,
 )

@@ -5,6 +5,7 @@ from __future__ import annotations
 from decimal import Decimal
 
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scholar.search.models import FetchResult, SearchConstraints, WebSearchHit
 from polisyos.scholar.search.providers import ProviderFailoverPolicy

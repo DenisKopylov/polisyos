@@ -11,6 +11,7 @@ pytest.importorskip("hypothesis", reason="hypothesis not installed")
 
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
+
 from polisyos.foundry.methods.catalog.econometrics.iv import TwoStageLeastSquaresEstimator
 from tests.unit.foundry.methods.testing.strategies import iv_data_strategy
 

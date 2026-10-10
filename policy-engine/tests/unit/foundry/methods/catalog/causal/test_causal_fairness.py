@@ -45,6 +45,7 @@ import json
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.catalog.causal.fairness import (
     CounterfactualFairnessEstimator,
     PathSpecificFairnessEstimator,

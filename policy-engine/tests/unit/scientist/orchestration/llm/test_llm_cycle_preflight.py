@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 
 import pytest
+
 from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode
 from polisyos.foundry.methods import MethodRegistry
 from polisyos.foundry.methods.catalog.causal import ensure_causal_methods_registered

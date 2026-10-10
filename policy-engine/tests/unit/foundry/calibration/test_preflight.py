@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 import numpy.testing as npt
 import pytest
+
 from polisyos.foundry.calibration.preflight import (
     _align_by_length,
     _normalize_raw_target,

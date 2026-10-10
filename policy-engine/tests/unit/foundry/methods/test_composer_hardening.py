@@ -12,6 +12,7 @@ from __future__ import annotations
 from typing import Any, ClassVar
 
 import pytest
+
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,

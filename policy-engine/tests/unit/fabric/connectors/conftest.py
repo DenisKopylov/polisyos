@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
+
 from polisyos.fabric.connectors.base import (
     ConnectionConfig,
     FetchRequest,

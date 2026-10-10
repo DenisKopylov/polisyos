@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 import numpy.testing as npt
 import pytest
+
 from polisyos.foundry.uncertainty.config import AdaptiveStoppingConfig, PropagationConfig
 from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
 from polisyos.ir.analytics.uncertainty import (

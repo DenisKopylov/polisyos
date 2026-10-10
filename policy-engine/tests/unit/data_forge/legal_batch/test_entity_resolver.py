@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import duckdb
+
 from polisyos.data_forge.domains.legal.batch.consistency_checker import detect_consistency_issues
 from polisyos.data_forge.domains.legal.batch.entity_resolver import (
     EntityResolver,

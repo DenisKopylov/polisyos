@@ -8,7 +8,10 @@ import pytest
 SALib = pytest.importorskip("SALib", reason="SALib not installed")
 
 from polisyos.scientist.methods.doe.designs import ParameterSpec, SensitivityMethod, SensitivityPlan
-from polisyos.scientist.methods.doe.multi_output import MultiOutputAnalyzer, MultiOutputSensitivityResult
+from polisyos.scientist.methods.doe.multi_output import (
+    MultiOutputAnalyzer,
+    MultiOutputSensitivityResult,
+)
 
 
 def _make_plan(n_traj: int = 10) -> SensitivityPlan:

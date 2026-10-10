@@ -1,6 +1,7 @@
 import equinox as eqx
 import jax
 import jax.numpy as jnp
+
 from polisyos.foundry._internal.utils import gradient_health_report
 from polisyos.foundry.contracts.fidelity import FidelityLevel
 from polisyos.foundry.execute.queue import (

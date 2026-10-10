@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 import duckdb
 import pytest
+
 from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
 from polisyos.data_forge.domains.academic.batch.transport_score import (
     _apply_moderation_penalty,

@@ -1,6 +1,7 @@
 """Track C — Compiler: tests for C1-C5 additions to estimand_compiler.py."""
 
 import pytest
+
 from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
     EstimandShape,
     EstimationStrategy,

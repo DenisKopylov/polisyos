@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.catalog.causal import pcmci_discovery as pcmci_module
 from polisyos.foundry.methods.catalog.causal.pcmci_discovery import PCMCIDiscovery
 from polisyos.foundry.methods.catalog.causal.protocols import TimeSeriesCausalData

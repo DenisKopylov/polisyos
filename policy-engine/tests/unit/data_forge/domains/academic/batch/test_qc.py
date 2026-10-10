@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 import duckdb
+
 from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
 from polisyos.data_forge.domains.academic.batch.qc import run_qc
 from polisyos.data_forge.kernel.pipeline.manifests import write_raw_manifest

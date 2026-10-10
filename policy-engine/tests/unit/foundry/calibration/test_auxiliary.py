@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
+
 from polisyos.foundry.calibration.auxiliary import InterferenceLossComponent
 from polisyos.ir.observation.bundles import InterferenceLossSpecBundle
 

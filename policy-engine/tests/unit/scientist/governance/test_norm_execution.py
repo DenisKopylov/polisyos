@@ -12,6 +12,7 @@ Test Categories:
 from __future__ import annotations
 
 import pytest
+
 from polisyos.core.governance.legal.ast_policy import (
     ASTLimits,
     ASTPolicy,

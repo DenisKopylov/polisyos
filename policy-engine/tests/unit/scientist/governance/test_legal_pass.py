@@ -3,6 +3,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
+
 from polisyos.core.governance.legal.backends.base import RuleBackend
 from polisyos.core.governance.legal.backends.stub import StubBackend
 from polisyos.core.governance.passes.base import (

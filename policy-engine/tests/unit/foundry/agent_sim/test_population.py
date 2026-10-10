@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import pytest
+
 from polisyos.foundry.agent_sim.population import (
     PopulationConfig,
     create_population_manager,

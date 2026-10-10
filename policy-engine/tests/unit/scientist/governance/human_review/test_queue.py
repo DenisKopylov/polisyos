@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.scientist.governance.human_review.packets import build_review_packet, persist_review_packet
+from polisyos.scientist.governance.human_review.packets import (
+    build_review_packet,
+    persist_review_packet,
+)
 from polisyos.scientist.governance.human_review.queue import (
     HumanReviewQueueState,
     assign_review,

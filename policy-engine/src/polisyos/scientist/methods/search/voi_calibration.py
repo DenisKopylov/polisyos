@@ -7,7 +7,10 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.scientist.methods.search.voi_models import VOIRunReport, validate_mandatory_gate_policy
+from polisyos.scientist.methods.search.voi_models import (
+    VOIRunReport,
+    validate_mandatory_gate_policy,
+)
 
 
 class VOIShadowBaselineComparison(BaseModel):

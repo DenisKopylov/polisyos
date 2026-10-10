@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.catalog.sensitivity import (
     analyze_distribution,
     analyze_quantile,

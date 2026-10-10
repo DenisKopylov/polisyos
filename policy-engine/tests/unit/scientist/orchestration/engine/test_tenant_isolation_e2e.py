@@ -15,6 +15,7 @@ from decimal import Decimal
 from typing import Any
 
 import pytest
+
 from polisyos.core.security.namespace import (
     NamespacedArtifactStore,
     namespaced_artifact_id,

@@ -5,6 +5,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.catalog.distributional.mobility_latent_adapter import (
     LatentMobilityReportAdapter,
 )

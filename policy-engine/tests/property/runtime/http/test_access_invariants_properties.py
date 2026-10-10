@@ -7,6 +7,7 @@ from types import SimpleNamespace
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.identity import PIIAccessLevel, PolicyOSRole

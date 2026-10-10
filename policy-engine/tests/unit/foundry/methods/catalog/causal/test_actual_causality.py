@@ -23,6 +23,7 @@ from __future__ import annotations
 import json
 
 import numpy as np
+
 from polisyos.foundry.methods.catalog.causal.actual_causality import (
     ActualCausalityEngine,
     _compute_monotonicity_test,

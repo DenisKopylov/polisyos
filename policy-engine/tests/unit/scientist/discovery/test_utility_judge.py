@@ -1,4 +1,5 @@
 import pytest
+
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
     CausalMethod,

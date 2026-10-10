@@ -15,6 +15,7 @@ import json
 from pathlib import Path
 
 import pytest
+
 from polisyos.fabric.catalog.binding import MetricBinding
 from polisyos.fabric.catalog.contract import (
     DataContract,

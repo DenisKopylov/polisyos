@@ -4,6 +4,7 @@ import math
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.catalog.causal import sensitivity_metrics as sensitivity_module
 from polisyos.foundry.methods.causal import GraphCausalData, ensure_causal_methods_registered

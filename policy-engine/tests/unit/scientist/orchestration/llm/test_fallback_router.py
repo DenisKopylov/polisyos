@@ -6,6 +6,7 @@ import asyncio
 from unittest.mock import AsyncMock, patch
 
 import pytest
+
 from polisyos.scientist.orchestration.llm.fallback_router import (
     EndpointConfig,
     FallbackRouter,

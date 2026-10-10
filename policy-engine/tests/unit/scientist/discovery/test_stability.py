@@ -1,4 +1,5 @@
 import numpy as np
+
 from polisyos.foundry.methods.catalog.causal.protocols import (
     TabularCausalDiscoveryData,
     TimeSeriesCausalData,

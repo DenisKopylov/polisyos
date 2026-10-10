@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 
 import pytest
+
 from polisyos.data_forge.domains.legal.batch.config import BatchConfig
 
 

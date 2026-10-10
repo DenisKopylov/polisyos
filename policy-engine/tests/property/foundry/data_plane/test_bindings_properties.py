@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
+
 from polisyos.foundry.data_plane.bindings import _apply_transform
 
 _HEALTH_CHECKS = [HealthCheck.function_scoped_fixture, HealthCheck.too_slow]

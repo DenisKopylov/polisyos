@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.foundry._registry import MECHANISM_REGISTRY, get_mechanism_descriptor
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
@@ -41,6 +42,7 @@ def test_mechanism_registry_is_backed_by_unified_method_catalog() -> None:
 def test_mechanism_runtime_method_dispatches_patch_payload() -> None:
     pytest.importorskip("jax")
     import jax.numpy as jnp
+
     from polisyos.foundry.contracts.state import GlobalState as RuntimeGlobalState
 
     ensure_all_methods_registered()

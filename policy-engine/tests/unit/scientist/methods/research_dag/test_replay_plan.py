@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.methods.research_dag.builder import ResearchDAGBuilder
 from polisyos.scientist.methods.research_dag.models import ResearchNodeType

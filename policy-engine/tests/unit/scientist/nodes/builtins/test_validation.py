@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.scientist.nodes.builtins.validation import (
     NodeParamError,
     NodeParamValidator,

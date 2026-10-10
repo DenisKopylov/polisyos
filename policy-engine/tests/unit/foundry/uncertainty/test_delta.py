@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy.testing as npt
+
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.delta import DeltaMethodPropagator
 from polisyos.ir.analytics.uncertainty import (

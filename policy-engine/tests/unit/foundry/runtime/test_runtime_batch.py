@@ -3,6 +3,7 @@ from unittest.mock import MagicMock
 
 import jax
 import jax.numpy as jnp
+
 from polisyos.foundry import runtime
 
 

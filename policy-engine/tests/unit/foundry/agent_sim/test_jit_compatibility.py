@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
+
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic
 from polisyos.foundry.agent_sim.analysis import BehaviorAnalyzer
 from polisyos.foundry.agent_sim.distributions import DistributionConfig

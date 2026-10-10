@@ -8,6 +8,7 @@ import time
 from pathlib import Path
 
 import pytest
+
 from polisyos.core.contracts.execution_plan import MethodCatalogEntry
 from polisyos.foundry.methods.selection import (
     COST_PER_MS,

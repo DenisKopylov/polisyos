@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
+
 from polisyos.foundry.methods.components.slot_schema import (
     SLOT_SCHEMA_REGISTRY,
     SemanticCompatibilityError,

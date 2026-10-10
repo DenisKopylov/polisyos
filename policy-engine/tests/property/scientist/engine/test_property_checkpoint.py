@@ -7,6 +7,7 @@ import copy
 import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
+
 from polisyos.scientist.orchestration.engine.checkpoint import compute_workflow_fingerprint
 from polisyos.scientist.orchestration.engine.retry import RetryPolicy
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec

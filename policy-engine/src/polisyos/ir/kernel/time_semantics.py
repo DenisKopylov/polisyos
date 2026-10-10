@@ -8,6 +8,7 @@ from datetime import date
 from pydantic import Field, model_validator
 
 from polisyos.ir.model_layer.types import TimeFrequency
+
 from .base import KernelModel
 
 

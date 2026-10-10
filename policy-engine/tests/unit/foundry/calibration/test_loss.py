@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy.testing as npt
+
 from polisyos.foundry.calibration.loss import (
     _huber,
     compute_base_loss,

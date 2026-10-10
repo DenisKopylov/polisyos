@@ -4,6 +4,7 @@ import sys
 import types
 
 import numpy as np
+
 from polisyos.foundry.methods.catalog.causal.causal_bcf import CausalBCF, _fit_stochtree_bcf
 from polisyos.ir.analytics.causal import CausalMethod
 

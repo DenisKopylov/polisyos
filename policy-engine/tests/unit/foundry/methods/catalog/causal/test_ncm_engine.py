@@ -25,6 +25,7 @@ import math
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.catalog.causal.ncm_engine import (
     NCMEngineMethod,
     _abduce_exogenous,

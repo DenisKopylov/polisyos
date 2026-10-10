@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 
 import jax.numpy as jnp
 import pytest
+
 from polisyos.foundry.calibration.pure_executor import (
     PreparedNode,
     StaticBundle,

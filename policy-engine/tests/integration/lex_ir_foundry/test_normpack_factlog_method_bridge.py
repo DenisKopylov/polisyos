@@ -5,8 +5,8 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
-
 from _helpers.artifacts import put_json_artifact
+
 from polisyos.core.contracts.foundry import LoweredConstraint
 from polisyos.fabric.world import (
     append_world_segment_index,

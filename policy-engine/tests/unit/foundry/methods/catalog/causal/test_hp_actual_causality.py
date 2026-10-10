@@ -23,6 +23,7 @@ from __future__ import annotations
 import json
 
 import pytest
+
 from polisyos.foundry.methods.catalog.causal.actual_causality import (
     HPActualCauseMethod,
     _check_ac1,

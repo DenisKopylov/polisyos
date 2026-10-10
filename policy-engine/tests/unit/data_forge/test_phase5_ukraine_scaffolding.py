@@ -6,6 +6,7 @@ import tomllib
 from pathlib import Path
 
 import numpy as np
+
 from polisyos.data_forge.kernel.pipeline import plan_asset_specs
 from polisyos.data_forge.read_api.ukraine import (
     UKRAINE_ASSET_GROUP,

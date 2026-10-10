@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import jax.numpy as jnp
+
 from polisyos.foundry.runtime import get_jit_tracker
 
 

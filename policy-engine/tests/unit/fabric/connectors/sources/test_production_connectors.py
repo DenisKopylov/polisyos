@@ -6,6 +6,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import pytest
+
 from polisyos.fabric.connectors.base import AsyncFetchLease, ConnectionConfig, FetchRequest
 from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
 from polisyos.fabric.connectors.sources.ukons import UKONSConnector

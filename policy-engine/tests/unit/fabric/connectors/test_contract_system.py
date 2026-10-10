@@ -7,6 +7,7 @@ from typing import ClassVar
 
 import pandas as pd
 import pytest
+
 from polisyos.fabric.connectors.base import (
     BaseConnector,
     ConnectionConfig,

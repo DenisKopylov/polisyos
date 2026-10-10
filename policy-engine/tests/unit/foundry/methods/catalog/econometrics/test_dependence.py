@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.foundry.methods.catalog.econometrics.dependence import (
     route_cross_sectional_dependence,
 )

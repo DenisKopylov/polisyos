@@ -25,7 +25,10 @@ if TYPE_CHECKING:
     from polisyos.scientist.orchestration.workflows.causal_full import causal_full_workflow_spec
     from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
     from polisyos.scientist.orchestration.workflows.discovery import discovery_workflow_spec
-    from polisyos.scientist.orchestration.workflows.engine_base import WorkflowEngine, WorkflowEngineFactory
+    from polisyos.scientist.orchestration.workflows.engine_base import (
+        WorkflowEngine,
+        WorkflowEngineFactory,
+    )
     from polisyos.scientist.orchestration.workflows.engine_langgraph import (
         LangGraphEngine,
         LangGraphEngineFactory,
@@ -110,7 +113,9 @@ def __getattr__(name: str) -> Any:
         from polisyos.scientist.orchestration.workflows.causal_full import causal_full_workflow_spec
         from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
         from polisyos.scientist.orchestration.workflows.discovery import discovery_workflow_spec
-        from polisyos.scientist.orchestration.workflows.policy_design import policy_design_workflow_spec
+        from polisyos.scientist.orchestration.workflows.policy_design import (
+            policy_design_workflow_spec,
+        )
 
         return {
             "default_workflow_spec": default_workflow_spec,
@@ -119,7 +124,10 @@ def __getattr__(name: str) -> Any:
             "policy_design_workflow_spec": policy_design_workflow_spec,
         }[name]
     if name in {"WorkflowEngine", "WorkflowEngineFactory"}:
-        from polisyos.scientist.orchestration.workflows.engine_base import WorkflowEngine, WorkflowEngineFactory
+        from polisyos.scientist.orchestration.workflows.engine_base import (
+            WorkflowEngine,
+            WorkflowEngineFactory,
+        )
 
         return {
             "WorkflowEngine": WorkflowEngine,

@@ -3,6 +3,7 @@ from __future__ import annotations
 from decimal import Decimal
 
 import pytest
+
 from polisyos.ir.governance.game_design import (
     BayesianTypeSpec,
     MechanismConstraintType,

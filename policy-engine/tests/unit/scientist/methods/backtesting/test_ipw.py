@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.scientist.methods.backtesting.ipw import (
     IPWResult,
     compute_propensity_weights,

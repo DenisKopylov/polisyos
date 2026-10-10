@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.foundry.methods.catalog.causal.gcm_query import GCMQuery
 from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType

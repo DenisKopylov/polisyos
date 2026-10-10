@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any, ClassVar
 
 import pytest
+
 from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle
 from polisyos.ir.connectors import (
     ConnectorCapability,

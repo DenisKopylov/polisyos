@@ -14,6 +14,7 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 import pytest
+
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic
 from polisyos.foundry.agent_sim.artifact import AgentPolicyArtifact
 from polisyos.foundry.runtime.fingerprint import (

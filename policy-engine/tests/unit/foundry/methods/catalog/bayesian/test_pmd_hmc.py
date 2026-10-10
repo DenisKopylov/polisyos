@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.foundry.methods.catalog.bayesian.pmd_hmc import (
     PmdHmcBenchmarkCase,
     assess_pmd_hmc_multimodality,

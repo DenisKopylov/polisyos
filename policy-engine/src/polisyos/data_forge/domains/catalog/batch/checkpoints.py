@@ -11,7 +11,6 @@ from typing import Any
 from polisyos.data_forge.kernel.io.atomic import atomic_write_text
 from polisyos.data_forge.kernel.io.hashing import sha256_file
 
-
 CONTENT_BASIS_SCHEMA_VERSION = "policyos.catalog_stage_basis.v1"
 OUTPUT_INVENTORY_SCHEMA_VERSION = "policyos.catalog_stage_outputs.v1"
 

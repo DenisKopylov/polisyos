@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.calibration.robust_set_selector import (
     gaussian_parametric_radius,
     select_robust_set_size,

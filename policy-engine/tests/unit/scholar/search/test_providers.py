@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 
 import pytest
+
 from polisyos.scholar.search import providers as provider_module
 from polisyos.scholar.search.models import SearchConstraints, WebSearchHit
 from polisyos.scholar.search.providers import (

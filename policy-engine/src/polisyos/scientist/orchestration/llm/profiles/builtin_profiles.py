@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import os
 
-from polisyos.scientist.orchestration.llm.provider_verification import is_provider_capability_verified
+from polisyos.scientist.orchestration.llm.provider_verification import (
+    is_provider_capability_verified,
+)
 
 from .models import ModelProfile
 

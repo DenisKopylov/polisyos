@@ -4,6 +4,7 @@ import threading
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
+
 from polisyos.core.backends import BackendDispatcher, BackendNotAvailableError
 from polisyos.core.governance.passes.legal_pass import LegalPass
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.foundry.methods.causal import build_block_stratified_network_causal_data
 from polisyos.foundry.methods.network import SBMStratificationResult
 

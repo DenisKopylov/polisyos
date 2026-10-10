@@ -1,4 +1,5 @@
 import jax.numpy as jnp
+
 from polisyos.foundry.methods.catalog.policy.welfare import (
     clear_social_weight_manifest_registry,
     register_social_weight_manifest,

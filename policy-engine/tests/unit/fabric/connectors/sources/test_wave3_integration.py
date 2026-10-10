@@ -9,6 +9,7 @@ Wave 3 adds:
 from __future__ import annotations
 
 import pytest
+
 from polisyos.fabric.connectors.base import ConnectionConfig
 from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
 from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config

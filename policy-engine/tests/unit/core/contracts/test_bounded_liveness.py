@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 # ruff: noqa: S101
-
 import pytest
 from pydantic import ValidationError
 

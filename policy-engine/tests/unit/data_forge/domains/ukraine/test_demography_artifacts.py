@@ -4,6 +4,7 @@ import json
 from typing import TYPE_CHECKING
 
 import numpy as np
+
 from polisyos.data_forge.domains.ukraine.demography import load_reconciled_targets
 from polisyos.data_forge.read_api.ukraine import (
     build_static_aging_state,

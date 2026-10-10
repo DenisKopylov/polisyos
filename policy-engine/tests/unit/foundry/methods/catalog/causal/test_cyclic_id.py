@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.foundry.methods.catalog.causal.admg_ops import (
     condense_graph,
     has_directed_cycle,

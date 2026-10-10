@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.scientist.validation import run_metric_validation_type_i_bench
 
 

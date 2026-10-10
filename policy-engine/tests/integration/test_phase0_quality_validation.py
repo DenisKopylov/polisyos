@@ -8,6 +8,7 @@ from pathlib import Path
 import duckdb
 import pandas as pd
 import pytest
+
 from polisyos.data_forge.domains.academic.batch.article_extractor import run_article_extract
 from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
 from polisyos.data_forge.domains.academic.batch.fulltext_resolver import FullTextFetchResult

@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.foundry.methods.testing.golden_yaml import GoldenRegistry
 

@@ -7,7 +7,12 @@ from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError, BudgetLimit, BudgetState
+
+from polisyos.scientist.orchestration.engine.budget import (
+    BudgetExhaustedError,
+    BudgetLimit,
+    BudgetState,
+)
 from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
 
 

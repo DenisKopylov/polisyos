@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.foundry.methods.backends.circuit_breaker import CircuitBreakerRegistry
 from polisyos.foundry.methods.registry import registry_scope
 

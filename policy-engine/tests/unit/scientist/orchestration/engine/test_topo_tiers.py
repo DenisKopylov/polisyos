@@ -5,6 +5,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
+
 from polisyos.scientist.orchestration.engine.errors import CycleDetectedError
 from polisyos.scientist.orchestration.engine.topo import topo_sort_tiers, validate_tier_write_safety
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation

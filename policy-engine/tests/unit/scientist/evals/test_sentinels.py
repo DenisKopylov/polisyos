@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 
 import pytest
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.evals.challenge_factory import ChallengeStatus

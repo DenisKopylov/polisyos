@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.scientist.orchestration.engine.builtins import NoopNode
 from polisyos.scientist.orchestration.engine.context import ExecutionContext

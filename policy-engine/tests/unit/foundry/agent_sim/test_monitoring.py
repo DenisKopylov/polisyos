@@ -3,6 +3,7 @@ from pathlib import Path
 
 import jax.numpy as jnp
 import pytest
+
 from polisyos.foundry.agent_sim import (
     BehaviorAnalyzer,
     DashboardConfig,

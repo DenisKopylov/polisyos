@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.solver_runner import SolverRunner
 from polisyos.foundry.methods.optimization import ensure_optimization_methods_registered

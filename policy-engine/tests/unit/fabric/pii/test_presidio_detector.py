@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 import pandas as pd
+
 from polisyos.fabric.pii.detector import PresidioConfig, PresidioDetector
 from polisyos.fabric.pii.models import PIISeverity
 from polisyos.fabric.pii.stage import PIIDetectionStage

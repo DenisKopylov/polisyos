@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.foundry import (
     FeedbackFixedPointCandidate,

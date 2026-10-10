@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.foundry.methods.catalog.causal._econml_adapter import (
     build_hte_data,
     extract_cate_from_estimator,

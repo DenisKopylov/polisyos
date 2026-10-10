@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 
 import numpy as np
+
 from polisyos.foundry.methods.catalog.causal.frontier import ProximalBridgeEstimator
 from polisyos.foundry.methods.catalog.causal.invariance_tests import ICPInvarianceTest
 from polisyos.foundry.methods.catalog.causal.sensitivity_metrics import SensitivityMetrics

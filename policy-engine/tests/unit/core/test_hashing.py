@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.core.canon import content_hash, fingerprint, streaming_hash, truncated_hash
 
 

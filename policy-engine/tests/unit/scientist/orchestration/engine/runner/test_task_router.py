@@ -6,6 +6,7 @@ import asyncio
 from unittest.mock import AsyncMock
 
 import pytest
+
 from polisyos.scientist.orchestration.engine.runner.task_router import (
     LeastLoadedStrategy,
     ResourceAwareStrategy,

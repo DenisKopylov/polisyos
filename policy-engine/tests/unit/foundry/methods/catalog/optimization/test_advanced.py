@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.protocol import SolverStatus
 from polisyos.foundry.methods.catalog.optimization.advanced_stochastic import (

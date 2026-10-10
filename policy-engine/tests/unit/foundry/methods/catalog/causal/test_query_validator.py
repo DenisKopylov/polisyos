@@ -1,6 +1,7 @@
 """Tests for CausalQueryValidator (Track F)."""
 
 import pytest
+
 from polisyos.foundry.methods.catalog.causal.query_validator import CausalQueryValidator
 from polisyos.ir.analytics.causal import ProofBundle
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType

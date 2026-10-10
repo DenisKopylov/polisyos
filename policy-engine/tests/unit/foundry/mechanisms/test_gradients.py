@@ -1,6 +1,7 @@
 import equinox as eqx
 import jax
 import jax.numpy as jnp
+
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute.executor import apply_patch_map
 from polisyos.foundry.mechanisms.fiscal import TaxSubsidy

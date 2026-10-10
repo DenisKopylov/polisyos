@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 
 import pytest
+
 from polisyos.ddm.detectors import (
     BinaryPredictionRecord,
     LabeledBinaryPrediction,

@@ -11,7 +11,11 @@ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.scientist.methods.search.cold_start import BurnInRunReport
-from polisyos.scientist.methods.search.lessons import LessonIndexSnapshot, LessonPattern, LessonRegistry
+from polisyos.scientist.methods.search.lessons import (
+    LessonIndexSnapshot,
+    LessonPattern,
+    LessonRegistry,
+)
 from polisyos.scientist.methods.search.sentinels import SentinelObservation, SentinelSet
 from polisyos.scientist.methods.search.stages import CorrelationTracker, DriftAlert
 

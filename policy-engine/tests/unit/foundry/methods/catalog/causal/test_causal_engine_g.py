@@ -17,6 +17,7 @@ from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
+
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
 from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
     EstimandShape,

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 import pytest
+
 from polisyos.scientist.methods.search.strategies.errors import StrategyExhaustedError
 from polisyos.scientist.methods.search.strategies.grid import GridSearchStrategy
 from polisyos.scientist.methods.search.strategies.random import RandomSearchStrategy

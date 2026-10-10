@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.ir.analytics.causal_discovery import (
     LatentAssumptionCard,
     LatentBlockEvidence,

@@ -4,6 +4,7 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
+
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.storage import DuckDBStorageAdapter, InMemoryStorageAdapter, StoragePort
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.berl.metrics.analytical import (
     linear_exact_infidelity_bound,
     taylor_curvature_infidelity_bound,

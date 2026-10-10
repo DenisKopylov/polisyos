@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.catalog.causal.ctf_calculus import (
     _build_amn_for_ast,
     apply_ctf_rule1,

@@ -4,6 +4,7 @@ import json
 
 import duckdb
 import pytest
+
 from polisyos.data_forge.domains.academic.knowledge.parameter_selector import ParameterSelector
 from polisyos.data_forge.domains.academic.knowledge.skg_query import SKGQuery
 from polisyos.ir.analytics.causal_graph import CausalGraphModel, GraphType

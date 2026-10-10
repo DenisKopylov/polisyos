@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.foundry.methods.catalog.causal.model_class_compatibility import (
     check_model_class_compatibility,
 )

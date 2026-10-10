@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.backends import MethodDispatcher
 from polisyos.foundry.methods.backends.validated import ValidatedStatus
 from polisyos.foundry.methods.catalog.policy import ensure_policy_methods_registered

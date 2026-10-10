@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
+
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,

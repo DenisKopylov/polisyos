@@ -1,6 +1,7 @@
 import equinox as eqx
 import jax
 import jax.numpy as jnp
+
 from polisyos.foundry.agent_sim import (
     ActorCritic,
     GlobalState,

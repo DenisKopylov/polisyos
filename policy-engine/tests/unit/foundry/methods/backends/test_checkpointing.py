@@ -7,6 +7,7 @@ from uuid import uuid4
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.backends.checkpointing import (
     ChainCheckpoint,
     CheckpointDigestMismatchError,

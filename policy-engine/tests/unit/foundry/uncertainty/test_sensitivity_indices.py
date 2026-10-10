@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.uncertainty.sensitivity import compute_first_order_indices
 
 

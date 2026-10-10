@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pandas as pd
 import pytest
+
 from polisyos.ir.data.versioning import (
     compute_content_hash,
     compute_schema_hash,

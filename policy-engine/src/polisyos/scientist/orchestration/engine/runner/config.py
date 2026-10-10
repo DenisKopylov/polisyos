@@ -96,7 +96,9 @@ def build_workflow_runner(config: WorkflowRunnerConfig) -> WorkflowRunnerBackend
         )
 
     if config.backend == "temporal":
-        from polisyos.scientist.orchestration.engine.runner.temporal_runner import TemporalWorkflowRunner
+        from polisyos.scientist.orchestration.engine.runner.temporal_runner import (
+            TemporalWorkflowRunner,
+        )
         from polisyos.scientist.orchestration.engine.state_merge import MergeConflictPolicy
 
         if not config.temporal_server_url:

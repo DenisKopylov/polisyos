@@ -7,6 +7,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 import pytest
+
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.backends.circuit_breaker import CircuitBreakerRegistry
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher

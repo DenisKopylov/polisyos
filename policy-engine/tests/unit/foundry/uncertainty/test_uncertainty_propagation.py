@@ -4,6 +4,7 @@ import math
 from statistics import NormalDist
 
 import pytest
+
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.delta import DeltaMethodPropagator
 from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher

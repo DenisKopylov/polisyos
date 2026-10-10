@@ -6,6 +6,7 @@ import json
 from unittest.mock import MagicMock
 
 import pytest
+
 from polisyos.scientist.agent._drafter_formatting import _DrafterFormattingMixin
 from polisyos.scientist.agent.drafter_models import (
     FindingCategory,

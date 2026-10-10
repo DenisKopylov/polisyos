@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import duckdb
+
 from polisyos.data_forge.domains.catalog.batch.benchmark import READINESS_THRESHOLDS
 from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
 from polisyos.data_forge.domains.catalog.batch.qc import _url_is_reachable, run_qc

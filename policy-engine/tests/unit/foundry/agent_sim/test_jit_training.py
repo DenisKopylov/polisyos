@@ -1,5 +1,6 @@
 import jax
 import jax.numpy as jnp
+
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic
 from polisyos.foundry.agent_sim.jit_training import (
     JITTrainingConfig,

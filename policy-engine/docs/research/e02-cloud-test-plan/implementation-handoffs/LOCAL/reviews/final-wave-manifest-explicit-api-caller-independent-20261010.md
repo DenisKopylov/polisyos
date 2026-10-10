@@ -39,4 +39,3 @@ At review time the specified baseline observation file and harness output parent
 ## Verdict and boundary
 
 **Static GO** for the explicit six-plan caller and the current ENV output-owner path shape: no implicit plan-route selection or source/profile admission bypass was found in the intended invocation, and the previous absolute/relative mismatch is corrected in the current external plan. This is not a manifest-preparation receipt or a harness result; both remain unrun in this review. P40 is **same class, deeper**: the output-owner property is now checked at the harness boundary, and the plan's current relative argv satisfies that check. No production authority or formal closure is asserted.
-

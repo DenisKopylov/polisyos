@@ -79,4 +79,3 @@ With identical training bytes, method/version, rule, split, target, and source s
 - **P40:** classify this as the **same producer-to-consumer evidence-binding class, one level deeper** than “resolver is None”: widening to the whole composition found absent result→evidence linkage, default S10 composition, issuer context, and API projection. Stop adding one-helper fixes; either implement and test the full selected chain after the G decision, or retain the bounded residual above and run its falsifier when the source owner supplies the missing purpose, threshold, time, and credible-evaluation inputs.
 
 No source, test, generator, or Git state was changed. Static AST enumeration above ran; no tests or numerical fits ran.
-

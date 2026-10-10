@@ -38,4 +38,3 @@ The ignored raw directory below retains each actual `bash -s` argv and full stdi
 | Final lock-file content readback | `15b69e9deff7a935f24cd23c9ca351aa7c7081e5b8ff5bbbfa3a25a52e3aa0aa` | `6034c1a9903958ad406eb9ed3608e0ab4e2916aad0ac59b358a762ee5f02a71d` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
 
 The bundle file is retained both in that ignored raw directory and at `/scratch/e02-source-update-13e411da7d9e505856fc336b3d25fd0aabdb1f66.bundle` in the worker for reproducibility. No Git commit was made for this receipt.
-

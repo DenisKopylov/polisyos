@@ -2,8 +2,8 @@
 
 Prepared as an unapplied, patch-only companion for base 00954ff836642ca3c2dca4032fcd1b83019bdfd0 (tree cf422a9a79c3ffd43bd09817edbcd806db1d7570). No source/test target files were modified and no tests were run. This v2 replaces the R3 verifier approach rejected in v1 while preserving the reviewed V3 fixture/history companion.
 
-Patch: `/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-v3-companion-patch-00954ff-v2.patch`  
-SHA-256: `460973918615c8f59dfdf7973e317c29b5d408d0118de4718f430b5d0fec50da`  
+Patch: `/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-v3-companion-patch-00954ff-v2.patch`
+SHA-256: `460973918615c8f59dfdf7973e317c29b5d408d0118de4718f430b5d0fec50da`
 Bytes: 10385
 
 Exact target pre-patch SHA-256 values:

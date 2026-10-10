@@ -47,4 +47,3 @@ Keep two distinct checks:
 2. The positive should be a separately selected source-bound integration gate requiring a named, exact current-L2 input/profile and custody receipt in a fresh manifest. If no admitted input exists, do not run it and report the positive as **UNRUN / held**. If it is invoked and the source is missing, malformed, stale, or unlinked, preserve the failure/refusal as such. Never count an absent input or the candidate-proposal guard path as a pass.
 
 A future positive must join the actual generated parent, exact declared child source, persisted N5/CAS lineage, later independent sibling failure, fresh parsed GET, and corrupt-ref refusal. Until that source exists, the existing controlled sibling test supports only its bounded mechanism and the external-source V6 capability remains incomplete. The prototype's observed attempt is `PROTOTYPE_NOTADMITTED`; it is not an inherited red or an adjudicated closure.
-

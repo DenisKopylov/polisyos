@@ -22,7 +22,7 @@ policy-engine/workers/dowhy-014/.python-version 7b55f8e67b5623c4bef3fa691288da94
 
 ## Transport and Q2
 
-Prepared script: [final-source-linux-wave.sh](raw/final-source-linux-wave.sh), SHA-256 **4638c05015d80b0b39a09755fd383a179191169ecd23c68ab18f250e2659c35d**. `bash -n` and its isolated `self-test-copy-decisions` mode passed. The self-test exercised eight tracked/ignored, exact/missing/changed/symlink decisions without Git, Docker, or filesystem changes. The transport and Q2 modes have not been run.
+Prepared script: [final-source-linux-wave.sh](raw/final-source-linux-wave.sh), SHA-256 **2549209718b0cbff2ee0a637b96338164d3701a1b71e6dbb4e111d08d4db3a82**. `bash -n` and its isolated `self-test-copy-decisions` mode passed. The self-test exercised eight tracked/ignored, exact/missing/changed/symlink decisions without Git, Docker, or filesystem changes. The transport and Q2 modes have not been run.
 
 After root supplies the final four inputs:
 
@@ -55,11 +55,11 @@ At inspected candidate HEAD 7b1b50d, the primary manifest is already tracked and
 Copy-time content pins are:
 
 ~~~text
-run.py                     5d54bce877979e82e3a7f95d451b6f076fcc318037868e329f26908065d80932
-timeout_driver.py          eaa9c3f2355b05e2f55753da4ba297ca6f137a9ba7f4699e456d4ad872339a0a
-installed-wave-manifest    ab7cf774e1c6805e9b1812472e5b8357af1a6a43d50a994a7488f29442d06eb7
-supplemental_run.py        1e43531fce5d5ceb643349612823366f42702258efca598dec1d20feb524637e
-supplemental-manifest      614013d0c2f3761012782405dbb1aa67abe16e15c37e849939de94ae6dd24b57
+run.py                     c8604c1d0f130cbdb11b4b30814e226df61cc272cf8f2f5a10fa0aeae378d4bf
+timeout_driver.py          7c3413ea3735a8d9732431cd9ca1a3b16e8ac735c2d82a9614479379fa33b073
+installed-wave-manifest    26f415a50704a8f555be7c10676e5f427178b150152630140e22b8df054086c6
+supplemental_run.py        4a80f59032665607ff139bf8ed8fbf73e05432f03297b3c82ff78d07d49e5f49
+supplemental-manifest      ae2854d95dd2a36283f9bc2a2fcdd24caf0b8712bca92a811ff401112fb4e7df
 ~~~
 
 The script's `self-test-copy-decisions` mode covers tracked exact reuse, tracked missing/changed/symlink refusal, absent ignored copy, ignored exact reuse, and changed/symlink untracked refusal. It makes no temporary files and has no transport side effects.
@@ -74,9 +74,9 @@ E02_ROOT_HEAVY_SLOT_GRANT="$freeze_sha" \
   q2 "$freeze_branch" "$freeze_sha" "$freeze_tree" attempt-01
 ~~~
 
-It passes existing /scratch/root-venv Python 3.14.0 and /scratch/dowhy-venv Python 3.12.12 to timeout_driver.py; no second worker environment is provisioned. Primary Q2 executes exactly 91 frozen baseline cases plus six dependency-profile and three installed-worker selectors = 100 collected/executed IDs for each of three profiles: source-wheel, rebuilt-sdist-wheel, rebuilt-gcp-archive-wheel. The first profile is measured without an arbitrary timeout; later timeouts require successful reconciliation of the preceding profile.
+It passes existing /scratch/root-venv Python 3.14.0 and /scratch/dowhy-venv Python 3.12.12 to timeout_driver.py; no second worker environment is provisioned. Primary Q2 executes the admitted current 125-ID set for each of three profiles: source-wheel, rebuilt-sdist-wheel, rebuilt-gcp-archive-wheel. The 91 historical cases plus six dependency-profile and three installed-worker selectors remain a required 100-ID subset. The first profile is measured without an arbitrary timeout; later timeouts require successful reconciliation of the preceding profile.
 
-Only after a passing primary run receipt is parsed and bound to the freeze does the script invoke supplemental_run.py. It executes six additional selectors once per each of the same three profiles. The supplement validates the 100 primary IDs, receipts, assets and installed origins, then reinstalls each wheel sequentially into the primary run's existing consumer venv. No second consumer venv is created. It measures supplement profile 1 without a bound and later profiles at twice the last successful profile duration.
+Only after a passing primary run receipt is parsed and bound to the freeze does the script invoke supplemental_run.py. It executes six additional selectors once per each of the same three profiles. The supplement validates all 125 current primary IDs and the historical 100-ID subset, receipts, assets and installed origins, then reinstalls each wheel sequentially into the primary run's existing consumer venv. No second consumer venv is created. It measures supplement profile 1 without a bound and later profiles at twice the last successful profile duration.
 
 Direct driver streams and every package/test output remain under /scratch/e02-q2-runs/$freeze_sha/attempt-01. Neither runner has cleanup. The script refuses an existing attempt. Current run estimate was about 1.5 GiB with the existing worker supplied, but final bare pack, GCP archive, outputs, pytest temp, logs, and inode peak remain unbounded or unmeasured. The script reports disk and cgroup observations before/after. Root must review measured capacity/reserve before setting the heavy-slot grant.
 
@@ -175,3 +175,7 @@ The filename is exactly 10 raw bytes (bad_, FF, .json); content is 3 bytes ({} p
 
 Relevant patterns: P29 (real consumer path), P35 (exact ID denominators), P37/P38 (actual freeze/receipt predicate, not candidate or exit-code proxy), P40 (DFK same-class deeper escape), P41 (red replay at the correct frozen source). B212/F and LA-029 remain verification_missing until the exact native consumers pass on final freeze. DFK is the same raw-byte filename class one level deeper; its smallest closer is the real Git/CLI fixture, falsified by a lost surrogateescaped path, unreadable file, incomplete receipt, or invalid JSON. Q2 and supplement remain pending final freeze, input review, capacity admission, and root's serialized heavy slot. No production currentness or E02 closure is claimed.
 
+
+## Current Q2 input delta before freeze
+
+The current source-only collection binds 125/125 primary IDs and 6/6 supplemental IDs. The historical 100-ID set remains required and is not replaced by a sampled subset. Current ID digest: `61189a3b41592600556a7d63dff970fd05358a406ee8598b7211f0f6535aafd8`; historical subset digest: `a1da373ad502cb17fe1932757cae15fd91450063587720e1ec727e32676f751b`. The runner, timeout driver and supplemental verifier now reconcile the complete admitted set/count/digest and source bindings, including transitive fixtures across all 125 IDs. Their removal, stale-digest and same-count wrong-set controls passed the author preflight. The independent delta review is separate. This is collection and harness verification; no installed consumer, transport, build, or test body has run. The primary manifest must be committed before transport can reuse its exact frozen blob.

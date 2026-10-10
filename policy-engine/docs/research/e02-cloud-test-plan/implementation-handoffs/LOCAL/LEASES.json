@@ -325,5 +325,21 @@
     },
     "resources": "one heavy slot and one numerical thread; no heavy replay until code fixes, independent reviews and explicit source/input/backend freeze",
     "bucket_rule": "P40: classify NEW_CLASS versus SAME_CLASS_DEEPER; a second same-class escape widens the mechanism or records and falsifies the smallest absent residual capability"
+  },
+  "coordination_epoch_final_companion_admission_20261010": {
+    "observed_commit": "d12ae0a32d09d2ec7303008c7f853ef93de72aab",
+    "status": "pre_freeze; all earlier epochs remain historical provenance",
+    "active_writers": {
+      "cas_contracts": "Only the 50 source files and 82 fully identity-matched import edges enumerated in LOCAL/raw/deep-import-existing-82-facade-routes.json; exact route input SHA a96936838c7ff20ebd0cffa3a9388dbf742ef0de892d4ee0b1c4f6a0ad97b0f5; matching compact decision note and ignored outputs. No facade expansion or baseline change.",
+      "q2_installed": "Completed current 125-ID manifest, three ignored runner/driver files, supplemental manifest, readiness note; no further writes after READY except a demonstrated blocking review delta.",
+      "root": "Linux transport input pins and plan companion, canonical regeneration after import edits, environment/input freeze, lease record, Git staging/commit/push/readback. Overlapping patches applied sequentially."
+    },
+    "independent_reviewers": {
+      "i1_c05": "Full 557-edge/951-name census, existing facade value-identity oracle and 82-edge author delta review; no source authorship.",
+      "q1_b_contracts": "Current Q2 denominator/fixture-binding and Linux transport pin delta; no source authorship.",
+      "devx_review": "Capture wrapper final f9904239065ae7f4331c0264e1d2bc743eb85487d5243cb82fd7a099806cb303, including actual canonical-plan output-root admission."
+    },
+    "resources": "One heavy slot and one numerical thread. All product fits, installed waves and browsers wait for exact source/input/backend freeze.",
+    "bucket_rule": "P40: the 82 identity-compatible existing-facade edges are a bounded wire-existing repair; the other 475 edges require explicit API/integration-boundary choices and are not removed by a baseline refresh. No task PASS or route success closes finding occurrences."
   }
 }

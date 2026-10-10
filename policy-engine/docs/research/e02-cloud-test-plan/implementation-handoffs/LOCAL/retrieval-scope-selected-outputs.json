@@ -1,0 +1,192 @@
+{
+  "schema": "policyos.e02.local_slice_author_capture.v1",
+  "registered_handoff_admission": "NOT_ADMITTED: complete execution-environment v1 is not supplied; partial observation requires recorded G schema decision",
+  "slice_id": "retrieval-scope-selected-outputs",
+  "slice_base": {
+    "commit": "f52809e8210714131f53c7b90bd53a9215c69d69",
+    "tree": "ecd5be2042d666dc4668aa995faea30bf119dd5a"
+  },
+  "candidate_source": {
+    "commit": "8e027d2e6249f2406c825b7c4686b04dd9d33975",
+    "tree": "b4bd9c5e23c64a59244b8ad73092ad2d4bc0fa40"
+  },
+  "parents": [
+    "f52809e8210714131f53c7b90bd53a9215c69d69"
+  ],
+  "source_footprint": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-10-fabric-catalog-scope-filtering.toml",
+      "git_blob": "10458d2e3d51195186ac1938fb95b4cc90393fbf",
+      "sha256": "6fef95ad93ec69dcc48f854c7e6bcc7a1dcc2f65ab95b402a845cc596dcf5ef0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "git_blob": "265b5dc9834eb2b3502a144b45417c537396cb78",
+      "sha256": "279be779b8a04934193edae581e252fffac0708b8fd2d90307a6312f5b2caae0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/retrieval/README.md",
+      "git_blob": "05546afd79409de1cc226fc9760c63b6f613f64c",
+      "sha256": "14b5fa32c5617d19f7874740b5f2b8b3af185eec2e542b02ff7d85bb2d4c3d59"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "git_blob": "4064e55e4586f8a65823269be9f983ae081423ef",
+      "sha256": "20643c33f6e5b879570db44fc298e5305381d58c61d53f3912930860c507e636"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/read_api/test_catalog_graph_builders.py",
+      "git_blob": "4c3009006def7669c8f99608b4b634500fb12474",
+      "sha256": "6493a8ecfe49e718839387940aadea42d4c0c38b594425291b4fb8009dbaa343"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/test_retrieval_fetch_custody.py",
+      "git_blob": "dde1f3201eade214eea6142de4bbf5d63009c1a7",
+      "sha256": "4bc3c119fe4e67f70c2754d22902681f5e2875fd73b940d5df8f995bdd35c366"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py",
+      "git_blob": "4e4542fea75af764237bd7946748b6f97c241a52",
+      "sha256": "a110ccb699d23594fdd82f6b471452f35f690e9237170a7bf531e2ef4fd261d7"
+    }
+  ],
+  "selected_input_profile_backend": {
+    "backend": "local macOS candidate .venv Python 3.14.3",
+    "profile": "catalog source admission, request-scoped selected output, real FileTabular controlled fixture and custody consumers",
+    "numerical_threads": 1
+  },
+  "verification": [
+    {
+      "command": [
+        "/usr/bin/time",
+        "-l",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "--color=no",
+        "--basetemp=_build/e02-repair-fixtures/retrieval-scope-v4-fixture-repaired-whole-modules-verification-20261010",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/retrieval-scope-v4-fixture-repaired-whole-modules-verification-20261010/junit.xml",
+        "tests/unit/fabric/test_retrieval_service_catalog.py",
+        "tests/unit/data_forge/read_api/test_catalog_graph_builders.py",
+        "tests/unit/fabric/test_retrieval_fetch_custody.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "execution_head": "f52809e8210714131f53c7b90bd53a9215c69d69",
+      "exit_code": 0,
+      "result": "75 PASS / 0 FAIL / 0 ERROR / 0 SKIP",
+      "wall_seconds": 9.958421666058712,
+      "before_sha256": {
+        "src/polisyos/fabric/retrieval/service.py": "20643c33f6e5b879570db44fc298e5305381d58c61d53f3912930860c507e636",
+        "src/polisyos/data_forge/read_api/catalog.py": "279be779b8a04934193edae581e252fffac0708b8fd2d90307a6312f5b2caae0",
+        "tests/unit/fabric/test_retrieval_service_catalog.py": "a110ccb699d23594fdd82f6b471452f35f690e9237170a7bf531e2ef4fd261d7",
+        "tests/unit/data_forge/read_api/test_catalog_graph_builders.py": "6493a8ecfe49e718839387940aadea42d4c0c38b594425291b4fb8009dbaa343",
+        "tests/unit/fabric/test_retrieval_fetch_custody.py": "4bc3c119fe4e67f70c2754d22902681f5e2875fd73b940d5df8f995bdd35c366",
+        "src/polisyos/fabric/retrieval/README.md": "14b5fa32c5617d19f7874740b5f2b8b3af185eec2e542b02ff7d85bb2d4c3d59",
+        "release-fragments/unreleased/2026-10-10-fabric-catalog-scope-filtering.toml": "6fef95ad93ec69dcc48f854c7e6bcc7a1dcc2f65ab95b402a845cc596dcf5ef0"
+      },
+      "after_sha256": {
+        "src/polisyos/fabric/retrieval/service.py": "20643c33f6e5b879570db44fc298e5305381d58c61d53f3912930860c507e636",
+        "src/polisyos/data_forge/read_api/catalog.py": "279be779b8a04934193edae581e252fffac0708b8fd2d90307a6312f5b2caae0",
+        "tests/unit/fabric/test_retrieval_service_catalog.py": "a110ccb699d23594fdd82f6b471452f35f690e9237170a7bf531e2ef4fd261d7",
+        "tests/unit/data_forge/read_api/test_catalog_graph_builders.py": "6493a8ecfe49e718839387940aadea42d4c0c38b594425291b4fb8009dbaa343",
+        "tests/unit/fabric/test_retrieval_fetch_custody.py": "4bc3c119fe4e67f70c2754d22902681f5e2875fd73b940d5df8f995bdd35c366",
+        "src/polisyos/fabric/retrieval/README.md": "14b5fa32c5617d19f7874740b5f2b8b3af185eec2e542b02ff7d85bb2d4c3d59",
+        "release-fragments/unreleased/2026-10-10-fabric-catalog-scope-filtering.toml": "6fef95ad93ec69dcc48f854c7e6bcc7a1dcc2f65ab95b402a845cc596dcf5ef0"
+      },
+      "full_deciding_output": [
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/retrieval-scope-v4-fixture-repaired-whole-modules-verification-20261010/command.json",
+          "sha256": "c054ea7c0015e41a0f442da7772d29575df0ab7fc392d97c508f6c63d3fab2a8",
+          "bytes": 3621
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/retrieval-scope-v4-fixture-repaired-whole-modules-verification-20261010/stdout.txt",
+          "sha256": "8b102ba1a775323468bb592711c48d6b0b8aa0ad143684fa9a07c9bc2ef48ae2",
+          "bytes": 179
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/retrieval-scope-v4-fixture-repaired-whole-modules-verification-20261010/stderr.txt",
+          "sha256": "21647ee744cfe6f1b4184321a04ebb94202022afeb3b6ce2c653ae5d65f48e60",
+          "bytes": 777
+        },
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/retrieval-scope-v4-fixture-repaired-whole-modules-verification-20261010/junit.xml",
+          "sha256": "5be9cd4e76c11b3df2cf7d13af46b748360c4ab6aa4a6238ef1d3649cecdd4f9",
+          "bytes": 12356
+        }
+      ]
+    },
+    {
+      "operation": "in-memory canonical public surface render/readback",
+      "result": "exact canonical JSON and Markdown; no generated changes needed",
+      "full_deciding_output": [
+        {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/retrieval-scope-generated-readback-20261010/readback.json",
+          "sha256": "56f7e8bb5102fa4944e2372a679a6f978c869bf4f3b07fed517791d76c0ac5d5",
+          "bytes": 561
+        }
+      ]
+    }
+  ],
+  "earlier_attempts": [
+    {
+      "output_directory": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/retrieval-scope-v4-whole-modules-verification-20261010",
+      "status": "ERROR",
+      "boundary": "incorrect nonexistent test_fetch_executor.py selector; no tests ran; not a product failure"
+    },
+    {
+      "output_directory": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/retrieval-scope-v4-actual-consumer-modules-verification-20261010",
+      "status": "FAIL",
+      "result": "69 PASS / 6 FAIL",
+      "boundary": "two Explore fixture signature failures and four blank source-identity fixture admission refusals; full outputs retained; no P41 inherited claim"
+    }
+  ],
+  "real_chain": "DataNeed occurrence scopes -> FastLane/catalog/Explore candidate selection -> C05 reconciled binding/source/profile relation -> shared selected-target classifier -> plans, candidates and fallbacks -> real FileTabular fetch/CAS custody consumer. Read API facade exports existing country normalizer.",
+  "controls": [
+    "known geography mismatch and definite disjoint time exclude selected targets; overlap/malformed/unknown remain unverified",
+    "same-metric duplicate occurrences preserved; alternate-metric fallback resolves own C05 target while using parent request scope",
+    "public candidates and fallback targets cannot retain known-incompatible selections; raw discovery/index remains candidate-only",
+    "metadata self-label and identifier collision do not establish identity; C05/profile/exact dataset read refusals propagate",
+    "real connector counterfeit/content/source-change controls remain in whole module; strict registered controlled fixture avoids weakening production gate"
+  ],
+  "consumer_surface": "ResolveOutcome selected plans/candidates/fallbacks; read_api.catalog public facade; actual FileTabular executor and persisted custody readback",
+  "limitations": [
+    "No FetchPlan occurrence reference: mixed same-metric request scopes remain unverified, with no per-occurrence fulfillment claim.",
+    "Returned-row scope, scientific availability, live production profile/currentness and external permissions are not established.",
+    "Direct standalone discovery remains raw candidate-only; no selected profile or authority is inferred.",
+    "Controlled fixture registry is test-only; production registry, source guards and production data are unchanged.",
+    "Canonical repository-wide Ruff remains independently FAIL; this bounded source passes focused Ruff."
+  ],
+  "decision_pointers": [
+    "decisions/retrieval-scope-selection-v4-20261010.md",
+    "decisions/retrieval-scope-v4-test-fixture-repair-20261010.md"
+  ],
+  "independent_reviews": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/retrieval-scope-selection-v4-independent-20261010.md",
+      "sha256": "4c323e66098cad947d9d17655310151e1f1901814a7e76c3ca7cf330a6027903",
+      "bytes": 3492
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/retrieval-scope-v4-test-fixture-repair-independent-20261010.md",
+      "sha256": "ddaeaa914c8a3fec1f142e28589783546e9d298eda43eec0a6427cf5fe172eba",
+      "bytes": 6205
+    }
+  ],
+  "closure_ids": [],
+  "proposal_fields": {
+    "task_ids": [
+      "I1",
+      "V3",
+      "Q1"
+    ],
+    "finding_ids": [],
+    "scope": "bounded selected-output request/target relation repair; no automatic original finding closures"
+  }
+}

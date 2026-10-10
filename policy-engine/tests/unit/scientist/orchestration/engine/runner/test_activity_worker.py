@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import sys
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -414,7 +415,7 @@ class FailedWorkerNode:
         )
 
 
-def test_remote_worker_timeout_wire_replays_only_declared_branch_operations(
+def test_remote_worker_wire_replays_only_declared_branch_operations(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
@@ -441,7 +442,10 @@ def test_remote_worker_timeout_wire_replays_only_declared_branch_operations(
                 "alias": "mutate",
                 "params": {},
                 "state_bytes": serialize_state(producer_state),
-                "timeout_s": 2.0,
+                # Custom IDs use the generic untimed wire on macOS; the closed spawn
+                # timeout contract admits only the canonical builtin node. Linux keeps
+                # its established fork-backed timed route.
+                "timeout_s": 2.0 if sys.platform == "linux" else None,
                 "max_retries": 0,
                 "context_meta": {
                     "run_id": producer_state.run_id,

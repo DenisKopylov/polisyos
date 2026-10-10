@@ -6,19 +6,17 @@ import hashlib
 import json
 import multiprocessing
 import os
+import sys
 from decimal import Decimal
 from itertools import pairwise
-from pathlib import Path
 
 import pytest
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.scientist.orchestration.engine.protocol import (
     NodeError,
     NodeOutcome,
-    NodeSpec,
     OutputAwareNodeOutcome,
 )
 from polisyos.scientist.orchestration.engine.runner import serialization as wire
@@ -101,101 +99,43 @@ def test_output_aware_outcome_remains_typed(backend) -> None:
     _assert_budgets(outcome.state, restored.state)
 
 
-def test_real_worker_process_consumes_state_and_emits_exact_typed_outcome(
-    backend, tmp_path, monkeypatch
-):
-    """Exercise the actual remote worker bridge, not a direct codec-only loop."""
-    from polisyos.scientist.orchestration.engine.runner._activity_worker import (
-        run_node_in_worker_sync,
+def test_real_worker_process_consumes_state_and_emits_exact_typed_outcome(backend, tmp_path):
+    """Exercise the actual remote worker bridge through a safe outer process."""
+    from tests.unit.scientist.orchestration.engine.runner.decimal_worker_transport import (
+        execute_decimal_worker,
     )
 
     physical_attempts = tmp_path / "attempts.jsonl"
     original = _state()
-
-    class DecimalWorkerNode:
-        spec = NodeSpec(
-            metadata=ComponentMetadata(
-                component_id=ComponentId.parse("scientist.node_decimal_transport@1.0.0"),
-                kind=ComponentKind.SCIENTIST_NODE,
-                abi_targets={"world_abi": "1.x"},
-                display_name="DecimalTransport",
-                description="Physical Decimal transport probe",
-                tags=["test"],
-                capabilities=Capability.SCIENTIST_NODE,
-            ),
-            state_reads=["budgets"],
-            state_writes=[],
-        )
-
-        def execute(self, ctx, state):
-            import subprocess
-
-            for key, value in original.budgets.items():
-                assert type(state.budgets[key]) is Decimal
-                assert state.budgets[key].as_tuple() == value.as_tuple()
-            # Observe the actual live OS ownership chain before retry owners reap
-            # the attempt. A supervisor may own the attempt on the worker's behalf.
-            ancestry = []
-            cursor = os.getpid()
-            observed = set()
-            while cursor > 0:
-                assert cursor not in observed, "cyclic physical process ancestry"
-                observed.add(cursor)
-                status = Path(f"/proc/{cursor}/status")
-                if status.is_file():
-                    ppid = next(
-                        int(line.split()[1])
-                        for line in status.read_text().splitlines()
-                        if line.startswith("PPid:")
-                    )
-                else:
-                    # macOS has no procfs; ps reports the same live OS relation.
-                    ppid = int(
-                        subprocess.check_output(
-                            ["ps", "-o", "ppid=", "-p", str(cursor)], text=True
-                        ).strip()
-                    )
-                ancestry.append({"pid": cursor, "ppid": ppid})
-                cursor = ppid
-            with physical_attempts.open("a") as output:
-                output.write(
-                    json.dumps(
-                        {
-                            "pid": os.getpid(),
-                            "ppid": os.getppid(),
-                            "run_id": state.run_id,
-                            "ancestry": ancestry,
-                        }
-                    )
-                    + "\n"
-                )
-            return NodeOutcome(status="ok", state=state, events=[], artifacts=[])
-
-    monkeypatch.setattr(
-        "polisyos.scientist.orchestration.engine.registry.discover_nodes",
-        lambda registry: registry.register(DecimalWorkerNode()),
-    )
     payload = {
         "node_id": "scientist.node_decimal_transport@1.0.0",
         "alias": "decimal",
         "state_bytes": wire.serialize_state(original),
-        "timeout_s": 2.0,
+        # Generic custom IDs are untimed on macOS: the closed spawn timeout
+        # boundary admits only the canonical ResolveParameters node. Linux
+        # retains the existing fork-backed timed route.
+        "timeout_s": 2.0 if sys.platform == "linux" else None,
         "context_meta": {
             "run_id": original.run_id,
             "store_config": {"backend": "filesystem", "root": str(tmp_path / "store")},
         },
     }
-    parent, child = multiprocessing.get_context("fork").Pipe()
-
-    def worker():
-        try:
-            child.send(("result", run_node_in_worker_sync(payload)))
-        except BaseException as error:
-            child.send(("error", repr(error)))
-        finally:
-            child.close()
-
-    process = multiprocessing.get_context("fork").Process(target=worker)
+    # The test harness itself must not fork pytest's already multithreaded
+    # process on macOS. The Linux child still exercises the production timed
+    # fork path for this custom node.
+    outer_start_method = "fork" if sys.platform == "linux" else "spawn"
+    process_context = multiprocessing.get_context(outer_start_method)
+    parent, child = process_context.Pipe()
+    process = process_context.Process(
+        target=execute_decimal_worker,
+        args=(
+            payload,
+            backend,
+            original.budgets,
+            str(physical_attempts),
+            child,
+        ),
+    )
     process.start()
     child.close()
     try:
@@ -211,9 +151,14 @@ def test_real_worker_process_consumes_state_and_emits_exact_typed_outcome(
         chain = attempts[0]["ancestry"]
         assert chain[0] == {"pid": attempts[0]["pid"], "ppid": attempts[0]["ppid"]}
         assert all(left["ppid"] == right["pid"] for left, right in pairwise(chain))
-        assert process.pid in [ancestor["pid"] for ancestor in chain[1:]]
-        assert attempts[0]["pid"] not in {os.getpid(), process.pid}
         assert process.pid != os.getpid()
+        if sys.platform == "darwin":
+            # The untimed generic worker runs inside the fresh outer worker.
+            assert attempts[0]["pid"] == process.pid
+        else:
+            # Linux's timed fork route owns a nested attempt process.
+            assert process.pid in [ancestor["pid"] for ancestor in chain[1:]]
+            assert attempts[0]["pid"] not in {os.getpid(), process.pid}
     finally:
         process.join(10.0)
         if process.is_alive():

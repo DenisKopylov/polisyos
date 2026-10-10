@@ -33,7 +33,7 @@ from polisyos.core.artifacts import (
     artifact_manifest_profile_sha256,
 )
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.components import ComponentId
+from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.core.security.tenant_context import tenant_scope
@@ -54,9 +54,9 @@ from polisyos.scientist.orchestration.engine import retry as retry_module
 from polisyos.scientist.orchestration.engine import skg_snapshot
 from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.errors import NodeTimeoutError
+from polisyos.scientist.orchestration.engine.errors import NodeTimeoutError, WorkflowTimeoutError
 from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
-from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
+from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_sync
 from polisyos.scientist.orchestration.engine.skg_snapshot import (
@@ -441,6 +441,74 @@ def _execute_workflow(
     return WorkflowExecutor(ctx, registry).execute(workflow, state)
 
 
+def test_async_workflow_deadline_cancels_checkpoint_after_real_skg_node_completed(
+    tmp_path: Path,
+) -> None:
+    class BlockingCheckpoint:
+        def __init__(self, store: FileSystemCAS) -> None:
+            self._store = store
+            self.entered = asyncio.Event()
+            self.cancelled = asyncio.Event()
+            self.never_release = asyncio.Event()
+            self.completed_nodes: list[str] = []
+            self.output_ref: ArtifactRef | None = None
+            self.output_value: float | None = None
+
+        async def on_node_complete_async(
+            self,
+            *,
+            state: ExperimentState,
+            alias: str,
+            node_id: str,
+            completed_nodes: list[str],
+            workflow_id: str,
+            workflow_fingerprint: str,
+            cache_entry_ref: ArtifactRef | None,
+        ) -> None:
+            del alias, node_id, workflow_id, workflow_fingerprint, cache_entry_ref
+            self.completed_nodes = list(completed_nodes)
+            self.output_ref = state.artifacts_index.get(
+                ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
+            )
+            if self.output_ref is not None:
+                bundle = load_context_adaptive_parameter_bundle(
+                    _ensure_ir_artifact_store(self._store), self.output_ref
+                )
+                self.output_value = float(bundle.parameters["fiscal_multiplier"].value)
+            self.entered.set()
+            try:
+                await self.never_release.wait()
+            except asyncio.CancelledError:
+                self.cancelled.set()
+                raise
+
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        _, store, _, ctx, state, ref = _workflow_fixture(tmp_path)
+        replay_state = state.model_copy(update={"inputs": {SNAPSHOT_INPUT_KEY: ref}})
+        registry = NodeRegistry()
+        registry.register(ResolveParametersNode())
+        hook = BlockingCheckpoint(store)
+
+        async def execute() -> None:
+            await AsyncWorkflowExecutor(
+                ctx,
+                registry,
+                checkpoint_hook=hook,
+                workflow_timeout_s=10.0,
+            ).execute(_workflow("async"), replay_state)
+
+        with pytest.raises(WorkflowTimeoutError) as timeout:
+            asyncio.run(execute())
+
+        assert hook.entered.is_set()
+        assert hook.cancelled.is_set()
+        assert hook.completed_nodes == ["resolve"]
+        assert hook.output_ref is not None
+        assert hook.output_value == 1.25
+        assert timeout.value.details["execution_state"] == "unknown"
+        assert timeout.value.details["publication_operation"] == "checkpoint"
+
+
 @pytest.mark.parametrize("mode", ["sync", "timed", "async"])
 def test_real_workflow_selector_replays_saved_source_with_current_live_replacement(
     tmp_path: Path,
@@ -616,11 +684,11 @@ def test_spawn_timeout_worker_cannot_write_cas_after_parent_revocation(
         assert final_files > baseline_files
 
 
-@pytest.mark.parametrize("unsupported_input", ["node", "context"])
+@pytest.mark.parametrize("unsupported_input", ["node", "context", "custom_id"])
 def test_spawn_timeout_refuses_unsupported_inputs_without_process_or_thread_fallback(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
-    unsupported_input: Literal["node", "context"],
+    unsupported_input: Literal["node", "context", "custom_id"],
 ) -> None:
     from polisyos.scientist.orchestration.engine import retry as retry_module
 
@@ -633,6 +701,25 @@ def test_spawn_timeout_refuses_unsupported_inputs_without_process_or_thread_fall
                 marker.write_text("node body ran", encoding="utf-8")
                 return NodeOutcome(status="ok", state=passed_state)
 
+        class WellFormedCustomNode:
+            spec = NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse("scientist.node_custom_timeout_probe@1.0.0"),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    abi_targets={"world_abi": "1.x"},
+                    display_name="CustomTimeoutProbe",
+                    description="Well-formed custom node outside the closed spawn admission set",
+                    tags=["test"],
+                    capabilities=Capability.SCIENTIST_NODE,
+                ),
+                state_reads=[],
+                state_writes=[],
+            )
+
+            def execute(self, _ctx: ExecutionContext, passed_state: ExperimentState) -> NodeOutcome:
+                marker.write_text("node body ran", encoding="utf-8")
+                return NodeOutcome(status="ok", state=passed_state)
+
         node: object = UnsupportedNode()
         worker_ctx = ctx
         expected_reason = "timeout_worker_canonical_node_required"
@@ -640,6 +727,9 @@ def test_spawn_timeout_refuses_unsupported_inputs_without_process_or_thread_fall
             node = ResolveParametersNode()
             worker_ctx = replace(ctx, tracer=object())
             expected_reason = "timeout_worker_optional_context_port_unsupported"
+        elif unsupported_input == "custom_id":
+            node = WellFormedCustomNode()
+            expected_reason = "timeout_worker_node_not_supported"
 
         baseline_store_entries = {path.relative_to(store.root) for path in store.root.rglob("*")}
         process_starts: list[bool] = []

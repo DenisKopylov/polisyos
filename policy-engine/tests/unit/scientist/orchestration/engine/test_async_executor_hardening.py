@@ -13,7 +13,6 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
-from polisyos.scientist.orchestration.engine.errors import WorkflowTimeoutError
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -417,25 +416,6 @@ class TestTierSavepoints:
 
 
 class TestWorkflowTimeout:
-    @pytest.mark.asyncio
-    async def test_workflow_timeout_raises(self):
-        node = _make_node(delay=2.0, node_id="test.slow@1.0.0")
-        registry = _make_registry(("test.slow@1.0.0", node))
-        ctx = _make_ctx()
-        state = ExperimentState(run_id="timeout-test")
-
-        workflow = _make_workflow(
-            NodeInvocation(alias="slow", node_id="test.slow@1.0.0"),
-        )
-
-        executor = AsyncWorkflowExecutor(
-            ctx,
-            registry,
-            workflow_timeout_s=0.1,
-        )
-        with pytest.raises(WorkflowTimeoutError):
-            await executor.execute(workflow, state)
-
     @pytest.mark.asyncio
     async def test_no_timeout_by_default(self):
         node = _make_node(node_id="test.fast@1.0.0")

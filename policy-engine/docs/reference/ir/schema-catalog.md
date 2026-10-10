@@ -21896,7 +21896,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Exported from: `polisyos.ir:GateContext`
 - ABI snapshot: `gate_context` / `schemas/snapshots/ir/gate_context.schema.json`
 - Compatibility mode: `—`
-- References: —
+- References: `polisyos.ir.registry.refs.ArtifactRefModel`
 - Summary: Execution and risk context presented to a governance approver.
 
 | Field | Type | Required | Default | IR refs |
@@ -21911,6 +21911,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `policy_summary` | `str \| NoneType` | `no` | `—` | — |
 | `replay_summary` | `dict[str, Any] \| NoneType` | `no` | `—` | — |
 | `risk_indicators` | `list[str]` | `no` | `—` | — |
+| `selected_replay_refs` | `dict[str, polisyos.ir.registry.refs.ArtifactRefModel] \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
 | `simulation_results` | `dict[str, Any] \| NoneType` | `no` | `—` | — |
 | `transport_summary` | `dict[str, Any] \| NoneType` | `no` | `—` | — |
 | `workflow_id` | `str` | `yes` | `—` | — |
@@ -22000,7 +22001,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 - Kind: `pydantic_model`
 - Public status: `root_facade`
-- Current version: `1.1`
+- Current version: `1.2`
 - Exported from: `polisyos.ir:GateRequest`
 - ABI snapshot: `gate_request` / `schemas/snapshots/ir/gate_request.schema.json`
 - Compatibility mode: `—`
@@ -22016,7 +22017,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `requested_at` | `datetime` | `no` | `—` | — |
 | `requested_by` | `str` | `no` | `'system'` | — |
 | `run_id` | `str` | `yes` | `—` | — |
-| `schema_version` | `str` | `no` | `'1.1'` | — |
+| `schema_version` | `str` | `no` | `'1.2'` | — |
 | `timeout_seconds` | `int \| NoneType` | `no` | `—` | — |
 
 ### `polisyos.ir.governance.gate.GateVerdict` { #polisyos-ir-governance-gate-gateverdict }

@@ -38,7 +38,12 @@ def _load_fixture_builder() -> Callable[..., dict[str, object]]:
 
 def _ensure_policy_engine_import_roots() -> None:
     policy_engine_root = Path(__file__).resolve().parents[3]
-    for root in (policy_engine_root / "src", policy_engine_root, policy_engine_root / "tests"):
+    for root in (
+        policy_engine_root / "src",
+        policy_engine_root,
+        policy_engine_root / "tests",
+        Path(__file__).resolve().parent / "fixture_support",
+    ):
         root_str = str(root)
         if root_str not in sys.path:
             sys.path.insert(0, root_str)
@@ -180,7 +185,7 @@ def _build_source_bound_catalog_profile_fixture(
 ) -> ContextManager[dict[str, object]]:
     """Build the opt-in configured candidate fixture used by one browser witness."""
     _ensure_policy_engine_import_roots()
-    fixture_module = importlib.import_module("_helpers.runtime_api.catalog_profile_source_fixture")
+    fixture_module = importlib.import_module("catalog_profile_source_fixture")
     return fixture_module.source_bound_catalog_profile_fixture(tmp_root)
 
 

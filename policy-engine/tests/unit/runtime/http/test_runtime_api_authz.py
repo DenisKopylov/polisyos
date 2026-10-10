@@ -287,7 +287,10 @@ _EXPECTED_MUTATING_PERMISSIONS = {
         "/api/v1/control/runs/{run_id}/feedback/evaluate",
     ): RuntimePermission.RUNS_FEEDBACK_EVALUATE,
     ("POST", "/api/v1/control/runs/{run_id}/reissue"): RuntimePermission.RUNS_REISSUE,
-    ("POST", "/api/v1/control/runs/{run_id}/normative-evidence"): RuntimePermission.EVIDENCE_RESOLVE,
+    (
+        "POST",
+        "/api/v1/control/runs/{run_id}/normative-evidence",
+    ): RuntimePermission.EVIDENCE_RESOLVE,
     ("POST", "/api/v1/fabric/impact"): RuntimePermission.FABRIC_IMPACT_ANALYZE,
     ("POST", "/api/v1/fabric/quality/batch"): RuntimePermission.FABRIC_QUALITY_READ,
     ("POST", "/api/v1/fabric/trust/batch"): RuntimePermission.FABRIC_TRUST_READ,
@@ -796,7 +799,8 @@ def _authorized_mutation_request(
         )
         client.app.state.runtime_container.runtime_api_context.run_index.refresh(force=True)
         return f"/api/v1/control/runs/{owned_run_id}/normative-evidence", {
-            "job_id": "absent-matrix-job", "expected_prior_head_ref": None,
+            "job_id": "absent-matrix-job",
+            "expected_prior_head_ref": None,
             "evidence": {"by_node": {}},
         }
     if case_id in {"evaluate-run-feedback", "reissue-run"}:
@@ -3524,7 +3528,10 @@ def test_runtime_api_allows_tenant_scoped_access(runtime_api_env) -> None:
 
 
 def test_runtime_api_denies_cross_tenant_run_access(runtime_api_env) -> None:
+    from polisyos.runtime.http.access_audit import RuntimeDataAccessAuditTrail
+
     claims_bearer = _fixture_bearer("b")
+    request_id = "cross-tenant-run-denial-audit"
     client, cell, provider = _build_secure_client(
         runtime_api_env,
         opa_client=_AllowOPA(),
@@ -3544,12 +3551,28 @@ def test_runtime_api_denies_cross_tenant_run_access(runtime_api_env) -> None:
         headers={
             "Authorization": f"Bearer {claims_bearer}",
             "X-Tenant-ID": runtime_api_env["tenant_b"],
+            "X-Request-ID": request_id,
         },
     )
     assert response.status_code == 403
     assert response.headers.get("content-type", "").startswith("application/problem+json")
     payload = response.json()
     assert payload["code"] == "run_tenant_mismatch"
+
+    audit_path = runtime_api_env["cas_root"] / "runtime" / "audit" / "access.jsonl"
+    scan = RuntimeDataAccessAuditTrail(path=audit_path).scan_read_only()
+    assert scan.audit_read_error_count == 0
+    events = [entry for entry in scan.entries if entry.get("request_id") == request_id]
+    assert len(events) == 1
+    event = events[0]
+    assert event["tenant_id"] == runtime_api_env["tenant_b"]
+    assert event["actor"] == "user-1"
+    assert event["method"] == "GET"
+    assert event["endpoint"] == f"/api/v1/runs/{runtime_api_env['core_run_id']}"
+    assert event["resource_kind"] == "runtime.run"
+    assert event["resource_id"] == runtime_api_env["core_run_id"]
+    assert event["outcome"] == "deny"
+    assert event["metadata"] == {"denial_reason": "run_tenant_mismatch"}
 
 
 def test_runtime_api_authz_deny_blocks_endpoint(runtime_api_env) -> None:

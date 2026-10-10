@@ -38,6 +38,7 @@ from polisyos.runtime.quality.design_problem import DesignProblem, DesignProblem
 from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse, GatewayToolCall
 from polisyos.scientist.orchestration.llm.simulated_gateway import SimulatedGatewayLLMClient
 from polisyos.scientist.validation.policy_grounding import build_policy_grounding_matrix_report
+from tests._helpers.runtime_http import _DeterministicSpanSupportClient
 from tools.ops_runners.runtime.canary_evidence import assemble_canary_evidence
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -245,47 +246,6 @@ def _intent_context(**overrides: Any) -> dict[str, Any]:
     }
     payload.update(overrides)
     return payload
-
-
-class _DeterministicSpanSupportClient:
-    def __init__(self, *, decision: str = "entails", confidence: float = 0.93) -> None:
-        self.decision = decision
-        self.confidence = confidence
-        self.calls: list[dict[str, Any]] = []
-
-    async def generate(
-        self,
-        *,
-        messages: list[dict[str, object]],
-        tools: list[dict[str, object]],
-        temperature: float | None = None,
-        seed: int | None = None,
-    ) -> Any:
-        self.calls.append(
-            {
-                "messages": messages,
-                "tools": tools,
-                "temperature": temperature,
-                "seed": seed,
-            }
-        )
-        return SimpleNamespace(
-            content="",
-            model="deterministic-span-support",
-            provider="test-gateway",
-            request_id="span-support-request",
-            tool_calls=[
-                SimpleNamespace(
-                    id="call-span-support",
-                    name="layer3_gy_record_span_support_judgment",
-                    arguments={
-                        "decision": self.decision,
-                        "confidence": self.confidence,
-                        "rationale": "deterministic test judgment",
-                    },
-                )
-            ],
-        )
 
 
 class _FakeDesignProblemGateway:

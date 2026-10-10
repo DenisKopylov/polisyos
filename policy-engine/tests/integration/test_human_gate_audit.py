@@ -4,7 +4,7 @@ import json
 import logging
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.registry import build_default_registry_bundle
@@ -65,10 +65,16 @@ def test_run_governance_emits_gate_request_and_decision_audit(tmp_path) -> None:
     gate_request = pending.state.params["gate_request"]
     gate_request_ref = pending.state.params["gate_request_ref"]
     assert isinstance(gate_request, dict)
-    assert isinstance(gate_request_ref, str)
+    assert isinstance(gate_request_ref, dict)
+    typed_gate_request_ref = ArtifactRef.model_validate(gate_request_ref)
     assert gate_request["reason"] == "governance_profile_requires_approval"
+    assert gate_request["schema_version"] == "1.2"
     assert gate_request["context"]["replay_summary"]["readiness"] == "incomplete"
-    assert store.get_manifest(ArtifactID.model_validate(gate_request_ref)).kind == "ir.gate_request"
+    assert store.get_manifest(typed_gate_request_ref).kind == "ir.gate_request"
+    selected_refs = gate_request["context"]["selected_replay_refs"]
+    assert selected_refs[INPUT_REGISTRY_BUNDLE_REF]["artifact_id"] == str(
+        bundle.bundle_ref.artifact_id
+    )
 
     approved_state = pending.state.model_copy(deep=True)
     approved_state.params["gate_decision"] = {
@@ -80,6 +86,19 @@ def test_run_governance_emits_gate_request_and_decision_audit(tmp_path) -> None:
     approved = node.execute(ctx, approved_state)
 
     assert _load_verdict(store, approved.state) == "approve"
+    decision_manifests = []
+    for artifact_id in store.iter_artifact_ids():
+        manifest = store.get_manifest(artifact_id)
+        if manifest.kind == "ir.gate_decision":
+            decision_manifests.append(manifest)
+    assert len(decision_manifests) == 1
+    assert len(decision_manifests[0].inputs) == 1
+    assert decision_manifests[0].inputs[0].artifact_id == typed_gate_request_ref.artifact_id
+    assert decision_manifests[0].inputs[0].role == "gate_request"
+    assert (
+        decision_manifests[0].inputs[0].manifest_profile_sha256
+        == typed_gate_request_ref.manifest_profile_sha256
+    )
     trace_path = tmp_path / "runs" / "R_gate_audit" / "trace.jsonl"
     trace_events = [
         json.loads(line)["event"] for line in trace_path.read_text("utf-8").splitlines()
@@ -164,8 +183,9 @@ def test_run_governance_strict_literature_blocker_rejects_and_requests_review(tm
     assert "HUMAN_REVIEW_REQUESTED" in issue_codes
 
     review_ref = outcome.state.params.get("human_review_request_ref")
-    assert isinstance(review_ref, str)
-    assert store.get_manifest(ArtifactID.model_validate(review_ref)).kind == "ir.gate_request"
+    assert isinstance(review_ref, dict)
+    typed_review_ref = ArtifactRef.model_validate(review_ref)
+    assert store.get_manifest(typed_review_ref).kind == "ir.gate_request"
     review_request = outcome.state.params.get("human_review_request")
     assert isinstance(review_request, dict)
     assert review_request["reason"] == "strict_human_review"

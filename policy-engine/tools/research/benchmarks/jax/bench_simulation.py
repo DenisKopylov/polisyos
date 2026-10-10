@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Manual throughput benchmark for the current Foundry agent-sim executor."""
 
+# ruff: noqa: E402
+
 from __future__ import annotations
 
 import argparse
@@ -15,16 +17,20 @@ sys.path.insert(0, str(repo_root_from(__file__)))
 
 REPO_ROOT, SRC_ROOT = ensure_repo_import_roots(__file__)
 
+from polisyos.common.jax_env import apply_jax_env_defaults
+
+apply_jax_env_defaults()
+
 import jax
 import jax.numpy as jnp
-import jax_bootstrap  # noqa: F401
 import numpy as np
+
 from polisyos.foundry.agent_sim.executor import PureExecutor
 from polisyos.foundry.agent_sim.mechanisms import TaxationMechanism
 from polisyos.foundry.agent_sim.state import GlobalState
 
 
-def _block_until_ready(result: Any) -> Any:
+def _block_until_ready(result: object) -> object:
     try:
         return jax.block_until_ready(result)
     except Exception:

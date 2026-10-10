@@ -32,6 +32,30 @@ governance constraints должны соблюдаться" до compile/runtime
 | `polisyos.ir.governance.GateRequest`, `GateDecision`, `GateEvent`                       | Нужен typed governance gate protocol                       | [`gate.py`](./gate.py)                   |
 | `polisyos.ir.governance.ValidationReport`                                               | Нужны structured validation diagnostics                    | [`validation.py`](./validation.py)       |
 
+## Replay-bound gate requests
+
+`GateRequest` schema `1.2` carries `GateContext.selected_replay_refs`, a typed
+mapping from every valid `ExperimentState.inputs` key to its complete selected
+artifact reference, including a manifest-profile digest when the caller
+supplied one. Replay-input values that fail their typed contract remain visible
+in `replay_summary.invalid_refs`; their canonical raw-value digests also bind
+malformed-present inputs into request identity, so they are not treated as
+absent. These digests identify supplied values only and do not attest artifact
+authority. Values the canonical encoder cannot represent refuse request
+creation. The request identity includes the selected-view map and gate
+semantics, so changing an input view receives a new request ID. The existing
+`artifact_refs` field remains the display-oriented ID projection.
+
+Schema `1.1` requests remain readable for historical inspection. Governance
+reissues them before admitting a decision because their context cannot bind the
+selected replay views. A missing profile digest remains absent; the gate does
+not synthesize a profile attestation.
+
+The generated `GateRequest` JSON Schema enforces the same versioned rule as the
+runtime model: schema `1.2` requires a present, non-null `selected_replay_refs`
+map, while legacy `1.1` payloads may omit it. If `schema_version` is omitted,
+the default is `1.2`, so the selected-view requirement still applies.
+
 ## Depends on / depended on by
 
 - Depends on: [`../kernel/README.md`](../kernel/README.md), [`../observation/README.md`](../observation/README.md) for observation-aware metadata and mappings.

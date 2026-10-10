@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.scholar.search.models import WebEvidenceBundle
+from polisyos.scholar.search import validate_web_evidence_source_binding
 from polisyos.scientist.evidence.claim_support import validate_claim_support_links
 from polisyos.scientist.evidence.safe_fetch import detect_prompt_injection
-from polisyos.scientist.evidence.snippet_ledger import validate_snippet_spans
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.scholar.search.models import WebEvidenceBundle
 
 
 class EvidenceVerificationResult(BaseModel):
@@ -24,6 +29,7 @@ class EvidenceVerificationResult(BaseModel):
 def verify_web_evidence_bundle(
     bundle: WebEvidenceBundle,
     *,
+    cas: ArtifactStore | None = None,
     require_claim_support: bool = False,
 ) -> EvidenceVerificationResult:
     """Check bundle integrity without doing live web or LLM work."""
@@ -38,9 +44,9 @@ def verify_web_evidence_bundle(
     if len(snippet_ids) != len(set(snippet_ids)):
         violations.append("duplicate_snippet_id")
 
-    span_result = validate_snippet_spans(bundle.snippets)
-    violations.extend(span_result.violations)
-    warnings.extend(span_result.warnings)
+    source_binding = validate_web_evidence_source_binding(bundle, cas=cas)
+    violations.extend(source_binding.violations)
+    warnings.extend(source_binding.warnings)
     violations.extend(validate_claim_support_links(bundle))
 
     if require_claim_support and bundle.snippets and not bundle.claim_supports:
@@ -48,9 +54,11 @@ def verify_web_evidence_bundle(
 
     safety_event_types = {event.event_type for event in bundle.fetch_safety_events}
     for snippet in bundle.snippets:
-        if detect_prompt_injection(snippet.text, url=str(snippet.url)):
-            if "prompt_injection_suspected" not in safety_event_types:
-                warnings.append(f"prompt_injection_text_without_safety_event:{snippet.snippet_id}")
+        if (
+            detect_prompt_injection(snippet.text, url=str(snippet.url))
+            and "prompt_injection_suspected" not in safety_event_types
+        ):
+            warnings.append(f"prompt_injection_text_without_safety_event:{snippet.snippet_id}")
 
     quality_source_ids = {signal.source_id for signal in bundle.source_quality_signals}
     for source_id in quality_source_ids:
@@ -67,6 +75,13 @@ def verify_web_evidence_bundle(
             "claim_support_count": len(bundle.claim_supports),
             "fetch_safety_event_count": len(bundle.fetch_safety_events),
             "source_quality_signal_count": len(bundle.source_quality_signals),
+            "source_binding_status": (
+                "verified"
+                if bundle.snippets and source_binding.passed
+                else "not_established"
+                if bundle.snippets
+                else "not_applicable"
+            ),
         },
     )
 
@@ -74,12 +89,14 @@ def verify_web_evidence_bundle(
 def assert_web_evidence_bundle_valid(
     bundle: WebEvidenceBundle,
     *,
+    cas: ArtifactStore | None = None,
     require_claim_support: bool = False,
 ) -> None:
     """Raise ValueError if a bundle fails Scientist evidence verification."""
 
     result = verify_web_evidence_bundle(
         bundle,
+        cas=cas,
         require_claim_support=require_claim_support,
     )
     if not result.passed:

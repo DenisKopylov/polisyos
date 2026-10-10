@@ -53,6 +53,13 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 
 
+def test_node_and_baseline_resolver_keep_the_canonical_module_identity() -> None:
+    canonical_module = "polisyos.scientist.nodes.builtins.simulate.run_distributional_analysis"
+
+    assert RunDistributionalAnalysisNode.__module__ == canonical_module
+    assert _resolve_baseline_snapshot_ref.__module__ == canonical_module
+
+
 def _state_with_income(
     incomes: list[float],
     *,

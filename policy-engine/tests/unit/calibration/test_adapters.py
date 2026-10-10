@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+from typing import get_type_hints
+
 from polisyos.calibration import evaluate_binary, evaluate_multiclass, to_validation_report
+from polisyos.ir.analytics.calibration_diagnostics import CalibrationDiagnosticsReport
 
 
 def test_to_validation_report_projects_threshold_findings_and_payload() -> None:
@@ -46,3 +50,13 @@ def test_to_validation_report_includes_multiclass_summary_sections() -> None:
     payload = report.normalized_payload["calibration"]
     assert payload["primary_curve_bins"]
     assert set(payload["per_class"]) == {"0", "1", "2"}
+
+
+def test_public_calibration_annotations_resolve_at_runtime() -> None:
+    binary_hints = get_type_hints(evaluate_binary)
+    multiclass_hints = get_type_hints(evaluate_multiclass)
+    adapter_hints = get_type_hints(to_validation_report)
+
+    assert binary_hints["y_true"] == Sequence[float]
+    assert multiclass_hints["y_true"] == Sequence[int | str]
+    assert adapter_hints["diagnostics"] is CalibrationDiagnosticsReport

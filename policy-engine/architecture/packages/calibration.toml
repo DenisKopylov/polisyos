@@ -90,15 +90,6 @@ owner = "team-scientist"
 registries = ["architecture/tooling/static_analysis_overrides.toml", "architecture/component_observability.toml"]
 
 [[exception]]
-id = "calibration-ruff-package-ratchet"
-owner = "team-scientist"
-kind = "lint_ratchet"
-reason = "Calibration compatibility ignores remain visible until package ownership is fully split."
-sunset = "2026-10-01"
-issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
-registry = "architecture/tooling/static_analysis_overrides.toml"
-
-[[exception]]
 id = "calibration-standalone-slo-deferred"
 owner = "team-scientist"
 kind = "slo_exception"

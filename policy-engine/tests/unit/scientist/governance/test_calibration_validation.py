@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import json
 
+import pandas as pd
+
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.ir.analytics.distributional import TailRiskDeltaEntry, TailRiskDeltaSummary
 from polisyos.ir.analytics.fairness import CausalFairnessReport, FairnessDecomposition
 from polisyos.ir.analytics.interference import (
@@ -16,6 +20,13 @@ from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatib
 from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
 from polisyos.scientist.governance.accountability import GovernanceAccountabilityInput
 from polisyos.scientist.governance.backtest_matrix import BacktestKind
+from polisyos.scientist.governance.blueprint_release import (
+    REQUIRED_SIGNOFF_FAMILIES,
+    CalibrationRunRunner,
+    FamilyEligibilityEntry,
+    FamilyEligibilityRegistry,
+    FamilyTier,
+)
 from polisyos.scientist.governance.calibration import (
     CalibrationAdversarialResult,
     CalibrationGovernanceReport,
@@ -33,12 +44,61 @@ from polisyos.scientist.methods.discovery.utility_judge import (
 from polisyos.scientist.methods.search.lessons import LessonQuery, LessonRegistry, load_lesson_card
 
 
-def _artifact_ref(seed: str) -> ArtifactRef:
-    return ArtifactRef(
-        artifact_id=f"sha256:{seed * 64}",
-        kind="scientist.test",
-        media_type="application/json",
+def _persist_calibration_candidate(store: FileSystemCAS) -> ArtifactRef:
+    """Persist the selected score emitted by the existing calibration producer."""
+    panel = pd.DataFrame(
+        [
+            {
+                "family": family.value,
+                "period_start": period,
+                "observed_value": value,
+                "trust_weight": 1.0,
+            }
+            for family in REQUIRED_SIGNOFF_FAMILIES
+            for period, value in (
+                ("2023-03-01", 1.0),
+                ("2023-09-01", 1.5),
+                ("2024-06-01", 2.0),
+                ("2025-06-01", 2.5),
+            )
+        ]
     )
+    eligibility = FamilyEligibilityRegistry(
+        coverage_threshold=1.0,
+        families={
+            family.value: FamilyEligibilityEntry(
+                family=family,
+                tier=FamilyTier.A,
+                eligible_for_scoring=True,
+                exact_signoff_eligible=True,
+                observations_present=4,
+                coverage_ratio=1.0,
+            )
+            for family in REQUIRED_SIGNOFF_FAMILIES
+        },
+    )
+    run = CalibrationRunRunner().run(
+        panel,
+        eligibility_registry=eligibility,
+        splits={
+            "train_pre_2024": {"start": "2023-01-01", "end": "2023-12-31"},
+            "validation_2024": {"start": "2024-01-01", "end": "2024-12-31"},
+            "test_2025": {"start": "2025-01-01", "end": "2025-12-31"},
+        },
+        transportability_score=0.8,
+        strategic_plausibility=0.8,
+        governance_penalty=0.1,
+        interference_fit_score=0.8,
+    )
+    candidate = next(
+        item for item in run.candidates if item.candidate_id == run.selected_candidate_id
+    )
+    persisted_ref = store.put_json(
+        candidate.model_dump(mode="json"),
+        PutOptions(kind="scientist.calibration_candidate", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return ArtifactRef.model_validate(persisted_ref.model_dump(mode="python"))
 
 
 def _governance_report() -> CalibrationGovernanceReport:
@@ -183,7 +243,7 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
     result = runner.run(
         CalibrationValidationRunnerInput(
             run_id="R_c5b_full",
-            candidate_ref=_artifact_ref("a"),
+            candidate_ref=_persist_calibration_candidate(cas_store),
             governance_report=_governance_report(),
             calibration_fit_score=0.91,
             backtest_plan_bundles={kind: _plan_bundle(tmp_path, kind) for kind in BacktestKind},
@@ -240,7 +300,7 @@ def test_calibration_validation_runner_blocks_eligibility_on_missing_transport_a
     result = runner.run(
         CalibrationValidationRunnerInput(
             run_id="R_c5b_gaps",
-            candidate_ref=_artifact_ref("b"),
+            candidate_ref=_persist_calibration_candidate(cas_store),
             governance_report=_governance_report(),
             calibration_fit_score=0.9,
             backtest_plan_bundles={kind: _plan_bundle(tmp_path, kind) for kind in BacktestKind},

@@ -45,8 +45,94 @@ def _build_slice0_catalog(tmp_path: Path):
     return build_slice0_fixture_catalog_graph(tmp_path)
 
 
-def _launch_owner_bound_workflow(runtime_api_env, request: WorkflowRunRequest):
-    """Use the fixture's admitted storage owner for a controller positive control."""
+def _put_tenant_owned_json_artifact(
+    service: ControlPlaneService,
+    payload: object,
+    *,
+    tenant_id: str,
+    cell_id: str,
+    kind: str,
+    schema_name: str,
+    schema_version: str,
+    inputs=None,
+):
+    from polisyos.core.artifacts.manifest import (
+        ArtifactTenantContextInfo,
+        ProducerInfo,
+        SchemaInfo,
+    )
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+    from polisyos.core.canon import CanonSpec
+
+    store = service._artifact_store  # noqa: SLF001
+    ref = store.put_json(
+        payload,
+        ArtifactWriteOptions(
+            kind=kind,
+            media_type="application/json",
+            schema=SchemaInfo(name=schema_name, version=schema_version),
+            producer=ProducerInfo(
+                component="polisyos.tests.workspace_loop_transition",
+                version="1.0",
+            ),
+            inputs=inputs,
+            tenant_context=ArtifactTenantContextInfo(
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    store.record_artifact_owner(
+        ref.artifact_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        writer="tests.unit.runtime.http.test_workspace_loop_transition",
+    )
+    return ref
+
+
+def _owner_bound_data_snapshot_ref(
+    service: ControlPlaneService,
+    *,
+    tenant_id: str,
+    cell_id: str,
+    params: dict[str, object],
+):
+    from polisyos.core.artifacts.manifest import input_ref_from_artifact_ref
+    from polisyos.core.contracts.fabric import DataSnapshot
+
+    source_ref = _put_tenant_owned_json_artifact(
+        service,
+        {"source": "workspace_loop_control_fixture", "params": params},
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        kind="fabric.retrieval_payload",
+        schema_name="polisyos.fabric.RetrievalPayload",
+        schema_version="1.0",
+    )
+    snapshot = DataSnapshot(
+        data_ref=source_ref,
+        stats={"source": "workspace_loop_control_fixture"},
+        notes=["tenant-bound workspace-loop test input"],
+    )
+    return _put_tenant_owned_json_artifact(
+        service,
+        snapshot,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        kind="fabric.data_snapshot",
+        schema_name="polisyos.core.DataSnapshot",
+        schema_version="0.2.0",
+        inputs=[input_ref_from_artifact_ref(source_ref, role="data_ref")],
+    )
+
+
+def _launch_owner_bound_workflow(
+    runtime_api_env,
+    request: WorkflowRunRequest,
+):
+    """Use a tenant-owned DataSnapshot and source edge for a controller positive control."""
     service: ControlPlaneService = runtime_api_env["app"].state._control_service
     stop_embedded_control_worker(service)
     principal = RuntimePrincipal(
@@ -61,17 +147,16 @@ def _launch_owner_bound_workflow(runtime_api_env, request: WorkflowRunRequest):
         tenant_id=principal.tenant_id,
         cell_id=principal.cell_id,
     ):
-        # The shared fixture's root blob is not an admitted tenant input. Create
-        # a controlled input through the supplied store with this exact owner.
-        input_ref = service._put_json_artifact(  # noqa: SLF001
-            {"candidate_input": "owner-bound-workspace-control", "params": request.params},
-            kind="test.owner_bound_workspace_input",
-            schema_name="test.OwnerBoundWorkspaceInput",
+        snapshot_ref = _owner_bound_data_snapshot_ref(
+            service,
+            tenant_id=principal.tenant_id,
+            cell_id=principal.cell_id,
+            params=request.params,
         )
         request = request.model_copy(
             update={
                 "data_source": request.data_source.model_copy(
-                    update={"data_snapshot_ref": input_ref}
+                    update={"data_snapshot_ref": str(snapshot_ref.artifact_id)}
                 )
             }
         )
@@ -231,8 +316,195 @@ def _assert_surface_packet_consumes_boundary(
         assert row["authority_refs"]["authority_boundary"] == boundary["boundary_id"]
 
 
-def test_workflow_request_defaults_to_workspace_loop_transition(runtime_api_env) -> None:
+def test_workspace_loop_input_reader_rejects_missing_kind_from_valid_ref(runtime_api_env) -> None:
+    from polisyos.core.artifacts.manifest import ArtifactRef
+
     service: ControlPlaneService = runtime_api_env["app"].state._control_service
+    typed_ref = ArtifactRef(
+        artifact_id=runtime_api_env["data_snapshot_artifact_id"],
+        kind="fabric.data_snapshot",
+        media_type="application/json",
+    )
+    input_payload = typed_ref.model_dump(mode="json")
+    del input_payload["kind"]
+    state_payload = {"inputs": {"data_snapshot_ref": input_payload}}
+
+    with (
+        tenant_scope(
+            None,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        ),
+        pytest.raises(ValueError, match="workspace_loop_input_ref_invalid"),
+    ):
+        service._resolved_input_artifact_payloads(state_payload)  # noqa: SLF001
+
+
+def test_workspace_loop_input_reader_rejects_kind_from_another_slot(runtime_api_env) -> None:
+    service: ControlPlaneService = runtime_api_env["app"].state._control_service
+    with tenant_scope(
+        None,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    ):
+        unrelated_ref = _put_tenant_owned_json_artifact(
+            service,
+            {"payload": "not a snapshot"},
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+            kind="test.workspace_loop_unrelated_input",
+            schema_name="test.WorkspaceLoopUnrelatedInput",
+            schema_version="1.0",
+        )
+        state_payload = {
+            "inputs": {
+                "data_snapshot_ref": unrelated_ref.model_dump(mode="json"),
+            }
+        }
+        with pytest.raises(ValueError, match="workspace_loop_input_kind_mismatch"):
+            service._resolved_input_artifact_payloads(state_payload)  # noqa: SLF001
+
+
+def test_workspace_loop_input_reader_preserves_selected_profile(
+    runtime_api_env, monkeypatch
+) -> None:
+    from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+    from polisyos.core.canon import CanonSpec
+    from polisyos.core.contracts.fabric import DataSnapshot
+
+    service: ControlPlaneService = runtime_api_env["app"].state._control_service
+    tenant_id = runtime_api_env["tenant_a"]
+    cell_id = runtime_api_env["cell_a"]
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        source_ref = _put_tenant_owned_json_artifact(
+            service,
+            {"source": "selected-profile-source"},
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            kind="fabric.retrieval_payload",
+            schema_name="polisyos.fabric.RetrievalPayload",
+            schema_version="1.0",
+        )
+        snapshot = DataSnapshot(data_ref=source_ref)
+        store = service._artifact_store  # noqa: SLF001
+        store.put_json(
+            snapshot,
+            ArtifactWriteOptions(
+                kind="fabric.data_snapshot",
+                media_type="application/json",
+                schema=SchemaInfo(name="test.InvalidSnapshotSchema", version="1.0"),
+                producer=None,
+                tenant_context=None,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        selected_ref = _put_tenant_owned_json_artifact(
+            service,
+            snapshot,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            kind="fabric.data_snapshot",
+            schema_name="polisyos.core.DataSnapshot",
+            schema_version="0.2.0",
+            inputs=[input_ref_from_artifact_ref(source_ref, role="data_ref")],
+        )
+        assert selected_ref.manifest_profile_sha256 is not None
+        seen_profiles: list[str | None] = []
+        original_get_manifest = store.get_manifest
+
+        def capture_manifest(ref):
+            if str(ref.artifact_id) == str(selected_ref.artifact_id):
+                seen_profiles.append(ref.manifest_profile_sha256)
+            return original_get_manifest(ref)
+
+        monkeypatch.setattr(store, "get_manifest", capture_manifest)
+        state_payload = {"inputs": {"data_snapshot_ref": selected_ref.model_dump(mode="json")}}
+        payloads = service._resolved_input_artifact_payloads(state_payload)  # noqa: SLF001
+
+    assert seen_profiles
+    assert set(seen_profiles) == {selected_ref.manifest_profile_sha256}
+    assert DataSnapshot.model_validate(payloads[str(selected_ref.artifact_id)]) == snapshot
+
+
+def test_workspace_loop_input_reader_rejects_selected_ref_from_wrong_cell_even_with_params(
+    runtime_api_env,
+) -> None:
+    from polisyos.core.artifacts import ArtifactOwnershipError
+
+    service: ControlPlaneService = runtime_api_env["app"].state._control_service
+    tenant_id = runtime_api_env["tenant_a"]
+    cell_id = runtime_api_env["cell_a"]
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        selected_ref = _owner_bound_data_snapshot_ref(
+            service,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            params={"fixture_id": "wrong-cell-input-control"},
+        )
+    state_payload = {
+        "inputs": {"data_snapshot_ref": selected_ref.model_dump(mode="json")},
+        "params": {"tenant_id": tenant_id, "cell_id": cell_id},
+    }
+
+    with (
+        tenant_scope(None, tenant_id=tenant_id, cell_id=f"{cell_id}-wrong"),
+        pytest.raises(ArtifactOwnershipError),
+    ):
+        service._resolved_input_artifact_payloads(state_payload)  # noqa: SLF001
+
+
+def test_workspace_loop_authority_payload_refuses_missing_active_tenant(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.security import TenantContextNotSetError
+
+    store = FileSystemCAS(tmp_path / "cas")
+    loop = workspace_loop_module.WorkspaceLoop(artifact_store=store)
+    payload = {"fixture_id": "missing-scope"}
+    expected_artifact_id = workspace_loop_module.gy_content_hash(payload)
+
+    with clear_tenant_context(), pytest.raises(TenantContextNotSetError):
+        loop._persist_loop_payload(  # noqa: SLF001
+            payload,
+            kind="test.workspace_loop_scope_refusal",
+        )
+
+    assert not store.has(expected_artifact_id)
+
+
+def test_workflow_request_defaults_to_workspace_loop_transition(
+    runtime_api_env, monkeypatch
+) -> None:
+    from polisyos.core.security import get_current_cell_id, get_current_tenant_id_or_none
+    from polisyos.runtime.http.services.control import artifacts as control_artifacts
+
+    service: ControlPlaneService = runtime_api_env["app"].state._control_service
+    writer_diagnostics = []
+    original_write_authority_artifact = control_artifacts.write_authority_artifact
+
+    def trace_authority_write(store, payload, opts, **authority_fields):
+        diagnostic = {
+            "active_tenant": get_current_tenant_id_or_none(),
+            "active_cell": get_current_cell_id(),
+            "store_tenant": getattr(store, "_tenant_id", None),
+            "store_cell": getattr(store, "_cell_id", None),
+            "writer_tenant": authority_fields.get("tenant_id"),
+            "writer_cell": authority_fields.get("cell_id"),
+            "closure_tenant": authority_fields.get("same_input_closure", {}).get("tenant_id"),
+            "closure_cell": authority_fields.get("same_input_closure", {}).get("cell_id"),
+        }
+        try:
+            result = original_write_authority_artifact(store, payload, opts, **authority_fields)
+        except Exception as exc:
+            diagnostic["error"] = f"{type(exc).__name__}: {exc}"
+            writer_diagnostics.append(diagnostic)
+            raise
+        writer_diagnostics.append(diagnostic)
+        return result
+
+    monkeypatch.setattr(control_artifacts, "write_authority_artifact", trace_authority_write)
     request = WorkflowRunRequest(
         data_source={"data_snapshot_ref": runtime_api_env["root_artifact_id"]},
         params={"slice0_fixture_id": "ua_msme_credit_worldbank_measurement"},
@@ -243,7 +515,10 @@ def test_workflow_request_defaults_to_workspace_loop_transition(runtime_api_env)
     service._worker.dispatch_once()
 
     response = _await_terminal_job(service, launch.job_id)
-    assert response.state == "completed"
+    assert response.state == "completed", (
+        f"{response.progress.get('failure', {}).get('message')}; "
+        f"authority_writes={writer_diagnostics!r}"
+    )
     assert response.progress["authority_path"] == "workspace_loop"
     assert response.progress["authority_result"] == "verifier_stamped"
     assert response.progress["search_exit_contract_ref"].startswith("sha256:")
@@ -256,10 +531,14 @@ def test_workflow_request_defaults_to_workspace_loop_transition(runtime_api_env)
     assert proof.endpoint == "/api/v1/control/runs"
     assert proof.legacy_path_disposition == "routed_to_workspace_loop"
     assert proof.output_search_exit_contract_ref == response.progress["search_exit_contract_ref"]
-    assert "runs_readback" in proof.surface_reads_checked
+    assert "control_store_current_execution_completed_job_record" in proof.surface_reads_checked
+    assert "served_control_job_status_not_established" in proof.surface_reads_checked
+    assert "runs_readback" not in proof.surface_reads_checked
     assert proof.surface_readbacks
     readback = proof.surface_readbacks[0]
-    assert readback["surface"] == "/api/v1/control/runs"
+    assert readback["surface"] == "control_plane_store"
+    assert readback["read_method"] == "ControlPlaneStore.current_execution_completed_job_record"
+    assert readback["requested_endpoint"] == "/api/v1/control/runs"
     assert readback["observed_job_state"] == "completed"
     assert (
         readback["observed_search_exit_contract_ref"]
@@ -267,8 +546,44 @@ def test_workflow_request_defaults_to_workspace_loop_transition(runtime_api_env)
     )
     assert readback["matched_search_exit_contract_ref"] is True
 
+    exit_payload = response.progress["search_exit_contract"]
+    assert isinstance(exit_payload, dict)
+    workspace_contract_ref = exit_payload["workspace_contract_ref"]
+    tenant_id = runtime_api_env["tenant_a"]
+    cell_id = runtime_api_env["cell_a"]
+    store = service._artifact_store  # noqa: SLF001
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        workspace_manifest = store.get_manifest(workspace_contract_ref)
+        assert workspace_manifest.tenant_context is not None
+        assert workspace_manifest.tenant_context.tenant_id == tenant_id
+        assert workspace_manifest.tenant_context.cell_id == cell_id
+        assert workspace_manifest.same_input_closure is not None
+        assert workspace_manifest.same_input_closure.tenant_id == tenant_id
+        assert workspace_manifest.same_input_closure.cell_id == cell_id
+        assert workspace_manifest.authority is not None
 
-def test_completed_job_readback_does_not_write_while_worker_finalizes_proof(
+        authority_envelope = json.loads(
+            store.get_bytes(workspace_manifest.authority.authority_envelope_ref)
+        )
+        assert authority_envelope["tenant_id"] == tenant_id
+        assert authority_envelope["cell_id"] == cell_id
+        attestation_ref = authority_envelope["attestation_ref"]
+        attestation_manifest = store.get_manifest(attestation_ref)
+        assert attestation_manifest.tenant_context is not None
+        assert attestation_manifest.tenant_context.tenant_id == tenant_id
+        assert attestation_manifest.tenant_context.cell_id == cell_id
+        assert store.verify(attestation_ref).ok
+        attestation = json.loads(store.get_bytes(attestation_ref))
+
+    assert attestation["environment_identity"]["tenant_id"] == tenant_id
+    assert attestation["environment_identity"]["cell_id"] == cell_id
+    assert any(
+        material["key"] == "tenant_identity" and material["ref"] == tenant_id
+        for material in attestation["observed_materials"]
+    )
+
+
+def test_control_store_job_status_read_does_not_write_while_worker_finalizes_proof(
     runtime_api_env,
     monkeypatch,
 ) -> None:
@@ -303,12 +618,16 @@ def test_completed_job_readback_does_not_write_while_worker_finalizes_proof(
         runtime_api_env,
         WorkflowRunRequest(
             data_source={"data_snapshot_ref": runtime_api_env["root_artifact_id"]},
-            params={"slice0_fixture_id": "ua_msme_credit_worldbank_measurement"},
+            params={"slice0_fixture_id": "tourism_local_development_ceiling_probe"},
         ),
     )
     dispatch_thread.start()
     try:
-        assert finalizer_entered.wait(15), "worker never reached post-completion finalization"
+        assert finalizer_entered.wait(15), (
+            "worker never reached post-completion finalization; "
+            f"worker_done={worker_done.is_set()}, errors={worker_errors!r}, "
+            f"job={service._control_store.get_job(launch.job_id)!r}"
+        )
         before = service._control_store.get_job(launch.job_id)
         assert before is not None and before.state == "completed"
         with clear_tenant_context():
@@ -321,7 +640,10 @@ def test_completed_job_readback_does_not_write_while_worker_finalizes_proof(
         pending_proof = ProductionLoopRunProof.model_validate(
             response.progress["production_loop_run_proof"]
         )
-        assert "runs_readback" not in pending_proof.surface_reads_checked
+        assert "control_store_current_execution_completed_job_record" not in (
+            pending_proof.surface_reads_checked
+        )
+        assert "served_control_job_status_not_established" in pending_proof.surface_reads_checked
         assert not pending_proof.surface_readbacks
         assert not worker_done.is_set()
     finally:
@@ -332,6 +654,12 @@ def test_completed_job_readback_does_not_write_while_worker_finalizes_proof(
     final = service.get_job_status(launch.job_id)
     final_proof = ProductionLoopRunProof.model_validate(final.progress["production_loop_run_proof"])
     assert final_proof.control_store_state_transitions == ["pending", "running", "completed"]
+    assert "served_control_job_status_not_established" in final_proof.surface_reads_checked
+    assert final_proof.surface_readbacks[0]["surface"] == "control_plane_store"
+    assert (
+        final_proof.surface_readbacks[0]["read_method"]
+        == "ControlPlaneStore.current_execution_completed_job_record"
+    )
     assert final_proof.surface_readbacks[0]["observed_job_state"] == "completed"
     assert final_proof.surface_readbacks[0]["matched_search_exit_contract_ref"] is True
 
@@ -400,7 +728,7 @@ def test_unclaimed_candidate_worker_carries_limitation_to_served_readback(
     reads: list[tuple[str | None, str | None, object]] = []
     original_load = service._load_payload_ref  # noqa: SLF001
 
-    def observe_worker_scope(ref: str):
+    def observe_worker_scope(ref: str, *, kind: str):
         reads.append(
             (
                 get_current_tenant_id_or_none(),
@@ -408,7 +736,7 @@ def test_unclaimed_candidate_worker_carries_limitation_to_served_readback(
                 get_current_access_scope_or_none(),
             )
         )
-        return original_load(ref)
+        return original_load(ref, kind=kind)
 
     monkeypatch.setattr(service, "_load_payload_ref", observe_worker_scope)
     transition_calls: list[dict[str, object]] = []
@@ -800,7 +1128,7 @@ def test_http_control_route_persists_production_and_replay_proofs(
     capture = {"active": True}
     original_load_payload = service._load_payload_ref
 
-    def capture_job_reads(ref: str):
+    def capture_job_reads(ref: str, *, kind: str):
         if capture["active"] and ref in {job.payload_ref, job.capability_manifest_ref}:
             reads.append(
                 (
@@ -810,7 +1138,7 @@ def test_http_control_route_persists_production_and_replay_proofs(
                     get_current_access_scope_or_none(),
                 )
             )
-        return original_load_payload(ref)
+        return original_load_payload(ref, kind=kind)
 
     monkeypatch.setattr(service, "_load_payload_ref", capture_job_reads)
     poison = AccessScope.for_service(
@@ -1743,19 +2071,19 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
         binding_results: list[dict[str, object]] = []
         read_events: list[str] = []
 
-        def capture_job_artifact_read(ref: str):
+        def capture_job_artifact_read(ref: str, *, kind: str):
             if ref in {job.payload_ref, job.capability_manifest_ref}:
-                kind = "payload" if ref == job.payload_ref else "manifest"
-                read_events.append(kind)
+                read_kind = "payload" if ref == job.payload_ref else "manifest"
+                read_events.append(read_kind)
                 reads.append(
                     (
-                        kind,
+                        read_kind,
                         get_current_tenant_id_or_none(),
                         get_current_cell_id(),
                         get_current_access_scope_or_none(),
                     )
                 )
-            return original_load(ref)
+            return original_load(ref, kind=kind)
 
         def capture_execution_binding(**kwargs):
             result = original_require_binding(**kwargs)
@@ -1874,7 +2202,9 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
         assert compiler_context["job_id"] == job.job_id
         assert compiler_context["run_id"] == str(job.run_id)
         with tenant_scope(None, tenant_id=admitted_tenant, cell_id=cell_id):
-            persisted_request = original_load(str(job.payload_ref))
+            persisted_request = original_load(
+                str(job.payload_ref), kind="runtime.control_job_payload.natural_language_run"
+            )
         assert persisted_request["context"]["tenant_id"] == "tenant-request-foreign"
         assert (
             persisted_request["context"]["runtime_identity"]["cell_id"]
@@ -1884,3 +2214,508 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
         assert proposal.proposal.limitation_code == "cycle_substrate_context_unavailable"
     finally:
         client.close()
+
+
+def test_declared_legacy_production_case_id_persists_as_profileless_input(runtime_api_env) -> None:
+    from polisyos.core.artifacts.manifest import ArtifactRef
+
+    service: ControlPlaneService = runtime_api_env["app"].state._control_service
+    intake_id = "sha256:" + "a" * 64
+    request = WorkflowRunRequest(
+        data_source={"data_snapshot_ref": runtime_api_env["root_artifact_id"]},
+        production_case_intake_ref=intake_id,
+        params={"slice0_fixture_id": "ua_msme_credit_worldbank_measurement"},
+    )
+    launch = _launch_owner_bound_workflow(runtime_api_env, request)
+    job = service._control_store.get_job(launch.job_id)  # noqa: SLF001
+    assert job is not None and job.payload_ref is not None
+    with tenant_scope(
+        None,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    ):
+        payload = service._load_payload_ref(  # noqa: SLF001
+            job.payload_ref,
+            kind="runtime.control_job_payload.workflow_run",
+        )
+    selected_ref = ArtifactRef.model_validate(
+        payload["state_payload"]["inputs"]["production_case_intake_ref"]
+    )
+    assert str(selected_ref.artifact_id) == intake_id
+    assert selected_ref.kind == "gy.loop.proof.root"
+    assert selected_ref.media_type == "application/json"
+    assert selected_ref.manifest_profile_sha256 is None
+
+
+def test_workspace_loop_actual_production_case_intake_runs_as_candidate_a_spec_gap(
+    runtime_api_env,
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    from polisyos.core.artifacts import ArtifactOwnershipError
+    from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+    from polisyos.core.canon import CanonSpec, from_canonical_bytes
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.container import RuntimeContainerOverrides
+    from polisyos.runtime.quality.workspace.loop import (
+        WorkspaceLoop,
+        resolve_production_case_admission,
+    )
+    from tests.unit.runtime.http.test_runtime_api_authz import (
+        _AllowOPA,
+        _build_secure_client,
+        _claims,
+        _fixture_bearer,
+    )
+    from tests.unit.runtime.quality.workspace.test_production_case_admission import (
+        actual_pinned_intake_payload,
+    )
+
+    api_service: ControlPlaneService = runtime_api_env["app"].state._control_service
+    runtime_container = runtime_api_env["app"].state.runtime_container
+    tenant_id = runtime_api_env["tenant_a"]
+    bearer = _fixture_bearer("workspace-production-case-a-spec-gap")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        container_overrides=RuntimeContainerOverrides(
+            runtime_api_context=runtime_container.runtime_api_context,
+            control_service=api_service,
+            decision_validity_service=api_service._decision_validity_service,  # noqa: SLF001
+            claim_ledger_owner=api_service._epoch_claim_lifecycle_bridge.claim_owner,  # noqa: SLF001
+            epoch_claim_lifecycle_bridge=api_service._epoch_claim_lifecycle_bridge,  # noqa: SLF001
+        ),
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=tenant_id,
+            cell_id=cell.cell_id,
+            jti="workspace-production-case-a-spec-gap",
+        ),
+    )
+
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell.cell_id):
+        production_payload = actual_pinned_intake_payload()
+        # Keep a different profile as the default for identical bytes, then
+        # explicitly select the valid, tenant-owned request view below.
+        api_service._artifact_store.put_json(  # noqa: SLF001
+            production_payload,
+            ArtifactWriteOptions(
+                kind="gy.loop.proof.root",
+                media_type="application/json",
+                schema=SchemaInfo(name="test.InvalidProductionIntakeView", version="1.0"),
+                producer=ProducerInfo(component="test.alternate_intake_view", version="1"),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        intake_ref = _put_tenant_owned_json_artifact(
+            api_service,
+            production_payload,
+            tenant_id=tenant_id,
+            cell_id=cell.cell_id,
+            kind="gy.loop.proof.root",
+            schema_name="polisyos.gy.loop.proof.root",
+            schema_version="1.0",
+        )
+        assert intake_ref.manifest_profile_sha256 is not None
+        snapshot_ref = _owner_bound_data_snapshot_ref(
+            api_service,
+            tenant_id=tenant_id,
+            cell_id=cell.cell_id,
+            params={"fixture_id": production_payload["scope_source_fixture_id"]},
+        )
+
+    store = api_service._artifact_store  # noqa: SLF001
+    before_denied_reads = {str(artifact_id) for artifact_id in store.iter_artifact_ids()}
+    with (
+        tenant_scope(
+            None,
+            tenant_id=runtime_api_env["tenant_b"],
+            cell_id="cell-b",
+        ),
+        pytest.raises(ArtifactOwnershipError),
+    ):
+        WorkspaceLoop(
+            catalog_graph=api_service._registry_providers.gy_catalog_graph,  # noqa: SLF001
+            artifact_store=store,
+        ).run_production_case(
+            request_ref=intake_ref,
+            fixture_id=production_payload["scope_source_fixture_id"],
+        )
+    with clear_tenant_context(), pytest.raises(ArtifactOwnershipError):
+        WorkspaceLoop(
+            catalog_graph=api_service._registry_providers.gy_catalog_graph,  # noqa: SLF001
+            artifact_store=store,
+        ).run_production_case(
+            request_ref=intake_ref,
+            fixture_id=production_payload["scope_source_fixture_id"],
+        )
+    with (
+        tenant_scope(
+            None,
+            tenant_id=tenant_id,
+            cell_id=f"{cell.cell_id}-wrong",
+        ),
+        pytest.raises(ArtifactOwnershipError),
+    ):
+        WorkspaceLoop(
+            catalog_graph=api_service._registry_providers.gy_catalog_graph,  # noqa: SLF001
+            artifact_store=store,
+        ).run_production_case(
+            request_ref=intake_ref,
+            fixture_id=production_payload["scope_source_fixture_id"],
+        )
+    assert {str(artifact_id) for artifact_id in store.iter_artifact_ids()} == before_denied_reads
+
+    selected_reads: list[tuple[str, str | None]] = []
+    original_get_bytes = store.get_bytes
+    original_get_manifest = store.get_manifest
+
+    def record_selected_read(ref):
+        if str(getattr(ref, "artifact_id", ref)) == str(intake_ref.artifact_id):
+            selected_reads.append(("bytes", getattr(ref, "manifest_profile_sha256", None)))
+        return original_get_bytes(ref)
+
+    def record_selected_manifest(ref):
+        if str(getattr(ref, "artifact_id", ref)) == str(intake_ref.artifact_id):
+            selected_reads.append(("manifest", getattr(ref, "manifest_profile_sha256", None)))
+        return original_get_manifest(ref)
+
+    monkeypatch.setattr(store, "get_bytes", record_selected_read)
+    monkeypatch.setattr(store, "get_manifest", record_selected_manifest)
+
+    post = client.post(
+        "/api/v1/control/runs",
+        headers={"Authorization": f"Bearer {bearer}", "X-Tenant-ID": tenant_id},
+        json={
+            "data_source": {"data_snapshot_ref": str(snapshot_ref.artifact_id)},
+            "production_case_intake_ref": intake_ref.model_dump(mode="json"),
+            "params": {
+                "slice0_fixture_id": production_payload["scope_source_fixture_id"],
+                "production_case_intake_ref": str(intake_ref.artifact_id),
+            },
+        },
+    )
+    assert post.status_code == 200, post.text
+    launch = post.json()
+    service: ControlPlaneService = client.app.state._control_service
+    stop_embedded_control_worker(service)
+    assert service._worker is not None
+    service._worker.dispatch_once()
+    _await_terminal_job(service, launch["job_id"])
+
+    completed_record_before_get = service._control_store.get_job(launch["job_id"])
+    assert completed_record_before_get is not None
+    proof_before_get = WorkspaceLoopRunProof.model_validate(
+        completed_record_before_get.progress["production_loop_run_proof"]
+    )
+    assert "served_control_job_status_not_established" in proof_before_get.surface_reads_checked
+    assert not any(
+        row.get("surface") == "/api/v1/control/jobs/{job_id}"
+        for row in proof_before_get.surface_readbacks
+    )
+
+    served = client.get(
+        f"/api/v1/control/jobs/{launch['job_id']}",
+        headers={"Authorization": f"Bearer {bearer}", "X-Tenant-ID": tenant_id},
+    )
+    assert served.status_code == 200, served.text
+    progress = served.json()["progress"]
+    assert served.json()["state"] == "completed"
+    assert progress["authority_path"] == "workspace_loop"
+    assert progress["authority_result"] == "repair_required"
+    assert progress["approval_projection"]["eligible"] is False
+    assert progress["quality_scorecard"]["quality_status"] == "fail"
+    assert any(
+        gate["code"] == "a_spec_gap" for gate in progress["quality_scorecard"]["quality_gates"]
+    )
+    assert progress["search_exit_contract"]["terminal_state"]["kind"] == "a_spec_gap"
+    assert progress["search_exit_contract"]["authority_boundary"] is None
+    assert progress["authority_derivation_trace_refs"] == []
+
+    proof = WorkspaceLoopRunProof.model_validate(progress["production_loop_run_proof"])
+    assert proof == proof_before_get
+    assert proof.control_store_state_transitions == ["pending", "running", "completed"]
+    assert proof.output_search_exit_contract_ref == progress["search_exit_contract_ref"]
+    assert "served_control_job_status_not_established" in proof.surface_reads_checked
+    assert any(
+        readback.get("surface") == "control_plane_store"
+        and readback.get("read_method")
+        == "ControlPlaneStore.current_execution_completed_job_record"
+        and readback.get("requested_endpoint") == "/api/v1/control/runs"
+        and readback.get("observed_job_state") == "completed"
+        and readback.get("matched_search_exit_contract_ref") is True
+        for readback in proof.surface_readbacks
+    )
+    assert not any(
+        readback.get("surface") == "/api/v1/control/jobs/{job_id}"
+        for readback in proof.surface_readbacks
+    )
+
+    exit_ref = progress["search_exit_contract_ref"]
+    proof_ref = progress["production_loop_run_proof_ref"]
+    fresh_store = FileSystemCAS(api_service._artifact_store.root)  # noqa: SLF001
+    assert fresh_store.verify(exit_ref).ok
+    assert fresh_store.verify(proof_ref).ok
+    exit_payload = from_canonical_bytes(fresh_store.get_bytes(exit_ref))
+    proof_payload = from_canonical_bytes(fresh_store.get_bytes(proof_ref))
+    assert exit_payload["terminal_state"]["kind"] == "a_spec_gap"
+    assert proof_payload == progress["production_loop_run_proof"]
+    assert proof_payload["output_search_exit_contract_ref"] == exit_ref
+
+    workspace = exit_payload["workspace_contract"]
+    selected_intake_ref = workspace["intent_ref"]
+    assert selected_intake_ref["content_hash"] == str(intake_ref.artifact_id)
+    admission_ref = workspace["refusal_source_admission_ref"]
+    assert ("bytes", intake_ref.manifest_profile_sha256) in selected_reads
+    assert ("manifest", intake_ref.manifest_profile_sha256) in selected_reads
+    admission_manifest = fresh_store.get_manifest(admission_ref)
+    expected_request_edge = (
+        str(intake_ref.artifact_id),
+        "production_case_input",
+        intake_ref.manifest_profile_sha256,
+    )
+    assert [
+        (str(edge.artifact_id), edge.role, edge.manifest_profile_sha256)
+        for edge in admission_manifest.inputs
+    ] == [expected_request_edge]
+    workspace_manifest = fresh_store.get_manifest(exit_payload["workspace_contract_ref"])
+    assert (
+        str(workspace_manifest.inputs[0].artifact_id),
+        workspace_manifest.inputs[0].role,
+        workspace_manifest.inputs[0].manifest_profile_sha256,
+    ) == expected_request_edge
+    resolved_admission = resolve_production_case_admission(
+        store=fresh_store,
+        receipt_ref=admission_ref,
+        request_ref=intake_ref,
+        catalog=service._registry_providers.gy_catalog_graph,
+    )
+    assert resolved_admission.request_ref == str(intake_ref.artifact_id)
+    assert resolved_admission.substantive_source_support == "not_established"
+    wrong_profile_ref = intake_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "f" * 64}
+    )
+    with pytest.raises((ArtifactOwnershipError, FileNotFoundError)):
+        resolve_production_case_admission(
+            store=fresh_store,
+            receipt_ref=admission_ref,
+            request_ref=wrong_profile_ref,
+            catalog=service._registry_providers.gy_catalog_graph,
+        )
+
+    params_only_post = client.post(
+        "/api/v1/control/runs",
+        headers={"Authorization": f"Bearer {bearer}", "X-Tenant-ID": tenant_id},
+        json={
+            "data_source": {"data_snapshot_ref": str(snapshot_ref.artifact_id)},
+            "params": {
+                "slice0_fixture_id": production_payload["scope_source_fixture_id"],
+                "production_case_intake_ref": str(intake_ref.artifact_id),
+            },
+        },
+    )
+    assert params_only_post.status_code == 200, params_only_post.text
+    params_only_job_id = params_only_post.json()["job_id"]
+    assert service._worker is not None
+    assert service._worker.dispatch_once()
+    params_only = _await_terminal_job(service, params_only_job_id)
+    assert params_only.state == "failed"
+    assert params_only.error_message == "production_case_intake_requires_declared_input_ref"
+    assert not params_only.progress.get("search_exit_contract_ref")
+    assert not params_only.progress.get("production_loop_run_proof_ref")
+
+
+def test_workflow_run_request_rejects_wrong_or_conflicting_production_case_ref() -> None:
+    from pydantic import ValidationError
+
+    from polisyos.core.artifacts.manifest import ArtifactRef
+
+    source_ref = ArtifactRef(
+        artifact_id="sha256:" + "1" * 64,
+        kind="gy.loop.proof.root",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "a" * 64,
+    )
+    WorkflowRunRequest(
+        data_source={"data_snapshot_ref": "sha256:" + "2" * 64},
+        production_case_intake_ref=source_ref,
+        params={"production_case_intake_ref": str(source_ref.artifact_id)},
+    )
+    legacy_profileless = WorkflowRunRequest(
+        data_source={"data_snapshot_ref": "sha256:" + "2" * 64},
+        production_case_intake_ref=str(source_ref.artifact_id),
+        params={"production_case_intake_ref": str(source_ref.artifact_id)},
+    )
+    assert legacy_profileless.production_case_intake_ref == str(source_ref.artifact_id)
+    with pytest.raises(ValidationError, match="production_case_intake_ref_legacy_param_mismatch"):
+        WorkflowRunRequest(
+            data_source={"data_snapshot_ref": "sha256:" + "2" * 64},
+            production_case_intake_ref=source_ref,
+            params={"production_case_intake_ref": "sha256:" + "3" * 64},
+        )
+    with pytest.raises(ValidationError, match="production_case_intake_ref_legacy_param_mismatch"):
+        WorkflowRunRequest(
+            data_source={"data_snapshot_ref": "sha256:" + "2" * 64},
+            production_case_intake_ref=source_ref,
+            params={
+                "production_case_intake_ref": source_ref.model_copy(
+                    update={"manifest_profile_sha256": "sha256:" + "b" * 64}
+                ).model_dump(mode="json")
+            },
+        )
+    with pytest.raises(
+        ValidationError, match="production_case_intake_ref_kind_or_media_type_invalid"
+    ):
+        WorkflowRunRequest(
+            data_source={"data_snapshot_ref": "sha256:" + "2" * 64},
+            production_case_intake_ref=source_ref.model_copy(
+                update={"kind": "fabric.data_snapshot"}
+            ),
+        )
+    with pytest.raises(ValidationError, match="production_case_intake_ref_legacy_id_invalid"):
+        WorkflowRunRequest(
+            data_source={"data_snapshot_ref": "sha256:" + "2" * 64},
+            production_case_intake_ref="not-an-artifact-id",
+        )
+
+
+def test_workflow_run_request_schema_matches_typed_intake_admission() -> None:
+    from jsonschema import Draft202012Validator
+
+    from polisyos.core.artifacts.manifest import ArtifactRef
+
+    schema = WorkflowRunRequest.model_json_schema()
+    Draft202012Validator.check_schema(schema)
+    validator = Draft202012Validator(schema)
+    intake_schema = schema["properties"]["production_case_intake_ref"]
+    assert isinstance(intake_schema, dict)
+    intake_branches = intake_schema["anyOf"]
+    assert [branch.get("type") for branch in intake_branches[1:]] == ["string", "null"]
+    typed_ref_branch = intake_branches[0]
+    assert typed_ref_branch["allOf"][0]["$ref"].endswith("/ArtifactRef")
+    typed_ref_constraint = typed_ref_branch["allOf"][1]
+    assert typed_ref_constraint["type"] == "object"
+    assert typed_ref_constraint["properties"] == {
+        "kind": {"const": "gy.loop.proof.root"},
+        "media_type": {"const": "application/json"},
+    }
+    assert typed_ref_constraint["required"] == ["kind", "media_type"]
+    artifact_id = "sha256:" + "1" * 64
+    cases: list[tuple[str, dict[str, object], bool]] = [
+        ("omitted", {}, True),
+        ("none", {"production_case_intake_ref": None}, True),
+        ("legacy string", {"production_case_intake_ref": artifact_id}, True),
+        (
+            "typed profileless",
+            {
+                "production_case_intake_ref": {
+                    "artifact_id": artifact_id,
+                    "kind": "gy.loop.proof.root",
+                    "media_type": "application/json",
+                }
+            },
+            True,
+        ),
+        (
+            "typed selected profile",
+            {
+                "production_case_intake_ref": {
+                    "artifact_id": artifact_id,
+                    "kind": "gy.loop.proof.root",
+                    "media_type": "application/json",
+                    "manifest_profile_sha256": "sha256:" + "a" * 64,
+                }
+            },
+            True,
+        ),
+        (
+            "wrong kind",
+            {
+                "production_case_intake_ref": {
+                    "artifact_id": artifact_id,
+                    "kind": "fabric.data_snapshot",
+                    "media_type": "application/json",
+                }
+            },
+            False,
+        ),
+        (
+            "wrong media type",
+            {
+                "production_case_intake_ref": {
+                    "artifact_id": artifact_id,
+                    "kind": "gy.loop.proof.root",
+                    "media_type": "text/plain",
+                }
+            },
+            False,
+        ),
+        (
+            "missing kind",
+            {
+                "production_case_intake_ref": {
+                    "artifact_id": artifact_id,
+                    "media_type": "application/json",
+                }
+            },
+            False,
+        ),
+        (
+            "missing media type",
+            {
+                "production_case_intake_ref": {
+                    "artifact_id": artifact_id,
+                    "kind": "gy.loop.proof.root",
+                }
+            },
+            False,
+        ),
+        (
+            "malformed selected profile",
+            {
+                "production_case_intake_ref": {
+                    "artifact_id": artifact_id,
+                    "kind": "gy.loop.proof.root",
+                    "media_type": "application/json",
+                    "manifest_profile_sha256": "sha256:bad",
+                }
+            },
+            False,
+        ),
+        (
+            "unknown typed-ref property",
+            {
+                "production_case_intake_ref": {
+                    "artifact_id": artifact_id,
+                    "kind": "gy.loop.proof.root",
+                    "media_type": "application/json",
+                    "unrecognized": True,
+                }
+            },
+            False,
+        ),
+    ]
+
+    for name, field_payload, expected in cases:
+        payload: dict[str, object] = {
+            "data_source": {"data_snapshot_ref": "sha256:" + "2" * 64},
+            **field_payload,
+        }
+        schema_accepts = validator.is_valid(payload)
+        try:
+            parsed = WorkflowRunRequest.model_validate(payload)
+        except (TypeError, ValueError):
+            model_accepts = False
+        else:
+            model_accepts = True
+            if name == "typed selected profile":
+                selected_ref = parsed.production_case_intake_ref
+                assert isinstance(selected_ref, ArtifactRef)
+                assert selected_ref.manifest_profile_sha256 == "sha256:" + "a" * 64
+        assert schema_accepts is expected, name
+        assert model_accepts is expected, name

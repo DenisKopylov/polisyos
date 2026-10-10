@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import hashlib
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.scholar.search.models import SourceSnippet
+from polisyos.scholar.search import validate_source_snippet_spans
+
+if TYPE_CHECKING:
+    from polisyos.scholar.search.models import SourceSnippet
 
 
 class SnippetLedgerEntry(BaseModel):
@@ -82,32 +85,16 @@ def validate_snippet_spans(
     *,
     source_text_by_id: dict[str, str] | None = None,
 ) -> SnippetLedgerValidation:
-    """Validate snippet ids, spans, and optional span/text alignment."""
+    """Validate snippet ids, spans, and exact source text alignment.
 
-    violations: list[str] = []
-    warnings: list[str] = []
-    seen: set[str] = set()
-    for snippet in snippets:
-        if snippet.snippet_id in seen:
-            violations.append(f"duplicate_snippet_id:{snippet.snippet_id}")
-        seen.add(snippet.snippet_id)
-        if snippet.end_char < snippet.start_char:
-            violations.append(f"invalid_span:{snippet.snippet_id}")
-        if snippet.start_char == snippet.end_char and snippet.text.strip():
-            warnings.append(f"zero_width_span_with_text:{snippet.snippet_id}")
-        if source_text_by_id is None:
-            continue
-        source_text = source_text_by_id.get(snippet.source_id)
-        if source_text is None:
-            violations.append(f"missing_source_text:{snippet.source_id}")
-            continue
-        if snippet.end_char > len(source_text):
-            violations.append(f"span_exceeds_source_text:{snippet.snippet_id}")
-            continue
-        expected = source_text[snippet.start_char : snippet.end_char].strip()
-        actual = snippet.text.strip()
-        if expected and actual and expected != actual:
-            warnings.append(f"span_text_mismatch:{snippet.snippet_id}")
+    Source resolution is owned by Scholar. This compatibility helper delegates
+    the coordinate contract there and treats absent source text as a violation.
+    """
+
+    violations, warnings = validate_source_snippet_spans(
+        snippets,
+        source_text_by_id=source_text_by_id or {},
+    )
     return SnippetLedgerValidation(
         passed=not violations,
         violations=violations,

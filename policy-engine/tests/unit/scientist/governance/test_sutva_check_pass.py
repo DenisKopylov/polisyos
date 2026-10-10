@@ -1,9 +1,15 @@
 from __future__ import annotations
 
+from polisyos.core.artifacts import ensure_ir_artifact_store
 from polisyos.core.contracts.lex import IssueSeverity
 from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.profiles import ValidationProfile
-from polisyos.ir.analytics.causal import CausalEffectReport, CausalMethod, EstimationStatus
+from polisyos.ir.analytics.causal import (
+    CausalEffectReport,
+    CausalMethod,
+    EstimationStatus,
+    persist_causal_effect_report,
+)
 from polisyos.scientist.governance.passes.sutva_check_pass import SutvaCheckPass
 
 
@@ -86,3 +92,18 @@ def test_sutva_check_invalid_report_payload_emits_warning() -> None:
     assert len(issues) == 1
     assert issues[0].code == "SUTVA_CAUSAL_REPORT_INVALID"
     assert issues[0].severity == IssueSeverity.WARNING
+
+
+def test_sutva_check_consumes_persisted_report(pass_context_factory, strict_profile) -> None:
+    report = _base_report().model_copy(update={"sutva_violation_risk": "high"})
+    ctx = pass_context_factory(
+        state={"query_treatment": "pilot_training_grant"},
+        profile=strict_profile,
+    )
+    report_ref = persist_causal_effect_report(ensure_ir_artifact_store(ctx.state["_store"]), report)
+    ctx.state["artifacts_index"] = {"causal_report_ref": report_ref}
+
+    issues = SutvaCheckPass().validate(ctx)
+
+    assert any(issue.code == "SUTVA_VIOLATION_RISK" for issue in issues)
+    assert not any(issue.code == "SUTVA_CAUSAL_REPORT_INVALID" for issue in issues)

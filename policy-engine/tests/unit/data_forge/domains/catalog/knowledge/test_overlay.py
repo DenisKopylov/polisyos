@@ -22,14 +22,16 @@ from polisyos.runtime.quality.acquisition_executor import (
     ObservationProvenanceClass,
     build_admission_passport,
 )
+from tests._helpers.semantic_epoch_native import (
+    _fixture,
+    _real_epoch_scenario,
+    _semantic_handshake_from_passport,
+    _valid_passport,
+)
 from tests.unit.runtime.quality import test_acquisition_executor as acquisition_executor_tests
 from tests.unit.runtime.quality.test_acquisition_executor import (
     _activate_real_epoch_scenario,
-    _fixture,
-    _real_epoch_scenario,
     _second_real_epoch_scenario,
-    _semantic_handshake_from_passport,
-    _valid_passport,
 )
 
 
@@ -834,28 +836,37 @@ def test_active_owner_readback_refuses_value_drift_with_receipt_markers_retained
             "SELECT observation_id, value FROM ds_observations WHERE observation_id = ?",
             [observation_id],
         ).fetchone() == (observation_id, float(original_row[1]) + 1.0)
-        assert con.execute(
-            "SELECT admission_content_sha256, admitted_observation_count, "
-            "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
-            "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref "
-            "FROM acquisition_epochs WHERE epoch_id = ? AND passport_id = ?",
-            [scenario.passport.epoch_id, scenario.passport.passport_id],
-        ).fetchone() == owner_markers
-        assert tuple(
+        assert (
             con.execute(
-                "SELECT table_name, canonical_primary_key_bytes, canonical_primary_key_hash "
-                "FROM acquisition_epoch_members WHERE epoch_id = ? AND passport_id = ? "
-                "ORDER BY table_name, canonical_primary_key_hash",
+                "SELECT admission_content_sha256, admitted_observation_count, "
+                "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
+                "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref "
+                "FROM acquisition_epochs WHERE epoch_id = ? AND passport_id = ?",
                 [scenario.passport.epoch_id, scenario.passport.passport_id],
-            ).fetchall()
-        ) == member_markers
-        assert tuple(
-            con.execute(
-                "SELECT observation_id, value FROM ds_observations "
-                "WHERE observation_id IN (?, ?) ORDER BY observation_id",
-                sibling_ids[:2],
-            ).fetchall()
-        ) == sibling_rows
+            ).fetchone()
+            == owner_markers
+        )
+        assert (
+            tuple(
+                con.execute(
+                    "SELECT table_name, canonical_primary_key_bytes, canonical_primary_key_hash "
+                    "FROM acquisition_epoch_members WHERE epoch_id = ? AND passport_id = ? "
+                    "ORDER BY table_name, canonical_primary_key_hash",
+                    [scenario.passport.epoch_id, scenario.passport.passport_id],
+                ).fetchall()
+            )
+            == member_markers
+        )
+        assert (
+            tuple(
+                con.execute(
+                    "SELECT observation_id, value FROM ds_observations "
+                    "WHERE observation_id IN (?, ?) ORDER BY observation_id",
+                    sibling_ids[:2],
+                ).fetchall()
+            )
+            == sibling_rows
+        )
     finally:
         con.close()
     assert scenario.overlay._require_baseline_unchanged() == baseline_identity
@@ -893,8 +904,7 @@ def test_active_observation_projection_binds_selected_rows_and_rejects_row_drift
     assert tuple(row.year for row in observations) == (2024, 2025)
     assert len({row.observation_id for row in observations}) == 2
     assert all(
-        row.row_content_sha256
-        == overlay_module.content_sha256(observation.model_dump(mode="json"))
+        row.row_content_sha256 == overlay_module.content_sha256(observation.model_dump(mode="json"))
         for row, observation in zip(projection.observations, observations, strict=True)
     )
 
@@ -933,13 +943,16 @@ def test_active_observation_projection_binds_selected_rows_and_rejects_row_drift
 
     con = duckdb.connect(str(scenario.overlay.overlay_path), read_only=True)
     try:
-        assert con.execute(
-            "SELECT passport_id, admission_content_sha256, admitted_observation_count, "
-            "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
-            "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref "
-            "FROM acquisition_epochs WHERE epoch_id = ?",
-            [scenario.passport.epoch_id],
-        ).fetchone() == owner_markers
+        assert (
+            con.execute(
+                "SELECT passport_id, admission_content_sha256, admitted_observation_count, "
+                "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
+                "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref "
+                "FROM acquisition_epochs WHERE epoch_id = ?",
+                [scenario.passport.epoch_id],
+            ).fetchone()
+            == owner_markers
+        )
     finally:
         con.close()
 
@@ -992,21 +1005,27 @@ def test_active_owner_readback_refuses_unrepresented_year_and_condition_with_mar
 
     con = duckdb.connect(str(scenario.overlay.overlay_path), read_only=True)
     try:
-        assert con.execute(
-            "SELECT admission_content_sha256, admitted_observation_count, "
-            "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
-            "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref "
-            "FROM acquisition_epochs WHERE epoch_id = ? AND passport_id = ?",
-            [scenario.passport.epoch_id, scenario.passport.passport_id],
-        ).fetchone() == owner_markers
-        assert tuple(
+        assert (
             con.execute(
-                "SELECT table_name, canonical_primary_key_bytes, canonical_primary_key_hash "
-                "FROM acquisition_epoch_members WHERE epoch_id = ? AND passport_id = ? "
-                "ORDER BY table_name, canonical_primary_key_hash",
+                "SELECT admission_content_sha256, admitted_observation_count, "
+                "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
+                "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref "
+                "FROM acquisition_epochs WHERE epoch_id = ? AND passport_id = ?",
                 [scenario.passport.epoch_id, scenario.passport.passport_id],
-            ).fetchall()
-        ) == member_markers
+            ).fetchone()
+            == owner_markers
+        )
+        assert (
+            tuple(
+                con.execute(
+                    "SELECT table_name, canonical_primary_key_bytes, canonical_primary_key_hash "
+                    "FROM acquisition_epoch_members WHERE epoch_id = ? AND passport_id = ? "
+                    "ORDER BY table_name, canonical_primary_key_hash",
+                    [scenario.passport.epoch_id, scenario.passport.passport_id],
+                ).fetchall()
+            )
+            == member_markers
+        )
     finally:
         con.close()
 
@@ -1074,8 +1093,7 @@ def test_admission_preserves_populated_year_and_condition_in_reduced_owner_schem
     try:
         assert tuple(
             con.execute(
-                "SELECT year, condition_json, value FROM ds_observations "
-                "ORDER BY condition_json"
+                "SELECT year, condition_json, value FROM ds_observations ORDER BY condition_json"
             ).fetchall()
         ) == (
             (2024, '{"cohort":"alpha"}', 0.42),

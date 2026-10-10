@@ -20,6 +20,7 @@ def test_gate_protocol_persists_request_and_decision(tmp_path) -> None:
         node_alias="run_governance",
         phase="POSTFLIGHT_GOV",
         iteration=1,
+        selected_replay_refs={},
     )
     request, request_ref = protocol.request_gate(
         run_id="R_gate",
@@ -57,6 +58,7 @@ def test_gate_request_id_is_deterministic_for_same_context(tmp_path) -> None:
         node_alias="run_governance",
         phase="POSTFLIGHT_GOV",
         iteration=1,
+        selected_replay_refs={},
     )
 
     request_a, _ = protocol.request_gate(

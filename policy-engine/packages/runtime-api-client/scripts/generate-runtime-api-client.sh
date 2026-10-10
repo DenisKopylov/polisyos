@@ -49,9 +49,14 @@ CANONICAL_JS_OUT="${OUTPUT_ROOT}/packages/runtime-api-client/canonicalRuntimeApi
 # Keep the low-level raw pair as a private handoff to the canonicalizer.  Only
 # the canonical pair and schema types belong to the declared output family.
 SCRATCH_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/polisyos-runtime-api-client.XXXXXXXX")"
+SCRATCH_ROOT="$(cd "${SCRATCH_ROOT}" && pwd)"
 RUNTIME_TS_OUT="${SCRATCH_ROOT}/runtimeApiClient.ts"
 RUNTIME_JS_OUT="${SCRATCH_ROOT}/runtimeApiClient.js"
 cleanup() {
+  if [[ "${POLISYOS_RETAIN_GENERATOR_SCRATCH:-0}" == "1" ]]; then
+    printf 'Retained generator scratch: %s\n' "${SCRATCH_ROOT}" >&2
+    return
+  fi
   rm -rf -- "${SCRATCH_ROOT}"
 }
 trap cleanup EXIT

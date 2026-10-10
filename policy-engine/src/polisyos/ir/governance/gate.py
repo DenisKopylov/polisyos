@@ -10,7 +10,37 @@ import enum
 from datetime import UTC, datetime
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+from polisyos.ir.registry.refs import ArtifactRefModel
+
+GATE_REQUEST_SCHEMA_VERSION = "1.2"
+_GATE_REQUEST_REQUIRED_CONTEXT_FIELDS_BY_VERSION = {
+    GATE_REQUEST_SCHEMA_VERSION: ("selected_replay_refs",),
+}
+
+
+def _add_gate_request_versioned_context_requirements(schema: dict[str, Any]) -> None:
+    """Represent versioned context requirements enforced by GateRequest."""
+    versioned_requirements = []
+    for version, context_fields in _GATE_REQUEST_REQUIRED_CONTEXT_FIELDS_BY_VERSION.items():
+        versioned_requirements.append(
+            {
+                "if": {"properties": {"schema_version": {"const": version}}},
+                "then": {
+                    "properties": {
+                        "context": {
+                            "required": list(context_fields),
+                            "properties": {
+                                field_name: {"not": {"type": "null"}}
+                                for field_name in context_fields
+                            },
+                        }
+                    }
+                },
+            }
+        )
+    schema.setdefault("allOf", []).extend(versioned_requirements)
 
 
 class GateVerdict(str, enum.Enum):
@@ -56,6 +86,10 @@ class GateContext(BaseModel):
     risk_indicators: list[str] = Field(default_factory=list)
     issue_summary: dict[str, int] | None = None
     artifact_refs: dict[str, str] | None = None
+    selected_replay_refs: dict[str, ArtifactRefModel] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
     transport_summary: dict[str, Any] | None = None
     replay_summary: dict[str, Any] | None = None
 
@@ -63,9 +97,12 @@ class GateContext(BaseModel):
 class GateRequest(BaseModel):
     """Approval request payload emitted when execution needs governance review."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra=_add_gate_request_versioned_context_requirements,
+    )
 
-    schema_version: str = Field("1.1", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field(GATE_REQUEST_SCHEMA_VERSION, pattern=r"^\d+\.\d+$")
     request_id: str
     run_id: str
     reason: str
@@ -74,6 +111,24 @@ class GateRequest(BaseModel):
     timeout_seconds: int | None = Field(default=None, ge=1)
     requested_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     requested_by: str = "system"
+
+    @model_validator(mode="after")
+    def _require_selected_replay_refs_for_current_schema(self) -> GateRequest:
+        """Require selected view bindings on requests emitted under schema 1.2."""
+        required_context_fields = _GATE_REQUEST_REQUIRED_CONTEXT_FIELDS_BY_VERSION.get(
+            self.schema_version, ()
+        )
+        missing_context_fields = tuple(
+            field_name
+            for field_name in required_context_fields
+            if getattr(self.context, field_name) is None
+        )
+        if missing_context_fields:
+            raise ValueError(
+                f"GateRequest schema {self.schema_version} requires "
+                f"{', '.join(missing_context_fields)}"
+            )
+        return self
 
 
 class GateDecision(BaseModel):

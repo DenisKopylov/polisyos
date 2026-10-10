@@ -554,11 +554,7 @@ def run_production_dry_run_check(context: ProbeContext) -> dict[str, Any]:
                 health_status = response.status_code
                 protected_response = client.get(
                     "/api/v1/runs/local-prod-debug-probe",
-                    headers={
-                        "Authorization": (
-                            f"Bearer {probe_bearer}"
-                        )
-                    },
+                    headers={"Authorization": (f"Bearer {probe_bearer}")},
                 )
                 protected_probe_status = protected_response.status_code
         except Exception as exc:
@@ -599,15 +595,10 @@ def _build_production_dry_run_app(context: ProbeContext) -> Any:
     """Compose the dry-run app through the genuine deployment security producer."""
     from polisyos.runtime.http.app import create_runtime_api_app
 
-    deployment_security = build_deployment_security(
-        DeploymentSecurityConfig.from_env()
-    )
+    deployment_security = build_deployment_security(DeploymentSecurityConfig.from_env())
     return create_runtime_api_app(
         cas_root=context.repo_root / ".polisyos" / "local-prod-debug" / "dry-run-cas",
-        core_runs_root=context.repo_root
-        / ".polisyos"
-        / "local-prod-debug"
-        / "dry-run-runs",
+        core_runs_root=context.repo_root / ".polisyos" / "local-prod-debug" / "dry-run-runs",
         deployment_security=deployment_security,
         enable_security_middlewares=True,
         authz_enforce=True,
@@ -726,9 +717,7 @@ def run_provider_quality_controlled_check(context: ProbeContext) -> dict[str, An
     context.artifacts["provider_quality_controlled_selected_model"] = context.model
     action = str(comparison.default_model_gate.get("action") or "")
     status = (
-        "pass"
-        if comparison.summary.get("status") == "pass" and action == "approve"
-        else "fail"
+        "pass" if comparison.summary.get("status") == "pass" and action == "approve" else "fail"
     )
     return _check_result(
         "provider-quality-controlled",
@@ -785,8 +774,7 @@ async def _run_controlled_grounding_live_samples(
                     latency_ms = (time.perf_counter() - started) * 1000
                     parsed = _parse_json_object(getattr(response, "content", ""))
                     observed_refs = {
-                        key: str(parsed.get(key) or "")
-                        for key in task.required_evidence_refs
+                        key: str(parsed.get(key) or "") for key in task.required_evidence_refs
                     }
                     raw_response = getattr(response, "raw", None)
                     degraded_events = (
@@ -803,9 +791,7 @@ async def _run_controlled_grounding_live_samples(
                             task=task,
                             grounding_refs=observed_refs,
                             schema_valid=bool(parsed),
-                            refusal_detected=_looks_like_refusal(
-                                getattr(response, "content", "")
-                            ),
+                            refusal_detected=_looks_like_refusal(getattr(response, "content", "")),
                             degradation_behavior=(
                                 "fallback_plain_json"
                                 if isinstance(degraded_events, list) and degraded_events
@@ -853,9 +839,8 @@ async def _run_controlled_grounding_live_samples(
 
 def run_live_research_lane_check(context: ProbeContext) -> dict[str, Any]:
     """Run the one approved live research lane through the matrix wrapper."""
-    if (
-        not context.allow_live_provider
-        or not context.runtime_env.get("POLISYOS_LLM_GATEWAY_API_KEY")
+    if not context.allow_live_provider or not context.runtime_env.get(
+        "POLISYOS_LLM_GATEWAY_API_KEY"
     ):
         return _check_result(
             "live-research-lane",
@@ -863,9 +848,7 @@ def run_live_research_lane_check(context: ProbeContext) -> dict[str, Any]:
             code="live_provider_not_enabled",
             message="Live lane requires --allow-live-provider and an API key.",
         )
-    matrix_json = (
-        context.output.parent / "local_prod_debug_live_research_lane.json"
-    ).resolve()
+    matrix_json = (context.output.parent / "local_prod_debug_live_research_lane.json").resolve()
     command = [
         sys.executable,
         "tools/ops_runners/runtime/run_canary_matrix.py",
@@ -977,8 +960,7 @@ def classify_control_plane_timeout_signal(
             "status": "fail",
             "root_cause_class": "artifact_durability_break",
             "failure_reason": (
-                "Control-plane timeout broke bundle, replay, or closeout artifact "
-                "durability."
+                "Control-plane timeout broke bundle, replay, or closeout artifact durability."
             ),
             "blocking_artifact_axes": blocking_axes,
             "resilience_signal": True,
@@ -1071,9 +1053,7 @@ def run_evidence_inspection_check(context: ProbeContext) -> dict[str, Any]:
         details["inspection"] = _load_json(inspection_json)
         details["readiness"] = _load_json(readiness_json)
         readiness_status = (
-            details["readiness"].get("status")
-            if isinstance(details["readiness"], dict)
-            else None
+            details["readiness"].get("status") if isinstance(details["readiness"], dict) else None
         )
         mismatch = bool(failed_live_lane and readiness_status == "pass")
         details["readiness_mismatch"] = {
@@ -1268,9 +1248,7 @@ def run_production_data_static_check(context: ProbeContext) -> dict[str, Any]:
                 ],
             )
         except Exception as exc:
-            issues.append(
-                {"code": "production_data_quality_report_failed", "message": str(exc)}
-            )
+            issues.append({"code": "production_data_quality_report_failed", "message": str(exc)})
     if isinstance(quality, Mapping) and quality.get("status") == "fail":
         for issue in quality.get("issues") or []:
             if isinstance(issue, Mapping):
@@ -1286,9 +1264,7 @@ def run_production_data_static_check(context: ProbeContext) -> dict[str, Any]:
                 allow_default=False,
             )
     except Exception as exc:
-        issues.append(
-            {"code": "production_data_contract_index_failed", "message": str(exc)}
-        )
+        issues.append({"code": "production_data_contract_index_failed", "message": str(exc)})
     scenario_binding_findings = (
         scenario_binding_report.get("scenario_binding_findings")
         if isinstance(scenario_binding_report, Mapping)
@@ -1311,9 +1287,20 @@ def run_production_data_static_check(context: ProbeContext) -> dict[str, Any]:
     ]
     construct_issue = bool(untyped_construct_capability_blockers)
     construct_evidence_issue = (
-        construct_capability_report.get("status") == "blocked"
-        and not construct_capability_blockers
+        construct_capability_report.get("status") == "blocked" and not construct_capability_blockers
     )
+    missing_scenario_source_families = (
+        list(scenario_binding_report.get("missing_scenario_source_families") or [])
+        if isinstance(scenario_binding_report, Mapping)
+        else []
+    )
+    if missing_scenario_source_families:
+        issues.append(
+            {
+                "code": "production_data_scenario_contracts_missing",
+                "missing_scenario_source_families": missing_scenario_source_families,
+            }
+        )
     status = (
         "fail"
         if (construct_evidence_issue or construct_issue)
@@ -1328,6 +1315,8 @@ def run_production_data_static_check(context: ProbeContext) -> dict[str, Any]:
         )
     elif construct_issue:
         code = "production_data_construct_capability_blockers"
+    elif missing_scenario_source_families:
+        code = "production_data_scenario_contracts_missing"
     else:
         code = None
     return _check_result(
@@ -1351,16 +1340,7 @@ def run_production_data_static_check(context: ProbeContext) -> dict[str, Any]:
             "compatibility_projection_findings": scenario_binding_findings or [],
             "construct_capability_blockers": construct_capability_blockers,
             "untyped_construct_capability_blockers": untyped_construct_capability_blockers,
-            "missing_scenario_source_families": (
-                []
-                if construct_capability_report.get("resolver_executed")
-                or construct_capability_blockers
-                else list(
-                    scenario_binding_report.get("missing_scenario_source_families") or []
-                )
-                if isinstance(scenario_binding_report, Mapping)
-                else []
-            ),
+            "missing_scenario_source_families": missing_scenario_source_families,
             "issues": issues,
         },
     )
@@ -1416,12 +1396,8 @@ def _construct_capability_blockers(report: Mapping[str, Any]) -> list[dict[str, 
                     "code": status,
                     "blocked_reasons": list(binding.get("blocked_reasons") or ()),
                     "limitations": list(binding.get("limitations") or ()),
-                    "acquisition_strategies": list(
-                        binding.get("acquisition_strategies") or ()
-                    ),
-                    "rejected_alternatives": list(
-                        binding.get("rejected_alternatives") or ()
-                    ),
+                    "acquisition_strategies": list(binding.get("acquisition_strategies") or ()),
+                    "rejected_alternatives": list(binding.get("rejected_alternatives") or ()),
                 }
             )
     return blockers
@@ -1493,9 +1469,7 @@ def _construct_capability_report(
                 }
             ],
         }
-    scenario_family_construct_rows = _governed_scenario_family_construct_rows(
-        context.repo_root
-    )
+    scenario_family_construct_rows = _governed_scenario_family_construct_rows(context.repo_root)
     bindings: list[dict[str, Any]] = []
     issues: list[dict[str, Any]] = []
     for spec in specs:
@@ -1619,9 +1593,7 @@ def _construct_for_static_spec(
             return text.removeprefix("construct:")
     family = _first_text(spec.get("required_data_families"))
     return (
-        construct_for_legacy_family(family, rows=scenario_family_construct_rows)
-        if family
-        else None
+        construct_for_legacy_family(family, rows=scenario_family_construct_rows) if family else None
     )
 
 
@@ -1677,11 +1649,14 @@ def run_docs_repro_check(context: ProbeContext) -> dict[str, Any]:
     """Check local-prod-debug docs and gitignore reproducibility."""
     runbook = context.repo_root / "docs/runbooks/local-production-debugging.md"
     runbook_text = runbook.read_text(encoding="utf-8") if runbook.exists() else ""
-    ignored = subprocess.run(
-        ["git", "check-ignore", "-q", ".env.prod-local"],  # noqa: S607
-        cwd=context.repo_root,
-        check=False,
-    ).returncode == 0
+    ignored = (
+        subprocess.run(
+            ["git", "check-ignore", "-q", ".env.prod-local"],  # noqa: S607
+            cwd=context.repo_root,
+            check=False,
+        ).returncode
+        == 0
+    )
     required = [
         "polisyos-control-pg",
         ".env.prod-local",

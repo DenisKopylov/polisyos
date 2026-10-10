@@ -91,6 +91,16 @@ def build_source_metadata(
         fetch_status=fetch.status,
         content_type=fetch.content_type,
         content_sha256=fetch.content_sha256,
+        artifact_id=fetch.artifact_id,
+        raw_artifact_ref=fetch.raw_artifact_ref,
+        byte_size=fetch.byte_size,
+        final_url=fetch.final_url,
+        etag=fetch.etag,
+        last_modified=fetch.last_modified,
+        redirect_chain=list(fetch.redirect_chain),
+        lineage_parent_artifact_id=fetch.lineage_parent_artifact_id,
+        refresh_reason=fetch.refresh_reason,
+        fetch_profile=dict(fetch.fetch_profile),
         publication_tier=_publication_tier_for_source(hit.source_type, domain),
         underlying_study_id=fetch.content_sha256,
         quality_score=round(quality, 6),
@@ -132,7 +142,7 @@ def compress_page_to_snippets(
     max_snippets: int = 3,
     window_chars: int = 480,
 ) -> list[SourceSnippet]:
-    """Extract top text windows around query terms and return stable citation spans."""
+    """Extract top windows with character offsets that select their exact snippet text."""
     if not text.strip():
         return []
 
@@ -164,6 +174,12 @@ def compress_page_to_snippets(
         ):
             continue
         snippet_id = f"snip.{source_id}.{len(snippets) + 1}"
+        raw_window = text[left:right]
+        snippet_text = raw_window.strip()
+        if not snippet_text:
+            continue
+        snippet_start = left + len(raw_window) - len(raw_window.lstrip())
+        snippet_end = snippet_start + len(snippet_text)
         snippets.append(
             SourceSnippet(
                 snippet_id=snippet_id,
@@ -171,9 +187,9 @@ def compress_page_to_snippets(
                 url=url,
                 query_node_id=query_node_id,
                 perspective=perspective,
-                text=text[left:right].strip(),
-                start_char=left,
-                end_char=right,
+                text=snippet_text,
+                start_char=snippet_start,
+                end_char=snippet_end,
                 relevance_score=round(max(score, 0.0), 6),
             )
         )

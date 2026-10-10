@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import json
+import os
 import re
 import sys
 import tomllib
@@ -102,9 +103,10 @@ def build_report(
     metadata = _load_toml(metadata_path)
     mypy_config = mypy_config or _default_tool_config(metadata, "mypy", "mypy.ini")
     ruff_config = ruff_config or _default_tool_config(metadata, "ruff", "ruff.toml")
+    ruff_project_root = _ruff_project_root(repo_root, ruff_config, metadata)
     entries = [
         *_collect_mypy_entries(repo_root, mypy_config),
-        *_collect_ruff_entries(repo_root, ruff_config),
+        *_collect_ruff_entries(repo_root, ruff_config, project_root=ruff_project_root),
     ]
     scopes = _load_metadata_scopes(metadata)
     index = _build_repo_index(repo_root)
@@ -150,6 +152,7 @@ def build_report(
         "configs": {
             "mypy": mypy_config,
             "ruff": ruff_config,
+            "ruff_project_root": str(ruff_project_root),
             "metadata": metadata_config,
         },
         "summary": summary,
@@ -160,8 +163,8 @@ def build_report(
 def _collect_mypy_entries(repo_root: Path, config: str) -> list[OverrideEntry]:
     path = repo_root / config
     if not path.exists():
-        return []
-    lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
+        raise FileNotFoundError(f"mypy override config does not exist: {path}")
+    lines = path.read_text(encoding="utf-8").splitlines()
     entries: list[OverrideEntry] = []
     section_re = re.compile(r"^\[mypy-(?P<modules>.+)]\s*$")
     for index, line in enumerate(lines):
@@ -185,18 +188,36 @@ def _collect_mypy_entries(repo_root: Path, config: str) -> list[OverrideEntry]:
     return entries
 
 
-def _collect_ruff_entries(repo_root: Path, config: str) -> list[OverrideEntry]:
+def _collect_ruff_entries(
+    repo_root: Path,
+    config: str,
+    *,
+    project_root: Path,
+) -> list[OverrideEntry]:
     path = repo_root / config
     if not path.exists():
-        return []
-    text = path.read_text(encoding="utf-8", errors="ignore")
+        raise FileNotFoundError(f"Ruff override config does not exist: {path}")
+    text = path.read_text(encoding="utf-8")
     try:
         data = tomllib.loads(text)
-    except tomllib.TOMLDecodeError:
-        return []
-    per_file_ignores = data.get("lint", {}).get("per-file-ignores", {})
+    except tomllib.TOMLDecodeError as error:
+        raise ValueError(f"invalid Ruff override config {path}: {error}") from error
+    lint = data.get("lint", {})
+    if not isinstance(lint, dict):
+        raise ValueError(f"invalid Ruff override config {path}: [lint] must be a TOML table")
+    per_file_ignores = lint.get("per-file-ignores", {})
     if not isinstance(per_file_ignores, dict):
-        return []
+        raise ValueError(
+            f"invalid Ruff override config {path}: [lint].per-file-ignores must be a TOML table"
+        )
+    for subject, codes in per_file_ignores.items():
+        if not isinstance(subject, str) or not subject:
+            raise ValueError(f"invalid Ruff override config {path}: empty/non-text matcher")
+        if not isinstance(codes, list) or any(not isinstance(code, str) for code in codes):
+            raise ValueError(
+                f"invalid Ruff override config {path}: "
+                f"rule codes for matcher {subject!r} must be a list of strings"
+            )
 
     lines = text.splitlines()
     line_map = _ruff_per_file_ignore_line_map(lines)
@@ -207,7 +228,7 @@ def _collect_ruff_entries(repo_root: Path, config: str) -> list[OverrideEntry]:
         inline_comment = _inline_comment(lines[line - 1]) if line else ""
         if inline_comment:
             comments = (*comments, inline_comment)
-        normalized_subject = _ruff_subject_for_report(repo_root, path, subject)
+        normalized_subject = _ruff_subject_for_report(repo_root, project_root, subject)
         entries.append(
             OverrideEntry(
                 tool="ruff",
@@ -239,27 +260,72 @@ def _ruff_per_file_ignore_line_map(lines: list[str]) -> dict[str, int]:
     return line_map
 
 
-def _ruff_subject_for_report(repo_root: Path, config_path: Path, subject: str) -> str:
-    """Normalize Ruff per-file patterns to repo-relative paths for reports.
+def _ruff_subject_for_report(repo_root: Path, project_root: Path, subject: str) -> str:
+    """Normalize a Ruff matcher from its invocation root to product-root terms.
 
-    Ruff resolves per-file ignore patterns relative to the configuration file
-    that declares them. Our generated Ruff config lives under
-    ``architecture/tooling/ruff/``, while override metadata is documented in
-    repo-root-relative terms. Normalize here so stale-override and metadata
-    checks evaluate the same path that Ruff will apply at runtime.
+    Ruff's per-file matchers are interpreted against the active project's
+    discovered root, which can differ from the directory containing ``--config``.
+    Resolve against that caller root before comparing with product-root source
+    paths and override metadata.
     """
 
     negated = subject.startswith("!")
     pattern = subject[1:] if negated else subject
-    if pattern.startswith("/"):
-        normalized = pattern
-    else:
-        normalized_path = (config_path.parent / pattern).resolve(strict=False)
-        try:
-            normalized = normalized_path.relative_to(repo_root).as_posix()
-        except ValueError:
-            normalized = pattern
+    matcher_path = Path(pattern)
+    resolved = matcher_path if matcher_path.is_absolute() else project_root / matcher_path
+    normalized_path = resolved.resolve(strict=False)
+    try:
+        normalized = normalized_path.relative_to(repo_root).as_posix()
+    except ValueError:
+        normalized = os.path.relpath(normalized_path, repo_root).replace(os.sep, "/")
     return f"!{normalized}" if negated else normalized
+
+
+def _ruff_project_root(repo_root: Path, config: str, metadata: dict[str, Any]) -> Path:
+    """Return the invocation root declared for a generated Ruff config mode."""
+
+    split_metadata = metadata.get("tool_config_split", {})
+    if not isinstance(split_metadata, dict):
+        raise ValueError("static-analysis metadata tool_config_split must be a TOML table")
+    manifest = split_metadata.get("manifest")
+    if not manifest:
+        return repo_root
+
+    manifest_path = repo_root / str(manifest)
+    try:
+        manifest_data = tomllib.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, tomllib.TOMLDecodeError) as error:
+        raise ValueError(
+            f"cannot read Ruff caller-root manifest {manifest_path}: {error}"
+        ) from error
+    ruff = manifest_data.get("ruff")
+    if not isinstance(ruff, dict):
+        raise ValueError(f"Ruff caller-root manifest has no [ruff] table: {manifest_path}")
+    if _config_identity(repo_root, config) != _config_identity(
+        repo_root, str(ruff.get("workspace_root_generated_config", ""))
+    ):
+        return repo_root
+
+    prefix = ruff.get("workspace_root_prefix")
+    if not isinstance(prefix, str) or not prefix or Path(prefix).is_absolute():
+        raise ValueError(f"invalid workspace_root_prefix in Ruff caller-root manifest: {prefix!r}")
+    for candidate in repo_root.parents:
+        if (candidate / prefix).resolve(strict=False) == repo_root:
+            return candidate
+    raise ValueError(
+        f"Ruff workspace config {config!r} declares prefix {prefix!r}, "
+        f"but no ancestor of {repo_root} contains that project root"
+    )
+
+
+def _config_identity(repo_root: Path, config: str) -> str:
+    path = Path(config)
+    if path.is_absolute():
+        try:
+            path = path.relative_to(repo_root)
+        except ValueError:
+            return path.as_posix()
+    return path.as_posix()
 
 
 def _leading_comment_block(lines: list[str], index: int) -> tuple[str, ...]:
@@ -370,8 +436,7 @@ def _mypy_entry_existence(repo_root: Path, module: str, index: RepoIndex) -> dic
         return {
             "exists": False,
             "detail": (
-                f"expected one of: {expected}; possible moved file candidates: "
-                f"{', '.join(moved)}"
+                f"expected one of: {expected}; possible moved file candidates: {', '.join(moved)}"
             ),
         }
     return {
@@ -445,9 +510,7 @@ def _build_repo_index(repo_root: Path) -> RepoIndex:
                 init_files_by_package.setdefault(path.parent.name, set()).add(relative_path)
     return RepoIndex(
         source_modules=tuple(sorted(modules)),
-        files_by_name={
-            name: tuple(sorted(paths)) for name, paths in sorted(files_by_name.items())
-        },
+        files_by_name={name: tuple(sorted(paths)) for name, paths in sorted(files_by_name.items())},
         init_files_by_package={
             name: tuple(sorted(paths)) for name, paths in sorted(init_files_by_package.items())
         },
@@ -557,7 +620,9 @@ def _summary(entries: list[OverrideEntry], findings: list[Finding]) -> dict[str,
 
 def _finding_count(findings: list[Finding], tool: str | None, check: str) -> int:
     return sum(
-        1 for finding in findings if finding.check == check and (tool is None or finding.tool == tool)
+        1
+        for finding in findings
+        if finding.check == check and (tool is None or finding.tool == tool)
     )
 
 
@@ -599,15 +664,42 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 def run_cli(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     repo_root = args.repo_root.resolve()
-    payload = build_report(
-        repo_root,
-        mypy_config=args.mypy_config,
-        ruff_config=args.ruff_config,
-        metadata_config=args.metadata_config,
-    )
+    try:
+        payload = build_report(
+            repo_root,
+            mypy_config=args.mypy_config,
+            ruff_config=args.ruff_config,
+            metadata_config=args.metadata_config,
+        )
+    except (OSError, ValueError) as error:
+        payload = {
+            "phase": "repository-best-in-class-phase-3.6",
+            "mode": "report_only",
+            "status": "failed",
+            "repo_root": str(repo_root),
+            "inputs": {
+                "mypy_config": args.mypy_config,
+                "ruff_config": args.ruff_config,
+                "metadata_config": args.metadata_config,
+            },
+            "error": f"{type(error).__name__}: {error}",
+        }
+        text = json.dumps(payload, indent=2, sort_keys=True) + "\n"
+        if args.json_output is not None:
+            output = (
+                args.json_output if args.json_output.is_absolute() else repo_root / args.json_output
+            )
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(text, encoding="utf-8")
+        else:
+            print(text, end="")
+        print(payload["error"], file=sys.stderr)
+        return 2
     text = json.dumps(payload, indent=2, sort_keys=True) + "\n"
     if args.json_output is not None:
-        output = args.json_output if args.json_output.is_absolute() else repo_root / args.json_output
+        output = (
+            args.json_output if args.json_output.is_absolute() else repo_root / args.json_output
+        )
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(text, encoding="utf-8")
     else:

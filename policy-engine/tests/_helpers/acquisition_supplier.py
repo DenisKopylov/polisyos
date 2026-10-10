@@ -9,7 +9,7 @@ from tests._helpers.acquisition_production import (
     install_fixture_wdi_cost_basis,
     persist_wdi_route,
 )
-from tests.unit.runtime.http.test_control_service_di import _build_control_service
+from tests._helpers.runtime_http import _build_control_service
 
 
 async def build_supplier_terminal_case(tmp_path, monkeypatch, *, revised_source: bool = False):

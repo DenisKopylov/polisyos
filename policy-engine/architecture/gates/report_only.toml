@@ -173,7 +173,7 @@ source_contracts = [
   "architecture/tooling/static_analysis_overrides.toml",
   "architecture/tooling/tool_config_split.toml",
   "architecture/tooling/mypy/generated.ini",
-  "architecture/tooling/ruff/generated.toml",
+  "ruff.generated.toml",
   "mypy.ini",
   "ruff.toml",
 ]
@@ -190,7 +190,7 @@ source_contracts = [
   "architecture/tooling/static_analysis_overrides.toml",
   "architecture/tooling/tool_config_split.toml",
   "architecture/tooling/mypy/generated.ini",
-  "architecture/tooling/ruff/generated.toml",
+  "ruff.generated.toml",
   "mypy.ini",
   "ruff.toml",
 ]

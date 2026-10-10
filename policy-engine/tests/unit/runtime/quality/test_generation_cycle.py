@@ -8,7 +8,6 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from decimal import Decimal
 from functools import cache
 from pathlib import Path
 from types import SimpleNamespace
@@ -54,17 +53,9 @@ from polisyos.runtime.quality.cycle_substrate import (
 )
 from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
 from polisyos.runtime.quality.design_problem import (
-    AuthorityProfile,
-    CandidateLever,
-    CandidateLeverSpace,
-    DesignConstraint,
-    DesignObjective,
     DesignProblem,
     DesignStakeholder,
-    EvidenceAcquisitionNeeds,
-    EvidenceNeed,
     JurisdictionTimeSemantics,
-    NLProvenance,
     OutcomeOfInterest,
 )
 from polisyos.runtime.quality.generation_cycle import (
@@ -126,8 +117,23 @@ from polisyos.runtime.quality.substrate_registry import (
     default_substrate_catalog_paths,
 )
 from polisyos.runtime.quality.world_model_record import WorldModelRecordError
-from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from polisyos.scientist.orchestration.engine.budget import BudgetState
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
+from tests._helpers.controlled_candidate_profile import (
+    _AlwaysLowGrounding,
+    _Atom,
+    _budget,
+    _Candidate,
+    _CgfGenerationPort,
+    _controlled_profile_cycle_basis,
+    _GenerationResult,
+    _GroundingDisposition,
+    _problem,
+    _Ranking,
+    _record_with_selected_ncm_ref,
+    _SameCandidateNewBasisGenerator,
+    _StableShadowGrounding,
+)
 from tools.quality.validation import (
     check_layer3_gy_generation_cycle_contract as contract,
 )
@@ -286,78 +292,6 @@ substrate_registry.default_substrate_catalog_paths = _missing_paths
     assert "link the worktree's provisioned production_data owner tree read-only" in result.stdout
 
 
-@dataclass(frozen=True)
-class _Atom:
-    intervention_id: str
-    content_hash: str
-    status: str = "candidate_unverified"
-    world_model_record_ref: str | None = "world_model_record_test"
-    target_world_slots: tuple[str, ...] = ("firm_survival",)
-    problem_frame_ref: str | None = None
-
-
-@dataclass(frozen=True)
-class _Candidate:
-    candidate_id: str
-    atom: _Atom | InterventionAtomBinding
-    diversity_key: tuple[str, str, str, str]
-    status: str = "candidate_unverified"
-
-
-@dataclass(frozen=True)
-class _Ranking:
-    candidate_id: str
-    score: float
-    voi_estimate: float
-    trust_level: str = "search_guiding"
-    promotion_allowed: bool = False
-
-
-@dataclass(frozen=True)
-class _GenerationResult:
-    status: str
-    candidates: tuple[_Candidate, ...]
-    surrogate_rankings: tuple[_Ranking, ...]
-    grounding_dispositions: tuple[Any, ...] = ()
-    design_problem_ref: str | None = None
-
-
-@dataclass(frozen=True)
-class _CertificateChain:
-    cg1_certificate_id: str = "cg1_cert_test"
-    cg1_content_hash: str = "sha256:" + "a" * 64
-    cg2_certificate_id: str = "cg2_cert_test"
-    cg2_content_hash: str = "sha256:" + "b" * 64
-    cg3_certificate_id: str = "cg3_cert_test"
-    cg3_content_hash: str = "sha256:" + "c" * 64
-    cg4_proxy_gap_risk_id: str | None = None
-    cg4_proxy_gap_content_hash: str | None = None
-    cg4_quarantine_handoff_id: str | None = None
-    cg4_quarantine_handoff_hash: str | None = None
-    cg5_action_certificate_id: str | None = None
-    cg5_action_content_hash: str | None = None
-    cg5_ticket_id: str | None = None
-    cg5_ticket_hash: str | None = None
-
-
-@dataclass(frozen=True)
-class _GroundingDisposition:
-    proposal_id: str
-    candidate_id: str | None
-    raw_candidate_hash: str
-    disposition: str
-    selected_relation: str
-    shadow_atom_content_hash: str | None = None
-    identified_atom_id: str | None = "atom_test"
-    cg2_decision: str | None = "shadow_frozen"
-    cg2_reason: str | None = "cg2_frozen_until_cg6"
-    cg3_decision: str | None = "shadow"
-    cg3_reason: str | None = "cg3_shadow_only"
-    rejected_cause: dict[str, Any] | None = None
-    certificate_chain: _CertificateChain = _CertificateChain()
-    bridge_missing_records: tuple[dict[str, Any], ...] = ()
-
-
 class _CounterexampleAwareGenerator:
     def __init__(self, *, first_atom: InterventionAtomBinding | None = None) -> None:
         self.problems: list[DesignProblem] = []
@@ -424,82 +358,6 @@ class _CounterexampleAwareGenerator:
             status="generated",
             candidates=candidates,
             surrogate_rankings=rankings,
-        )
-
-
-class _SameCandidateNewBasisGenerator:
-    """Return one candidate identity with a distinct content occurrence per cycle."""
-
-    def __init__(self) -> None:
-        self.problems: list[DesignProblem] = []
-
-    async def __call__(
-        self,
-        problem: DesignProblem,
-        *,
-        cycle_index: int,
-    ) -> _GenerationResult:
-        self.problems.append(problem)
-        candidate = _Candidate(
-            candidate_id="candidate_same_subject",
-            atom=_Atom(
-                "candidate_same_subject",
-                "sha256:" + ("1" if cycle_index == 0 else "2") * 64,
-            ),
-            diversity_key=("grant", "firms", "same_subject", f"cycle_{cycle_index}"),
-        )
-        return _GenerationResult(
-            status="generated",
-            candidates=(candidate,),
-            surrogate_rankings=(
-                _Ranking(
-                    candidate_id=candidate.candidate_id,
-                    score=0.93 if cycle_index == 0 else 0.31,
-                    voi_estimate=0.82 if cycle_index == 0 else 0.41,
-                ),
-            ),
-        )
-
-
-class _AlwaysLowGrounding:
-    def __call__(
-        self,
-        *,
-        candidate: Any,
-        problem: DesignProblem,
-        cycle_index: int,
-        generation_result: Any | None = None,
-    ) -> CandidateGroundingObservation:
-        del problem, generation_result
-        return CandidateGroundingObservation(
-            candidate_id=str(candidate.candidate_id),
-            status="grounding_gap",
-            grounding_score=0.2 if cycle_index == 0 else 0.68,
-            issue_codes=("missing_supporting_data",) if cycle_index == 0 else (),
-            evidence_refs=() if cycle_index == 0 else ("evidence://supporting-data",),
-            current_valid=False,
-        )
-
-
-class _StableShadowGrounding:
-    def __call__(
-        self,
-        *,
-        candidate: Any,
-        problem: DesignProblem,
-        cycle_index: int,
-        generation_result: Any | None = None,
-    ) -> CandidateGroundingObservation:
-        del problem, cycle_index, generation_result
-        return CandidateGroundingObservation(
-            candidate_id=str(candidate.candidate_id),
-            status="grounded_shadow",
-            grounding_score=0.8,
-            evidence_refs=("evidence://b29/stable-shadow",),
-            current_valid=False,
-            report_ref="grounding://b29/stable-shadow",
-            grounding_source="cgf_firewall",
-            grounding_disposition="shadow_bound",
         )
 
 
@@ -820,75 +678,6 @@ class _LegacyOnlyGenerationPort:
         )
 
 
-class _CgfGenerationPort:
-    def __init__(
-        self,
-        *,
-        missing_owner_target: bool = False,
-        proxy_gap: bool = False,
-        target_world_slots: tuple[str, ...] = ("firm_survival",),
-    ) -> None:
-        self._missing_owner_target = missing_owner_target
-        self._proxy_gap = proxy_gap
-        self._target_world_slots = target_world_slots
-
-    async def __call__(
-        self,
-        problem: DesignProblem,
-        *,
-        cycle_index: int,
-    ) -> _GenerationResult:
-        del cycle_index
-        problem_ref = gy_content_hash(problem.model_dump(mode="json"))
-        candidate = _Candidate(
-            candidate_id="candidate_cgf_shadow",
-            atom=_Atom(
-                "candidate_cgf_shadow",
-                "sha256:" + "4" * 64,
-                target_world_slots=() if self._missing_owner_target else self._target_world_slots,
-                problem_frame_ref=problem_ref,
-            ),
-            diversity_key=("grant", "firms", "cgf_shadow", "baseline"),
-        )
-        chain = _CertificateChain(
-            cg4_proxy_gap_risk_id="cg4_proxy_gap_deadbeefdeadbeef" if self._proxy_gap else None,
-            cg4_proxy_gap_content_hash="sha256:" + "d" * 64 if self._proxy_gap else None,
-            cg4_quarantine_handoff_id="cg4_quarantine_deadbeefdeadbeef"
-            if self._proxy_gap
-            else None,
-            cg4_quarantine_handoff_hash="sha256:" + "e" * 64 if self._proxy_gap else None,
-            cg5_action_certificate_id="cg5_action_deadbeefdeadbeef" if self._proxy_gap else None,
-            cg5_action_content_hash="sha256:" + "f" * 64 if self._proxy_gap else None,
-        )
-        disposition = _GroundingDisposition(
-            proposal_id="proposal.cgf_shadow",
-            candidate_id=candidate.candidate_id,
-            raw_candidate_hash="sha256:" + "5" * 64,
-            disposition="shadow_bound",
-            selected_relation="exact",
-            shadow_atom_content_hash=candidate.atom.content_hash,
-            certificate_chain=chain,
-            bridge_missing_records=(
-                {
-                    "pattern": "bridge_missing",
-                    "owner": "CG4",
-                    "integration_status": "handoff_artifact_n6_direct_intake_not_wired",
-                },
-            )
-            if self._proxy_gap
-            else (),
-        )
-        return _GenerationResult(
-            status="generated",
-            candidates=(candidate,),
-            surrogate_rankings=(
-                _Ranking(candidate_id=candidate.candidate_id, score=0.91, voi_estimate=0.6),
-            ),
-            grounding_dispositions=(disposition,),
-            design_problem_ref=problem_ref,
-        )
-
-
 class _DispositionOnlyGenerationPort:
     """Expose a real N4 non-binding denominator with no fabricated atom."""
 
@@ -1162,78 +951,6 @@ class _ShrinkingSimulationPort:
             k_world_ref_before="world_model_record_before",
             k_world_ref_after="world_model_record_after",
         )
-
-
-def _problem(problem_id: str = "generic_cycle_problem") -> DesignProblem:
-    return DesignProblem(
-        design_problem_id=problem_id,
-        problem_statement="Improve firm survival with grounded support under fiscal constraints.",
-        domain="generic_policy",
-        nl_provenance=NLProvenance(
-            raw_request="Improve firm survival with grounded support.",
-            source_surface="test_generation_cycle",
-        ),
-        authority_profile=AuthorityProfile(
-            requester_authority="research_lab",
-            requested_authority_level="research",
-            mandate="test-only research mandate",
-        ),
-        jurisdiction_time=JurisdictionTimeSemantics(
-            region="UA",
-            valid_time="2026",
-            as_of="2026-06-29",
-            policy_time="2026",
-            data_time="2026",
-        ),
-        objectives=[
-            DesignObjective(
-                objective_id="firm_survival",
-                description="Improve firm survival",
-                metric_id="firm_survival",
-            )
-        ],
-        constraints=[
-            DesignConstraint(
-                constraint_id="shadow_only",
-                description="Generated candidates remain shadow until A/N9 certification.",
-                hard=True,
-                admissibility_basis="request_text",
-                source_text="Do not promote generated candidates.",
-            )
-        ],
-        stakeholders=[
-            DesignStakeholder(
-                stakeholder_id="firms",
-                name="Firms",
-                role="target_population",
-            )
-        ],
-        outcome_of_interest=OutcomeOfInterest(
-            target_variable="firm_survival",
-            metric_id="firm_survival",
-            estimand="average_treatment_effect",
-        ),
-        candidate_lever_space=CandidateLeverSpace(
-            allowed_operator_kinds=["grant", "tax_relief"],
-            candidate_levers=[
-                CandidateLever(
-                    lever_id="grant",
-                    operator_kind="grant",
-                    instrument="Targeted grant",
-                    target_slot="government_balance",
-                )
-            ],
-        ),
-        evidence_acquisition_needs=EvidenceAcquisitionNeeds(
-            needs=[
-                EvidenceNeed(
-                    need_id="supporting_data",
-                    question="Which data grounds this effect?",
-                    required_for="A-side grounding",
-                )
-            ]
-        ),
-    )
 
 
 def _open_world_summary(candidate_id: str = "open_world_candidate") -> CandidateSummary:
@@ -2661,20 +2378,50 @@ def test_joint_port_owner_missing_ncm_blocks_with_bound_wmr_provenance() -> None
     assert controller_calls == []
 
 
-def _record_with_selected_ncm_ref(record: Any, ncm_ref: str) -> Any:
-    """Rebind a fixture WMR to one selected NCM artifact without changing other fields."""
+def test_controlled_profile_basis_matches_cycle_owner_context_and_binds_hints() -> None:
+    """Keep the app fixture's context-only builder equivalent to the test owner."""
 
-    from polisyos.runtime.quality.world_model_record import world_model_record_content_hash
-
-    simulation_model_ref = record.simulation_model_ref.model_copy(update={"ncm_refs": (ncm_ref,)})
-    draft = record.model_copy(update={"simulation_model_ref": simulation_model_ref})
-    content_hash = world_model_record_content_hash(draft)
-    payload = draft.model_dump(mode="python")
-    payload["content_hash"] = content_hash
-    payload["world_model_record_id"] = (
-        f"world_model_record_{content_hash.removeprefix('sha256:')[:16]}"
+    runtime_hints = {
+        "joint_simulation_budget_ref": "budget://controlled-profile/equivalence/n5",
+        "joint_simulation_horizon": {"start": 0, "end": 3, "step": 1},
+        "joint_simulation_resource": "ncm_parallel_worlds",
+    }
+    problem_seed = _problem("controlled_profile_basis_equivalence")
+    expected_problem, expected_context, _candidate = _cyc01_owner_bound_n5_case(
+        runtime_hints=runtime_hints,
+        problem_seed=problem_seed,
     )
-    return type(record).model_validate(payload)
+    actual_problem, actual_context = _controlled_profile_cycle_basis(
+        problem_seed,
+        runtime_hints=runtime_hints,
+    )
+
+    assert actual_problem.model_dump(mode="json") == expected_problem.model_dump(mode="json")
+    actual_context_data = actual_context.model_dump(mode="json")
+    expected_context_data = expected_context.model_dump(mode="json")
+    assert (
+        actual_context_data["world_model_record"]["created_at"]
+        != (expected_context_data["world_model_record"]["created_at"])
+    )
+    actual_context_data["world_model_record"]["created_at"] = "<generated-at>"
+    expected_context_data["world_model_record"]["created_at"] = "<generated-at>"
+    assert actual_context_data == expected_context_data
+    assert actual_context.design_problem_ref == gy_content_hash(
+        actual_problem.model_dump(mode="json")
+    )
+    assert actual_context.substrate_registry.content_hash == (
+        expected_context.substrate_registry.content_hash
+    )
+    assert actual_context.world_model_record.content_hash == (
+        expected_context.world_model_record.content_hash
+    )
+    changed_hints = {**runtime_hints, "joint_simulation_resource": "changed_resource"}
+    changed_problem, changed_context = _controlled_profile_cycle_basis(
+        problem_seed,
+        runtime_hints=changed_hints,
+    )
+    assert changed_problem.model_dump(mode="json") != actual_problem.model_dump(mode="json")
+    assert changed_context.design_problem_ref != actual_context.design_problem_ref
 
 
 def _record_with_selected_ncm_view(record: Any, ncm_ref: Any) -> Any:
@@ -5389,12 +5136,6 @@ def test_boundary_wmr_rejects_selected_entry_absent_from_registry() -> None:
             substrate_registry=registry,
             selected_registry_entry_hashes=("sha256:" + "0" * 64,),
         )
-
-
-def _budget(max_usd: str = "5.0") -> BudgetState:
-    return BudgetState(
-        limits={"run": BudgetLimit(key="run", max_usd=Decimal(max_usd))},
-    )
 
 
 def _n7_data_requirement_spec() -> DataRequirementSpec:
@@ -8186,9 +7927,9 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from tests._helpers.semantic_epoch_native import _real_epoch_scenario
     from tests.unit.runtime.quality.test_acquisition_executor import (
         _activate_real_epoch_scenario,
-        _real_epoch_scenario,
     )
 
     problem = _problem("ds15_active_overlay_reentry")
@@ -8324,9 +8065,9 @@ async def test_active_overlay_reentry_rejects_binding_and_trace_mutations(
 ) -> None:
     import duckdb
 
+    from tests._helpers.semantic_epoch_native import _real_epoch_scenario
     from tests.unit.runtime.quality.test_acquisition_executor import (
         _activate_real_epoch_scenario,
-        _real_epoch_scenario,
     )
 
     problem = _problem("ds15_overlay_reentry_mutations")

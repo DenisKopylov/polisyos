@@ -591,16 +591,6 @@ owner = "team-foundry"
 target_phase = "1A"
 sunset = "2026-06-15"
 
-[[rename_backlog]]
-name = "errors"
-packages = ["data_forge"]
-locations = ["src/polisyos/data_forge/domains/catalog/fixtures/academic/errors"]
-action = "Rename academic fixture taxonomy directory to academic_error_cases; this is fixture data, not a package namespace contract."
-replacement = "src/polisyos/data_forge/domains/catalog/fixtures/academic/academic_error_cases"
-owner = "team-architecture"
-target_phase = "4A"
-sunset = "2026-10-01"
-
 [[phase0_4_name_decision]]
 name = "_internal"
 decision = "scoped_ok"

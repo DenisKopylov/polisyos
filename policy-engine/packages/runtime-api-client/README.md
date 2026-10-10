@@ -129,6 +129,9 @@ generated types by hand.
   in one command after exporting the OpenAPI schema. Pass
   `--output-root /absolute/scratch/root` to keep the three committed outputs
   isolated.
+  Set `POLISYOS_RETAIN_GENERATOR_SCRATCH=1` to retain the intermediate raw
+  client files for local evidence. The generator prints their scratch path to
+  stderr; set `TMPDIR` to an ignored evidence directory when retaining them.
 
 - `node packages/runtime-api-client/scripts/generate-openapi-types.mjs --openapi schemas/runtime_api_v1.openapi.json --output /absolute/scratch/types.ts`
   Runs the lock-pinned `openapi-typescript` API and shared request-direction
@@ -178,4 +181,4 @@ generated types by hand.
 - [`../../docs/reference/api/artifacts.md`](../../docs/reference/api/artifacts.md)
 - [`../../src/polisyos/runtime/http/README.md`](../../src/polisyos/runtime/http/README.md)
 
-Last updated: 2026-07-18
+Last updated: 2026-10-10

@@ -1,0 +1,17 @@
+id = "2026-10-09-e02-policy-runtime-support-decomposition"
+title = "Split policy runtime support behind its canonical facade"
+type = "changed"
+component = "scientist-policy-runtime"
+owner = "scientist-nodes"
+summary = "Policy-runtime artifact/evidence workflows and metric projections now live in adjacent helpers behind the existing support facade. Public contract types, backend owners, promotion entry point, wrapper signatures, and current evaluation outputs remain at their existing canonical boundary."
+evidence = ["tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_support.py", "tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_support_decomposition.py", "tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py"]
+compatibility = "Internal decomposition only. Existing imports, public type identities, evaluator and promotion entry points, monkeypatchable support names, and artifact payload behavior remain compatible."
+change_class = "internal"
+surface_classification = "Internal Python module decomposition; no HTTP, OpenAPI, generated-client, or public artifact-schema change."
+migration = "No migration is required. Existing callers continue to import from policy_runtime_support."
+api = "The support module remains the canonical facade. Adjacent policy_runtime_artifacts and policy_runtime_metrics modules hold implementation helpers; no caller import migration is needed."
+limitations = "This change preserves existing runtime behavior. It does not add draw instrumentation, scientific execution, or authority semantics; current draw status remains explicitly not_instrumented with actual counts unavailable."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

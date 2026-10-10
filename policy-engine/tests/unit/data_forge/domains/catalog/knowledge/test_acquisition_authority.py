@@ -18,9 +18,7 @@ from polisyos.core.contracts import chronology as chronology_contract
 from polisyos.core.contracts import epoch as epoch_contract
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
-    DEFAULT_ACQUISITION_AUTHORITY_PROVISION,
     DEFAULT_ACQUISITION_AUTHORITY_REGISTRY,
-    DEFAULT_L5_MEASUREMENT_REGISTRY,
     AcquisitionAuthorityEntry,
     AcquisitionAuthorityError,
     AuthoritySchemaColumn,
@@ -39,7 +37,6 @@ from polisyos.data_forge.domains.catalog.knowledge.overlay import (
 from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
     score_variable_pair,
 )
-from polisyos.data_forge.read_api.catalog import build_slice0_fixture_catalog_graph
 from polisyos.fabric.connectors import resolve_connection_config
 from polisyos.fabric.connectors.cache.store import ResultSerializer
 from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
@@ -67,7 +64,19 @@ from polisyos.runtime.quality.acquisition_executor import (
     build_admission_passport,
     revalidate_admission_passport,
 )
-from tests.unit.runtime.quality.test_acquisition_executor import _fixture, _semantic_handshake
+from tests._helpers.acquisition_production import (
+    _authority_family_receipt as _family_receipt,
+)
+from tests._helpers.acquisition_production import (
+    _baseline,
+    _entry,
+    _resolver,
+    _sha,
+    _write_family_receipt,
+    _write_l5,
+    _write_provision,
+)
+from tests._helpers.semantic_epoch_native import _fixture, _semantic_handshake
 
 
 def _live_semantic_handshake(store: FileSystemCAS, evidence: object):
@@ -78,10 +87,6 @@ def _live_semantic_handshake(store: FileSystemCAS, evidence: object):
         media_type=manifest.media_type,
     )
     return _semantic_handshake(store, source_ref=source_ref)
-
-
-def _sha(path: Path) -> str:
-    return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def _put_epoch_evidence(
@@ -96,197 +101,6 @@ def _put_epoch_evidence(
             kind=kind,
             media_type="application/vnd.polisyos.epoch+json",
         ),
-    )
-
-
-def _write_l5(repo_root: Path) -> Path:
-    path = repo_root / DEFAULT_L5_MEASUREMENT_REGISTRY
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(
-            {
-                "schema_version": "1.0",
-                "coverage_rules": {"macro_state": 0.95},
-                "proxy_mappings": {},
-                "trust_tiers": {
-                    "authoritative_high_coverage": {
-                        "tier": "authoritative_high_coverage",
-                        "min_coverage": 0.85,
-                        "max_coverage": 1.0,
-                        "trust_cap": 1.0,
-                        "trust_multiplier": 1.0,
-                    },
-                    "administrative_noisy": {
-                        "tier": "administrative_noisy",
-                        "min_coverage": 0.0,
-                        "max_coverage": 1.0,
-                        "trust_cap": 0.7,
-                        "trust_multiplier": 0.85,
-                    },
-                },
-            },
-            sort_keys=True,
-            separators=(",", ":"),
-        ),
-        encoding="utf-8",
-    )
-    return path
-
-
-def _write_provision(
-    repo_root: Path,
-    *,
-    baseline: Path,
-    l5_path: Path,
-    baseline_owner_ref: str,
-    live_harness_receipts: tuple[dict[str, str], ...] = (),
-) -> Path:
-    provision = build_acquisition_authority_provision(
-        baseline_owner_ref=baseline_owner_ref,
-        baseline_content_sha256=_sha(baseline),
-        l5_measurement_registry_owner_ref=("repo://" + DEFAULT_L5_MEASUREMENT_REGISTRY.as_posix()),
-        l5_measurement_registry_content_sha256=_sha(l5_path),
-        live_harness_receipts=live_harness_receipts,
-    )
-    path = repo_root / DEFAULT_ACQUISITION_AUTHORITY_PROVISION
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(
-            provision.model_dump(mode="json"),
-            sort_keys=True,
-            separators=(",", ":"),
-        ),
-        encoding="utf-8",
-    )
-    return path
-
-
-def _baseline(repo_root: Path, *, license_id: str = "CC-BY-4.0") -> Path:
-    root = repo_root / "catalog"
-    graph = build_slice0_fixture_catalog_graph(root)
-    graph.close()
-    path = root / "catalog.duckdb"
-    con = duckdb.connect(str(path))
-    try:
-        con.execute(
-            """
-            INSERT INTO ds_datasets (
-                id, source, agency, title, description, access_license,
-                execution_tier, polisyos_metrics, preferred_distribution_id
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            [
-                "source-worldbank-balance",
-                "worldbank",
-                "World Bank",
-                "Cash surplus/deficit (% of GDP)",
-                "Government cash balance as a share of GDP.",
-                license_id,
-                "transport_ready",
-                ["gov_balance"],
-                "source-worldbank-balance-json",
-            ],
-        )
-        con.execute(
-            """
-            INSERT INTO ds_distributions (
-                id, dataset_id, connector_type, profile_id, source_locator,
-                parser_supported, machine_readable, quality_score
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            [
-                "source-worldbank-balance-json",
-                "source-worldbank-balance",
-                "worldbank.wdi",
-                "worldbank_wdi",
-                "GC.BAL.CASH.GD.ZS",
-                True,
-                True,
-                0.9,
-            ],
-        )
-        con.execute(
-            """
-            INSERT INTO ds_metric_bindings (
-                metric_id, dataset_id, distribution_id, connector_id, profile_id,
-                request_dataset_id, confidence, metric_inference_confidence,
-                default_filters, execution_tier, source
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            [
-                "gov_balance",
-                "source-worldbank-balance",
-                "source-worldbank-balance-json",
-                "worldbank.wdi",
-                "worldbank_wdi",
-                "GC.BAL.CASH.GD.ZS",
-                0.87,
-                0.95,
-                "{}",
-                "transport_ready",
-                "worldbank",
-            ],
-        )
-        con.execute(
-            """
-            INSERT INTO ds_variable_alignments VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            [
-                "source-worldbank-balance",
-                "GC.BAL.CASH.GD.ZS",
-                "gov_balance",
-                "exact",
-                0.85,
-                "Cash surplus/deficit % GDP;source=worldbank",
-                False,
-                0.0,
-            ],
-        )
-    finally:
-        con.close()
-    return path
-
-
-def _entry():
-    return build_authority_entry(
-        source_lane="live_fetch",
-        target_variable="government.balance",
-        landing_dataset_id="acquisition.worldbank.government_balance",
-        landing_distribution_id="acquisition.worldbank.government_balance.json",
-        source_catalog_dataset_id="source-worldbank-balance",
-        source_catalog_distribution_id="source-worldbank-balance-json",
-        upstream_metric_id="gov_balance",
-        catalog_raw_variable="GC.BAL.CASH.GD.ZS",
-        raw_field="value",
-        raw_unit="percent_gdp",
-        canonical_unit="percent_gdp",
-        unit_transform="identity",
-        unit_transform_ref="fabric://units/percent-gdp-identity/v1",
-        alignment_method="meta_analytic",
-        alignment_confidence=0.8,
-        is_proxy=False,
-        proxy_penalty=0.0,
-        aggregation_method="identity",
-        valid_min=-100.0,
-        valid_max=100.0,
-        evidence_refs=("duckdb://production_data/dataset_catalog.duckdb#/gov_balance",),
-        schema_contract_ref="fabric://worldbank.wdi.generic@2.0.0",
-        schema_columns=(
-            AuthoritySchemaColumn(name="country_code", logical_types=("string",), nullable=False),
-            AuthoritySchemaColumn(name="country_name", logical_types=("string",), nullable=False),
-            AuthoritySchemaColumn(name="decimal", logical_types=("integer",), nullable=False),
-            AuthoritySchemaColumn(name="indicator_id", logical_types=("string",), nullable=False),
-            AuthoritySchemaColumn(name="indicator_name", logical_types=("string",), nullable=False),
-            AuthoritySchemaColumn(name="unit", logical_types=("string",), nullable=False),
-            AuthoritySchemaColumn(name="value", logical_types=("null", "number"), nullable=True),
-            AuthoritySchemaColumn(name="year", logical_types=("integer",), nullable=False),
-        ),
-        l5_family_id="macro_state",
-        title="Acquired government balance",
-        description="Owner-validated World Bank government balance observations.",
-        country_codes=("UKR",),
-        temporal_start="2020",
-        temporal_end="2024",
     )
 
 
@@ -378,61 +192,6 @@ def _unaligned_usd_resolver(
         ),
         entry,
     )
-
-
-def _family_receipt(attempt_id: str) -> dict[str, object]:
-    outcome = "replay_fixture_missing_after_interception"
-    profile = SourceProfileRegistry.get_instance().get("worldbank_wdi")
-    assert profile is not None
-    return {
-        "connector_id": "worldbank.wdi",
-        "component_id": "worldbank.wdi@1.0.0",
-        "connector_class": ("polisyos.fabric.connectors.sources.world_bank.WorldBankConnector"),
-        "protocol_violations": [],
-        "protocol_conformant": True,
-        "harness_checks_passed": [
-            "capability_gated_methods_present",
-            "connect_returns_unique_sessions",
-            "core_methods_are_async",
-            "disconnect_idempotent",
-            "protocol_compliance",
-            "required_class_attributes",
-        ],
-        "harness_check_failures": [],
-        "carrier_denominator": 1,
-        "carrier_attempt_count": 1,
-        "dry_run_attempts": [
-            {
-                "attempt_id": attempt_id,
-                "profile_id": "worldbank_wdi",
-                "source_profile_family": "worldbank",
-                "request_dataset_id": "GC.BAL.CASH.GD.ZS",
-                "fetch_request_key": FetchRequest(dataset_id="GC.BAL.CASH.GD.ZS").request_key,
-                "connection_config_content_sha256": content_sha256(
-                    resolve_connection_config(profile).to_dict(redact=True)
-                ),
-                "connector_fetch_invoked": True,
-                "fetch_completed": False,
-                "outcome": outcome,
-                "finding_code": outcome,
-                "failure_type": (
-                    "polisyos.fabric.connectors.testing.simulator.MissingFixtureError"
-                ),
-                "simulator_mode": "replay",
-                "simulator_call_count": 1,
-                "transport_intercepted": True,
-                "network_escape_attempt_count": 0,
-                "actual_network_call_count": 0,
-            }
-        ],
-        "outcome_counts": {outcome: 1},
-        "safe_dry_run_passed": True,
-        "simulator_mode": "replay",
-        "simulator_intercepted": True,
-        "simulator_call_count": 1,
-        "network_escape_attempt_count": 0,
-        "simulator_network_calls": 0,
-    }
 
 
 def test_acquisition_authority_supplies_epoch_service_and_query(
@@ -576,69 +335,6 @@ def test_acquisition_authority_supplies_epoch_service_and_query(
     assert isinstance(receipt, semantic_epoch.PersistedSemanticEpochProductionReceipt)
     assert receipt.status == "not_established"
     assert receipt.failure_codes == ("policy_admission_missing",)
-
-
-def _write_family_receipt(
-    repo_root: Path,
-    *,
-    entry_id: str,
-    attempt_id: str,
-    receipt: dict[str, object],
-    receipt_path: str = "evidence/worldbank-wdi-live-harness.json",
-) -> dict[str, str]:
-    path = repo_root / receipt_path
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(receipt, sort_keys=True, separators=(",", ":")),
-        encoding="utf-8",
-    )
-    return {
-        "entry_id": entry_id,
-        "attempt_id": attempt_id,
-        "receipt_owner_ref": f"repo://{receipt_path}",
-        "receipt_content_sha256": _sha(path),
-    }
-
-
-def _resolver(
-    repo_root: Path,
-    *,
-    license_id: str = "CC-BY-4.0",
-    authority_entry: AcquisitionAuthorityEntry | None = None,
-    live_harness_receipts: tuple[dict[str, str], ...] = (),
-):
-    baseline = _baseline(repo_root, license_id=license_id)
-    l5 = _write_l5(repo_root)
-    entry = authority_entry or _entry()
-    registry = build_authority_registry(
-        baseline_content_sha256=_sha(baseline),
-        l5_measurement_registry_sha256=_sha(l5),
-        entries=(entry,),
-    )
-    path = repo_root / DEFAULT_ACQUISITION_AUTHORITY_REGISTRY
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(
-            registry.model_dump(mode="json"),
-            sort_keys=True,
-            separators=(",", ":"),
-        ),
-        encoding="utf-8",
-    )
-    _write_provision(
-        repo_root,
-        baseline=baseline,
-        l5_path=l5,
-        baseline_owner_ref="repo://catalog/catalog.duckdb",
-        live_harness_receipts=live_harness_receipts,
-    )
-    return (
-        CanonicalAcquisitionAuthority.from_provision(
-            repo_root=repo_root,
-            baseline_path=baseline,
-        ),
-        entry,
-    )
 
 
 def _live_execution_fixture(

@@ -1085,7 +1085,7 @@ generator = "canonical generator declared in regenerate_commands"
 verifier = "verifier declared by check_command, drift_gate, workflow, or manual review policy"
 promotion_target = "docs/archive/reports/architecture/ when reviewed as durable evidence"
 stale_output_behavior = "ignored_by_policy"
-source_of_truth = "architecture/tooling/static_analysis_overrides.toml, architecture/tooling/tool_config_split.toml, architecture/tooling/mypy/generated.ini, architecture/tooling/ruff/generated.toml, and inline noqa/type-ignore comments"
+source_of_truth = "architecture/tooling/static_analysis_overrides.toml, architecture/tooling/tool_config_split.toml, architecture/tooling/mypy/generated.ini, ruff.generated.toml, and inline noqa/type-ignore comments"
 outputs = ["_build/reports/architecture/static-analysis-overrides.json"]
 regenerate_commands = [
   "uv run python tools/quality/validation/architecture_report_only_contracts.py --report static-analysis-overrides --json-output _build/reports/architecture/static-analysis-overrides.json",
@@ -1108,7 +1108,7 @@ stale_output_behavior = "fail"
 source_of_truth = "architecture/tooling/tool_config_split.toml and architecture/tooling/{mypy,ruff,mkdocs}/** source fragments"
 outputs = [
   "architecture/tooling/mypy/generated.ini",
-  "architecture/tooling/ruff/generated.toml",
+  "ruff.generated.toml",
   "architecture/tooling/ruff/workspace_root.toml",
   "architecture/tooling/mkdocs/generated.yml",
   "mypy.ini",

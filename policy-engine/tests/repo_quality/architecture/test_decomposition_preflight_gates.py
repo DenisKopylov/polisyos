@@ -7,6 +7,7 @@ import sys
 import tomllib
 from pathlib import Path
 
+from tools.quality.validation import decomposition_preflight as preflight
 from tools.quality.validation.decomposition_preflight import (
     REPO_ROOT,
     validate_dynamic_imports,
@@ -20,6 +21,67 @@ def test_dynamic_imports_gate_resolves_registered_targets() -> None:
     findings = validate_dynamic_imports()
 
     assert findings == [], "\n".join(finding.render() for finding in findings)
+
+
+def test_dynamic_imports_gate_rejects_registry_and_target_corruption(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    source_entries = preflight.collect_dynamic_imports()
+    registry_path = tmp_path / "dynamic.toml"
+    monkeypatch.setattr(preflight, "DYNAMIC_IMPORTS_PATH", registry_path)
+    monkeypatch.setattr(preflight, "collect_dynamic_imports", lambda: source_entries)
+
+    def validate_entries(entries: list[dict[str, object]]):
+        registry_path.write_text(
+            preflight.render_dynamic_imports_toml(entries),
+            encoding="utf-8",
+        )
+        return preflight.validate_dynamic_imports()
+
+    assert validate_entries(source_entries) == []
+
+    corrupt_field_entries = [
+        {**entry, "allowed_targets": list(entry["allowed_targets"])} for entry in source_entries
+    ]
+    corrupt_field_entries[0]["line"] = int(corrupt_field_entries[0]["line"]) + 100_000
+    corrupt_field_findings = validate_entries(corrupt_field_entries)
+    assert any(
+        finding.message == "dynamic import call is not registered"
+        for finding in corrupt_field_findings
+    )
+    assert any(
+        finding.message == "registered dynamic import call no longer exists"
+        for finding in corrupt_field_findings
+    )
+
+    missing_call_entries = [
+        {**entry, "allowed_targets": list(entry["allowed_targets"])} for entry in source_entries
+    ]
+    missing_call = missing_call_entries.pop(0)
+    missing_call_signature = (
+        missing_call["source_file"],
+        missing_call["line"],
+        missing_call["call"],
+        missing_call["pattern"],
+    )
+    missing_call_findings = validate_entries(missing_call_entries)
+    assert any(
+        finding.message == "dynamic import call is not registered"
+        and finding.detail == repr(missing_call_signature)
+        for finding in missing_call_findings
+    )
+
+    invalid_target_entries = [
+        {**entry, "allowed_targets": list(entry["allowed_targets"])} for entry in source_entries
+    ]
+    target_entry = next(entry for entry in invalid_target_entries if entry["allowed_targets"])
+    target_entry["allowed_targets"] = ["polisyos.__not_a_real_dynamic_catalog_target__"]
+    target_findings = validate_entries(invalid_target_entries)
+    assert any(
+        finding.message == "allowed dynamic import target does not resolve"
+        for finding in target_findings
+    )
 
 
 def test_import_cycles_gate_allows_only_phase3a_lazy_cycles() -> None:
@@ -59,9 +121,7 @@ def test_phase5_scientist_root_facade_has_no_loose_python_modules() -> None:
         and Path(shim.get("source_path", "")).parent == Path("src/polisyos/scientist")
     }
     root_py_files = sorted(path.name for path in scientist_root.glob("*.py"))
-    non_shim_root_py_files = [
-        name for name in root_py_files if name not in registered_root_shims
-    ]
+    non_shim_root_py_files = [name for name in root_py_files if name not in registered_root_shims]
     top_level_entries = [path for path in scientist_root.iterdir() if path.name != "__pycache__"]
     gate_result = subprocess.run(
         [

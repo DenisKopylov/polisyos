@@ -8,6 +8,8 @@ import time
 import uuid
 from typing import Any, Protocol, cast, get_args
 
+from pydantic import BaseModel
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.control import (
     ControlJobKind,
@@ -53,20 +55,20 @@ def _make_artifact_ref(
     )
 
 
-def _typed_artifact_ref(
+def _typed_artifact_ref[ArtifactRefModelT: BaseModel](
     ref_str: str,
     *,
     kind: str,
-    ref_type: Any,
+    ref_type: type[ArtifactRefModelT],
     media_type: str = "application/json",
-) -> Any:
-    return cast("Any", ref_type).model_validate(
+) -> ArtifactRefModelT:
+    return ref_type.model_validate(
         _make_artifact_ref(ref_str, kind=kind, media_type=media_type).model_dump(mode="json")
     )
 
 
 def _artifact_ref_from_summary_payload(
-    payload: Any,
+    payload: object,
     *,
     kind: str,
     media_type: str = "application/json",
@@ -93,6 +95,7 @@ _OPTIONAL_INPUT_KEYS = {
     "knowledge_bundle_ref": "scholar.knowledge_bundle",
     "norm_pack_ref": "lex.norm_pack",
     "calibration_report_ref": "foundry.calibration_report",
+    "production_case_intake_ref": "gy.loop.proof.root",
 }
 
 

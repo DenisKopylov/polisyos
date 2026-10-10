@@ -1,13 +1,16 @@
 from __future__ import annotations
 
+import configparser
 import importlib.util
 import json
+import subprocess
 import sys
 import tomllib
 from pathlib import Path
 from types import ModuleType
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
+BENCHMARK_ROOT = REPO_ROOT / "benchmarks"
 RATCHETS = REPO_ROOT / "architecture" / "tests" / "ratchets.toml"
 TOPOLOGY = REPO_ROOT / "architecture" / "tests" / "topology.toml"
 BASELINE = (
@@ -18,6 +21,7 @@ BASELINE = (
     / "verification_inventory.json"
 )
 REPORTER = REPO_ROOT / "tools" / "quality" / "testing" / "report_test_ratchets.py"
+ROOT_PYTEST_CONFIG = REPO_ROOT / "pytest.ini"
 
 
 def _load_toml(path: Path) -> dict:
@@ -32,6 +36,59 @@ def _load_reporter() -> ModuleType:
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module
+
+
+def _pytest_configs_under_benchmarks(benchmark_root: Path) -> list[Path]:
+    """Find active pytest configuration files below a benchmark root."""
+    configs: list[Path] = []
+    for path in sorted(benchmark_root.rglob("*")):
+        if not path.is_file():
+            continue
+        if path.name in {"pytest.ini", ".pytest.ini", "pytest.toml", ".pytest.toml"}:
+            configs.append(path)
+        elif path.name in {"tox.ini", "setup.cfg"}:
+            parser = configparser.ConfigParser()
+            try:
+                parser.read_string(path.read_text(encoding="utf-8"))
+            except configparser.Error:
+                configs.append(path)
+            else:
+                section = "pytest" if path.name == "tox.ini" else "tool:pytest"
+                if parser.has_section(section):
+                    configs.append(path)
+        elif path.name == "pyproject.toml":
+            try:
+                payload = tomllib.loads(path.read_text(encoding="utf-8"))
+            except tomllib.TOMLDecodeError:
+                configs.append(path)
+            else:
+                tool = payload.get("tool", {})
+                pytest = tool.get("pytest", {}) if isinstance(tool, dict) else {}
+                if isinstance(pytest, dict) and (
+                    "ini_options" in pytest or any(key != "ini_options" for key in pytest)
+                ):
+                    configs.append(path)
+    return configs
+
+
+def _benchmark_test_files(benchmark_root: Path) -> list[Path]:
+    """Return every pytest-style test module under the benchmark root."""
+    return sorted(
+        path
+        for path in benchmark_root.rglob("*.py")
+        if path.name.startswith("test_") or path.name.endswith("_test.py")
+    )
+
+
+def _run_pytest_collection(*, cwd: Path, test_paths: list[str]) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [sys.executable, "-m", "pytest", "--collect-only", "-vv", *test_paths],
+        cwd=cwd,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
 
 
 def test_phase_6_2_ratchets_match_topology_and_measured_baseline() -> None:
@@ -111,12 +168,10 @@ def test_phase_6_2_pytest_benchmark_and_fixture_contracts_are_explicit() -> None
     assert "new_package_move_policy" in ratchets["ratchet_policy"]
     assert ratchets["pytest_policy"]["root_config"] == "pytest.ini"
     assert ratchets["pytest_policy"]["pytest_roots"] == ["tests"]
-    assert "pyproject.toml:[tool.pytest.ini_options]" in ratchets["pytest_policy"][
-        "forbidden_config_roots"
-    ]
-
-    exceptions = {exception["id"]: exception for exception in ratchets["pytest_universe_exception"]}
-    assert exceptions["benchmarks-conftest-transition"]["path"] == "benchmarks/conftest.py"
+    assert (
+        "pyproject.toml:[tool.pytest.ini_options]"
+        in ratchets["pytest_policy"]["forbidden_config_roots"]
+    )
 
     benchmark_policy = ratchets["benchmark_policy"]
     assert benchmark_policy["decision"] == "public_product_evaluation"
@@ -184,3 +239,94 @@ def test_phase_6_2_reporter_renders_package_mirror_and_property_summary() -> Non
     assert "`scientist`" in markdown
     assert "Property-required packages" in markdown
     assert "Gate note" in markdown
+
+
+def test_benchmark_collection_uses_root_pytest_config_without_a_local_universe() -> None:
+    root_config = configparser.ConfigParser()
+    assert root_config.read(ROOT_PYTEST_CONFIG, encoding="utf-8") == [str(ROOT_PYTEST_CONFIG)]
+    assert root_config.get("pytest", "testpaths").split() == ["tests"]
+    assert "--strict-markers" in root_config.get("pytest", "addopts")
+    assert "benchmark:" in root_config.get("pytest", "markers")
+
+    assert _pytest_configs_under_benchmarks(BENCHMARK_ROOT) == []
+    test_paths = _benchmark_test_files(BENCHMARK_ROOT)
+    assert test_paths
+    result = _run_pytest_collection(
+        cwd=REPO_ROOT,
+        test_paths=[str(path.relative_to(REPO_ROOT)) for path in test_paths],
+    )
+    output = result.stdout + result.stderr
+
+    assert result.returncode == 0, output
+    assert f"rootdir: {REPO_ROOT}" in result.stdout
+    assert "configfile: pytest.ini" in result.stdout
+    assert "collected 44 items" in result.stdout
+
+
+def test_benchmark_config_census_recognizes_pytest_supported_config_formats(
+    tmp_path: Path,
+) -> None:
+    benchmark_root = tmp_path / "benchmarks"
+    benchmark_root.mkdir()
+    configs = {
+        "pytest.ini": "[pytest]\naddopts = --strict-markers\n",
+        ".pytest.ini": "[pytest]\naddopts = --strict-markers\n",
+        "pytest.toml": '[pytest]\naddopts = ["--strict-markers"]\n',
+        ".pytest.toml": '[pytest]\naddopts = ["--strict-markers"]\n',
+        "pyproject.toml": '[tool.pytest]\naddopts = ["--strict-markers"]\n',
+        "tox.ini": "[pytest]\naddopts = --strict-markers\n",
+        "setup.cfg": "[tool:pytest]\naddopts = --strict-markers\n",
+    }
+
+    for name, contents in configs.items():
+        config = benchmark_root / name
+        config.write_text(contents, encoding="utf-8")
+        assert _pytest_configs_under_benchmarks(benchmark_root) == [config]
+        config.unlink()
+
+
+def test_injected_benchmark_pytest_config_changes_root_and_loses_registered_marker(
+    tmp_path: Path,
+) -> None:
+    benchmark_root = tmp_path / "benchmarks"
+    benchmark_root.mkdir()
+    assert _pytest_configs_under_benchmarks(benchmark_root) == []
+    root_config = tmp_path / "pytest.ini"
+    root_config.write_text(
+        "[pytest]\n"
+        "addopts = --strict-markers\n"
+        "testpaths = tests\n"
+        "markers =\n"
+        "    retained_marker: marker retained by the root pytest universe\n",
+        encoding="utf-8",
+    )
+    probe = benchmark_root / "test_marker_probe.py"
+    probe.write_text(
+        "import pytest\n\n@pytest.mark.retained_marker\ndef test_marker_probe():\n    pass\n",
+        encoding="utf-8",
+    )
+
+    baseline = _run_pytest_collection(cwd=tmp_path, test_paths=["benchmarks/test_marker_probe.py"])
+    assert baseline.returncode == 0, baseline.stdout + baseline.stderr
+    assert f"rootdir: {tmp_path}" in baseline.stdout
+    assert "retained_marker" in root_config.read_text(encoding="utf-8")
+
+    nested_config = benchmark_root / "pytest.ini"
+    nested_config.write_text(
+        "[pytest]\n"
+        "addopts = --strict-markers\n"
+        "filterwarnings =\n"
+        "    error::pytest.PytestUnknownMarkWarning\n",
+        encoding="utf-8",
+    )
+    assert _pytest_configs_under_benchmarks(benchmark_root) == [nested_config]
+
+    injected = _run_pytest_collection(
+        cwd=tmp_path,
+        test_paths=["benchmarks/test_marker_probe.py"],
+    )
+    output = injected.stdout + injected.stderr
+    assert injected.returncode != 0, output
+    assert f"rootdir: {benchmark_root}" in injected.stdout
+    assert "unknown pytest.mark.retained_marker" in output.lower()
+    assert "pytestunknownmarkwarning" in output.lower()

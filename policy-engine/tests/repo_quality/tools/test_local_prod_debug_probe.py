@@ -143,9 +143,12 @@ def test_debug_probe_requires_a_separately_injected_bearer() -> None:
         local_prod_debug_probe._debug_probe_bearer_token({})
 
     token = "eyJ-short-lived-debug-probe-token"  # noqa: S105 - inert test sentinel
-    assert local_prod_debug_probe._debug_probe_bearer_token(
-        {"POLISYOS_RUNTIME_DEBUG_PROBE_BEARER_TOKEN": token}
-    ) == token
+    assert (
+        local_prod_debug_probe._debug_probe_bearer_token(
+            {"POLISYOS_RUNTIME_DEBUG_PROBE_BEARER_TOKEN": token}
+        )
+        == token
+    )
 
 
 def test_production_dry_run_exercises_protected_route_with_debug_principal(
@@ -532,8 +535,7 @@ def test_control_plane_timeout_is_resilience_signal_until_artifacts_break() -> N
     assert warning["status"] == "warn"
     assert warning["root_cause_class"] == "secondary_resilience_signal"
     assert warning["failure_reason"] == (
-        "Control-plane timeout was observed, but bundle/replay/closeout "
-        "durability remained intact."
+        "Control-plane timeout was observed, but bundle/replay/closeout durability remained intact."
     )
     assert failure["status"] == "fail"
     assert failure["root_cause_class"] == "artifact_durability_break"
@@ -634,7 +636,7 @@ def test_optional_postgres_lifecycle_probe_is_gated_by_env(tmp_path: Path) -> No
     assert result["details"]["backend"] == "postgres"
 
 
-def test_production_data_static_passes_with_actionable_construct_blockers(
+def test_production_data_static_warns_on_missing_family_and_retains_construct_blocker(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -713,21 +715,112 @@ def test_production_data_static_passes_with_actionable_construct_blockers(
 
     result = local_prod_debug_probe.run_production_data_static_check(context)
 
-    assert result["status"] == "pass"
-    assert result["code"] is None
+    assert result["status"] == "warn"
+    assert result["code"] == "production_data_scenario_contracts_missing"
     details = result["details"]
-    assert details["missing_scenario_source_families"] == []
+    assert details["missing_scenario_source_families"] == ["credit_program_registry"]
     assert details["construct_capability_blockers"][0]["construct_ref"] == (
         "construct:credit_program_enrollment"
     )
-    assert details["construct_capability_blockers"][0]["status"] == (
-        "blocked_acquisition_required"
-    )
+    assert details["construct_capability_blockers"][0]["status"] == ("blocked_acquisition_required")
     assert details["construct_capability_blockers"][0]["acquisition_strategies"]
-    assert not any(
-        issue["code"] == "production_data_scenario_binding_incomplete"
-        for issue in details["issues"]
+    assert any(
+        issue["code"] == "production_data_scenario_contracts_missing" for issue in details["issues"]
     )
+
+
+def test_production_data_static_warns_when_family_is_missing_without_resolution(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    production_root = tmp_path / "production_data"
+    production_root.mkdir()
+    (production_root / "manifest.json").write_text(
+        json.dumps({"bundles": {"catalog": {"path": "catalog.duckdb"}}}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "load_production_data_manifest",
+        lambda _root: {"bundles": {"catalog": {"path": "catalog.duckdb"}}},
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "production_data_evidence_context",
+        lambda *_args, **_kwargs: {"production_data_root": str(production_root)},
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "production_data_quality_report",
+        lambda *_args, **_kwargs: {"status": "pass", "issues": []},
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "load_quality_scenario_contract",
+        lambda _scenario_id: {"scenario_evidence_contract": {}},
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "production_data_contract_binding_report",
+        lambda *_args, **_kwargs: {
+            "summary": {"status": "blocked"},
+            "missing_scenario_source_families": ["credit_program_registry"],
+            "scenario_binding_findings": [
+                {
+                    "requirement_id": "req:credit-program",
+                    "expected_family": "credit_program_registry",
+                    "status": "blocked",
+                }
+            ],
+            "compiled_data_requirement_specs": [
+                {
+                    "metadata": {
+                        "capability_binding": {
+                            "status": "resolved",
+                            "construct_ref": "construct:credit_program_enrollment",
+                        }
+                    }
+                }
+            ],
+        },
+    )
+    context = local_prod_debug_probe.ProbeContext.for_tests(
+        repo_root=tmp_path,
+        production_data_root=production_root,
+    )
+
+    result = local_prod_debug_probe.run_production_data_static_check(context)
+
+    assert result["status"] == "warn"
+    assert result["code"] == "production_data_scenario_contracts_missing"
+    assert result["details"]["missing_scenario_source_families"] == ["credit_program_registry"]
+    assert any(
+        issue["code"] == "production_data_scenario_contracts_missing"
+        for issue in result["details"]["issues"]
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "_runtime_env",
+        lambda _repo_root: {"POLISYOS_PRODUCTION_DATA_ROOT": str(production_root)},
+    )
+    output = tmp_path / "probe.json"
+
+    exit_code = local_prod_debug_probe.main(
+        [
+            "--repo-root",
+            str(tmp_path),
+            "--checks",
+            "production-data-static",
+            "--require-passing",
+            "--output",
+            str(output),
+        ]
+    )
+
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert exit_code == 2
+    assert payload["summary"]["status"] == "warn"
+    assert payload["checks"][0]["code"] == "production_data_scenario_contracts_missing"
 
 
 def test_production_data_static_uses_resolver_when_projection_lacks_binding(
@@ -737,8 +830,7 @@ def test_production_data_static_uses_resolver_when_projection_lacks_binding(
     production_root = tmp_path / "production_data"
     production_root.mkdir()
     capability_index = (
-        tmp_path
-        / "_build/.tmp/production-quality/capability-index/capability_index_v1.duckdb"
+        tmp_path / "_build/.tmp/production-quality/capability-index/capability_index_v1.duckdb"
     )
     capability_index.parent.mkdir(parents=True)
     capability_index.write_text("fixture", encoding="utf-8")
@@ -833,9 +925,9 @@ def test_production_data_static_uses_resolver_when_projection_lacks_binding(
 
     result = local_prod_debug_probe.run_production_data_static_check(context)
 
-    assert result["status"] == "pass"
-    assert result["code"] is None
-    assert result["details"]["missing_scenario_source_families"] == []
+    assert result["status"] == "warn"
+    assert result["code"] == "production_data_scenario_contracts_missing"
+    assert result["details"]["missing_scenario_source_families"] == ["credit_program_registry"]
     assert result["details"]["construct_capability_report"]["resolver_executed"] is True
     assert result["details"]["compatibility_projection_findings"]
     assert result["details"]["construct_capability_blockers"][0]["status"] == (
@@ -850,8 +942,7 @@ def test_production_data_static_fails_closed_without_governed_legacy_mapping(
     production_root = tmp_path / "production_data"
     production_root.mkdir()
     capability_index = (
-        tmp_path
-        / "_build/.tmp/production-quality/capability-index/capability_index_v1.duckdb"
+        tmp_path / "_build/.tmp/production-quality/capability-index/capability_index_v1.duckdb"
     )
     capability_index.parent.mkdir(parents=True)
     capability_index.write_text("fixture", encoding="utf-8")
@@ -940,10 +1031,7 @@ def test_production_data_static_fails_closed_without_governed_legacy_mapping(
 
 
 def _write_governed_scenario_family_construct_rows(repo_root: Path) -> None:
-    path = (
-        repo_root
-        / "architecture/policy_design_case/layer2_s3_governed_capability_rows.json"
-    )
+    path = repo_root / "architecture/policy_design_case/layer2_s3_governed_capability_rows.json"
     path.parent.mkdir(parents=True)
     path.write_text(
         json.dumps(
@@ -1122,15 +1210,58 @@ def test_production_data_scenario_contract_checker_reports_projection_findings_w
         "production_msme_panel",
         "regional_displacement_indicators",
     ]
-    assert {
-        finding["code"] for finding in report["findings"]
-    } == {"production_data_scenario_family_missing"}
-    assert {
-        finding["expected_family"] for finding in report["findings"]
-    } >= {
+    assert {finding["code"] for finding in report["findings"]} == {
+        "production_data_scenario_family_missing"
+    }
+    assert {finding["expected_family"] for finding in report["findings"]} >= {
         "production_msme_panel",
         "regional_displacement_indicators",
     }
+
+
+def test_scenario_contract_checker_preserves_missing_families_with_construct_blocker(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = _production_data_root_with_credit_registry_contract(tmp_path)
+    original_builder = check_production_data_scenario_contracts.ProductionDataContractIndex.build_scenario_binding_report
+
+    def _report_with_blocker(index: object, contract: object) -> dict[str, object]:
+        report = original_builder(index, contract)  # type: ignore[arg-type]
+        specs = report["compiled_data_requirement_specs"]
+        assert isinstance(specs, list) and specs
+        first_spec = specs[0]
+        assert isinstance(first_spec, dict)
+        metadata = dict(first_spec.get("metadata") or {})
+        metadata["capability_binding"] = {
+            "construct_ref": "construct:credit_program_enrollment",
+            "status": "blocked_acquisition_required",
+            "blocked_reasons": ["acquisition_required"],
+        }
+        first_spec["metadata"] = metadata
+        return report
+
+    monkeypatch.setattr(
+        check_production_data_scenario_contracts.ProductionDataContractIndex,
+        "build_scenario_binding_report",
+        _report_with_blocker,
+    )
+
+    report = check_production_data_scenario_contracts.build_report(
+        repo_root=Path.cwd(),
+        production_data_root=root,
+        scenario="scenario-public_golden",
+    )
+
+    assert report["status"] == "fail"
+    assert report["missing_scenario_source_families"] == [
+        "production_msme_panel",
+        "regional_displacement_indicators",
+    ]
+    finding_codes = [finding["code"] for finding in report["findings"]]
+    assert "production_data_construct_capability_blocker" in finding_codes
+    assert "production_data_scenario_family_missing" in finding_codes
+    assert report["summary"]["finding_count"] == len(report["findings"])
 
 
 def test_docs_repro_checks_runbook_and_gitignore_contract() -> None:
@@ -1165,9 +1296,10 @@ def test_docs_repro_check_catches_stale_runbook_references(
     result = local_prod_debug_probe.run_docs_repro_check(context)
 
     assert result["status"] == "fail"
-    assert "tools/quality/testing/local_prod_debug_probe.py" in result["details"][
-        "missing_runbook_terms"
-    ]
+    assert (
+        "tools/quality/testing/local_prod_debug_probe.py"
+        in result["details"]["missing_runbook_terms"]
+    )
 
 
 def test_cli_writes_schema_and_returns_failed_status_for_missing_postgres_dsn(
@@ -1236,9 +1368,7 @@ def test_cli_missing_postgres_dsn_still_runs_static_production_data_checks(
     assert checks["production-data-static"]["code"] != (
         "production_data_scenario_contracts_missing"
     )
-    assert checks["production-data-static"]["details"][
-        "missing_scenario_source_families"
-    ] == []
+    assert checks["production-data-static"]["details"]["missing_scenario_source_families"] == []
 
 
 def _production_data_root_with_credit_registry_contract(

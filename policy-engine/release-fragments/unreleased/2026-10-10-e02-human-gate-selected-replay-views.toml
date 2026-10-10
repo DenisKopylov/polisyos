@@ -1,0 +1,19 @@
+id = "2026-10-10-e02-human-gate-selected-replay-views"
+title = "Bind human gate decisions to selected replay views"
+type = "fixed"
+component = "scientist-governance"
+owner = "team-polisyos"
+summary = "GateRequest schema 1.2 binds every typed workflow input view and canonical digests of malformed-present replay values into request identity, cached-request admission, node state, and decision lineage."
+evidence = [
+  "tests/unit/scientist/nodes/builtins/governance/test_governance_gate_requests.py::test_selected_replay_view_change_reissues_request_and_discards_approval",
+  "tests/unit/scientist/nodes/builtins/governance/test_governance_gate_requests.py::test_legacy_gate_request_is_read_but_not_reused_for_a_decision",
+  "tests/integration/test_human_gate_audit.py::test_run_governance_emits_gate_request_and_decision_audit",
+]
+compatibility = "Schema 1.1 GateRequest payloads remain readable and may omit selected_replay_refs. Schema 1.2 requires a present, non-null selected_replay_refs map in both the runtime model and generated JSON Schema; omitted schema_version uses the 1.2 default and has the same requirement. The governance node does not reuse 1.1 requests for decisions; it reissues a current request because historical contexts lack selected-view binding. New requests write schema 1.2 and preserve the complete CAS-returned request reference in state and decision lineage."
+change_class = "persisted-artifact-format"
+surface_classification = "public_stable: polisyos.ir GateRequest and GateContext persisted schema"
+public_surface_inventory_reviewed = false
+migration = "No stored artifact bytes are rewritten. Existing 1.1 requests remain readable and are replaced from the current typed workflow inputs before a decision is admitted. The candidate JSON Schema snapshots were regenerated from the source model; canonical check-mode verification against the final source freeze remains required before release."
+api = "GateContext adds selected_replay_refs containing complete typed references for every ExperimentState.inputs key while retaining artifact_refs for display IDs. The deterministic request ID binds the normalized context, request schema, run, phase, node, iteration, reason, priority, timeout, and requester."
+limitations = "A missing manifest_profile_sha256 remains absent and is not synthesized. Malformed-input digests bind supplied values only and confer no artifact authority; values the canonical encoder cannot represent refuse request creation. A profile-less selected reference records the supplied default-view selector, not a producer-attested profile digest. This fragment describes the candidate persisted-contract change; formal G acceptance remains pending, and the full public-surface inventory was not reviewed in this slice."
+generated_client_compatibility = "not_applicable"

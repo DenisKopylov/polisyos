@@ -4,9 +4,10 @@ import hashlib
 import sys
 from collections.abc import Mapping
 from contextlib import suppress
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
-from typing import TYPE_CHECKING, Protocol
+from types import SimpleNamespace
+from typing import TYPE_CHECKING, Any, Protocol
 
 import pytest
 
@@ -18,12 +19,17 @@ except ModuleNotFoundError:  # pragma: no cover
 from _helpers.artifacts import put_json_artifact
 from polisyos.core.artifacts.manifest import ArtifactAuthorityInfo, ArtifactRef, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.components import ComponentId
 from polisyos.core.contracts.control import PromotionCandidate
 from polisyos.core.run.context import RunContext
 from polisyos.core.trace.record import TraceRecord
 from polisyos.fabric.catalog.source_selection_audit import build_fabric_source_selection_trace
 from polisyos.runtime.http.app import create_runtime_api_app
+from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 from polisyos.runtime.http.services.control import ControlPlaneService
+from polisyos.runtime.http.services.control_registry_providers import ControlRegistryProviders
+from polisyos.runtime.quality.evaluation_modes import resolve_evaluation_mode
+from polisyos.runtime.quality.evaluation_safety import EvaluationAttemptIntake
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -1688,3 +1694,204 @@ def runtime_api_env(tmp_path: Path):
         yield env
     finally:
         close_runtime_api_env(env)
+
+
+class _NoOpRetrievalService:
+    def list_promotion_candidates(self):
+        return []
+
+
+def _build_control_service(
+    tmp_path,
+    *,
+    artifact_store: FileSystemCAS | None = None,
+    cycle_substrate_context_admission_owner=None,
+    candidate_simulation_profiles=(),
+    candidate_simulation_model_declarations=(),
+    catalog_run_profile: str | None = None,
+) -> ControlPlaneService:
+    store = artifact_store if artifact_store is not None else FileSystemCAS(tmp_path / ".polisyos")
+    admission_owner = cycle_substrate_context_admission_owner
+    if candidate_simulation_profiles or candidate_simulation_model_declarations:
+        from polisyos.runtime.quality.cycle_substrate import (
+            ConfiguredCandidateSimulationContextAdmissionOwner,
+        )
+
+        if admission_owner is not None:
+            raise ValueError("candidate_simulation_context_owner_duplicate")
+        admission_owner = ConfiguredCandidateSimulationContextAdmissionOwner(
+            profiles=candidate_simulation_profiles,
+            model_declarations=candidate_simulation_model_declarations,
+            store=store,
+        )
+    resolver = RuntimeExecutionPolicyResolver(
+        default_profile="dev",
+        worker_backend="external",
+        state_store_backend="sqlite",
+        sqlite_path=".polisyos/control.sqlite3",
+        postgres_dsn=None,
+    )
+    return ControlPlaneService(
+        cas_root=tmp_path / ".polisyos",
+        core_runs_root=tmp_path / ".polisyos" / "runs",
+        artifact_store=store,
+        retrieval_service=_NoOpRetrievalService(),
+        policy_resolver=resolver,
+        registry_providers=_build_registry_providers(catalog_run_profile=catalog_run_profile),
+        cycle_substrate_context_admission_owner=admission_owner,
+    )
+
+
+def _build_registry_providers(
+    *,
+    catalog_run_profile: str | None = None,
+) -> ControlRegistryProviders:
+    source_profile = SimpleNamespace(
+        profile_id="fixture_profile",
+        display_name="Fixture Profile",
+        description="fixture source profile",
+        connector_family="fixture.family",
+        base_url="https://example.test/api",
+        auth_policy="none",
+        tags=("fixture",),
+        source_organization="Fixture Org",
+        estimated_datasets=1,
+    )
+    binding_profile = SimpleNamespace(
+        profile_id="fixture_binding",
+        display_name="Fixture Binding",
+        description="fixture binding profile",
+        schema_family="time_series",
+        strategy="strict",
+        rules=[{"name": "metric"}],
+        expected_columns=["metric"],
+        tags=("fixture",),
+    )
+    model_profile = SimpleNamespace(
+        profile_id="fixture_model",
+        display_name="Fixture Model",
+        description="fixture llm profile",
+        provider="openai",
+        model_id="gpt-5-mini",
+        base_url="https://api.example.test/v1",
+        tags=("fixture",),
+        capabilities=["chat"],
+        input_cost_per_mtoken_usd=0.1,
+        output_cost_per_mtoken_usd=0.2,
+        enabled=True,
+    )
+    connector_entry = SimpleNamespace(
+        metadata=SimpleNamespace(
+            fully_qualified_id="fixture.family.connector",
+            namespace="fixture.family",
+            version="1.0.0",
+            observed_latency_ms=12,
+        ),
+        known_datasets={"fixture.dataset"},
+        loaded=True,
+        last_health_check=datetime.now(UTC),
+        short_id="fixture.family.connector",
+    )
+
+    return ControlRegistryProviders(
+        connectors=SimpleNamespace(query_entries=lambda *args, **kwargs: [connector_entry]),
+        source_profiles=SimpleNamespace(
+            get=lambda profile_id: source_profile if profile_id == "fixture_profile" else None,
+            list_all=lambda: [source_profile],
+            list_by_family=lambda connector_family: (
+                [source_profile] if connector_family == "fixture.family" else []
+            ),
+        ),
+        binding_profiles=SimpleNamespace(
+            get=lambda profile_id: binding_profile if profile_id == "fixture_binding" else None,
+            list_all=lambda: [binding_profile],
+        ),
+        model_profiles=SimpleNamespace(list_all=lambda: [model_profile]),
+        catalog_run_profile=catalog_run_profile,
+    )
+
+
+class _DeterministicSpanSupportClient:
+    def __init__(self, *, decision: str = "entails", confidence: float = 0.93) -> None:
+        self.decision = decision
+        self.confidence = confidence
+        self.calls: list[dict[str, Any]] = []
+
+    async def generate(
+        self,
+        *,
+        messages: list[dict[str, object]],
+        tools: list[dict[str, object]],
+        temperature: float | None = None,
+        seed: int | None = None,
+    ) -> Any:
+        self.calls.append(
+            {
+                "messages": messages,
+                "tools": tools,
+                "temperature": temperature,
+                "seed": seed,
+            }
+        )
+        return SimpleNamespace(
+            content="",
+            model="deterministic-span-support",
+            provider="test-gateway",
+            request_id="span-support-request",
+            tool_calls=[
+                SimpleNamespace(
+                    id="call-span-support",
+                    name="layer3_gy_record_span_support_judgment",
+                    arguments={
+                        "decision": self.decision,
+                        "confidence": self.confidence,
+                        "rationale": "deterministic test judgment",
+                    },
+                )
+            ],
+        )
+
+
+def _artifact_ref(kind: str, digit: str) -> ArtifactRef:
+    digest = "sha256:" + digit * 64
+    return ArtifactRef(
+        artifact_id=digest,
+        artifact_type=kind,
+        content_hash=digest,
+        schema_ref=f"{kind}.v1",
+        uri=f"cas://sha256/{digest.removeprefix('sha256:')}",
+        version="1.0",
+    )
+
+
+def _field_pilot_intake() -> EvaluationAttemptIntake:
+    requested_at = datetime.now(UTC)
+    return EvaluationAttemptIntake(
+        attempt_id="attempt-r5-durable-intent",
+        evaluator_owner_id=ComponentId("polisyos.runtime.quality.foundry_value_port@1.0.0"),
+        design_problem_ref="sha256:" + "1" * 64,
+        candidate_ref=_artifact_ref("test.candidate", "2"),
+        world_model_record_ref=_artifact_ref("test.world_model_record", "3"),
+        requested_mode_token="field_pilot",  # noqa: S106
+        mode_resolution=resolve_evaluation_mode("field_pilot"),
+        domain_hint=None,
+        domain_pack_ref=None,
+        target_population_scope_ref=_artifact_ref("test.population", "4"),
+        evaluation_input_refs=(),
+        evaluation_input_provenance=(),
+        evidence_refs=(),
+        requested_at=requested_at,
+        intended_start_at=requested_at,
+        requested_rule_version=None,
+        external_executor_identity_ref=None,
+    )
+
+
+def _valid_intake_for_mode(mode: str) -> EvaluationAttemptIntake:
+    original = _field_pilot_intake()
+    return original.model_copy(
+        update={
+            "requested_mode_token": mode,
+            "mode_resolution": resolve_evaluation_mode(mode),
+        }
+    )

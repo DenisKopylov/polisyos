@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import time
 import uuid
 from collections.abc import Mapping
@@ -41,6 +42,7 @@ from .services.timeline import TimelineService
 # Runtime HTTP modules consume the verified scope through this local boundary so
 # they do not proliferate imports of Core's internal identity implementation.
 RuntimeAccessScope = AccessScope
+_LOGGER = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -369,6 +371,55 @@ def require_access_scope(request: Request) -> AccessScope:  # pragma: no cover
     return scope
 
 
+def _record_tenant_ownership_denial(
+    request: Request,
+    *,
+    scope: AccessScope,
+    resource_id: str,
+    resource_kind: str,
+    denial_reason: str,
+    target_tenant_id: str | None = None,
+) -> None:
+    """Append a caller-scoped denial to the existing data-access trail.
+
+    The indexed owner identity is intentionally not copied into the event. The
+    authenticated request scope owns the tenant and actor fields, while the
+    requested run or artifact id identifies only the attempted resource. A
+    verified cross-tenant mismatch also feeds the existing boundary-violation
+    metric; missing owner scope does not imply a mismatch.
+    """
+    try:
+        record_data_access_audit(
+            request,
+            resource_id=resource_id,
+            resource_kind=resource_kind,
+            tenant_id=scope.tenant_id,
+            outcome="deny",
+            metadata={"denial_reason": denial_reason},
+        )
+    except Exception:
+        # The original ownership refusal remains authoritative if the audit
+        # append fails; an audit outage must never release the protected data.
+        _LOGGER.exception("Runtime tenant ownership denial audit append failed")
+
+    if target_tenant_id is None or target_tenant_id == scope.tenant_id:
+        return
+    try:
+        from .container import resolve_runtime_metrics
+
+        metrics = resolve_runtime_metrics(request)
+        record_violation = getattr(metrics, "record_tenant_boundary_violation", None)
+        if callable(record_violation):
+            record_violation(
+                source_tenant=scope.tenant_id,
+                target_tenant=target_tenant_id,
+                resource_type=resource_kind.removeprefix("runtime."),
+            )
+    except Exception:
+        # Telemetry failure cannot change or weaken the ownership refusal.
+        _LOGGER.exception("Runtime tenant boundary violation metric failed")
+
+
 def enforce_run_tenant_access(
     request: Request,
     *,
@@ -381,12 +432,27 @@ def enforce_run_tenant_access(
     # Core runs include tenant metadata and must match access scope.
     if run.details.tenant_id:
         if scope.tenant_id != run.details.tenant_id:
+            _record_tenant_ownership_denial(
+                request,
+                scope=scope,
+                resource_id=run.run_id,
+                resource_kind="runtime.run",
+                denial_reason="run_tenant_mismatch",
+                target_tenant_id=run.details.tenant_id,
+            )
             raise forbidden(
                 "Run belongs to a different tenant",
                 code="run_tenant_mismatch",
             )
         return
 
+    _record_tenant_ownership_denial(
+        request,
+        scope=scope,
+        resource_id=run.run_id,
+        resource_kind="runtime.run",
+        denial_reason="run_tenant_unscoped",
+    )
     raise forbidden(
         "Tenant metadata is missing for run; access denied by policy",
         code="run_tenant_unscoped",
@@ -405,11 +471,26 @@ def enforce_artifact_tenant_access(
     if tenant_id is None:
         if ctx.allow_unscoped_artifacts:
             return None
+        _record_tenant_ownership_denial(
+            request,
+            scope=scope,
+            resource_id=str(artifact_id),
+            resource_kind="runtime.artifact",
+            denial_reason="artifact_tenant_unscoped",
+        )
         raise forbidden(
             "Artifact is not linked to a tenant-scoped run",
             code="artifact_tenant_unscoped",
         )
     if scope.tenant_id != tenant_id:
+        _record_tenant_ownership_denial(
+            request,
+            scope=scope,
+            resource_id=str(artifact_id),
+            resource_kind="runtime.artifact",
+            denial_reason="artifact_tenant_mismatch",
+            target_tenant_id=tenant_id,
+        )
         raise forbidden(
             "Artifact belongs to a different tenant",
             code="artifact_tenant_mismatch",

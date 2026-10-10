@@ -94,8 +94,15 @@ def _render_ruff(repo_root: Path, data: dict[str, Any]) -> tuple[RenderedFile, .
     config = data["ruff"]
     base = _read_fragment(repo_root, config["base_config"])
     generated_config = config["generated_config"]
+    root_config = Path(config["root_config"])
+    generated_config_path = Path(generated_config)
+    if root_config.parent != generated_config_path.parent:
+        raise ValueError(
+            "product Ruff root and generated configs must share a directory so automatic "
+            "discovery and explicit --config calls resolve per-file matchers identically"
+        )
     fragments = [
-        _read_ruff_per_file_ignore_fragment(repo_root, path, generated_config)
+        _read_ruff_per_file_ignore_fragment(repo_root, path, project_root_prefix="")
         for path in config["per_file_ignore_fragments"]
     ]
     product_root_settings = config["product_root_settings"]
@@ -114,8 +121,7 @@ def _render_ruff(repo_root: Path, data: dict[str, Any]) -> tuple[RenderedFile, .
         _read_ruff_per_file_ignore_fragment(
             repo_root,
             path,
-            workspace_root_config,
-            pattern_prefix=workspace_root_prefix,
+            project_root_prefix=workspace_root_prefix,
         )
         for path in config["per_file_ignore_fragments"]
     ]
@@ -247,12 +253,10 @@ _RUFF_PER_FILE_IGNORE_KEY_RE = re.compile(
 def _read_ruff_per_file_ignore_fragment(
     repo_root: Path,
     relative_path: str,
-    generated_config: str,
     *,
-    pattern_prefix: str | None = None,
+    project_root_prefix: str,
 ) -> str:
     fragment = _read_fragment(repo_root, relative_path)
-    generated_dir = (repo_root / generated_config).parent
     rendered_lines = []
     for line in fragment.splitlines():
         match = _RUFF_PER_FILE_IGNORE_KEY_RE.match(line)
@@ -260,23 +264,13 @@ def _read_ruff_per_file_ignore_fragment(
             rendered_lines.append(line)
             continue
         pattern = match.group("pattern")
-        if pattern_prefix is None:
-            rendered_pattern = _ruff_pattern_for_generated_config(pattern, repo_root, generated_dir)
-        else:
-            rendered_pattern = _ruff_pattern_for_prefix(pattern, pattern_prefix)
+        rendered_pattern = _ruff_pattern_for_prefix(pattern, project_root_prefix)
         rendered_lines.append(f'{match.group("indent")}"{rendered_pattern}"{match.group("suffix")}')
     return "\n".join(rendered_lines) + ("\n" if fragment.endswith("\n") else "")
 
 
-def _ruff_pattern_for_generated_config(pattern: str, repo_root: Path, generated_dir: Path) -> str:
-    """Render repo-root-relative Ruff patterns relative to the generated config."""
-
-    prefix = os.path.relpath(repo_root, generated_dir).replace(os.sep, "/")
-    return _ruff_pattern_for_prefix(pattern, prefix)
-
-
 def _ruff_pattern_for_prefix(pattern: str, prefix: str) -> str:
-    """Render a repo-root-relative Ruff pattern below a caller's project root."""
+    """Render a product-root-relative Ruff pattern below the caller's project root."""
 
     negated = pattern.startswith("!")
     subject = pattern[1:] if negated else pattern

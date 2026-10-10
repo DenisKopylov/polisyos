@@ -19,6 +19,8 @@ staying CAS-first and freshness-aware.
 - **Deterministic pipeline** - the bundle id is derived from intent, document versions, claims, and policy ids.
 - **Freshness** - freshness metadata and sidecar state keep bundles refresh-aware.
 - **Discovery/acquire** - seed sources are normalized, canonicalized, and fetched from local files, URLs, or bytes.
+- **Search citation spans** - snippet text may trim boundary whitespace; its start/end character offsets select exactly the returned text from the input page string.
+- **Search source binding** - bundle consumers re-resolve the selected raw-page CAS view, check its manifest and content digest, re-run Scholar's extractor/sanitizer, and require each citation span to equal its exact source substring. Legacy artifact-ID-only bundles use the default manifest view with a profileless warning; unavailable or mismatched raw snapshots cannot verify snippets.
 - **Docs/claims/reconcile** - document ingestion and claim extraction feed into conflict resolution and filtering.
 - **CAS and world events** - bundles and reports are persisted into CAS and accompanied by world events.
 - **Claim-bound Scholar requirements** - search, support links, dependence
@@ -37,6 +39,6 @@ staying CAS-first and freshness-aware.
 
 ## Current State
 
-- Last updated: 2026-04-03
+- Last updated: 2026-10-10
 - The package tree remains organized around `discover/` and `orchestrator/`, with freshness helpers living at the top level.
 - Package exports continue to provide the scholar service facade and the staged error types.

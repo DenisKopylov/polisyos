@@ -144,7 +144,12 @@ def _doc_source_from_source(
     )
 
 
-def _acquire_bytes(source: SourceSpec, *, max_bytes: int | None) -> AcquireResult:
+def _acquire_bytes(
+    source: SourceSpec,
+    *,
+    cas: FileSystemCAS,
+    max_bytes: int | None,
+) -> AcquireResult:
     if source.kind != "bytes" or source.data is None or source.source_locator is None:
         raise ScholarValidationError(
             "bytes source requires data and source_locator",
@@ -162,7 +167,12 @@ def _acquire_bytes(source: SourceSpec, *, max_bytes: int | None) -> AcquireResul
             details={"expected_sha256": expected_digest, "actual_sha256": actual_digest},
         )
 
-    raw_artifact_id = source.props.get("raw_artifact_id")
+    raw_artifact_ref = source.raw_artifact_ref
+    raw_artifact_id = (
+        str(raw_artifact_ref.artifact_id)
+        if raw_artifact_ref is not None
+        else source.props.get("raw_artifact_id")
+    )
     if raw_artifact_id is not None:
         try:
             artifact_id = ArtifactID.model_validate(raw_artifact_id)
@@ -177,6 +187,27 @@ def _acquire_bytes(source: SourceSpec, *, max_bytes: int | None) -> AcquireResul
                 "bytes source raw artifact identity mismatch",
                 source_identity=source.source_locator,
                 details={"raw_artifact_id": raw_artifact_id, "actual_sha256": actual_digest},
+            )
+    if raw_artifact_ref is not None:
+        try:
+            manifest = cas.get_manifest(raw_artifact_ref)
+            referenced_bytes = cas.get_bytes(raw_artifact_ref)
+        except Exception as exc:
+            raise ScholarAcquireError(
+                "bytes source selected raw artifact view is unavailable",
+                source_identity=source.source_locator,
+                details={"raw_artifact_id": str(raw_artifact_ref.artifact_id)},
+            ) from exc
+        if (
+            referenced_bytes != raw_bytes
+            or manifest.artifact_id != raw_artifact_ref.artifact_id
+            or manifest.integrity.sha256 != actual_digest
+            or manifest.byte_size != len(raw_bytes)
+        ):
+            raise ScholarAcquireError(
+                "bytes source selected raw artifact view does not match payload",
+                source_identity=source.source_locator,
+                details={"raw_artifact_id": str(raw_artifact_ref.artifact_id)},
             )
 
     declared_size = source.props.get("byte_size")
@@ -421,6 +452,11 @@ def _web_evidence_payload(
                 "content_type": source.content_type,
                 "content_sha256": source.content_sha256,
                 "artifact_id": source.artifact_id,
+                "raw_artifact_ref": (
+                    source.raw_artifact_ref.model_dump(mode="json", exclude_none=True)
+                    if source.raw_artifact_ref is not None
+                    else None
+                ),
                 "byte_size": source.byte_size,
                 "license": source.license,
                 "fetch_profile": dict(source.fetch_profile),
@@ -496,7 +532,11 @@ def enrich_topic(
         if source.kind == "local_file":
             acquired = read_local_file(source, max_bytes=budgets.max_bytes_per_doc)
         elif source.kind == "bytes":
-            acquired = _acquire_bytes(source, max_bytes=budgets.max_bytes_per_doc)
+            acquired = _acquire_bytes(
+                source,
+                cas=cas,
+                max_bytes=budgets.max_bytes_per_doc,
+            )
         elif source.kind == "url":
             acquired = fetch_url(
                 source,

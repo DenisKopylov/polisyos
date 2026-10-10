@@ -9,25 +9,18 @@ SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-import os
 import time
 
-# На некоторых macOS окружениях (JAX+Metal) возможны ошибки runtime.
-# Для воспроизводимости демо предпочитаем CPU, если пользователь явно не выбрал платформу.
-os.environ.setdefault("JAX_PLATFORM_NAME", "cpu")
+from polisyos.common.jax_env import apply_jax_env_defaults
+
+apply_jax_env_defaults()
 
 import equinox as eqx
 import jax
 import jax.numpy as jnp
 import optax
-from polisyos.foundry.agent_sim.agents import AgentPolicy
 
-try:
-    import jax_bootstrap  # noqa: F401
-except ModuleNotFoundError:
-    # `jax_bootstrap` используется в некоторых окружениях (например, macOS+Metal)
-    # для дополнительной инициализации JAX. Для самого демо он не обязателен.
-    pass
+from polisyos.foundry.agent_sim.agents import AgentPolicy
 
 # --- КОНФИГУРАЦИЯ ---
 N_AGENTS = 10_000  # Масштаб: 10k агентов
@@ -50,7 +43,7 @@ def create_population(key: jax.Array, n: int) -> tuple[jnp.ndarray, jnp.ndarray]
 
 def loss_fn(
     policy_static: AgentPolicy,
-    params,
+    params: optax.Params,
     observations: jnp.ndarray,
     incomes: jnp.ndarray,
     risk_aversion: jnp.ndarray,
@@ -84,13 +77,13 @@ def loss_fn(
 @eqx.filter_jit
 def train_step(
     policy_static: AgentPolicy,
-    params,
-    opt_state,
+    params: optax.Params,
+    opt_state: optax.OptState,
     optimizer: optax.GradientTransformation,
     incomes: jnp.ndarray,
     risk_aversion: jnp.ndarray,
     tax_rate: jnp.ndarray,
-):
+) -> tuple[optax.Params, optax.OptState]:
     """Один шаг градиентного спуска (JIT-compiled)."""
     norm_incomes = jnp.log1p(incomes)
     tax_vec = jnp.full_like(incomes, tax_rate)
@@ -107,11 +100,11 @@ def train_step(
 
 def evaluate(
     policy_static: AgentPolicy,
-    params,
+    params: optax.Params,
     incomes: jnp.ndarray,
     risk_aversion: jnp.ndarray,
     tax_rate: jnp.ndarray,
-):
+) -> tuple[jax.Array, jax.Array, jax.Array]:
     """Оценка текущего состояния экономики."""
     norm_incomes = jnp.log1p(incomes)
     tax_vec = jnp.full_like(incomes, tax_rate)
@@ -123,11 +116,16 @@ def evaluate(
 
     total_tax_revenue = jnp.sum(incomes * declared_fraction * tax_rate)
     avg_compliance = jnp.mean(declared_fraction)
-    # При крайних режимах (все ~1.0 или все ~0.0) корреляция может стать NaN из-за нулевой дисперсии.
+    # При крайних режимах (все ~1.0 или все ~0.0) корреляция может
+    # стать NaN из-за нулевой дисперсии.
     x = risk_aversion - jnp.mean(risk_aversion)
     y = declared_fraction - jnp.mean(declared_fraction)
     denom = jnp.std(x) * jnp.std(y)
-    corr = jnp.where(denom > 1e-8, jnp.mean(x * y) / denom, jnp.array(0.0, dtype=jnp.float32))
+    corr = jnp.where(
+        denom > 1e-8,
+        jnp.mean(x * y) / denom,
+        jnp.array(0.0, dtype=jnp.float32),
+    )
 
     return total_tax_revenue, avg_compliance, corr
 
@@ -189,7 +187,8 @@ def main() -> None:
     total_time = time.time() - start_time
     print("-" * 55)
     print(
-        f"Симуляция завершена за {total_time:.2f} сек ({total_time / len(TAX_RATES):.2f} сек/ставка)"
+        f"Симуляция завершена за {total_time:.2f} сек "
+        f"({total_time / len(TAX_RATES):.2f} сек/ставка)"
     )
 
     # 4. Анализ Кривой Лаффера
@@ -197,7 +196,7 @@ def main() -> None:
     max_rev_idx = int(jnp.argmax(jnp.array(revenues)))
     peak_tax = results[max_rev_idx][0]
 
-    print("\nИТОГ:")
+    print("\nИ\u0422\u041eГ:")
     print(f"Пик доходов достигнут при ставке: {peak_tax * 100:.0f}%")
     if 0.1 < peak_tax < 0.9:
         print("✅ Эффект Кривой Лаффера подтвержден (пик в середине).")
@@ -205,7 +204,8 @@ def main() -> None:
         print("⚠️ Кривая Лаффера не явная (возможно, штрафы слишком мягкие или жесткие).")
 
     print(
-        f"Гетерогенность агентов (корреляция риска): {results[max_rev_idx][3]:.3f} (Ожидается > 0.2)"
+        f"Гетерогенность агентов (корреляция риска): "
+        f"{results[max_rev_idx][3]:.3f} (Ожидается > 0.2)"
     )
 
 

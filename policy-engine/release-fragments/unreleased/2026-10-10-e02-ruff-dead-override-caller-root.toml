@@ -1,0 +1,17 @@
+id = "2026-10-10-e02-ruff-dead-override-caller-root"
+title = "Resolve Ruff override reports from the active caller root"
+type = "changed"
+component = "devx"
+owner = "team-devx"
+summary = "Product-root Ruff discovery and explicit calls now share one root-colocated generated config; workspace callers retain their prefixed config. Dead-override reports resolve each mode from its caller root and reject unreadable or malformed selector inputs instead of reporting an empty set."
+evidence = ["tools/ops_runners/reports/dead_overrides.py", "tests/repo_quality/tools/test_dead_override_report.py", "tests/repo_quality/tools/test_tool_config_split.py"]
+compatibility = "Valid product-root and workspace-root Ruff configurations retain all existing selectors and rule-code mappings. Corrupt or missing configured input now produces a failed report and a non-zero command result."
+change_class = "internal"
+surface_classification = "Internal repository-quality reporting; no public API or generated-client surface changes."
+migration = "Regenerate the tool-config outputs after upgrading; the product Ruff operational config moves to ruff.generated.toml so automatic discovery and explicit --config calls use the same matcher base."
+api = "The report includes the resolved Ruff caller root in configs.ruff_project_root so path normalization is auditable."
+limitations = "The report continues to evaluate Ruff selector existence and lifecycle metadata; it does not replace Ruff's own configuration validation or lint execution."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["tools/ops_runners/README.md"]
+runbook_docs = []

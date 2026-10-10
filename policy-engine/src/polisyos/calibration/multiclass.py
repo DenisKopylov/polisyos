@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping, Sequence  # noqa: TC003 - public annotations are introspected.
 from typing import Any
 
 import numpy as np
@@ -173,7 +173,8 @@ def _prepare_multiclass_inputs(
     if invalid_probability or np.any(invalid_rows):
         if strict or repair_strategy != "normalize_rows":
             raise ValueError(
-                "multiclass probabilities must be finite, non-negative, and sum to one when strict=True"
+                "multiclass probabilities must be finite, non-negative, and sum to one "
+                "when strict=True"
             )
         clipped = np.clip(prob_arr, 0.0, None)
         clipped_row_sums = np.sum(clipped, axis=1, keepdims=True)
@@ -234,7 +235,10 @@ def _class_support_issues(
         issues.append(
             CalibrationDiagnosticIssue(
                 code="CALIB_CLASS_LOW_SUPPORT",
-                message="One or more classes have low support for stable classwise calibration diagnostics.",
+                message=(
+                    "One or more classes have low support for stable classwise "
+                    "calibration diagnostics."
+                ),
                 severity=ValidationSeverity.WARNING,
                 path=f"calibration.per_class.{label}.count",
                 expected=">=30",

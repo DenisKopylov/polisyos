@@ -26,6 +26,18 @@ relation. Until a source-bound relation resolver is wired, multi-origin inputs r
 non-gating hull and an unestablished effective-information count. Exact duplicate origins are still
 collapsed before aggregation.
 
+## Evaluation failure boundaries
+
+Monte Carlo evaluates exception cause, context, and exception-group links through a bounded shared
+classifier. A visible `OSError`, Pydantic validation error, fatal or validation `PolicyOSError`, or
+adapter-declared global error is not converted into a missing draw. A cyclic or truncated graph also
+fails closed. A root typed transient failure gets one retry with the same evaluator inputs in nominal,
+sampled, and posterior evaluation paths; exhausting that retry fails closed. Physical evaluator calls
+and retries are recorded separately from the logical draw denominator in the persisted Monte Carlo
+ledger. Sampling errors and all other failure classes are not retried. The legacy Monte Carlo
+candidate behavior is retained only for an unchained built-in `RuntimeError` raised by an individual
+draw. Other errors propagate instead of producing a conditional partial distribution.
+
 ## Public API
 
 | Type/Function                   | Description                                               |
@@ -53,8 +65,20 @@ collapsed before aggregation.
 recomputes the selected summary from the content-bound draw payload, requires the caller to name
 the same `posterior_mean` or `posterior_median` role, and hashes the exact selected parameter names,
 draw order, and joint rows before running the evaluator. The returned `PosteriorPushforwardResult`
-retains one output per source row, records failures by row, and recomputes posterior output mean,
-median, and equal-tail bounds independently from the evaluator value at the selected point.
+retains one logical output per source row, records failures by row, and recomputes posterior output
+mean, median, and equal-tail bounds independently from the evaluator value at the selected point.
+A root typed transient can cause one additional physical call on that same input; new results report
+`simulation_attempt_count` and `retry_attempt_count` separately from row count. Zero-retry results
+retain `one_evaluator_call_per_source_draw`; retried results use the additive
+`one_logical_result_per_source_draw_with_one_bounded_typed_transient_retry` value. Both attempt
+counters are required by the current result parser, including for zero-retry results; the old
+semantics value is valid only with an explicit zero retry count and the matching physical count. A
+legacy-shaped payload without those counters is rejected by the current DTO instead of being
+normalized to zero retries. There is no in-repository persisted reader for this DTO. A future
+compatibility reader, if required, must be explicitly named and return a limited result with
+physical-attempt provenance `not_established`; it must not return a current
+`PosteriorPushforwardResult` or infer one-call history from the old literal. `profile_version` remains
+1.1 because it names the source posterior-summary profile, not this output DTO schema.
 
 The Bayesian HMC producer currently emits draw rows without explicit weights or parameter units.
 The candidate therefore reports `source_weights=None`, `unit_binding_status="not_established"`,
@@ -82,6 +106,6 @@ substitution is applied.
 
 ## Current State
 
-- Last updated: 2026-10-09
-- Files: 12 Python files in this package
+- Last updated: 2026-10-10
+- Files: 13 Python files in this package
 - Exports: 18 names declared in `__all__`

@@ -40,11 +40,17 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
 
     trace = _NoopTraceModule()  # type: ignore[assignment]
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, ProducerInfo, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    ProducerInfo,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import content_hash
+from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.core.run.context import RunContext
 from polisyos.ir.governance.gate import (
+    GATE_REQUEST_SCHEMA_VERSION,
     GateContext,
     GateDecision,
     GateEvent,
@@ -73,8 +79,16 @@ class HumanGateProtocol:
         timeout_seconds: int | None = None,
         requested_by: str = "system",
     ) -> tuple[GateRequest, ArtifactRef]:
-        request_id = self._generate_deterministic_request_id(run_id=run_id, context=context)
+        request_id = self._generate_deterministic_request_id(
+            run_id=run_id,
+            reason=reason,
+            context=context,
+            priority=priority,
+            timeout_seconds=timeout_seconds,
+            requested_by=requested_by,
+        )
         request = GateRequest(
+            schema_version=GATE_REQUEST_SCHEMA_VERSION,
             request_id=request_id,
             run_id=run_id,
             reason=reason,
@@ -139,7 +153,7 @@ class HumanGateProtocol:
     ) -> ArtifactRef:
         inputs = []
         if request_ref is not None:
-            inputs.append(InputRef(artifact_id=request_ref.artifact_id, role="gate_request"))
+            inputs.append(input_ref_from_artifact_ref(request_ref, role="gate_request"))
 
         decision_ref = self._store.put_json(
             decision.model_dump(mode="json"),
@@ -190,10 +204,29 @@ class HumanGateProtocol:
         self,
         *,
         run_id: str,
+        reason: str,
         context: GateContext,
+        priority: GatePriority,
+        timeout_seconds: int | None,
+        requested_by: str,
     ) -> str:
-        key = f"{run_id}:{context.phase}:{context.node_alias}:{context.iteration}"
-        return content_hash(key)
+        identity = {
+            "schema_name": "polisyos.ir.GateRequest",
+            "schema_version": GATE_REQUEST_SCHEMA_VERSION,
+            "run_id": run_id,
+            "phase": context.phase,
+            "node_alias": context.node_alias,
+            "iteration": context.iteration,
+            "reason": reason,
+            "context": context.model_dump(mode="json"),
+            "priority": priority.value,
+            "timeout_seconds": timeout_seconds,
+            "requested_by": requested_by,
+        }
+        return fingerprint(
+            identity,
+            canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+        )
 
 
 def _extract_trace_correlation() -> dict[str, str | None]:

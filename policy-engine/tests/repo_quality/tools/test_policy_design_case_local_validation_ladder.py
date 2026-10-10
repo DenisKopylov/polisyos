@@ -3,6 +3,9 @@ from __future__ import annotations
 # ruff: noqa: S101
 import json
 from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
 
 from tools.quality.validation import (
     run_policy_design_case_local_validation_ladder as ladder,
@@ -48,24 +51,187 @@ def test_w6a_manifest_is_deterministic_and_covers_required_categories() -> None:
     }
     assert "tests/unit/runtime/quality" in full_commands["unit_runtime_quality"]
     assert "tests/unit/scientist" in full_commands["unit_policy_producers"]
-    assert "tests/repo_quality/tools/test_evidence_bundle_inspection.py" in full_commands[
-        "repo_quality_closeout"
-    ]
-    assert "check_compilation_truthfulness.py --corpus tests/fixtures/universal-corpus" in (
-        full_commands["compilation_truthfulness_corpus"]
+    assert (
+        "tests/repo_quality/tools/test_evidence_bundle_inspection.py"
+        in full_commands["repo_quality_closeout"]
     )
-    assert "check_domain_coverage_breadth.py --corpus tests/fixtures/universal-corpus" in (
-        full_commands["domain_coverage_breadth_corpus"]
+    assert (
+        "check_compilation_truthfulness.py --corpus tests/fixtures/universal-corpus"
+        in (full_commands["compilation_truthfulness_corpus"])
     )
-    assert "check_critic_ensemble_diversity.py --input tests/fixtures/universal-corpus" in (
-        full_commands["critic_ensemble_diversity_corpus"]
+    assert (
+        "check_domain_coverage_breadth.py --corpus tests/fixtures/universal-corpus"
+        in (full_commands["domain_coverage_breadth_corpus"])
     )
-    assert "tools/quality/testing/local_prod_debug_probe.py" in full_commands[
-        "local_prod_debug_quick"
+    assert (
+        "check_critic_ensemble_diversity.py --input tests/fixtures/universal-corpus"
+        in (full_commands["critic_ensemble_diversity_corpus"])
+    )
+    assert (
+        "tools/quality/testing/local_prod_debug_probe.py" in full_commands["local_prod_debug_quick"]
+    )
+    assert "test_policy_evidence_capability_exports.py" in full_commands["capability_graph_exports"]
+
+
+def test_w12a_uses_structured_child_status_when_command_exits_zero(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    command = ladder._local_prod_debug_command()
+    assert "--require-passing" in command.argv
+    child_report = {
+        "schema_version": "policyos.local_prod_debug_probe.v1",
+        "summary": {
+            "status": "warn",
+            "total": 1,
+            "passed": 0,
+            "warned": 1,
+            "failed": 0,
+            "skipped": 0,
+            "invalid": 0,
+        },
+        "checks": [
+            {
+                "name": "production-data-static",
+                "status": "warn",
+                "code": "production_data_scenario_contracts_missing",
+                "details": {"missing_scenario_source_families": ["credit_program_registry"]},
+            }
+        ],
+    }
+
+    def _run_child(
+        argv: tuple[str, ...],
+        *,
+        cwd: Path,
+        capture_output: bool,
+        text: bool,
+        timeout: int,
+        check: bool,
+    ) -> SimpleNamespace:
+        assert argv == command.argv
+        assert capture_output and text and timeout == command.timeout_s and not check
+        output_path = cwd / argv[argv.index("--output") + 1]
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(json.dumps(child_report), encoding="utf-8")
+        return SimpleNamespace(
+            returncode=0,
+            stdout="Local prod-debug probe: warn (0 passed, 1 warned, 0 failed, 0 skipped)",
+            stderr="",
+        )
+
+    monkeypatch.setattr(ladder, "run_command", _run_child)
+
+    payload = ladder.run_local_validation_ladder(
+        repo_root=tmp_path,
+        profile="quick",
+        only_command_ids=(command.command_id,),
+        executor=ladder.execute_command,
+    )
+
+    row = payload["commands"][0]
+    assert row["exit_code"] == 0
+    assert row["status"] == "fail"
+    assert row["reported_statuses"] == [
+        {
+            "output_ref": command.output_refs[0],
+            "json_path": "/summary/status",
+            "status": "warn",
+            "status_state": "present",
+            "fresh": True,
+            "error": None,
+        }
     ]
-    assert "test_policy_evidence_capability_exports.py" in full_commands[
-        "capability_graph_exports"
-    ]
+    assert payload["status"] == "blocked"
+
+
+@pytest.mark.parametrize(
+    ("child_report", "expected_state"),
+    [
+        pytest.param(
+            {"summary": {"status": 7}, "status": "pass"},
+            "malformed",
+            id="malformed-summary-does-not-fall-back-to-root-status",
+        ),
+        pytest.param(
+            {"summary": None, "status": "pass"},
+            "malformed",
+            id="malformed-summary-object-does-not-fall-back",
+        ),
+        pytest.param(
+            {"summary": {}, "status": "pass"},
+            "missing",
+            id="missing-summary-status-does-not-fall-back",
+        ),
+        pytest.param(
+            {"status": "pass"},
+            "missing",
+            id="root-status-is-not-the-declared-report-contract",
+        ),
+    ],
+)
+def test_w12a_rejects_invalid_canonical_status_even_with_root_pass(
+    tmp_path: Path,
+    monkeypatch,
+    child_report: dict[str, object],
+    expected_state: str,
+) -> None:
+    command = ladder.LadderCommand(
+        command_id="child_report",
+        category="semantic",
+        owner="team-evaluation",
+        description="Read child report status",
+        argv=("child",),
+        timeout_s=1,
+        next_action="Repair the child report status.",
+        output_refs=("child.json",),
+    )
+
+    def _run_child(*_args, **_kwargs) -> SimpleNamespace:
+        (tmp_path / "child.json").write_text(json.dumps(child_report), encoding="utf-8")
+        return SimpleNamespace(returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(ladder, "run_command", _run_child)
+
+    result = ladder.execute_command(command, tmp_path)
+
+    assert result.status == "fail"
+    assert result.exit_code == 0
+    observed = result.reported_statuses[0]
+    assert observed.json_path == "/summary/status"
+    assert observed.status is None
+    assert observed.status_state == expected_state
+    assert observed.fresh is True
+    assert observed.error
+
+
+def test_w12a_rejects_stale_child_report_when_command_exits_zero(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    report = tmp_path / "child.json"
+    report.write_text(json.dumps({"summary": {"status": "pass"}}), encoding="utf-8")
+    command = ladder.LadderCommand(
+        command_id="child_report",
+        category="semantic",
+        owner="team-evaluation",
+        description="Read child report status",
+        argv=("child",),
+        timeout_s=1,
+        next_action="Refresh the child report.",
+        output_refs=(report.name,),
+    )
+    monkeypatch.setattr(
+        ladder,
+        "run_command",
+        lambda *_args, **_kwargs: SimpleNamespace(returncode=0, stdout="", stderr=""),
+    )
+
+    result = ladder.execute_command(command, tmp_path)
+
+    assert result.status == "fail"
+    assert result.error == f"declared output {report.name} was not refreshed by the child"
+    assert result.reported_statuses[0].fresh is False
 
 
 def test_w6a_metrics_keep_closeout_honesty_and_useful_design_separate() -> None:

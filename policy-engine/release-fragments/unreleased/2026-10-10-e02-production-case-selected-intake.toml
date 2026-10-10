@@ -1,0 +1,33 @@
+id = "2026-10-10-e02-production-case-selected-intake"
+title = "Preserve production-intake selected views through workflow execution"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-runtime"
+summary = "Control workflow requests carry production-case intake as a declared typed input, preserve the selected CAS manifest view through refusal admission and consumer recomputation, and report the existing a_spec_gap terminal without relabeling it as a search-ceiling failure."
+evidence = [
+  "tests/unit/runtime/http/test_workspace_loop_transition.py",
+  "tests/unit/runtime/quality/workspace/test_production_case_admission.py",
+]
+compatibility = "WorkflowRunRequest gains an optional production_case_intake_ref input. ArtifactRef callers retain the selected manifest profile; the legacy artifact-ID string arm selects the profileless default view. The former params-only ID projection is no longer treated as a declared input and must move to the declared field."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: POST /api/v1/control/runs request; internal: runtime-quality production-case refusal"
+migration = "The candidate OpenAPI, runtime API client, and dashboard types were canonically regenerated; installed and final-freeze check-mode verification remain required. Regenerate downstream clients and send production_case_intake_ref as an ArtifactRef mapping when a selected manifest view matters. Existing profileless callers may use the declared string arm. Move params-only production_case_intake_ref values to the declared field."
+api = "The served workflow writes and consumes the actual production-case A_SPEC_GAP candidate route. Admission and workspace manifests bind the selected intake profile as a CAS input edge. The durable worker proof records only its completed control-store read and marks served HTTP job-status as not_established; a later authenticated GET and fresh CAS admission recomputation are separate observations, not proof acceptance prerequisites."
+limitations = "The product runtime has no producer for the typed gy.loop.proof.root intake (producer_missing for this route); the source must be supplied by an upstream producer, while current test and quality-validator fixtures construct it. Original-construct source support remains not_established, authority remains withheld, and no production measurement-root owner, publication, or positive source-admission claim is introduced."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "control-run-production-case-selected-ref"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: POST /api/v1/control/runs request"
+owner = "runtime"
+version_owner = "runtime"
+deprecation_window = "not_applicable"
+release_note = "Workflow requests may declare a typed production-case intake ref; exact selected manifest views remain bound through admission and recomputing reads."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

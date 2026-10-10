@@ -1,4 +1,48 @@
 {
+  "$defs": {
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "title": "ArtifactID",
+      "type": "string"
+    },
+    "ArtifactRefModel": {
+      "additionalProperties": false,
+      "description": "Provide the common mapping-compatible base contract for artifact refs.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "kind",
+        "media_type"
+      ],
+      "title": "ArtifactRefModel",
+      "type": "object"
+    }
+  },
   "additionalProperties": false,
   "description": "Execution and risk context presented to a governance approver.",
   "properties": {
@@ -94,6 +138,21 @@
       },
       "title": "Risk Indicators",
       "type": "array"
+    },
+    "selected_replay_refs": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "$ref": "#/$defs/ArtifactRefModel"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Selected Replay Refs"
     },
     "simulation_results": {
       "anyOf": [

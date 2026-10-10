@@ -379,6 +379,109 @@ test("unresolved external refs in request or response schema roles fail explicit
   );
 });
 
+test("the checked-in WorkflowRunRequest intake ref narrows typed refs in TypeScript", async () => {
+  const projectRoot = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    "../../..",
+  );
+  const sourceDocument = JSON.parse(
+    await fs.readFile(
+      path.join(projectRoot, "schemas/runtime_api_v1.openapi.json"),
+      "utf8",
+    ),
+  );
+  const intakeSchema =
+    sourceDocument.components.schemas.WorkflowRunRequest.properties
+      .production_case_intake_ref;
+  assert.deepEqual(
+    intakeSchema.anyOf.slice(1).map((branch) => branch.type),
+    ["string", "null"],
+  );
+  assert.deepEqual(intakeSchema.anyOf[0].allOf[0], {
+    $ref: "#/components/schemas/ArtifactRef-Input",
+  });
+  assert.deepEqual(intakeSchema.anyOf[0].allOf[1], {
+    type: "object",
+    properties: {
+      kind: { const: "gy.loop.proof.root" },
+      media_type: { const: "application/json" },
+    },
+    required: ["kind", "media_type"],
+  });
+
+  const validAndInvalidConsumers = `
+type Request = components["schemas"]["WorkflowRunRequest"];
+const validTyped: Request = {
+  data_source: {data_snapshot_ref: "sha256:${"2".repeat(64)}"},
+  production_case_intake_ref: {
+    artifact_id: "sha256:${"1".repeat(64)}",
+    kind: "gy.loop.proof.root",
+    media_type: "application/json",
+  },
+};
+const validSelectedProfile: Request = {
+  data_source: {data_snapshot_ref: "sha256:${"2".repeat(64)}"},
+  production_case_intake_ref: {
+    artifact_id: "sha256:${"1".repeat(64)}",
+    kind: "gy.loop.proof.root",
+    media_type: "application/json",
+    manifest_profile_sha256: "sha256:${"a".repeat(64)}",
+  },
+};
+const validLegacy: Request = {
+  data_source: {data_snapshot_ref: "sha256:${"2".repeat(64)}"},
+  production_case_intake_ref: "sha256:${"1".repeat(64)}",
+};
+const validNull: Request = {
+  data_source: {data_snapshot_ref: "sha256:${"2".repeat(64)}"},
+  production_case_intake_ref: null,
+};
+const wrongKind: Request = {
+  data_source: {data_snapshot_ref: "sha256:${"2".repeat(64)}"},
+  production_case_intake_ref: {
+    artifact_id: "sha256:${"1".repeat(64)}",
+    // @ts-expect-error the typed ref branch must retain the source kind predicate
+    kind: "fabric.data_snapshot",
+    media_type: "application/json",
+  },
+};
+const wrongMediaType: Request = {
+  data_source: {data_snapshot_ref: "sha256:${"2".repeat(64)}"},
+  production_case_intake_ref: {
+    artifact_id: "sha256:${"1".repeat(64)}",
+    kind: "gy.loop.proof.root",
+    // @ts-expect-error the typed ref branch must retain the source media predicate
+    media_type: "text/plain",
+  },
+};
+void [validTyped, validSelectedProfile, validLegacy, validNull, wrongKind, wrongMediaType];
+`;
+  const generated = await generateOpenApiTypes(sourceDocument);
+  assert.deepEqual(typeErrors(`${generated}\n${validAndInvalidConsumers}`), []);
+
+  const withoutTypedPredicate = structuredClone(sourceDocument);
+  withoutTypedPredicate.components.schemas.WorkflowRunRequest.properties.production_case_intake_ref.anyOf[0].allOf.pop();
+  const wrongKindWithoutPredicate = `
+type Request = components["schemas"]["WorkflowRunRequest"];
+const admittedWithoutPredicate: Request = {
+  data_source: {data_snapshot_ref: "sha256:${"2".repeat(64)}"},
+  production_case_intake_ref: {
+    artifact_id: "sha256:${"1".repeat(64)}",
+    kind: "fabric.data_snapshot",
+    media_type: "text/plain",
+  },
+};
+void admittedWithoutPredicate;
+`;
+  assert.deepEqual(
+    typeErrors(
+      `${await generateOpenApiTypes(withoutTypedPredicate)}\n${wrongKindWithoutPredicate}`,
+    ),
+    [],
+    "removing the generated typed-ref predicate must make the invalid pair assignable",
+  );
+});
+
 test("the checked-in LexSearchRequest keeps its required list and optional intent semantics", async () => {
   const projectRoot = path.resolve(
     path.dirname(fileURLToPath(import.meta.url)),

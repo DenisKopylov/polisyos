@@ -33,13 +33,13 @@ from polisyos.runtime.quality.generation_cycle import (
     validate_generation_cycle_candidate_run,
     validate_generation_cycle_run,
 )
+from tests._helpers import controlled_candidate_profile as cycle_fixtures
 from tests._helpers.acquisition_chain import make_wdi_port_case
 from tests._helpers.acquisition_production import (
     install_fixture_wdi_cost_basis,
     persist_wdi_route,
 )
-from tests.unit.runtime.http.test_control_service_di import _build_control_service
-from tests.unit.runtime.quality import test_generation_cycle as cycle_fixtures
+from tests._helpers.runtime_http import _build_control_service
 
 # The served ingestion sidecar contract requires UUID-form tenant identities.
 _SERVED_WDI_FIXTURE_TENANT_ID = "7cf3b2a8-0d6b-4d25-a01c-f248e933e1f0"
@@ -113,10 +113,8 @@ def test_wdi_constraints_use_revised_basis_year_with_same_basis_control():
         design_problem_basis=revised_basis,
     )
 
-    same_constraints = (
-        acquisition_surface_execution_module._constraints_from_live_variable_route(
-            same_basis_view
-        )
+    same_constraints = acquisition_surface_execution_module._constraints_from_live_variable_route(
+        same_basis_view
     )
     revised_constraints = (
         acquisition_surface_execution_module._constraints_from_live_variable_route(
@@ -124,7 +122,11 @@ def test_wdi_constraints_use_revised_basis_year_with_same_basis_control():
         )
     )
 
-    assert (same_constraints.country_code, same_constraints.start_year, same_constraints.end_year) == (
+    assert (
+        same_constraints.country_code,
+        same_constraints.start_year,
+        same_constraints.end_year,
+    ) == (
         "UKR",
         2024,
         2024,
@@ -297,13 +299,16 @@ async def test_served_resume_refuses_selected_value_drift_with_receipt_markers_r
             "SELECT observation_id, value FROM ds_observations WHERE observation_id = ?",
             [observation_id],
         ).fetchone() == (observation_id, float(original_row[1]) + 1.0)
-        assert con.execute(
-            "SELECT passport_id, admission_content_sha256, admitted_observation_count, "
-            "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
-            "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref "
-            "FROM acquisition_epochs WHERE epoch_id = ?",
-            [selected.epoch_id],
-        ).fetchone() == owner_markers
+        assert (
+            con.execute(
+                "SELECT passport_id, admission_content_sha256, admitted_observation_count, "
+                "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
+                "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref "
+                "FROM acquisition_epochs WHERE epoch_id = ?",
+                [selected.epoch_id],
+            ).fetchone()
+            == owner_markers
+        )
         assert con.execute(
             "SELECT count(*) FROM acquisition_epoch_members WHERE epoch_id = ? "
             "AND table_name = 'ds_observations' AND canonical_primary_key_bytes = ?",
@@ -338,7 +343,10 @@ async def test_revised_cycle_basis_survives_served_native_admission_and_reentry(
     assert subject == closure.generation_run.design_problem_ref
     assert subject == closure.source_cycle.design_problem_ref
     assert subject != basis
-    assert closure.design_problem_basis == closure.generation_run.cycles[0].revision_request.revised_problem
+    assert (
+        closure.design_problem_basis
+        == closure.generation_run.cycles[0].revision_request.revised_problem
+    )
     assert closure.generation_run.cycles[1].design_problem_basis_ref == basis
 
     case = make_wdi_port_case(tmp_path / "wdi", monkeypatch, control=control, closure=closure)
@@ -732,9 +740,7 @@ async def _admit_served_wdi_projection(
         kwargs["reentry_budget_usd"] = Decimal("1.00")
         return route_factory(**kwargs)
 
-    monkeypatch.setattr(
-        acquisition_chain, "AcquisitionWorldGrowthRoute", route_with_n8_test_budget
-    )
+    monkeypatch.setattr(acquisition_chain, "AcquisitionWorldGrowthRoute", route_with_n8_test_budget)
 
     projections = []
     original_projection_read = CatalogAcquisitionOverlay.read_activated_semantic_epoch_observations
@@ -912,7 +918,9 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
         assert set(ACQUIRED_DATA_STATE_LIMITATION_CODES).issubset(
             built.world_model.record.limitations.admissibility_blockers
         )
-        assert built.world_model.record.skg_causal_prior_ref == base_world.record.skg_causal_prior_ref
+        assert (
+            built.world_model.record.skg_causal_prior_ref == base_world.record.skg_causal_prior_ref
+        )
         assert (
             built.world_model.record.skg_causal_prior_ref.source_data_snapshot_id
             == base_world.record.skg_causal_prior_ref.source_data_snapshot_id
@@ -934,9 +942,11 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
         assert persisted_admission["passport_ref"] == admitted.projection.passport_ref.model_dump(
             mode="json"
         )
-        assert persisted_admission["passport_content_sha256"] == (
-            admitted.projection.passport_content_sha256
-        ) == content_sha256(passport_payload)
+        assert (
+            persisted_admission["passport_content_sha256"]
+            == (admitted.projection.passport_content_sha256)
+            == content_sha256(passport_payload)
+        )
         payload["acquisition"]["selected"].pop("value")
         removed_payload_ref = store.put_json(
             payload,
@@ -979,6 +989,7 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
                 transaction_time=datetime(2026, 10, 2, 12, 1, tzinfo=UTC),
             )
 
+
 @pytest.mark.asyncio
 async def test_served_wdi_admits_selected_row_but_n5_refusal_prevents_n8(
     tmp_path, monkeypatch, request
@@ -1008,7 +1019,9 @@ async def test_served_wdi_admits_selected_row_but_n5_refusal_prevents_n8(
     assert selected.canonical_var == "government.balance"
     assert selected.value == pytest.approx(-17.1)
     projected_selected = tuple(
-        row for row in projection.observations if row.observation.observation_id == selected.observation_id
+        row
+        for row in projection.observations
+        if row.observation.observation_id == selected.observation_id
     )
     assert len(projected_selected) == 1
     assert projected_selected[0].row_content_sha256
@@ -1023,9 +1036,7 @@ async def test_served_wdi_admits_selected_row_but_n5_refusal_prevents_n8(
         "production_data_bundle_missing",
     )
     assert cycle.value_port.status == "value_blocked"
-    assert cycle.value_port.authority_blockers == (
-        "eval_safety_simulation_provenance_mismatch",
-    )
+    assert cycle.value_port.authority_blockers == ("eval_safety_simulation_provenance_mismatch",)
     assert admitted.profile_calls == []
     assert admitted.profile_errors == []
 
@@ -1088,13 +1099,16 @@ async def test_real_value_owner_gateway_projects_selected_wdi_iso3_row_into_iso2
             ],
         )
     with duckdb.connect(str(overlay_path), read_only=True) as con:
-        assert con.execute(
-            "SELECT passport_id, admission_content_sha256, admitted_observation_count, "
-            "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
-            "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref, "
-            "epoch_activation_state FROM acquisition_epochs WHERE epoch_id = ?",
-            [projection.epoch_id],
-        ).fetchone() == marker_snapshot
+        assert (
+            con.execute(
+                "SELECT passport_id, admission_content_sha256, admitted_observation_count, "
+                "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
+                "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref, "
+                "epoch_activation_state FROM acquisition_epochs WHERE epoch_id = ?",
+                [projection.epoch_id],
+            ).fetchone()
+            == marker_snapshot
+        )
     from polisyos.core.security.tenant_context import tenant_scope
 
     with tenant_scope(
@@ -1110,9 +1124,7 @@ async def test_real_value_owner_gateway_projects_selected_wdi_iso3_row_into_iso2
     assert profile.unit_count == 1
     assert profile.period_count == 4
     assert profile.owner_row_count == 4
-    selected_profile_rows = tuple(
-        row for row in profile.rows if row.period_id == 2024
-    )
+    selected_profile_rows = tuple(row for row in profile.rows if row.period_id == 2024)
     assert len(selected_profile_rows) == 1
     selected_profile_row = selected_profile_rows[0]
     assert selected_profile_row.unit_id == "UA"
@@ -1156,9 +1168,7 @@ async def test_real_value_owner_gateway_projects_selected_wdi_iso3_row_into_iso2
             for key, value in wrong_passport_payload.items()
             if key not in {"passport_id", "status", "rejection_codes"}
         }
-        wrong_passport_payload["passport_id"] = (
-            "passport:" + content_sha256(wrong_identity)
-        )
+        wrong_passport_payload["passport_id"] = "passport:" + content_sha256(wrong_identity)
         encoded_passport = canonical_json_bytes(wrong_passport_payload)
         wrong_passport_ref = store.put_bytes(
             len(encoded_passport).to_bytes(8, "big") + encoded_passport,
@@ -1206,19 +1216,25 @@ async def test_real_value_owner_gateway_projects_selected_wdi_iso3_row_into_iso2
             [selected.value + 0.25, selected.observation_id],
         )
     with duckdb.connect(str(overlay_path), read_only=True) as con:
-        assert con.execute(
-            "SELECT passport_id, admission_content_sha256, admitted_observation_count, "
-            "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
-            "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref, "
-            "epoch_activation_state FROM acquisition_epochs WHERE epoch_id = ?",
-            [projection.epoch_id],
-        ).fetchone() == marker_snapshot
+        assert (
+            con.execute(
+                "SELECT passport_id, admission_content_sha256, admitted_observation_count, "
+                "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
+                "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref, "
+                "epoch_activation_state FROM acquisition_epochs WHERE epoch_id = ?",
+                [projection.epoch_id],
+            ).fetchone()
+            == marker_snapshot
+        )
 
-    with tenant_scope(
-        None,
-        tenant_id=served.closure.tenant_id,
-        cell_id=served.closure.cell_id,
-    ), pytest.raises(ValueOwnerAccessError) as after_tamper:
+    with (
+        tenant_scope(
+            None,
+            tenant_id=served.closure.tenant_id,
+            cell_id=served.closure.cell_id,
+        ),
+        pytest.raises(ValueOwnerAccessError) as after_tamper,
+    ):
         gateway.load_value_data_profile(
             candidate=object(),
             problem=served.closure.design_problem_basis,
@@ -1228,8 +1244,9 @@ async def test_real_value_owner_gateway_projects_selected_wdi_iso3_row_into_iso2
     assert len(admitted.profile_calls) == 3
     assert len(admitted.profile_errors) == 2
     assert "registered WDI ISO3 source code" in admitted.profile_errors[0]
-    assert "N8 query rows differ from the Data Forge verified active member" in (
-        admitted.profile_errors[1]
+    assert (
+        "N8 query rows differ from the Data Forge verified active member"
+        in (admitted.profile_errors[1])
     )
 
 

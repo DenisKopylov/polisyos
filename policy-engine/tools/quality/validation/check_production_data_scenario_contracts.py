@@ -124,16 +124,15 @@ def build_report(
         base_report["summary"]["finding_count"] = 1
         return base_report
 
-    contract_report = ProductionDataContractIndex.load(
-        resolved_root
-    ).build_scenario_binding_report(scenario_contract)
+    contract_report = ProductionDataContractIndex.load(resolved_root).build_scenario_binding_report(
+        scenario_contract
+    )
     construct_findings = _construct_capability_findings(contract_report)
-    findings = construct_findings or _diagnostic_findings(contract_report)
+    findings = [*construct_findings, *_diagnostic_findings(contract_report)]
     status = "pass" if not findings else "fail"
     summary = dict(contract_report.get("summary") or {})
     summary["construct_capability_blockers"] = len(construct_findings)
     summary["finding_count"] = len(findings)
-    construct_resolved = bool(_compiled_construct_bindings(contract_report))
     return {
         **base_report,
         "status": status,
@@ -144,18 +143,12 @@ def build_report(
         ),
         "summary": summary,
         "source_families": list(contract_report.get("source_families") or []),
-        "source_contract_bindings": list(
-            contract_report.get("source_contract_bindings") or []
-        ),
+        "source_contract_bindings": list(contract_report.get("source_contract_bindings") or []),
         "missing_scenario_source_families": list(
-            []
-            if construct_resolved
-            else contract_report.get("missing_scenario_source_families") or []
+            contract_report.get("missing_scenario_source_families") or []
         ),
         "construct_capability_blockers": construct_findings,
-        "scenario_binding_findings": list(
-            contract_report.get("scenario_binding_findings") or []
-        ),
+        "scenario_binding_findings": list(contract_report.get("scenario_binding_findings") or []),
         "findings": findings,
     }
 
@@ -191,8 +184,7 @@ def _construct_capability_findings(report: Mapping[str, Any]) -> list[dict[str, 
             _finding(
                 code="production_data_construct_capability_blocker",
                 message=(
-                    f"Construct-resolved capability binding for {construct_ref} "
-                    f"returned {status}."
+                    f"Construct-resolved capability binding for {construct_ref} returned {status}."
                 ),
                 next_action=(
                     "Use the resolver acquisition strategies, limitations, and "

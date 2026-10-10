@@ -37,6 +37,19 @@ uv run python tools/quality/testing/report_test_economics.py \
 - top slowest tests;
 - active/expired quarantines из `tests/quarantine.toml`.
 
+## Local production-data status
+
+The local production-debug probe supports `--require-passing`. Its
+`production-data-static` check preserves every missing scenario source family
+reported by the source-family binding path and emits
+`production_data_scenario_contracts_missing` as a warning issue. A separate
+construct failure can still make the overall check fail. A construct blocker or
+construct-to-capability resolver result remains visible as separate evidence
+and does not stand in for a missing source family. W12.A invokes the probe with
+`--require-passing` and consumes the child report status as well as its exit
+code. These local compatibility findings do not establish source authority or
+close the capability-graph replay requirements.
+
 ### Playwright quarantine guardrail
 
 ```bash

@@ -1,0 +1,20 @@
+id = "2026-10-10-e02-transport-input-and-legal-mapping-review"
+title = "Reject malformed transport inputs and retain legal mapping review"
+type = "changed"
+component = "scientist"
+owner = "team-scientist"
+summary = "The transportability node now fails malformed non-null query, context, policy, solver, PAG, privacy, and path inputs, including empty or whitespace paths, instead of silently substituting lower-precedence values or defaults. Finite Decimal values admitted by canonical state params are accepted by the shared numeric parser; invalid numeric forms remain rejected. Existing PAG range clamps remain visible in persisted result warnings. Legal-to-DAG projection remains a review-required candidate; ambiguous target shapes are not treated as legal-rule validation."
+evidence = [
+  "tests/unit/scientist/nodes/builtins/causal/test_transport_resolution_inputs.py",
+  "tests/unit/scientist/nodes/builtins/causal/test_transport_resolution_results.py",
+]
+compatibility = "Public node identities and persisted artifact schemas are unchanged. Explicit malformed inputs now return the existing invalid-state node failure; normalized PAG values retain their existing numerical bounds and add a warning."
+change_class = "internal"
+surface_classification = "internal: no HTTP, OpenAPI, or generated-client surface change."
+migration = "No persisted artifact migration is required."
+api = "The node uses the existing invalid-state outcome and TransportabilityResult expert-review fields; no public DTO or legal mapping schema was added."
+limitations = "ADR-0051 remains Proposed. Candidate target projection does not establish legal authority or target intent. The current bridge supplies all graph edges per mapping, so a single-edge shape can reflect graph cardinality rather than producer intent; missing mechanism nodes may be intended graph additions. Decision-packet diagnostics and validity project the existing review flag, and the governance gate-request reason selector can label an already requested review; this work does not establish automatic gate creation or completed review. Intervention redefinition has no represented target in the current SNode projection. A versioned mapping contract and issuer-backed target binding remain unresolved. Request-schema semantics for absent versus explicit null are also not established."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

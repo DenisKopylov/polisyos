@@ -3,6 +3,11 @@
 from __future__ import annotations
 
 import pytest
+
+from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.run.context import RunContext
 from polisyos.ir.governance.gate import (
     GateContext,
     GateDecision,
@@ -28,6 +33,7 @@ def _make_gate_context(**overrides) -> GateContext:
         node_alias="run_governance",
         phase="POSTFLIGHT_GOV",
         iteration=1,
+        selected_replay_refs={},
     )
     defaults.update(overrides)
     return GateContext(**defaults)
@@ -56,6 +62,7 @@ class TestRequestGate:
         assert request.reason == "needs review"
         assert request.priority == GatePriority.NORMAL
         assert request.requested_by == "system"
+        assert request.schema_version == "1.2"
         assert ref == mock_store.put_json.return_value
 
     def test_deterministic_request_id(self, protocol):
@@ -70,6 +77,24 @@ class TestRequestGate:
         req1, _ = protocol.request_gate(run_id="run-1", reason="r", context=ctx1)
         req2, _ = protocol.request_gate(run_id="run-1", reason="r", context=ctx2)
         assert req1.request_id != req2.request_id
+
+    def test_request_identity_includes_reason_and_priority(self, protocol):
+        ctx = _make_gate_context()
+        first, _ = protocol.request_gate(run_id="run-1", reason="first", context=ctx)
+        changed_reason, _ = protocol.request_gate(
+            run_id="run-1",
+            reason="second",
+            context=ctx,
+        )
+        changed_priority, _ = protocol.request_gate(
+            run_id="run-1",
+            reason="first",
+            context=ctx,
+            priority=GatePriority.HIGH,
+        )
+
+        assert first.request_id != changed_reason.request_id
+        assert first.request_id != changed_priority.request_id
 
     def test_custom_priority(self, protocol):
         ctx = _make_gate_context()
@@ -109,6 +134,7 @@ class TestRequestGate:
         payload = call_args[0][0]
         assert payload["run_id"] == "run-1"
         assert payload["reason"] == "r"
+        assert call_args[0][1].schema.version == "1.2"
 
     def test_event_emitted(self, protocol, mock_run_context):
         ctx = _make_gate_context()
@@ -195,6 +221,46 @@ class TestPersistDecision:
         call_args = mock_store.put_json.call_args
         opts = call_args[0][1]
         assert opts.kind == "ir.gate_decision"
+
+    def test_persist_decision_preserves_selected_request_profile(self, tmp_path):
+        store = FileSystemCAS(tmp_path)
+        registry = build_default_registry_bundle(store)
+        run = RunContext.start(
+            store=store,
+            registry_bundle=registry.bundle_ref,
+            run_id="R_gate_selected_lineage",
+        )
+        protocol = HumanGateProtocol(run)
+        request, request_ref = protocol.request_gate(
+            run_id="R_gate_selected_lineage",
+            reason="selected request view",
+            context=_make_gate_context(),
+        )
+        selected_ref = store.put_json(
+            request.model_dump(mode="json"),
+            PutOptions(
+                kind="ir.gate_request",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.ir.GateRequest", version="1.2"),
+                producer=ProducerInfo(component="test.gate_request_view", version="1.0.0"),
+            ),
+        )
+        assert selected_ref.artifact_id == request_ref.artifact_id
+        assert selected_ref.manifest_profile_sha256 is not None
+
+        decision = GateDecision(
+            request_id=request.request_id,
+            run_id=request.run_id,
+            verdict=GateVerdict.APPROVE,
+            approver_id="reviewer",
+        )
+        decision_ref = protocol.persist_decision(decision, request_ref=selected_ref)
+
+        lineage = store.get_manifest(decision_ref).inputs
+        assert len(lineage) == 1
+        assert lineage[0].artifact_id == selected_ref.artifact_id
+        assert lineage[0].role == "gate_request"
+        assert lineage[0].manifest_profile_sha256 == selected_ref.manifest_profile_sha256
 
     def test_persist_without_request_ref(self, protocol, mock_store):
         decision = GateDecision(

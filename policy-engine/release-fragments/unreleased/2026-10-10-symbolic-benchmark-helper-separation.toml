@@ -1,0 +1,19 @@
+id = "2026-10-10-symbolic-benchmark-helper-separation"
+title = "Separate symbolic benchmark helpers from pytest configuration"
+type = "fixed"
+component = "benchmarks"
+owner = "team-polisyos"
+summary = "The symbolic benchmark runner imports reusable graph, proof, and optional-comparator helpers from a private benchmark module instead of importing pytest conftest configuration."
+compatibility = "The standalone runner retains its CLI and helper behavior. Explicit benchmark pytest collection retains source-path bootstrap; unused optional-dependency fixture factories are removed. No public runtime package or API is added."
+migration = "No supported API migration is required. In-repository benchmark scripts should import reusable helpers from benchmarks.symbolic._helpers; conftest remains pytest configuration."
+api = "The standalone symbolic runner keeps the same CLI and result behavior. No supported Python package, OpenAPI, or generated-client surface changes."
+limitations = "This change proves helper behavior, script importability without conftest, and benchmark collection; it does not execute the symbolic benchmark suite or assert benchmark result quality."
+change_class = "internal"
+surface_classification = "internal: benchmark runner helper ownership"
+evidence = [
+  "tests/unit/benchmarks/symbolic/test_helpers.py",
+  "tests/repo_quality/architecture/test_test_ratchets_contract.py",
+  "benchmarks/symbolic/run_symbolic_benchmark.py",
+]
+migration_docs = ["benchmarks/README.md"]
+generated_client_compatibility = "not_applicable"

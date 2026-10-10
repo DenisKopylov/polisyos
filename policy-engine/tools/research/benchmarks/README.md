@@ -23,6 +23,8 @@ Canonical benchmark entry points live under `tools/research/benchmarks/`; the ro
 ## Ограничения
 
 - canonical suite execution идет через `run_all.py`, `run_all_benchmarks.sh` и `polisyos-tools benchmarks run-all` внутри `tools/research/benchmarks/`;
+- JAX-точки входа вызывают общий `apply_jax_env_defaults()` до импорта JAX;
+  выбор backend по-прежнему определяется существующим helper и окружением оператора.
 - root `benchmarks/` остается backend library/reporting layer и compatibility layer, а не пользовательской точкой входа;
 - замеры чувствительны к CPU/GPU backend, поэтому для регрессионных сравнений лучше хранить JSON-вывод рядом с окружением, на котором он был получен.
 

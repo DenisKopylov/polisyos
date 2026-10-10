@@ -100,7 +100,7 @@ def contexts(tmp_path_factory):
     force_include_sources = tomllib.loads((ROOT / "hatch.toml").read_text())["build"]["targets"][
         "wheel"
     ]["force-include"]
-    source_roots = [*INCLUDES, *force_include_sources, "hatch.toml"]
+    source_roots = [*INCLUDES, *force_include_sources, "ruff.generated.toml", "hatch.toml"]
     selected = sorted(
         {
             name
@@ -172,7 +172,11 @@ def test_native_backend_preserves_complete_wheel_and_sdist_contract(contexts):
     del old_wire["tool"]["hatch"]
     assert old_wire == new_wire  # Also preserves empty extension groups and uv tables.
     force_sources = set(force_include)
-    assert set(new_sdist_members) - set(old_sdist_members) == force_sources | {"hatch.toml"}
+    assert "ruff.generated.toml" in new_sdist_members
+    assert "ruff.generated.toml" not in old_sdist_members
+    assert set(new_sdist_members) - set(old_sdist_members) == (
+        force_sources - set(old_sdist_members)
+    ) | {"hatch.toml", "ruff.generated.toml"}
     assert not old_sdist_members.keys() - new_sdist_members.keys()
     assert {
         name for name in old_sdist_members if old_sdist_members[name] != new_sdist_members[name]

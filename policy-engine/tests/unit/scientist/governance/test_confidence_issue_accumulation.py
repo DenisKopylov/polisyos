@@ -3,26 +3,46 @@
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import replace
 from pathlib import Path
 
 import pytest
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
+from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.core.contracts.foundry import (
     ExecPlanRef,
+    Metrics,
     MetricsRef,
     SimulationResult,
     SimulationResultRef,
 )
 from polisyos.core.governance.passes.base import IssueSeverity, PassContext
 from polisyos.core.governance.profiles import ValidationProfile
+from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.run.context import RunContext
 from polisyos.ir.analytics.uncertainty import (
+    DistributionFamily,
+    IntervalSemantics,
+    PropagationMethod,
     UncertaintyEnvelope,
+    UncertaintySource,
     persist_uncertainty_envelope,
 )
 from polisyos.scientist.governance.passes.confidence_pass import ConfidencePass
+from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
+    PropagateUncertaintyNode,
+)
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_SIMULATION_RESULT_REF,
+    INPUT_DATA_SNAPSHOT_REF,
+)
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def _context(store, state, *, min_ratio: float = 0.5) -> PassContext:
@@ -73,6 +93,92 @@ def _simulation(store: FileSystemCAS, *, healthy: bool):
     return store.put_json(
         result, PutOptions(kind="foundry.simulation_result", media_type="application/json")
     )
+
+
+def _propagated_simulation(store: FileSystemCAS) -> SimulationResultRef:
+    """Emit a controlled persisted result through the existing propagation node."""
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_confidence_propagation_admission",
+    )
+    context = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.confidence.propagation_admission"),
+    )
+    input_envelope_ref = persist_uncertainty_envelope(
+        _ensure_ir_artifact_store(store),
+        UncertaintyEnvelope(
+            point_estimate=1.0,
+            confidence_interval=(0.8, 1.2),
+            confidence_level=0.95,
+            distribution_family=DistributionFamily.NORMAL,
+            source=UncertaintySource.TRUST,
+            propagation_method=PropagationMethod.NONE,
+            interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
+            metadata={
+                "param_name": "data_snapshot",
+                "identification_verified": True,
+                "proof_status": "identified",
+                "verifier_role": "system_verifier",
+                "identification_proof_ref": "sha256:" + "f" * 64,
+            },
+        ),
+    )
+    state_snapshot_ref = store.put_json(
+        {"state": {}},
+        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
+    )
+    data_snapshot_ref = store.put_json(
+        DataSnapshot(data_ref=state_snapshot_ref, uncertainty_envelope_ref=input_envelope_ref),
+        PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.1.0"),
+        ),
+    )
+    exec_plan_ref = store.put_json(
+        {
+            "program_ref": {
+                "artifact_id": str(state_snapshot_ref.artifact_id),
+                "kind": "foundry.program_graph",
+                "media_type": "application/json",
+            },
+            "order": [],
+        },
+        PutOptions(kind="foundry.exec_plan", media_type="application/json"),
+    )
+    metrics_ref = store.put_json(
+        Metrics(values={"healthy": 10}),
+        PutOptions(kind="foundry.metrics", media_type="application/json"),
+    )
+    simulation_ref = store.put_json(
+        SimulationResult(
+            exec_plan_ref=ExecPlanRef(artifact_id=exec_plan_ref.artifact_id),
+            metrics_ref=MetricsRef(artifact_id=metrics_ref.artifact_id),
+        ),
+        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False, max_depth=128),
+    )
+    state = ExperimentState(
+        run_id="R_confidence_propagation_admission",
+        inputs={
+            INPUT_DATA_SNAPSHOT_REF: DataSnapshotRef(artifact_id=data_snapshot_ref.artifact_id)
+        },
+        artifacts_index={ARTIFACT_SIMULATION_RESULT_REF: simulation_ref},
+        params={
+            "propagation_mc_n_samples": 100,
+            "propagation_mc_batch_size": 100,
+            "propagation_sensitivity": {"healthy": {"data_snapshot": 1.0}},
+        },
+    )
+
+    outcome = PropagateUncertaintyNode().execute(context, state)
+
+    assert outcome.status == "ok"
+    return outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF]
 
 
 def _unloadable_simulation(store: FileSystemCAS, failure: str) -> SimulationResultRef:
@@ -176,11 +282,42 @@ def test_loaded_simulation_never_replaces_existing_causal_blocker(
     assert not any(issue.code == "CONFIDENCE_SIM_RESULT_LOAD_FAILED" for issue in issues)
 
 
-@pytest.mark.parametrize("healthy", [False, True])
-def test_loaded_noncausal_simulation_preserves_supported_confidence_profile(
-    tmp_path: Path, healthy: bool
-) -> None:
+def test_noncausal_simulation_without_envelopes_preserves_empty_result(tmp_path: Path) -> None:
     writer = FileSystemCAS(tmp_path)
-    state = _state("artifacts_index", simulation_ref=_simulation(writer, healthy=healthy))
+    state = _state("artifacts_index", simulation_ref=_simulation(writer, healthy=False))
     issues = ConfidencePass().validate(_context(FileSystemCAS(tmp_path), state, min_ratio=1.0))
     assert issues == []
+
+
+def test_metadata_only_healthy_envelope_remains_admission_limited(tmp_path: Path) -> None:
+    writer = FileSystemCAS(tmp_path)
+    state = _state("artifacts_index", simulation_ref=_simulation(writer, healthy=True))
+
+    issues = ConfidencePass().validate(_context(FileSystemCAS(tmp_path), state, min_ratio=1.0))
+
+    limited = next(
+        issue for issue in issues if issue.code == "CONFIDENCE_ENVELOPE_ADMISSION_LIMITED"
+    )
+    assert limited.severity is IssueSeverity.BLOCKER
+    assert limited.path == ["uncertainty_envelopes", "healthy"]
+    assert "propagation_report_ref_missing" in limited.message
+    assert any(issue.code == "CONFIDENCE_GATE_ELIGIBILITY_LOW" for issue in issues)
+
+
+def test_existing_propagation_output_remains_limited_without_admitted_verifier(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    simulation_ref = _propagated_simulation(store)
+
+    issues = ConfidencePass().validate(
+        _context(store, _state("artifacts_index", simulation_ref=simulation_ref), min_ratio=1.0)
+    )
+
+    limited = next(
+        issue for issue in issues if issue.code == "CONFIDENCE_ENVELOPE_ADMISSION_LIMITED"
+    )
+    assert limited.severity is IssueSeverity.BLOCKER
+    assert limited.path == ["uncertainty_envelopes", "healthy"]
+    assert "draw_success_ledger_missing" in limited.message
+    assert "draw_basis_verifier_missing" in limited.message

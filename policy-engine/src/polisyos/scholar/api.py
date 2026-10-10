@@ -10,12 +10,14 @@ from typing import TYPE_CHECKING, Any
 
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import content_hash
 from polisyos.core.contracts.scholar import KnowledgeBundleRef, ResearchIntent, SourceSpec
 from polisyos.scholar.errors import ScholarAcquireError
 from polisyos.scholar.orchestrator.enrich import enrich_topic as _enrich_topic
 from polisyos.scholar.search.jobs import DeepResearchJobManager
 from polisyos.scholar.search.service import ScholarDeepSearchService
+from polisyos.scholar.search.source_binding import validate_web_evidence_source_binding
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
@@ -80,6 +82,16 @@ def enrich_topic(
         )
         if not web_bundle.sources:
             raise ValueError("web search bootstrap returned no sources")
+        source_binding = validate_web_evidence_source_binding(
+            web_bundle,
+            cas=cas,
+            require_all_sources=True,
+        )
+        if not source_binding.passed:
+            raise ScholarAcquireError(
+                "web search bundle failed source-content verification",
+                details={"violations": list(source_binding.violations)},
+            )
         try:
             web_bundle_artifact_id = str(search_service.persist_bundle(web_bundle).artifact_id)
         except ValueError:
@@ -152,8 +164,7 @@ class ScholarService:
         brief: ResearchBrief | None = None,
         query_graph: QueryGraph | None = None,
         claim_texts: list[str] | None = None,
-        requirement_specs: list[ScholarSupportRequirementSpec | Mapping[str, object]]
-        | None = None,
+        requirement_specs: list[ScholarSupportRequirementSpec | Mapping[str, object]] | None = None,
         constraints: SearchConstraints | None = None,
         budgets: SearchBudgetControls | None = None,
     ) -> str:
@@ -251,8 +262,12 @@ def _source_spec_from_snapshot(
     cached_record = _cache_record_for_source(source, cache)
     source_identity = str(getattr(source, "url", "")) or None
     expected_digest = _normalize_digest(getattr(source, "content_sha256", None))
+    candidate_ref = getattr(source, "raw_artifact_ref", None) or getattr(
+        cached_record, "raw_artifact_ref", None
+    )
     candidate_ref = (
-        getattr(source, "artifact_id", None)
+        candidate_ref
+        or getattr(source, "artifact_id", None)
         or getattr(source, "raw_artifact_id", None)
         or getattr(cached_record, "artifact_id", None)
     )
@@ -266,7 +281,12 @@ def _source_spec_from_snapshot(
         )
 
     try:
-        artifact_id = ArtifactID.model_validate(str(candidate_ref))
+        if hasattr(candidate_ref, "artifact_id"):
+            selected_ref = ArtifactRef.model_validate(candidate_ref)
+            artifact_id = selected_ref.artifact_id
+        else:
+            selected_ref = None
+            artifact_id = ArtifactID.model_validate(str(candidate_ref))
     except Exception as exc:
         raise ScholarAcquireError(
             "web source raw snapshot reference is invalid",
@@ -285,7 +305,7 @@ def _source_spec_from_snapshot(
         )
 
     try:
-        raw_bytes = cas.get_bytes(artifact_id)
+        raw_bytes = cas.get_bytes(selected_ref or artifact_id)
     except Exception as exc:
         raise ScholarAcquireError(
             "web source raw snapshot is unavailable",
@@ -344,19 +364,18 @@ def _source_spec_from_snapshot(
             or source_identity
             or ""
         ),
-        "raw_artifact_id": str(artifact_id),
         "content_sha256": actual_digest,
         "byte_size": str(len(raw_bytes)),
         "fetch_status": str(getattr(source, "fetch_status", "ok")),
         "fetch_profile": _json_prop(
-            getattr(source, "fetch_profile", None)
-            or getattr(cached_record, "fetch_profile", {})
+            getattr(source, "fetch_profile", None) or getattr(cached_record, "fetch_profile", {})
         ),
         "redirect_chain": _json_prop(
-            getattr(source, "redirect_chain", None)
-            or getattr(cached_record, "redirect_chain", [])
+            getattr(source, "redirect_chain", None) or getattr(cached_record, "redirect_chain", [])
         ),
     }
+    if selected_ref is None:
+        props["raw_artifact_id"] = str(artifact_id)
     for metadata_field in (
         "etag",
         "last_modified",
@@ -386,6 +405,7 @@ def _source_spec_from_snapshot(
         source_locator=str(artifact_id),
         license=license_value,
         mime_hint=str(getattr(source, "content_type", "application/octet-stream")),
+        raw_artifact_ref=selected_ref,
         props=props,
         data=raw_bytes,
     )

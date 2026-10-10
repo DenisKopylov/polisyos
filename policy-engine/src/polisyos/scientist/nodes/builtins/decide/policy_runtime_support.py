@@ -64,6 +64,12 @@ from polisyos.scientist.methods.search.judge_stack import (
 )
 from polisyos.scientist.methods.search.promotion_evidence import PromotionEvidenceBundle
 from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope, UncertaintyType
+from polisyos.scientist.nodes.builtins.decide import (
+    policy_runtime_artifacts as _runtime_artifacts,
+)
+from polisyos.scientist.nodes.builtins.decide import (
+    policy_runtime_metrics as _runtime_metrics,
+)
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
@@ -93,15 +99,8 @@ from polisyos.scientist.replay.verification import (
     verify_and_persist_replay_bundle,
 )
 
-_POLICY_RUNTIME_VALIDATION_ERRORS = (TypeError, ValidationError, ValueError)
-_POLICY_RUNTIME_LOAD_ERRORS = (
-    AttributeError,
-    OSError,
-    RuntimeError,
-    TypeError,
-    ValidationError,
-    ValueError,
-)
+_POLICY_RUNTIME_VALIDATION_ERRORS = _runtime_metrics._POLICY_RUNTIME_VALIDATION_ERRORS
+_POLICY_RUNTIME_LOAD_ERRORS = _runtime_metrics._POLICY_RUNTIME_LOAD_ERRORS
 _EVAL_SAFETY_BLOCKER_PREFIX = "polisyos.eval_safety"
 
 
@@ -211,89 +210,25 @@ def _production_policy_evaluation_safety_blockers(
     governance_report: GovernanceReport | None,
     ambiguity_certificate: AmbiguityCertificate | dict[str, Any] | None,
 ) -> tuple[str, ...]:
-    if context is None:
-        return (_eval_safety_blocker("execution_context_missing"),)
-
-    mode_resolution = context.mode_resolution
-    if mode_resolution.status != "accepted":
-        return (mode_resolution.blocker_code or _eval_safety_blocker("evaluation_mode_unknown"),)
-    if context.evaluator_owner_id != PRODUCTION_POLICY_EVALUATION_BACKEND_ID:
-        return (_eval_safety_blocker("evaluator_owner_mismatch"),)
-    if world_model_record is None:
-        return (_eval_safety_blocker("world_model_record_not_established"),)
-
-    recomputed_wmr_hash = world_model_record_content_hash(world_model_record)
-    world_model_binds = bool(
-        world_model_record.content_hash == recomputed_wmr_hash
-        and context.world_model_record_ref.content_hash == recomputed_wmr_hash
-        and context.world_model_record_ref.artifact_id == world_model_record.world_model_record_id
-        and context.world_model_record_ref.artifact_type == "world_model_record"
-        and context.world_model_record_ref.schema_ref == "policyos.runtime.world_model_record.v1"
+    return _runtime_artifacts._production_policy_evaluation_safety_blockers_impl(
+        context=context,
+        verifier=verifier,
+        world_model_record=world_model_record,
+        candidate=candidate,
+        simulation_metrics=simulation_metrics,
+        uncertainty=uncertainty,
+        distributional_report=distributional_report,
+        causal_effect_report=causal_effect_report,
+        cross_graph_profile=cross_graph_profile,
+        governance_report=governance_report,
+        ambiguity_certificate=ambiguity_certificate,
+        blocker_fn=_eval_safety_blocker,
+        input_hash_fn=_policy_runtime_input_hash,
+        production_owner_component_id=PRODUCTION_POLICY_EVALUATION_BACKEND_ID,
+        world_model_record_content_hash_fn=world_model_record_content_hash,
+        challenge_factory=EvalSafetyAdmissionChallenge,
+        admission_check=evaluation_safety_consumer_admission_is_verified,
     )
-    if not world_model_binds:
-        return (_eval_safety_blocker("world_model_record_binding_mismatch"),)
-
-    actual_values = (
-        candidate,
-        simulation_metrics,
-        uncertainty,
-        distributional_report,
-        causal_effect_report,
-        cross_graph_profile,
-        governance_report,
-        ambiguity_certificate,
-    )
-    actual_hashes = tuple(
-        _policy_runtime_input_hash(value) for value in actual_values if value is not None
-    )
-    context_hashes = tuple(ref.content_hash for ref in context.evaluation_input_refs)
-    context_identities = tuple(
-        (ref.artifact_id, ref.content_hash) for ref in context.evaluation_input_refs
-    )
-    provenance_identities = tuple(
-        (row.input_ref.artifact_id, row.input_ref.content_hash)
-        for row in context.evaluation_input_provenance
-    )
-    exact_inputs_bind = bool(
-        actual_hashes
-        and len(actual_hashes) == len(set(actual_hashes))
-        and len(context_identities) == len(set(context_identities))
-        and len(provenance_identities) == len(set(provenance_identities))
-        and set(actual_hashes) == set(context_hashes)
-        and set(context_identities) == set(provenance_identities)
-        and all(
-            row.predicate_provenance in {"recomputed", "independently_reconciled"}
-            for row in context.evaluation_input_provenance
-        )
-    )
-    exact_owner_inputs_bind = bool(
-        context.candidate_ref.artifact_id == candidate.candidate_id
-        and context.candidate_ref.artifact_type == "candidate"
-        and context.candidate_ref.content_hash == _policy_runtime_input_hash(candidate)
-        and context.target_population_scope_ref.artifact_type == "target_population_scope"
-        and context.target_population_scope_ref.content_hash
-        == _policy_runtime_input_hash(candidate.target_population)
-        and context.rule_version.strip()
-        and context.intended_start_at.tzinfo is not None
-    )
-    if (
-        not exact_inputs_bind
-        or not exact_owner_inputs_bind
-        or context.attempt_class != "non_simulation"
-    ):
-        return (_eval_safety_blocker("execution_context_binding_mismatch"),)
-    if context.evaluation_mode == "simulate_only":
-        return (_eval_safety_blocker("simulation_provenance_not_established"),)
-    if verifier is None:
-        return (_eval_safety_blocker("verifier_unresolved"),)
-
-    challenge = EvalSafetyAdmissionChallenge.fresh(
-        consumer_component_id=PRODUCTION_POLICY_EVALUATION_BACKEND_ID
-    )
-    receipt = verifier.require_admission(context, challenge)
-    if not evaluation_safety_consumer_admission_is_verified(receipt, context, challenge):
-        return receipt.blocker_codes or (_eval_safety_blocker("consumer_admission_blocked"),)
-    return ()
 
 
 @dataclass(frozen=True)
@@ -475,15 +410,9 @@ def ensure_policy_candidate_ref(
     candidate: PolicyCandidateSchema,
     candidate_ref: ArtifactRef | None,
 ) -> ArtifactRef:
-    """Ensure policy candidate ref helper."""
-    if candidate_ref is not None and candidate_ref.kind == "scientist.policy_candidate_schema":
-        return candidate_ref
-    return persist_policy_candidate_schema(
-        ctx.store,
-        candidate,
-        inputs=[
-            InputRef(artifact_id=ref.artifact_id, role=key) for key, ref in state.inputs.items()
-        ],
+    """Ensure a persisted policy-candidate reference is available."""
+    return _runtime_artifacts._ensure_policy_candidate_ref_impl(
+        ctx, state, candidate, candidate_ref
     )
 
 
@@ -493,30 +422,24 @@ def resolve_policy_evaluation(
     candidate: PolicyCandidateSchema,
     candidate_ref: ArtifactRef,
 ) -> tuple[PolicyEvaluationVector | None, ArtifactRef | None]:
-    """Resolve policy evaluation."""
-    parsed = _parse_policy_evaluation(state.params.get("policy_evaluation"))
-    if parsed is None:
-        metrics = load_simulation_metrics(ctx, state)
-        if not metrics:
-            return None, None
-        parsed = ObjectiveStack().evaluate(
-            PolicyEvaluationBundle(
-                candidate=candidate,
-                simulation_metrics=metrics,
-                distributional_report=load_distributional_report_for_state(ctx, state),
-                causal_effect_report=load_causal_report(ctx, state),
-                cross_graph_profile=load_cross_graph_profile(ctx, state),
-                governance_report=load_governance_report(ctx, state),
-                uncertainty_envelope=load_search_uncertainty(ctx, state),
-                ambiguity_certificate=load_ambiguity_certificate(ctx, state),
-            )
-        )
-    ref = persist_policy_evaluation_vector(
+    """Resolve a policy evaluation from inputs or the configured objective stack."""
+    return _runtime_artifacts._resolve_policy_evaluation_impl(
         ctx,
-        candidate_ref=candidate_ref,
-        evaluation_vector=parsed,
+        state,
+        candidate,
+        candidate_ref,
+        parse_evaluation=_parse_policy_evaluation,
+        load_metrics=load_simulation_metrics,
+        objective_stack_factory=ObjectiveStack,
+        bundle_factory=PolicyEvaluationBundle,
+        load_distributional=load_distributional_report_for_state,
+        load_causal=load_causal_report,
+        load_cross_graph=load_cross_graph_profile,
+        load_governance=load_governance_report,
+        load_uncertainty=load_search_uncertainty,
+        load_ambiguity=load_ambiguity_certificate,
+        persist_vector=persist_policy_evaluation_vector,
     )
-    return parsed, ref
 
 
 def persist_policy_evaluation_vector(
@@ -525,11 +448,9 @@ def persist_policy_evaluation_vector(
     candidate_ref: ArtifactRef,
     evaluation_vector: PolicyEvaluationVector,
 ) -> ArtifactRef:
-    """Persist policy evaluation vector helper."""
-    return persist_policy_evaluation_vector_to_store(
-        ctx.store,
-        candidate_ref=candidate_ref,
-        evaluation_vector=evaluation_vector,
+    """Persist a policy-evaluation vector through the execution context store."""
+    return _runtime_artifacts._persist_policy_evaluation_vector_impl(
+        ctx, candidate_ref=candidate_ref, evaluation_vector=evaluation_vector
     )
 
 
@@ -540,18 +461,8 @@ def persist_policy_evaluation_vector_to_store(
     evaluation_vector: PolicyEvaluationVector,
 ) -> ArtifactRef:
     """Persist a native policy-runtime evaluation vector to the supplied CAS."""
-    return store.put_json(
-        evaluation_vector,
-        PutOptions(
-            kind="scientist.policy_evaluation_vector",
-            media_type="application/json",
-            schema=SchemaInfo(
-                name="polisyos.scientist.policy_design.PolicyEvaluationVector",
-                version="1.0",
-            ),
-            inputs=[InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")],
-        ),
-        canon_spec=CanonSpec(forbid_floats=False),
+    return _runtime_artifacts._persist_policy_evaluation_vector_to_store_impl(
+        store, candidate_ref=candidate_ref, evaluation_vector=evaluation_vector
     )
 
 
@@ -560,26 +471,7 @@ def persist_funnel_executed_work_packet(
     packet: FunnelExecutedWorkPacket,
 ) -> ArtifactRef:
     """Persist a completed policy-runtime invocation record with CAS lineage."""
-    return store.put_json(
-        packet,
-        PutOptions(
-            kind="scientist.search.funnel_native_work_packet",
-            media_type="application/json",
-            schema=SchemaInfo(
-                name="polisyos.scientist.search.FunnelExecutedWorkPacket",
-                version=packet.schema_version,
-            ),
-            producer=ProducerInfo(
-                component="scientist.policy_runtime_work_packet",
-                version="1.0.0",
-            ),
-            inputs=[
-                InputRef(artifact_id=packet.candidate_ref.artifact_id, role="candidate"),
-                InputRef(artifact_id=packet.source_result_ref.artifact_id, role="source_result"),
-            ],
-        ),
-        canon_spec=CanonSpec(forbid_floats=False),
-    )
+    return _runtime_artifacts._persist_funnel_executed_work_packet_impl(store, packet)
 
 
 def build_selection_benchmark_evaluation(
@@ -591,43 +483,15 @@ def build_selection_benchmark_evaluation(
     source: str = "policy_runtime_selection",
     metadata_extension: Mapping[str, Any] | None = None,
 ) -> BenchmarkEvaluation:
-    """Build selection benchmark evaluation."""
-    base_score = selection_score(evaluation_vector)
-    return BenchmarkEvaluation(
-        loop_id=str(state.params.get("policy_loop_id") or state.run_id),
-        suite_id="policy_selection",
+    """Build the selection benchmark view for an evaluation vector."""
+    return _runtime_artifacts._build_selection_benchmark_evaluation_impl(
+        state=state,
         candidate_ref=candidate_ref,
-        selection_metrics={
-            "score": base_score,
-            **{
-                name: channel.higher_is_better
-                for name, channel in evaluation_vector.primary.items()
-            },
-        },
-        holdout_metrics={"score": base_score},
-        sample_counts={BenchmarkSplit.SELECTION.value: 100},
-        promotable=evaluation_vector.feasible,
-        runtime_split_type=BenchmarkSplit.SELECTION,
-        metadata={
-            "lineage_complete": True,
-            "generated_from": source,
-            "backend_kind": (
-                runtime_artifact.provenance.backend_kind
-                if runtime_artifact is not None
-                else "unknown"
-            ),
-            "promotable_source": (
-                runtime_artifact.provenance.promotable_source
-                if runtime_artifact is not None
-                else None
-            ),
-            "evaluation_degradation_mode": (
-                runtime_artifact.provenance.degradation_mode
-                if runtime_artifact is not None
-                else None
-            ),
-            **dict(metadata_extension or {}),
-        },
+        evaluation_vector=evaluation_vector,
+        runtime_artifact=runtime_artifact,
+        source=source,
+        metadata_extension=metadata_extension,
+        selection_score_fn=selection_score,
     )
 
 
@@ -644,16 +508,17 @@ def build_policy_runtime_evaluation(
     governance_report: GovernanceReport | None,
     ambiguity_certificate: AmbiguityCertificate | dict[str, Any] | None = None,
 ) -> PolicyRuntimeEvaluationArtifact:
-    """Build policy runtime evaluation."""
-    return backend.evaluate(
+    """Build a policy-runtime evaluation through its configured backend."""
+    return _runtime_artifacts._build_policy_runtime_evaluation_impl(
         candidate,
+        backend=backend,
         fidelity=fidelity,
         simulation_metrics=simulation_metrics,
         uncertainty=uncertainty,
-        governance_report=governance_report,
         distributional_report=distributional_report,
         causal_effect_report=causal_effect_report,
         cross_graph_profile=cross_graph_profile,
+        governance_report=governance_report,
         ambiguity_certificate=ambiguity_certificate,
     )
 
@@ -667,75 +532,15 @@ def build_policy_simulation_results(
     provenance: PolicyRuntimeProvenance | None = None,
     ambiguity_certificate: AmbiguityCertificate | dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Build policy simulation results."""
-    metrics = dict(base_metrics or {})
-    policy_value = float(
-        metrics.get("policy_value", _channel_higher_is_better(evaluation, "policy_value"))
+    """Build metric and provenance projections for a policy-runtime result."""
+    return _runtime_metrics._build_policy_simulation_results_impl(
+        evaluation,
+        fidelity=fidelity,
+        uncertainty=uncertainty,
+        base_metrics=base_metrics,
+        provenance=provenance,
+        ambiguity_certificate=ambiguity_certificate,
     )
-    employment = float(
-        metrics.get("employment", _channel_higher_is_better(evaluation, "employment"))
-    )
-    welfare = float(
-        metrics.get(
-            "welfare", _channel_higher_is_better(evaluation, "welfare", fallback=policy_value)
-        )
-    )
-    budget_pressure = float(metrics.get("budget_penalty", _budget_pressure(evaluation)))
-    gov_balance = float(metrics.get("gov_balance", -abs(budget_pressure)))
-    ate = float(metrics.get("ate", policy_value))
-    statistical = (
-        uncertainty.uncertainties.get(UncertaintyType.STATISTICAL)
-        if isinstance(uncertainty, UncertaintyEnvelope)
-        else None
-    )
-    ci_width = 0.12 if fidelity == "selection" else 0.1
-    if statistical is not None:
-        ci_width = max(
-            ci_width,
-            float(statistical.level) * (0.22 if fidelity == "full" else 0.34),
-        )
-    if not evaluation.feasible:
-        ci_width = max(ci_width, 0.35)
-    ambiguity_payload = _ambiguity_certificate_payload(ambiguity_certificate)
-    return {
-        "policy_value": policy_value,
-        "employment": employment,
-        "welfare": welfare,
-        "net_social_welfare": float(metrics.get("net_social_welfare", welfare)),
-        "gdp_change": float(metrics.get("gdp_change", welfare)),
-        "gov_balance": gov_balance,
-        "ate": ate,
-        "bootstrap": {
-            "ci_width": ci_width,
-            "requested_draw_count": (
-                500 if fidelity == "full" else (64 if fidelity == "medium" else 32)
-            ),
-            "requested_draw_source": "fidelity_default",
-            "draw_execution_status": "not_instrumented",
-            "attempted_draw_count": None,
-            "successful_draw_count": None,
-            "failed_draw_count": None,
-            "unattempted_draw_count": None,
-            "fidelity": fidelity,
-        },
-        "objective_channels": {
-            name: channel.value for name, channel in evaluation.all_channels().items()
-        },
-        "blocking_reasons": list(evaluation.blocking_reasons),
-        "fidelity": fidelity,
-        "evaluation_backend_kind": provenance.backend_kind if provenance is not None else "unknown",
-        "promotable_source": provenance.promotable_source if provenance is not None else None,
-        "evaluation_degradation_mode": (
-            provenance.degradation_mode if provenance is not None else None
-        ),
-        "evaluation_source_components": list(provenance.source_components)
-        if provenance is not None
-        else [],
-        "ambiguity_certificate": ambiguity_payload,
-        "ambiguity_certificate_status": (
-            ambiguity_payload.get("overall_status") if isinstance(ambiguity_payload, dict) else None
-        ),
-    }
 
 
 def build_vulnerabilities(
@@ -745,175 +550,52 @@ def build_vulnerabilities(
     causal_report: CausalEffectReport | None,
     governance_report: GovernanceReport | None,
 ) -> list[Any]:
-    """Build vulnerabilities."""
-    from polisyos.scientist.methods.doe.stress_report import Vulnerability, VulnerabilityType
-
-    vulnerabilities: list[Vulnerability] = []
-    if evaluation is not None:
-        for name, channel in evaluation.hard_constraints.items():
-            if channel.status is None or str(channel.status) not in {"violated", "near_binding"}:
-                continue
-            vulnerabilities.append(
-                Vulnerability(
-                    vulnerability_id=f"constraint_{name}",
-                    vulnerability_type=VulnerabilityType.CONSTRAINT_VIOLATION,
-                    severity="critical" if str(channel.status) == "violated" else "high",
-                    objective_value=channel.value,
-                    constraint_violated=name,
-                    explanation=f"Policy constraint '{name}' is {channel.status}.",
-                    source_evidence=["policy_evaluation"],
-                )
-            )
-    if governance_report is not None:
-        issues = getattr(governance_report, "issues", None) or []
-        for idx, issue in enumerate(issues, start=1):
-            vulnerabilities.append(
-                Vulnerability(
-                    vulnerability_id=f"governance_{idx}",
-                    vulnerability_type=VulnerabilityType.GOVERNANCE_RISK,
-                    severity="high",
-                    objective_value=1.0,
-                    explanation=str(getattr(issue, "summary", None) or issue),
-                    source_evidence=["governance_report"],
-                )
-            )
-    if distributional is not None:
-        subgroup_count = len(getattr(distributional, "subgroup_reports", None) or [])
-        if subgroup_count:
-            vulnerabilities.append(
-                Vulnerability(
-                    vulnerability_id="distributional_shift",
-                    vulnerability_type=VulnerabilityType.SUBGROUP_HARM,
-                    severity="medium",
-                    objective_value=float(subgroup_count),
-                    explanation="Distributional analysis identified subgroup-level shifts that require review.",
-                    source_evidence=["distributional_report"],
-                )
-            )
-    if causal_report is not None and getattr(causal_report, "confidence", None) is not None:
-        confidence = float(causal_report.confidence)
-        if confidence < 0.5:
-            vulnerabilities.append(
-                Vulnerability(
-                    vulnerability_id="causal_confidence_low",
-                    vulnerability_type=VulnerabilityType.MODEL_RISK,
-                    severity="high",
-                    objective_value=confidence,
-                    explanation="Causal report confidence is below promotion-grade tolerance.",
-                    source_evidence=["causal_report"],
-                )
-            )
-    return vulnerabilities
-
-
-def selection_score(evaluation_vector: PolicyEvaluationVector) -> float:
-    """Selection score helper."""
-    if "policy_value" in evaluation_vector.primary:
-        return float(evaluation_vector.primary["policy_value"].value)
-    if evaluation_vector.primary:
-        return float(next(iter(evaluation_vector.primary.values())).value)
-    return 0.0
-
-
-def load_simulation_metrics(ctx: ExecutionContext, state: ExperimentState) -> dict[str, float]:
-    """Load simulation metrics."""
-    metrics_ref = state.artifacts_index.get(ARTIFACT_METRICS_REF)
-    if metrics_ref is None:
-        return {}
-    payload = from_canonical_bytes(ctx.store.get_bytes(metrics_ref))
-    metrics = Metrics.model_validate(payload)
-    output: dict[str, float] = {}
-    for key, value in metrics.values.items():
-        if isinstance(value, bool):
-            continue
-        if isinstance(value, (int, float)):
-            output[str(key)] = float(value)
-            continue
-        try:
-            output[str(key)] = float(value)
-        except (TypeError, ValueError):
-            continue
-    return output
-
-
-def load_distributional_report_for_state(ctx: ExecutionContext, state: ExperimentState):
-    """Load distributional report for state."""
-    ref = state.artifacts_index.get(ARTIFACT_DISTRIBUTIONAL_REPORT_REF)
-    return (
-        None
-        if ref is None
-        else load_distributional_report(_ensure_ir_artifact_store(ctx.store), ref)
+    """Build vulnerability records from evaluation and evidence inputs."""
+    return _runtime_artifacts._build_vulnerabilities_impl(
+        evaluation=evaluation,
+        distributional=distributional,
+        causal_report=causal_report,
+        governance_report=governance_report,
     )
 
 
+def selection_score(evaluation_vector: PolicyEvaluationVector) -> float:
+    """Return the primary policy-value score, preserving the fallback order."""
+    return _runtime_metrics._selection_score_impl(evaluation_vector)
+
+
+def load_simulation_metrics(ctx: ExecutionContext, state: ExperimentState) -> dict[str, float]:
+    """Load normalized simulation metrics from the state artifact index."""
+    return _runtime_artifacts._load_simulation_metrics_impl(ctx, state)
+
+
+def load_distributional_report_for_state(ctx: ExecutionContext, state: ExperimentState):
+    """Load the state-bound distributional report, when present."""
+    return _runtime_artifacts._load_distributional_report_for_state_impl(ctx, state)
+
+
 def load_causal_report(ctx: ExecutionContext, state: ExperimentState) -> CausalEffectReport | None:
-    """Load causal report."""
-    ref = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
-    if ref is None:
-        return None
-    return CausalEffectReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
+    """Load the causal report indexed by the current state."""
+    return _runtime_artifacts._load_causal_report_impl(ctx, state)
 
 
 def load_governance_report(
     ctx: ExecutionContext, state: ExperimentState
 ) -> GovernanceReport | None:
-    """Load governance report."""
-    ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
-    if ref is None:
-        return None
-    return GovernanceReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
+    """Load the governance report indexed by the current state."""
+    return _runtime_artifacts._load_governance_report_impl(ctx, state)
 
 
 def load_cross_graph_profile(ctx: ExecutionContext, state: ExperimentState):
-    """Load cross graph profile."""
-    ref = state.artifacts_index.get(ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF)
-    return (
-        None
-        if ref is None
-        else load_cross_graph_evidence_profile(_ensure_ir_artifact_store(ctx.store), ref)
-    )
+    """Load the cross-graph evidence profile indexed by the current state."""
+    return _runtime_artifacts._load_cross_graph_profile_impl(ctx, state)
 
 
 def load_prior_knowledge_bundle_for_state(
-    ctx: ExecutionContext,
-    state: ExperimentState,
+    ctx: ExecutionContext, state: ExperimentState
 ) -> PriorKnowledgeBundle | None:
-    """Load prior knowledge bundle for state."""
-    raw_ref = state.inputs.get(INPUT_PRIOR_KNOWLEDGE_BUNDLE_REF) or state.params.get(
-        "prior_knowledge_bundle_ref"
-    )
-    if raw_ref is not None:
-        try:
-            ref = (
-                raw_ref
-                if isinstance(raw_ref, PriorKnowledgeBundleRef)
-                else PriorKnowledgeBundleRef.model_validate(
-                    raw_ref.model_dump(mode="json") if hasattr(raw_ref, "model_dump") else raw_ref
-                )
-            )
-            return load_prior_knowledge_bundle(ctx.store, ref)
-        except _POLICY_RUNTIME_LOAD_ERRORS:
-            return None
-
-    bundle_ref = state.artifacts_index.get(
-        ARTIFACT_DISCOVERY_ARTIFACT_BUNDLE_REF
-    ) or state.params.get("discovery_artifact_bundle_ref")
-    if bundle_ref is None:
-        return None
-    try:
-        discovery_ref = (
-            bundle_ref
-            if isinstance(bundle_ref, DiscoveryArtifactBundleRef)
-            else DiscoveryArtifactBundleRef.model_validate(
-                bundle_ref.model_dump(mode="json")
-                if hasattr(bundle_ref, "model_dump")
-                else bundle_ref
-            )
-        )
-        bundle = load_discovery_artifact_bundle(ctx.store, discovery_ref)
-        return load_prior_knowledge_bundle(ctx.store, bundle.prior_knowledge_bundle_ref)
-    except _POLICY_RUNTIME_LOAD_ERRORS:
-        return None
+    """Load prior knowledge directly or through the discovery bundle reference."""
+    return _runtime_artifacts._load_prior_knowledge_bundle_for_state_impl(ctx, state)
 
 
 def resolve_latent_discovery_bundle_for_state(
@@ -921,37 +603,9 @@ def resolve_latent_discovery_bundle_for_state(
     state: ExperimentState,
 ) -> LatentDiscoveryBundleResolution:
     """Resolve latent discovery bundle for state."""
-    bundle_ref = state.artifacts_index.get(
-        ARTIFACT_DISCOVERY_ARTIFACT_BUNDLE_REF
-    ) or state.params.get("discovery_artifact_bundle_ref")
-    if bundle_ref is None:
-        return LatentDiscoveryBundleResolution(bundle=None, status="missing")
-    discovery_ref: DiscoveryArtifactBundleRef | None = None
-    try:
-        discovery_ref = (
-            bundle_ref
-            if isinstance(bundle_ref, DiscoveryArtifactBundleRef)
-            else DiscoveryArtifactBundleRef.model_validate(
-                bundle_ref.model_dump(mode="json")
-                if hasattr(bundle_ref, "model_dump")
-                else bundle_ref
-            )
-        )
-        bundle = load_discovery_artifact_bundle(ctx.store, discovery_ref)
-        latent_bundle = load_merged_latent_discovery_bundle(ctx.store, bundle)
-        return LatentDiscoveryBundleResolution(
-            bundle=latent_bundle,
-            status="ok" if latent_bundle is not None else "missing",
-            source_bundle_ref=discovery_ref,
-        )
-    except _POLICY_RUNTIME_LOAD_ERRORS as exc:
-        return LatentDiscoveryBundleResolution(
-            bundle=None,
-            status="unreadable",
-            source_bundle_ref=discovery_ref,
-            error_code=type(exc).__name__,
-            error_message=str(exc),
-        )
+    return _runtime_artifacts._resolve_latent_discovery_bundle_for_state_impl(
+        ctx, state, resolution_factory=LatentDiscoveryBundleResolution
+    )
 
 
 def resolve_effective_latent_discovery_bundle_for_state(
@@ -961,18 +615,13 @@ def resolve_effective_latent_discovery_bundle_for_state(
     causal_report: CausalEffectReport | None = None,
 ) -> LatentDiscoveryBundleResolution:
     """Resolve effective latent discovery bundle for state."""
-    resolution = resolve_latent_discovery_bundle_for_state(ctx, state)
-    if resolution.status != "ok" or resolution.bundle is None:
-        return resolution
-    return LatentDiscoveryBundleResolution(
-        bundle=_merge_proxy_boundary_into_latent_bundle(
-            resolution.bundle,
-            _proxy_boundary_payload_from_causal_report(causal_report),
-        ),
-        status=resolution.status,
-        source_bundle_ref=resolution.source_bundle_ref,
-        error_code=resolution.error_code,
-        error_message=resolution.error_message,
+    return _runtime_artifacts._resolve_effective_latent_discovery_bundle_for_state_impl(
+        ctx,
+        state,
+        causal_report=causal_report,
+        resolve_base=resolve_latent_discovery_bundle_for_state,
+        merge_proxy=_merge_proxy_boundary_into_latent_bundle,
+        resolution_factory=LatentDiscoveryBundleResolution,
     )
 
 
@@ -981,7 +630,9 @@ def load_latent_discovery_bundle_for_state(
     state: ExperimentState,
 ) -> LatentDiscoveryBundle | None:
     """Load latent discovery bundle for state."""
-    return resolve_latent_discovery_bundle_for_state(ctx, state).bundle
+    return _runtime_artifacts._load_latent_discovery_bundle_for_state_impl(
+        ctx, state, resolve_base=resolve_latent_discovery_bundle_for_state
+    )
 
 
 def load_effective_latent_discovery_bundle_for_state(
@@ -991,155 +642,71 @@ def load_effective_latent_discovery_bundle_for_state(
     causal_report: CausalEffectReport | None = None,
 ) -> LatentDiscoveryBundle | None:
     """Load effective latent discovery bundle for state."""
-    return resolve_effective_latent_discovery_bundle_for_state(
+    return _runtime_artifacts._load_effective_latent_discovery_bundle_for_state_impl(
         ctx,
         state,
         causal_report=causal_report,
-    ).bundle
+        resolve_effective=resolve_effective_latent_discovery_bundle_for_state,
+    )
 
 
 def _proxy_boundary_payload_from_causal_report(
     report: CausalEffectReport | None,
 ) -> dict[str, Any] | None:
-    if report is None:
-        return None
-    payload = report.metadata.get("proxy_boundary")
-    if not isinstance(payload, dict):
-        return None
-    return dict(payload)
+    return _runtime_artifacts._proxy_boundary_payload_from_causal_report_impl(report)
 
 
 def _merge_proxy_boundary_into_latent_bundle(
     bundle: LatentDiscoveryBundle | None,
     proxy_boundary_payload: dict[str, Any] | None,
 ) -> LatentDiscoveryBundle | None:
-    if bundle is None or not isinstance(proxy_boundary_payload, dict):
-        return bundle
-
-    existing_payload = bundle.metadata.get("proxy_boundary")
-    merged_notes: list[str] = []
-    merged_reasons: list[str] = []
-    merged_payload: dict[str, Any] = {}
-    for payload in (
-        existing_payload if isinstance(existing_payload, dict) else {},
-        proxy_boundary_payload,
-    ):
-        for note in list(payload.get("boundary_notes", []) or []):
-            note_text = str(note).strip()
-            if note_text and note_text not in merged_notes:
-                merged_notes.append(note_text)
-        for reason in list(payload.get("no_promotion_reasons", []) or []):
-            reason_text = str(reason).strip()
-            if reason_text and reason_text not in merged_reasons:
-                merged_reasons.append(reason_text)
-        for key, value in payload.items():
-            if key in {"boundary_notes", "no_promotion_reasons"}:
-                continue
-            merged_payload.setdefault(str(key), value)
-
-    if merged_notes:
-        merged_payload["boundary_notes"] = merged_notes
-    if merged_reasons:
-        merged_payload["no_promotion_reasons"] = merged_reasons
-
-    return bundle.model_copy(
-        update={
-            "metadata": {
-                **dict(bundle.metadata),
-                "proxy_boundary": merged_payload,
-            },
-            "no_promotion_reasons": list(
-                dict.fromkeys([*bundle.no_promotion_reasons, *merged_reasons])
-            ),
-        }
+    return _runtime_artifacts._merge_proxy_boundary_into_latent_bundle_impl(
+        bundle, proxy_boundary_payload
     )
 
 
 def load_search_uncertainty(ctx: ExecutionContext, state: ExperimentState):
-    """Load search uncertainty."""
-    ref = state.artifacts_index.get(ARTIFACT_CAUSAL_ENVELOPE_REF)
-    if ref is None:
-        return to_search_uncertainty_envelope(None)
-    return to_search_uncertainty_envelope(
-        load_uncertainty_envelope(_ensure_ir_artifact_store(ctx.store), ref)
-    )
+    """Load the causal uncertainty envelope for search consumption."""
+    return _runtime_artifacts._load_search_uncertainty_impl(ctx, state)
 
 
 def load_ambiguity_certificate(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> AmbiguityCertificate | None:
-    """Load a moment-DRO ambiguity certificate from runtime params or artifacts."""
-
-    for key in (
-        "ambiguity_certificate",
-        "moment_dro_certificate",
-    ):
-        certificate = _parse_ambiguity_certificate(state.params.get(key))
-        if certificate is not None:
-            return certificate
-
-    for container_key in (
-        "optimization_result",
-        "moment_dro_result",
-        "result",
-        "simulation_results",
-    ):
-        container = state.params.get(container_key)
-        if isinstance(container, Mapping):
-            certificate = _parse_ambiguity_certificate(container.get("ambiguity_certificate"))
-            if certificate is not None:
-                return certificate
-
-    for ref_key in ("ambiguity_certificate_ref", "moment_dro_certificate_ref"):
-        ref = maybe_artifact_ref(state.params.get(ref_key))
-        if ref is None:
-            continue
-        try:
-            payload = from_canonical_bytes(ctx.store.get_bytes(ref))
-        except _POLICY_RUNTIME_LOAD_ERRORS:
-            continue
-        certificate = _parse_ambiguity_certificate(payload)
-        if certificate is not None:
-            return certificate
-    return None
+    """Load an ambiguity certificate from runtime params or artifacts."""
+    return _runtime_artifacts._load_ambiguity_certificate_impl(
+        ctx,
+        state,
+        parse_certificate=_parse_ambiguity_certificate,
+        artifact_ref_parser=maybe_artifact_ref,
+    )
 
 
 def resolve_funnel_outcome(state: ExperimentState) -> FunnelOutcome | None:
-    """Resolve funnel outcome."""
-    for key in ("funnel_outcome", "_funnel_outcome"):
-        value = state.params.get(key)
-        if isinstance(value, FunnelOutcome):
-            return value
-    return None
+    """Resolve a typed funnel outcome from state params."""
+    return _runtime_artifacts._resolve_funnel_outcome_impl(state)
 
 
 def maybe_artifact_ref(value: Any) -> ArtifactRef | None:
-    """Maybe artifact ref helper."""
-    if isinstance(value, ArtifactRef):
-        return value
-    if isinstance(value, dict):
-        try:
-            return ArtifactRef.model_validate(value)
-        except _POLICY_RUNTIME_VALIDATION_ERRORS:
-            return None
-    return None
+    """Parse a canonical artifact reference when the input shape permits it."""
+    return _runtime_artifacts._maybe_artifact_ref_impl(value)
 
 
 def load_benchmark_evaluation(
     ctx: ExecutionContext,
     ref: ArtifactRef,
 ) -> BenchmarkEvaluation:
-    """Load benchmark evaluation."""
-    return BenchmarkEvaluation.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
+    """Load a benchmark evaluation artifact."""
+    return _runtime_artifacts._load_benchmark_evaluation_impl(ctx, ref)
 
 
 def load_governance_report_from_ref(
     ctx: ExecutionContext,
     ref: ArtifactRef,
 ) -> GovernanceReport:
-    """Load governance report from ref."""
-    return GovernanceReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
+    """Load a governance report artifact from its reference."""
+    return _runtime_artifacts._load_governance_report_from_ref_impl(ctx, ref)
 
 
 def run_promotion_with_evidence(
@@ -1387,51 +954,12 @@ def _build_runtime_simulation_metrics(
     governance_report: GovernanceReport | None,
     distributional_report: DistributionalReport | None,
 ) -> dict[str, float]:
-    payload = candidate.model_dump(mode="json")
-    canon = to_canonical_bytes(payload, CanonSpec(forbid_floats=False))
-    digest = hashlib.sha256(canon).digest()
-    basis = int.from_bytes(digest[:8], byteorder="big") / float(2**64 - 1)
-
-    interventions = list(candidate.trinity_bundle.policy_spec.interventions)
-    parameters = list(candidate.trinity_bundle.policy_spec.parameters)
-    objectives = list(candidate.trinity_bundle.problem_frame.objectives)
-    fidelity_scale = {
-        "selection": 0.78,
-        "medium": 0.88,
-        "full": 1.0,
-    }.get(fidelity, 1.0)
-    governance_issue_count = float(len(getattr(governance_report, "issues", None) or []))
-    subgroup_count = float(len(getattr(distributional_report, "subgroup_reports", None) or []))
-
-    policy_value = max(
-        -1.0,
-        min(
-            1.5,
-            (0.35 + basis)
-            + (0.08 * len(interventions))
-            + (0.03 * len(parameters))
-            - (0.04 * governance_issue_count),
-        ),
+    return _runtime_metrics._build_runtime_simulation_metrics(
+        candidate,
+        fidelity=fidelity,
+        governance_report=governance_report,
+        distributional_report=distributional_report,
     )
-    employment = max(
-        -1.0,
-        min(
-            1.5,
-            (0.25 + basis * 0.8) + (0.02 * len(objectives)) - (0.015 * subgroup_count),
-        ),
-    )
-    welfare = (policy_value * 0.65) + (employment * 0.35)
-    budget_penalty = max(0.0, (len(parameters) * 0.05) + (len(interventions) * 0.08))
-
-    return {
-        "policy_value": policy_value * fidelity_scale,
-        "employment": employment * fidelity_scale,
-        "welfare": welfare * fidelity_scale,
-        "net_social_welfare": welfare * fidelity_scale,
-        "gdp_change": welfare * fidelity_scale,
-        "gov_balance": -budget_penalty * fidelity_scale,
-        "budget_penalty": budget_penalty,
-    }
 
 
 def _build_evidence_driven_simulation_metrics(
@@ -1445,136 +973,30 @@ def _build_evidence_driven_simulation_metrics(
     cross_graph_profile: CrossGraphEvidenceProfile | None,
     governance_report: GovernanceReport | None,
 ) -> tuple[dict[str, float], tuple[str, ...], tuple[str, ...]]:
-    metrics = {
-        key: float(value)
-        for key, value in dict(simulation_metrics or {}).items()
-        if isinstance(value, (int, float))
-    }
-    source_components: list[str] = []
-    notes: list[str] = []
-
-    if metrics:
-        source_components.append("metrics_artifact")
-
-    fidelity_scale = {
-        "selection": 0.78,
-        "medium": 0.86,
-        "full": 1.0,
-    }.get(fidelity, 1.0)
-
-    point_estimate = None
-    if (
-        causal_effect_report is not None
-        and getattr(causal_effect_report, "point_estimate", None) is not None
-    ):
-        point_estimate = float(causal_effect_report.point_estimate)
-        source_components.append("causal_effect_report")
-    elif "ate" in metrics:
-        point_estimate = float(metrics["ate"])
-
-    if point_estimate is None:
-        point_estimate = 0.0
-        notes.append("Missing causal effect report; using conservative zero-effect baseline.")
-
-    if "policy_value" not in metrics:
-        metrics["policy_value"] = point_estimate
-
-    if "employment" not in metrics:
-        metrics["employment"] = _employment_signal_from_distribution(
-            distributional_report,
-            fallback=point_estimate * 0.6,
-        )
-        if distributional_report is not None:
-            source_components.append("distributional_report")
-
-    if cross_graph_profile is not None:
-        source_components.append("cross_graph_profile")
-
-    if "welfare" not in metrics:
-        inequality_penalty = _distributional_shift_penalty(distributional_report)
-        governance_penalty = 0.05 * float(len(getattr(governance_report, "issues", None) or []))
-        transport_penalty = _transport_penalty(cross_graph_profile)
-        metrics["welfare"] = (
-            metrics["policy_value"] * 0.65
-            + metrics["employment"] * 0.35
-            - inequality_penalty
-            - governance_penalty
-            - transport_penalty
-        )
-
-    budget_total = _policy_budget_total(candidate)
-    budget_penalty = float(metrics.get("budget_penalty", min(1.0, budget_total / 1000.0)))
-    metrics["budget_penalty"] = budget_penalty
-    metrics.setdefault("gov_balance", -abs(budget_penalty))
-    metrics.setdefault("net_social_welfare", metrics["welfare"])
-    metrics.setdefault("gdp_change", metrics["welfare"])
-    metrics.setdefault("ate", point_estimate)
-
-    ci_width = None
-    if causal_effect_report is not None and getattr(
-        causal_effect_report, "confidence_interval", None
-    ):
-        low, high = causal_effect_report.confidence_interval
-        try:
-            ci_width = abs(float(high) - float(low))
-        except (TypeError, ValueError):
-            ci_width = None
-    if ci_width is None and isinstance(uncertainty, UncertaintyEnvelope):
-        ci_width = max(
-            0.08,
-            float(uncertainty.uncertainties[UncertaintyType.STATISTICAL].level) * 0.25,
-        )
-    if ci_width is not None:
-        metrics["ci_width"] = float(ci_width)
-    if isinstance(uncertainty, UncertaintyEnvelope):
-        source_components.append("uncertainty_envelope")
-    if governance_report is not None:
-        source_components.append("governance_report")
-
-    scaled = {
-        key: (
-            float(value) * fidelity_scale
-            if key not in {"budget_penalty", "ci_width"}
-            else float(value)
-        )
-        for key, value in metrics.items()
-    }
-    return scaled, tuple(dict.fromkeys(source_components)), tuple(notes)
+    return _runtime_metrics._build_evidence_driven_simulation_metrics(
+        candidate,
+        fidelity=fidelity,
+        simulation_metrics=simulation_metrics,
+        uncertainty=uncertainty,
+        distributional_report=distributional_report,
+        causal_effect_report=causal_effect_report,
+        cross_graph_profile=cross_graph_profile,
+        governance_report=governance_report,
+    )
 
 
 def _parse_policy_evaluation(value: Any) -> PolicyEvaluationVector | None:
-    try:
-        return _normalize_policy_evaluation_vector(value, allow_mapping=isinstance(value, Mapping))
-    except _POLICY_RUNTIME_VALIDATION_ERRORS:
-        return None
+    return _runtime_metrics._parse_policy_evaluation(value)
 
 
 def _parse_ambiguity_certificate(value: Any) -> AmbiguityCertificate | None:
-    if isinstance(value, AmbiguityCertificate):
-        return value
-    if isinstance(value, Mapping):
-        payload: Mapping[str, Any] = value
-        nested = payload.get("ambiguity_certificate")
-        if isinstance(nested, Mapping) or isinstance(nested, AmbiguityCertificate):
-            nested_certificate = _parse_ambiguity_certificate(nested)
-            if nested_certificate is not None:
-                return nested_certificate
-        try:
-            return AmbiguityCertificate.from_mapping(payload)
-        except _POLICY_RUNTIME_VALIDATION_ERRORS:
-            return None
-    return None
+    return _runtime_metrics._parse_ambiguity_certificate(value)
 
 
 def _ambiguity_certificate_payload(
     value: AmbiguityCertificate | dict[str, Any] | None,
 ) -> dict[str, Any] | None:
-    certificate = _parse_ambiguity_certificate(value)
-    if certificate is not None:
-        return certificate.to_payload()
-    if isinstance(value, dict):
-        return dict(value)
-    return None
+    return _runtime_metrics._ambiguity_certificate_payload(value)
 
 
 def _channel_higher_is_better(
@@ -1583,19 +1005,11 @@ def _channel_higher_is_better(
     *,
     fallback: float = 0.0,
 ) -> float:
-    channel = evaluation.primary.get(name) or evaluation.secondary.get(name)
-    if channel is None:
-        return float(fallback)
-    return float(channel.higher_is_better)
+    return _runtime_metrics._channel_higher_is_better(evaluation, name, fallback=fallback)
 
 
 def _budget_pressure(evaluation: PolicyEvaluationVector) -> float:
-    budget_channel = evaluation.hard_constraints.get("policy_budget_constraint")
-    if budget_channel is None and evaluation.hard_constraints:
-        budget_channel = next(iter(evaluation.hard_constraints.values()))
-    if budget_channel is None:
-        return 0.0
-    return float(budget_channel.value)
+    return _runtime_metrics._budget_pressure(evaluation)
 
 
 def _employment_signal_from_distribution(
@@ -1603,51 +1017,21 @@ def _employment_signal_from_distribution(
     *,
     fallback: float,
 ) -> float:
-    if distributional_report is None:
-        return float(fallback)
-    winners_losers = getattr(distributional_report, "winners_losers", None)
-    winners = list(getattr(winners_losers, "winners", None) or [])
-    if not winners:
-        return float(fallback)
-    deltas = [float(getattr(item, "key_metric_delta", 0.0) or 0.0) for item in winners]
-    if not deltas:
-        return float(fallback)
-    return float(sum(deltas) / max(len(deltas), 1))
+    return _runtime_metrics._employment_signal_from_distribution(
+        distributional_report, fallback=fallback
+    )
 
 
 def _distributional_shift_penalty(distributional_report: DistributionalReport | None) -> float:
-    if distributional_report is None:
-        return 0.0
-    before = getattr(distributional_report, "overall_gini_before", None)
-    after = getattr(distributional_report, "overall_gini_after", None)
-    if before is None or after is None:
-        return 0.0
-    try:
-        return max(0.0, float(after) - float(before))
-    except (TypeError, ValueError):
-        return 0.0
+    return _runtime_metrics._distributional_shift_penalty(distributional_report)
 
 
 def _transport_penalty(cross_graph_profile: CrossGraphEvidenceProfile | None) -> float:
-    if cross_graph_profile is None:
-        return 0.0
-    unsupported = sum(
-        1
-        for assessment in getattr(cross_graph_profile, "needs", None) or []
-        if getattr(assessment, "transport_status", None) is TransportStatus.UNSUPPORTED
-    )
-    return min(0.25, unsupported * 0.05)
+    return _runtime_metrics._transport_penalty(cross_graph_profile)
 
 
 def _policy_budget_total(candidate: PolicyCandidateSchema) -> float:
-    total = 0.0
-    for allocation in candidate.budget_allocation:
-        amount = getattr(allocation.amount, "amount", allocation.amount)
-        try:
-            total += float(amount)
-        except (TypeError, ValueError):
-            continue
-    return total
+    return _runtime_metrics._policy_budget_total(candidate)
 
 
 __all__ = [

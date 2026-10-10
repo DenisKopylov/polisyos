@@ -8,7 +8,12 @@ from types import SimpleNamespace
 import pytest
 
 import polisyos.scientist.nodes.builtins.c6c_runtime_support as c6c_runtime_support
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    artifact_manifest_profile_sha256,
+)
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -393,11 +398,19 @@ def test_runtime_strategic_helper_persists_normalized_contract_and_real_causal_c
     normalized_contract = load_strategic_scm(
         _ensure_ir_artifact_store(ctx.store), output.strategic_scm_ref
     )
-    assert normalized_contract.utility_refs["leader"] == leader_ref
+    selected_leader_ref = normalized_contract.utility_refs["leader"]
+    assert selected_leader_ref.artifact_id == leader_ref.artifact_id
+    assert selected_leader_ref.manifest_profile_sha256 is not None
+    selected_leader_manifest = ctx.store.get_manifest_by_profile(
+        selected_leader_ref.artifact_id,
+        selected_leader_ref.manifest_profile_sha256,
+    )
     assert (
-        load_strategic_payoff_table(
-            _ensure_ir_artifact_store(ctx.store), normalized_contract.utility_refs["leader"]
-        )
+        artifact_manifest_profile_sha256(selected_leader_manifest)
+        == selected_leader_ref.manifest_profile_sha256
+    )
+    assert (
+        load_strategic_payoff_table(_ensure_ir_artifact_store(ctx.store), selected_leader_ref)
         == tables["leader"]
     )
     assert output.strategic_response_summary["causal_component_ref"]["artifact_id"] == str(

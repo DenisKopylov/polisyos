@@ -2,7 +2,7 @@
 # Edit the source fragments declared in architecture/tooling/tool_config_split.toml.
 # Target: ruff.toml
 
-extend = "architecture/tooling/ruff/generated.toml"
+extend = "ruff.generated.toml"
 
 cache-dir = "_cache/ruff"
 src = [".", "src"]

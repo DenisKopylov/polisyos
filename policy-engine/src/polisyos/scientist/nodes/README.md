@@ -59,6 +59,39 @@ surface for the `data`, `planning`, `compile`, `causal`, `simulate`,
   consumer-asserted. Access, validation, and unclassified failures fail the node;
   incomplete draw sets retain the conditional summary and no Monte Carlo interval.
 
+The registered welfare node and its public sample-domain error remain in
+`simulate/propagate_welfare.py`. Adjacent `welfare_*` modules own context, GE,
+covariance, draws, propagation, reports, and orchestration. The facade forwards
+its evaluator and sampler callbacks; the draw path shares Foundry's bounded
+evaluation-failure classifier rather than maintaining another cause traversal.
+
+`simulate/run_distributional_analysis.py` retains the registered node and
+orchestration contract. Adjacent `distributional_analysis_*` modules group its
+ordinal, justification, bounds, artifact, and subgroup helpers. Existing helper
+imports remain available through the canonical node module.
+
+`causal/resolve_transport.py` retains the registered transportability node and
+integration seams. `transport_resolution_inputs.py` owns input, context,
+registry, and query selection; `transport_resolution_results.py` owns result
+alignment, lineage, and projection helpers.
+
+`decide/run_policy_blueprint_runtime.py` remains the canonical node and workflow
+adapter. Its adjacent `policy_blueprint_runtime_*` modules group engine,
+strategy, benchmark, and reporting operations. Reporting validates the whole
+funnel projection before attaching state; an unrepresentable graph returns a
+typed refusal and preserves prior state and CAS references.
+
+`decide/policy_runtime_support.py` remains the caller-facing facade for typed
+contracts, backend entry points, promotion, and compatibility wrappers.
+`policy_runtime_artifacts.py` owns artifact and evidence operations;
+`policy_runtime_metrics.py` owns metric projections. Import these operations
+through the facade when instrumenting its safety and lifecycle seams.
+
+The governance nodes retain their canonical entry points. Their calculation and
+request helpers live in `normative_arbitration_calculations.py` and
+`governance_gate_requests.py`. The shared governance artifact resolver adapts
+Core CAS only at IR loader calls; Core-only consumers keep their original store.
+
 The canonical decision-packet producer remains
 `decision_packet.builder.BuildDecisionPacketNode.execute`. It captures the
 invocation before payload construction, prepares validity and epochs before
@@ -136,4 +169,4 @@ routing, or decision artifact shape.
 
 ## Last Updated
 
-- Last updated: 2026-05-06
+- Last updated: 2026-10-10

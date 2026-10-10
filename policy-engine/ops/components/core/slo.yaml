@@ -15,7 +15,7 @@ objectives:
     owner: team-core
     runbook: docs/runbooks/mutation-audit-investigation.md
   - name: core_tenant_boundary_violations
-    sli: increase(polisyos_tenant_boundary_violations_total[30m])
+    sli: increase(polisyos_audit_tenant_boundary_violations_total[30m])
     threshold: "= 0"
     window: 28d
     owner: team-core

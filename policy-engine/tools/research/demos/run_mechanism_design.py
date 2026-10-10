@@ -3,13 +3,17 @@ End-to-end demo: Mechanism Design через IR/Compiler/Foundry runtime + JAX g
 FIXED VERSION: Stabilized Gradients & Agent Training
 """
 
+# ruff: noqa: E402
+
+from __future__ import annotations
+
 import io
 import json
 import os
 import sys
 import tempfile
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
 
 from tools.lib.imports import repo_root_from
 
@@ -19,23 +23,23 @@ SRC_ROOT = POLICY_ENGINE_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-os.environ.setdefault("JAX_PLATFORMS", "cpu")
-os.environ.setdefault("JAX_PLATFORM_NAME", "cpu")
+from polisyos.common.jax_env import apply_jax_env_defaults
+
+apply_jax_env_defaults()
 
 import equinox as eqx
 import jax
 import jax.numpy as jnp
 import optax
-from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.foundry.domain.state import GlobalState
+
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import CompileRequest, ExecPlan, ProgramGraph
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.foundry._registry import create_mechanism_from_spec
 from polisyos.foundry.agent_sim.agents import AgentPolicy
-from polisyos.foundry.base import Mechanism
 from polisyos.foundry.compile.api import compile as compile_foundry
-from polisyos.foundry.domain.state import GlobalState
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec
@@ -49,6 +53,11 @@ from polisyos.ir.kernel.merge_rules import MergeRuleKind
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 
+if TYPE_CHECKING:
+    from polisyos.foundry.base import Mechanism
+
+    from polisyos.core.artifacts.ids import ArtifactID
+
 # --- CONFIG (TWEAKED) ---
 N_AGENTS = 5000
 SEED = 42
@@ -61,7 +70,7 @@ def print_header(title: str) -> None:
     print(f"\n{'=' * 60}\n {title}\n{'=' * 60}")
 
 
-def _load_json(store: FileSystemCAS, artifact_id: ArtifactID) -> Any:
+def _load_json(store: FileSystemCAS, artifact_id: ArtifactID) -> object:
     payload = store.get_bytes(artifact_id)
     return json.loads(payload.decode("utf-8"))
 
@@ -96,13 +105,17 @@ def train_and_store_artifact(key: jax.Array, n_agents: int, store: FileSystemCAS
     opt_state = optimizer.init(params)
 
     @eqx.filter_jit
-    def train_step(p, opt_st, k):
+    def train_step(
+        p: optax.Params,
+        opt_st: optax.OptState,
+        k: jax.Array,
+    ) -> tuple[optax.Params, optax.OptState]:
         k1, k2, k3 = jax.random.split(k, 3)
         incomes = jnp.exp(jax.random.normal(k1, (n_agents,)) * 0.5 + 3.0)
         risks = jax.random.uniform(k2, (n_agents,))
         taxes = jax.random.uniform(k3, (n_agents,))
 
-        def loss_fn(model_params):
+        def loss_fn(model_params: optax.Params) -> jax.Array:
             model = eqx.combine(model_params, static)
             obs = jnp.stack([jnp.log1p(incomes), risks, taxes], axis=1)
             logits = model(obs)
@@ -151,7 +164,7 @@ def train_and_store_artifact(key: jax.Array, n_agents: int, store: FileSystemCAS
     return str(ref.artifact_id)
 
 
-def debug_agent_response(policy: AgentPolicy):
+def debug_agent_response(policy: AgentPolicy) -> None:
     """Sanity check to ensure agents actually react to tax."""
     print("\n    [DEBUG] Checking Agent Rationality Table:")
     print("    Tax Rate | Risk=0.2 (Brave) | Risk=0.8 (Cautious)")
@@ -253,10 +266,7 @@ def execute_pure(
             state_path = bundle.slot_state_path.get(slot_id, slot_id)
             rule_code = bundle.slot_merge_code.get(slot_id, 3)
             for op in ops:
-                if "delta" in op:
-                    val = op["delta"]
-                else:
-                    val = op.get("value")
+                val = op["delta"] if "delta" in op else op.get("value")
                 state = apply_patch_pure(
                     state, state_path=state_path, value=val, rule_code=rule_code
                 )
@@ -416,7 +426,8 @@ def main() -> None:
         loss.block_until_ready()
         revenue = (-loss) * n_agents_f
         print(
-            f"{i:<5} | {float(current_tax) * 100:6.1f}%    | {float(revenue):15.2f} | {float(grad):10.4f}"
+            f"{i:<5} | {float(current_tax) * 100:6.1f}%    | "
+            f"{float(revenue):15.2f} | {float(grad):10.4f}"
         )
 
         safe_grad = jnp.nan_to_num(grad, nan=0.0, posinf=0.0, neginf=0.0)

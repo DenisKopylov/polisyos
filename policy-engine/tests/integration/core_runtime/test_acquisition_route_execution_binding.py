@@ -34,16 +34,14 @@ from polisyos.runtime.quality.acquisition_world_growth import (
     AcquisitionWorldGrowthConfig,
 )
 from polisyos.runtime.quality.open_world_risk import PromotionRuntime
-from tests.unit.data_forge.domains.catalog.knowledge.test_acquisition_authority import (
+from tests._helpers.acquisition_production import (
+    _ATTEMPT_ID,
     _entry,
+    _family_receipt,
     _resolver,
     _write_family_receipt,
 )
-from tests.unit.runtime.quality.test_live_acquisition_executor import (
-    _ATTEMPT_ID,
-    _family_receipt,
-    _route_closure,
-)
+from tests.unit.runtime.quality.test_live_acquisition_executor import _route_closure
 
 
 class _ExecutorObserver:
@@ -375,14 +373,22 @@ def test_bridge_resume_rechecks_mutated_promotion_store_before_reentry_effects(
         record_n6_reentry,
     )
     before_store_files = tuple(
-        sorted(path.relative_to(artifact_store.root).as_posix() for path in artifact_store.root.rglob("*") if path.is_file())
+        sorted(
+            path.relative_to(artifact_store.root).as_posix()
+            for path in artifact_store.root.rglob("*")
+            if path.is_file()
+        )
     )
 
     with pytest.raises(ValueError) as exc_info:
         bridge.resume(_route_closure(), ("sha256:" + "a" * 64,))
 
     after_store_files = tuple(
-        sorted(path.relative_to(artifact_store.root).as_posix() for path in artifact_store.root.rglob("*") if path.is_file())
+        sorted(
+            path.relative_to(artifact_store.root).as_posix()
+            for path in artifact_store.root.rglob("*")
+            if path.is_file()
+        )
     )
     assert store_reads == []
     assert str(exc_info.value) == "acquisition_world_growth_promotion_runtime_store_mismatch"
@@ -704,12 +710,8 @@ def test_route_cache_namespaces_preserve_a_warm_entry_across_foreign_same_reques
     assert namespace_a != namespace_b
 
     store = FileSystemCAS(tmp_path / "shared-runtime-cas").with_ambient_ownership_enforcement()
-    cache_a = ConnectorCacheStore(
-        store, TTLPolicy(ttl=timedelta(hours=1)), namespace=namespace_a
-    )
-    cache_b = ConnectorCacheStore(
-        store, TTLPolicy(ttl=timedelta(hours=1)), namespace=namespace_b
-    )
+    cache_a = ConnectorCacheStore(store, TTLPolicy(ttl=timedelta(hours=1)), namespace=namespace_a)
+    cache_b = ConnectorCacheStore(store, TTLPolicy(ttl=timedelta(hours=1)), namespace=namespace_b)
     now = datetime.now(UTC)
     request = FetchRequest(dataset_id="same.public.request")
     result = FetchResult(

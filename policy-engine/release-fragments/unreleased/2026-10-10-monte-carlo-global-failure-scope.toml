@@ -1,0 +1,17 @@
+id = "2026-10-10-monte-carlo-global-failure-scope"
+title = "Keep global Monte Carlo failures out of partial draws"
+type = "fixed"
+component = "foundry-uncertainty"
+owner = "foundry"
+summary = "Monte Carlo propagates global and unknown evaluator failures, and retries a typed transient once on the same input while keeping retry calls separate from the draw denominator."
+evidence = ["tests/unit/foundry/uncertainty/test_evaluation_failures.py", "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py"]
+compatibility = "Ordinary direct RuntimeError solver refusals remain candidate draw failures; explicit typed transient failures receive one same-input retry; exhausted, global, and unclassifiable errors fail closed. PosteriorPushforwardResult requires physical-attempt and retry counts for every current result, including zero-retry results; legacy-shaped payloads without counts are rejected rather than normalized to one call. Older strict DTO clients must migrate to the current schema."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry.uncertainty"
+migration = "No in-repository persisted result migration is required; posterior profile_version stays 1.1. Consumers validating PosteriorPushforwardResult must accept required simulation_attempt_count and retry_attempt_count fields and the bounded-retry row_evaluation_semantics value. Old result payloads without attempt counts require explicit migration or recomputation and are not accepted by the current DTO."
+api = "The exception classifier remains internal. The exported PosteriorPushforwardResult reports physical evaluator and retry counts separately; the new semantics value is emitted only when a retry occurred. The posterior source profile_version remains 1.1."
+limitations = "Retries are limited to one repeat after a root typed transient classification; sampling, global, unknown, and exhausted failures do not become partial draws. The PosteriorPushforwardResult public schema change is not backward-parseable by older extra=forbid clients, and the current parser rejects historical result payloads whose attempt counters were not recorded."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/uncertainty/README.md"]
+runbook_docs = []

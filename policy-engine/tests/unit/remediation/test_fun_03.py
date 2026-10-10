@@ -11,6 +11,10 @@ import pytest
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir import UncertaintyType
+from polisyos.ir.governance.policy_spec import PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.model_layer.model_spec import ModelSpec
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.methods.search.calibration_report import (
     FunnelCalibrationReport,
     load_funnel_calibration_report,
@@ -29,7 +33,11 @@ from polisyos.scientist.methods.search.funnel.types import (
 from polisyos.scientist.methods.search.stages import CorrelationTracker
 from polisyos.scientist.nodes.builtins.decide import run_policy_blueprint_runtime as runtime
 from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
+from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+from polisyos.scientist.policy_design.schema import (
+    PolicyCandidateSchema,
+    persist_policy_candidate_schema,
+)
 
 
 def _stage(
@@ -85,6 +93,23 @@ def _artifact_ref(hex_digit: str) -> ArtifactRef:
         artifact_id=f"sha256:{hex_digit * 64}",
         kind="test",
         media_type="application/json",
+    )
+
+
+def _policy_candidate() -> PolicyCandidateSchema:
+    return PolicyCandidateSchema.from_trinity_bundle(
+        TrinityBundle(
+            problem_frame=ProblemFrame(
+                problem_id="problem_fun_03",
+                domain=ProblemDomain.FISCAL,
+            ),
+            policy_spec=PolicySpec(policy_id="policy_fun_03"),
+            model_spec=ModelSpec(
+                model_id="model_fun_03",
+                data_snapshot_ref="sha256:" + "1" * 64,
+            ),
+        ),
+        candidate_id="candidate_fun_03",
     )
 
 
@@ -355,30 +380,13 @@ def test_orchestrator_honors_persisted_no_promotion_projection_without_tracker()
     assert outcome.final_action == "defer_to_human"
 
 
-class _ControlledEvaluationVector:
-    def __init__(self, metadata: dict[str, Any] | None = None) -> None:
-        self.metadata = dict(metadata or {})
-        self.feasible = True
-        self.blocking_reasons: list[str] = []
-
-    def model_copy(self, *, update: dict[str, Any]) -> _ControlledEvaluationVector:
-        return _ControlledEvaluationVector(update.get("metadata", self.metadata))
-
-    def model_dump(self, *, mode: str = "python") -> dict[str, Any]:
-        del mode
-        return {
-            "feasible": self.feasible,
-            "blocking_reasons": list(self.blocking_reasons),
-            "metadata": dict(self.metadata),
-        }
-
-
 def _install_actual_runtime_node_dependencies(
     monkeypatch,
     tmp_path,
     *,
     mode: str,
     revoke_permission_at_commit: bool = False,
+    backend_error: Exception | None = None,
 ) -> dict[str, Any]:
     """Stub non-funnel boundaries while retaining node, L4, orchestrator, and L6."""
     run_id = f"fun-03-node-{mode}"
@@ -394,11 +402,8 @@ def _install_actual_runtime_node_dependencies(
         artifacts_index={},
         reports_index={},
     )
-    candidate = PolicyCandidateSchema.model_construct(
-        candidate_id="candidate_fun_03",
-        metadata={"domain": "controlled-test"},
-    )
-    candidate_ref = _artifact_ref("a")
+    candidate = _policy_candidate()
+    candidate_ref = persist_policy_candidate_schema(store, candidate)
     runtime_request = SimpleNamespace(
         candidate=candidate,
         candidate_ref=candidate_ref,
@@ -416,7 +421,7 @@ def _install_actual_runtime_node_dependencies(
     runner_calls: list[str] = []
     owner_checks: list[bool] = []
     promotion_writes: list[dict[str, Any]] = []
-    selection_vector = _ControlledEvaluationVector()
+    selection_vector = PolicyEvaluationVector(candidate_id=candidate.candidate_id)
     provenance = SimpleNamespace(
         backend_kind="controlled_test_backend",
         promotable_source=True,
@@ -435,9 +440,14 @@ def _install_actual_runtime_node_dependencies(
 
         def evaluate(self, _candidate: Any, *, fidelity: str, **_kwargs: Any) -> Any:
             backend_calls.append(fidelity)
+            if backend_error is not None:
+                raise backend_error
             return SimpleNamespace(
                 simulation_results={"gdp_change": 0.2, "gov_balance": 0.0},
-                evaluation_vector=_ControlledEvaluationVector(),
+                evaluation_vector=PolicyEvaluationVector(
+                    candidate_id=_candidate.candidate_id,
+                    feasible=True,
+                ),
                 provenance=provenance,
             )
 
@@ -560,7 +570,6 @@ def _install_actual_runtime_node_dependencies(
         "_world_model_record_from_state": lambda _state: None,
         "policy_runtime_input_signature": lambda **_kwargs: "controlled-input-signature",
         "build_policy_runtime_evaluation": lambda *_args, **_kwargs: selection_artifact,
-        "persist_policy_evaluation_vector": lambda *_args, **_kwargs: _artifact_ref("b"),
         "_resolve_existing_strategic_output": lambda _state: strategic_output,
         "_build_runtime_abstraction_metadata": lambda *_args, **_kwargs: {},
         "build_selection_benchmark_evaluation": lambda **_kwargs: SimpleNamespace(
@@ -693,3 +702,124 @@ def test_run_policy_blueprint_execute_refuses_without_typed_owner_commit_bridge(
     level6 = outcome.state.params["_funnel_outcome"]["stage_results"]["6"]
     assert level6["feedback"]["promotion_admission_status"] == "bridge_missing"
     assert outcome.state.params["_funnel_outcome"]["final_action"] == "defer_to_human"
+
+
+def test_runtime_projection_refusal_preserves_prior_state_and_cas_refs(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    harness = _install_actual_runtime_node_dependencies(
+        monkeypatch,
+        tmp_path,
+        mode="normal",
+        backend_error=RuntimeError("controlled workflow failure"),
+    )
+
+    outcome = runtime.RunPolicyBlueprintRuntimeNode().execute(
+        harness["ctx"],
+        harness["state"],
+    )
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == "node.invalid_state"
+    assert outcome.state is harness["state"]
+    assert "funnel_outcome" not in outcome.state.params
+    assert "_funnel_outcome" not in outcome.state.params
+    assert harness["backend_calls"] == ["full"]
+    assert any(ref.artifact_id == harness["candidate_ref"].artifact_id for ref in outcome.artifacts)
+    assert outcome.error.details["failure_basis"] == (
+        "canonical_json_rejected_non_finite_funnel_leaf"
+    )
+    assert any(
+        item["kind"] == "positive_infinity" and "objective_value" in item["location"]
+        for item in outcome.error.details["non_finite_values"]
+    )
+    assert any(
+        stage["stage_name"] == "funnel_L4_full"
+        and "controlled workflow failure" in stage["issue_messages"]
+        for stage in outcome.error.details["funnel_failure_basis"]["stage_evidence"]
+    )
+
+
+def test_empty_runtime_funnel_keeps_not_evaluated_sentinel_internal(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    harness = _install_actual_runtime_node_dependencies(
+        monkeypatch,
+        tmp_path,
+        mode="normal",
+    )
+    monkeypatch.setattr(runtime, "FunnelOrchestrator", lambda **_kwargs: FunnelOrchestrator([]))
+
+    outcome = runtime.RunPolicyBlueprintRuntimeNode().execute(
+        harness["ctx"],
+        harness["state"],
+    )
+
+    empty_result = FunnelOrchestrator._empty_result({"candidate_id": "candidate_fun_03"})
+    assert empty_result.objective_value == float("inf")
+    assert empty_result.feedback["funnel_evaluation_status"] == "not_evaluated"
+    assert outcome.status == "ok"
+    assert outcome.state.params["funnel_outcome"]["trace"] == []
+    assert outcome.state.params["funnel_outcome"]["stage_results"] == {}
+    assert "objective_value" not in outcome.state.params["funnel_outcome"]
+
+
+@pytest.mark.parametrize(
+    ("non_finite", "expected_kind"),
+    [
+        (float("inf"), "positive_infinity"),
+        (float("-inf"), "negative_infinity"),
+        (float("nan"), "nan"),
+    ],
+)
+def test_nested_non_finite_projection_refuses_before_state_attachment(
+    tmp_path,
+    monkeypatch,
+    non_finite: float,
+    expected_kind: str,
+) -> None:
+    harness = _install_actual_runtime_node_dependencies(
+        monkeypatch,
+        tmp_path,
+        mode="no_promotion",
+    )
+    serialize = runtime._serialize_funnel_outcome
+    serialized: dict[str, Any] = {}
+
+    def serialize_with_nested_non_finite(outcome: Any) -> dict[str, Any]:
+        projection = serialize(outcome)
+        projection["stage_results"]["4"]["feedback"]["probe"] = {
+            "preserved_marker": "nested-non-finite-probe",
+            "diagnostic": {"value": non_finite},
+        }
+        serialized["projection"] = projection
+        return projection
+
+    monkeypatch.setattr(runtime, "_serialize_funnel_outcome", serialize_with_nested_non_finite)
+
+    outcome = runtime.RunPolicyBlueprintRuntimeNode().execute(
+        harness["ctx"],
+        harness["state"],
+    )
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.state is harness["state"]
+    assert "funnel_outcome" not in outcome.state.params
+    assert harness["backend_calls"] == ["full"]
+    projection = serialized["projection"]
+    assert projection["stage_results"]["4"]["stage_name"] == "funnel_L4_full"
+    assert (
+        projection["stage_results"]["4"]["feedback"]["probe"]["preserved_marker"]
+        == "nested-non-finite-probe"
+    )
+    assert any(
+        item["kind"] == expected_kind and item["location"].endswith(".probe.diagnostic.value")
+        for item in outcome.error.details["non_finite_values"]
+    )
+    assert outcome.error.details["failure_basis"] == (
+        "canonical_json_rejected_non_finite_funnel_leaf"
+    )

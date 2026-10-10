@@ -28,9 +28,12 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 # ---------------------------------------------------------------------------
 # Path bootstrap (works when run directly OR from pytest)
@@ -43,104 +46,112 @@ for _p in [str(_SRC), str(_BENCH_ROOT.parent)]:
         sys.path.insert(0, _p)
 
 # ---------------------------------------------------------------------------
-# Local imports
+# Imports below the path bootstrap are installed through a function so direct
+# script execution keeps its existing source-tree import behavior without
+# suppressing E402.
 # ---------------------------------------------------------------------------
 
-from benchmarks.conftest import (  # noqa: E402
-    canon,
-    is_rule_subsequence,
-    latex_from_result,
-    make_admg,
-    make_bidirected_edge,
-    make_dag,
-    make_directed_edge,
-    rule_names_from_result,
-    y0_available,
-)
-from benchmarks.harness import (  # noqa: E402
-    BenchmarkCase,
-    BenchmarkCircuit,
-    BenchmarkHarness,
-    BenchmarkReport,
-)
-from benchmarks.reporting import (
-    build_preflight,
-    build_report_payload,
-    print_preflight,
-)
-from benchmarks.runtime import BenchmarkMode, acceptance_gaps, dependency_status, resolve_mode
-from polisyos.foundry.methods.catalog.causal.ctf_calculus import (  # noqa: E402
-    _build_amn_for_ast,
-    apply_ctf_rule1,
-    apply_ctf_rule2,
-    apply_ctf_rule3,
-)
-from polisyos.foundry.methods.catalog.causal.ctf_transport import (  # noqa: E402
-    build_ctf_selection_diagram,
-    ctf_transportability,
-)
-from polisyos.foundry.methods.catalog.causal.cyclic_id import cyclic_id_algorithm  # noqa: E402
-from polisyos.foundry.methods.catalog.causal.id_engine import (  # noqa: E402
-    CtfQuery,
-    IdentificationStatus,
-    SourceDomain,
-    id_algorithm,
-    id_star_algorithm,
-    idc_algorithm,
-    idc_star_algorithm,
-    mz_id_algorithm,
-    z_id_algorithm,
-)
-from polisyos.foundry.methods.catalog.causal.path_specific import (
-    _recanting_witness_check,  # noqa: E402
-)
-from polisyos.foundry.methods.catalog.causal.recoverability_engine import (  # noqa: E402
-    RecoverabilityStatus,
-    full_law_identify,
-)
-from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
-    test_recoverability as recoverability_test,
-)
-from polisyos.foundry.methods.catalog.causal.sigma_calculus import (  # noqa: E402
-    apply_sigma_rule1,
-    apply_sigma_rule2,
-    apply_sigma_rule3,
-)
-from polisyos.foundry.methods.catalog.causal.transport_check import (
-    CheckTransportability,  # noqa: E402
-)
-from polisyos.ir.analytics.causal_graph import (  # noqa: E402
-    CausalEdge,
-    CausalGraphModel,
-    EdgeMark,
-    GraphType,
-)
-from polisyos.ir.analytics.context import ContextProfile, IncomeLevel  # noqa: E402
-from polisyos.ir.analytics.estimand import (  # noqa: E402
-    CounterfactualNode,
-    CrossWorldNode,
-    DistributionDomain,
-    DistributionRef,
-    EstimandAST,
-    NestedCounterfactualNode,
-)
-from polisyos.ir.analytics.mgraph import (  # noqa: E402
-    MissingnessKind,
-    build_mgraph,
-    extract_mgraph_metadata,
-)
-from polisyos.ir.analytics.negative_certificate import (  # noqa: E402
-    BlockingType,
-    NegativeCertificate,
-)
-from polisyos.ir.analytics.transportability import (  # noqa: E402
-    SNode,
-    SNodeOrigin,
-    TransportabilityResult,
-    TransportabilityStatus,
-    TransportMode,
-    build_selection_diagram,
-)
+
+def _install_runner_imports() -> None:
+    """Load runner dependencies after the standalone path bootstrap."""
+    global BenchmarkCase, BenchmarkCircuit, BenchmarkHarness, BenchmarkReport
+    global build_preflight, build_report_payload, print_preflight
+    global BenchmarkMode, acceptance_gaps, dependency_status, resolve_mode
+    global canon, is_rule_subsequence, latex_from_result, make_admg
+    global make_bidirected_edge, make_dag, make_directed_edge, rule_names_from_result, y0_available
+    global _build_amn_for_ast, apply_ctf_rule1, apply_ctf_rule2, apply_ctf_rule3
+    global build_ctf_selection_diagram, ctf_transportability, cyclic_id_algorithm
+    global CtfQuery, IdentificationStatus, SourceDomain, id_algorithm, id_star_algorithm
+    global idc_algorithm, idc_star_algorithm, mz_id_algorithm, z_id_algorithm
+    global _recanting_witness_check, RecoverabilityStatus, full_law_identify, recoverability_test
+    global apply_sigma_rule1, apply_sigma_rule2, apply_sigma_rule3, CheckTransportability
+    global CausalEdge, CausalGraphModel, EdgeMark, GraphType, ContextProfile, IncomeLevel
+    global CounterfactualNode, CrossWorldNode, DistributionDomain, DistributionRef, EstimandAST
+    global NestedCounterfactualNode, MissingnessKind, build_mgraph, extract_mgraph_metadata
+    global BlockingType, NegativeCertificate, SNode, SNodeOrigin, TransportabilityResult
+    global TransportabilityStatus, TransportMode, SelectionDiagram, IRProofStep
+    global build_selection_diagram
+
+    from benchmarks.harness import (
+        BenchmarkCase,
+        BenchmarkCircuit,
+        BenchmarkHarness,
+        BenchmarkReport,
+    )
+    from benchmarks.reporting import build_preflight, build_report_payload, print_preflight
+    from benchmarks.runtime import BenchmarkMode, acceptance_gaps, dependency_status, resolve_mode
+    from benchmarks.symbolic._helpers import (
+        canon,
+        is_rule_subsequence,
+        latex_from_result,
+        make_admg,
+        make_bidirected_edge,
+        make_dag,
+        make_directed_edge,
+        rule_names_from_result,
+        y0_available,
+    )
+    from polisyos.foundry.methods.catalog.causal.ctf_calculus import (
+        _build_amn_for_ast,
+        apply_ctf_rule1,
+        apply_ctf_rule2,
+        apply_ctf_rule3,
+    )
+    from polisyos.foundry.methods.catalog.causal.ctf_transport import (
+        build_ctf_selection_diagram,
+        ctf_transportability,
+    )
+    from polisyos.foundry.methods.catalog.causal.cyclic_id import cyclic_id_algorithm
+    from polisyos.foundry.methods.catalog.causal.id_engine import (
+        CtfQuery,
+        IdentificationStatus,
+        SourceDomain,
+        id_algorithm,
+        id_star_algorithm,
+        idc_algorithm,
+        idc_star_algorithm,
+        mz_id_algorithm,
+        z_id_algorithm,
+    )
+    from polisyos.foundry.methods.catalog.causal.path_specific import _recanting_witness_check
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+        RecoverabilityStatus,
+        full_law_identify,
+    )
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+        test_recoverability as recoverability_test,
+    )
+    from polisyos.foundry.methods.catalog.causal.sigma_calculus import (
+        apply_sigma_rule1,
+        apply_sigma_rule2,
+        apply_sigma_rule3,
+    )
+    from polisyos.foundry.methods.catalog.causal.transport_check import CheckTransportability
+    from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+    from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
+    from polisyos.ir.analytics.estimand import (
+        CounterfactualNode,
+        CrossWorldNode,
+        DistributionDomain,
+        DistributionRef,
+        EstimandAST,
+        NestedCounterfactualNode,
+    )
+    from polisyos.ir.analytics.evidence_bundle import ProofStep as IRProofStep
+    from polisyos.ir.analytics.mgraph import MissingnessKind, build_mgraph, extract_mgraph_metadata
+    from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate
+    from polisyos.ir.analytics.transportability import (
+        SelectionDiagram,
+        SNode,
+        SNodeOrigin,
+        TransportabilityResult,
+        TransportabilityStatus,
+        TransportMode,
+        build_selection_diagram,
+    )
+
+
+_install_runner_imports()
 
 CIRCUIT = BenchmarkCircuit.SYMBOLIC
 
@@ -188,7 +199,7 @@ def _target_context() -> ContextProfile:
 
 
 def _transport_result(
-    diagram,
+    diagram: SelectionDiagram,
     *,
     treatment: str,
     outcome: str,
@@ -212,7 +223,7 @@ def _transport_result(
 
 def _id_case(
     name: str,
-    runner,
+    runner: Callable[[], object],
     expected_status: IdentificationStatus,
     expected_formula: str | None,
     expected_trace: tuple[str, ...],
@@ -221,7 +232,7 @@ def _id_case(
     """Build a BenchmarkCase for a standard id_algorithm / idc_algorithm result."""
     gt_identifiable = expected_status is _IS_IDENTIFIED
 
-    def checker(result) -> bool:
+    def checker(result: object) -> bool:
         if result.status is not expected_status:
             raise AssertionError(
                 f"expected status={expected_status.value}, got={result.status.value}"
@@ -231,18 +242,16 @@ def _id_case(
             want = canon(expected_formula)
             if got != want:
                 raise AssertionError(f"formula mismatch:\n  want: {want}\n  got : {got}")
-        if expected_trace:
-            if not is_rule_subsequence(result, expected_trace):
-                actual = rule_names_from_result(result)
-                raise AssertionError(
-                    f"trace subsequence mismatch:\n  want: {expected_trace}\n  got : {actual}"
-                )
-        if expected_status is _IS_HEDGE:
-            if result.hedge_certificate is None:
-                raise AssertionError("HEDGE_FOUND but no hedge_certificate")
+        if expected_trace and not is_rule_subsequence(result, expected_trace):
+            actual = rule_names_from_result(result)
+            raise AssertionError(
+                f"trace subsequence mismatch:\n  want: {expected_trace}\n  got : {actual}"
+            )
+        if expected_status is _IS_HEDGE and result.hedge_certificate is None:
+            raise AssertionError("HEDGE_FOUND but no hedge_certificate")
         return True
 
-    def formula_ok(result) -> bool:
+    def formula_ok(result: object) -> bool:
         if expected_formula is None:
             return True
         got = canon(result.estimand_ast.to_latex()) if result.estimand_ast else None
@@ -257,16 +266,16 @@ def _id_case(
         is_identifiable_ground_truth=gt_identifiable,
         is_identifiable_extractor=lambda r: r.status is _IS_IDENTIFIED,
         formula_correct_extractor=formula_ok,
-        tags=("id",) + tags,
+        tags=("id", *tags),
     )
 
 
 def _idc_case(
     name: str,
-    runner,
+    runner: Callable[[], object],
     expected_formula: str,
 ) -> BenchmarkCase:
-    def checker(result) -> bool:
+    def checker(result: object) -> bool:
         if result.status is not _IS_IDENTIFIED:
             raise AssertionError(f"IDC expected IDENTIFIED, got={result.status.value}")
         got = canon(result.estimand_ast.to_latex()) if result.estimand_ast else None
@@ -295,7 +304,7 @@ def _idc_case(
 
 def _id_star_case(
     name: str,
-    runner,
+    runner: Callable[[], object],
     expected_status: IdentificationStatus,
     expected_query: str,
     expected_root_type: type | None = None,
@@ -303,7 +312,7 @@ def _id_star_case(
 ) -> BenchmarkCase:
     gt_identifiable = expected_status is _IS_IDENTIFIED
 
-    def checker(result) -> bool:
+    def checker(result: object) -> bool:
         if result.status is not expected_status:
             raise AssertionError(
                 f"ID* expected status={expected_status.value}, got={result.status.value}"
@@ -316,12 +325,13 @@ def _id_star_case(
         if expected_status is _IS_IDENTIFIED:
             if result.estimand_ast is None:
                 raise AssertionError("IDENTIFIED but no estimand_ast")
-            if expected_root_type is not None:
-                if not isinstance(result.estimand_ast.root, expected_root_type):
-                    raise AssertionError(
-                        f"root type: want {expected_root_type.__name__}, "
-                        f"got {type(result.estimand_ast.root).__name__}"
-                    )
+            if expected_root_type is not None and not isinstance(
+                result.estimand_ast.root, expected_root_type
+            ):
+                raise AssertionError(
+                    f"root type: want {expected_root_type.__name__}, "
+                    f"got {type(result.estimand_ast.root).__name__}"
+                )
             if check_trace and not is_rule_subsequence(
                 result, ("ID_STAR_STEP1", "ID_STAR_STEP2", "ID_STAR_STEP3", "ID_STAR_STEP5")
             ):
@@ -345,13 +355,13 @@ def _id_star_case(
 
 def _idc_star_case(
     name: str,
-    runner,
+    runner: Callable[[], object],
     expected_status: IdentificationStatus,
     expected_query: str,
 ) -> BenchmarkCase:
     gt_identifiable = expected_status is _IS_IDENTIFIED
 
-    def checker(result) -> bool:
+    def checker(result: object) -> bool:
         if result.status is not expected_status:
             raise AssertionError(
                 f"IDC* expected status={expected_status.value}, got={result.status.value}"
@@ -387,14 +397,14 @@ def _idc_star_case(
 
 def _z_id_case(
     name: str,
-    runner,
+    runner: Callable[[], object],
     expected_status: IdentificationStatus,
     expected_formula: str | None,
     expected_trace: tuple[str, ...],
 ) -> BenchmarkCase:
     gt_identifiable = expected_status is _IS_IDENTIFIED
 
-    def checker(result) -> bool:
+    def checker(result: object) -> bool:
         if result.status is not expected_status:
             raise AssertionError(
                 f"Z-ID expected status={expected_status.value}, got={result.status.value}"
@@ -425,14 +435,14 @@ def _z_id_case(
 
 def _mz_id_case(
     name: str,
-    runner,
+    runner: Callable[[], object],
     expected_status: IdentificationStatus,
     expected_formula: str | None,
     expected_trace: tuple[str, ...] | tuple[tuple[str, ...], ...],
 ) -> BenchmarkCase:
     gt_identifiable = expected_status is _IS_IDENTIFIED
 
-    def checker(result) -> bool:
+    def checker(result: object) -> bool:
         if result.status is not expected_status:
             raise AssertionError(
                 f"MZ-ID expected status={expected_status.value}, got={result.status.value}"
@@ -470,11 +480,11 @@ def _mz_id_case(
 
 def _transport_case(
     name: str,
-    runner,
+    runner: Callable[[], object],
     expected_status: TransportabilityStatus,
     expected_mode: TransportMode,
     expected_fragment: str | None,
-    extra_checks: dict | None = None,
+    extra_checks: dict[str, object] | None = None,
 ) -> BenchmarkCase:
     def checker(result: TransportabilityResult) -> bool:
         if result.status is not expected_status:
@@ -494,13 +504,15 @@ def _transport_case(
                     f"'{result.transport_formula.formula_str}'"
                 )
         extra = extra_checks or {}
-        if "unsupported_reason" in extra:
-            if result.unsupported_reason != extra["unsupported_reason"]:
-                raise AssertionError(
-                    f"unsupported_reason: want={extra['unsupported_reason']!r}, "
-                    f"got={result.unsupported_reason!r}"
-                )
-        if "has_pag_confidence" in extra and extra["has_pag_confidence"]:
+        if (
+            "unsupported_reason" in extra
+            and result.unsupported_reason != extra["unsupported_reason"]
+        ):
+            raise AssertionError(
+                f"unsupported_reason: want={extra['unsupported_reason']!r}, "
+                f"got={result.unsupported_reason!r}"
+            )
+        if extra.get("has_pag_confidence"):
             if result.id_confidence_under_pag is None:
                 raise AssertionError("expected id_confidence_under_pag, got None")
             if not (0.0 <= result.id_confidence_under_pag <= 1.0):
@@ -521,14 +533,14 @@ def _transport_case(
 
 def _ctf_transport_case(
     name: str,
-    runner,
+    runner: Callable[[], object],
     kind: str,  # "identified" or "negative"
     expected_query: str | None,
     expected_trace: tuple[str, ...],
 ) -> BenchmarkCase:
     gt_identifiable = kind == "identified"
 
-    def checker(result) -> bool:
+    def checker(result: object) -> bool:
         if kind == "negative":
             if not isinstance(result, NegativeCertificate):
                 raise AssertionError(
@@ -557,7 +569,7 @@ def _ctf_transport_case(
             )
         return True
 
-    def is_id_pred(result) -> bool:
+    def is_id_pred(result: object) -> bool:
         if isinstance(result, NegativeCertificate):
             return False
         return result.status is _IS_IDENTIFIED
@@ -578,14 +590,14 @@ def _ctf_transport_case(
 
 def _cyclic_case(
     name: str,
-    runner,
+    runner: Callable[[], object],
     expected_status: IdentificationStatus,
     expected_formula: str | None,
     expected_trace: tuple[str, ...],
 ) -> BenchmarkCase:
     gt_identifiable = expected_status is _IS_IDENTIFIED
 
-    def checker(result) -> bool:
+    def checker(result: object) -> bool:
         if result.status is not expected_status:
             raise AssertionError(
                 f"cyclic expected status={expected_status.value}, got={result.status.value}"
@@ -619,17 +631,17 @@ def _cyclic_case(
 
 def _mgraph_case(
     name: str,
-    runner,
-    expected_status,
+    runner: Callable[[], object],
+    expected_status: RecoverabilityStatus | IdentificationStatus,
     expected_formula: str | None,
-    extra_checks: dict | None = None,
+    extra_checks: dict[str, object] | None = None,
 ) -> BenchmarkCase:
     # M-graph cases use either RecoverabilityStatus or IdentificationStatus
     is_recoverable = (
         expected_status is RecoverabilityStatus.RECOVERABLE or expected_status is _IS_IDENTIFIED
     )
 
-    def checker(result) -> bool:
+    def checker(result: object) -> bool:
         if result.status != expected_status:
             raise AssertionError(f"mgraph expected status={expected_status}, got={result.status}")
         if expected_formula is not None:
@@ -638,21 +650,21 @@ def _mgraph_case(
             if got != want:
                 raise AssertionError(f"mgraph formula mismatch:\n  want: {want}\n  got : {got}")
         extra = extra_checks or {}
-        if "blocking_r_nodes" in extra:
-            if result.blocking_r_nodes != extra["blocking_r_nodes"]:
-                raise AssertionError(
-                    f"blocking_r_nodes: want={extra['blocking_r_nodes']}, "
-                    f"got={result.blocking_r_nodes}"
-                )
-        if "rule_subsequence" in extra:
-            if not is_rule_subsequence(result, extra["rule_subsequence"]):
-                raise AssertionError(
-                    f"mgraph trace mismatch:\n  want: {extra['rule_subsequence']}\n"
-                    f"  got : {rule_names_from_result(result)}"
-                )
-        if "has_hedge" in extra and extra["has_hedge"]:
-            if not hasattr(result, "hedge_certificate") or result.hedge_certificate is None:
-                raise AssertionError("expected hedge_certificate, got None")
+        if "blocking_r_nodes" in extra and result.blocking_r_nodes != extra["blocking_r_nodes"]:
+            raise AssertionError(
+                f"blocking_r_nodes: want={extra['blocking_r_nodes']}, got={result.blocking_r_nodes}"
+            )
+        if "rule_subsequence" in extra and not is_rule_subsequence(
+            result, extra["rule_subsequence"]
+        ):
+            raise AssertionError(
+                f"mgraph trace mismatch:\n  want: {extra['rule_subsequence']}\n"
+                f"  got : {rule_names_from_result(result)}"
+            )
+        if extra.get("has_hedge") and (
+            not hasattr(result, "hedge_certificate") or result.hedge_certificate is None
+        ):
+            raise AssertionError("expected hedge_certificate, got None")
         return True
 
     return BenchmarkCase(
@@ -669,8 +681,10 @@ def _mgraph_case(
     )
 
 
-def _proof_trace_case(name: str, runner, expected_trace: tuple[str, ...]) -> BenchmarkCase:
-    def checker(result) -> bool:
+def _proof_trace_case(
+    name: str, runner: Callable[[], object], expected_trace: tuple[str, ...]
+) -> BenchmarkCase:
+    def checker(result: object) -> bool:
         if not is_rule_subsequence(result, expected_trace):
             raise AssertionError(
                 f"proof trace mismatch:\n  want: {expected_trace}\n"
@@ -693,16 +707,16 @@ _MISSING = object()  # sentinel for getattr checks in rule-application cases
 
 def _sigma_calculus_case(
     name: str,
-    runner,
+    runner: Callable[[], object],
     expected_rule_name: str,
-    expected_attrs: dict,
+    expected_attrs: dict[str, object],
 ) -> BenchmarkCase:
     """Benchmark case for a single sigma-calculus rule application.
 
     ``runner`` should return ``(rewritten_ref, step)`` or ``None``.
     """
 
-    def checker(result) -> bool:
+    def checker(result: object) -> bool:
         if result is None:
             raise AssertionError(f"sigma {name}: rule did not apply (returned None)")
         rewritten, step = result
@@ -722,7 +736,7 @@ def _sigma_calculus_case(
                 raise AssertionError(f"sigma {name}: rewritten.{attr}: want={want!r}, got={got!r}")
         return True
 
-    def step_extractor(result) -> list[str]:
+    def step_extractor(result: object) -> list[str]:
         if result is None:
             return []
         _, step = result
@@ -740,16 +754,16 @@ def _sigma_calculus_case(
 
 def _ctf_calculus_case(
     name: str,
-    runner,
+    runner: Callable[[], object],
     expected_rule_name: str,
-    expected_attrs: dict,
+    expected_attrs: dict[str, object],
 ) -> BenchmarkCase:
     """Benchmark case for a single CTF-calculus rule application.
 
     ``runner`` should return ``(rewritten_node, step)`` or ``None``.
     """
 
-    def checker(result) -> bool:
+    def checker(result: object) -> bool:
         if result is None:
             raise AssertionError(f"ctf {name}: rule did not apply (returned None)")
         rewritten, step = result
@@ -769,7 +783,7 @@ def _ctf_calculus_case(
                 raise AssertionError(f"ctf {name}: rewritten.{attr}: want={want!r}, got={got!r}")
         return True
 
-    def step_extractor(result) -> list[str]:
+    def step_extractor(result: object) -> list[str]:
         if result is None:
             return []
         _, step = result
@@ -787,7 +801,7 @@ def _ctf_calculus_case(
 
 def _recanting_witness_case(
     name: str,
-    runner,
+    runner: Callable[[], object],
     expected_has_witness: bool,
 ) -> BenchmarkCase:
     """Benchmark case for the recanting-witness check.
@@ -796,7 +810,7 @@ def _recanting_witness_case(
     A false positive (has_witness=True when expected=False) is a blocker.
     """
 
-    def checker(result) -> bool:
+    def checker(result: object) -> bool:
         has_witness, witnesses = result
         if has_witness != expected_has_witness:
             raise AssertionError(
@@ -1724,7 +1738,7 @@ def _build_sigma_calculus_cases() -> list[BenchmarkCase]:
 
 
 def _build_ctf_calculus_cases() -> list[BenchmarkCase]:
-    def _ctf_node1():
+    def _ctf_node1() -> tuple[CounterfactualNode | None, IRProofStep | None]:
         node = CounterfactualNode(
             variable="Y",
             intervention={"X": 1.0},
@@ -1742,7 +1756,7 @@ def _build_ctf_calculus_cases() -> list[BenchmarkCase]:
         amn, _ = _build_amn_for_ast(ast, _dag([("X", "Y"), ("Z", "X")]))
         return apply_ctf_rule1(node, amn, frozenset({"Z"})) or (None, None)
 
-    def _ctf_node2():
+    def _ctf_node2() -> tuple[CounterfactualNode | None, IRProofStep | None]:
         node = CounterfactualNode(
             variable="Y",
             intervention={"X": 1.0, "Z": 1.0},
@@ -1760,7 +1774,7 @@ def _build_ctf_calculus_cases() -> list[BenchmarkCase]:
         amn, _ = _build_amn_for_ast(ast, _dag([("Z", "X"), ("X", "Y")]))
         return apply_ctf_rule2(node, amn, frozenset({"Z"})) or (None, None)
 
-    def _ctf_node3():
+    def _ctf_node3() -> tuple[CounterfactualNode | None, IRProofStep | None]:
         node = CounterfactualNode(
             variable="Y",
             intervention={"X": 1.0, "Z": 1.0},
@@ -1954,7 +1968,9 @@ def _y0_check_case(
         except Exception:
             y0_identify = None
         try:
-            from y0.algorithm.identify.utils import Identification as y0_identification_cls
+            from y0.algorithm.identify.utils import Identification as Y0Identification
+
+            y0_identification_cls = Y0Identification
         except Exception:
             y0_identification_cls = None
 
@@ -2020,6 +2036,11 @@ def _report_to_dict(
             "y0_summary": y0_summary,
         },
     )
+
+
+def _write_stdout_line(line: str) -> None:
+    """Write one CLI line with the same newline behavior as ``print``."""
+    sys.stdout.write(f"{line}\n")
 
 
 # ---------------------------------------------------------------------------
@@ -2098,9 +2119,9 @@ def main(argv: list[str] | None = None) -> int:
         require_modules={"y0": comparator_status["y0"] == "available"},
     )
     if gaps:
-        print("Symbolic acceptance preflight failed:")
+        _write_stdout_line("Symbolic acceptance preflight failed:")
         for gap in gaps:
-            print(f"  - {gap}")
+            _write_stdout_line(f"  - {gap}")
         return 2
 
     harness = build_harness()
@@ -2114,24 +2135,26 @@ def main(argv: list[str] | None = None) -> int:
     y0_summary: dict[str, Any] | None = None
     if args.y0_compare:
         y0_summary = _run_y0_comparison(report)
-        print("\n--- y0 comparison ---")
-        print(json.dumps(y0_summary, indent=2))
+        _write_stdout_line("\n--- y0 comparison ---")
+        _write_stdout_line(json.dumps(y0_summary, indent=2))
 
     if args.json:
         report_dict = _report_to_dict(report, mode=mode, preflight=preflight, y0_summary=y0_summary)
         path = Path(args.json)
         path.write_text(json.dumps(report_dict, indent=2), encoding="utf-8")
-        print(f"\nJSON report written to: {path}")
+        _write_stdout_line(f"\nJSON report written to: {path}")
 
     # Non-zero exit code if there are blockers (false positives)
     blockers = report.blocker_cases()
     if blockers:
-        print(f"\nEXIT 1: {len(blockers)} false-positive identification(s) — release blocker")
+        _write_stdout_line(
+            f"\nEXIT 1: {len(blockers)} false-positive identification(s) — release blocker"
+        )
         return 1
 
     n_failed = report.n_total() - report.n_passed()
     if n_failed > 0:
-        print(f"\nEXIT 2: {n_failed} case(s) failed (but no false positives)")
+        _write_stdout_line(f"\nEXIT 2: {n_failed} case(s) failed (but no false positives)")
         return 2
 
     return 0

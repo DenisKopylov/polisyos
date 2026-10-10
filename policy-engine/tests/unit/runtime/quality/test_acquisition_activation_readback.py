@@ -5,9 +5,9 @@ from pathlib import Path
 import duckdb
 import pytest
 
+from tests._helpers.semantic_epoch_native import _real_epoch_scenario
 from tests.unit.runtime.quality.test_acquisition_executor import (
     _activate_real_epoch_scenario,
-    _real_epoch_scenario,
 )
 
 

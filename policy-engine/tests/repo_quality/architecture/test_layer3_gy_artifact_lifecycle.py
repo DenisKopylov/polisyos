@@ -46,7 +46,7 @@ def _write_declaring_workflow(
             "    return list(OUTPUTS)\n"
         )
     else:
-        body = "from __future__ import annotations\n\n" f"OUTPUTS = {outputs!r}\n"
+        body = f"from __future__ import annotations\n\nOUTPUTS = {outputs!r}\n"
     path.write_text(body, encoding="utf-8")
 
 
@@ -56,9 +56,7 @@ def _assert_live_payloads_match_declared_outputs(
 ) -> None:
     assert set(live_payloads) == set(producer.declared_outputs())
     for payload in live_payloads.values():
-        assert check_layer3_gy_generated_public_lifecycle_audit._contains_gy_provenance(
-            payload
-        )
+        assert check_layer3_gy_generated_public_lifecycle_audit._contains_gy_provenance(payload)
 
 
 def test_layer3_gy_generated_artifact_lifecycle_is_scan_based() -> None:
@@ -87,8 +85,7 @@ def test_layer3_gy_design_problem_contract_recomputes_schema() -> None:
     report = check_layer3_gy_design_problem_contract.validate(REPO_ROOT)
     committed = json.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_gy_design_problem_contract.json"
+            REPO_ROOT / "architecture/policy_design_case/layer3_gy_design_problem_contract.json"
         ).read_text(encoding="utf-8")
     )
 
@@ -113,8 +110,7 @@ def test_layer3_gy_world_model_record_contract_recomputes_schema() -> None:
     report = check_layer3_gy_world_model_record_contract.validate(REPO_ROOT)
     committed = json.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_gy_world_model_record_contract.json"
+            REPO_ROOT / "architecture/policy_design_case/layer3_gy_world_model_record_contract.json"
         ).read_text(encoding="utf-8")
     )
 
@@ -145,9 +141,7 @@ def test_layer3_gy_data_state_substrate_contract_recomputes_schema() -> None:
     )
 
     assert report["status"] == "pass"
-    assert committed == check_layer3_gy_data_state_substrate_contract.build_live_payload(
-        REPO_ROOT
-    )
+    assert committed == check_layer3_gy_data_state_substrate_contract.build_live_payload(REPO_ROOT)
 
 
 def test_layer3_gy_value_outer_set_strangle_receipt_recomputes_schema() -> None:
@@ -176,9 +170,7 @@ def test_layer3_gy_knowledge_substrate_contract_recomputes_schema() -> None:
     )
 
     assert report["status"] == "pass"
-    assert committed == check_layer3_gy_knowledge_substrate_contract.build_live_payload(
-        REPO_ROOT
-    )
+    assert committed == check_layer3_gy_knowledge_substrate_contract.build_live_payload(REPO_ROOT)
 
 
 def test_layer3_gy_knowledge_substrate_contract_rejects_degenerate_l2_point(
@@ -263,8 +255,7 @@ def test_layer3_gy_knowledge_substrate_contract_rejects_presence_only_grounding(
 
     assert report["status"] == "fail"
     assert any(
-        issue.get("case_id")
-        == "l2_skg_grounding_resolve_content_bind_validate_fail_closed"
+        issue.get("case_id") == "l2_skg_grounding_resolve_content_bind_validate_fail_closed"
         for issue in report["issues"]
     )
 
@@ -293,10 +284,7 @@ def test_production_data_substrate_registry_contract_exercises_trust_tier_bounds
         tier_name_presence_only,
     )
 
-    behavior_report = (
-        check_production_data_substrate_registry_contract
-        .substrate_registry_trust_tier_bounds_behavior_report
-    )
+    behavior_report = check_production_data_substrate_registry_contract.substrate_registry_trust_tier_bounds_behavior_report
     behavior = behavior_report(REPO_ROOT)
     report = check_production_data_substrate_registry_contract.validate(REPO_ROOT)
 
@@ -305,9 +293,7 @@ def test_production_data_substrate_registry_contract_exercises_trust_tier_bounds
         "substrate_trust_cap_inflated",
         "substrate_trust_multiplier_inflated",
     } <= {
-        str(issue.get("expected_code"))
-        for issue in behavior["issues"]
-        if isinstance(issue, dict)
+        str(issue.get("expected_code")) for issue in behavior["issues"] if isinstance(issue, dict)
     }
     assert report["status"] == "fail"
     assert any(
@@ -374,17 +360,14 @@ def test_production_data_substrate_registry_contract_exercises_known_family_hone
         validate_with_removed_known_family_check,
     )
 
-    behavior = (
-        check_production_data_substrate_registry_contract
-        .substrate_registry_trust_tier_bounds_behavior_report(REPO_ROOT)
+    behavior = check_production_data_substrate_registry_contract.substrate_registry_trust_tier_bounds_behavior_report(
+        REPO_ROOT
     )
     report = check_production_data_substrate_registry_contract.validate(REPO_ROOT)
 
     assert behavior["status"] == "fail"
     assert expected_code in {
-        str(issue.get("expected_code"))
-        for issue in behavior["issues"]
-        if isinstance(issue, dict)
+        str(issue.get("expected_code")) for issue in behavior["issues"] if isinstance(issue, dict)
     }
     assert report["status"] == "fail"
     assert any(
@@ -396,10 +379,7 @@ def test_production_data_substrate_registry_contract_exercises_known_family_hone
 def test_production_data_substrate_registry_contract_rejects_unexercised_runtime_property(
     monkeypatch,
 ) -> None:
-    original = (
-        check_production_data_substrate_registry_contract
-        ._substrate_registry_runtime_honesty_properties
-    )
+    original = check_production_data_substrate_registry_contract._substrate_registry_runtime_honesty_properties
 
     def with_future_runtime_property(repo_root: Path) -> dict[str, str]:
         properties = dict(original(repo_root))
@@ -412,9 +392,8 @@ def test_production_data_substrate_registry_contract_rejects_unexercised_runtime
         with_future_runtime_property,
     )
 
-    behavior = (
-        check_production_data_substrate_registry_contract
-        .substrate_registry_trust_tier_bounds_behavior_report(REPO_ROOT)
+    behavior = check_production_data_substrate_registry_contract.substrate_registry_trust_tier_bounds_behavior_report(
+        REPO_ROOT
     )
     report = check_production_data_substrate_registry_contract.validate(REPO_ROOT)
 
@@ -610,12 +589,10 @@ def test_layer3_gy_world_model_record_contract_variant_must_be_registered() -> N
             json.dumps(
                 {
                     "schema_version": (
-                        "policyos.policy_design_case.layer3_gy."
-                        "world_model_record_contract.v1"
+                        "policyos.policy_design_case.layer3_gy.world_model_record_contract.v1"
                     ),
                     "gy_lifecycle_marker": (
-                        "policyos.policy_design_case.layer3_gy."
-                        "world_model_record_contract.v1"
+                        "policyos.policy_design_case.layer3_gy.world_model_record_contract.v1"
                     ),
                     "producer": (
                         "policyos.policy_design_case.layer3_gy_world_record_registration_probe"
@@ -692,12 +669,10 @@ def test_layer3_gy_data_state_substrate_contract_variant_must_be_registered() ->
             json.dumps(
                 {
                     "schema_version": (
-                        "policyos.policy_design_case.layer3_gy."
-                        "data_state_substrate_contract.v1"
+                        "policyos.policy_design_case.layer3_gy.data_state_substrate_contract.v1"
                     ),
                     "gy_lifecycle_marker": (
-                        "policyos.policy_design_case.layer3_gy."
-                        "data_state_substrate_contract.v1"
+                        "policyos.policy_design_case.layer3_gy.data_state_substrate_contract.v1"
                     ),
                     "producer": "policyos.policy_design_case.data_state_substrate_probe",
                 },
@@ -720,7 +695,9 @@ def test_layer3_gy_data_state_substrate_contract_variant_must_be_registered() ->
         probe.unlink(missing_ok=True)
 
 
-def test_layer3_gy_generated_artifact_gate_rejects_provenance_artifact_without_name_prefix() -> None:
+def test_layer3_gy_generated_artifact_gate_rejects_provenance_artifact_without_name_prefix() -> (
+    None
+):
     probe = REPO_ROOT / "architecture/policy_design_case/gy_surface_probe.json"
     try:
         probe.write_text(
@@ -1495,20 +1472,13 @@ def test_layer3_gy_registered_artifact_families_have_lifecycle_metadata() -> Non
 def test_layer3_gy_n11_confidence_ledger_has_one_frozen_lifecycle_owner() -> None:
     family_id = "policy-design-case-layer3-gy-n11-confidence-ledger"
     output = "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json"
-    catalog_path = (
-        "production_data/datasets_full_phase3full_20260327_183054/"
-        "dataset_catalog.duckdb"
-    )
+    catalog_path = "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb"
     l5_path = (
         "production_data/canonical/local_data_20260501/ukraine_server_support_20260410/"
         "runtime_calibration_internals/calibration/d2/measurement_registry.json"
     )
     payload = tomllib.loads((REPO_ROOT / "architecture/generated_artifacts.toml").read_text())
-    matching = [
-        family
-        for family in payload["family"]
-        if family["id"] == family_id
-    ]
+    matching = [family for family in payload["family"] if family["id"] == family_id]
 
     assert len(matching) == 1
     family = matching[0]
@@ -1522,9 +1492,7 @@ def test_layer3_gy_n11_confidence_ledger_has_one_frozen_lifecycle_owner() -> Non
         "python tools/quality/validation/check_layer3_gy_confidence_ledger.py --write "
         f"--catalog-path {catalog_path} --l5-path {l5_path}"
     ]
-    assert family["workflow"] == (
-        "tools/quality/validation/check_layer3_gy_confidence_ledger.py"
-    )
+    assert family["workflow"] == ("tools/quality/validation/check_layer3_gy_confidence_ledger.py")
     assert family["check_command"] == [
         "env",
         "JAX_PLATFORMS=cpu",
@@ -1620,19 +1588,25 @@ def test_layer3_gy_loop_validator_recomputes_durable_worker_proofs() -> None:
         live_payloads,
     )
     committed = json.loads(
-        (REPO_ROOT / "architecture/policy_design_case/layer3_gy_production_loop_run_proofs.json")
-        .read_text(encoding="utf-8")
+        (
+            REPO_ROOT / "architecture/policy_design_case/layer3_gy_production_loop_run_proofs.json"
+        ).read_text(encoding="utf-8")
     )
 
-    assert committed == live_payloads["architecture/policy_design_case/layer3_gy_production_loop_run_proofs.json"]
+    assert (
+        committed
+        == live_payloads[
+            "architecture/policy_design_case/layer3_gy_production_loop_run_proofs.json"
+        ]
+    )
 
 
-def test_layer3_gy_outcome_run_is_http_triggered_and_honestly_blocked(gy_l_complete_live_population) -> None:
+def test_layer3_gy_outcome_run_is_http_triggered_and_honestly_blocked(
+    gy_l_complete_live_population,
+) -> None:
     live_payloads, observations, _ = gy_l_complete_live_population
     outcome = live_payloads[check_layer3_gy_loop_artifacts.OUTCOME_RUN_PATH]
-    replay = live_payloads[check_layer3_gy_loop_artifacts.OUTCOME_REPLAY_PATH][
-        "replay_proof"
-    ]
+    replay = live_payloads[check_layer3_gy_loop_artifacts.OUTCOME_REPLAY_PATH]["replay_proof"]
     proof = outcome["production_loop_run_proof"]
     contract = outcome["search_exit_contract"]
 
@@ -1646,14 +1620,23 @@ def test_layer3_gy_outcome_run_is_http_triggered_and_honestly_blocked(gy_l_compl
     assert proof["control_store_state_transitions"] == ["pending", "running", "completed"]
     assert proof["output_cas_refs"]
     assert proof["artifacts_index_refs"]
-    assert "runs_readback" in proof["surface_reads_checked"]
+    assert "served_control_job_status_not_established" in proof["surface_reads_checked"]
+    assert "runs_readback" not in proof["surface_reads_checked"]
+    assert outcome["http_receipts"]["readback"]["surface"] == (
+        f"/api/v1/control/jobs/{proof['job_id']}"
+    )
+    assert proof["surface_readbacks"][0]["surface"] == "control_plane_store"
+    assert proof["surface_readbacks"][0]["read_method"] == (
+        "ControlPlaneStore.current_execution_completed_job_record"
+    )
     assert contract["terminal_state"]["kind"] == "a_spec_gap"
     assert contract["authority_boundary"] is None
     assert contract["evidence_kind"] is None
     assert contract["decision_grade"] == "unsupported"
     assert contract["evidence_ladder_rung"] == "none"
     production = [
-        observation for observation in observations
+        observation
+        for observation in observations
         if observation._checked_snapshot()[0].catalog_mode == "production"
     ]
     (observation,) = production
@@ -1685,9 +1668,7 @@ def test_layer3_gy_outcome_run_is_http_triggered_and_honestly_blocked(gy_l_compl
 def test_layer3_gy_outcome_validator_rejects_direct_helper_and_hand_authored_proof() -> None:
     outcome = json.loads((REPO_ROOT / check_layer3_gy_loop_artifacts.OUTCOME_RUN_PATH).read_text())
     replay = json.loads(
-        (
-            REPO_ROOT / check_layer3_gy_loop_artifacts.OUTCOME_REPLAY_PATH
-        ).read_text()
+        (REPO_ROOT / check_layer3_gy_loop_artifacts.OUTCOME_REPLAY_PATH).read_text()
     )
 
     helper = json.loads(json.dumps(outcome))
@@ -1724,9 +1705,7 @@ def test_layer3_gy_outcome_validator_rejects_direct_helper_and_hand_authored_pro
 def test_layer3_gy_outcome_replay_corrupt_field_detects_drift() -> None:
     outcome = json.loads((REPO_ROOT / check_layer3_gy_loop_artifacts.OUTCOME_RUN_PATH).read_text())
     replay = json.loads(
-        (
-            REPO_ROOT / check_layer3_gy_loop_artifacts.OUTCOME_REPLAY_PATH
-        ).read_text()
+        (REPO_ROOT / check_layer3_gy_loop_artifacts.OUTCOME_REPLAY_PATH).read_text()
     )
     outcome["search_exit_contract"]["terminal_state"]["reason"] = "corrupted"
     issues: list[dict[str, str]] = []
@@ -1739,9 +1718,7 @@ def test_layer3_gy_outcome_replay_corrupt_field_detects_drift() -> None:
 def test_layer3_gy_outcome_validator_rejects_gx_terminal_drift() -> None:
     outcome = json.loads((REPO_ROOT / check_layer3_gy_loop_artifacts.OUTCOME_RUN_PATH).read_text())
     replay = json.loads(
-        (
-            REPO_ROOT / check_layer3_gy_loop_artifacts.OUTCOME_REPLAY_PATH
-        ).read_text()
+        (REPO_ROOT / check_layer3_gy_loop_artifacts.OUTCOME_REPLAY_PATH).read_text()
     )
     outcome["production_case_outcome"]["outcome_kind"] = "grounded_partial_admissible"
     issues: list[dict[str, str]] = []
@@ -1801,9 +1778,7 @@ def test_layer3_gy_loop_graded_outcome_corrupt_field_self_check_fails_closed() -
     )
 
     assert report["status"] == "fail"
-    assert {"code": "layer3_gy_graded_outcome_corrupt_field_drift_detected"} in report[
-        "issues"
-    ]
+    assert {"code": "layer3_gy_graded_outcome_corrupt_field_drift_detected"} in report["issues"]
 
 
 def test_layer3_gy_composition_validator_recomputes_certificates() -> None:
@@ -1816,14 +1791,14 @@ def test_layer3_gy_composition_validator_recomputes_certificates() -> None:
     )
     committed = json.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_gy_composition_certificates.json"
+            REPO_ROOT / "architecture/policy_design_case/layer3_gy_composition_certificates.json"
         ).read_text(encoding="utf-8")
     )
 
-    assert committed == live_payloads[
-        "architecture/policy_design_case/layer3_gy_composition_certificates.json"
-    ]
+    assert (
+        committed
+        == live_payloads["architecture/policy_design_case/layer3_gy_composition_certificates.json"]
+    )
     assert any(
         run.get("terminal_state", {}).get("kind") == "grounded_partial_admissible"
         and run.get("composition_certificate", {}).get("verdict") == "composable"
@@ -1883,18 +1858,16 @@ def test_layer3_gy_ownership_regression_guardrails() -> None:
     semantic_binding_source = (
         REPO_ROOT / "src/polisyos/runtime/quality/semantic_binding.py"
     ).read_text(encoding="utf-8")
-    gy_waist_source = (REPO_ROOT / "src/polisyos/pdc/_impl/gy_waist.py").read_text(
-        encoding="utf-8"
-    )
-    gy_adapters_source = (REPO_ROOT / "src/polisyos/runtime/quality/workspace/scientist_node_adapters.py").read_text(
-        encoding="utf-8"
-    )
+    gy_waist_source = (REPO_ROOT / "src/polisyos/pdc/_impl/gy_waist.py").read_text(encoding="utf-8")
+    gy_adapters_source = (
+        REPO_ROOT / "src/polisyos/runtime/quality/workspace/scientist_node_adapters.py"
+    ).read_text(encoding="utf-8")
     layer2_composition_source = (
         REPO_ROOT / "src/polisyos/runtime/quality/design_axes/coupling_composition.py"
     ).read_text(encoding="utf-8")
-    policy_search_source = (
-        REPO_ROOT / "src/polisyos/scientist/policy_design/search.py"
-    ).read_text(encoding="utf-8")
+    policy_search_source = (REPO_ROOT / "src/polisyos/scientist/policy_design/search.py").read_text(
+        encoding="utf-8"
+    )
 
     assert "_InMemoryWorkspaceCatalogGraph" not in gy_loop_source
     assert "2026-06-15T00:00:00Z" not in gy_loop_source
@@ -1915,7 +1888,7 @@ def test_layer3_gy_ownership_regression_guardrails() -> None:
     assert "class MeasurementRootProducer" in data_forge_binding_source
     assert "class SemanticAdequacyGate" in semantic_binding_source
     assert "class GySemanticBenchmark" in semantic_binding_source
-    assert "producer\": \"polisyos.runtime.quality.AcquisitionPlanner\"" not in gy_loop_source
+    assert 'producer": "polisyos.runtime.quality.AcquisitionPlanner"' not in gy_loop_source
     assert "derive_phase2_parameter_bounds(" in gy_spine_source
     assert "verify_phase2_governance_tail(" in gy_spine_source
     assert "polisyos.scientist.nodes.builtins.governance" not in gy_spine_source
@@ -1953,14 +1926,22 @@ def test_layer3_gy_production_loop_run_proof_committed_and_authority_path_checke
         )
         for ref in proof["output_cas_refs"]:
             assert not re.fullmatch(r"sha256:([0-9a-f])\1{63}", ref)
-        assert "runs_readback" in proof["surface_reads_checked"]
+        assert "served_control_job_status_not_established" in proof["surface_reads_checked"]
+        assert "runs_readback" not in proof["surface_reads_checked"]
         assert proof["surface_readbacks"]
         readback = proof["surface_readbacks"][0]
-        assert readback["surface"] == "/api/v1/control/runs"
+        assert readback["surface"] == "control_plane_store"
+        assert readback["read_method"] == (
+            "ControlPlaneStore.current_execution_completed_job_record"
+        )
+        assert readback["requested_endpoint"] == proof["endpoint"]
+        assert readback["job_id"] == proof["job_id"]
+        assert readback["run_id"] == proof["run_id"]
         assert readback["observed_job_state"] == "completed"
-        assert readback["observed_search_exit_contract_ref"] == proof[
-            "output_search_exit_contract_ref"
-        ]
+        assert (
+            readback["observed_search_exit_contract_ref"]
+            == proof["output_search_exit_contract_ref"]
+        )
         assert readback["matched_search_exit_contract_ref"] is True
         assert proof["control_store_state_transitions"] == ["pending", "running", "completed"]
         assert proof["worker_lease_id"].startswith("control-worker")
@@ -1968,6 +1949,41 @@ def test_layer3_gy_production_loop_run_proof_committed_and_authority_path_checke
             assert "authority_derivation_trace_ref" in proof["artifacts_index_refs"]
         if readback["observed_authority_result"] == "acquisition_required":
             assert "authority_derivation_trace_ref" not in proof["artifacts_index_refs"]
+
+
+def test_layer3_gy_proof_validator_rejects_route_markers_without_store_observation() -> None:
+    payload = (
+        REPO_ROOT / "architecture/policy_design_case/layer3_gy_production_loop_run_proofs.json"
+    ).read_text(encoding="utf-8")
+    proof = deepcopy(json.loads(payload)["proofs"][0])
+    proof["surface_reads_checked"] = [
+        "control_worker_precompletion",
+        "control_store_current_execution_completed_job_record",
+        "served_control_job_status_not_established",
+    ]
+    proof["surface_readbacks"] = [dict(proof["surface_readbacks"][0])]
+    proof["surface_readbacks"][0].update(
+        {
+            "surface": "control_plane_store",
+            "read_method": "ControlPlaneStore.current_execution_completed_job_record",
+            "requested_endpoint": proof["endpoint"],
+            "job_id": proof["job_id"],
+            "run_id": proof["run_id"],
+        }
+    )
+    valid_issues: list[dict[str, str]] = []
+    check_layer3_gy_loop_artifacts._validate_production_loop_proof(0, proof, valid_issues)
+    assert valid_issues == []
+
+    changed = deepcopy(proof)
+    changed["surface_reads_checked"].append("runs_readback")
+    changed["surface_readbacks"][0]["surface"] = "/api/v1/control/runs"
+    changed["surface_readbacks"][0]["read_method"] = "ControlPlaneStore.get_job"
+    issues: list[dict[str, str]] = []
+    check_layer3_gy_loop_artifacts._validate_production_loop_proof(0, changed, issues)
+    codes = {item["code"] for item in issues}
+    assert "layer3_gy_proof_control_store_observation_invalid" in codes
+    assert "layer3_gy_proof_http_readback_claim_not_established" in codes
 
 
 def _c1_live_admission_station(tmp_path: Path):
@@ -1987,27 +2003,37 @@ def _c1_live_admission_station(tmp_path: Path):
     candidate = owner._step_from_invocation(
         workflow_id="scientist_policy_design",
         invocation=SimpleNamespace(
-            alias="run_causal_evaluation", node_id=node.spec.metadata.component_id,
+            alias="run_causal_evaluation",
+            node_id=node.spec.metadata.component_id,
         ),
         node_registry=nodes,
     )
     admission = owner.admit_playbook_step(
-        candidate, node_registry=nodes, ctx=ctx, state=state,
-        workspace_id="ws-c1-proof", invocation_id="invoke-c1-proof", cycle_index=1,
+        candidate,
+        node_registry=nodes,
+        ctx=ctx,
+        state=state,
+        workspace_id="ws-c1-proof",
+        invocation_id="invoke-c1-proof",
+        cycle_index=1,
     )
     assert admission.step is not None, admission.conformance.failures
     execution = admission.conformance.execution
     assert execution is not None
     selected = owner.select_playbook_for_intent({"policy_question": "C1 conformance proof"})
     trajectory = owner.PlaybookTrajectory(
-        playbook_id=selected.playbook_id, source_workflow_id=selected.playbook_id,
-        default_operation_classes=[candidate.operation_class], steps=[candidate],
+        playbook_id=selected.playbook_id,
+        source_workflow_id=selected.playbook_id,
+        default_operation_classes=[candidate.operation_class],
+        steps=[candidate],
         authority_path_disposition="loop_only",
     )
     registry = owner.PlaybookRegistry(playbooks={selected.playbook_id: trajectory})
     stable = SimpleNamespace(
-        adapter_admissions=[admission], operation_invocations=[execution.invocation],
-        search_ledger_events=[execution.ledger_event], artifact_envelopes=execution.artifact_envelopes,
+        adapter_admissions=[admission],
+        operation_invocations=[execution.invocation],
+        search_ledger_events=[execution.ledger_event],
+        artifact_envelopes=execution.artifact_envelopes,
         terminal_state=SimpleNamespace(kind=SearchTerminalKind.FRONTIER_STABLE),
         phase2_playbook_trace=SimpleNamespace(out_of_scope_steps=[]),
     )
@@ -2019,12 +2045,17 @@ def _c1_live_admission_station(tmp_path: Path):
 
 
 def test_c1_playbook_proof_binds_the_admission_the_consumer_used(
-    tmp_path: Path, capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     ctx, stable, deviation, selected, registry = _c1_live_admission_station(tmp_path)
     payload = check_layer3_gy_phase2_artifacts.build_playbook_admission_proof(
-        REPO_ROOT, stable=stable, deviation=deviation, selected=selected,
-        registry=registry, store=ctx.store,
+        REPO_ROOT,
+        stable=stable,
+        deviation=deviation,
+        selected=selected,
+        registry=registry,
+        store=ctx.store,
     )
     admission = stable.adapter_admissions[0]
     witness = payload["proofs"][0]["adapter_admissions"][0]
@@ -2049,13 +2080,18 @@ def test_c1_playbook_proof_refuses_changed_receipt_with_markers_intact(tmp_path:
     stable.adapter_admissions = [admission.model_copy(update={"conformance": changed})]
     with pytest.raises(AssertionError, match="c1_conformance_receipt_payload_mismatch"):
         check_layer3_gy_phase2_artifacts.build_playbook_admission_proof(
-            REPO_ROOT, stable=stable, deviation=deviation, selected=selected,
-            registry=registry, store=ctx.store,
+            REPO_ROOT,
+            stable=stable,
+            deviation=deviation,
+            selected=selected,
+            registry=registry,
+            store=ctx.store,
         )
 
 
 def test_c1_proof_semantics_are_stable_across_fresh_cas_emission_times(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from datetime import datetime
 
@@ -2064,6 +2100,7 @@ def test_c1_proof_semantics_are_stable_across_fresh_cas_emission_times(
     packets = []
     raw_refs = []
     for hour in (1, 2):
+
         class EmissionClock(datetime):
             @classmethod
             def now(cls, tz=None, *, emission_hour=hour):
@@ -2075,10 +2112,16 @@ def test_c1_proof_semantics_are_stable_across_fresh_cas_emission_times(
                 tmp_path / str(hour),
             )
         raw_refs.append(stable.adapter_admissions[0].conformance_ref)
-        packets.append(check_layer3_gy_phase2_artifacts.build_playbook_admission_proof(
-            REPO_ROOT, stable=stable, deviation=deviation, selected=selected,
-            registry=registry, store=ctx.store,
-        ))
+        packets.append(
+            check_layer3_gy_phase2_artifacts.build_playbook_admission_proof(
+                REPO_ROOT,
+                stable=stable,
+                deviation=deviation,
+                selected=selected,
+                registry=registry,
+                store=ctx.store,
+            )
+        )
     assert raw_refs[0] != raw_refs[1], "The control must produce distinct raw custody receipts."
     assert packets[0] == packets[1], "Run-emission time is not a changed admission property."
 
@@ -2150,14 +2193,10 @@ def test_layer3_gy_phase2_proof_artifacts_are_committed_and_semantic() -> None:
 
     proof_root = REPO_ROOT / "architecture/policy_design_case"
     playbook = json.loads(
-        (proof_root / "layer3_gy_phase2_playbook_run_proofs.json").read_text(
-            encoding="utf-8"
-        )
+        (proof_root / "layer3_gy_phase2_playbook_run_proofs.json").read_text(encoding="utf-8")
     )
     spine = json.loads(
-        (proof_root / "layer3_gy_phase2_spine_repair_proofs.json").read_text(
-            encoding="utf-8"
-        )
+        (proof_root / "layer3_gy_phase2_spine_repair_proofs.json").read_text(encoding="utf-8")
     )
     foundry = json.loads(
         (proof_root / "layer3_gy_phase2_foundry_consumption_proofs.json").read_text(
@@ -2165,9 +2204,7 @@ def test_layer3_gy_phase2_proof_artifacts_are_committed_and_semantic() -> None:
         )
     )
     agent = json.loads(
-        (proof_root / "layer3_gy_phase2_agent_event_audit.json").read_text(
-            encoding="utf-8"
-        )
+        (proof_root / "layer3_gy_phase2_agent_event_audit.json").read_text(encoding="utf-8")
     )
 
     assert playbook["proofs"][0]["legacy_workflow_id_disposition"] == "legacy_shadow_context"
@@ -2180,9 +2217,7 @@ def test_layer3_gy_phase2_proof_artifacts_are_committed_and_semantic() -> None:
         step.get("disposition") == "surface_out_of_scope"
         for step in playbook["proofs"][0].get("out_of_scope_steps", [])
     )
-    assert any(
-        proof.get("none_to_zero_laundering_rejected") is True for proof in spine["proofs"]
-    )
+    assert any(proof.get("none_to_zero_laundering_rejected") is True for proof in spine["proofs"])
     assert any(
         proof.get("proof_id") == "phase2-causal-input-producers-resolve-default-path"
         and proof.get("default_path_resolved") is True
@@ -2217,9 +2252,7 @@ def test_layer3_gy_phase2_proof_artifacts_are_committed_and_semantic() -> None:
 
 
 def test_layer3_artifact_surface_safety_validator_recomputes_proofs() -> None:
-    live_payloads = check_layer3_artifact_surface_safety.build_live_proof_payloads(
-        REPO_ROOT
-    )
+    live_payloads = check_layer3_artifact_surface_safety.build_live_proof_payloads(REPO_ROOT)
     _assert_live_payloads_match_declared_outputs(
         check_layer3_artifact_surface_safety,
         live_payloads,
@@ -2230,9 +2263,7 @@ def test_layer3_artifact_surface_safety_validator_recomputes_proofs() -> None:
 
 
 def test_layer3_time_source_authority_validator_recomputes_proofs() -> None:
-    live_payloads = check_layer3_time_source_authority.build_live_proof_payloads(
-        REPO_ROOT
-    )
+    live_payloads = check_layer3_time_source_authority.build_live_proof_payloads(REPO_ROOT)
     _assert_live_payloads_match_declared_outputs(
         check_layer3_time_source_authority,
         live_payloads,
@@ -2246,17 +2277,13 @@ def test_layer3_time_source_authority_validator_recomputes_proofs() -> None:
     assert inventory["row_count"] == 406
     assert inventory["reconciliation"]["gx_positive_status_count"] == 0
     assert consistency["audit_model"] == "TimeSourceConsistencyAuditProjection"
-    assert {
-        audit["mismatch_disposition"] for audit in consistency["audits"]
-    } <= {
+    assert {audit["mismatch_disposition"] for audit in consistency["audits"]} <= {
         "consistent",
         "inconsistent",
         "insufficient_evidence",
         "blocked_for_owner_review",
     }
-    assert "consistent" in {
-        audit["mismatch_disposition"] for audit in consistency["audits"]
-    }
+    assert "consistent" in {audit["mismatch_disposition"] for audit in consistency["audits"]}
     assert all(
         row["disposition"] == "authority_admitted"
         for row in consistency["s12_ref_dereference"]["real_ref_results"]
@@ -2286,9 +2313,7 @@ def test_layer3_time_source_authority_validator_rejects_legacy_model_and_token()
 
 @pytest.fixture(scope="module")
 def workflow_failure_authority_live_payloads() -> dict[str, dict[str, object]]:
-    return check_layer3_workflow_failure_authority.build_live_proof_payloads(
-        REPO_ROOT
-    )
+    return check_layer3_workflow_failure_authority.build_live_proof_payloads(REPO_ROOT)
 
 
 def test_layer3_workflow_failure_authority_has_real_execution(
@@ -2301,7 +2326,8 @@ def test_layer3_workflow_failure_authority_has_real_execution(
     owner = check_layer3_workflow_failure_authority
     live_payloads = workflow_failure_authority_live_payloads
     _assert_live_payloads_match_declared_outputs(
-        owner, live_payloads,
+        owner,
+        live_payloads,
     )
     proof = live_payloads[owner.PROOF_PATH]
     issues: list[dict[str, str]] = []
@@ -2345,9 +2371,7 @@ def test_layer3_workflow_failure_authority_refuses_removed_execution(
 ) -> None:
     from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
 
-    monkeypatch.setattr(
-        ControlPlaneService, "_run_legacy_scientist_workflow", lambda *args: None
-    )
+    monkeypatch.setattr(ControlPlaneService, "_run_legacy_scientist_workflow", lambda *args: None)
     with pytest.raises(ValueError, match="workflow_report_execution_not_established"):
         check_layer3_workflow_failure_authority._run_durable_authority_surface_proof(
             "legacy_shadow_candidate"
@@ -2373,15 +2397,19 @@ def test_layer3_workflow_failure_authority_comparison_preserves_decisive_fields(
         execution = proof["workflow_execution"]
         execution["workflow_report"]["nodes"].pop(index)
         report = WorkflowReport.model_validate(execution["workflow_report"])
-        execution["workflow_report_ref"] = "sha256:" + hashlib.sha256(
-            to_canonical_bytes(report.model_dump(), spec=CanonSpec())
-        ).hexdigest()
+        execution["workflow_report_ref"] = (
+            "sha256:"
+            + hashlib.sha256(to_canonical_bytes(report.model_dump(), spec=CanonSpec())).hexdigest()
+        )
         with pytest.raises(ValueError, match="workflow_report_execution_mismatch"):
             owner.comparison_payload(changed)
     for proof_index, proof in enumerate(original["proofs"]):
         for readback_index, readback in enumerate(proof["surface_readbacks"]):
             paths = [("decision",)] if "decision" in readback else []
-            paths.extend(("decisions", index, "decision") for index in range(len(readback.get("decisions", []))))
+            paths.extend(
+                ("decisions", index, "decision")
+                for index in range(len(readback.get("decisions", [])))
+            )
             for path in paths:
                 changed = deepcopy(original)
                 decision = changed["proofs"][proof_index]["surface_readbacks"][readback_index]
@@ -2525,7 +2553,11 @@ def test_layer3_workflow_failure_authority_refuses_unclaimed_progress_output(
         from_canonical_bytes(json.dumps(loop).encode()), spec=CanonSpec(forbid_floats=False)
     )
     new_ref = "sha256:" + hashlib.sha256(raw).hexdigest()
-    for target in (progress, progress["artifacts_index"], progress["quality_scorecard"]["evidence_refs"]):
+    for target in (
+        progress,
+        progress["artifacts_index"],
+        progress["quality_scorecard"]["evidence_refs"],
+    ):
         assert target["production_loop_run_proof_ref"] == old_ref
         target["production_loop_run_proof_ref"] = new_ref
     _rebind_recorded_f1_progress(proof)
@@ -2543,7 +2575,10 @@ def test_layer3_gy_lex_bounds_strangle_receipt_is_committed_and_fenced() -> None
 
     assert receipt["pattern_id"] == "P28"
     assert receipt["predecessor_ref"] == "scientist.policy_design.search._derive_bounds"
-    assert receipt["replacement_ref"] == "scientist.policy_design.search.derive_phase2_parameter_bounds"
+    assert (
+        receipt["replacement_ref"]
+        == "scientist.policy_design.search.derive_phase2_parameter_bounds"
+    )
     assert receipt["default_flipped"] is True
     assert receipt["src_false_assignments"] == []
     assert receipt["fence_status"] == "fenced_compatibility_only"
@@ -2997,7 +3032,8 @@ def test_gy_l_full_gx_notices_unproven_positive_only_in_new_output(gy_l_complete
         assert count_field is not None and type(previous.get(count_field)) is int, lost
         remainder = {key: value for key, value in previous.items() if key != count_field}
         matches = [
-            row for row in added
+            row
+            for row in added
             if {key: value for key, value in row.items() if key != count_field} == remainder
         ]
         assert len(matches) == 1, (previous, matches)
@@ -3008,8 +3044,9 @@ def test_gy_l_full_gx_notices_unproven_positive_only_in_new_output(gy_l_complete
     assert len(replacements) == len(aggregate_fields)
     assert {row[0]["code"] for row in replacements} == set(aggregate_fields)
     # Compare complete individual issue objects, not just a total or status.
-    retained = baseline - {json.dumps(row[0], sort_keys=True, separators=(",", ":"))
-                           for row in replacements}
+    retained = baseline - {
+        json.dumps(row[0], sort_keys=True, separators=(",", ":")) for row in replacements
+    }
     assert retained <= identities
     control_path = owner.OUTCOME_RUN_PATH + "$/post_gx_only_control"
     for code in ("layer3_gx_reducer_provenance_missing", "layer3_gx_producer_root_invalid"):
@@ -3018,12 +3055,13 @@ def test_gy_l_full_gx_notices_unproven_positive_only_in_new_output(gy_l_complete
         if code == "layer3_gx_reducer_provenance_missing":
             assert leaves[0]["field"] == "status" and leaves[0]["value"] == "pass"
     assert any(
-        row["code"] == "layer3_gx_recompute_provenance_missing"
-        and row["path"] == control_path
+        row["code"] == "layer3_gx_recompute_provenance_missing" and row["path"] == control_path
         for row in added
     ), added
     issues = []
-    owner.validate_outcome_run(checked[owner.OUTCOME_RUN_PATH], checked[owner.OUTCOME_REPLAY_PATH], issues)
+    owner.validate_outcome_run(
+        checked[owner.OUTCOME_RUN_PATH], checked[owner.OUTCOME_REPLAY_PATH], issues
+    )
     assert any(row["code"] == "layer3_gy_outcome_gx_not_passed" for row in issues)
 
 
@@ -3280,7 +3318,8 @@ def test_gy_l_p28_snapshot_cannot_survive_an_added_source_caller(monkeypatch):
 
 
 def test_gy_l_typed_readback_requires_actual_contract_and_verifier_returns(
-    gy_l_complete_live_population, monkeypatch,
+    gy_l_complete_live_population,
+    monkeypatch,
 ):
     owner = check_layer3_gy_loop_artifacts
     _, observations, _ = gy_l_complete_live_population
@@ -3318,7 +3357,9 @@ def test_gy_l_typed_readback_refuses_mutated_actual_runtime_object(
         original = actual.terminal_state
         try:
             object.__setattr__(
-                actual, "terminal_state", original.model_copy(update={"reason": "typed_readback_control"})
+                actual,
+                "terminal_state",
+                original.model_copy(update={"reason": "typed_readback_control"}),
             )
             with pytest.raises(ValueError, match="live_loop_verified_exit_changed"):
                 observation._checked_snapshot()
@@ -3349,16 +3390,23 @@ def test_gy_l_observed_parent_cannot_launder_unobserved_nested_ring2(
             # outer object and its snapshot are coherent; the child was never
             # supplied by the actual verifier and must not gain its standing.
             for field in type(envelope.verification).ring2_fields:
-                changed = envelope.model_copy(update={
-                    "verification": envelope.verification.model_copy(update={
-                        field: "sha256:" + "0" * 64,
-                    }),
-                })
-                contract = actual.model_copy(update={
-                    "artifact_envelopes": [
-                        changed if item is envelope else item for item in actual.artifact_envelopes
-                    ],
-                })
+                changed = envelope.model_copy(
+                    update={
+                        "verification": envelope.verification.model_copy(
+                            update={
+                                field: "sha256:" + "0" * 64,
+                            }
+                        ),
+                    }
+                )
+                contract = actual.model_copy(
+                    update={
+                        "artifact_envelopes": [
+                            changed if item is envelope else item
+                            for item in actual.artifact_envelopes
+                        ],
+                    }
+                )
                 candidate = owner._LiveLoopExitCapture(capture.store)
                 for original, _ in capture._LiveLoopExitCapture__envelopes:
                     candidate.observe_envelope(
@@ -3368,8 +3416,9 @@ def test_gy_l_observed_parent_cannot_launder_unobserved_nested_ring2(
                 candidate.observe_contract(contract, job_id)
                 with pytest.raises(ValueError, match="ring2_verifier_object_unobserved"):
                     candidate.verify(contract.model_dump(mode="json"), job_id)
-                controls.append({"job_id": job_id, "artifact_id": envelope.ref.artifact_id,
-                                 "field": field})
+                controls.append(
+                    {"job_id": job_id, "artifact_id": envelope.ref.artifact_id, "field": field}
+                )
     assert controls, "canonical live population exposed no nested protected-field control"
     print(json.dumps({"unobserved_nested_ring2_refused": controls}, sort_keys=True))
 

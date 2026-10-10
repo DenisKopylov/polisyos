@@ -4,32 +4,30 @@ import importlib
 import json
 from copy import deepcopy
 from dataclasses import replace
-from datetime import UTC, datetime
 
 import pytest
 
-from polisyos.core.components import ComponentId
 from polisyos.core.contracts.control import (
     LexTriggerRequest,
     NaturalLanguageRunRequest,
     PolicyFlags,
     WorkflowRunRequest,
 )
-from polisyos.pdc._impl.gy_waist import ArtifactRef
 from polisyos.runtime.http.errors import RuntimeHTTPError
 from polisyos.runtime.http.execution_policy import RuntimePrincipal
 from polisyos.runtime.http.resilience import GuardedDependencyProxy
 from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
-from polisyos.runtime.quality.evaluation_modes import resolve_evaluation_mode
-from polisyos.runtime.quality.evaluation_safety import EvaluationAttemptIntake
 from tests._helpers.control_worker import dispatch_one_control_job
+from tests._helpers.runtime_http import (
+    _build_control_service,
+    _DeterministicSpanSupportClient,
+    _field_pilot_intake,
+    _valid_intake_for_mode,
+)
 from tests.unit.runtime.http.control_service_test_support import (
     bound_nl_authorization_proof,
 )
-from tests.unit.runtime.http.test_control_service_di import (
-    _build_control_service,
-    _fixture_claims,
-)
+from tests.unit.runtime.http.test_control_service_di import _fixture_claims
 
 
 def _create_legacy_workflow_job(
@@ -126,7 +124,7 @@ def test_unknown_scope_payload_identity_is_cleared_before_transition_stub(
         reads: list[tuple[str | None, str | None, object]] = []
         original_load = service._load_payload_ref  # noqa: SLF001
 
-        def observe_scope_on_reads(ref: str):
+        def observe_scope_on_reads(ref: str, *, kind: str):
             reads.append(
                 (
                     get_current_tenant_id_or_none(),
@@ -134,7 +132,7 @@ def test_unknown_scope_payload_identity_is_cleared_before_transition_stub(
                     get_current_access_scope_or_none(),
                 )
             )
-            return original_load(ref)
+            return original_load(ref, kind=kind)
 
         monkeypatch.setattr(service, "_load_payload_ref", observe_scope_on_reads)
         transition_calls: list[dict[str, object]] = []
@@ -190,11 +188,15 @@ def test_unknown_scope_payload_identity_is_cleared_before_transition_stub(
             "runtime_identity",
         }.intersection(sanitized["params"])
         assert reads
-        assert all(tenant is None and cell is None and scope is None for tenant, cell, scope in reads)
+        assert all(
+            tenant is None and cell is None and scope is None for tenant, cell, scope in reads
+        )
 
         current = service._control_store.get_job(job_id)  # noqa: SLF001
         assert current is not None and current.capability_manifest_ref
-        manifest = original_load(current.capability_manifest_ref)
+        manifest = original_load(
+            current.capability_manifest_ref, kind="runtime.capability_manifest"
+        )
         actor = manifest["actor"]
         assert actor["subject"] == "anonymous"
         assert actor["authenticated"] is False
@@ -231,9 +233,7 @@ def test_unknown_scope_cannot_use_matching_ambient_tenant_for_owned_payload(
     response = runtime_api_env["client"].post(
         "/api/v1/control/runs",
         json={
-            "data_source": {
-                "data_snapshot_ref": runtime_api_env["root_artifact_id"]
-            },
+            "data_source": {"data_snapshot_ref": runtime_api_env["root_artifact_id"]},
             "params": {
                 "slice0_fixture_id": "ua_msme_credit_worldbank_measurement",
                 "tenant_id": runtime_api_env["tenant_a"],
@@ -256,7 +256,7 @@ def test_unknown_scope_cannot_use_matching_ambient_tenant_for_owned_payload(
         ownership_errors: list[ArtifactOwnershipError] = []
         original_load = service._load_payload_ref  # noqa: SLF001
 
-        def observe_scope_before_read(ref: str):
+        def observe_scope_before_read(ref: str, *, kind: str):
             reads.append(
                 (
                     ref,
@@ -266,7 +266,7 @@ def test_unknown_scope_cannot_use_matching_ambient_tenant_for_owned_payload(
                 )
             )
             try:
-                return original_load(ref)
+                return original_load(ref, kind=kind)
             except ArtifactOwnershipError as error:
                 ownership_errors.append(error)
                 raise
@@ -330,14 +330,14 @@ def test_capability_manifest_binding_is_type_strict_and_role_exact(tmp_path) -> 
     )
     try:
         launch = service.launch_workflow_run(
-            WorkflowRunRequest(
-                data_source={"data_snapshot_ref": "sha256:" + "a" * 64}
-            ),
+            WorkflowRunRequest(data_source={"data_snapshot_ref": "sha256:" + "a" * 64}),
             principal=principal,
         )
         job = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert job is not None and job.capability_manifest_ref is not None
-        manifest = service._load_payload_ref(job.capability_manifest_ref)  # noqa: SLF001
+        manifest = service._load_payload_ref(
+            job.capability_manifest_ref, kind="runtime.capability_manifest"
+        )  # noqa: SLF001
         policy = service._resolve_execution_policy(  # noqa: SLF001
             requested_profile=job.requested_execution_profile,
             policy_flags=PolicyFlags.model_validate(job.policy_flags),
@@ -347,10 +347,7 @@ def test_capability_manifest_binding_is_type_strict_and_role_exact(tmp_path) -> 
 
         def reverse_object_keys(value):
             if isinstance(value, dict):
-                return {
-                    key: reverse_object_keys(value[key])
-                    for key in reversed(tuple(value))
-                }
+                return {key: reverse_object_keys(value[key]) for key in reversed(tuple(value))}
             if isinstance(value, list):
                 return [reverse_object_keys(item) for item in value]
             return value
@@ -360,16 +357,17 @@ def test_capability_manifest_binding_is_type_strict_and_role_exact(tmp_path) -> 
             kind="runtime.capability_manifest",
             schema_name="polisyos.runtime.CapabilityManifest",
         )
-        assert service._validate_capability_manifest_for_scope(  # noqa: SLF001
-            manifest_ref=reordered_ref,
-            job=job,
-            execution_scope=execution_scope,
-        )["actor"] == manifest["actor"]
+        assert (
+            service._validate_capability_manifest_for_scope(  # noqa: SLF001
+                manifest_ref=reordered_ref,
+                job=job,
+                execution_scope=execution_scope,
+            )["actor"]
+            == manifest["actor"]
+        )
 
         boolean_key = next(
-            key
-            for key, value in manifest["policy_flags"].items()
-            if type(value) is bool
+            key for key, value in manifest["policy_flags"].items() if type(value) is bool
         )
         malformed_manifests = []
         malformed_policy = deepcopy(manifest)
@@ -502,15 +500,21 @@ def test_lex_worker_keeps_completion_diagnostic_under_admitted_scope(
                 cards_path=str(tmp_path / "cards.json"),
                 texts_path=str(tmp_path / "texts"),
                 output_dir=str(tmp_path / "lex-output"),
-                stages={"parse": True, "structure": False, "spo": False, "graph": False, "embed": False},
+                stages={
+                    "parse": True,
+                    "structure": False,
+                    "spo": False,
+                    "graph": False,
+                    "embed": False,
+                },
             ),
             principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
         )
         dispatch_one_control_job(
-                    store=service._control_store,  # noqa: SLF001
-                    handler=service._process_control_job,  # noqa: SLF001
-                    expected_job_id=launch.job_id,
-                )
+            store=service._control_store,  # noqa: SLF001
+            handler=service._process_control_job,  # noqa: SLF001
+            expected_job_id=launch.job_id,
+        )
 
         job = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert job is not None and job.state == "completed"
@@ -519,8 +523,7 @@ def test_lex_worker_keeps_completion_diagnostic_under_admitted_scope(
             for record in service._control_store.list_diagnostic_events(  # noqa: SLF001
                 job_id=launch.job_id
             )
-            if record.event.phase == "lex_pipeline"
-            and record.event.state_after == "completed"
+            if record.event.phase == "lex_pipeline" and record.event.state_after == "completed"
         )
         assert event.event.tenant_id == _fixture_claims().tenant_id
         assert event.event.cell_id == _fixture_claims().cell_id
@@ -649,8 +652,7 @@ def test_approval_hook_emits_event_from_verified_request_scope(tmp_path) -> None
             for record in service._control_store.list_diagnostic_events(  # noqa: SLF001
                 job_id=job_id
             )
-            if record.event.event_type
-            == "polisyos.runtime.diagnostic.approval_decision.v1"
+            if record.event.event_type == "polisyos.runtime.diagnostic.approval_decision.v1"
         )
         assert event.event.tenant_id == tenant_id
         assert event.event.cell_id == cell_id
@@ -707,41 +709,6 @@ def test_unknown_scope_acquisition_refuses_before_route_owner_or_effect_port(
     assert calls == []
 
 
-def _artifact_ref(kind: str, digit: str) -> ArtifactRef:
-    digest = "sha256:" + digit * 64
-    return ArtifactRef(
-        artifact_id=digest,
-        artifact_type=kind,
-        content_hash=digest,
-        schema_ref=f"{kind}.v1",
-        uri=f"cas://sha256/{digest.removeprefix('sha256:')}",
-        version="1.0",
-    )
-
-
-def _field_pilot_intake() -> EvaluationAttemptIntake:
-    requested_at = datetime.now(UTC)
-    return EvaluationAttemptIntake(
-        attempt_id="attempt-r5-durable-intent",
-        evaluator_owner_id=ComponentId("polisyos.runtime.quality.foundry_value_port@1.0.0"),
-        design_problem_ref="sha256:" + "1" * 64,
-        candidate_ref=_artifact_ref("test.candidate", "2"),
-        world_model_record_ref=_artifact_ref("test.world_model_record", "3"),
-        requested_mode_token="field_pilot",  # noqa: S106
-        mode_resolution=resolve_evaluation_mode("field_pilot"),
-        domain_hint=None,
-        domain_pack_ref=None,
-        target_population_scope_ref=_artifact_ref("test.population", "4"),
-        evaluation_input_refs=(),
-        evaluation_input_provenance=(),
-        evidence_refs=(),
-        requested_at=requested_at,
-        intended_start_at=requested_at,
-        requested_rule_version=None,
-        external_executor_identity_ref=None,
-    )
-
-
 def _job_created_event(service, job_id: str) -> tuple[int, dict[str, object]]:
     with service._control_store._sqlite_connection() as connection:  # noqa: SLF001
         rows = connection.execute(
@@ -757,16 +724,6 @@ def _outbox_payload(service, job_id: str) -> dict[str, object]:
     record = service._control_store.get_job_created_outbox_event(job_id)  # noqa: SLF001
     assert record is not None
     return dict(record.payload)
-
-
-def _valid_intake_for_mode(mode: str) -> EvaluationAttemptIntake:
-    original = _field_pilot_intake()
-    return original.model_copy(
-        update={
-            "requested_mode_token": mode,
-            "mode_resolution": resolve_evaluation_mode(mode),
-        }
-    )
 
 
 @pytest.mark.asyncio
@@ -813,7 +770,9 @@ async def test_plain_nl_job_persists_candidate_intent_and_reaches_candidate_comp
         ]
         assert len(pending_admission_transitions) == 1
         assert pending_admission_transitions[0].state_after == "pending"
-        payload = service._load_payload_ref(str(record.payload_ref))  # noqa: SLF001
+        payload = service._load_payload_ref(
+            str(record.payload_ref), kind="runtime.control_job_payload.natural_language_run"
+        )  # noqa: SLF001
         _, created_event = _job_created_event(service, launch.job_id)
 
         binding = payload.get("execution_intent_binding")
@@ -837,10 +796,10 @@ async def test_plain_nl_job_persists_candidate_intent_and_reaches_candidate_comp
 
         monkeypatch.setattr(service, "compile_and_run_recursive_generation_cycle", compiler_probe)
         dispatch_one_control_job(
-                    store=service._control_store,  # noqa: SLF001
-                    handler=service._process_control_job,  # noqa: SLF001
-                    expected_job_id=launch.job_id,
-                )
+            store=service._control_store,  # noqa: SLF001
+            handler=service._process_control_job,  # noqa: SLF001
+            expected_job_id=launch.job_id,
+        )
 
         completed = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert completed is not None
@@ -872,9 +831,7 @@ async def test_nl_launch_requires_served_proof_for_candidate_and_protected_reque
                     request="A protected service launch must carry the route proof.",
                     llm_model="simulated-qwen",
                     context={
-                        "evaluation_safety_attempt": _field_pilot_intake().model_dump(
-                            mode="json"
-                        )
+                        "evaluation_safety_attempt": _field_pilot_intake().model_dump(mode="json")
                     },
                 ),
                 principal=principal,
@@ -968,9 +925,7 @@ def test_nl_request_snapshot_digest_profile_accepts_float_and_type_key() -> None
 
     digest = _nl_request_snapshot_content_hash(snapshot)
 
-    assert digest == (
-        "sha256:56ab3d64aaacfd3fc0175f89f499c10f31f9082d2191181e3635f7082a615ded"
-    )
+    assert digest == ("sha256:56ab3d64aaacfd3fc0175f89f499c10f31f9082d2191181e3635f7082a615ded")
 
 
 @pytest.mark.asyncio
@@ -1003,7 +958,9 @@ async def test_served_launch_rejects_nonfinite_context_before_enqueue(
     monkeypatch.setattr(service, "_enqueue_job", enqueue_probe)  # noqa: SLF001
     try:
         with service._control_store._sqlite_connection() as connection:  # noqa: SLF001
-            before_count = int(connection.execute("SELECT COUNT(*) FROM control_jobs").fetchone()[0])
+            before_count = int(
+                connection.execute("SELECT COUNT(*) FROM control_jobs").fetchone()[0]
+            )
 
         request = NaturalLanguageRunRequest(
             request="A non-finite context must not be silently normalized into a candidate.",
@@ -1060,8 +1017,8 @@ async def test_float_snapshot_tamper_fails_before_worker_with_markers_intact(
 
         original_load = service._load_payload_ref  # noqa: SLF001
 
-        def load_tampered_request(payload_ref: str) -> dict[str, object]:
-            value = original_load(payload_ref)
+        def load_tampered_request(payload_ref: str, *, kind: str) -> dict[str, object]:
+            value = original_load(payload_ref, kind=kind)
             if payload_ref == record.payload_ref:
                 snapshot = value.get("nl_request_snapshot")
                 assert isinstance(snapshot, dict)
@@ -1076,10 +1033,10 @@ async def test_float_snapshot_tamper_fails_before_worker_with_markers_intact(
         monkeypatch.setattr(service, "_load_payload_ref", load_tampered_request)
         monkeypatch.setattr(service, "compile_and_run_recursive_generation_cycle", compiler_probe)
         dispatch_one_control_job(
-                    store=service._control_store,  # noqa: SLF001
-                    handler=service._process_control_job,  # noqa: SLF001
-                    expected_job_id=launch.job_id,
-                )
+            store=service._control_store,  # noqa: SLF001
+            handler=service._process_control_job,  # noqa: SLF001
+            expected_job_id=launch.job_id,
+        )
 
         terminal = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert terminal is not None
@@ -1113,11 +1070,7 @@ async def test_protected_intent_event_tamper_blocks_before_evaluation_safety_or_
         request = NaturalLanguageRunRequest(
             request="Evaluate this candidate for a field pilot.",
             llm_model="simulated-qwen",
-            context={
-                "evaluation_safety_attempt": _field_pilot_intake().model_dump(
-                    mode="json"
-                )
-            },
+            context={"evaluation_safety_attempt": _field_pilot_intake().model_dump(mode="json")},
         )
         launch = await service.launch_nl_run(
             request,
@@ -1126,7 +1079,9 @@ async def test_protected_intent_event_tamper_blocks_before_evaluation_safety_or_
         )
         record = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert record is not None
-        payload = service._load_payload_ref(str(record.payload_ref))  # noqa: SLF001
+        payload = service._load_payload_ref(
+            str(record.payload_ref), kind="runtime.control_job_payload.natural_language_run"
+        )  # noqa: SLF001
         binding = payload.get("execution_intent_binding")
         assert isinstance(binding, dict)
         assert binding.get("intent_band") == "eval_safety_required"
@@ -1164,8 +1119,8 @@ async def test_protected_intent_event_tamper_blocks_before_evaluation_safety_or_
             elif tamper == "capability_actor_mismatched":
                 original_load = service._load_payload_ref  # noqa: SLF001
 
-                def load_foreign_manifest(payload_ref: str) -> dict[str, object]:
-                    value = original_load(payload_ref)
+                def load_foreign_manifest(payload_ref: str, *, kind: str) -> dict[str, object]:
+                    value = original_load(payload_ref, kind=kind)
                     if payload_ref == record.capability_manifest_ref:
                         actor = value.get("actor")
                         assert isinstance(actor, dict)
@@ -1176,8 +1131,8 @@ async def test_protected_intent_event_tamper_blocks_before_evaluation_safety_or_
             else:
                 original_load = service._load_payload_ref  # noqa: SLF001
 
-                def load_tampered_payload(payload_ref: str) -> dict[str, object]:
-                    value = original_load(payload_ref)
+                def load_tampered_payload(payload_ref: str, *, kind: str) -> dict[str, object]:
+                    value = original_load(payload_ref, kind=kind)
                     if payload_ref == record.payload_ref:
                         if tamper == "payload_authorization_receipt_missing":
                             value.pop("nl_authorization_receipt", None)
@@ -1203,12 +1158,14 @@ async def test_protected_intent_event_tamper_blocks_before_evaluation_safety_or_
             raise RuntimeError("protected_intent_reached_n4_without_binding")
 
         monkeypatch.setattr(service, "_admit_evaluation_safety_attempt", forbidden_eval_safety)
-        monkeypatch.setattr(service, "compile_and_run_recursive_generation_cycle", forbidden_compiler)
+        monkeypatch.setattr(
+            service, "compile_and_run_recursive_generation_cycle", forbidden_compiler
+        )
         dispatch_one_control_job(
-                    store=service._control_store,  # noqa: SLF001
-                    handler=service._process_control_job,  # noqa: SLF001
-                    expected_job_id=launch.job_id,
-                )
+            store=service._control_store,  # noqa: SLF001
+            handler=service._process_control_job,  # noqa: SLF001
+            expected_job_id=launch.job_id,
+        )
 
         blocked = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert blocked is not None
@@ -1232,8 +1189,14 @@ async def test_protected_intent_event_tamper_blocks_before_evaluation_safety_or_
 @pytest.mark.parametrize(
     ("context", "expected_band"),
     [
-        ({"evaluation_safety_attempt": {"requested_mode_token": "field_pilot "}}, "not_established"),
-        ({"evaluation_safety_attempt": {"requested_mode_token": "field_pilot"}}, "eval_safety_required"),
+        (
+            {"evaluation_safety_attempt": {"requested_mode_token": "field_pilot "}},
+            "not_established",
+        ),
+        (
+            {"evaluation_safety_attempt": {"requested_mode_token": "field_pilot"}},
+            "eval_safety_required",
+        ),
     ],
 )
 async def test_unestablished_attempt_band_refuses_before_evaluation_safety_or_n4(
@@ -1241,7 +1204,7 @@ async def test_unestablished_attempt_band_refuses_before_evaluation_safety_or_n4
     monkeypatch: pytest.MonkeyPatch,
     context: dict[str, object],
     expected_band: str,
-    ) -> None:
+) -> None:
     service = _build_control_service(tmp_path)
     try:
         request = NaturalLanguageRunRequest(
@@ -1256,7 +1219,9 @@ async def test_unestablished_attempt_band_refuses_before_evaluation_safety_or_n4
         )
         record = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert record is not None
-        payload = service._load_payload_ref(str(record.payload_ref))  # noqa: SLF001
+        payload = service._load_payload_ref(
+            str(record.payload_ref), kind="runtime.control_job_payload.natural_language_run"
+        )  # noqa: SLF001
         binding = payload.get("execution_intent_binding")
         assert isinstance(binding, dict)
         assert binding.get("intent_band") == expected_band
@@ -1268,9 +1233,12 @@ async def test_unestablished_attempt_band_refuses_before_evaluation_safety_or_n4
         assert record.lease_owner is None
         assert record.progress["state"] == status.progress["state"] == "failed"
         assert status.progress["failure_code"] == "nl_job_execution_intent_not_established"
-        assert service._control_store.get_job_created_event_payload(  # noqa: SLF001
-            launch.job_id
-        )["state"] == "failed"
+        assert (
+            service._control_store.get_job_created_event_payload(  # noqa: SLF001
+                launch.job_id
+            )["state"]
+            == "failed"
+        )
         assert _outbox_payload(service, launch.job_id)["state"] == "failed"
         assert service._control_store.list_job_state_transitions(launch.job_id) == [  # noqa: SLF001
             "failed"
@@ -1284,9 +1252,12 @@ async def test_unestablished_attempt_band_refuses_before_evaluation_safety_or_n4
         ]
         assert len(admission_transitions) == 1
         assert admission_transitions[0].state_after == "failed"
-        assert service._control_store.lease_next_job(  # noqa: SLF001
-            worker_id="r5-unestablished-intent-probe"
-        ) is None
+        assert (
+            service._control_store.lease_next_job(  # noqa: SLF001
+                worker_id="r5-unestablished-intent-probe"
+            )
+            is None
+        )
 
         reached: list[str] = []
 
@@ -1299,7 +1270,9 @@ async def test_unestablished_attempt_band_refuses_before_evaluation_safety_or_n4
             raise RuntimeError("unestablished_intent_reached_n4")
 
         monkeypatch.setattr(service, "_admit_evaluation_safety_attempt", forbidden_eval_safety)
-        monkeypatch.setattr(service, "compile_and_run_recursive_generation_cycle", forbidden_compiler)
+        monkeypatch.setattr(
+            service, "compile_and_run_recursive_generation_cycle", forbidden_compiler
+        )
         from polisyos.runtime.http.services.control_plane_store import ControlJobLeaseLostError
 
         with pytest.raises(ControlJobLeaseLostError):
@@ -1356,9 +1329,9 @@ async def test_data_trust_band_keeps_candidate_compute_and_persists_bridge_limit
         request="Explore a retrospective policy option as a candidate.",
         llm_model="simulated-qwen",
         context={
-            "evaluation_safety_attempt": _valid_intake_for_mode(
-                "retrospective"
-            ).model_dump(mode="json"),
+            "evaluation_safety_attempt": _valid_intake_for_mode("retrospective").model_dump(
+                mode="json"
+            ),
             "data_trust_admission": {
                 "status": "verified",
                 "tenant_id": "tenant-foreign",
@@ -1387,16 +1360,20 @@ async def test_data_trust_band_keeps_candidate_compute_and_persists_bridge_limit
         def forbidden_authority_consumer(**_kwargs: object) -> object:
             pytest.fail("DataTrust bridge absence reached an authority consumer")
 
-        monkeypatch.setattr(service, "compile_and_run_recursive_generation_cycle", candidate_compiler)
+        monkeypatch.setattr(
+            service, "compile_and_run_recursive_generation_cycle", candidate_compiler
+        )
         monkeypatch.setattr(service, "_admit_evaluation_safety_attempt", forbidden_eval_safety)
-        monkeypatch.setattr(service, "resolve_generation_value_choices", forbidden_authority_consumer)
+        monkeypatch.setattr(
+            service, "resolve_generation_value_choices", forbidden_authority_consumer
+        )
         monkeypatch.setattr(service, "_publish_generation_run", forbidden_authority_consumer)
 
         dispatch_one_control_job(
-                    store=service._control_store,  # noqa: SLF001
-                    handler=service._process_control_job,  # noqa: SLF001
-                    expected_job_id=launch.job_id,
-                )
+            store=service._control_store,  # noqa: SLF001
+            handler=service._process_control_job,  # noqa: SLF001
+            expected_job_id=launch.job_id,
+        )
 
         completed = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert completed is not None
@@ -1431,7 +1408,6 @@ async def test_simulate_only_served_worker_persists_computation_without_s8_or_pu
     )
     from tests.unit.runtime.http.test_nl_pipeline_materialization import (
         _design_problem_tool_args,
-        _DeterministicSpanSupportClient,
         _FakeDesignProblemGateway,
         _intent_context,
     )
@@ -1472,9 +1448,9 @@ async def test_simulate_only_served_worker_persists_computation_without_s8_or_pu
 
     service = _build_control_service(tmp_path)
     context = _intent_context(as_of="2026-05-15")
-    context["evaluation_safety_attempt"] = _valid_intake_for_mode(
-        "simulate_only"
-    ).model_dump(mode="json")
+    context["evaluation_safety_attempt"] = _valid_intake_for_mode("simulate_only").model_dump(
+        mode="json"
+    )
     request = NaturalLanguageRunRequest(
         request="Design a wartime MSME credit guarantee for Ukraine within the stated "
         "UAH 10b budget cap. Simulate this candidate while carrying unknown "
@@ -1486,9 +1462,7 @@ async def test_simulate_only_served_worker_persists_computation_without_s8_or_pu
         launch = await service.launch_nl_run(
             request,
             principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
-            authorization_proof=bound_nl_authorization_proof(
-                _fixture_claims(), request
-            ),
+            authorization_proof=bound_nl_authorization_proof(_fixture_claims(), request),
         )
         job = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert job is not None and job.run_id is not None
@@ -1534,10 +1508,10 @@ async def test_simulate_only_served_worker_persists_computation_without_s8_or_pu
         )
 
         dispatch_one_control_job(
-                    store=service._control_store,  # noqa: SLF001
-                    handler=service._process_control_job,  # noqa: SLF001
-                    expected_job_id=launch.job_id,
-                )
+            store=service._control_store,  # noqa: SLF001
+            handler=service._process_control_job,  # noqa: SLF001
+            expected_job_id=launch.job_id,
+        )
 
         completed = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert completed is not None and completed.state == "completed"
@@ -1546,9 +1520,7 @@ async def test_simulate_only_served_worker_persists_computation_without_s8_or_pu
         assert progress["execution_intent_band"] == "simulate_only_attempt"
         assert progress["candidate_computation_status"] == "completed"
         assert progress["simulation_status"] == "simulation_unavailable"
-        assert progress["simulation_limitation_code"] == (
-            "cycle_substrate_context_not_established"
-        )
+        assert progress["simulation_limitation_code"] == ("cycle_substrate_context_not_established")
         assert {
             progress["n5_status"],
             progress["n8_status"],
@@ -1572,9 +1544,7 @@ async def test_simulate_only_served_worker_persists_computation_without_s8_or_pu
         )
         assert isinstance(proposal, N4CandidateProposalSimulationRecord)
         assert proposal.proposal.trinity_bundle.policy_spec.interventions
-        assert proposal.simulation_disposition.execution_intent_band == (
-            "simulate_only_attempt"
-        )
+        assert proposal.simulation_disposition.execution_intent_band == ("simulate_only_attempt")
     finally:
         service.close()
 
@@ -1666,18 +1636,16 @@ async def test_simulate_only_n4_terminal_failure_is_not_simulation_unavailable(
         request="Simulate candidate options with unavailable N4 generation.",
         llm_model="simulated-qwen",
         context={
-            "evaluation_safety_attempt": _valid_intake_for_mode(
-                "simulate_only"
-            ).model_dump(mode="json")
+            "evaluation_safety_attempt": _valid_intake_for_mode("simulate_only").model_dump(
+                mode="json"
+            )
         },
     )
     try:
         launch = await service.launch_nl_run(
             request,
             principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
-            authorization_proof=bound_nl_authorization_proof(
-                _fixture_claims(), request
-            ),
+            authorization_proof=bound_nl_authorization_proof(_fixture_claims(), request),
         )
         job = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert job is not None
@@ -1691,18 +1659,16 @@ async def test_simulate_only_n4_terminal_failure_is_not_simulation_unavailable(
             terminal_n4_compiler,
         )
         dispatch_one_control_job(
-                    store=service._control_store,  # noqa: SLF001
-                    handler=service._process_control_job,  # noqa: SLF001
-                    expected_job_id=launch.job_id,
-                )
+            store=service._control_store,  # noqa: SLF001
+            handler=service._process_control_job,  # noqa: SLF001
+            expected_job_id=launch.job_id,
+        )
 
         completed = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert completed is not None and completed.state == "completed"
         assert completed.progress["n4_status"] == "generation_unavailable"
         assert completed.progress["simulation_status"] == "not_run"
-        assert completed.progress["simulation_limitation_code"] == (
-            "n4_generation_unavailable"
-        )
+        assert completed.progress["simulation_limitation_code"] == ("n4_generation_unavailable")
         assert completed.progress["candidate_proposal_ref"] is None
         assert completed.progress["n5_status"] == completed.progress["s8_status"] == "not_run"
     finally:
@@ -1717,21 +1683,33 @@ async def test_authenticated_launch_binds_all_five_intent_bands_and_actor_scope(
         ("candidate", {}, "candidate_only", "established", None),
         (
             "simulation",
-            {"evaluation_safety_attempt": _valid_intake_for_mode("simulate_only").model_dump(mode="json")},
+            {
+                "evaluation_safety_attempt": _valid_intake_for_mode("simulate_only").model_dump(
+                    mode="json"
+                )
+            },
             "simulate_only_attempt",
             "established",
             "simulate_only",
         ),
         (
             "data_trust",
-            {"evaluation_safety_attempt": _valid_intake_for_mode("retrospective").model_dump(mode="json")},
+            {
+                "evaluation_safety_attempt": _valid_intake_for_mode("retrospective").model_dump(
+                    mode="json"
+                )
+            },
             "data_trust_required",
             "established",
             "retrospective",
         ),
         (
             "eval_safety",
-            {"evaluation_safety_attempt": _valid_intake_for_mode("field_pilot").model_dump(mode="json")},
+            {
+                "evaluation_safety_attempt": _valid_intake_for_mode("field_pilot").model_dump(
+                    mode="json"
+                )
+            },
             "eval_safety_required",
             "established",
             "field_pilot",
@@ -1761,22 +1739,20 @@ async def test_authenticated_launch_binds_all_five_intent_bands_and_actor_scope(
             launch = await service.launch_nl_run(
                 request,
                 principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
-                authorization_proof=bound_nl_authorization_proof(
-                    _fixture_claims(), request
-                ),
+                authorization_proof=bound_nl_authorization_proof(_fixture_claims(), request),
             )
             job = service._control_store.get_job(launch.job_id)  # noqa: SLF001
             assert job is not None
             assert job.submitted_by == "user-fixture"
-            payload = service._load_payload_ref(str(job.payload_ref))  # noqa: SLF001
+            payload = service._load_payload_ref(
+                str(job.payload_ref), kind="runtime.control_job_payload.natural_language_run"
+            )  # noqa: SLF001
             binding = payload.get("execution_intent_binding")
             assert isinstance(binding, dict)
             assert binding.get("intent_band") == expected_band
             assert binding.get("admission_status") == expected_status
             assert binding.get("canonical_mode") == expected_mode
-            assert binding.get("schema_version") == (
-                "polisyos.runtime.control_execution_intent.v2"
-            )
+            assert binding.get("schema_version") == ("polisyos.runtime.control_execution_intent.v2")
             assert binding.get("route_action") == "control.launch_nl_run"
             assert binding.get("actor_subject") == "user-fixture"
             assert binding.get("actor_authenticated") is True
@@ -1789,7 +1765,7 @@ async def test_authenticated_launch_binds_all_five_intent_bands_and_actor_scope(
             _, created_event = _job_created_event(service, launch.job_id)
             outbox = _outbox_payload(service, launch.job_id)
             capability_manifest = service._load_payload_ref(  # noqa: SLF001
-                str(job.capability_manifest_ref)
+                str(job.capability_manifest_ref), kind="runtime.capability_manifest"
             )
             assert created_event.get("execution_intent_binding") == binding
             assert outbox.get("execution_intent_binding") == binding
@@ -1855,15 +1831,24 @@ def test_control_job_creation_rolls_back_and_replays_through_guarded_store(
 
         assert store.get_job(job_id) is None
         with raw_store._sqlite_connection() as connection:  # noqa: SLF001
-            assert connection.execute(
-                "SELECT count(*) FROM control_job_progress WHERE job_id = ?", (job_id,)
-            ).fetchone()[0] == 0
-            assert connection.execute(
-                "SELECT count(*) FROM control_job_events WHERE job_id = ?", (job_id,)
-            ).fetchone()[0] == 0
-            assert connection.execute(
-                "SELECT count(*) FROM control_outbox_events WHERE job_id = ?", (job_id,)
-            ).fetchone()[0] == 0
+            assert (
+                connection.execute(
+                    "SELECT count(*) FROM control_job_progress WHERE job_id = ?", (job_id,)
+                ).fetchone()[0]
+                == 0
+            )
+            assert (
+                connection.execute(
+                    "SELECT count(*) FROM control_job_events WHERE job_id = ?", (job_id,)
+                ).fetchone()[0]
+                == 0
+            )
+            assert (
+                connection.execute(
+                    "SELECT count(*) FROM control_outbox_events WHERE job_id = ?", (job_id,)
+                ).fetchone()[0]
+                == 0
+            )
 
         store.create_job(**create_args)
         service.close()

@@ -62,3 +62,10 @@ def test_snippet_span_validation_reports_missing_source_text() -> None:
 
     assert result.passed is False
     assert "missing_source_text:src.1" in result.violations
+
+
+def test_snippet_span_validation_does_not_skip_source_text_when_unprovided() -> None:
+    result = validate_snippet_spans([_snippet()])
+
+    assert result.passed is False
+    assert "missing_source_text:src.1" in result.violations

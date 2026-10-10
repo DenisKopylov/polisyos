@@ -121,6 +121,59 @@ def _install_audit(client, audit: object) -> None:
     client.app.state.runtime_access_audit = audit
 
 
+def _persisted_access_events(runtime_api_env, *, request_id: str) -> list[dict[str, object]]:
+    from polisyos.runtime.http.access_audit import RuntimeDataAccessAuditTrail
+
+    path = runtime_api_env["cas_root"] / "runtime" / "audit" / "access.jsonl"
+    scan = RuntimeDataAccessAuditTrail(path=path).scan_read_only()
+    assert scan.audit_read_error_count == 0
+    return [entry for entry in scan.entries if entry.get("request_id") == request_id]
+
+
+def _install_in_memory_tenant_boundary_registry(monkeypatch, client):
+    from opentelemetry import metrics as otel_metrics
+    from opentelemetry.sdk.metrics import MeterProvider
+    from opentelemetry.sdk.metrics.export import InMemoryMetricReader
+
+    from polisyos.core.observability import _metrics_registry_base as registry_base
+    from polisyos.core.observability.config import (
+        MetricsExporterType,
+        OTelConfig,
+        ResourceConfig,
+    )
+    from polisyos.core.observability.metrics_parts import MetricsRegistry
+
+    reader = InMemoryMetricReader()
+    provider = MeterProvider(metric_readers=[reader])
+    config = OTelConfig(enabled=True, metrics_exporter=MetricsExporterType.NONE)
+    monkeypatch.setattr(registry_base, "get_default_config", lambda: config)
+    monkeypatch.setattr(
+        registry_base,
+        "get_resource_config",
+        lambda _: ResourceConfig(service_name="polisyos-test", service_version="test"),
+    )
+    monkeypatch.setattr(otel_metrics, "get_meter", provider.get_meter)
+    monkeypatch.setattr(otel_metrics, "set_meter_provider", lambda _: None)
+    monkeypatch.setattr(registry_base.MetricsRegistryBase, "_instance", None)
+    monkeypatch.setattr(registry_base.MetricsRegistryBase, "_initialized", False)
+
+    registry = MetricsRegistry()
+    client.app.state.runtime_container.runtime_metrics = registry
+    client.app.state.runtime_metrics = registry
+    return registry, reader, provider
+
+
+def _tenant_boundary_metric_points(reader) -> list[tuple[dict[str, str], int]]:
+    return [
+        (dict(point.attributes), int(point.value))
+        for resource in reader.get_metrics_data().resource_metrics
+        for scope in resource.scope_metrics
+        for metric in scope.metrics
+        if metric.name == "polisyos_audit_tenant_boundary_violations_total"
+        for point in metric.data.data_points
+    ]
+
+
 def _add_low_stakes_probe(client, executed: list[bool], *, suffix: str) -> None:
     action = require_action_permission(
         RuntimePermission.RUNS_LAUNCH,
@@ -578,6 +631,297 @@ def test_denied_mutation_remains_denied_when_access_audit_append_fails(
     assert response.status_code == 403, response.json()
     assert response.json()["code"] == "action_permission_denied"
     assert executed == []
+
+
+def test_run_ownership_denial_remains_denied_when_access_audit_append_fails(
+    runtime_api_env,
+) -> None:
+    bearer = _fixture_bearer("run-ownership-audit-append-failure")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti="jwt-run-ownership-audit-append-failure",
+        ),
+    )
+    _install_audit(client, _FailingAudit())
+
+    with client:
+        response = client.get(
+            f"/api/v1/runs/{runtime_api_env['cross_tenant_run_id']}",
+            headers={
+                "Authorization": f"Bearer {bearer}",
+                "X-Tenant-ID": runtime_api_env["tenant_a"],
+            },
+        )
+
+    assert response.status_code == 403, response.json()
+    assert response.json()["code"] == "run_tenant_mismatch"
+    assert runtime_api_env["tenant_b"] not in response.text
+
+
+def test_tenant_boundary_metric_records_only_verified_mismatches(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.http.services.run_index import IndexedRunRecord
+
+    tenant_a = str(runtime_api_env["tenant_a"])
+    tenant_b = str(runtime_api_env["tenant_b"])
+    bearer_a = _fixture_bearer("tenant-boundary-metric-a")
+    bearer_b = _fixture_bearer("tenant-boundary-metric-b")
+    client, cell, identity_provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    for bearer, tenant_id in ((bearer_a, tenant_a), (bearer_b, tenant_b)):
+        identity_provider.put_claim(
+            bearer,
+            _claims(
+                tenant_id=tenant_id,
+                cell_id=cell.cell_id,
+                jti=f"jwt-{bearer}",
+                roles=frozenset({PolicyOSRole.ADMIN}),
+            ),
+        )
+    _registry, reader, provider = _install_in_memory_tenant_boundary_registry(monkeypatch, client)
+    run_index = client.app.state.runtime_api_ctx.run_index
+    original_get_run = run_index.get_run
+    unscoped_run_id = str(runtime_api_env["core_run_id"])
+    indexed_run = original_get_run(unscoped_run_id)
+    unscoped_run = replace(
+        indexed_run,
+        details=indexed_run.details.model_copy(update={"tenant_id": None}),
+    )
+
+    def get_run_with_unscoped_fixture(candidate_run_id: str) -> IndexedRunRecord:
+        if candidate_run_id == unscoped_run_id:
+            return unscoped_run
+        return original_get_run(candidate_run_id)
+
+    monkeypatch.setattr(run_index, "get_run", get_run_with_unscoped_fixture)
+    try:
+        with client:
+            run_mismatch_id = str(runtime_api_env["cross_tenant_run_id"])
+            run_response = client.get(
+                f"/api/v1/runs/{run_mismatch_id}",
+                headers={
+                    "Authorization": f"Bearer {bearer_a}",
+                    "X-Tenant-ID": tenant_a,
+                    "X-Request-ID": "tenant-boundary-run-mismatch",
+                },
+            )
+            assert run_response.status_code == 403, run_response.json()
+            assert run_response.json()["code"] == "run_tenant_mismatch"
+            assert tenant_b not in run_response.text
+
+            artifact_id = str(runtime_api_env["workflow_report_artifact_id"])
+            artifact_response = client.get(
+                f"/api/v1/artifacts/{artifact_id}",
+                headers={
+                    "Authorization": f"Bearer {bearer_b}",
+                    "X-Tenant-ID": tenant_b,
+                    "X-Request-ID": "tenant-boundary-artifact-mismatch",
+                },
+            )
+            assert artifact_response.status_code == 403, artifact_response.json()
+            assert artifact_response.json()["code"] == "artifact_tenant_mismatch"
+            assert tenant_a not in artifact_response.text
+
+            unscoped_run_response = client.get(
+                f"/api/v1/runs/{unscoped_run_id}",
+                headers={
+                    "Authorization": f"Bearer {bearer_a}",
+                    "X-Tenant-ID": tenant_a,
+                    "X-Request-ID": "tenant-boundary-run-unscoped",
+                },
+            )
+            assert unscoped_run_response.status_code == 403, unscoped_run_response.json()
+            assert unscoped_run_response.json()["code"] == "run_tenant_unscoped"
+
+            unscoped_artifact_id = str(runtime_api_env["root_artifact_id"])
+            unscoped_artifact_response = client.get(
+                f"/api/v1/artifacts/{unscoped_artifact_id}",
+                headers={
+                    "Authorization": f"Bearer {bearer_a}",
+                    "X-Tenant-ID": tenant_a,
+                    "X-Request-ID": "tenant-boundary-artifact-unscoped",
+                },
+            )
+            assert unscoped_artifact_response.status_code == 403, unscoped_artifact_response.json()
+            assert unscoped_artifact_response.json()["code"] == "artifact_tenant_unscoped"
+
+        observed = {
+            (
+                attributes["source_tenant"],
+                attributes["target_tenant"],
+                attributes["resource_type"],
+            ): value
+            for attributes, value in _tenant_boundary_metric_points(reader)
+        }
+        assert observed == {
+            (tenant_a, tenant_b, "run"): 1,
+            (tenant_b, tenant_a, "artifact"): 1,
+        }
+        for request_id, requester_tenant, owner_tenant in (
+            ("tenant-boundary-run-mismatch", tenant_a, tenant_b),
+            ("tenant-boundary-artifact-mismatch", tenant_b, tenant_a),
+        ):
+            events = _persisted_access_events(runtime_api_env, request_id=request_id)
+            assert len(events) == 1
+            assert events[0]["tenant_id"] == requester_tenant
+            assert owner_tenant not in json.dumps(events[0])
+            assert set(events[0]["metadata"]) == {"denial_reason"}
+    finally:
+        provider.shutdown()
+
+
+def test_unscoped_run_ownership_denial_is_persisted(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.http.services.run_index import IndexedRunRecord
+
+    bearer = _fixture_bearer("unscoped-run-ownership-denial")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti="jwt-unscoped-run-ownership-denial",
+        ),
+    )
+    request_id = "unscoped-run-ownership-denial"
+    run_id = runtime_api_env["core_run_id"]
+    run_index = client.app.state.runtime_api_ctx.run_index
+    original_get_run = run_index.get_run
+    indexed_run = original_get_run(run_id)
+    unscoped_run = replace(
+        indexed_run,
+        details=indexed_run.details.model_copy(update={"tenant_id": None}),
+    )
+
+    def get_unscoped_run(candidate_run_id: str) -> IndexedRunRecord:
+        if candidate_run_id == run_id:
+            return unscoped_run
+        return original_get_run(candidate_run_id)
+
+    monkeypatch.setattr(run_index, "get_run", get_unscoped_run)
+    with client:
+        response = client.get(
+            f"/api/v1/runs/{run_id}",
+            headers={
+                "Authorization": f"Bearer {bearer}",
+                "X-Tenant-ID": runtime_api_env["tenant_a"],
+                "X-Request-ID": request_id,
+            },
+        )
+
+    assert response.status_code == 403, response.json()
+    assert response.json()["code"] == "run_tenant_unscoped"
+    events = _persisted_access_events(runtime_api_env, request_id=request_id)
+    assert len(events) == 1
+    event = events[0]
+    assert event["tenant_id"] == runtime_api_env["tenant_a"]
+    assert event["actor"] == "user-1"
+    assert event["resource_kind"] == "runtime.run"
+    assert event["resource_id"] == run_id
+    assert event["outcome"] == "deny"
+    assert event["metadata"] == {"denial_reason": "run_tenant_unscoped"}
+
+
+@pytest.mark.parametrize(
+    ("artifact_key", "tenant_key", "denial_reason", "other_tenant_key"),
+    [
+        (
+            "workflow_report_artifact_id",
+            "tenant_b",
+            "artifact_tenant_mismatch",
+            "tenant_a",
+        ),
+        ("root_artifact_id", "tenant_a", "artifact_tenant_unscoped", "tenant_b"),
+    ],
+)
+def test_artifact_ownership_denial_is_persisted_for_request_principal(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+    artifact_key: str,
+    tenant_key: str,
+    denial_reason: str,
+    other_tenant_key: str,
+) -> None:
+    bearer = _fixture_bearer(f"artifact-ownership-denial-{artifact_key}")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    request_tenant = runtime_api_env[tenant_key]
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=request_tenant,
+            cell_id=cell.cell_id,
+            jti=f"jwt-artifact-ownership-denial-{artifact_key}",
+        ),
+    )
+    request_id = f"artifact-ownership-denial-{artifact_key}"
+    artifact_id = runtime_api_env[artifact_key]
+    manifest_reads: list[str] = []
+    artifact_store = client.app.state.runtime_api_ctx.store
+    original_get_manifest = artifact_store.get_manifest
+
+    def track_manifest_read(candidate_id):
+        resolved_id = getattr(candidate_id, "artifact_id", candidate_id)
+        manifest_reads.append(str(resolved_id))
+        return original_get_manifest(candidate_id)
+
+    monkeypatch.setattr(artifact_store, "get_manifest", track_manifest_read)
+
+    with client:
+        response = client.get(
+            f"/api/v1/artifacts/{artifact_id}",
+            headers={
+                "Authorization": f"Bearer {bearer}",
+                "X-Tenant-ID": request_tenant,
+                "X-Request-ID": request_id,
+            },
+        )
+
+    assert response.status_code == 403, response.json()
+    assert response.json()["code"] == denial_reason
+    assert runtime_api_env[other_tenant_key] not in response.text
+    assert artifact_id not in manifest_reads
+
+    events = _persisted_access_events(runtime_api_env, request_id=request_id)
+    assert len(events) == 1
+    event = events[0]
+    assert event["timestamp"] > 0
+    assert event["tenant_id"] == request_tenant
+    assert event["actor"] == "user-1"
+    assert event["method"] == "GET"
+    assert event["endpoint"] == f"/api/v1/artifacts/{artifact_id}"
+    assert event["operation"] == "READ runtime.artifact"
+    assert event["resource_kind"] == "runtime.artifact"
+    assert event["resource_id"] == artifact_id
+    assert event["outcome"] == "deny"
+    assert event["metadata"] == {"denial_reason": denial_reason}
 
 
 def test_opa_unavailable_is_appended_once(runtime_api_env) -> None:

@@ -1,0 +1,34 @@
+id = "2026-10-10-e02-runtime-ownership-denial-audit"
+title = "Audit runtime ownership denials under the requesting principal"
+type = "fixed"
+component = "runtime"
+owner = "team-runtime"
+summary = "Run and artifact tenant guards record denied access attempts in the existing append-only access trail; proven cross-tenant mismatches also feed the existing Core tenant-boundary counter."
+evidence = [
+  "tests/unit/runtime/http/test_authorization.py",
+  "tests/unit/runtime/http/test_runtime_api_authz.py",
+  "tests/unit/runtime/http/test_runtime_authorization_access_audit.py",
+]
+compatibility = "Denied requests retain their existing HTTP status and error codes. No permission vocabulary, public DTO, or versioned authorization-audit schema changes."
+change_class = "internal"
+surface_classification = "internal: runtime HTTP access-audit trail"
+migration = "No migration is required; ownership-denial entries use the existing generic data-access audit envelope."
+api = "No HTTP API or generated-client surface changes."
+limitations = "If the access-audit append fails, the request remains denied and the failure is logged; durable audit receipt cannot be guaranteed during a storage outage. Boundary metrics are best-effort, and unscoped refusals are not counted as mismatches because no target tenant is established."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/http/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-ownership-denial-audit"
+change_class = "internal"
+impact = "internal"
+surface = "internal: runtime/audit/access.jsonl ownership-denial entries"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Cross-tenant and unscoped run/artifact refusals are retained with request identity, requested resource, and the existing guard reason code. When ownership proves a tenant mismatch, the existing Core boundary counter records requester tenant, owner tenant, and resource type; unscoped refusals do not increment it."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/runtime/http/README.md"]
+runbook_docs = []

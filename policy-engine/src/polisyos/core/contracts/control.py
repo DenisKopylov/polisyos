@@ -7,7 +7,7 @@ import json
 import re
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any, Literal, Self, cast, final
+from typing import Annotated, Any, Literal, Self, cast, final
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -336,6 +336,23 @@ class DecisionValiditySummaryResponse(BaseModel):
 # ---------------------------------------------------------------------------
 
 
+def _production_case_intake_ref_schema(schema: dict[str, Any]) -> None:
+    """Constrain the typed intake-ref branch in generated request schemas."""
+    artifact_ref_schema = dict(schema)
+    schema.clear()
+    schema["allOf"] = [
+        artifact_ref_schema,
+        {
+            "type": "object",
+            "properties": {
+                "kind": {"const": "gy.loop.proof.root"},
+                "media_type": {"const": "application/json"},
+            },
+            "required": ["kind", "media_type"],
+        },
+    ]
+
+
 class WorkflowRunRequest(BaseModel):
     """POST /api/v1/control/runs — launch a workflow run."""
 
@@ -350,10 +367,69 @@ class WorkflowRunRequest(BaseModel):
     knowledge_bundle_ref: str | None = None
     norm_pack_ref: str | None = None
     calibration_report_ref: str | None = None
+    production_case_intake_ref: (
+        Annotated[
+            ArtifactRef,
+            Field(json_schema_extra=_production_case_intake_ref_schema),
+        ]
+        | str
+        | None
+    ) = None
     checkpoint_policy: CheckpointPolicyType = "strict"
     execution_profile: ExecutionProfile | None = None
     policy_flags: PolicyFlags = Field(default_factory=PolicyFlags)
     params: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _production_case_ref_matches_legacy_param(self) -> Self:
+        """Keep the declared production input and legacy ID projection consistent."""
+        ref = self.production_case_intake_ref
+        if ref is None:
+            return self
+        if isinstance(ref, str):
+            if re.fullmatch(r"sha256:[0-9a-f]{64}", ref) is None:
+                raise ValueError("production_case_intake_ref_legacy_id_invalid")
+            ref_id = ref
+            profileless = True
+        else:
+            if ref.kind != "gy.loop.proof.root" or ref.media_type != "application/json":
+                raise ValueError("production_case_intake_ref_kind_or_media_type_invalid")
+            ref_id = str(ref.artifact_id)
+            profileless = ref.manifest_profile_sha256 is None
+        legacy_ref = self.params.get("production_case_intake_ref")
+        if legacy_ref is None:
+            return self
+        if isinstance(legacy_ref, str):
+            matches = legacy_ref == ref_id
+        elif isinstance(legacy_ref, ArtifactRef):
+            same_selected_view = (
+                legacy_ref.manifest_profile_sha256 is None if profileless else legacy_ref == ref
+            )
+            matches = (
+                str(legacy_ref.artifact_id) == ref_id
+                and legacy_ref.kind == "gy.loop.proof.root"
+                and legacy_ref.media_type == "application/json"
+                and same_selected_view
+            )
+        elif isinstance(legacy_ref, dict):
+            try:
+                parsed_ref = ArtifactRef.model_validate(legacy_ref)
+                same_selected_view = (
+                    parsed_ref.manifest_profile_sha256 is None if profileless else parsed_ref == ref
+                )
+                matches = (
+                    str(parsed_ref.artifact_id) == ref_id
+                    and parsed_ref.kind == "gy.loop.proof.root"
+                    and parsed_ref.media_type == "application/json"
+                    and same_selected_view
+                )
+            except (TypeError, ValueError):
+                matches = False
+        else:
+            matches = False
+        if not matches:
+            raise ValueError("production_case_intake_ref_legacy_param_mismatch")
+        return self
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,15 @@
+id = "2026-10-10-runtime-client-generator-scratch-path"
+title = "Resolve generated client scratch paths before changing directory"
+type = "fixed"
+component = "runtime-api-client"
+owner = "team-frontend"
+summary = "The client generator resolves its scratch directory from the invocation directory before entering the product root; an optional retained-scratch mode exposes the actual generated raw clients for local receipts."
+evidence = ["docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/client-generator-scratch-boundary.md"]
+compatibility = "Generated API bytes and exports are unchanged by the path repair. Default scratch cleanup is unchanged; POLISYOS_RETAIN_GENERATOR_SCRATCH=1 preserves temporary output."
+change_class = "internal"
+surface_classification = "internal: runtime API client generation"
+migration = "No client migration. Retained scratch paths are absolute even when TMPDIR is relative."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["packages/runtime-api-client/README.md"]
+runbook_docs = []

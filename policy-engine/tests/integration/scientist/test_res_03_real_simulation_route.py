@@ -66,6 +66,16 @@ _TENANT_ID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
 _CELL_ID = "cell-a"
 
 
+def _artifact_ref_contract_identity(ref: ArtifactRef) -> tuple[str, str, str, str | None]:
+    """Return every serialized identity field that binds a CAS artifact reference."""
+    return (
+        str(ref.artifact_id),
+        ref.kind,
+        ref.media_type,
+        ref.manifest_profile_sha256,
+    )
+
+
 def _coerce_manifest_model(value: Any, model: Any) -> Any:
     """Coerce IR or core manifest metadata into the core model used by CAS."""
     if value is None or isinstance(value, model):
@@ -79,7 +89,7 @@ def _coerce_manifest_model(value: Any, model: Any) -> Any:
 
 
 def _coerce_put_options(
-    opts: object,
+    opts: PutOptions,
     *,
     tenant_context: ArtifactTenantContextInfo | None,
 ) -> PutOptions:
@@ -91,8 +101,8 @@ def _coerce_put_options(
         else [_coerce_manifest_model(item, InputRef) for item in raw_inputs]
     )
     return PutOptions(
-        kind=getattr(opts, "kind"),
-        media_type=getattr(opts, "media_type"),
+        kind=opts.kind,
+        media_type=opts.media_type,
         schema=_coerce_manifest_model(getattr(opts, "schema", None), SchemaInfo),
         producer=_coerce_manifest_model(getattr(opts, "producer", None), ProducerInfo),
         env=_coerce_manifest_model(getattr(opts, "env", None), EnvInfo),
@@ -106,9 +116,7 @@ def _coerce_put_options(
             getattr(opts, "same_input_closure", None),
             ArtifactSameInputClosureInfo,
         ),
-        authority=_coerce_manifest_model(
-            getattr(opts, "authority", None), ArtifactAuthorityInfo
-        ),
+        authority=_coerce_manifest_model(getattr(opts, "authority", None), ArtifactAuthorityInfo),
     )
 
 
@@ -118,7 +126,7 @@ class _TenantScopedCAS(FileSystemCAS):
     def put_json(
         self,
         obj: object,
-        opts: object,
+        opts: PutOptions,
         canon_spec: CanonSpec | None = None,
     ) -> ArtifactRef:
         tenant_context = getattr(opts, "tenant_context", None) or ArtifactTenantContextInfo(
@@ -134,7 +142,7 @@ class _TenantScopedCAS(FileSystemCAS):
     def put_json_unscoped(
         self,
         obj: object,
-        opts: object,
+        opts: PutOptions,
         canon_spec: CanonSpec | None = None,
     ) -> ArtifactRef:
         """Persist an intentionally unscoped negative fixture."""
@@ -147,24 +155,26 @@ class _TenantScopedCAS(FileSystemCAS):
     def put_json_for_tenant(
         self,
         obj: object,
-        opts: object,
+        opts: PutOptions,
         *,
         tenant_id: str,
         cell_id: str | None,
         canon_spec: CanonSpec | None = None,
     ) -> ArtifactRef:
-        """Persist a fixture with a deliberately foreign manifest tenant."""
-        return super().put_json(
-            obj,
-            _coerce_put_options(
-                opts,
-                tenant_context=ArtifactTenantContextInfo(
-                    tenant_id=tenant_id,
-                    cell_id=cell_id,
+        """Persist a fixture through a CAS view owned by its manifest tenant."""
+        tenant_store = self.for_tenant(tenant_id, cell_id)
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            return tenant_store.put_json(
+                obj,
+                _coerce_put_options(
+                    opts,
+                    tenant_context=ArtifactTenantContextInfo(
+                        tenant_id=tenant_id,
+                        cell_id=cell_id,
+                    ),
                 ),
-            ),
-            canon_spec,
-        )
+                canon_spec,
+            )
 
 
 def _assert_authority_surface_conflict(response: Any) -> None:
@@ -362,9 +372,7 @@ def _build_workflow() -> WorkflowSpec:
             node.model_copy(
                 update={
                     "depends_on": [
-                        dependency
-                        for dependency in node.depends_on
-                        if dependency != "link_trinity"
+                        dependency for dependency in node.depends_on if dependency != "link_trinity"
                     ]
                 }
             )
@@ -479,8 +487,25 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
     assert records["dependent_after_failure"].skip_reason == "upstream_failed"
     assert not records["dependent_after_failure"].artifacts
     assert records["independent_sibling"].status == "ok"
-    assert later_failure.seen_simulation_ref == simulation_ref
-    assert independent.seen_simulation_ref == simulation_ref
+    simulation_ref_identity = _artifact_ref_contract_identity(simulation_ref)
+    assert _artifact_ref_contract_identity(later_failure.seen_simulation_ref) == (
+        simulation_ref_identity
+    )
+    assert _artifact_ref_contract_identity(independent.seen_simulation_ref) == (
+        simulation_ref_identity
+    )
+    assert (
+        _artifact_ref_contract_identity(
+            simulation_ref.model_copy(update={"kind": "foundry.other_artifact"})
+        )
+        != simulation_ref_identity
+    )
+    assert (
+        _artifact_ref_contract_identity(
+            simulation_ref.model_copy(update={"manifest_profile_sha256": f"sha256:{'a' * 64}"})
+        )
+        != simulation_ref_identity
+    )
     assert result.state.params["res03_independent_ran"] is True
     assert "res03_dependent_output" not in result.state.params
 
@@ -536,9 +561,7 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
         blob_path.write_bytes(original_bytes)
 
     workflow_report_ref = result.state.reports_index["workflow_report"]
-    report_blob_path, _report_manifest_path = store._paths(
-        workflow_report_ref.artifact_id
-    )
+    report_blob_path, _report_manifest_path = store._paths(workflow_report_ref.artifact_id)
     report_original_bytes = report_blob_path.read_bytes()
     report_blob_path.write_bytes(report_original_bytes + b"tampered")
     try:
@@ -558,9 +581,24 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
         cell_id = run.details.cell_id
         assert (tenant_id, cell_id) == (_TENANT_ID, _CELL_ID)
         with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
-            return runtime_context.debug.get_simulation_result_candidate(
-                run, alias=alias
-            )
+            return runtime_context.debug.get_simulation_result_candidate(run, alias=alias)
+
+    def _assert_fixture_ref_is_owned(
+        ref: ArtifactRef,
+        *,
+        tenant_id: str,
+        cell_id: str,
+    ) -> None:
+        """Prove a negative fixture exists and verifies in its actual owner scope."""
+        owner_store = store.for_tenant(tenant_id, cell_id)
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            manifest = owner_store.get_manifest(ref.artifact_id)
+            verification = owner_store.verify(ref.artifact_id)
+        assert manifest.tenant_context == ArtifactTenantContextInfo(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        assert verification.ok
 
     def _run_rebound_to(
         candidate_ref: ArtifactRef,
@@ -592,9 +630,7 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
         rebound_state.params["res03_fixture_variant"] = rebound_fixture_counter
         rebound_state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF] = candidate_ref
         state_payload = (
-            rebound_state.model_copy(
-                update={"schema_version": state_payload_schema_version}
-            )
+            rebound_state.model_copy(update={"schema_version": state_payload_schema_version})
             if state_payload_schema_version is not None
             else rebound_state
         )
@@ -637,18 +673,14 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
                 if node.alias == "independent_sibling":
                     rebound_nodes.append(
                         node.model_copy(
-                            update={
-                                "duration_ms": node.duration_ms + rebound_fixture_counter
-                            }
+                            update={"duration_ms": node.duration_ms + rebound_fixture_counter}
                         )
                     )
                 else:
                     rebound_nodes.append(node)
                 continue
             node_artifacts = [
-                candidate_ref
-                if ref.artifact_id == simulation_ref.artifact_id
-                else ref
+                candidate_ref if ref.artifact_id == simulation_ref.artifact_id else ref
                 for ref in node.artifacts
             ]
             if node_ref_kind is not None or node_ref_media_type is not None:
@@ -667,10 +699,7 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
                     else ref
                     for ref in node_artifacts
                 ]
-            if (
-                node_ref_conflicting_kind is not None
-                or node_ref_conflicting_media_type is not None
-            ):
+            if node_ref_conflicting_kind is not None or node_ref_conflicting_media_type is not None:
                 node_artifacts.append(
                     candidate_ref.model_copy(
                         update={
@@ -751,6 +780,11 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
         tenant_id="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
         cell_id="cell-b",
     )
+    _assert_fixture_ref_is_owned(
+        foreign_ref,
+        tenant_id="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        cell_id="cell-b",
+    )
     malformed_ref = store.put_json(
         {"schema_version": "1.3"},
         PutOptions(
@@ -813,16 +847,22 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
             replace(_run_rebound_to(foreign_ref), experiment_state_ref=None),
             alias="run_simulation",
         )
+    foreign_cell_state_run = _run_rebound_to(simulation_ref, state_cell_id="cell-foreign")
+    _assert_fixture_ref_is_owned(
+        foreign_cell_state_run.experiment_state_ref,
+        tenant_id=_TENANT_ID,
+        cell_id="cell-foreign",
+    )
     with pytest.raises(SimulationResultProjectionError) as foreign_cell_state_error:
-        _get_candidate_in_owner_scope(
-            _run_rebound_to(simulation_ref, state_cell_id="cell-foreign"),
-            alias="run_simulation",
-        )
+        _get_candidate_in_owner_scope(foreign_cell_state_run, alias="run_simulation")
+    foreign_cell_report_run = _run_rebound_to(simulation_ref, report_cell_id="cell-foreign")
+    _assert_fixture_ref_is_owned(
+        foreign_cell_report_run.workflow_report_ref,
+        tenant_id=_TENANT_ID,
+        cell_id="cell-foreign",
+    )
     with pytest.raises(SimulationResultProjectionError) as foreign_cell_report_error:
-        _get_candidate_in_owner_scope(
-            _run_rebound_to(simulation_ref, report_cell_id="cell-foreign"),
-            alias="run_simulation",
-        )
+        _get_candidate_in_owner_scope(foreign_cell_report_run, alias="run_simulation")
     with pytest.raises(SimulationResultProjectionError) as unsupported_state_schema_error:
         _get_candidate_in_owner_scope(
             _run_rebound_to(simulation_ref, state_schema_version="9.9"),
@@ -890,23 +930,21 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
             alias="run_simulation",
         )
     assert unscoped_error.value.code == "simulation_result_tenant_unscoped"
-    assert foreign_error.value.code == "simulation_result_tenant_binding_mismatch"
+    # A correctly B-owned artifact is refused by A's CAS reader before the
+    # projection service can inspect or disclose the foreign tenant manifest.
+    assert foreign_error.value.code == "simulation_result_unavailable"
     assert malformed_error.value.code == "simulation_result_payload_invalid"
     assert wrong_schema_error.value.code == "simulation_result_schema_mismatch"
     assert wrong_kind_error.value.code == "simulation_result_ref_manifest_mismatch"
     assert wrong_media_error.value.code == "simulation_result_ref_manifest_mismatch"
     assert stale_state_error.value.code == "simulation_result_binding_run_mismatch"
     assert missing_state_error.value.code == "simulation_result_binding_missing"
-    assert foreign_cell_state_error.value.code == "simulation_result_binding_tenant_mismatch"
-    assert foreign_cell_report_error.value.code == "simulation_result_binding_tenant_mismatch"
-    assert (
-        unsupported_state_schema_error.value.code
-        == "simulation_result_binding_schema_mismatch"
-    )
-    assert (
-        unsupported_report_schema_error.value.code
-        == "simulation_result_binding_schema_mismatch"
-    )
+    # Correctly scoped foreign-cell binding artifacts exist, but the run's A/cell-a
+    # reader cannot load them through the ownership-enforcing CAS view.
+    assert foreign_cell_state_error.value.code == "simulation_result_binding_unavailable"
+    assert foreign_cell_report_error.value.code == "simulation_result_binding_unavailable"
+    assert unsupported_state_schema_error.value.code == "simulation_result_binding_schema_mismatch"
+    assert unsupported_report_schema_error.value.code == "simulation_result_binding_schema_mismatch"
     assert state_ref_kind_error.value.code == "simulation_result_binding_ref_mismatch"
     assert report_ref_media_error.value.code == "simulation_result_binding_ref_mismatch"
     assert node_ref_kind_error.value.code == "simulation_result_node_binding_mismatch"

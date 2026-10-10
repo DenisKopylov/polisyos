@@ -103,6 +103,11 @@ projections. Route handlers should stay thin and delegate behavior here.
   [`control_plane_store.py`](control_plane_store.py) own the public service
   aggregation, run lifecycle, worker, and durable control state behind
   route-layer adapters.
+- `control/run_lifecycle.py` retains the canonical service class and worker
+  entrypoints. The `control/job_*.py` modules split diagnostics, scope
+  admission, attempt publication, and natural-language admission, execution,
+  and publication; `control/job_nl_context.py` carries typed state across those
+  internal facets.
 - [`control/evaluation_safety.py`](control/evaluation_safety.py) owns the typed evaluation-safety
   persistence/reconciliation adapter, the single-operation admission verifier, and the public
   metrics-projection read-identity accessor. The verifier exposes only

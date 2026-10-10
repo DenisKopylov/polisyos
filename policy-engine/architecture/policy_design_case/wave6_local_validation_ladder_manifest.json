@@ -107,7 +107,7 @@
         "category": "local_production_debug",
         "owner": "team-platform-runtime",
         "description": "Run the local production-debug quick path before cloud lanes.",
-        "command": "uv run --extra runtime --extra multi-tenant --extra ml python tools/quality/testing/local_prod_debug_probe.py --repo-root . --checks quick,production-data-static,docs-repro --output _build/.tmp/production-quality/universal_pdc_local_quick.json",
+        "command": "uv run --extra runtime --extra multi-tenant --extra ml python tools/quality/testing/local_prod_debug_probe.py --repo-root . --checks quick,production-data-static,docs-repro --require-passing --output _build/.tmp/production-quality/universal_pdc_local_quick.json",
         "timeout_s": 1200,
         "output_refs": [
           "_build/.tmp/production-quality/universal_pdc_local_quick.json"
@@ -217,7 +217,7 @@
         "category": "local_production_debug",
         "owner": "team-platform-runtime",
         "description": "Run the local production-debug quick path before cloud lanes.",
-        "command": "uv run --extra runtime --extra multi-tenant --extra ml python tools/quality/testing/local_prod_debug_probe.py --repo-root . --checks quick,production-data-static,docs-repro --output _build/.tmp/production-quality/universal_pdc_local_quick.json",
+        "command": "uv run --extra runtime --extra multi-tenant --extra ml python tools/quality/testing/local_prod_debug_probe.py --repo-root . --checks quick,production-data-static,docs-repro --require-passing --output _build/.tmp/production-quality/universal_pdc_local_quick.json",
         "timeout_s": 1200,
         "output_refs": [
           "_build/.tmp/production-quality/universal_pdc_local_quick.json"

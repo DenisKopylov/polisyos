@@ -17,16 +17,18 @@ from polisyos.runtime.quality.generation_cycle import (
     ValueOwnerAccessError,
     _load_value_data_profile_from_l1_dcat,
 )
+from tests._helpers.semantic_epoch_native import (
+    _fixture,
+    _real_epoch_scenario,
+    _semantic_handshake_from_passport,
+)
 from tests.unit.data_forge.domains.catalog.knowledge.test_overlay import (
     _downgrade_to_authentic_v1,
     _scenario_with_raw_rows,
 )
 from tests.unit.runtime.quality.test_acquisition_executor import (
     _activate_real_epoch_scenario,
-    _fixture,
-    _real_epoch_scenario,
     _second_real_epoch_scenario,
-    _semantic_handshake_from_passport,
 )
 
 

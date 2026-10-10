@@ -1,0 +1,20 @@
+id = "2026-10-09-distributional-analysis-module-decomposition"
+title = "Decompose the distributional analysis node implementation"
+type = "changed"
+component = "scientist"
+owner = "team-scientist"
+summary = "Keep the registered RunDistributionalAnalysisNode in its canonical module while extracting its private ordinal, justification, bounds, artifact, and subgroup helpers into focused adjacent modules."
+evidence = [
+  "src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py",
+  "tests/unit/scientist/nodes/builtins/simulate/test_run_distributional_analysis.py",
+]
+compatibility = "The node class, registry identity, baseline snapshot resolver, canonical import path, helper names re-exported by that module, persisted schemas, and runtime behavior remain unchanged."
+change_class = "internal"
+surface_classification = "internal: Scientist implementation decomposition; no public API or persisted artifact schema change."
+migration = "No migration is required."
+api = "Private helper implementations are grouped by ordinal analysis, causal justification, bounds, artifact persistence, and subgroup calculation. Existing imports from the canonical run_distributional_analysis module continue to resolve."
+limitations = "This is a behavior-preserving source decomposition; it does not change or independently establish the scientific validity of existing distributional estimates."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/nodes/README.md"]
+runbook_docs = []

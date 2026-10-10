@@ -8,7 +8,6 @@ import ast
 import copy
 import json
 import subprocess
-import tomllib
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
@@ -17,6 +16,18 @@ from typing import Any
 from tools.lib.fs import atomic_write_text
 from tools.lib.imports import repo_root_from
 from tools.quality.validation import architecture_report_only_contracts
+from tools.quality.validation.package_import_size_ratchet import (
+    as_int as _as_int,
+)
+from tools.quality.validation.package_import_size_ratchet import (
+    check_module_size_ratchet as _run_module_size_ratchet,
+)
+from tools.quality.validation.package_import_size_ratchet import (
+    date_is_after as _date_is_after,
+)
+from tools.quality.validation.package_import_size_ratchet import (
+    read_toml as _read_toml,
+)
 
 REPO_ROOT = repo_root_from(__file__)
 DEFAULT_CONTRACT = REPO_ROOT / "architecture" / "gates" / "package_import.toml"
@@ -440,9 +451,7 @@ def _check_importable_root_contracts(
     unmeasured_local_roots: list[str] = []
     for child in sorted(path for path in repo_root.iterdir() if path.is_dir()):
         name = child.name
-        if name in IGNORED_TOP_LEVEL_ROOTS or (
-            name.startswith(".") and name != ".polisyos"
-        ):
+        if name in IGNORED_TOP_LEVEL_ROOTS or (name.startswith(".") and name != ".polisyos"):
             continue
         if name not in contracts:
             findings.append(
@@ -455,7 +464,9 @@ def _check_importable_root_contracts(
             continue
         if name == "src":
             continue
-        py_files = [path for path in tracked if path.startswith(name + "/") and path.endswith(".py")]
+        py_files = [
+            path for path in tracked if path.startswith(name + "/") and path.endswith(".py")
+        ]
         init_files = [path for path in py_files if path.endswith("/__init__.py")]
         if (py_files or init_files) and name not in non_product_roots:
             findings.append(
@@ -592,9 +603,7 @@ def _check_root_file_exceptions(repo_root: Path) -> list[Finding]:
     allowed_names = {
         str(item) for item in defaults.get("allowed_root_py_files", ["__init__.py", "api.py"])
     }
-    exceptions = {
-        str(item.get("path", "")): item for item in layout.get("root_file_exception", [])
-    }
+    exceptions = {str(item.get("path", "")): item for item in layout.get("root_file_exception", [])}
     registered_shims = _registered_shim_paths(repo_root)
     findings: list[Finding] = []
     for rel, item in sorted(exceptions.items()):
@@ -1088,43 +1097,7 @@ def _check_ir_refs_references_collision(repo_root: Path) -> list[Finding]:
 
 
 def _check_module_size_ratchet(repo_root: Path) -> list[Finding]:
-    budget_path = repo_root / "architecture" / "module_size_budget.toml"
-    if not budget_path.exists():
-        return []
-    data = _read_toml(budget_path)
-    findings: list[Finding] = []
-    for budget in data.get("budget", []):
-        relative = str(budget.get("path", ""))
-        if not relative:
-            continue
-        path = repo_root / relative
-        if not path.exists():
-            findings.append(
-                Finding("module-size-ratchet", relative, "budgeted module is missing")
-            )
-            continue
-        current = _count_lines(path)
-        current_budget = _as_int(budget.get("current_lines"))
-        if current_budget and current > current_budget:
-            findings.append(
-                Finding(
-                    "module-size-ratchet",
-                    relative,
-                    "module grew above its ratcheted current_lines budget",
-                    f"current={current} budget={current_budget}",
-                )
-            )
-        report_only_limit = _as_int(budget.get("report_only_limit_lines"))
-        if report_only_limit and current > report_only_limit:
-            findings.append(
-                Finding(
-                    "module-size-ratchet",
-                    relative,
-                    "module grew above its report_only_limit_lines ratchet",
-                    f"current={current} limit={report_only_limit}",
-            )
-        )
-    return findings
+    return _run_module_size_ratchet(repo_root, finding_factory=Finding)
 
 
 def _check_cross_cutting_concern_homes(repo_root: Path) -> list[Finding]:
@@ -1140,9 +1113,7 @@ def _check_cross_cutting_concern_homes(repo_root: Path) -> list[Finding]:
 
     concern_by_file = _cross_cutting_concern_by_file_name(contract)
     blocked_names = {
-        str(item)
-        for item in home_contract.get("blocked_file_names", [])
-        if str(item).strip()
+        str(item) for item in home_contract.get("blocked_file_names", []) if str(item).strip()
     }
     concern_by_file = {
         file_name: concern
@@ -1402,9 +1373,7 @@ def _scientist_root_facade_summary(
         if path.name not in allowed_names
     ]
     registered_shims = _registered_shim_paths(repo_root)
-    registered_root_py_shims = [
-        path for path in loose_root_py_files if path in registered_shims
-    ]
+    registered_root_py_shims = [path for path in loose_root_py_files if path in registered_shims]
     canonical_roots = {str(item) for item in layout.get("canonical_first_level_roots", [])}
     canonical_roots.update(_first_level_scientist_roots(layout.get("implementation_roots", [])))
     compatibility_roots = {
@@ -1507,9 +1476,7 @@ def _existing_scientist_duplicate_package_file_pairs(
 def _is_single_file_shell_package(directory: Path, *, max_python_files: int) -> bool:
     if not (directory / "__init__.py").is_file():
         return False
-    python_files = [
-        path for path in sorted(directory.glob("*.py")) if not _is_test_module(path)
-    ]
+    python_files = [path for path in sorted(directory.glob("*.py")) if not _is_test_module(path)]
     if len(python_files) > max_python_files:
         return False
     child_dirs = [
@@ -1565,42 +1532,12 @@ def _render_examples(value: object) -> str:
     return json.dumps(value[:5], sort_keys=True)
 
 
-def _as_int(value: object) -> int:
-    try:
-        return int(value)
-    except (TypeError, ValueError):
-        return 0
-
-
 def _date_is_today_or_future(value: str) -> bool:
     try:
         parsed = date.fromisoformat(value)
     except ValueError:
         return False
     return parsed >= date.today()
-
-
-def _date_is_after(value: str, limit: str) -> bool:
-    try:
-        parsed = date.fromisoformat(value)
-        parsed_limit = date.fromisoformat(limit)
-    except ValueError:
-        return False
-    return parsed > parsed_limit
-
-
-def _count_lines(path: Path) -> int:
-    with path.open(encoding="utf-8") as handle:
-        return sum(
-            1
-            for line in handle
-            if line.strip() and not line.lstrip().startswith("#")
-        )
-
-
-def _read_toml(path: Path) -> dict[str, Any]:
-    with path.open("rb") as stream:
-        return tomllib.load(stream)
 
 
 def _resolve(repo_root: Path, path: Path) -> Path:

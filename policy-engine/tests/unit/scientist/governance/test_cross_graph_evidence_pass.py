@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from polisyos.core.artifacts import ensure_ir_artifact_store
 from polisyos.core.governance.passes.base import IssueSeverity
 from polisyos.ir.analytics.cross_graph import (
     CrossGraphDiagnostic,
@@ -15,6 +16,7 @@ from polisyos.ir.analytics.cross_graph import (
     LegalStatus,
     ObservabilityStatus,
     TransportStatus,
+    persist_cross_graph_evidence_profile,
 )
 from polisyos.ir.analytics.transportability import TransportMode
 from polisyos.scientist.governance.passes.cross_graph_evidence_pass import (
@@ -64,6 +66,18 @@ def _make_profile(
 
 
 class TestCrossGraphEvidencePass:
+    def test_persisted_profile_is_loaded_and_checked(self, pass_context_factory, strict_profile):
+        profile = _make_profile(needs=[_make_assessment(legal_status=LegalStatus.PROHIBITED)])
+        ctx = pass_context_factory(profile=strict_profile)
+        profile_ref = persist_cross_graph_evidence_profile(
+            ensure_ir_artifact_store(ctx.state["_store"]), profile
+        )
+        ctx.state["artifacts_index"] = {"cross_graph_evidence_profile_ref": profile_ref}
+
+        issues = CrossGraphEvidencePass().validate(ctx)
+
+        assert [issue.code for issue in issues] == ["CROSS_GRAPH_LEGAL_PROHIBITED"]
+
     def test_fast_profile_skips(self, pass_context_factory, fast_profile):
         ctx = pass_context_factory(
             state={"cross_graph_evidence_profile": _make_profile()},

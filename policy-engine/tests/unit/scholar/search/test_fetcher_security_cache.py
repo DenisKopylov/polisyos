@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 
 import pytest
+
 from polisyos.core.contracts.scholar import SourceSpec
 from polisyos.scholar.discover.http_fetch import fetch_url
 from polisyos.scholar.discover.transport import fetch_raw
@@ -121,6 +122,7 @@ async def test_find_in_page_returns_stable_spans(monkeypatch):
 
     assert len(snippets) >= 1
     assert snippets[0].start_char < snippets[0].end_char
+    assert fetched.text[snippets[0].start_char : snippets[0].end_char] == snippets[0].text
     assert snippets[0].query_node_id == "q1"
 
 

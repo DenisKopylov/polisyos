@@ -59,6 +59,18 @@ middleware. It never synthesizes a fixture identity; the explicit development
 fixture middleware may still install development-only claims before the route
 executes.
 
+The shared run and artifact tenant guards append ownership refusals to the
+existing `runtime/audit/access.jsonl` trail before returning their existing
+403. Each entry binds the attempted resource id and guard reason to the
+request id, timestamp, method, route, and verified request actor/tenant; it
+does not copy the resource owner's tenant or manifest details. If an append
+fails, the guard logs the audit failure and keeps the access refusal in force.
+When a verified owner tenant differs from the requester, the same guards also
+record the existing Core tenant-boundary counter with requester tenant, owner
+tenant, and resource type labels. A refusal caused by missing owner scope is
+not counted as a cross-tenant mismatch because no target tenant is established.
+Metric recording is best-effort and cannot change the 403 decision.
+
 The runtime container appoints one Decision Validity service for control and promotion. Read-only
 run-index/debug adapters may open their own service view, but every view resolves the same locked
 persistent owner state. Direct, recursive, HTTP, and offline promotion paths resolve the same

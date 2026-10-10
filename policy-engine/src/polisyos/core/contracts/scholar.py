@@ -51,6 +51,7 @@ class SourceSpec(BaseModel):
 
     # Optional hints/metadata
     mime_hint: str | None = None
+    raw_artifact_ref: ArtifactRef | None = None
     props: dict[str, str] = Field(default_factory=dict)
 
     # Acquire payload
@@ -68,6 +69,8 @@ class SourceSpec(BaseModel):
             )
         if not self.license.strip():
             raise ValueError("license is required")
+        if self.raw_artifact_ref is not None and self.kind != "bytes":
+            raise ValueError("raw_artifact_ref is only valid for bytes sources")
         if self.kind == "local_file":
             if not self.path:
                 raise ValueError("local_file source requires path")
@@ -78,6 +81,11 @@ class SourceSpec(BaseModel):
                 raise ValueError("bytes source requires data")
             if self.path is not None or self.url is not None:
                 raise ValueError("bytes source forbids path/url payload fields")
+            if self.raw_artifact_ref is not None:
+                if self.source_locator != str(self.raw_artifact_ref.artifact_id):
+                    raise ValueError("bytes source locator must match raw_artifact_ref")
+                if self.mime_hint and self.mime_hint != self.raw_artifact_ref.media_type:
+                    raise ValueError("bytes source mime_hint must match raw_artifact_ref")
         elif self.kind == "url":
             if not self.url:
                 raise ValueError("url source requires url")

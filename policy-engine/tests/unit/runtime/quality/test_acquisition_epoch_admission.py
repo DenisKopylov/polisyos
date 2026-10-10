@@ -14,7 +14,7 @@ import pytest
 from polisyos.core import artifacts
 from polisyos.core.contracts import epoch as epoch_contract
 from polisyos.runtime.quality import semantic_epoch, substrate_registry
-from tests.unit.runtime.quality.test_acquisition_executor import _fixture
+from tests._helpers.semantic_epoch_native import _fixture
 
 
 @pytest.fixture

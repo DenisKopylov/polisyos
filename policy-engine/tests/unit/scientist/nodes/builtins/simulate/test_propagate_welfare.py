@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import math
+from types import SimpleNamespace
 
 import jax.numpy as jnp
 import numpy as np
@@ -9,6 +10,8 @@ import pytest
 from pydantic import TypeAdapter
 
 import polisyos.scientist.nodes.builtins.simulate.propagate_welfare as propagate_welfare_module
+import polisyos.scientist.nodes.builtins.simulate.welfare_draws as welfare_draws_module
+import polisyos.scientist.nodes.builtins.simulate.welfare_types as welfare_types_module
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
@@ -3241,3 +3244,48 @@ def test_welfare_suppresses_unproved_or_malformed_calibration_dependence(tmp_pat
     assert equal_value_conflict_bundle.credible_interval is None
     assert equal_value_conflict_bundle.status.value == "partial"
     assert "calibration_envelope_conflict" in equal_value_conflict_bundle.warnings
+
+
+def test_welfare_draw_failure_scope_uses_shared_foundry_classifier(monkeypatch) -> None:
+    calls: list[dict[str, object]] = []
+    error = PolicyOSError(
+        "temporary evaluator transport failure",
+        category=ErrorCategory.TRANSIENT,
+        code="evaluation.transient",
+    )
+
+    def classify(exc, *, sample_domain_error_type=None, additional_global_error_types=()):
+        calls.append(
+            {
+                "exc": exc,
+                "sample_domain_error_type": sample_domain_error_type,
+                "additional_global_error_types": additional_global_error_types,
+            }
+        )
+        return SimpleNamespace(
+            scope="unknown",
+            chain=(exc,),
+            chain_complete=False,
+            cycle_detected=False,
+        )
+
+    monkeypatch.setattr(
+        welfare_draws_module,
+        "classify_evaluation_failure",
+        classify,
+        raising=False,
+    )
+
+    scope = welfare_draws_module._welfare_draw_failure_scope(
+        error,
+        sample_domain_error_type=propagate_welfare_module.WelfareSampleDomainError,
+    )
+
+    assert scope == "unknown"
+    assert calls == [
+        {
+            "exc": error,
+            "sample_domain_error_type": propagate_welfare_module.WelfareSampleDomainError,
+            "additional_global_error_types": (welfare_types_module._WelfareNodeFailure,),
+        }
+    ]

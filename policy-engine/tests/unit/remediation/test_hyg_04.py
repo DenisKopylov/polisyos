@@ -42,18 +42,14 @@ def test_install_wrapper_forwards_argv_and_exit_status(tmp_path: Path) -> None:
     capture = tmp_path / "uv-argv.txt"
     fake_uv = fake_bin / "uv"
     fake_uv.write_text(
-        "#!/bin/sh\n"
-        'printf \'%s\\n\' "$@" > "$HYG04_CAPTURE"\n'
-        "exit 23\n",
+        '#!/bin/sh\nprintf \'%s\\n\' "$@" > "$HYG04_CAPTURE"\nexit 23\n',
         encoding="utf-8",
     )
     fake_uv.chmod(0o755)
 
     environment = os.environ.copy()
     environment["HYG04_CAPTURE"] = str(capture)
-    environment["PATH"] = os.pathsep.join(
-        (str(fake_bin), environment.get("PATH", ""))
-    )
+    environment["PATH"] = os.pathsep.join((str(fake_bin), environment.get("PATH", "")))
     result = subprocess.run(
         [
             "bash",
@@ -159,6 +155,125 @@ assert "jax" not in sys.modules
     assert result.returncode == 0, result.stderr
 
 
+@pytest.mark.parametrize(
+    "entrypoint",
+    [
+        "tools/research/benchmarks/jax/bench_simulation.py",
+        "tools/research/demos/run_laffer_demo.py",
+        "tools/research/demos/run_mechanism_design.py",
+    ],
+)
+@pytest.mark.parametrize(
+    ("operator_environment", "expected_platforms"),
+    [
+        ({}, ("cpu", "cpu")),
+        (
+            {
+                "JAX_PLATFORMS": "metal",
+                "JAX_PLATFORM_NAME": "metal",
+                "POLICY_ENGINE_ALLOW_JAX_METAL": "1",
+            },
+            ("metal", "metal"),
+        ),
+        (
+            {"JAX_PLATFORMS": "metal", "POLICY_ENGINE_ALLOW_JAX_METAL": "1"},
+            ("metal", None),
+        ),
+        (
+            {
+                "JAX_PLATFORM_NAME": "metal",
+                "POLICY_ENGINE_ALLOW_JAX_METAL": "1",
+            },
+            (None, "metal"),
+        ),
+    ],
+)
+def test_jax_research_entrypoints_apply_defaults_before_jax_stack(
+    entrypoint: str,
+    operator_environment: dict[str, str],
+    expected_platforms: tuple[str | None, str | None],
+) -> None:
+    """JAX research entrypoints apply defaults before loading JAX."""
+
+    probe = f"""
+import builtins
+import os
+import runpy
+import sys
+
+from polisyos.common import jax_env
+
+sys.platform = "darwin"
+for name in (
+    "JAX_PLATFORMS",
+    "JAX_PLATFORM_NAME",
+    "POLICY_ENGINE_ALLOW_JAX_METAL",
+):
+    os.environ.pop(name, None)
+os.environ.update({operator_environment!r})
+
+expected = {expected_platforms!r}
+applied = []
+original_apply = jax_env.apply_jax_env_defaults
+
+def record_defaults():
+    original_apply()
+    applied.append((os.environ.get("JAX_PLATFORMS"), os.environ.get("JAX_PLATFORM_NAME")))
+
+jax_env.apply_jax_env_defaults = record_defaults
+original_import = builtins.__import__
+
+class ReachedJaxStack(Exception):
+    pass
+
+def stop_before_jax(name, *args, **kwargs):
+    if name == "jax" or name.startswith("jax.") or name == "equinox":
+        observed = (os.environ.get("JAX_PLATFORMS"), os.environ.get("JAX_PLATFORM_NAME"))
+        assert observed == expected, (name, observed, expected)
+        assert applied == [expected], (name, applied)
+        raise ReachedJaxStack(name)
+    return original_import(name, *args, **kwargs)
+
+builtins.__import__ = stop_before_jax
+try:
+    runpy.run_path({str(REPO_ROOT / entrypoint)!r}, run_name="jax_order_probe")
+except ReachedJaxStack:
+    pass
+else:
+    raise AssertionError("entrypoint never reached a guarded JAX import")
+assert applied == [expected], applied
+assert not any(name == "jax" or name.startswith("jax.") for name in sys.modules)
+"""
+    environment = os.environ.copy()
+    for name in (
+        "JAX_PLATFORMS",
+        "JAX_PLATFORM_NAME",
+        "POLICY_ENGINE_ALLOW_JAX_METAL",
+    ):
+        environment.pop(name, None)
+    environment.update(operator_environment)
+    environment["PYTHONPATH"] = os.pathsep.join(
+        filter(
+            None,
+            (
+                str(REPO_ROOT),
+                str(REPO_ROOT / "src"),
+                environment.get("PYTHONPATH", ""),
+            ),
+        )
+    )
+    result = subprocess.run(
+        [sys.executable, "-c", probe],
+        cwd=REPO_ROOT,
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + "\n" + result.stderr
+
+
 def test_workspace_bootstrap_subprocess_exposes_real_profiles(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -170,8 +285,7 @@ def test_workspace_bootstrap_subprocess_exposes_real_profiles(
     capture = tmp_path / "uv-argv.txt"
     fake_uv = tmp_path / "uv"
     fake_uv.write_text(
-        "#!/bin/sh\n"
-        'printf \'%s\\n\' "$@" > "$HYG04_BOOTSTRAP_CAPTURE"\n',
+        '#!/bin/sh\nprintf \'%s\\n\' "$@" > "$HYG04_BOOTSTRAP_CAPTURE"\n',
         encoding="utf-8",
     )
     fake_uv.chmod(0o755)
@@ -191,16 +305,19 @@ def test_workspace_bootstrap_subprocess_exposes_real_profiles(
         expected_argv = ["sync", "--frozen"]
         for extra in extras:
             expected_argv.extend(("--extra", extra))
-        assert bootstrap.main(
-            [
-                "--profile",
-                profile,
-                "--skip-frontend",
-                "--skip-hooks",
-                "--skip-doctor",
-                "--no-install-uv",
-            ]
-        ) == 0
+        assert (
+            bootstrap.main(
+                [
+                    "--profile",
+                    profile,
+                    "--skip-frontend",
+                    "--skip-hooks",
+                    "--skip-doctor",
+                    "--no-install-uv",
+                ]
+            )
+            == 0
+        )
         assert capture.read_text(encoding="utf-8").splitlines() == expected_argv
 
 
@@ -280,9 +397,7 @@ def test_benchmark_suite_registry_shim_forwards_cli_and_exit_code() -> None:
     payload = json.loads(valid.stdout)
     assert payload
     assert all("air-m2" in item["profiles"] for item in payload)
-    assert all(
-        {"suite_id", "script_path", "profiles"} <= set(item) for item in payload
-    )
+    assert all({"suite_id", "script_path", "profiles"} <= set(item) for item in payload)
 
     invalid = subprocess.run(
         [sys.executable, str(wrapper), "--format", "not-a-format"],
@@ -335,7 +450,7 @@ def test_benchmark_wrapper_caller_census_is_complete_and_bounded() -> None:
         for prefix in ("", "policy-engine/")
         for name, full_name in legacy_modules.items()
     }
-    non_caller_exemptions = {
+    documentary_reference_roles = {
         "docs/plans/active/TOOLS_AUDIT_REMEDIATION_PLAN.md": "active plan reference",
         "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/"
         "PolicyOS_Combined_Remediation_E02_Agent_Bundles.md": "bundle plan source",
@@ -345,6 +460,29 @@ def test_benchmark_wrapper_caller_census_is_complete_and_bounded() -> None:
         "bundles/HYG-04.md": "active bundle contract",
         "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/"
         "source/LA_r09_original.md": "historical source snapshot",
+        "docs/research/e02-cloud-test-plan/closure-decisions/C.md": (
+            "current closure decision citing source paths"
+        ),
+        "docs/research/e02-cloud-test-plan/closure-decisions/coverage.json": (
+            "source-scoped criterion reference"
+        ),
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/A/"
+        "orch04-recovery-20261008/outputs/c10/complete-scanner-proposed-role-diagnostic.json": (
+            "captured scanner diagnostic source paths"
+        ),
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/A/"
+        "orch04-recovery-20261008/outputs/native-tester/"
+        "C10-03a7c5d5-source-source-manifest.json": "captured checkout source manifest",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/A/"
+        "orch04-recovery-20261008/outputs/native-tester/"
+        "C10-e6854a70-actual-checkout-source-manifest.json": "captured checkout source manifest",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/C13/"
+        "ORCH04-recovery-20261008/evidence/c13/gcp-archive/archive-manifest.json": (
+            "captured archive manifest source paths"
+        ),
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/F/"
+        "continuation-closeout-20261007/companions/economics/root-quality-review/"
+        "complete-overlap-paths.json": "captured overlap inventory source paths",
         "docs/superpowers/journals/2026-09-08-gy-ambiguous-census.md": "historical evidence",
         "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/"
         "openapi-current-contract.json": "historical evidence",
@@ -363,6 +501,9 @@ def test_benchmark_wrapper_caller_census_is_complete_and_bounded() -> None:
         "ds17-dependency-analysis.json": "historical evidence",
         "docs/superpowers/journals/gy-phase5-evidence/shared/"
         "ds17-worker-observation.json": "historical evidence",
+        "docs/superpowers/journals/measurement-plane/row1/survey.md": (
+            "historical survey evidence"
+        ),
         "tests/unit/remediation/test_hyg_04.py": "deliberate witness corpus",
     }
     tracked_files = tuple(iter_repository_files(REPO_ROOT))
@@ -381,9 +522,7 @@ def test_benchmark_wrapper_caller_census_is_complete_and_bounded() -> None:
         "uv.lock",
     } <= {path.name for path in denominator}
 
-    denominator_paths = {
-        path.relative_to(REPO_ROOT).as_posix() for path in denominator
-    }
+    denominator_paths = {path.relative_to(REPO_ROOT).as_posix() for path in denominator}
     token_search = ["git", "grep", "-I", "-l", "-F"]
     for token in (
         "from tools.research.benchmarks import",
@@ -403,9 +542,6 @@ def test_benchmark_wrapper_caller_census_is_complete_and_bounded() -> None:
     matched_paths = set(token_matches.stdout.splitlines())
     assert matched_paths <= denominator_paths
 
-    dynamic_references = {
-        path: {"fqn/string/file-loader reference"} for path in matched_paths
-    }
     ast_callers: dict[str, set[str]] = {}
     parse_failures: list[str] = []
     for relative in matched_paths:
@@ -444,19 +580,15 @@ def test_benchmark_wrapper_caller_census_is_complete_and_bounded() -> None:
 
     assert parse_failures == []
     assert set(ast_callers) == {"tests/unit/remediation/test_hyg_04.py"}
-    assert ast_callers["tests/unit/remediation/test_hyg_04.py"] == {
-        *legacy_modules.values()
-    }
-    assert set(dynamic_references) == set(non_caller_exemptions)
-    assert all(non_caller_exemptions.values())
-    witness_text = (
-        REPO_ROOT / "tests/unit/remediation/test_hyg_04.py"
-    ).read_text(encoding="utf-8")
+    assert ast_callers["tests/unit/remediation/test_hyg_04.py"] == {*legacy_modules.values()}
+    # Keep all tracked textual matches in the census. These roles classify
+    # references for review; they do not remove files from the search or turn
+    # documentary citations into caller evidence.
+    assert matched_paths == set(documentary_reference_roles)
+    assert all(documentary_reference_roles.values())
+    witness_text = (REPO_ROOT / "tests/unit/remediation/test_hyg_04.py").read_text(encoding="utf-8")
     assert all(full_name in witness_text for full_name in legacy_modules.values())
-    assert all(
-        f"tools/research/benchmarks/{name}.py" in file_tokens
-        for name in legacy_modules
-    )
+    assert all(f"tools/research/benchmarks/{name}.py" in file_tokens for name in legacy_modules)
 
 
 def test_benchmark_wrapper_cli_matches_canonical_entrypoint() -> None:
@@ -507,9 +639,7 @@ def test_benchmark_wrapper_cli_matches_canonical_entrypoint() -> None:
 def test_hyg04_shim_registry_resolves_live_source_and_target_paths() -> None:
     """The two executable shims resolve to existing canonical owners."""
 
-    payload = tomllib.loads(
-        (REPO_ROOT / "architecture/shims.toml").read_text(encoding="utf-8")
-    )
+    payload = tomllib.loads((REPO_ROOT / "architecture/shims.toml").read_text(encoding="utf-8"))
     entries = {entry["id"]: entry for entry in payload["shim"]}
 
     expected = {
@@ -563,9 +693,7 @@ def test_frontend_workspace_build_paths_and_python_package_boundaries() -> None:
     )
     assert workspace_globs == ("apps/*", "packages/*")
 
-    root_manifest = json.loads(
-        (REPO_ROOT / "package.json").read_text(encoding="utf-8")
-    )
+    root_manifest = json.loads((REPO_ROOT / "package.json").read_text(encoding="utf-8"))
     assert "--workspace-concurrency=1" in root_manifest["scripts"]["build"]
 
     workspace_manifests = {
@@ -584,11 +712,11 @@ def test_frontend_workspace_build_paths_and_python_package_boundaries() -> None:
     assert "typecheck" in workspace_manifests["apps/runtime-reference-shell"]["scripts"]["build"]
     assert "typecheck" in workspace_manifests["packages/runtime-api-client"]["scripts"]["build"]
 
-    pyproject = tomllib.loads(
-        (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    )
-    wheel_packages = pyproject["tool"]["hatch"]["build"]["targets"]["wheel"]["packages"]
-    sdist_includes = set(pyproject["tool"]["hatch"]["build"]["targets"]["sdist"]["include"])
+    pyproject = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    hatch_config = tomllib.loads((REPO_ROOT / "hatch.toml").read_text(encoding="utf-8"))
+    assert "hatch" not in pyproject.get("tool", {})
+    wheel_packages = hatch_config["build"]["targets"]["wheel"]["packages"]
+    sdist_includes = set(hatch_config["build"]["targets"]["sdist"]["include"])
     assert wheel_packages == ["src/polisyos", "tools"]
     assert {"benchmarks", "docs", "ops", "schemas", "tools"} <= sdist_includes
     assert not any(

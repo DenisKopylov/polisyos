@@ -23,7 +23,7 @@ from polisyos.runtime.quality.acquisition_executor import (
 from polisyos.runtime.quality.semantic_epoch_store import (
     FileSemanticEpochHistoryRepository,
 )
-from tests.unit.runtime.quality.test_acquisition_executor import _fixture
+from tests._helpers.semantic_epoch_native import _fixture
 
 
 def _put(store: FileSystemCAS, payload: bytes, *, kind: str) -> ArtifactRef:

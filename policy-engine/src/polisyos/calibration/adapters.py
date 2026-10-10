@@ -2,14 +2,16 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
-from typing import Any
+from collections.abc import Mapping  # noqa: TC003 - public annotations are resolved at runtime.
+from typing import TYPE_CHECKING, Any
 
 from polisyos.ir.analytics.calibration_diagnostics import (
-    CalibrationDiagnosticIssue,
-    CalibrationDiagnosticsReport,
+    CalibrationDiagnosticsReport,  # noqa: TC001 - runtime-resolvable public report annotations.
 )
 from polisyos.ir.governance.validation import ValidationIssue, ValidationReport
+
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.calibration_diagnostics import CalibrationDiagnosticIssue
 
 
 def to_validation_report(
@@ -113,7 +115,9 @@ def _threshold_issues(
                 path="calibration.data.event_count",
                 code="CALIB_TOO_FEW_EVENTS",
                 severity="warning",
-                message="Event count is below the configured minimum for stable calibration review.",
+                message=(
+                    "Event count is below the configured minimum for stable calibration review."
+                ),
                 expected=f">={int(thresholds['min_events'])}",
                 actual=metrics.event_count,
             )
@@ -164,7 +168,10 @@ def _test_assumption_issues(diagnostics: CalibrationDiagnosticsReport) -> list[V
                 path=f"calibration.tests.{test.test_id}",
                 code="CALIB_TEST_ASSUMPTIONS_FAILED",
                 severity="warning",
-                message=f"{test.test_id} assumptions are not satisfied; treat this test as advisory only.",
+                message=(
+                    f"{test.test_id} assumptions are not satisfied; "
+                    "treat this test as advisory only."
+                ),
                 expected="assumptions_ok=True",
                 actual={"assumptions_ok": test.assumptions_ok, "notes": list(test.notes)},
             )
@@ -178,8 +185,8 @@ def _make_issue(
     code: str,
     severity: str,
     message: str,
-    expected: Any,
-    actual: Any,
+    expected: object,
+    actual: object,
 ) -> ValidationIssue:
     return ValidationIssue(
         loc=[part for part in path.split(".") if part],

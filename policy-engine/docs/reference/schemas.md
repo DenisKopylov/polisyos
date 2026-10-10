@@ -12,7 +12,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Snapshot Summary
 
-- IR snapshot: `102` schemas, generated `2026-10-09T16:27:18+00:00`.
+- IR snapshot: `102` schemas, generated `2026-10-09T23:57:00+00:00`.
 - Fabric world ABI snapshot: `2` schemas, generated `2026-05-06T07:43:21+00:00`.
 - Direct-read compatibility is declared in `polisyos.ir.migrations.schema_registry` and surfaced below.
 
@@ -63,7 +63,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `gate_context` | `polisyos.ir.governance.gate.GateContext` | `governance` | `—` | `p1` | `—` | `root_facade` | [GateContext](ir/schema-catalog.md#polisyos-ir-governance-gate-gatecontext) | `schemas/snapshots/ir/gate_context.schema.json` |
 | `gate_decision` | `polisyos.ir.governance.gate.GateDecision` | `governance` | `1.0` | `p1` | `—` | `root_facade` | [GateDecision](ir/schema-catalog.md#polisyos-ir-governance-gate-gatedecision) | `schemas/snapshots/ir/gate_decision.schema.json` |
 | `gate_event` | `polisyos.ir.governance.gate.GateEvent` | `governance` | `1.0` | `p1` | `—` | `root_facade` | [GateEvent](ir/schema-catalog.md#polisyos-ir-governance-gate-gateevent) | `schemas/snapshots/ir/gate_event.schema.json` |
-| `gate_request` | `polisyos.ir.governance.gate.GateRequest` | `governance` | `1.1` | `p1` | `—` | `root_facade` | [GateRequest](ir/schema-catalog.md#polisyos-ir-governance-gate-gaterequest) | `schemas/snapshots/ir/gate_request.schema.json` |
+| `gate_request` | `polisyos.ir.governance.gate.GateRequest` | `governance` | `1.2` | `p1` | `—` | `root_facade` | [GateRequest](ir/schema-catalog.md#polisyos-ir-governance-gate-gaterequest) | `schemas/snapshots/ir/gate_request.schema.json` |
 | `policy_spec` | `polisyos.ir.governance.policy_spec.PolicySpec` | `governance` | `1.0` | `p0` | `—` | `root_facade` | [PolicySpec](ir/schema-catalog.md#polisyos-ir-governance-policy-spec-policyspec) | `schemas/snapshots/ir/policy_spec.schema.json` |
 | `temporal_intervention_sequence` | `polisyos.ir.governance.policy_spec.TemporalInterventionSequence` | `governance` | `1.0` | `p1` | `—` | `root_facade` | [TemporalInterventionSequence](ir/schema-catalog.md#polisyos-ir-governance-policy-spec-temporalinterventionsequence) | `schemas/snapshots/ir/temporal_intervention_sequence.schema.json` |
 | `temporal_intervention_step` | `polisyos.ir.governance.policy_spec.TemporalInterventionStep` | `governance` | `—` | `p2` | `—` | `root_facade` | [TemporalInterventionStep](ir/schema-catalog.md#polisyos-ir-governance-policy-spec-temporalinterventionstep) | `schemas/snapshots/ir/temporal_intervention_step.schema.json` |

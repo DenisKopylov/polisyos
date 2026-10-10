@@ -14,8 +14,8 @@ from polisyos.core import artifacts, contracts
 from polisyos.data_forge import read_api
 from polisyos.runtime.quality import acquisition_executor, semantic_epoch, substrate_registry
 from polisyos.runtime.quality.semantic_epoch_store import FileSemanticEpochHistoryRepository
+from tests._helpers.acquisition_production import _run
 from tests._helpers.semantic_epoch_native import sign_native_epoch_scenario
-from tests.unit.runtime.quality.test_live_acquisition_executor import _run
 
 
 def production_admission_inputs(

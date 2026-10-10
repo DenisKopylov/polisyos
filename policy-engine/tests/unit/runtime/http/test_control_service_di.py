@@ -62,6 +62,11 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
 from polisyos.scientist.evidence.claims.head_index import UnappointedClaimLedgerOwner
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 from tests._helpers.control_worker import dispatch_one_control_job
+from tests._helpers.runtime_http import (
+    _build_control_service,
+    _build_registry_providers,
+    _NoOpRetrievalService,
+)
 from tests.unit.runtime.http.control_service_test_support import (
     bound_nl_authorization_proof,
 )
@@ -70,11 +75,6 @@ try:  # pragma: no cover - optional runtime dependency
     from fastapi.testclient import TestClient
 except ModuleNotFoundError:  # pragma: no cover
     TestClient = None
-
-
-class _NoOpRetrievalService:
-    def list_promotion_candidates(self):
-        return []
 
 
 class _NeverCalledEvalSafetyVerifier:
@@ -115,47 +115,6 @@ def _fixture_claims() -> UserIdentityClaims:
         exp=9_999_999_999,
         iat=1,
         jti="jwt-fixture",
-    )
-
-
-def _build_control_service(
-    tmp_path,
-    *,
-    artifact_store: FileSystemCAS | None = None,
-    cycle_substrate_context_admission_owner=None,
-    candidate_simulation_profiles=(),
-    candidate_simulation_model_declarations=(),
-    catalog_run_profile: str | None = None,
-) -> ControlPlaneService:
-    store = artifact_store if artifact_store is not None else FileSystemCAS(tmp_path / ".polisyos")
-    admission_owner = cycle_substrate_context_admission_owner
-    if candidate_simulation_profiles or candidate_simulation_model_declarations:
-        from polisyos.runtime.quality.cycle_substrate import (
-            ConfiguredCandidateSimulationContextAdmissionOwner,
-        )
-
-        if admission_owner is not None:
-            raise ValueError("candidate_simulation_context_owner_duplicate")
-        admission_owner = ConfiguredCandidateSimulationContextAdmissionOwner(
-            profiles=candidate_simulation_profiles,
-            model_declarations=candidate_simulation_model_declarations,
-            store=store,
-        )
-    resolver = RuntimeExecutionPolicyResolver(
-        default_profile="dev",
-        worker_backend="external",
-        state_store_backend="sqlite",
-        sqlite_path=".polisyos/control.sqlite3",
-        postgres_dsn=None,
-    )
-    return ControlPlaneService(
-        cas_root=tmp_path / ".polisyos",
-        core_runs_root=tmp_path / ".polisyos" / "runs",
-        artifact_store=store,
-        retrieval_service=_NoOpRetrievalService(),
-        policy_resolver=resolver,
-        registry_providers=_build_registry_providers(catalog_run_profile=catalog_run_profile),
-        cycle_substrate_context_admission_owner=admission_owner,
     )
 
 
@@ -1006,7 +965,9 @@ async def test_launch_nl_run_persists_tenant_scope_in_queued_payload(tmp_path) -
         record = service._control_store.get_job(launch.job_id)
         assert record is not None
 
-        payload = service._load_payload_ref(str(record.payload_ref))
+        payload = service._load_payload_ref(
+            str(record.payload_ref), kind="runtime.control_job_payload.natural_language_run"
+        )
 
         assert payload["tenant_id"] == "tenant-fixture"
         assert payload["cell_id"] == "cell-fixture"
@@ -1099,8 +1060,8 @@ def test_legacy_workflow_rejects_foreign_persisted_owner_scope_before_scientist(
         assert job is not None and job.payload_ref is not None
         load_payload_ref = service._load_payload_ref
 
-        def load_foreign_owner_payload(payload_ref: str) -> dict[str, object]:
-            loaded = load_payload_ref(payload_ref)
+        def load_foreign_owner_payload(payload_ref: str, *, kind: str) -> dict[str, object]:
+            loaded = load_payload_ref(payload_ref, kind=kind)
             if payload_ref == job.payload_ref:
                 loaded["tenant_id"] = "tenant-foreign"
             return loaded
@@ -1352,75 +1313,6 @@ def _signed_generation_evidence(service, compiled, *, fault: str):
             }
         }
     }
-
-
-def _build_registry_providers(
-    *,
-    catalog_run_profile: str | None = None,
-) -> ControlRegistryProviders:
-    source_profile = SimpleNamespace(
-        profile_id="fixture_profile",
-        display_name="Fixture Profile",
-        description="fixture source profile",
-        connector_family="fixture.family",
-        base_url="https://example.test/api",
-        auth_policy="none",
-        tags=("fixture",),
-        source_organization="Fixture Org",
-        estimated_datasets=1,
-    )
-    binding_profile = SimpleNamespace(
-        profile_id="fixture_binding",
-        display_name="Fixture Binding",
-        description="fixture binding profile",
-        schema_family="time_series",
-        strategy="strict",
-        rules=[{"name": "metric"}],
-        expected_columns=["metric"],
-        tags=("fixture",),
-    )
-    model_profile = SimpleNamespace(
-        profile_id="fixture_model",
-        display_name="Fixture Model",
-        description="fixture llm profile",
-        provider="openai",
-        model_id="gpt-5-mini",
-        base_url="https://api.example.test/v1",
-        tags=("fixture",),
-        capabilities=["chat"],
-        input_cost_per_mtoken_usd=0.1,
-        output_cost_per_mtoken_usd=0.2,
-        enabled=True,
-    )
-    connector_entry = SimpleNamespace(
-        metadata=SimpleNamespace(
-            fully_qualified_id="fixture.family.connector",
-            namespace="fixture.family",
-            version="1.0.0",
-            observed_latency_ms=12,
-        ),
-        known_datasets={"fixture.dataset"},
-        loaded=True,
-        last_health_check=datetime.now(UTC),
-        short_id="fixture.family.connector",
-    )
-
-    return ControlRegistryProviders(
-        connectors=SimpleNamespace(query_entries=lambda *args, **kwargs: [connector_entry]),
-        source_profiles=SimpleNamespace(
-            get=lambda profile_id: source_profile if profile_id == "fixture_profile" else None,
-            list_all=lambda: [source_profile],
-            list_by_family=lambda connector_family: (
-                [source_profile] if connector_family == "fixture.family" else []
-            ),
-        ),
-        binding_profiles=SimpleNamespace(
-            get=lambda profile_id: binding_profile if profile_id == "fixture_binding" else None,
-            list_all=lambda: [binding_profile],
-        ),
-        model_profiles=SimpleNamespace(list_all=lambda: [model_profile]),
-        catalog_run_profile=catalog_run_profile,
-    )
 
 
 def test_registry_bundle_preserves_injected_capability_owner_seams() -> None:
@@ -1933,8 +1825,8 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
         if missing_scope_field is not None:
             load_payload_ref = service._load_payload_ref
 
-            def load_without_scope(payload_ref: str) -> dict[str, object]:
-                loaded = load_payload_ref(payload_ref)
+            def load_without_scope(payload_ref: str, *, kind: str) -> dict[str, object]:
+                loaded = load_payload_ref(payload_ref, kind=kind)
                 loaded.pop(missing_scope_field, None)
                 return loaded
 
@@ -2005,7 +1897,10 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
                 assert source_context["job_id"] == record.job_id
                 assert source_context["run_id"] == str(record.run_id)
                 assert completed.progress["target_world_scope_status"] == "not_established"
-                stored_request = service._load_payload_ref(str(record.payload_ref))
+                stored_request = service._load_payload_ref(
+                    str(record.payload_ref),
+                    kind="runtime.control_job_payload.natural_language_run",
+                )
                 assert (
                     stored_request["context"]["runtime_identity"]["cell_id"]
                     == "cell-request-runtime-foreign"

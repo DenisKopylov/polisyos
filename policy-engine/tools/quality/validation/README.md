@@ -53,6 +53,7 @@ Quick local smoke:
 uv run python tools/quality/validation/run_policy_design_case_local_validation_ladder.py \
   --repo-root . \
   --profile quick \
+  --require-passing \
   --output _build/.tmp/production-quality/universal_pdc_local_validation_ladder.json
 ```
 
@@ -62,8 +63,24 @@ Full W12.A closeout ladder:
 uv run python tools/quality/validation/run_policy_design_case_local_validation_ladder.py \
   --repo-root . \
   --profile full \
+  --require-passing \
   --output _build/.tmp/production-quality/universal_pdc_local_validation_ladder.json
 ```
+
+W12.A reads the canonical `/summary/status` string in each declared JSON child
+report as well as the child exit code. A root `/status` value does not replace a
+missing or malformed summary status. Missing, malformed, stale, or non-`pass`
+reports block the ladder even if the child exits zero; `reported_statuses`
+records whether the status is present, missing, or malformed. The local
+production-debug child also uses `--require-passing`, so a limited or warning
+result cannot silently make the quick or full ladder green.
+
+The independent production-data scenario checker preserves both source-family
+diagnostics and construct-capability blockers in one report. A construct binding
+does not clear a family listed as missing by the source-family report. Use
+`--require-passing` to return a failing exit status for either kind of finding;
+these compatibility diagnostics do not establish physical source availability
+or production-data authority.
 
 ## W11.B Claim/Evidence Decomposition Annotations
 

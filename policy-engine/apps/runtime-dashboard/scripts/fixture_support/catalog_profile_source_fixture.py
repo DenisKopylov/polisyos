@@ -10,12 +10,15 @@ import json
 import os
 import sys
 import threading
-from collections.abc import Iterator
 from contextlib import ExitStack, contextmanager
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 from urllib.parse import urlsplit
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 import pytest
 
@@ -38,10 +41,10 @@ class _MissingUsageGatewayProxy:
         owner = self
 
         class Handler(BaseHTTPRequestHandler):
-            def do_GET(self) -> None:  # noqa: N802
+            def do_GET(self) -> None:
                 self._forward("GET")
 
-            def do_POST(self) -> None:  # noqa: N802
+            def do_POST(self) -> None:
                 self._forward("POST")
 
             def _forward(self, method: str) -> None:
@@ -110,7 +113,7 @@ class _MissingUsageGatewayProxy:
 
 
 def _ensure_import_roots() -> Path:
-    policy_engine_root = Path(__file__).resolve().parents[3]
+    policy_engine_root = Path(__file__).resolve().parents[4]
     for root in (policy_engine_root / "src", policy_engine_root, policy_engine_root / "tests"):
         root_str = str(root)
         if root_str not in sys.path:
@@ -144,7 +147,7 @@ def _capture_v6_partial(*, tmp_root: Path, cas_root: Path) -> tuple[object, obje
     original_run = recursive_module.RecursiveGenerationCycleController.run
     captured: list[tuple[object, object]] = []
 
-    def shared_owner_tenant_scope(*args: object, **kwargs: object):
+    def shared_owner_tenant_scope(*args: object, **kwargs: object) -> object:
         if kwargs.get("tenant_id") == "tenant-n5-owner":
             kwargs = {**kwargs, "tenant_id": _TENANT_ID, "cell_id": _CELL_ID}
         return original_tenant_scope(*args, **kwargs)
@@ -153,7 +156,7 @@ def _capture_v6_partial(*, tmp_root: Path, cas_root: Path) -> tuple[object, obje
         _ignored_tmp_path: Path,
         *,
         schema_version: str = "1.0",
-    ):
+    ) -> tuple[object, object, str]:
         from polisyos.core.artifacts import ensure_ir_artifact_store
         from polisyos.core.artifacts.store import FileSystemCAS
         from polisyos.ir.analytics.ncm import persist_ncm_spec
@@ -169,7 +172,7 @@ def _capture_v6_partial(*, tmp_root: Path, cas_root: Path) -> tuple[object, obje
             )
         return store, expected, str(ref.artifact_id)
 
-    async def capture_run(self, *args: object, **kwargs: object):
+    async def capture_run(self: object, *args: object, **kwargs: object) -> object:
         partial = await original_run(self, *args, **kwargs)
         captured.append((partial, kwargs.get("problems_by_node")))
         return partial
@@ -310,7 +313,7 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
     )
     from tools.quality.validation import check_layer3_gy_design_generation_contract as n4_contract
 
-    policy_engine_root = Path(__file__).resolve().parents[3]
+    policy_engine_root = Path(__file__).resolve().parents[4]
     environment = {
         "JAX_PLATFORMS": "cpu",
         "OMP_NUM_THREADS": "1",
@@ -353,9 +356,7 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
         from polisyos.runtime.http.services.control import (
             generation_cycle as generation_cycle_service,
         )
-        from tests.unit.runtime.http.test_nl_pipeline_materialization import (
-            _DeterministicSpanSupportClient,
-        )
+        from tests._helpers.runtime_http import _DeterministicSpanSupportClient
 
         cas_root = tmp_root / ".polisyos"
         runtime_api_context = build_runtime_api_context(
@@ -370,7 +371,7 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
         )
         original_compiler = generation_cycle_service.build_design_problem_from_nl_request
 
-        async def compile_with_controlled_span_support(**kwargs: object):
+        async def compile_with_controlled_span_support(**kwargs: object) -> object:
             kwargs["span_support_client"] = _DeterministicSpanSupportClient()
             return await original_compiler(**kwargs)
 
@@ -384,9 +385,7 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
 
         from _helpers.runtime_http import build_runtime_api_env
 
-        from tests.unit.runtime.http.test_control_job_execution_intent import (
-            _valid_intake_for_mode,
-        )
+        from tests._helpers.runtime_http import _valid_intake_for_mode
 
         request_body = {
             "request": recorded_problem.nl_provenance.raw_request,
@@ -433,7 +432,8 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
                 ),
                 "source_bound_cost_scope": "real_traced_producer_unknown_cost_not_manual_event",
                 "source_bound_fixture_boundaries": (
-                    "controlled synthetic profile; development fixture identity; no production claim"
+                    "controlled synthetic profile; development fixture identity; "
+                    "no production claim"
                 ),
             }
         )

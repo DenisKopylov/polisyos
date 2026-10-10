@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.scholar.search.models import FetchResult
 
@@ -38,6 +38,7 @@ class CachedPageRecord(BaseModel):
     error: str | None = None
     source_type: str = "web"
     artifact_id: str | None = None
+    raw_artifact_ref: ArtifactRef | None = None
     byte_size: int | None = Field(default=None, ge=0)
     license: str = "public-web"
     fetch_profile: dict[str, Any] = Field(default_factory=dict)
@@ -65,6 +66,7 @@ class CachedPageRecord(BaseModel):
                 "error": self.error,
                 "source_type": self.source_type,
                 "artifact_id": self.artifact_id,
+                "raw_artifact_ref": self.raw_artifact_ref,
                 "byte_size": self.byte_size,
                 "license": self.license,
                 "fetch_profile": dict(self.fetch_profile),
@@ -111,6 +113,12 @@ class UrlFetchCache:
 
     def put(self, result: FetchResult, *, raw_bytes: bytes | None = None) -> CachedPageRecord:
         artifact_id = result.artifact_id
+        raw_artifact_ref = result.raw_artifact_ref
+        if raw_artifact_ref is not None:
+            ref_artifact_id = str(raw_artifact_ref.artifact_id)
+            if artifact_id is not None and artifact_id != ref_artifact_id:
+                raise ValueError("FetchResult artifact_id must match raw_artifact_ref")
+            artifact_id = ref_artifact_id
         previous = self._records.get(str(result.url))
         if self._cas is not None and raw_bytes is not None:
             ref = self._cas.put_bytes(
@@ -125,6 +133,7 @@ class UrlFetchCache:
                 ),
             )
             artifact_id = str(ref.artifact_id)
+            raw_artifact_ref = ref
 
         if (
             artifact_id is not None
@@ -139,6 +148,7 @@ class UrlFetchCache:
         if raw_bytes is not None:
             result.byte_size = len(raw_bytes)
         result.artifact_id = artifact_id
+        result.raw_artifact_ref = raw_artifact_ref
 
         record = CachedPageRecord(
             url=str(result.url),
@@ -156,6 +166,7 @@ class UrlFetchCache:
             error=result.error,
             source_type=result.source_type,
             artifact_id=artifact_id,
+            raw_artifact_ref=raw_artifact_ref,
             byte_size=result.byte_size,
             license=result.license,
             fetch_profile=dict(result.fetch_profile),

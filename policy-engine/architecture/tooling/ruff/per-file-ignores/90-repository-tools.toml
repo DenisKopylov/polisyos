@@ -1,7 +1,6 @@
 # Repository hygiene closeout ratchets: these surfaces are now part of the
 # canonical Ruff pass, but their historical style/security debt stays explicit
 # until each directory owner burns it down.
-"src/polisyos/calibration/**" = ["ANN401", "B905", "E501", "RUF005", "TC001", "TC003"]
 "src/polisyos/schemas/abi_models.py" = ["TC003"]
 "examples/**" = ["RUF012"]
 "ops/cloud/gcp/upload_gonka_secrets.py" = ["S603", "T201"]

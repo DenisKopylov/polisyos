@@ -145,7 +145,9 @@ def validate(
         }
         missing = sorted(required - fixture_ids)
         if missing:
-            issues.append({"code": "layer3_gy_slice0_fixture_missing", "missing": ",".join(missing)})
+            issues.append(
+                {"code": "layer3_gy_slice0_fixture_missing", "missing": ",".join(missing)}
+            )
         for fixture in manifest.get("fixtures", []):
             if not isinstance(fixture, dict):
                 issues.append({"code": "layer3_gy_fixture_not_object"})
@@ -177,9 +179,7 @@ def validate(
                 issues.append({"code": "layer3_gy_proofs_missing_two_slice0_paths"})
             for index, proof in enumerate(proof_items):
                 if not isinstance(proof, dict):
-                    issues.append(
-                        {"code": "layer3_gy_proof_not_object", "index": str(index)}
-                    )
+                    issues.append({"code": "layer3_gy_proof_not_object", "index": str(index)})
                     continue
                 _validate_production_loop_proof(index, proof, issues)
     graded_report = {} if write else _read_json(repo_root / GRADED_OUTCOME_PATH, issues)
@@ -199,9 +199,7 @@ def validate(
         pre_decision = thresholds.get("pre_decision") if isinstance(thresholds, dict) else None
         for field in ("precision_at_5", "recall_at_known_seeds"):
             if not isinstance(pre_decision, dict) or field not in pre_decision:
-                issues.append(
-                    {"code": "layer3_gy_benchmark_threshold_missing", "field": field}
-                )
+                issues.append({"code": "layer3_gy_benchmark_threshold_missing", "field": field})
         labels = benchmark.get("labels")
         if not isinstance(labels, list) or not labels:
             issues.append({"code": "layer3_gy_benchmark_labels_missing"})
@@ -286,13 +284,10 @@ def validate(
     if corrupt_field_drift_check:
         corrupt_issues: list[dict[str, str]] = []
         corrupted = json.loads(json.dumps(live_outcome_run))
-        corrupted["search_exit_contract"]["terminal_state"]["reason"] = (
-            "corrupt-field-drift-check"
-        )
+        corrupted["search_exit_contract"]["terminal_state"]["reason"] = "corrupt-field-drift-check"
         validate_outcome_run(corrupted, live_outcome_replay, corrupt_issues)
         if any(
-            issue.get("code") == "layer3_gy_outcome_replay_output_drift"
-            for issue in corrupt_issues
+            issue.get("code") == "layer3_gy_outcome_replay_output_drift" for issue in corrupt_issues
         ):
             issues.append({"code": "layer3_gy_graded_outcome_corrupt_field_drift_detected"})
         else:
@@ -319,9 +314,7 @@ def validate(
     from tools.quality.validation import check_layer3_gy_generated_public_lifecycle_audit
 
     lifecycle_report = (
-        check_layer3_gy_generated_public_lifecycle_audit.validate_gy_lifecycle_registry(
-            repo_root
-        )
+        check_layer3_gy_generated_public_lifecycle_audit.validate_gy_lifecycle_registry(repo_root)
     )
     issues.extend(lifecycle_report["issues"])
 
@@ -3974,9 +3967,7 @@ def _validate_graded_outcome_report(
         return
     for index, outcome in enumerate(outcomes):
         if not isinstance(outcome, dict):
-            issues.append(
-                {"code": "layer3_gy_graded_outcome_not_object", "index": str(index)}
-            )
+            issues.append({"code": "layer3_gy_graded_outcome_not_object", "index": str(index)})
             continue
         if outcome.get("terminal_state") != "grounded_partial_admissible":
             issues.append(
@@ -4057,9 +4048,7 @@ def _validate_graded_outcome_report(
                 {"code": "layer3_gy_honest_non_value_terminal_invalid", "index": str(index)}
             )
         if outcome.get("useful_design_credit") is not False:
-            issues.append(
-                {"code": "layer3_gy_honest_non_value_forced_useful", "index": str(index)}
-            )
+            issues.append({"code": "layer3_gy_honest_non_value_forced_useful", "index": str(index)})
         if outcome.get("incompleteness_recorded") is not True:
             issues.append(
                 {"code": "layer3_gy_honest_non_value_incompleteness_missing", "index": str(index)}
@@ -4113,6 +4102,38 @@ def validate_outcome_run(
     """Require the terminal/replay contract and actual fresh complete GX admission."""
     _validate_outcome_terminal_and_replay(outcome, replay_artifact, issues)
     _validate_current_gx_admission(outcome, replay_artifact, issues)
+
+
+def _has_finalized_control_store_observation(proof: Mapping[str, Any]) -> bool:
+    """Check the worker proof's observed store read without treating it as HTTP evidence."""
+
+    checks = proof.get("surface_reads_checked")
+    if not isinstance(checks, list) or any(not isinstance(item, str) for item in checks):
+        return False
+    required_checks = {
+        "control_store_current_execution_completed_job_record",
+        "served_control_job_status_not_established",
+    }
+    if not required_checks.issubset(checks) or "runs_readback" in checks:
+        return False
+    readbacks = proof.get("surface_readbacks")
+    if not isinstance(readbacks, list) or len(readbacks) != 1:
+        return False
+    readback = readbacks[0]
+    if not isinstance(readback, Mapping):
+        return False
+    expected_ref = proof.get("output_search_exit_contract_ref")
+    return (
+        readback.get("surface") == "control_plane_store"
+        and readback.get("read_method")
+        == "ControlPlaneStore.current_execution_completed_job_record"
+        and readback.get("requested_endpoint") == proof.get("endpoint")
+        and readback.get("job_id") == proof.get("job_id")
+        and readback.get("run_id") == proof.get("run_id")
+        and readback.get("observed_job_state") == "completed"
+        and readback.get("observed_search_exit_contract_ref") == expected_ref
+        and readback.get("matched_search_exit_contract_ref") is True
+    )
 
 
 def _validate_outcome_terminal_and_replay(
@@ -4169,7 +4190,7 @@ def _validate_outcome_terminal_and_replay(
         readback.get("method") != "GET"
         or readback.get("status_code") != 200
         or readback.get("observed_state") != "completed"
-        or proof.job_id not in str(readback.get("surface") or "")
+        or readback.get("surface") != f"/api/v1/control/jobs/{proof.job_id}"
     ):
         issues.append({"code": "layer3_gy_outcome_http_readback_receipt_invalid"})
 
@@ -4268,8 +4289,8 @@ def _validate_outcome_terminal_and_replay(
         issues.append({"code": "layer3_gy_outcome_replay_ref_drift"})
     if proof.control_store_state_transitions != ["pending", "running", "completed"]:
         issues.append({"code": "layer3_gy_outcome_store_transitions_invalid"})
-    if "runs_readback" not in proof.surface_reads_checked or not proof.surface_readbacks:
-        issues.append({"code": "layer3_gy_outcome_runs_readback_missing"})
+    if not _has_finalized_control_store_observation(proof.model_dump(mode="json", by_alias=True)):
+        issues.append({"code": "layer3_gy_outcome_control_store_observation_invalid"})
 
 
 def _run_durable_workspace_loop_proof(
@@ -4308,6 +4329,7 @@ def _run_durable_workspace_loop_observation(
         OutcomeReplayProof,
         ProductionLoopRunProof,
     )
+    from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 
     try:
         from fastapi.testclient import TestClient
@@ -4316,19 +4338,12 @@ def _run_durable_workspace_loop_observation(
 
     request = CanonicalLoopRequest(fixture_id=fixture_id, catalog_mode=catalog_mode)
     fixed_now = datetime(2026, 6, 15, 12, 0, 0, tzinfo=UTC)
-    uuid_iter = _deterministic_uuid_sequence(
-        f"gy-loop-proof:{catalog_mode}:{fixture_id}"
-    )
+    uuid_iter = _deterministic_uuid_sequence(f"gy-loop-proof:{catalog_mode}:{fixture_id}")
     if catalog_mode == "production":
-        catalog_root = (
-            repo_root
-            / "production_data/datasets_full_phase3full_20260327_183054"
-        )
+        catalog_root = repo_root / "production_data/datasets_full_phase3full_20260327_183054"
         catalog_path = catalog_root / "dataset_catalog.duckdb"
         if not catalog_path.is_file():
-            raise RuntimeError(
-                "GY-L production catalog prerequisite missing: " + str(catalog_path)
-            )
+            raise RuntimeError("GY-L production catalog prerequisite missing: " + str(catalog_path))
         from polisyos.data_forge.domains.catalog.knowledge.search import DatasetCatalogGraph
 
         catalog_graph = DatasetCatalogGraph(catalog_path, catalog_root)
@@ -4402,9 +4417,7 @@ def _run_durable_workspace_loop_observation(
             catalog_graph = build_slice0_fixture_catalog_graph(root / "catalog")
         catalog_before = catalog_graph._store._fetch_source_identities()
         http_request = request.http_body(str(root_ref.artifact_id))
-        providers = resolve_control_registry_providers(
-            gy_catalog_graph=catalog_graph
-        )
+        providers = resolve_control_registry_providers(gy_catalog_graph=catalog_graph)
         with ExitStack() as stack:
             production_witness = None
             if catalog_mode == "production":
@@ -4440,11 +4453,19 @@ def _run_durable_workspace_loop_observation(
                     return_value=fixed_now,
                 )
             )
+            decision_validity_service = ControlPlaneService.build_decision_validity_owner(store)
+            promotion_runtime = PromotionRuntime(
+                store=store,
+                completed_epoch_batches=decision_validity_service,
+                signature_verifier=runtime_context.signature_verifier,
+            )
             service = ControlPlaneService(
                 cas_root=cas_root,
                 core_runs_root=cas_root / "runs",
                 artifact_store=store,
                 registry_providers=providers,
+                decision_validity_service=decision_validity_service,
+                promotion_runtime=promotion_runtime,
                 policy_resolver=RuntimeExecutionPolicyResolver(
                     default_profile="dev",
                     worker_backend="external",
@@ -4483,9 +4504,7 @@ def _run_durable_workspace_loop_observation(
             service._worker = ControlWorker(
                 store=service._control_store,
                 handler=service._process_control_job,
-                worker_id=(
-                    f"control-worker-gy-loop-proof-{catalog_mode}-{_slug(fixture_id)}"
-                ),
+                worker_id=(f"control-worker-gy-loop-proof-{catalog_mode}-{_slug(fixture_id)}"),
             )
             app = create_runtime_api_app(
                 cas_root=cas_root,
@@ -4494,7 +4513,7 @@ def _run_durable_workspace_loop_observation(
                 allow_fixture_identity=True,
                 container_overrides=RuntimeContainerOverrides(
                     runtime_api_context=runtime_context,
-                    decision_validity_service=service._decision_validity_service,
+                    decision_validity_service=decision_validity_service,
                     control_service=service,
                 ),
             )
@@ -4517,9 +4536,7 @@ def _run_durable_workspace_loop_observation(
                     readback_response = client.get(
                         f"/api/v1/control/jobs/{launch['job_id']}",
                         headers={
-                            "X-Request-ID": (
-                                f"gy-loop-readback-{catalog_mode}-{_slug(fixture_id)}"
-                            )
+                            "X-Request-ID": (f"gy-loop-readback-{catalog_mode}-{_slug(fixture_id)}")
                         },
                     )
                     response_payload = readback_response.json()
@@ -4636,7 +4653,9 @@ def _read_json(path: Path, issues: list[dict[str, str]]) -> dict[str, Any]:
         issues.append({"code": "layer3_gy_artifact_missing", "path": str(path)})
         return {}
     except json.JSONDecodeError as exc:
-        issues.append({"code": "layer3_gy_artifact_invalid_json", "path": str(path), "error": str(exc)})
+        issues.append(
+            {"code": "layer3_gy_artifact_invalid_json", "path": str(path), "error": str(exc)}
+        )
         return {}
     if not isinstance(payload, dict):
         issues.append({"code": "layer3_gy_artifact_not_object", "path": str(path)})
@@ -4687,70 +4706,66 @@ def _validate_production_loop_proof(
         )
     if proof.get("control_store_state_transitions") != ["pending", "running", "completed"]:
         issues.append({"code": "layer3_gy_proof_state_sequence_invalid", "index": str(index)})
-    if "runs_readback" not in set(proof.get("surface_reads_checked") or []):
-        issues.append({"code": "layer3_gy_proof_runs_readback_missing", "index": str(index)})
+    raw_read_checks = proof.get("surface_reads_checked")
+    read_checks = (
+        set(raw_read_checks)
+        if isinstance(raw_read_checks, list)
+        and all(isinstance(item, str) for item in raw_read_checks)
+        else set()
+    )
+    if not _has_finalized_control_store_observation(proof):
+        issues.append(
+            {"code": "layer3_gy_proof_control_store_observation_invalid", "index": str(index)}
+        )
+    if "runs_readback" in read_checks:
+        issues.append(
+            {"code": "layer3_gy_proof_http_readback_claim_not_established", "index": str(index)}
+        )
     readbacks = proof.get("surface_readbacks")
     if not isinstance(readbacks, list) or not readbacks:
         issues.append(
-            {"code": "layer3_gy_proof_runs_readback_observation_missing", "index": str(index)}
+            {"code": "layer3_gy_proof_control_store_observation_missing", "index": str(index)}
         )
-    else:
-        observed_results = set()
-        for readback_index, readback in enumerate(readbacks):
-            if not isinstance(readback, dict):
+        readbacks = []
+    observed_results = set()
+    for readback_index, readback in enumerate(readbacks):
+        if not isinstance(readback, dict):
+            issues.append(
+                {
+                    "code": "layer3_gy_proof_readback_not_object",
+                    "index": str(index),
+                    "readback_index": str(readback_index),
+                }
+            )
+            continue
+        observed_results.add(str(readback.get("observed_authority_result") or ""))
+        expected_readback_values = {
+            "surface": "control_plane_store",
+            "read_method": "ControlPlaneStore.current_execution_completed_job_record",
+            "requested_endpoint": "/api/v1/control/runs",
+            "job_id": proof.get("job_id"),
+            "run_id": proof.get("run_id"),
+            "observed_job_state": "completed",
+            "observed_search_exit_contract_ref": proof.get("output_search_exit_contract_ref"),
+            "matched_search_exit_contract_ref": True,
+        }
+        for field, expected in expected_readback_values.items():
+            if readback.get(field) != expected:
                 issues.append(
                     {
-                        "code": "layer3_gy_proof_readback_not_object",
-                        "index": str(index),
-                        "readback_index": str(readback_index),
-                    }
-                )
-                continue
-            observed_results.add(str(readback.get("observed_authority_result") or ""))
-            if readback.get("surface") != "/api/v1/control/runs":
-                issues.append(
-                    {
-                        "code": "layer3_gy_proof_readback_surface_invalid",
-                        "index": str(index),
-                        "readback_index": str(readback_index),
-                    }
-                )
-            if readback.get("observed_job_state") != "completed":
-                issues.append(
-                    {
-                        "code": "layer3_gy_proof_readback_not_completed",
-                        "index": str(index),
-                        "readback_index": str(readback_index),
-                    }
-                )
-            if readback.get("observed_search_exit_contract_ref") != proof.get(
-                "output_search_exit_contract_ref"
-            ):
-                issues.append(
-                    {
-                        "code": "layer3_gy_proof_readback_contract_ref_mismatch",
-                        "index": str(index),
-                        "readback_index": str(readback_index),
-                    }
-                )
-            if readback.get("matched_search_exit_contract_ref") is not True:
-                issues.append(
-                    {
-                        "code": "layer3_gy_proof_readback_match_not_true",
+                        "code": f"layer3_gy_proof_readback_{field}_invalid",
                         "index": str(index),
                         "readback_index": str(readback_index),
                     }
                 )
         if "verifier_stamped" in observed_results and (
-            "authority_derivation_trace_refs"
-            not in set(proof.get("artifacts_index_refs") or [])
+            "authority_derivation_trace_refs" not in set(proof.get("artifacts_index_refs") or [])
         ):
             issues.append(
                 {"code": "layer3_gy_proof_authority_trace_ref_missing", "index": str(index)}
             )
         if "acquisition_required" in observed_results and (
-            "authority_derivation_trace_refs"
-            in set(proof.get("artifacts_index_refs") or [])
+            "authority_derivation_trace_refs" in set(proof.get("artifacts_index_refs") or [])
         ):
             issues.append(
                 {
@@ -4800,7 +4815,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--repo-root", default=".")
     parser.add_argument("--output-format", choices=("json", "text"), default="text")
     parser.add_argument("--check", action="store_true", help="Validate committed artifacts.")
-    parser.add_argument("--write", action="store_true", help="Regenerate committed proof artifacts.")
+    parser.add_argument(
+        "--write", action="store_true", help="Regenerate committed proof artifacts."
+    )
     parser.add_argument(
         "--corrupt-field-drift-check",
         action="store_true",

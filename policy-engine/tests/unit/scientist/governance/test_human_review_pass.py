@@ -1,9 +1,16 @@
 from __future__ import annotations
 
+from polisyos.core.artifacts import ensure_ir_artifact_store
 from polisyos.core.contracts.lex import IssueSeverity
 from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.profiles import ValidationProfile
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeSource, GraphType
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    EdgeSource,
+    GraphType,
+    persist_causal_graph_model,
+)
 from polisyos.scientist.governance.passes.human_review_pass import HumanReviewRequiredPass
 
 
@@ -41,6 +48,19 @@ def test_human_review_required_pass_emits_info_and_payload_in_strict() -> None:
     assert isinstance(payload, dict)
     assert isinstance(payload.get("items"), list)
     assert len(payload["items"]) == 1
+
+
+def test_human_review_pass_consumes_persisted_graph(pass_context_factory, strict_profile) -> None:
+    ctx = pass_context_factory(profile=strict_profile)
+    graph_ref = persist_causal_graph_model(
+        ensure_ir_artifact_store(ctx.state["_store"]), _graph_with_review_items()
+    )
+    ctx.state["artifacts_index"] = {"causal_graph_ref": graph_ref}
+
+    issues = HumanReviewRequiredPass().validate(ctx)
+
+    assert [issue.code for issue in issues] == ["HUMAN_REVIEW_REQUESTED"]
+    assert ctx.state["human_review_request"]["items"][0]["edge"] == "tariff->imports"
 
 
 def test_human_review_required_pass_skips_non_strict() -> None:

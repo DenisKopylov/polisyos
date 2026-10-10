@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping, Sequence  # noqa: TC003 - public annotations are introspected.
 from dataclasses import dataclass
 from itertools import product
 from typing import Any
@@ -75,7 +75,7 @@ def evaluate_binary(
     mean_observed = float(np.mean(y_arr)) if n_obs else None
 
     if n_obs == 0:
-        warnings = warning_messages + ("No observations supplied for calibration diagnostics.",)
+        warnings = (*warning_messages, "No observations supplied for calibration diagnostics.")
         return CalibrationDiagnosticsReport(
             task="binary",
             target_type="probability",
@@ -291,7 +291,9 @@ def _build_quantile_curve(
     ordered_true = y_true[order]
     bins: list[CalibrationCurveBin] = []
     for prob_chunk, true_chunk in zip(
-        np.array_split(ordered_prob, n_bins), np.array_split(ordered_true, n_bins)
+        np.array_split(ordered_prob, n_bins),
+        np.array_split(ordered_true, n_bins),
+        strict=True,
     ):
         if prob_chunk.size == 0:
             bins.append(CalibrationCurveBin(lower=0.0, upper=0.0, count=0))
@@ -532,7 +534,7 @@ def _hosmer_lemeshow_test(
     assumptions_ok = True
 
     usable_groups = 0
-    for probabilities, outcomes in zip(grouped_prob, grouped_true):
+    for probabilities, outcomes in zip(grouped_prob, grouped_true, strict=True):
         if probabilities.size == 0:
             continue
         observed = float(np.sum(outcomes))
@@ -597,7 +599,9 @@ def _sample_size_issues(
         issues.append(
             CalibrationDiagnosticIssue(
                 code="CALIB_SPARSE_BINS_RISK",
-                message="Sample size is small relative to the requested number of calibration bins.",
+                message=(
+                    "Sample size is small relative to the requested number of calibration bins."
+                ),
                 severity=ValidationSeverity.WARNING,
                 path="calibration.curves",
                 expected={f"n_obs >= {max_bins * 20}": True},
@@ -624,7 +628,10 @@ def _degeneracy_issues(y_prob: np.ndarray) -> list[CalibrationDiagnosticIssue]:
     return [
         CalibrationDiagnosticIssue(
             code="CALIB_DEGENERATE_PREDICTIONS",
-            message="All predicted probabilities are identical, so calibration curves are weakly informative.",
+            message=(
+                "All predicted probabilities are identical, so calibration curves are "
+                "weakly informative."
+            ),
             severity=ValidationSeverity.WARNING,
             path="calibration.inputs.y_prob",
             expected="non-constant probability scores",

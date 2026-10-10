@@ -1,0 +1,22 @@
+id = "2026-10-09-e02-causal-transport-module-decomposition"
+title = "Decompose the transportability node implementation"
+type = "changed"
+component = "scientist"
+owner = "team-scientist"
+summary = "Keep the registered transportability node and resolution loop in their canonical module while grouping source-context, registry, configuration, and query helpers separately from result and lineage projections."
+evidence = [
+  "src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py",
+  "src/polisyos/scientist/nodes/builtins/causal/transport_resolution_inputs.py",
+  "src/polisyos/scientist/nodes/builtins/causal/transport_resolution_results.py",
+  "tests/unit/scientist/nodes/builtins/causal/test_resolve_transport.py",
+]
+compatibility = "Public node classes, module FQNs, package-lazy node identity, method signatures, ResolutionState fields, persisted schemas, and module-level producer/test seams remain unchanged."
+change_class = "internal"
+surface_classification = "internal: behavior-preserving Scientist source decomposition; no public API or persisted artifact schema change."
+migration = "No migration is required."
+api = "The canonical resolve_transport module retains the public classes and query-construction adapter. Adjacent helpers group input/context/registry resolution and transport result/lineage construction."
+limitations = "This source decomposition preserves the existing transport behavior; it does not add empirical evidence, establish currentness, or strengthen the scientific adequacy of a resolved result."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

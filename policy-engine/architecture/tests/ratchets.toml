@@ -81,22 +81,19 @@ marker_policy = "Markers are registered in pytest.ini and auto-applied by tests/
 duplicate_config_cleanup = "No additional pytest.ini, tox.ini pytest section, setup.cfg pytest section, or pyproject [tool.pytest.ini_options] may be introduced without an explicit pytest_universe_exception."
 third_universe_policy = "No pytest root outside tests/ may define independent collection/configuration without an explicit pytest_universe_exception."
 forbidden_config_roots = [
+  "pyproject.toml:[tool.pytest]",
   "pyproject.toml:[tool.pytest.ini_options]",
   "setup.cfg:[tool:pytest]",
   "tox.ini:[pytest]",
   "benchmarks/pytest.ini",
+  "benchmarks/.pytest.ini",
+  "benchmarks/pytest.toml",
+  "benchmarks/.pytest.toml",
+  "benchmarks/pyproject.toml:[tool.pytest]",
+  "benchmarks/pyproject.toml:[tool.pytest.ini_options]",
+  "benchmarks/tox.ini:[pytest]",
+  "benchmarks/setup.cfg:[tool:pytest]",
 ]
-
-[[pytest_universe_exception]]
-id = "benchmarks-conftest-transition"
-path = "benchmarks/conftest.py"
-kind = "conftest"
-mode = "explicit_exception"
-owner = "team-quality"
-expires_phase = "Wave 2 benchmark runner relocation"
-expires = "2026-09-01"
-issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion"
-reason = "Legacy benchmark scripts still import shared benchmark helpers through a pytest-compatible conftest. It may not grow an independent pytest config, and runner helpers move under src/polisyos/benchmarks in the benchmark relocation wave."
 
 [fixture_policy]
 shared_fixture_root = "tests/_data"
@@ -420,21 +417,11 @@ phase_5_3_floor_source = "observed after tests/unit/fabric/_internal/test_numeri
 phase_5_1_target_ratio = 0.5000
 phase_5_1_measured_loose_mirror_ratio = 0.4980
 phase_5_1_floor_source = "observed after tests/unit/fabric/mirror_contracts"
-mirror_regression_exception = true
-mirror_regression_exception_owner = "team-fabric"
-mirror_regression_exception_expires = "2026-06-15"
-mirror_regression_exception_reason = "Phase 6 split-module denominator growth temporarily puts Fabric just below the previously pinned loose mirror floor; keep fail-closed tracking explicit while mirror_contracts catch up."
-mirror_regression_exception_issue = "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#wave-6---repository-polish-gate-organization-and-stub-cleanup"
 integration_decision = "not_required"
 integration_reason = "Connector/reference integration cases are marked from package-local unit subtrees until external service lanes are split and mapped in coverage_normalization."
 property_decision = "required"
 property_path = "tests/property/fabric"
 property_test_file_count_floor = 1
-strict_mirror_regression_exception = true
-strict_mirror_regression_exception_owner = "team-fabric"
-strict_mirror_regression_exception_expires = "2026-06-15"
-strict_mirror_regression_exception_reason = "Wave 7 observes a strict mirror-ratio denominator increase from Fabric package reshaping after the latest generated inventory refresh; loose mirror and property ratchets stay non-regressing while team-fabric closes first-level mirror files."
-strict_mirror_regression_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-71---final-verification-and-closeout-artifact"
 
 [[package_ratchet]]
 name = "foundry"
@@ -457,16 +444,6 @@ integration_decision = "not_required"
 integration_reason = "Foundry does not keep tests/unit/foundry/integration; runtime and benchmark-style coverage lives in local subpackage hubs."
 property_decision = "required"
 property_path = "tests/property/foundry"
-mirror_regression_exception = true
-mirror_regression_exception_owner = "team-foundry"
-mirror_regression_exception_expires = "2026-06-15"
-mirror_regression_exception_reason = "Wave 7 observes loose mirror-ratio drift from Foundry source denominator reshaping while property coverage remains stable; team-foundry owns first-level mirror normalization before the sunset."
-mirror_regression_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-71---final-verification-and-closeout-artifact"
-strict_mirror_regression_exception = true
-strict_mirror_regression_exception_owner = "team-quality"
-strict_mirror_regression_exception_expires = "2026-06-15"
-strict_mirror_regression_exception_reason = "Phase 5.3 observes strict-path denominator expansion while Foundry family shims and extension-registry moves settle; loose mirror and property ratchets stay non-regressing."
-strict_mirror_regression_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion"
 
 [[package_ratchet]]
 name = "ir"
@@ -481,11 +458,6 @@ strict_mirror_ratio_baseline = 0.1272
 loose_mirror_ratio_baseline = 0.6012
 first_target_ratio = 0.7000
 no_regression = true
-mirror_regression_exception = true
-mirror_regression_exception_owner = "team-quality"
-mirror_regression_exception_expires = "2026-06-15"
-mirror_regression_exception_reason = "Phase 5.3 observes a denominator increase from package moves before the IR mirror characterization catches up; keep this explicit while loose mirror and property ratchets stay non-regressing."
-mirror_regression_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion"
 ratchet_floor = 0.6012
 phase_5_1_target_ratio = 0.6000
 phase_5_1_measured_loose_mirror_ratio = 0.6012
@@ -522,11 +494,6 @@ integration_reason = "Lex domain batch coverage is localized through tests/unit/
 property_decision = "required"
 property_path = "tests/property/lex"
 property_test_file_count_floor = 1
-strict_mirror_regression_exception = true
-strict_mirror_regression_exception_owner = "team-lex"
-strict_mirror_regression_exception_expires = "2026-06-15"
-strict_mirror_regression_exception_reason = "Wave 7 observes strict mirror-ratio drift from Lex/Data Forge legal-batch topology while loose mirror and property ratchets remain covered; team-lex owns the short sunset to add or normalize first-level mirror tests."
-strict_mirror_regression_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-71---final-verification-and-closeout-artifact"
 
 [[package_ratchet]]
 name = "runtime"
@@ -604,8 +571,3 @@ integration_decision = "required"
 integration_path = "tests/integration/scientist"
 property_decision = "required"
 property_path = "tests/property/scientist"
-strict_mirror_regression_exception = true
-strict_mirror_regression_exception_owner = "team-scientist"
-strict_mirror_regression_exception_expires = "2026-06-15"
-strict_mirror_regression_exception_reason = "Phase 5.2 leaves first-level shim files in place while Scientist taxonomy contracts and test mirrors converge; loose mirror and property ratchets stay non-regressing."
-strict_mirror_regression_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion"

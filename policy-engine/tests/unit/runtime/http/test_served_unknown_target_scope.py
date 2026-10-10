@@ -145,7 +145,9 @@ async def test_served_unknown_scope_job_keeps_candidate_n4_without_default_ua_wo
         )
         job = service._control_store.get_job(launch.job_id)
         assert job is not None and job.payload_ref is not None
-        payload = service._load_payload_ref(job.payload_ref)
+        payload = service._load_payload_ref(
+            job.payload_ref, kind="runtime.control_job_payload.natural_language_run"
+        )
         assert payload.get("target_world_scope_profile_id") == profile_id
         assert (
             service._artifact_store.get_manifest(job.payload_ref).artifact_schema.version

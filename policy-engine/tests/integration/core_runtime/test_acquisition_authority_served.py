@@ -568,12 +568,12 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
     )
     from polisyos.runtime.quality.generation_cycle import AcquisitionOverlayReentryReceipt
     from tests._helpers import acquisition_chain
+    from tests._helpers import controlled_candidate_profile as cycle_fixtures
     from tests._helpers.acquisition_human_decision import persist_signed, prepare_human_decision
     from tests._helpers.acquisition_production import (
         install_fixture_wdi_cost_basis,
         intercepted_wdi_transport,
     )
-    from tests.unit.runtime.quality import test_generation_cycle as cycle_fixtures
 
     served_n4_recording = acquisition_chain.load_served_wdi_generation_recording()
     served_n4_model_id = str(served_n4_recording["model_id"])

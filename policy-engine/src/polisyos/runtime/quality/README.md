@@ -322,6 +322,21 @@ Workspace ownership:
   is the demonstrated authority path for Phase-2 proofs: intent selection,
   playbook projection, legacy adapter execution, spine gates, Foundry
   consumption, candidate events, and the resulting `SearchExitContract`.
+- `WorkspaceLoop.run_production_case` can be launched through the declared
+  `WorkflowRunRequest.production_case_intake_ref` slot. An `ArtifactRef` keeps
+  its selected manifest profile through request persistence, source admission,
+  and the admission/workspace CAS input edges; the consumer reopens that same
+  view before recomputing the refusal. The legacy string arm is explicitly
+  profileless and uses the default selected view. A params-only ID is not an
+  input declaration. The worker proof records its completed
+  `ControlPlaneStore.current_execution_completed_job_record` observation only
+  and marks served job-status as `not_established`; a later authenticated GET
+  and fresh CAS admission recomputation are separate consumer checks and do not
+  retroactively bind a route receipt into that proof. The product runtime has
+  no `gy.loop.proof.root` intake writer (`producer_missing` for this route); the
+  typed root must be supplied by an upstream producer, while tests and the
+  quality validator create fixtures. The source-owner gap remains `a_spec_gap`,
+  with candidate work only and no positive source-support or publication claim.
 - `workspace/workflow_playbook_projection.py` is a projection layer over canonical Scientist
   `WorkflowSpec` definitions and `NodeRegistry`/`NodeSpec` metadata. It must not
   become a hand-maintained workflow table.

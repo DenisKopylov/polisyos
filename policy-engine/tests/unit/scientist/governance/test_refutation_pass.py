@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+
+from polisyos.core.artifacts import ensure_ir_artifact_store
 from polisyos.core.governance.passes.base import IssueSeverity, PassContext
 from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.ir.analytics.causal import (
@@ -9,6 +11,7 @@ from polisyos.ir.analytics.causal import (
     EstimationStatus,
     RefutationResult,
     RefutationTestType,
+    persist_causal_effect_report,
 )
 from polisyos.scientist.governance.passes.refutation_pass import RefutationPass
 
@@ -151,3 +154,18 @@ def test_refutation_pass_invalid_report_payload_emits_blocker_for_strict() -> No
     assert len(issues) == 1
     assert issues[0].code == "REFUTATION_CAUSAL_REPORT_INVALID"
     assert issues[0].severity == IssueSeverity.BLOCKER
+
+
+def test_refutation_pass_consumes_persisted_report(pass_context_factory, strict_profile) -> None:
+    report = _base_report(CausalMethod.DOWHY_BACKDOOR).model_copy(
+        update={"refutation_results": _failed_refutations()}
+    )
+    ctx = pass_context_factory(profile=strict_profile)
+    report_ref = persist_causal_effect_report(ensure_ir_artifact_store(ctx.state["_store"]), report)
+    ctx.state["artifacts_index"] = {"causal_report_ref": report_ref}
+
+    issues = RefutationPass().validate(ctx)
+
+    assert any(issue.code == "REFUTATION_FAILED" for issue in issues)
+    assert not any(issue.code == "REFUTATION_CAUSAL_REPORT_INVALID" for issue in issues)
+    assert all(issue.severity == IssueSeverity.BLOCKER for issue in issues)

@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+import inspect
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
+import polisyos.scientist.nodes.builtins.causal as causal_nodes
+from polisyos.ir.analytics.causal import CausalEffectReport, CausalMethod
 from polisyos.scientist.nodes.builtins.causal.resolve_transport import (
+    ResolutionState,
     RunTransportabilityNode,
+    TransportabilityResolutionLoop,
     _build_skg_query,
     _resolve_context_profile,
 )
@@ -19,6 +24,61 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 from polisyos.scientist.orchestration.engine.state_branching import (
     branch_state as real_branch_state,
 )
+
+
+def _causal_report() -> CausalEffectReport:
+    return CausalEffectReport(
+        method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
+        estimand="ATE",
+        point_estimate=0.2,
+        confidence_interval=(0.1, 0.3),
+        inference_method="fixture",
+        sample_size=20,
+        n_treated=10,
+        n_control=10,
+        pre_periods=1,
+        post_periods=1,
+        method_params={"treatment_name": "policy", "outcome_name": "income"},
+    )
+
+
+def test_transport_public_api_keeps_its_canonical_module_identity():
+    expected_module = "polisyos.scientist.nodes.builtins.causal.resolve_transport"
+    assert ResolutionState.__module__ == expected_module
+    assert TransportabilityResolutionLoop.__module__ == expected_module
+    assert RunTransportabilityNode.__module__ == expected_module
+    assert causal_nodes.RunTransportabilityNode is RunTransportabilityNode
+    assert tuple(ResolutionState.model_fields) == (
+        "round",
+        "s_nodes",
+        "legal_s_nodes",
+        "data_gaps",
+        "hard_constraints",
+        "p_star_values",
+        "proxy_penalties",
+        "proxy_validity",
+        "requires_expert_review",
+        "expert_review_reasons",
+        "converged",
+        "feasible",
+    )
+    assert tuple(inspect.signature(TransportabilityResolutionLoop.resolve).parameters) == (
+        "self",
+        "source_context",
+        "target_context",
+        "causal_graph",
+        "query_treatment",
+        "query_outcome",
+        "policy_spec",
+        "pag_identification_policy",
+        "pag_max_dag_samples",
+        "pag_threshold",
+        "pag_seed",
+        "solver_mode",
+        "allow_degraded_transport",
+        "capability_contract",
+        "privacy_context",
+    )
 
 
 def test_skip_when_no_causal_report(execution_context, minimal_state):
@@ -138,7 +198,7 @@ def test_run_transportability_uses_branch_state_for_skip_warning(
         ),
         patch(
             "polisyos.scientist.nodes.builtins.causal.resolve_transport.load_causal_effect_report",
-            return_value=MagicMock(),
+            return_value=_causal_report(),
         ),
     ):
         outcome = RunTransportabilityNode().execute(execution_context, state)

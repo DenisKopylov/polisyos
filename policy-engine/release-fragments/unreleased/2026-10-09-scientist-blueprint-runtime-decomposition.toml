@@ -1,0 +1,13 @@
+id = "2026-10-09-scientist-blueprint-runtime-decomposition"
+title = "Split policy blueprint runtime orchestration into focused helpers"
+type = "fixed"
+component = "scientist"
+owner = "team-polisyos"
+summary = "The canonical RunPolicyBlueprintRuntimeNode retains its module identity and runtime dependency seams while its selection, benchmark admission, funnel, and reporting steps move into focused helpers. Funnel projection validates finite values before attaching them to state."
+compatibility = "Node class and _SPEC remain at the canonical owner path. Execution preserves policy-mode skip behavior, selection-to-L0-L6 order, valid artifact writes, CAS producers, promotion rechecks, and event projection. A non-finite serialized funnel result now returns the existing node.invalid_state refusal before changing state or replacing prior CAS references; internal ranking may still use its existing positive-infinity sentinel. Extracted helpers are internal implementation details."
+change_class = "internal"
+surface_classification = "internal: scientist policy blueprint runtime orchestration"
+evidence = ["tests/unit/scientist/nodes/builtins/decide/test_run_policy_blueprint_runtime.py", "tests/unit/scientist/search/test_policy_blueprint_runtime_guards.py", "tests/unit/scientist/search/test_phase_d4_runtime_integration.py", "tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py", "tests/unit/remediation/test_fun_03.py", "tests/unit/scientist/search/test_phase_b_policy_runtime.py"]
+migration_docs = ["src/polisyos/scientist/nodes/README.md"]
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true

@@ -1,5 +1,47 @@
 {
   "$defs": {
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "title": "ArtifactID",
+      "type": "string"
+    },
+    "ArtifactRefModel": {
+      "additionalProperties": false,
+      "description": "Provide the common mapping-compatible base contract for artifact refs.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "kind",
+        "media_type"
+      ],
+      "title": "ArtifactRefModel",
+      "type": "object"
+    },
     "GateContext": {
       "additionalProperties": false,
       "description": "Execution and risk context presented to a governance approver.",
@@ -97,6 +139,21 @@
           "title": "Risk Indicators",
           "type": "array"
         },
+        "selected_replay_refs": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "$ref": "#/$defs/ArtifactRefModel"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Selected Replay Refs"
+        },
         "simulation_results": {
           "anyOf": [
             {
@@ -149,6 +206,33 @@
     }
   },
   "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "schema_version": {
+            "const": "1.2"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "context": {
+            "properties": {
+              "selected_replay_refs": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "selected_replay_refs"
+            ]
+          }
+        }
+      }
+    }
+  ],
   "description": "Approval request payload emitted when execution needs governance review.",
   "properties": {
     "context": {
@@ -181,7 +265,7 @@
       "type": "string"
     },
     "schema_version": {
-      "default": "1.1",
+      "default": "1.2",
       "pattern": "^\\d+\\.\\d+$",
       "title": "Schema Version",
       "type": "string"

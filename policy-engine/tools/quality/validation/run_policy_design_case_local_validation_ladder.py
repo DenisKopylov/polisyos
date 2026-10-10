@@ -12,7 +12,7 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from tools.lib.fs import atomic_write_json
 from tools.lib.imports import ensure_repo_import_roots
@@ -102,6 +102,22 @@ class CommandResult:
     stdout_tail: str = ""
     stderr_tail: str = ""
     error: str = ""
+    reported_statuses: tuple[ReportedStatus, ...] = ()
+
+
+ReportStatusState = Literal["present", "missing", "malformed"]
+
+
+@dataclass(frozen=True)
+class ReportedStatus:
+    """Status read from a child report declared by a ladder command."""
+
+    output_ref: str
+    json_path: str
+    status: str | None
+    status_state: ReportStatusState
+    fresh: bool
+    error: str | None = None
 
 
 CommandExecutor = Callable[[LadderCommand, Path], CommandResult]
@@ -201,8 +217,7 @@ def build_ladder_commands(profile: str = "quick") -> tuple[LadderCommand, ...]:
                 ),
                 timeout_s=900,
                 next_action=(
-                    "Repair semantic false-pass coverage before declaring local "
-                    "validation green."
+                    "Repair semantic false-pass coverage before declaring local validation green."
                 ),
             ),
             _compilation_truthfulness_command(profile="full"),
@@ -217,8 +232,7 @@ def build_ladder_commands(profile: str = "quick") -> tuple[LadderCommand, ...]:
             category="unit",
             owner="team-runtime-quality",
             description=(
-                "Run a bounded runtime quality smoke subset for "
-                "closeout/projection semantics."
+                "Run a bounded runtime quality smoke subset for closeout/projection semantics."
             ),
             argv=(
                 "uv",
@@ -251,9 +265,7 @@ def build_ladder_commands(profile: str = "quick") -> tuple[LadderCommand, ...]:
                 "-q",
             ),
             timeout_s=600,
-            next_action=(
-                "Repair producer smoke failures before broad unit or cloud validation."
-            ),
+            next_action=("Repair producer smoke failures before broad unit or cloud validation."),
         ),
         LadderCommand(
             command_id="repo_quality_smoke",
@@ -270,8 +282,7 @@ def build_ladder_commands(profile: str = "quick") -> tuple[LadderCommand, ...]:
             ),
             timeout_s=600,
             next_action=(
-                "Repair repo-quality smoke failures or classify them as local typed "
-                "blockers."
+                "Repair repo-quality smoke failures or classify them as local typed blockers."
             ),
         ),
         LadderCommand(
@@ -288,9 +299,7 @@ def build_ladder_commands(profile: str = "quick") -> tuple[LadderCommand, ...]:
                 "-q",
             ),
             timeout_s=600,
-            next_action=(
-                "Repair semantic smoke failures before declaring local validation green."
-            ),
+            next_action=("Repair semantic smoke failures before declaring local validation green."),
         ),
         _compilation_truthfulness_command(profile="quick"),
         _domain_coverage_breadth_command(profile="quick"),
@@ -317,8 +326,7 @@ def build_ladder_manifest() -> dict[str, Any]:
             "#w12a-local-validation-ladder-re-execution-over-universal-compilation"
         ),
         "tool_ref": (
-            "repo://tools/quality/validation/"
-            "run_policy_design_case_local_validation_ladder.py"
+            "repo://tools/quality/validation/run_policy_design_case_local_validation_ladder.py"
         ),
         "manifest_path_compatibility": {
             "preserved_path": DEFAULT_MANIFEST_OUTPUT.as_posix(),
@@ -373,8 +381,7 @@ def build_ladder_manifest() -> dict[str, Any]:
         },
         "validation": {
             "test_ref": (
-                "repo://tests/repo_quality/tools/"
-                "test_policy_design_case_local_validation_ladder.py"
+                "repo://tests/repo_quality/tools/test_policy_design_case_local_validation_ladder.py"
             ),
             "command_ref": (
                 "uv run python tools/quality/validation/"
@@ -482,9 +489,7 @@ def build_local_outcome_metrics(
         if outcome in USEFUL_DESIGN_OUTCOMES and not laundering:
             useful_count += 1
             domain_useful[domain] = domain_useful.get(domain, 0) + 1
-        if outcome in {"typed_blocker", "accepted_deficit"} and case.get(
-            "counts_as_useful_design"
-        ):
+        if outcome in {"typed_blocker", "accepted_deficit"} and case.get("counts_as_useful_design"):
             issues.append(
                 {
                     "code": "non_capability_outcome_counted_as_useful_design",
@@ -595,8 +600,7 @@ def build_compilation_truthfulness_metrics(
                 "severity": "fail",
                 "owner": "team-evaluation",
                 "next_action": (
-                    "Regenerate the W11.E report with a valid summary before W12.A "
-                    "can use it."
+                    "Regenerate the W11.E report with a valid summary before W12.A can use it."
                 ),
             }
         )
@@ -862,9 +866,7 @@ def build_critic_diversity_metrics(
             "aggregate_critic_ensemble_diversity_jaccard"
         ),
         "cases_below_diversity_floor": int(summary.get("cases_below_diversity_floor") or 0),
-        "cases_with_monoculture_warning": int(
-            summary.get("cases_with_monoculture_warning") or 0
-        ),
+        "cases_with_monoculture_warning": int(summary.get("cases_with_monoculture_warning") or 0),
         "warnings": list(report_payload.get("warnings") or []),
         "issues": issues,
     }
@@ -941,6 +943,17 @@ def run_local_validation_ladder(
             "stdout_tail": result.stdout_tail,
             "stderr_tail": result.stderr_tail,
             "error": result.error,
+            "reported_statuses": [
+                {
+                    "output_ref": reported.output_ref,
+                    "json_path": reported.json_path,
+                    "status": reported.status,
+                    "status_state": reported.status_state,
+                    "fresh": reported.fresh,
+                    "error": reported.error,
+                }
+                for reported in result.reported_statuses
+            ],
         }
         if result.status != "pass" and not plan_only:
             blocker = _typed_blocker_for_command(command, result, repo_root=repo_root)
@@ -1044,6 +1057,11 @@ def execute_command(command: LadderCommand, repo_root: Path) -> CommandResult:
     """Execute a ladder command and return bounded command evidence."""
 
     started = time.monotonic()
+    previous_outputs = {
+        output_ref: _output_file_snapshot(_resolve(repo_root, Path(output_ref)))
+        for output_ref in command.output_refs
+        if Path(output_ref).suffix.casefold() == ".json"
+    }
     try:
         completed = run_command(
             command.argv,
@@ -1054,13 +1072,40 @@ def execute_command(command: LadderCommand, repo_root: Path) -> CommandResult:
             check=False,
         )
         duration_ms = int((time.monotonic() - started) * 1000)
+        reported_statuses, report_error = _reported_output_statuses(
+            command,
+            repo_root,
+            previous_outputs=previous_outputs,
+        )
+        status = "pass" if completed.returncode == 0 else "fail"
+        error = report_error or ""
+        nonpassing_statuses = [
+            reported
+            for reported in reported_statuses
+            if (
+                reported.status_state != "present"
+                or reported.status != "pass"
+                or not reported.fresh
+            )
+        ]
+        if nonpassing_statuses and not report_error:
+            reported = nonpassing_statuses[0]
+            error = (
+                f"declared output {reported.output_ref} reported "
+                f"{reported.json_path}={reported.status!r} "
+                f"(fresh={reported.fresh}); expected a fresh 'pass'"
+            )
+        if completed.returncode == 0 and (report_error or nonpassing_statuses):
+            status = "fail"
         return CommandResult(
             command_id=command.command_id,
-            status="pass" if completed.returncode == 0 else "fail",
+            status=status,
             exit_code=completed.returncode,
             duration_ms=duration_ms,
             stdout_tail=_tail(completed.stdout),
             stderr_tail=_tail(completed.stderr),
+            error=error,
+            reported_statuses=reported_statuses,
         )
     except subprocess.TimeoutExpired as exc:
         duration_ms = int((time.monotonic() - started) * 1000)
@@ -1082,6 +1127,90 @@ def execute_command(command: LadderCommand, repo_root: Path) -> CommandResult:
             duration_ms=duration_ms,
             error=str(exc),
         )
+
+
+def _reported_output_statuses(
+    command: LadderCommand,
+    repo_root: Path,
+    *,
+    previous_outputs: Mapping[str, tuple[int, int, int, int, int] | None],
+) -> tuple[tuple[ReportedStatus, ...], str | None]:
+    """Read the canonical nested status from each declared JSON child report."""
+
+    statuses: list[ReportedStatus] = []
+    errors: list[str] = []
+    for output_ref in command.output_refs:
+        if Path(output_ref).suffix.casefold() != ".json":
+            continue
+        output_path = _resolve(repo_root, Path(output_ref))
+        json_path = "/summary/status"
+        status: str | None = None
+        status_state: ReportStatusState = "missing"
+        observation_errors: list[str] = []
+        try:
+            payload = json.loads(output_path.read_text(encoding="utf-8"))
+        except FileNotFoundError as exc:
+            observation_errors.append(f"declared output {output_ref} is missing: {exc}")
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            status_state = "malformed"
+            observation_errors.append(f"could not read declared output {output_ref}: {exc}")
+        else:
+            if not isinstance(payload, Mapping):
+                status_state = "malformed"
+                observation_errors.append(f"declared output {output_ref} is not a JSON object")
+            elif "summary" not in payload:
+                observation_errors.append(f"declared output {output_ref} has no {json_path}")
+            elif not isinstance(payload.get("summary"), Mapping):
+                status_state = "malformed"
+                observation_errors.append(
+                    f"declared output {output_ref} /summary is not a JSON object"
+                )
+            elif "status" not in payload.get("summary", {}):
+                observation_errors.append(f"declared output {output_ref} has no {json_path}")
+            elif not isinstance(payload["summary"].get("status"), str):
+                status_state = "malformed"
+                observation_errors.append(
+                    f"declared output {output_ref} {json_path} must be a string"
+                )
+            else:
+                normalized_status = payload["summary"]["status"].strip().casefold()
+                if not normalized_status:
+                    status_state = "malformed"
+                    observation_errors.append(
+                        f"declared output {output_ref} has an empty {json_path}"
+                    )
+                else:
+                    status = normalized_status
+                    status_state = "present"
+        fresh = previous_outputs.get(output_ref) != _output_file_snapshot(output_path)
+        if not fresh and status_state == "present":
+            observation_errors.append(
+                f"declared output {output_ref} was not refreshed by the child"
+            )
+        observation_error = "; ".join(observation_errors) or None
+        statuses.append(
+            ReportedStatus(
+                output_ref=output_ref,
+                json_path=json_path,
+                status=status,
+                status_state=status_state,
+                fresh=fresh,
+                error=observation_error,
+            )
+        )
+        if observation_error:
+            errors.append(observation_error)
+    return tuple(statuses), "; ".join(errors) if errors else None
+
+
+def _output_file_snapshot(path: Path) -> tuple[int, int, int, int, int] | None:
+    """Return file identity and timestamps for a before/after output check."""
+
+    try:
+        stat = path.stat()
+    except OSError:
+        return None
+    return stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns
 
 
 def write_manifest(repo_root: Path, output: Path = DEFAULT_MANIFEST_OUTPUT) -> dict[str, Any]:
@@ -1187,6 +1316,7 @@ def _local_prod_debug_command() -> LadderCommand:
             ".",
             "--checks",
             "quick,production-data-static,docs-repro",
+            "--require-passing",
             "--output",
             LOCAL_PROD_QUICK_OUTPUT.as_posix(),
         ),
@@ -1378,8 +1508,7 @@ def _typed_blocker_for_command(
     code = (
         "local_validation_environment_blocker"
         if environment_blocker_code
-        else
-        "universal_compilation_smoke_command_failed"
+        else "universal_compilation_smoke_command_failed"
         if command.category == UNIVERSAL_COMPILATION_CATEGORY
         else "local_validation_command_failed"
     )
@@ -1416,9 +1545,7 @@ def _environment_blocker_code(
     repo_root: Path | None = None,
 ) -> str | None:
     combined = "\n".join(
-        part
-        for part in (result.stdout_tail, result.stderr_tail, result.error)
-        if part
+        part for part in (result.stdout_tail, result.stderr_tail, result.error) if part
     )
     for code in ("postgres_dsn_missing", "database_url_missing"):
         if code in combined:
@@ -1517,8 +1644,7 @@ def _next_actions(
                 "owner": "team-runtime-quality",
                 "reason": "local_validation_green",
                 "next_action": (
-                    "Proceed to bundle/replay/cloud validation using the same "
-                    "revision and config."
+                    "Proceed to bundle/replay/cloud validation using the same revision and config."
                 ),
             }
         )

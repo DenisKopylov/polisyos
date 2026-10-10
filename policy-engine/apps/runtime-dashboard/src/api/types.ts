@@ -18414,6 +18414,16 @@ export interface components {
       policy_flags?: components["schemas"]["PolicyFlags"];
       /** Policy Spec Ref */
       policy_spec_ref?: string | null;
+      /** Production Case Intake Ref */
+      production_case_intake_ref?:
+        | (components["schemas"]["ArtifactRef-Input"] & {
+            /** @constant */
+            kind: "gy.loop.proof.root";
+            /** @constant */
+            media_type: "application/json";
+          })
+        | string
+        | null;
       /** Research Intent Ref */
       research_intent_ref?: string | null;
       /** Trinity Bundle Ref */

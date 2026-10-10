@@ -56,6 +56,11 @@ from .security import (
     validate_fetch_url,
 )
 from .service import ScholarDeepSearchService
+from .source_binding import (
+    SourceBindingResult,
+    validate_source_snippet_spans,
+    validate_web_evidence_source_binding,
+)
 
 __all__ = [
     "BraveSearchProvider",
@@ -78,6 +83,7 @@ __all__ = [
     "SearchBudgetControls",
     "SearchConstraints",
     "SearchQueryTrace",
+    "SourceBindingResult",
     "SourceMetadata",
     "SourceQualitySignal",
     "SourceSnippet",
@@ -106,4 +112,6 @@ __all__ = [
     "source_rank_key",
     "validate_content_type",
     "validate_fetch_url",
+    "validate_source_snippet_spans",
+    "validate_web_evidence_source_binding",
 ]

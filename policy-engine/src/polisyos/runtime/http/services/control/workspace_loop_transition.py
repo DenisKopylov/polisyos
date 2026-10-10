@@ -18,6 +18,7 @@ from polisyos.pdc import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef
     from polisyos.runtime.quality.workspace.loop import WorkspaceSearchExitContract
 
     from ..control_plane_store import ControlJobRecord
@@ -36,9 +37,7 @@ class RunBoundDesignRecordTenantNonReceipt(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    kind: Literal["run_bound_design_record_nonreceipt"] = (
-        "run_bound_design_record_nonreceipt"
-    )
+    kind: Literal["run_bound_design_record_nonreceipt"] = "run_bound_design_record_nonreceipt"
     status: Literal["not_established"] = "not_established"
     missing_authority: Literal["tenant_identity"] = "tenant_identity"
     authority_state: Literal["absent/unallocated"] = "absent/unallocated"
@@ -164,6 +163,19 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         params = dict(state_payload.get("params") or {})
         fixture_id = str(params.get("slice0_fixture_id") or "ua_msme_credit_worldbank_measurement")
         input_artifacts = self._input_artifact_refs(state_payload)
+        raw_inputs = state_payload.get("inputs")
+        production_case_ref = None
+        if isinstance(raw_inputs, Mapping) and "production_case_intake_ref" in raw_inputs:
+            production_case_ref = next(
+                (
+                    artifact_ref
+                    for slot, artifact_ref, _kind in self._typed_workflow_input_refs(state_payload)
+                    if slot == "production_case_intake_ref"
+                ),
+                None,
+            )
+        has_legacy_production_case_ref = "production_case_intake_ref" in params
+        legacy_production_case_ref = params.get("production_case_intake_ref")
         workspace_operation_id = str(params.get("workspace_operation_id") or "")
         if workspace_operation_id == S2_DESIGN_SEARCH_OPERATION_ID:
             return self._execute_s2_design_search_operation(
@@ -172,8 +184,33 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
                 job=job,
             )
         try:
-            if "production_case_intake_ref" in params:
-                request_ref = params["production_case_intake_ref"]
+            if production_case_ref is not None:
+                if legacy_production_case_ref is not None:
+                    from polisyos.core.artifacts.manifest import ArtifactRef as CoreArtifactRef
+                    from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+
+                    if isinstance(legacy_production_case_ref, str):
+                        matches_selected_id = legacy_production_case_ref == str(
+                            production_case_ref.artifact_id
+                        )
+                    else:
+                        try:
+                            legacy_ref = CoreArtifactRef.model_validate(legacy_production_case_ref)
+                        except (TypeError, ValueError) as exc:
+                            raise ValueError(
+                                "production_case_intake_ref_legacy_param_invalid"
+                            ) from exc
+                        matches_selected_id = artifact_ref_identity_key(legacy_ref) == (
+                            artifact_ref_identity_key(production_case_ref)
+                        )
+                    if not matches_selected_id:
+                        raise ValueError("production_case_intake_ref_legacy_param_mismatch")
+                request_ref = production_case_ref
+            elif has_legacy_production_case_ref:
+                raise ValueError("production_case_intake_requires_declared_input_ref")
+            else:
+                request_ref = None
+            if request_ref is not None:
                 contract = self._run_workspace_production_case(
                     job=job,
                     request_ref=request_ref,
@@ -196,8 +233,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         from polisyos.runtime.quality.workspace.loop import workspace_exit_schema_version
 
         authority_withheld_for_execution_scope = (
-            execution_scope_status == "not_established"
-            and contract.authority_boundary is not None
+            execution_scope_status == "not_established" and contract.authority_boundary is not None
         )
         contract = self._limit_workspace_contract_authority_for_execution_scope(
             contract,
@@ -242,7 +278,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
                 if fixture_id == "ua_msme_credit_worldbank_measurement"
                 else fixture_id
             ),
-            input_payloads=self._resolved_input_artifact_payloads(input_artifacts),
+            input_payloads=self._resolved_input_artifact_payloads(state_payload),
             search_exit_contract=contract_payload,
             output_cas_refs=output_cas_refs,
         )
@@ -286,7 +322,10 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
                 *(["authority_derivation_trace_refs"] if authority_trace_refs else []),
                 "output_artifact_payload_refs",
             ],
-            surface_reads_checked=["control_worker_precompletion"],
+            surface_reads_checked=[
+                "control_worker_precompletion",
+                "served_control_job_status_not_established",
+            ],
             legacy_path_disposition="routed_to_workspace_loop",
         )
         proof_payload = proof.model_dump(mode="json", by_alias=True)
@@ -365,8 +404,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
                 layer="pdc.gy",
                 phase="s2_design_search_persist",
                 message=(
-                    "Run-bound DesignRecord persistence requires a verified ambient "
-                    "tenant scope."
+                    "Run-bound DesignRecord persistence requires a verified ambient tenant scope."
                 ),
                 retryable=False,
                 next_action=(
@@ -530,10 +568,12 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
                 "authority_boundary",
                 "authority_surface_packet",
             ],
-            surface_reads_checked=["control_worker_precompletion"],
+            surface_reads_checked=[
+                "control_worker_precompletion",
+                "served_control_job_status_not_established",
+            ],
             legacy_path_disposition=str(
-                progress.get("legacy_path_disposition")
-                or "blocked_workflow_failure_ring2_withheld"
+                progress.get("legacy_path_disposition") or "blocked_workflow_failure_ring2_withheld"
             ),
         )
         proof_payload = proof.model_dump(mode="json", by_alias=True)
@@ -570,10 +610,22 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         input_artifacts: list[str],
         fixture_id: str,
     ) -> WorkspaceSearchExitContract:
+        from polisyos.core.artifacts.manifest import ArtifactRef as CoreArtifactRef
         from polisyos.runtime.quality.workspace.loop import WorkspaceLoop
 
         try:
-            if not isinstance(request_ref, str) or request_ref not in input_artifacts:
+            if isinstance(request_ref, CoreArtifactRef):
+                request_artifact_id = str(request_ref.artifact_id)
+                if (
+                    request_ref.kind != "gy.loop.proof.root"
+                    or request_ref.media_type != "application/json"
+                ):
+                    raise ValueError("production_case_intake_ref_kind_or_media_type_invalid")
+            elif isinstance(request_ref, str):
+                request_artifact_id = request_ref
+            else:
+                raise ValueError("production_case_intake_requires_declared_typed_ref")
+            if request_artifact_id not in input_artifacts:
                 raise ValueError("production_case_intake_not_actual_request_input")
             return WorkspaceLoop(
                 catalog_graph=self._registry_providers.gy_catalog_graph,
@@ -667,8 +719,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
                 return limited
             if isinstance(value, list):
                 return [
-                    limit_output_authority(item, (*path, index))
-                    for index, item in enumerate(value)
+                    limit_output_authority(item, (*path, index)) for index, item in enumerate(value)
                 ]
             return value
 
@@ -764,17 +815,23 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
                 {"state": "candidate_only", "eligible": False, "reasons": [code]},
             )
 
-        code = (
-            "acquisition_required"
-            if terminal_kind == "acquisition_required"
-            else "search_ceiling_repair_required"
-        )
-        message = (
-            "The loop reached an acquisition_required terminal; Ring-2 authority is withheld "
-            "until the named missing distribution is acquired by an approved producer."
-            if code == "acquisition_required"
-            else "The loop reached a search repair terminal; Ring-2 authority is withheld."
-        )
+        if terminal_kind == SearchTerminalKind.A_SPEC_GAP:
+            code = SearchTerminalKind.A_SPEC_GAP.value
+            message = (
+                "The loop reached an A-specification/verifier gap; Ring-2 authority is withheld."
+            )
+            next_action = "Resolve the A-specification/verifier gap named by the search exit."
+        elif terminal_kind == "acquisition_required":
+            code = "acquisition_required"
+            message = (
+                "The loop reached an acquisition_required terminal; Ring-2 authority is withheld "
+                "until the named missing distribution is acquired by an approved producer."
+            )
+            next_action = "Run an approved acquisition producer for the named missing distribution."
+        else:
+            code = "search_ceiling_repair_required"
+            message = "The loop reached a search repair terminal; Ring-2 authority is withheld."
+            next_action = "Repair search recall/freshness before authority use."
         gate = {
             "name": code,
             "code": code,
@@ -784,11 +841,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             "message": message,
             "blocking": True,
             "evidence_ref": search_exit_ref,
-            "next_action": (
-                "Run an approved acquisition producer for the named missing distribution."
-                if code == "acquisition_required"
-                else "Repair search recall/freshness before authority use."
-            ),
+            "next_action": next_action,
         }
         return (
             code if code == "acquisition_required" else "repair_required",
@@ -817,10 +870,11 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         )
 
     def _finalize_workspace_loop_run_proof(self, *, job_id: str, endpoint: str) -> None:
-        """Persist this worker's post-completion store observation under its attempt fence.
+        """Persist this worker's completed control-store observation under its attempt fence.
 
-        The observation is a control-store read, not an HTTP route receipt.
-        Served-route verification records its independent response separately.
+        This worker finalizer does not observe the later served HTTP job-status GET. The
+        proof records that route read as not established; callers and validators retain
+        any actual HTTP receipt as a separate observation.
         """
 
         from polisyos.runtime.quality.authority import ProductionLoopRunProof
@@ -835,12 +889,8 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         if not isinstance(proof_payload, Mapping):
             return
         proof = ProductionLoopRunProof.model_validate(proof_payload)
-        readbacks = list(proof.surface_readbacks)
-        if any(
-            item.get("surface") == endpoint and item.get("observed_job_state") == record.state
-            for item in readbacks
-        ):
-            return
+        if endpoint != proof.endpoint:
+            raise ValueError("control job final proof endpoint does not match request")
         observed_search_exit_ref = str(progress.get("search_exit_contract_ref") or "")
         contract_payload = progress.get("search_exit_contract")
         terminal_kind = None
@@ -848,33 +898,53 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             terminal_state = contract_payload.get("terminal_state")
             if isinstance(terminal_state, Mapping):
                 terminal_kind = terminal_state.get("kind")
-        readbacks.append(
-            {
-                "surface": endpoint,
-                "read_method": "ControlPlaneStore.get_job",
-                "job_id": record.job_id,
-                "run_id": record.run_id,
-                "observed_job_state": record.state,
-                "observed_authority_path": progress.get("authority_path"),
-                "observed_authority_result": progress.get("authority_result"),
-                "observed_terminal_kind": terminal_kind,
-                "observed_search_exit_contract_ref": observed_search_exit_ref,
-                "matched_search_exit_contract_ref": (
-                    observed_search_exit_ref == proof.output_search_exit_contract_ref
-                ),
-            }
-        )
-        surface_reads_checked = list(proof.surface_reads_checked)
-        for surface in ("control_job_status", "runs_readback"):
-            if surface not in surface_reads_checked:
-                surface_reads_checked.append(surface)
+        readback = {
+            "surface": "control_plane_store",
+            "read_method": "ControlPlaneStore.current_execution_completed_job_record",
+            "requested_endpoint": endpoint,
+            "job_id": record.job_id,
+            "run_id": record.run_id,
+            "observed_job_state": record.state,
+            "observed_authority_path": progress.get("authority_path"),
+            "observed_authority_result": progress.get("authority_result"),
+            "observed_terminal_kind": terminal_kind,
+            "observed_search_exit_contract_ref": observed_search_exit_ref,
+            "matched_search_exit_contract_ref": (
+                observed_search_exit_ref == proof.output_search_exit_contract_ref
+            ),
+        }
+        if any(
+            item.get("surface") == "control_plane_store"
+            and item.get("read_method")
+            == "ControlPlaneStore.current_execution_completed_job_record"
+            and item.get("requested_endpoint") == endpoint
+            and item.get("job_id") == record.job_id
+            and item.get("run_id") == record.run_id
+            and item.get("observed_job_state") == record.state
+            and item.get("observed_search_exit_contract_ref") == observed_search_exit_ref
+            for item in proof.surface_readbacks
+        ):
+            return
+        surface_reads_checked = [
+            name
+            for name in proof.surface_reads_checked
+            if name not in {"control_job_status", "runs_readback"}
+        ]
+        for observation in (
+            "control_store_current_execution_completed_job_record",
+            "served_control_job_status_not_established",
+        ):
+            if observation not in surface_reads_checked:
+                surface_reads_checked.append(observation)
         final_proof = proof.model_copy(
             update={
                 "control_store_state_transitions": (
                     self._control_store.list_job_state_transitions(job_id)
                 ),
                 "surface_reads_checked": surface_reads_checked,
-                "surface_readbacks": readbacks,
+                # The only read performed here is the worker's control-store read.
+                # Replace any legacy route-labelled row instead of carrying it forward.
+                "surface_readbacks": [readback],
             }
         )
         final_payload = final_proof.model_dump(mode="json", by_alias=True)
@@ -939,8 +1009,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
                         "Route this entrypoint through WorkspaceLoop before authority use."
                     ),
                     "next_diagnostic_command": (
-                        "uv run pytest tests/unit/runtime/http/"
-                        "test_workspace_loop_transition.py -q"
+                        "uv run pytest tests/unit/runtime/http/test_workspace_loop_transition.py -q"
                     ),
                 }
             ],
@@ -1042,8 +1111,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
                     "evidence_ref": None,
                     "next_action": next_action,
                     "next_diagnostic_command": (
-                        "uv run pytest tests/unit/runtime/http/"
-                        "test_workspace_loop_transition.py -q"
+                        "uv run pytest tests/unit/runtime/http/test_workspace_loop_transition.py -q"
                     ),
                 }
             ],
@@ -1265,15 +1333,112 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
                     refs.append(artifact_id)
             elif isinstance(value, str):
                 refs.append(value)
+            else:
+                artifact_id = getattr(value, "artifact_id", None)
+                if artifact_id is not None:
+                    refs.append(str(artifact_id))
         return refs
+
+    @staticmethod
+    def _typed_workflow_input_refs(
+        state_payload: dict[str, Any],
+    ) -> list[tuple[str, ArtifactRef, str]]:
+        """Keep each workflow input bound to its declared slot and selected view."""
+        from polisyos.core.artifacts.manifest import ArtifactRef
+        from polisyos.runtime.http.services._control_contracts import (
+            _DATA_SOURCE_KEYS,
+            _OPTIONAL_INPUT_KEYS,
+        )
+
+        inputs = state_payload.get("inputs")
+        if not isinstance(inputs, Mapping):
+            return []
+        declared_kinds = {**_DATA_SOURCE_KEYS, **_OPTIONAL_INPUT_KEYS}
+        typed_refs: list[tuple[str, ArtifactRef, str]] = []
+        for slot, raw_ref in inputs.items():
+            expected_kind = declared_kinds.get(slot)
+            if expected_kind is None:
+                raise ValueError("workspace_loop_input_slot_unknown")
+            try:
+                if isinstance(raw_ref, ArtifactRef):
+                    ref = raw_ref
+                elif isinstance(raw_ref, Mapping):
+                    ref = ArtifactRef.model_validate(raw_ref)
+                else:
+                    raise TypeError("workflow input ref must be a typed ArtifactRef")
+            except (TypeError, ValueError) as exc:
+                raise ValueError("workspace_loop_input_ref_invalid") from exc
+            if ref.kind != expected_kind:
+                raise ValueError("workspace_loop_input_kind_mismatch")
+            if ref.media_type != "application/json":
+                raise ValueError("workspace_loop_input_media_type_mismatch")
+            typed_refs.append((str(slot), ref, expected_kind))
+        return typed_refs
 
     def _resolved_input_artifact_payloads(
         self,
-        artifact_refs: list[str],
+        state_payload: dict[str, Any],
     ) -> dict[str, Any]:
-        """Resolve and content-bind every production workflow input from CAS."""
+        """Resolve typed workflow inputs from their exact, content-verified CAS views."""
+        from polisyos.core.contracts.fabric import DataSnapshot
 
         payloads: dict[str, Any] = {}
-        for artifact_ref in artifact_refs:
-            payloads[artifact_ref] = self._load_payload_ref(artifact_ref)
+        for slot, artifact_ref, expected_kind in self._typed_workflow_input_refs(state_payload):
+            manifest, payload = self._read_verified_workflow_input_payload(
+                slot=slot,
+                artifact_ref=artifact_ref,
+                expected_kind=expected_kind,
+            )
+            if slot == "data_snapshot_ref":
+                try:
+                    snapshot = DataSnapshot.model_validate(payload)
+                except (TypeError, ValueError) as exc:
+                    raise ValueError("workspace_loop_data_snapshot_invalid") from exc
+                source_ref = snapshot.data_ref
+                source_manifest = self._artifact_store.get_manifest(source_ref)
+                if (
+                    source_manifest.artifact_schema is None
+                    or not source_manifest.artifact_schema.name
+                ):
+                    raise ValueError("workspace_loop_data_snapshot_source_schema_missing")
+                source_verification = self._artifact_store.verify(source_ref)
+                if not source_verification.ok:
+                    raise ValueError("workspace_loop_data_snapshot_source_integrity_failed")
+                if source_ref.manifest_profile_sha256 is not None and not any(
+                    edge.artifact_id == source_ref.artifact_id
+                    and edge.manifest_profile_sha256 == source_ref.manifest_profile_sha256
+                    for edge in manifest.inputs
+                ):
+                    raise ValueError("workspace_loop_data_snapshot_source_profile_unbound")
+            payloads[str(artifact_ref.artifact_id)] = dict(payload)
         return payloads
+
+    def _read_verified_workflow_input_payload(
+        self,
+        *,
+        slot: str,
+        artifact_ref: ArtifactRef,
+        expected_kind: str,
+    ) -> tuple[ArtifactManifest, Mapping[str, Any]]:
+        """Admit one workflow input using its exact selected CAS view."""
+        from polisyos.core.canon import from_canonical_bytes
+
+        manifest = self._artifact_store.get_manifest(artifact_ref)
+        if manifest.kind != expected_kind:
+            raise ValueError("workspace_loop_input_kind_mismatch")
+        if manifest.media_type != artifact_ref.media_type:
+            raise ValueError("workspace_loop_input_media_type_mismatch")
+        schema = manifest.artifact_schema
+        if schema is None or not schema.name or not schema.version:
+            raise ValueError("workspace_loop_input_schema_missing")
+        if slot == "data_snapshot_ref" and (
+            schema.name != "polisyos.core.DataSnapshot" or schema.version != "0.2.0"
+        ):
+            raise ValueError("workspace_loop_input_schema_mismatch")
+        verification = self._artifact_store.verify(artifact_ref)
+        if not verification.ok:
+            raise ValueError("workspace_loop_input_integrity_failed")
+        payload = from_canonical_bytes(self._artifact_store.get_bytes(artifact_ref))
+        if not isinstance(payload, Mapping):
+            raise ValueError("workspace_loop_input_payload_invalid")
+        return manifest, payload

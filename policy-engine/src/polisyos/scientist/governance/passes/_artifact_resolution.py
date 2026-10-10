@@ -10,6 +10,7 @@ from typing import Any, Generic, TypeVar
 from pydantic import BaseModel, ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
@@ -90,7 +91,10 @@ def resolve_optional_artifact_model(
 
     try:
         normalized_ref = _normalize_ref(raw_ref=raw_ref, ref_model=ref_model)
-        return ArtifactResolution(value=load_model(store, normalized_ref), issues=[])
+        return ArtifactResolution(
+            value=load_model(_ensure_ir_artifact_store(store), normalized_ref),
+            issues=[],
+        )
     except _RESOLUTION_ERRORS as exc:
         return ArtifactResolution(
             value=None,

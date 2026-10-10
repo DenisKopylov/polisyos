@@ -1,0 +1,22 @@
+id = "2026-10-10-calibration-ruff-debt-retirement"
+title = "Retire calibration Ruff debt while retaining runtime-resolvable public hints"
+type = "changed"
+component = "calibration"
+owner = "team-scientist"
+summary = "Retire the calibration package's selected six-code Ruff debt and package-wide ignore while keeping runtime imports only for exported signatures that support public type-hint introspection."
+evidence = [
+  "src/polisyos/calibration/adapters.py",
+  "src/polisyos/calibration/diagnostics.py",
+  "src/polisyos/calibration/multiclass.py",
+  "tests/unit/calibration/test_adapters.py",
+]
+compatibility = "Accepted runtime payload values and valid calibration outputs are unchanged. The private _make_issue expected/actual annotations narrow from Any to object; this is a type-hint delta, not a runtime input restriction. Exported evaluate_binary, evaluate_multiclass, and to_validation_report annotations remain resolvable by typing.get_type_hints. The private _diagnostic_issues annotation now uses a type-checking-only import, so runtime hint resolution for that private helper is not promised. Strict zip checks reject mismatched internal parallel arrays instead of silently truncating; valid callers already supply equal-length pairs."
+change_class = "internal"
+surface_classification = "internal: calibration lint-debt retirement and runtime type-hint compatibility; no exported function annotation or persisted artifact schema change."
+migration = "No persisted payload or runtime input migration is required."
+api = "No new API is introduced. Mapping, Sequence, and CalibrationDiagnosticsReport remain runtime imports so the three exported function annotations resolve through typing.get_type_hints. CalibrationDiagnosticIssue is imported only under TYPE_CHECKING because it appears only in the private _diagnostic_issues helper annotation."
+limitations = "This change preserves valid-input calibration behavior and does not strengthen the scientific validity of calibration estimates. Runtime type-hint resolution is guaranteed for the three exported functions, not the private _diagnostic_issues helper. The package-level Ruff exemption and its associated exception/override rows are removed by the owning shared-config change in the same release batch."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/calibration/README.md"]
+runbook_docs = []

@@ -24,9 +24,11 @@ src/polisyos/benchmarks/
 - Reusable runner implementation moves to `src/polisyos/benchmarks`.
 - Internal performance and cost-regression checks stay under
   `tests/performance`.
-- New benchmark pytest configuration is not allowed. The existing
-  `benchmarks/conftest.py` is a Phase 1.4 explicit transition exception in
-  `architecture/tests/ratchets.toml`.
+- New benchmark pytest configuration is not allowed. `benchmarks/conftest.py`
+  remains only the explicit-collection source-path bootstrap; reusable symbolic
+  runner helpers live in `benchmarks/symbolic/_helpers.py`, outside pytest
+  configuration. Benchmark scripts must import that helper module directly,
+  never `conftest.py`.
 
 Physical moves are deferred to Wave 2 and Wave 3; this README is the
 report-only collection contract for new work.

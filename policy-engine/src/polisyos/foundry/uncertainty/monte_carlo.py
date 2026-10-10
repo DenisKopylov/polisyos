@@ -42,9 +42,61 @@ from polisyos.ir.registry.refs import ArtifactRefModel
 
 from .config import PropagationConfig
 from .covariance import extract_std, has_unknown_dependency
+from .evaluation_failures import classify_evaluation_failure
 from .protocol import PropagationResult
 
 logger = get_logger(__name__)
+
+_MAX_EVALUATION_ATTEMPTS = 2
+
+
+@dataclass
+class _EvaluationAttempts:
+    """Count physical evaluator calls separately from logical input draws."""
+
+    simulation_attempt_count: int = 0
+    retry_attempt_count: int = 0
+
+
+def _evaluate_with_transient_retry(
+    simulation_fn: Callable[..., Any],
+    params: Mapping[str, Any],
+    attempts: _EvaluationAttempts,
+) -> Any:
+    """Retry one unchanged evaluation input once after an explicit transient error."""
+    for attempt_index in range(_MAX_EVALUATION_ATTEMPTS):
+        attempts.simulation_attempt_count += 1
+        try:
+            return simulation_fn(**params)
+        except Exception as exc:
+            if (
+                attempt_index + 1 < _MAX_EVALUATION_ATTEMPTS
+                and classify_evaluation_failure(exc).scope == "transient"
+            ):
+                attempts.retry_attempt_count += 1
+                continue
+            raise
+    raise AssertionError("bounded evaluation loop returned without a result or exception")
+
+
+def _is_legacy_draw_local_runtime_error(
+    exc: BaseException,
+    chain_complete: bool,
+    cycle_detected: bool,
+) -> bool:
+    """Keep direct RuntimeError solver refusals as candidate draw failures.
+
+    This narrow legacy case is the only unknown failure treated as draw-local.
+    Wrapped errors, incomplete exception graphs, and other exception types do
+    not establish a sampled-input limitation and therefore fail closed.
+    """
+    return (
+        type(exc) is RuntimeError
+        and exc.__cause__ is None
+        and exc.__context__ is None
+        and chain_complete
+        and not cycle_detected
+    )
 
 
 @dataclass(frozen=True)
@@ -289,9 +341,12 @@ class PosteriorPushforwardResult(BaseModel):
     chain_count: int = Field(ge=1)
     draws_per_chain: int = Field(ge=1)
     source_weight_status: Literal["not_supplied_by_source"] = "not_supplied_by_source"
-    row_evaluation_semantics: Literal["one_evaluator_call_per_source_draw"] = (
-        "one_evaluator_call_per_source_draw"
-    )
+    row_evaluation_semantics: Literal[
+        "one_evaluator_call_per_source_draw",
+        "one_logical_result_per_source_draw_with_one_bounded_typed_transient_retry",
+    ] = "one_evaluator_call_per_source_draw"
+    simulation_attempt_count: int = Field(ge=1)
+    retry_attempt_count: int = Field(ge=0)
     selected_input_point: tuple[float, ...] = Field(min_length=1)
     joint_input_matrix: PosteriorJointInputMatrix
     output_metric_ids: tuple[str, ...] = Field(min_length=1)
@@ -318,6 +373,23 @@ class PosteriorPushforwardResult(BaseModel):
             )
         ):
             raise ValueError("posterior pushforward result does not match its selected matrix")
+
+        logical_evaluation_count = 1 + len(self.joint_input_matrix.rows)
+        retry_semantics = (
+            "one_logical_result_per_source_draw_with_one_bounded_typed_transient_retry"
+        )
+        if self.retry_attempt_count > logical_evaluation_count:
+            raise ValueError("posterior retry count exceeds logical evaluation count")
+        if self.retry_attempt_count == 0 and self.row_evaluation_semantics != (
+            "one_evaluator_call_per_source_draw"
+        ):
+            raise ValueError("posterior retry semantics do not match retry attempt count")
+        if self.retry_attempt_count > 0 and self.row_evaluation_semantics != retry_semantics:
+            raise ValueError("posterior retry semantics do not match retry attempt count")
+        if self.simulation_attempt_count != logical_evaluation_count + self.retry_attempt_count:
+            raise ValueError(
+                "posterior physical attempt counts do not match logical evaluations and retries"
+            )
         return self
 
 
@@ -327,6 +399,7 @@ def _evaluate_posterior_outputs(
     parameter_names: tuple[str, ...],
     parameter_values: tuple[float, ...],
     output_metric_ids: tuple[str, ...],
+    attempts: _EvaluationAttempts,
 ) -> tuple[
     dict[str, float | None],
     dict[str, tuple[PosteriorPushforwardOutcomeCode, str | None] | None],
@@ -335,8 +408,13 @@ def _evaluate_posterior_outputs(
     params = dict(nominal_params)
     params.update(dict(zip(parameter_names, parameter_values, strict=True)))
     try:
-        response = simulation_fn(**params)
-    except Exception as exc:  # An evaluator failure is one unavailable candidate row.
+        response = _evaluate_with_transient_retry(simulation_fn, params, attempts)
+    except Exception as exc:
+        failure = classify_evaluation_failure(exc)
+        if failure.scope != "unknown" or not _is_legacy_draw_local_runtime_error(
+            exc, failure.chain_complete, failure.cycle_detected
+        ):
+            raise
         return (
             dict.fromkeys(output_metric_ids),
             {
@@ -665,10 +743,13 @@ class MonteCarloPropagator:
         )
         missing_outputs = dict.fromkeys(output_metric_ids, 0)
         draw_outcomes: list[_DrawOutcomeRecord] = []
+        evaluation_attempts = _EvaluationAttempts()
         failed = 0
         stopped_early = False
         actual_n_samples = 0
-        nominal_outputs = self._safe_nominal_outputs(simulation_fn, nominal_params)
+        nominal_outputs = self._safe_nominal_outputs(
+            simulation_fn, nominal_params, evaluation_attempts=evaluation_attempts
+        )
         qmc_summary: _QMCExecutionSummary | None = None
 
         use_qmc = self._config.mc_sampling_method != "random"
@@ -686,6 +767,7 @@ class MonteCarloPropagator:
                 alpha,
                 missing_outputs,
                 draw_outcomes,
+                evaluation_attempts,
                 empirical_spec,
             )
             stopped_early = adaptive.enabled and actual_n_samples < n_samples
@@ -703,6 +785,7 @@ class MonteCarloPropagator:
                 alpha,
                 missing_outputs,
                 draw_outcomes,
+                evaluation_attempts,
                 empirical_spec,
             )
             stopped_early = adaptive.enabled and actual_n_samples < n_samples
@@ -722,6 +805,7 @@ class MonteCarloPropagator:
             alpha,
             missing_outputs=missing_outputs,
             draw_outcomes=draw_outcomes,
+            evaluation_attempts=evaluation_attempts,
             requested_n_samples=n_samples,
             qmc_summary=qmc_summary,
             sample_axis=(empirical_spec.sample_axis if empirical_spec is not None else "draw"),
@@ -815,12 +899,14 @@ class MonteCarloPropagator:
             content_sha256=matrix_digest,
         )
 
+        evaluation_attempts = _EvaluationAttempts()
         selected_values, selected_failures = _evaluate_posterior_outputs(
             simulation_fn,
             nominal_params,
             parameter_names,
             selected_input_point,
             output_metric_ids,
+            evaluation_attempts,
         )
         values_by_metric = {metric_id: [] for metric_id in output_metric_ids}
         failures_by_metric: dict[str, list[PosteriorPushforwardFailure]] = {
@@ -833,6 +919,7 @@ class MonteCarloPropagator:
                 parameter_names,
                 row,
                 output_metric_ids,
+                evaluation_attempts,
             )
             for metric_id in output_metric_ids:
                 values_by_metric[metric_id].append(row_values[metric_id])
@@ -884,11 +971,17 @@ class MonteCarloPropagator:
             chain_count=summary.chain_count,
             draws_per_chain=summary.draws_per_chain,
             source_weight_status=summary.weight_status,
-            row_evaluation_semantics="one_evaluator_call_per_source_draw",
             selected_input_point=selected_input_point,
             joint_input_matrix=joint_input_matrix,
             output_metric_ids=output_metric_ids,
             output_summaries=output_summaries,
+            row_evaluation_semantics=(
+                "one_evaluator_call_per_source_draw"
+                if evaluation_attempts.retry_attempt_count == 0
+                else "one_logical_result_per_source_draw_with_one_bounded_typed_transient_retry"
+            ),
+            simulation_attempt_count=evaluation_attempts.simulation_attempt_count,
+            retry_attempt_count=evaluation_attempts.retry_attempt_count,
             gate_eligible=False,
             unit_binding_status="not_established",
         )
@@ -910,6 +1003,7 @@ class MonteCarloPropagator:
         alpha: float,
         missing_outputs: dict[str, int],
         draw_outcomes: list[_DrawOutcomeRecord],
+        evaluation_attempts: _EvaluationAttempts,
         empirical_spec: _EmpiricalJointSpec | None,
     ) -> tuple[int, int, _QMCExecutionSummary]:
         batch_size = min(self._config.mc_batch_size, n_samples)
@@ -968,6 +1062,7 @@ class MonteCarloPropagator:
                         sample_idx=sample_idx,
                         missing_outputs=missing_outputs,
                         draw_outcomes=draw_outcomes,
+                        evaluation_attempts=evaluation_attempts,
                     )
                     if not ok:
                         failed += 1
@@ -1017,6 +1112,7 @@ class MonteCarloPropagator:
         alpha: float,
         missing_outputs: dict[str, int],
         draw_outcomes: list[_DrawOutcomeRecord],
+        evaluation_attempts: _EvaluationAttempts,
         empirical_spec: _EmpiricalJointSpec | None,
     ) -> tuple[int, int]:
         rng = jrandom.PRNGKey(self._config.mc_seed)
@@ -1063,6 +1159,7 @@ class MonteCarloPropagator:
                     sample_idx=sample_idx,
                     missing_outputs=missing_outputs,
                     draw_outcomes=draw_outcomes,
+                    evaluation_attempts=evaluation_attempts,
                 )
                 if not ok:
                     failed += 1
@@ -1091,6 +1188,7 @@ class MonteCarloPropagator:
         sample_idx: int,
         missing_outputs: dict[str, int],
         draw_outcomes: list[_DrawOutcomeRecord],
+        evaluation_attempts: _EvaluationAttempts,
     ) -> bool:
         sampled_inputs = {name: float(params[name]) for name in param_names}
         for name, value in sampled_inputs.items():
@@ -1124,8 +1222,13 @@ class MonteCarloPropagator:
             )
 
         try:
-            result = simulation_fn(**params)
+            result = _evaluate_with_transient_retry(simulation_fn, params, evaluation_attempts)
         except Exception as exc:
+            failure = classify_evaluation_failure(exc)
+            if failure.scope != "unknown" or not _is_legacy_draw_local_runtime_error(
+                exc, failure.chain_complete, failure.cycle_detected
+            ):
+                raise
             for mid in output_metric_ids:
                 sample_buffers.values[mid][sample_idx] = float("nan")
             record_failures(
@@ -1265,6 +1368,7 @@ class MonteCarloPropagator:
         *,
         missing_outputs: Mapping[str, int],
         draw_outcomes: list[_DrawOutcomeRecord],
+        evaluation_attempts: _EvaluationAttempts,
         requested_n_samples: int,
         qmc_summary: _QMCExecutionSummary | None,
         sample_axis: str = "draw",
@@ -1306,6 +1410,8 @@ class MonteCarloPropagator:
             "schema_version": "1.0",
             "requested_draw_count": requested_n_samples,
             "attempted_draw_count": actual_n_samples,
+            "simulation_attempt_count": evaluation_attempts.simulation_attempt_count,
+            "retry_attempt_count": evaluation_attempts.retry_attempt_count,
             "successful_draw_count": actual_n_samples - len(draw_outcomes),
             "unattempted_draw_count": requested_n_samples - actual_n_samples,
             "outcome_denominator_complete": not stopped_early,
@@ -1647,10 +1753,19 @@ class MonteCarloPropagator:
         self,
         simulation_fn: Callable[..., Mapping[str, float]],
         nominal_params: Mapping[str, float],
+        *,
+        evaluation_attempts: _EvaluationAttempts,
     ) -> Mapping[str, float] | None:
         try:
-            outputs = simulation_fn(**nominal_params)
-        except Exception:
+            outputs = _evaluate_with_transient_retry(
+                simulation_fn, nominal_params, evaluation_attempts
+            )
+        except Exception as exc:
+            failure = classify_evaluation_failure(exc)
+            if failure.scope != "unknown" or not _is_legacy_draw_local_runtime_error(
+                exc, failure.chain_complete, failure.cycle_detected
+            ):
+                raise
             return None
         if not isinstance(outputs, Mapping):
             return None

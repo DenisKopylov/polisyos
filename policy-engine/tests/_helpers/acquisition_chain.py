@@ -25,14 +25,16 @@ from polisyos.runtime.quality.semantic_epoch_qualification import (
 )
 from polisyos.runtime.quality.semantic_epoch_store import FileSemanticEpochHistoryRepository
 from tests._helpers.acquisition_epoch_production import production_admission_inputs
-from tests._helpers.acquisition_production import intercepted_wdi_transport
-from tests._helpers.semantic_epoch_native import sign_native_epoch_scenario
-from tests.unit.data_forge.domains.catalog.knowledge.test_acquisition_authority import (
+from tests._helpers.acquisition_production import (
+    _ATTEMPT_ID,
     _entry,
+    _family_receipt,
     _resolver,
     _write_family_receipt,
+    intercepted_wdi_transport,
 )
-from tests.unit.runtime.quality.test_live_acquisition_executor import _ATTEMPT_ID, _family_receipt
+from tests._helpers.controlled_candidate_profile import _CgfGenerationPort
+from tests._helpers.semantic_epoch_native import sign_native_epoch_scenario
 
 _SERVED_WDI_N4_RECORDING_ID = "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
 
@@ -146,15 +148,12 @@ def make_wdi_port_case(
         event_log=control._diagnostic_event_log,
         epoch_deployment=deployment,
         promotion_runtime=control._promotion_runtime,
-        cycle_substrate_context_admission_owner=(
-            control._cycle_substrate_context_admission_owner
-        ),
+        cycle_substrate_context_admission_owner=(control._cycle_substrate_context_admission_owner),
         control_store=control._control_store,
     )
     transport_calls = intercepted_wdi_transport(monkeypatch)
     # Only candidate generation is a fixture; every re-entry owner still runs.
     from polisyos.runtime.quality.generation_cycle import N4GenerationPort
-    from tests.unit.runtime.quality.test_generation_cycle import _CgfGenerationPort
 
     if candidate_scenario_generation:
         import copy
@@ -166,6 +165,7 @@ def make_wdi_port_case(
         from tools.quality.validation import (
             check_layer3_gy_design_generation_contract as n4_contract,
         )
+
         recording = (
             candidate_generation_recording
             if candidate_generation_recording is not None

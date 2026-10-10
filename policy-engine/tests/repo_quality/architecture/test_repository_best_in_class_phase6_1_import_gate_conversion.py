@@ -105,9 +105,7 @@ def test_phase6_1_conversion_report_covers_all_package_import_gates() -> None:
 
 
 def test_phase6_1_report_only_gate_registry_lists_converted_gates() -> None:
-    payload = tomllib.loads(
-        (REPO_ROOT / "architecture" / "gates" / "report_only.toml").read_text()
-    )
+    payload = tomllib.loads((REPO_ROOT / "architecture" / "gates" / "report_only.toml").read_text())
     gate_ids = {gate["id"] for gate in payload["gate"]}
 
     assert {
@@ -426,7 +424,7 @@ def test_phase0_2_undocumented_loose_scientist_root_python_file_fails(
             (
                 "[layout]",
                 'source_root = "src/polisyos/scientist"',
-                'compatibility_shim_roots = []',
+                "compatibility_shim_roots = []",
                 'ignored_first_level_roots = ["__pycache__"]',
             )
         )
@@ -462,7 +460,7 @@ def test_phase2_1_scientist_root_file_exception_does_not_bypass_registered_shims
                 "[layout]",
                 'source_root = "src/polisyos/scientist"',
                 'status = "resolved_root_facade"',
-                'compatibility_shim_roots = []',
+                "compatibility_shim_roots = []",
             )
         )
         + "\n",
@@ -509,7 +507,7 @@ def test_phase0_2_single_file_shell_package_without_exception_fails(
             'status = "fail_closed"',
             'scope_roots = ["src/polisyos/fabric"]',
             "max_python_files = 1",
-            'allowed_facade_packages = []',
+            "allowed_facade_packages = []",
         ],
     )
 
@@ -570,7 +568,7 @@ def test_phase1_1_single_file_shell_package_local_readme_allows_intentional_modu
             'status = "fail_closed"',
             'scope_roots = ["src/polisyos/fabric"]',
             "max_python_files = 1",
-            'allowed_facade_packages = []',
+            "allowed_facade_packages = []",
         ],
     )
 
@@ -753,7 +751,7 @@ def test_phase0_2_single_file_shell_package_dated_exception_is_allowed(
             'status = "fail_closed"',
             'scope_roots = ["src/polisyos/fabric"]',
             "max_python_files = 1",
-            'allowed_facade_packages = []',
+            "allowed_facade_packages = []",
             "",
             "[[single_file_shell_package_exception]]",
             'path = "src/polisyos/fabric/legacy_helper"',
@@ -781,7 +779,7 @@ def test_phase0_2_ir_refs_and_references_collision_without_resolution_fails(
                 "[name_collisions]",
                 'status = "declared"',
                 'owner = "team-ir"',
-                'allowed = []',
+                "allowed = []",
             )
         )
         + "\n",
@@ -833,10 +831,84 @@ def test_phase7_module_size_ratchet_rejects_growth(tmp_path: Path) -> None:
     ]
 
 
-def test_phase6_7_validation_tooling_budgets_are_declared() -> None:
-    contract = tomllib.loads(
-        (REPO_ROOT / "architecture" / "module_size_budget.toml").read_text()
+def test_phase7_module_size_ratchet_rejects_report_only_limit_growth(
+    tmp_path: Path,
+) -> None:
+    module = tmp_path / "src" / "polisyos" / "demo" / "large.py"
+    module.parent.mkdir(parents=True)
+    module.write_text("a = 1\nb = 2\n", encoding="utf-8")
+    architecture = tmp_path / "architecture"
+    architecture.mkdir()
+    (architecture / "module_size_budget.toml").write_text(
+        "\n".join(
+            (
+                "[[budget]]",
+                'path = "src/polisyos/demo/large.py"',
+                "current_lines = 3",
+                "report_only_limit_lines = 1",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
     )
+
+    findings = check_package_import_gates._check_module_size_ratchet(tmp_path)
+
+    assert findings == [
+        check_package_import_gates.Finding(
+            "module-size-ratchet",
+            "src/polisyos/demo/large.py",
+            "module grew above its report_only_limit_lines ratchet",
+            "current=2 limit=1",
+        )
+    ]
+
+
+def test_phase7_module_size_ratchet_reports_missing_budgeted_module(
+    tmp_path: Path,
+) -> None:
+    architecture = tmp_path / "architecture"
+    architecture.mkdir()
+    (architecture / "module_size_budget.toml").write_text(
+        "\n".join(
+            (
+                "[[budget]]",
+                'path = "src/polisyos/demo/missing.py"',
+                "current_lines = 3",
+                "report_only_limit_lines = 3",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    findings = check_package_import_gates._check_module_size_ratchet(tmp_path)
+
+    assert findings == [
+        check_package_import_gates.Finding(
+            "module-size-ratchet",
+            "src/polisyos/demo/missing.py",
+            "budgeted module is missing",
+        )
+    ]
+
+
+def test_phase6_7_import_gate_source_fits_declared_physical_line_ceiling() -> None:
+    budget = next(
+        item
+        for item in tomllib.loads(
+            (REPO_ROOT / "architecture" / "module_size_budget.toml").read_text()
+        )["budget"]
+        if item["path"] == "tools/quality/validation/check_package_import_gates.py"
+    )
+    source = REPO_ROOT / budget["path"]
+    physical_lines = len(source.read_text(encoding="utf-8").splitlines())
+
+    assert physical_lines <= budget["report_only_limit_lines"]
+
+
+def test_phase6_7_validation_tooling_budgets_are_declared() -> None:
+    contract = tomllib.loads((REPO_ROOT / "architecture" / "module_size_budget.toml").read_text())
     validation_defaults = contract["validation_tooling_size_budget"]
     budgets = {budget["path"]: budget for budget in contract["budget"]}
 
@@ -949,7 +1021,9 @@ def test_phase6_7_module_size_ratchet_counts_logical_code_lines(tmp_path: Path) 
 
 
 def test_phase6_1_public_surface_and_package_boundary_dependencies_agree() -> None:
-    public_surface = tomllib.loads((REPO_ROOT / "architecture" / "public_surface" / "contract.toml").read_text())
+    public_surface = tomllib.loads(
+        (REPO_ROOT / "architecture" / "public_surface" / "contract.toml").read_text()
+    )
     packages = {
         package["module"]: set(package.get("supported_entrypoints", [])) | {package["module"]}
         for package in public_surface["package"]
@@ -992,9 +1066,7 @@ def test_phase6_1_enforcement_promotes_unregistered_hidden_growth_to_error() -> 
                 "source_package": "polisyos.scientist",
                 "target_package": "polisyos.foundry",
                 "unregistered_added_hidden_edges": 1,
-                "added_edge_keys": [
-                    "polisyos.scientist.node-polisyos.foundry.methods._internal"
-                ],
+                "added_edge_keys": ["polisyos.scientist.node-polisyos.foundry.methods._internal"],
             }
         ]
     }
@@ -1113,7 +1185,7 @@ def _write_minimal_package_import_gates(
         'status = "fail_closed"',
         'scope_roots = ["src/polisyos/fabric"]',
         "max_python_files = 1",
-        'allowed_facade_packages = []',
+        "allowed_facade_packages = []",
         'latest_allowed_sunset = "2026-07-31"',
         'exception_required_fields = ["path", "owner", "rationale", "sunset", "migration_target", "smoke_import_test"]',
     ]

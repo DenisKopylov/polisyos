@@ -7,6 +7,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator, model_validator
 
+from polisyos.core.artifacts.manifest import ArtifactRef  # noqa: TC001 — Pydantic field type
+
 
 class SearchBudgetControls(BaseModel):
     """Hard limits for one deep-search run."""
@@ -137,6 +139,7 @@ class FetchResult(BaseModel):
     error: str | None = None
     source_type: str = "web"
     artifact_id: str | None = None
+    raw_artifact_ref: ArtifactRef | None = None
     byte_size: int | None = Field(default=None, ge=0)
     license: str = "public-web"
     fetch_profile: dict[str, Any] = Field(default_factory=dict)
@@ -164,6 +167,7 @@ class SourceMetadata(BaseModel):
     content_type: str = "application/octet-stream"
     content_sha256: str | None = None
     artifact_id: str | None = None
+    raw_artifact_ref: ArtifactRef | None = None
     byte_size: int | None = Field(default=None, ge=0)
     license: str = "public-web"
     fetch_profile: dict[str, Any] = Field(default_factory=dict)
@@ -190,6 +194,11 @@ class SourceMetadata(BaseModel):
     @model_validator(mode="after")
     def _derive_raw_artifact_id(self) -> SourceMetadata:
         """Bind the content-addressed raw artifact when the fetch supplied a digest."""
+        if self.raw_artifact_ref is not None:
+            selected_id = str(self.raw_artifact_ref.artifact_id)
+            if self.artifact_id is not None and self.artifact_id != selected_id:
+                raise ValueError("artifact_id must match raw_artifact_ref")
+            self.artifact_id = selected_id
         if self.artifact_id is None and self.content_sha256:
             digest = self.content_sha256.strip().lower()
             if digest.startswith("sha256:"):

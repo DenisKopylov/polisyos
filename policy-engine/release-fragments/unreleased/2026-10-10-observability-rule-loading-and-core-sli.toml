@@ -1,0 +1,13 @@
+id = "2026-10-10-observability-rule-loading-and-core-sli"
+title = "Load declared Prometheus rules and align the Core tenant-boundary SLI"
+type = "fixed"
+component = "observability"
+summary = "Prometheus now loads all rule files declared by component observability contracts, including Scientist and mTLS alerts, and Core's tenant-boundary SLI names the metric emitted by the audit registry."
+evidence = [
+  "ops/observability/prometheus/prometheus.yml",
+  "ops/components/core/slo.yaml",
+  "ops/observability/slo/core.yaml",
+  "tests/repo_quality/architecture/test_repository_best_in_class_phase4_9_operability_bundles.py",
+]
+compatibility = "Operational alert coverage increases; no SLO targets, windows, expiry dates, or exception ownership changed."
+change_class = "internal"

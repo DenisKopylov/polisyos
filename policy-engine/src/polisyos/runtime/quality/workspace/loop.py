@@ -24,11 +24,17 @@ from polisyos.core import artifacts as core_artifacts
 from polisyos.core import scan_secret_and_pii
 from polisyos.core.artifacts import ArtifactStore, PutOptions
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
-from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef as CoreArtifactRef
+from polisyos.core.artifacts.manifest import (
+    ProducerInfo,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.canon import CanonSpec
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.core.security import (
+    TenantContextNotSetError,
     get_current_cell_id,
     get_current_tenant_id_or_none,
 )
@@ -1359,25 +1365,59 @@ def _compose_production_case_admission(
     )
 
 
+def _production_artifact_id(ref: str | CoreArtifactRef) -> str:
+    """Return the CAS identity without discarding a typed ref at read boundaries."""
+    return str(ref.artifact_id) if isinstance(ref, CoreArtifactRef) else ref
+
+
+def _production_parent_input(ref: str | CoreArtifactRef) -> core_artifacts.InputRef:
+    """Build a production lineage edge while retaining any selected manifest view."""
+    if isinstance(ref, CoreArtifactRef):
+        return input_ref_from_artifact_ref(ref, role="production_case_input")
+    return core_artifacts.InputRef(artifact_id=ref, role="production_case_input")
+
+
 def _read_production_json(
     store: ArtifactStore,
-    ref: str,
+    ref: str | CoreArtifactRef,
     *,
     kind: str,
     schema: str,
     version: str = "1.0",
-    parents: tuple[str, ...] = (),
+    parents: tuple[str | CoreArtifactRef, ...] = (),
     producer_component: str | None = None,
 ) -> dict[str, Any]:
-    """Check actual bytes and immutable manifest before reading diagnostic fields."""
+    """Check the exact selected bytes, manifest, and parent views before decoding."""
     from polisyos.core.canon import from_canonical_bytes
 
+    artifact_id = _production_artifact_id(ref)
     raw = store.get_bytes(ref)
     manifest = store.get_manifest(ref)
     actual = "sha256:" + hashlib.sha256(raw).hexdigest()
+    selected_view_matches = not isinstance(ref, CoreArtifactRef) or (
+        ref.kind == kind
+        and ref.media_type == "application/json"
+        and (
+            ref.manifest_profile_sha256 is None
+            or core_artifacts.artifact_manifest_profile_sha256(manifest)
+            == ref.manifest_profile_sha256
+        )
+    )
+    actual_parent_edges = [
+        (str(item.artifact_id), item.role, item.manifest_profile_sha256) for item in manifest.inputs
+    ]
+    expected_parent_edges = [
+        (
+            _production_artifact_id(parent),
+            "production_case_input",
+            parent.manifest_profile_sha256 if isinstance(parent, CoreArtifactRef) else None,
+        )
+        for parent in parents
+    ]
     if (
-        actual != ref
-        or str(manifest.artifact_id) != ref
+        not selected_view_matches
+        or actual != artifact_id
+        or str(manifest.artifact_id) != artifact_id
         or manifest.byte_size != len(raw)
         or manifest.integrity.sha256 != actual.removeprefix("sha256:")
         or manifest.kind != kind
@@ -1391,8 +1431,7 @@ def _read_production_json(
                 or manifest.producer.version != "1"
             )
         )
-        or [(str(item.artifact_id), item.role) for item in manifest.inputs]
-        != [(parent, "production_case_input") for parent in parents]
+        or actual_parent_edges != expected_parent_edges
     ):
         raise WorkspaceInvariantError("production_case_raw_manifest_custody_drift")
     value = from_canonical_bytes(raw)
@@ -1405,7 +1444,7 @@ def resolve_production_case_admission(
     *,
     store: ArtifactStore,
     receipt_ref: str,
-    request_ref: str,
+    request_ref: str | CoreArtifactRef,
     catalog: read_api.catalog.DatasetCatalogGraph,
     repo_root: Path | None = None,
 ) -> ProductionCaseAdmission:
@@ -1414,6 +1453,7 @@ def resolve_production_case_admission(
     This verifies refusal custody only. No public metadata or caller-supplied
     verifier can authorize a positive source-to-original-construct relation.
     """
+    request_artifact_id = _production_artifact_id(request_ref)
     request = _read_production_json(
         store, request_ref, kind="gy.loop.proof.root", schema="polisyos.gy.loop.proof.root"
     )
@@ -1433,7 +1473,7 @@ def resolve_production_case_admission(
         raise WorkspaceInvariantError("production_case_admission_raw_shape_drift")
     expected = _compose_production_case_admission(
         intake=intake,
-        request_ref=request_ref,
+        request_ref=request_artifact_id,
         catalog=catalog,
         checked_at=recorded.checked_at,
         repo_root=repo_root,
@@ -1449,12 +1489,12 @@ def _production_diagnostic_put(
     *,
     kind: str,
     schema: str,
-    parents: tuple[str, ...],
+    parents: tuple[str | CoreArtifactRef, ...],
 ) -> str:
     # Parent roles are included in the content as well as the manifest so CAS
     # reuse cannot retain a different immutable ancestry for equal payloads.
     body = dict(payload)
-    if body.get("request_ref") != (parents[0] if parents else None):
+    if body.get("request_ref") != (_production_artifact_id(parents[0]) if parents else None):
         raise WorkspaceInvariantError("production_diagnostic_request_parent_drift")
     scan = scan_secret_and_pii(
         body, scope="DAG bundles", artifact_ref_or_route=kind, redact=False, block_on_findings=True
@@ -1470,10 +1510,7 @@ def _production_diagnostic_put(
             producer=ProducerInfo(
                 component="polisyos.runtime.quality.workspace.loop.production_case", version="1"
             ),
-            inputs=[
-                core_artifacts.InputRef(artifact_id=parent, role="production_case_input")
-                for parent in parents
-            ],
+            inputs=[_production_parent_input(parent) for parent in parents],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
@@ -2398,7 +2435,7 @@ class WorkspaceLoop:
         )
 
     def run_production_case(
-        self, *, request_ref: str, fixture_id: str | None = None
+        self, *, request_ref: str | CoreArtifactRef, fixture_id: str | None = None
     ) -> WorkspaceSearchExitContract:
         """Attempt the original population through source owners and S1 before exit.
 
@@ -2409,6 +2446,7 @@ class WorkspaceLoop:
         store = self._artifact_store
         if store is None:
             raise WorkspaceInvariantError("production_case_requires_actual_cas")
+        request_artifact_id = _production_artifact_id(request_ref)
         raw = _read_production_json(
             store, request_ref, kind="gy.loop.proof.root", schema="polisyos.gy.loop.proof.root"
         )
@@ -2421,7 +2459,7 @@ class WorkspaceLoop:
             raise WorkspaceInvariantError("production_case_requires_actual_catalog_owner")
         admission = _compose_production_case_admission(
             intake=intake,
-            request_ref=request_ref,
+            request_ref=request_artifact_id,
             catalog=self._catalog_graph,
             checked_at=datetime.now(UTC),
         )
@@ -2448,9 +2486,9 @@ class WorkspaceLoop:
             artifact_id=f"request-{_slug(intake.pinned_request.case_id)}",
             artifact_type="ProductionCaseIntake",
             version="v1",
-            content_hash=request_ref,
+            content_hash=request_artifact_id,
             schema_ref=PRODUCTION_CASE_INTAKE_SCHEMA,
-            uri=request_ref,
+            uri=request_artifact_id,
         )
         receipt = ArtifactRef(
             artifact_id=f"admission-{_slug(intake.pinned_request.case_id)}",
@@ -2521,7 +2559,7 @@ class WorkspaceLoop:
                 "semantic_benchmark_run": {
                     "schema_version": "policyos.gy.unestablished_search_population.v1",
                     "population_state": "not_established",
-                    "request_ref": request_ref,
+                    "request_ref": request_artifact_id,
                     "reason": _MISSING_ORIGINAL_CONSTRUCT_OWNER,
                 },
             },
@@ -2554,7 +2592,7 @@ class WorkspaceLoop:
             budget=BudgetVector(),
         )
         workspace_payload = {
-            "request_ref": request_ref,
+            "request_ref": request_artifact_id,
             "workspace_contract": workspace.model_dump(mode="json"),
         }
         workspace_ref = _production_diagnostic_put(
@@ -3241,6 +3279,12 @@ class WorkspaceLoop:
     def _persist_loop_payload(self, payload: dict[str, Any], *, kind: str) -> str:
         if self._artifact_store is None:
             return gy_content_hash(payload)
+        tenant_id = get_current_tenant_id_or_none()
+        if tenant_id is None:
+            raise TenantContextNotSetError(
+                "Workspace loop authority artifact writes require an active tenant scope."
+            )
+        cell_id = get_current_cell_id()
         scan = scan_secret_and_pii(
             payload,
             scope="DAG bundles",
@@ -3273,8 +3317,8 @@ class WorkspaceLoop:
             owner="team-runtime-quality",
             reader_contract=WORKSPACE_LOOP_SCHEMA_VERSION,
             reader_contract_version="v1",
-            tenant_id="policyos-system",
-            cell_id=None,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
             run_id=f"run-gy-loop-{payload.get('fixture_id') or 'payload'!s}",
             job_id=f"job-gy-loop-{payload.get('fixture_id') or 'payload'!s}",
             trace_id=f"trace-gy-loop-{kind}",
@@ -3290,8 +3334,8 @@ class WorkspaceLoop:
                 "status": "closed",
                 "run_id": f"run-gy-loop-{payload.get('fixture_id') or 'payload'!s}",
                 "job_id": f"job-gy-loop-{payload.get('fixture_id') or 'payload'!s}",
-                "tenant_id": "policyos-system",
-                "cell_id": None,
+                "tenant_id": tenant_id,
+                "cell_id": cell_id,
                 "evidence_input_refs": (),
             },
             input_refs=[],

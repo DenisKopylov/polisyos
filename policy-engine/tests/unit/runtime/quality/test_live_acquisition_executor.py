@@ -3,38 +3,27 @@
 from __future__ import annotations
 
 import asyncio
-import hashlib
-import json
 import os
 import socket
 import threading
 from collections.abc import Iterator, Mapping
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
-from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, ClassVar
 
-import pandas as pd
 import pytest
 
-from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec
-from polisyos.core.contracts import DataSnapshot, DataSnapshotRef
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.data_forge.read_api import catalog as catalog_read_api
 from polisyos.fabric.connectors import (
-    ResultSerializer,
     SourceProfileRegistry,
-    resolve_connection_config,
 )
 from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 from polisyos.fabric.data_plane import (
-    content_sha256,
     resolve_journal_event_ref,
     resolve_live_attempt_terminals,
 )
@@ -42,15 +31,6 @@ from polisyos.fabric.data_plane.evidence_journal import (
     AppendOnlyEvidenceJournal,
     EvidenceJournalError,
     _consume_live_acquire_permit,
-)
-from polisyos.fabric.data_plane.orchestrator import IngestionResult
-from polisyos.fabric.evidence import build_evidence_bundle, persist_evidence_bundle
-from polisyos.ir.connectors import (
-    DataVersion,
-    FetchRequest,
-    FetchResult,
-    QualityTier,
-    VersionStrategy,
 )
 from polisyos.runtime.http.services import (
     acquisition_surface_execution as acquisition_surface_execution_module,
@@ -61,32 +41,31 @@ from polisyos.runtime.quality.acquisition_executor import (
     LiveCatalogExecutionConstraints,
     execute_live_catalog_acquisition,
 )
-from tests.unit.data_forge.domains.catalog.knowledge.test_acquisition_authority import (
+from tests._helpers.acquisition_production import (
+    _ATTEMPT_ID,
+    _CONNECTOR_ID,
+    _COUNTRY_CODE,
+    _END_YEAR,
+    _INDICATOR_ID,
+    _PAGE_SIZE,
+    _PARAMS,
+    _PROFILE_ID,
+    _START_YEAR,
+    _TENANT_FOREIGN,
+    _TENANT_WDI,
+    _URL,
+    _constraints,
+    _dataset_value,
     _entry,
+    _family_receipt,
+    _journal_events,
+    _manifest_dataset,
+    _normalized_rows,
+    _raw_body,
     _resolver,
+    _run,
     _write_family_receipt,
 )
-from tests.unit.data_forge.domains.catalog.knowledge.test_acquisition_authority import (
-    _family_receipt as _canonical_family_receipt,
-)
-
-_ATTEMPT_ID = "n13b-worldbank-government-balance-001"
-_TENANT_WDI = "00000000-0000-0000-0000-00000000000a"
-_TENANT_FOREIGN = "00000000-0000-0000-0000-00000000000b"
-_CONNECTOR_ID = "worldbank.wdi"
-_PROFILE_ID = "worldbank_wdi"
-_INDICATOR_ID = "GC.BAL.CASH.GD.ZS"
-_COUNTRY_CODE = "UKR"
-_START_YEAR = 2023
-_END_YEAR = 2024
-_PAGE_SIZE = 1000
-_URL = "https://api.worldbank.org/v2/country/UKR/indicator/GC.BAL.CASH.GD.ZS"
-_PARAMS = {
-    "date": "2023:2024",
-    "format": "json",
-    "page": "1",
-    "per_page": "1000",
-}
 
 
 def _spy_on_journal_permit_scope(
@@ -129,43 +108,6 @@ def _spy_on_journal_permit_scope(
     return entered, yielded_permits
 
 
-def _family_receipt(*, scenario: str = "success") -> dict[str, object]:
-    receipt = _canonical_family_receipt(_ATTEMPT_ID)
-    carrier = dict(receipt["dry_run_attempts"][0])
-    profile = SourceProfileRegistry.get_instance().get(_PROFILE_ID)
-    assert profile is not None
-    carrier.update(
-        {
-            "source_profile_family": "worldbank",
-            "connection_config_content_sha256": content_sha256(
-                resolve_connection_config(profile).to_dict(redact=True)
-            ),
-            "fetch_request_key": FetchRequest(dataset_id=_INDICATOR_ID).request_key,
-        }
-    )
-    if scenario == "receipt_config_drift":
-        carrier["connection_config_content_sha256"] = "sha256:" + "0" * 64
-    elif scenario == "receipt_request_drift":
-        carrier["fetch_request_key"] = "sha256:" + "0" * 64
-    elif scenario == "receipt_profile_family_drift":
-        carrier["source_profile_family"] = "forged"
-    receipt["dry_run_attempts"] = [carrier]
-    return receipt
-
-
-def _constraints() -> LiveCatalogExecutionConstraints:
-    return LiveCatalogExecutionConstraints(
-        country_code=_COUNTRY_CODE,
-        start_year=_START_YEAR,
-        end_year=_END_YEAR,
-        page_size=_PAGE_SIZE,
-        max_response_bytes=65_536,
-        max_decompressed_bytes=65_536,
-        timeout_cap_seconds=15.0,
-        heartbeat_cap_seconds=5.0,
-    )
-
-
 def _route_closure(
     *,
     variable_id: str = "government.balance",
@@ -188,327 +130,10 @@ def _route_closure(
             gap_type="data_snapshot_release",
             requirement_family="data_requirement",
             requirement_schema_version=("policyos.runtime.l1_variable_availability_gap.v1"),
-            missing_requirement_fields=(
-                f"canonical_variable_observations:{variable_id}",
-            ),
+            missing_requirement_fields=(f"canonical_variable_observations:{variable_id}",),
             recommended_strategy="production_snapshot_build",
         ),
     )
-
-
-def _normalized_rows(*, adjacent: str | None = None) -> list[dict[str, object]]:
-    rows: list[dict[str, object]] = [
-        {
-            "country_code": _COUNTRY_CODE,
-            "country_name": "Ukraine",
-            "indicator_id": _INDICATOR_ID,
-            "indicator_name": "Cash surplus/deficit (% of GDP)",
-            "year": 2023,
-            "value": -18.2,
-            "unit": "% of GDP",
-            "decimal": 1,
-        },
-        {
-            "country_code": _COUNTRY_CODE,
-            "country_name": "Ukraine",
-            "indicator_id": _INDICATOR_ID,
-            "indicator_name": "Cash surplus/deficit (% of GDP)",
-            "year": 2024,
-            "value": -17.1,
-            "unit": "% of GDP",
-            "decimal": 1,
-        },
-    ]
-    if adjacent == "indicator":
-        rows.append(
-            {
-                **rows[-1],
-                "indicator_id": "FP.CPI.TOTL",
-                "indicator_name": "Consumer price index",
-                "value": 128.4,
-            }
-        )
-    elif adjacent == "country":
-        rows.append({**rows[-1], "country_code": "POL", "country_name": "Poland"})
-    elif adjacent == "year":
-        rows.append({**rows[-1], "year": 2022})
-    return rows
-
-
-def _raw_body(
-    rows: list[dict[str, object]],
-    *,
-    per_page: int = _PAGE_SIZE,
-    total: int | None = None,
-) -> bytes:
-    records = [
-        {
-            "countryiso3code": row["country_code"],
-            "country": {"id": "UA", "value": row["country_name"]},
-            "indicator": {
-                "id": row["indicator_id"],
-                "value": row["indicator_name"],
-            },
-            "date": str(row["year"]),
-            "value": row["value"],
-            "unit": row["unit"],
-            "decimal": row["decimal"],
-        }
-        for row in rows
-    ]
-    return json.dumps(
-        [
-            {
-                "page": 1,
-                "pages": 1,
-                "per_page": per_page,
-                "total": len(records) if total is None else total,
-            },
-            records,
-        ],
-        sort_keys=True,
-        separators=(",", ":"),
-    ).encode("utf-8")
-
-
-def _fetch_result(
-    rows: list[dict[str, object]],
-    *,
-    body: bytes,
-) -> FetchResult[pd.DataFrame]:
-    fetched_at = datetime.now(UTC)
-    body_sha256 = "sha256:" + hashlib.sha256(body).hexdigest()
-    frame = pd.DataFrame(rows)
-    return FetchResult(
-        data=frame,
-        row_count=len(frame),
-        schema_id="worldbank.wdi.generic",
-        schema_version="2.0.0",
-        version=DataVersion(
-            strategy=VersionStrategy.CONTENT_HASH,
-            value=body_sha256,
-            timestamp=fetched_at,
-            content_hash=body_sha256,
-        ),
-        fetched_at=fetched_at,
-        completeness=1.0,
-        quality_tier=QualityTier.GOLD,
-        has_more=False,
-        next_page_token=None,
-    )
-
-
-def _manifest_dataset(manifest: object) -> object:
-    datasets = getattr(manifest, "datasets", None)
-    if datasets is None and isinstance(manifest, Mapping):
-        datasets = manifest.get("datasets")
-    assert isinstance(datasets, list)
-    assert len(datasets) == 1
-    return datasets[0]
-
-
-def _dataset_value(dataset: object, key: str) -> object:
-    if isinstance(dataset, Mapping):
-        return dataset[key]
-    return getattr(dataset, key)
-
-
-def _fetch_request_from_manifest(manifest: object) -> FetchRequest:
-    dataset = _manifest_dataset(manifest)
-    filters = _dataset_value(dataset, "filters")
-    assert isinstance(filters, Mapping)
-    normalized_filters = tuple(
-        (str(key), tuple(str(value) for value in values)) for key, values in sorted(filters.items())
-    )
-    return FetchRequest(
-        dataset_id=str(_dataset_value(dataset, "dataset_id")),
-        date_start=datetime.fromisoformat(str(_dataset_value(dataset, "date_start"))).replace(
-            tzinfo=UTC
-        ),
-        date_end=datetime.fromisoformat(str(_dataset_value(dataset, "date_end"))).replace(
-            tzinfo=UTC
-        ),
-        filters=normalized_filters,
-        page_size=int(_dataset_value(dataset, "page_size")),
-        retryable=bool(_dataset_value(dataset, "retryable")),
-    )
-
-
-class _OrchestratedWorldBankStub:
-    """Emulate only Fabric's observer/sink contract; never open a network socket."""
-
-    def __init__(
-        self,
-        *,
-        scenario: str,
-        baseline_path: Path,
-        journal_path: Path,
-    ) -> None:
-        self.scenario = scenario
-        self.baseline_path = baseline_path
-        self.journal_path = journal_path
-        self.calls: list[dict[str, object]] = []
-        self.raw_visible_before_sink = False
-        self.cas_root: Path | None = None
-
-    def __call__(self, **kwargs: object) -> IngestionResult:
-        self.calls.append(dict(kwargs))
-        self.cas_root = Path(str(kwargs["cas_root"]))
-        manifest = kwargs["connector_manifest"]
-        observer = kwargs.get("raw_http_response_observer")
-        sink = kwargs.get("raw_result_sink")
-        rows = _normalized_rows(
-            adjacent=(
-                self.scenario.removeprefix("adjacent_")
-                if self.scenario.startswith("adjacent_")
-                else None
-            )
-        )
-        result_rows = [dict(row) for row in rows]
-        if self.scenario == "result_value_drift":
-            result_rows[0]["value"] = -999.0
-        elif self.scenario == "result_unit_drift":
-            result_rows[0]["unit"] = "percentage points"
-        elif self.scenario == "result_decimal_drift":
-            result_rows[0]["decimal"] = 7
-        elif self.scenario == "result_name_drift":
-            result_rows[0]["indicator_name"] = "Fabricated government balance"
-        body = _raw_body(
-            rows,
-            per_page=(999 if self.scenario == "metadata_per_page_drift" else _PAGE_SIZE),
-            total=(999 if self.scenario == "metadata_total_drift" else None),
-        )
-        result = _fetch_result(result_rows, body=body)
-        if self.scenario == "fabricated_result_version":
-            forged_hash = "sha256:" + "0" * 64
-            result = result.model_copy(
-                update={
-                    "version": result.version.model_copy(
-                        update={"value": forged_hash, "content_hash": forged_hash}
-                    )
-                }
-            )
-        fetch_request = _fetch_request_from_manifest(manifest)
-
-        if self.scenario != "omit_observer":
-            assert observer is not None
-            url, params = self._transport_projection()
-            observer.before_request(_CONNECTOR_ID, url, params)  # type: ignore[attr-defined]
-            on_headers = getattr(observer, "on_response_headers", None)
-            if callable(on_headers):
-                on_headers(
-                    _CONNECTOR_ID,
-                    url,
-                    params,
-                    200,
-                    {"content-type": "application/json"},
-                )
-            on_progress = getattr(observer, "on_body_progress", None)
-            if callable(on_progress):
-                on_progress(_CONNECTOR_ID, url, params, len(body))
-
-            if self.scenario == "sink_before_raw":
-                assert callable(sink)
-                sink(_CONNECTOR_ID, _INDICATOR_ID, fetch_request, result)
-
-            observer.on_raw_response(  # type: ignore[attr-defined]
-                _CONNECTOR_ID,
-                url,
-                params,
-                200,
-                {"content-type": "application/json"},
-                body,
-            )
-
-            if self.scenario in {"retry_second_call", "renamed_second_call"}:
-                retry_url = (
-                    url
-                    if self.scenario == "retry_second_call"
-                    else url.replace(_INDICATOR_ID, "FP.CPI.TOTL")
-                )
-                observer.before_request(  # type: ignore[attr-defined]
-                    _CONNECTOR_ID,
-                    retry_url,
-                    params,
-                )
-
-        if self.scenario != "omit_sink":
-            assert callable(sink)
-            if self.journal_path.is_file():
-                events = _journal_events(self.journal_path)
-                self.raw_visible_before_sink = any(
-                    event.get("event_kind") == "raw_response" for event in events
-                )
-            sink(_CONNECTOR_ID, _INDICATOR_ID, fetch_request, result)
-
-        if self.scenario == "baseline_mutation":
-            with self.baseline_path.open("ab") as handle:
-                handle.write(b"n13b-baseline-mutation-probe")
-        if self.scenario == "baseline_mutation_then_error":
-            with self.baseline_path.open("ab") as handle:
-                handle.write(b"n13b-baseline-mutation-probe")
-            raise RuntimeError("simulated transport failure after baseline mutation")
-
-        store = FileSystemCAS(self.cas_root)
-        serialized, media_type = ResultSerializer.serialize(result)
-        data_ref = store.put_bytes(
-            serialized,
-            ArtifactWriteOptions(
-                kind="fabric.connector_cache.payload",
-                media_type=media_type,
-            ),
-        )
-        evidence_ref = persist_evidence_bundle(
-            store,
-            build_evidence_bundle(
-                sources=[data_ref],
-                notes=["network-free orchestrated WDI test"],
-            ),
-        )
-        snapshot = DataSnapshot(
-            data_ref=data_ref,
-            evidence_ref=evidence_ref,
-            stats={"datasets_fetched": 1, "source": "orchestrated_ingestion:test"},
-            notes=["fabric.data_plane.orchestrator", "datasets=1"],
-        )
-        snapshot_artifact = store.put_json(
-            snapshot,
-            ArtifactWriteOptions(
-                kind="fabric.data_snapshot",
-                media_type="application/json",
-                schema=SchemaInfo(
-                    name="polisyos.core.DataSnapshot",
-                    version="0.2.0",
-                ),
-            ),
-            canon_spec=CanonSpec(forbid_floats=False),
-        )
-        return IngestionResult(
-            evidence_bundle_ref=evidence_ref,
-            data_snapshot_ref=DataSnapshotRef(artifact_id=snapshot_artifact.artifact_id),
-            datasets_fetched=1,
-        )
-
-    def _transport_projection(self) -> tuple[str, dict[str, str]]:
-        url = _URL
-        params = dict(_PARAMS)
-        if self.scenario == "wrong_host":
-            url = url.replace("api.worldbank.org", "attacker.invalid")
-        elif self.scenario == "wrong_path":
-            url = url.replace("/v2/country/", "/v1/series/")
-        elif self.scenario == "wrong_indicator":
-            url = url.replace(_INDICATOR_ID, "FP.CPI.TOTL")
-        elif self.scenario == "wrong_country":
-            url = url.replace("/UKR/", "/POL/")
-        elif self.scenario == "wrong_year":
-            params["date"] = "2022:2024"
-        return url, params
-
-
-def _journal_events(path: Path) -> list[dict[str, Any]]:
-    if not path.is_file():
-        return []
-    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
 
 
 def _assert_error_code(exc: BaseException, expected: str) -> None:
@@ -538,65 +163,6 @@ def _resolved_live_worldbank_authority(tmp_path: Path) -> tuple[object, object]:
     return authority, entry
 
 
-def _run(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-    *,
-    scenario: str = "success",
-    constraints: LiveCatalogExecutionConstraints | None = None,
-    authority_entry: object | None = None,
-    execution_dependencies: dict[str, object] | None = None,
-    cache_namespace: str | None = None,
-) -> tuple[object, object, _OrchestratedWorldBankStub, Path]:
-    repo_root = tmp_path / "repo"
-    entry = authority_entry or _entry()
-    receipt = _family_receipt(scenario=scenario)
-    receipt_provision = _write_family_receipt(
-        repo_root,
-        entry_id=entry.entry_id,
-        attempt_id=_ATTEMPT_ID,
-        receipt=receipt,
-    )
-    authority, entry = _resolver(
-        repo_root,
-        authority_entry=entry,
-        live_harness_receipts=(receipt_provision,),
-    )
-    journal_path = tmp_path / "journal.jsonl"
-    stub = _OrchestratedWorldBankStub(
-        scenario=scenario,
-        baseline_path=authority.baseline_path,
-        journal_path=journal_path,
-    )
-
-    async def _forbid_direct_fetch(*args: object, **kwargs: object) -> object:
-        del args, kwargs
-        pytest.fail("live acquisition bypassed run_orchestrated_ingestion")
-
-    monkeypatch.setattr(WorldBankConnector, "fetch", _forbid_direct_fetch)
-    monkeypatch.setattr(
-        acquisition_executor_module,
-        "run_orchestrated_ingestion",
-        stub,
-    )
-
-    cas_root = tmp_path / "cas"
-    dependencies = dict(execution_dependencies or {})
-    if "artifact_store" not in dependencies:
-        dependencies["artifact_store"] = FileSystemCAS(cas_root)
-    result = execute_live_catalog_acquisition(
-        authority=authority,
-        entry_id=entry.entry_id,
-        attempt_id=_ATTEMPT_ID,
-        constraints=constraints or _constraints(),
-        journal_path=journal_path,
-        cas_root=cas_root,
-        cache_namespace=cache_namespace,
-        **dependencies,
-    )
-    return authority, result, stub, journal_path
-
-
 def _entry_with_temporal_scope(
     temporal_start: str | None,
     temporal_end: str | None,
@@ -620,9 +186,7 @@ def _sibling_entry_with_same_target() -> object:
     values.update(
         {
             "landing_dataset_id": "acquisition.worldbank.government_balance.sibling",
-            "landing_distribution_id": (
-                "acquisition.worldbank.government_balance.sibling.json"
-            ),
+            "landing_distribution_id": ("acquisition.worldbank.government_balance.sibling.json"),
             "title": "Sibling government balance authority",
         }
     )
@@ -649,14 +213,12 @@ def test_route_binding_resolves_one_content_bound_world_bank_attempt(
         authority.registry_path.read_bytes()
     )
 
-    bindings = (
-        acquisition_surface_execution_module.resolve_world_bank_wdi_route_execution_bindings(
-            closure=_route_closure(),
-            authority=authority,
-            registry=registry,
-            provision=authority.provision,
-            provision_content_sha256=authority.provision_content_sha256,
-        )
+    bindings = acquisition_surface_execution_module.resolve_world_bank_wdi_route_execution_bindings(
+        closure=_route_closure(),
+        authority=authority,
+        registry=registry,
+        provision=authority.provision,
+        provision_content_sha256=authority.provision_content_sha256,
     )
 
     assert len(bindings) == 1
@@ -851,9 +413,7 @@ def test_route_binding_rejects_ambiguous_entry_and_owner_drift(
 
     with pytest.raises(LiveAcquisitionExecutionError) as registry_drift:
         acquisition_surface_execution_module.resolve_world_bank_wdi_route_execution_bindings(
-            registry=registry.model_copy(
-                update={"content_sha256": "sha256:" + "0" * 64}
-            ),
+            registry=registry.model_copy(update={"content_sha256": "sha256:" + "0" * 64}),
             **common,
         )
     assert registry_drift.value.code == "live_route_authority_registry_drift"
@@ -1515,8 +1075,9 @@ def test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_tra
         assert reopened.row_count == 2
 
     foreign_store = FileSystemCAS(cas_root).for_tenant(_TENANT_FOREIGN, "cell-other")
-    with tenant_scope(None, tenant_id=_TENANT_FOREIGN, cell_id="cell-other"), pytest.raises(
-        ArtifactOwnershipError
+    with (
+        tenant_scope(None, tenant_id=_TENANT_FOREIGN, cell_id="cell-other"),
+        pytest.raises(ArtifactOwnershipError),
     ):
         foreign_store.get_bytes(evidence.raw_artifact_id)
 
@@ -1525,7 +1086,9 @@ def test_live_executor_recomputes_full_authorization_before_issuing_pool_permit(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    original_builder = acquisition_executor_module.fabric_data_plane.build_live_execution_authorization
+    original_builder = (
+        acquisition_executor_module.fabric_data_plane.build_live_execution_authorization
+    )
     calls = 0
 
     def _forge_first_authorization(**kwargs: Any):
@@ -1588,9 +1151,7 @@ def test_live_acquire_permit_rejects_a_reconstructed_copy_before_pool_io(
         dataset_id: str,
     ) -> Any:
         clone = object.__new__(type(permit))
-        forged_issuer = SimpleNamespace(
-            _consume_live_acquire_permit=lambda **_kwargs: None
-        )
+        forged_issuer = SimpleNamespace(_consume_live_acquire_permit=lambda **_kwargs: None)
         forged_fields = {
             "_journal": forged_issuer,
             "_journal_path": "/tmp/forged-journal.jsonl",

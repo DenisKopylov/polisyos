@@ -18,7 +18,7 @@ def test_phase3_6_dead_override_gate_is_registered_report_only() -> None:
         "architecture/tooling/static_analysis_overrides.toml",
         "architecture/tooling/tool_config_split.toml",
         "architecture/tooling/mypy/generated.ini",
-        "architecture/tooling/ruff/generated.toml",
+        "ruff.generated.toml",
         "mypy.ini",
         "ruff.toml",
     ]
@@ -33,7 +33,7 @@ def test_phase3_6_dead_override_gate_is_registered_report_only() -> None:
     split = static["tool_config_split"]
     assert split["check_command"] == "uv run polisyos-tools workspace tool-configs --check"
     assert split["mypy_config"] == "architecture/tooling/mypy/generated.ini"
-    assert split["ruff_config"] == "architecture/tooling/ruff/generated.toml"
+    assert split["ruff_config"] == "ruff.generated.toml"
 
 
 def _read_toml(path: Path) -> dict[str, object]:

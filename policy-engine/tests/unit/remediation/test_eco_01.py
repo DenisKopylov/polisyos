@@ -16,6 +16,8 @@ from polisyos.foundry.methods._internal.loss import policy_loss_fn as internal_p
 from polisyos.foundry.methods.loss import policy_loss_fn as legacy_policy_loss_fn
 from polisyos.foundry.plugins.economics.mechanisms import (
     LaborMarketMechanism as EconomicLaborMarketMechanism,
+)
+from polisyos.foundry.plugins.economics.mechanisms import (
     TaxationMechanism,
 )
 

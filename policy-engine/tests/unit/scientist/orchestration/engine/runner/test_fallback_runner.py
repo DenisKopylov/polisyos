@@ -7,8 +7,11 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+
 from polisyos.scientist.orchestration.engine.runner import (
     fallback_runner as fallback_runner_module,
+)
+from polisyos.scientist.orchestration.engine.runner import (
     temporal_runner as temporal_runner_module,
 )
 from polisyos.scientist.orchestration.engine.runner.fallback_runner import (

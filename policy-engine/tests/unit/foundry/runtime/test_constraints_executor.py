@@ -4,6 +4,7 @@ from decimal import Decimal
 
 import jax.numpy as jnp
 import pytest
+
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
@@ -11,8 +12,7 @@ from polisyos.core.contracts.foundry import CompileRequest
 from polisyos.core.registry import build_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry.execute.executor import ExecutionStrictness
-from polisyos.foundry.execute.executor import execute_program_graph
+from polisyos.foundry.execute.executor import ExecutionStrictness, execute_program_graph
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ConstraintSpec as ProblemConstraintSpec
 from polisyos.ir.governance.problem_frame import ConstraintType, ProblemDomain, ProblemFrame

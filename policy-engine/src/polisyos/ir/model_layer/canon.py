@@ -7,13 +7,21 @@ from typing import Any
 
 from polisyos.common.canonical import (
     CanonSpec as _SharedCanonSpec,
+)
+from polisyos.common.canonical import (
     from_canonical_bytes as _from_canonical_bytes,
+)
+from polisyos.common.canonical import (
     from_canonical_obj as _from_canonical_obj,
+)
+from polisyos.common.canonical import (
     to_canonical_bytes as _to_canonical_bytes,
 )
 from polisyos.common.hashing import (
     DeprecatedHashAlgorithm,
     HashAlgorithm,
+)
+from polisyos.common.hashing import (
     content_hash as _content_hash,
 )
 

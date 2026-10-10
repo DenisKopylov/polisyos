@@ -10,11 +10,16 @@ from __future__ import annotations
 
 import argparse
 import ast
+import gzip
 import hashlib
+import io
 import json
 import os
 import re
 import subprocess
+import textwrap
+import xml.etree.ElementTree as ET
+import zlib
 from bisect import bisect_right
 from collections import Counter
 from pathlib import Path
@@ -174,6 +179,453 @@ KNOWN_BINARY_SUFFIXES = frozenset(
         ".dll",
     }
 )
+
+_GZIP_MAGIC = b"\x1f\x8b"
+_MAX_GZIP_TEXT_BYTES = 64 * 1024 * 1024
+
+
+class _GzipTextExpansionLimitError(ValueError):
+    """A selected compressed text input expands beyond the bounded decoder limit."""
+
+
+class _CompressedTextWrongSuffixError(ValueError):
+    """A compressed stream is not a declared JUnit XML input."""
+
+
+class _InvalidCompressedJUnitXmlError(ValueError):
+    """A compressed JUnit XML stream is not valid UTF-8 XML."""
+
+
+def _decode_selected_bytes(
+    path: str, raw: bytes
+) -> tuple[bytes, dict[str, object] | None]:
+    """Decode ordinary bytes or a bounded, well-formed compressed JUnit report."""
+    if not raw.startswith(_GZIP_MAGIC):
+        return raw, None
+    if not path.lower().endswith(".junit.xml"):
+        raise _CompressedTextWrongSuffixError(
+            "gzip compression is supported only for selected .junit.xml inputs"
+        )
+    with gzip.GzipFile(fileobj=io.BytesIO(raw), mode="rb") as stream:
+        decoded = stream.read(_MAX_GZIP_TEXT_BYTES + 1)
+    if len(decoded) > _MAX_GZIP_TEXT_BYTES:
+        raise _GzipTextExpansionLimitError(
+            f"gzip text expands beyond {_MAX_GZIP_TEXT_BYTES} bytes"
+        )
+    try:
+        decoded.decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise _InvalidCompressedJUnitXmlError(
+            "decompressed .junit.xml is not UTF-8"
+        ) from error
+    try:
+        document = ET.fromstring(decoded)
+    except (ET.ParseError, LookupError, ValueError) as error:
+        raise _InvalidCompressedJUnitXmlError(
+            f"decompressed .junit.xml is malformed: {error}"
+        ) from error
+    if document.tag not in {"testsuite", "testsuites"}:
+        raise _InvalidCompressedJUnitXmlError(
+            f"unsupported JUnit XML root element: {document.tag}"
+        )
+    return decoded, {
+        "compression": "gzip",
+        "raw_byte_count": len(raw),
+        "raw_sha256": hashlib.sha256(raw).hexdigest(),
+        "decoded_byte_count": len(decoded),
+        "decoded_sha256": hashlib.sha256(decoded).hexdigest(),
+    }
+
+
+def _source_snapshot_role(path: str) -> str | None:
+    """Return the pair role for a conventionally named archived source snapshot."""
+    match = re.search(r"(?:[._-](?P<role>preimage|postimage))\.py$", Path(path).name)
+    return match.group("role") if match is not None else None
+
+
+def _read_selected_json(
+    root: Path,
+    relative: str,
+    selected_paths: set[str],
+    cache: dict[str, tuple[dict[str, Any], str, int] | None],
+) -> tuple[dict[str, Any], str, int] | None:
+    """Read a selected JSON record once through the census read-measurement API."""
+    if relative not in selected_paths:
+        return None
+    if relative not in cache:
+        try:
+            raw = measured_read_bytes(root / relative)
+            value = json.loads(raw.decode("utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError, RecursionError):
+            cache[relative] = None
+        else:
+            cache[relative] = (
+                (value, hashlib.sha256(raw).hexdigest(), len(raw))
+                if isinstance(value, dict)
+                else None
+            )
+    return cache[relative]
+
+
+def _indexed_artifact_entries(
+    root: Path,
+    index: dict[str, Any],
+    relative: str,
+    sha256: str,
+    byte_count: int,
+) -> list[dict[str, Any]]:
+    """Return exact local path, digest, and byte-count entries from an index."""
+    artifacts = index.get("artifacts")
+    if not isinstance(artifacts, list):
+        return []
+    allowed_paths = {relative, f"{root.name}/{relative}"}
+    return [
+        entry
+        for entry in artifacts
+        if isinstance(entry, dict)
+        and isinstance(entry.get("path"), str)
+        and entry.get("path") in allowed_paths
+        and entry.get("sha256") == sha256
+        and type(entry.get("bytes")) is int
+        and entry.get("bytes") == byte_count
+    ]
+
+
+def _is_sha256_digest(value: object) -> bool:
+    """Return whether a pair record contains a lowercase SHA-256 digest."""
+    return isinstance(value, str) and re.fullmatch(r"[0-9a-f]{64}", value) is not None
+
+
+def _source_pair_members(
+    root: Path,
+    relative: str,
+    source_role: str,
+    source_sha256: str,
+    raw: bytes,
+    manifest: dict[str, Any],
+    index: dict[str, Any],
+    selected_paths: set[str],
+) -> tuple[str, list[dict[str, str]]] | None:
+    """Resolve and content-bind both members of one supported source-pair record."""
+    source_path = Path(relative)
+    member_names: dict[str, str]
+    member_hashes: dict[str, str]
+    member_original_paths: dict[str, str | None]
+    if manifest.get("schema") == "ORCH04-B114-matched-property-removal-v1":
+        changes = manifest.get("changes")
+        if not isinstance(changes, list):
+            return None
+        candidates: list[
+            tuple[dict[str, str], dict[str, str], dict[str, str | None]]
+        ] = []
+        for change in changes:
+            if not isinstance(change, dict):
+                continue
+            preimage = change.get("preimage")
+            postimage = change.get("postimage")
+            preimage_sha256 = change.get("preimage_sha256")
+            postimage_sha256 = change.get("postimage_sha256")
+            if (
+                not isinstance(preimage, str)
+                or not isinstance(postimage, str)
+                or not _is_sha256_digest(preimage_sha256)
+                or not _is_sha256_digest(postimage_sha256)
+            ):
+                continue
+            names = {
+                "preimage": Path(preimage).name,
+                "postimage": Path(postimage).name,
+            }
+            hashes = {"preimage": preimage_sha256, "postimage": postimage_sha256}
+            original_paths: dict[str, str | None] = {
+                "preimage": preimage,
+                "postimage": postimage,
+            }
+            if (
+                _source_snapshot_role(names["preimage"]) != "preimage"
+                or _source_snapshot_role(names["postimage"]) != "postimage"
+                or names[source_role] != source_path.name
+                or hashes[source_role] != source_sha256
+            ):
+                continue
+            candidates.append((names, hashes, original_paths))
+        if len(candidates) != 1:
+            return None
+        pair_format = "ORCH04-B114-matched-property-removal-v1"
+        member_names, member_hashes, member_original_paths = candidates[0]
+    elif (
+        "schema" not in manifest
+        and manifest.get("source_files_changed") is False
+        and isinstance(manifest.get("qualification"), str)
+        and bool(manifest["qualification"].strip())
+        and isinstance(manifest.get("semantic_expected_failure"), str)
+        and bool(manifest["semantic_expected_failure"].strip())
+        and type(manifest.get("actual_accepted")) is int
+        and type(manifest.get("positive_expected_accepted")) is int
+    ):
+        preimage_sha256 = manifest.get("preimage_sha256")
+        postimage_sha256 = manifest.get("postimage_sha256")
+        if not _is_sha256_digest(preimage_sha256) or not _is_sha256_digest(
+            postimage_sha256
+        ):
+            return None
+        member_hashes = {
+            "preimage": preimage_sha256,
+            "postimage": postimage_sha256,
+        }
+        if member_hashes[source_role] != source_sha256:
+            return None
+        role_match = re.search(
+            r"([._-])(?P<role>preimage|postimage)(\.py)$", source_path.name
+        )
+        if role_match is None or role_match.group("role") != source_role:
+            return None
+        other_role = "postimage" if source_role == "preimage" else "preimage"
+        other_name = (
+            source_path.name[: role_match.start("role")]
+            + other_role
+            + role_match.group(3)
+        )
+        member_names = {source_role: source_path.name, other_role: other_name}
+        member_original_paths = {"preimage": None, "postimage": None}
+        pair_format = "legacy-b114-paired-hash-record"
+    else:
+        return None
+
+    if pair_format == "ORCH04-B114-matched-property-removal-v1":
+        preimage_original_path = member_original_paths["preimage"]
+        postimage_original_path = member_original_paths["postimage"]
+        if (
+            not isinstance(preimage_original_path, str)
+            or not isinstance(postimage_original_path, str)
+            or not Path(preimage_original_path).is_absolute()
+            or not Path(postimage_original_path).is_absolute()
+            or Path(preimage_original_path).name != member_names["preimage"]
+            or Path(postimage_original_path).name != member_names["postimage"]
+            or Path(preimage_original_path).parent
+            != Path(postimage_original_path).parent
+        ):
+            return None
+    member_receipts: list[dict[str, str]] = []
+    for role in ("preimage", "postimage"):
+        member_relative = (source_path.parent / member_names[role]).as_posix()
+        if member_relative not in selected_paths:
+            return None
+        member_path = root / member_relative
+        if member_path.is_symlink():
+            return None
+        try:
+            member_resolved = member_path.resolve()
+        except (OSError, RuntimeError):
+            return None
+        if (
+            not member_resolved.is_relative_to(root)
+            or member_resolved.relative_to(root).as_posix() != member_relative
+        ):
+            return None
+        if member_relative == relative:
+            member_raw = raw
+        else:
+            try:
+                member_raw = measured_read_bytes(member_path)
+            except OSError:
+                return None
+        member_sha256 = hashlib.sha256(member_raw).hexdigest()
+        if member_sha256 != member_hashes[role]:
+            return None
+        index_entries = _indexed_artifact_entries(
+            root, index, member_relative, member_sha256, len(member_raw)
+        )
+        if len(index_entries) != 1:
+            return None
+        indexed_original_path = index_entries[0].get("original_path")
+        declared_original_path = member_original_paths[role]
+        if declared_original_path is not None:
+            if indexed_original_path != declared_original_path:
+                return None
+        elif (
+            not isinstance(indexed_original_path, str)
+            or not Path(indexed_original_path).is_absolute()
+            or Path(indexed_original_path).name != Path(member_relative).name
+            or _source_snapshot_role(indexed_original_path) != role
+        ):
+            return None
+        member_receipts.append(
+            {
+                "role": role,
+                "path": member_relative,
+                "original_path": indexed_original_path,
+                "sha256": member_sha256,
+            }
+        )
+    if pair_format == "legacy-b114-paired-hash-record":
+        original_paths = {
+            item["role"]: item["original_path"] for item in member_receipts
+        }
+        preimage_original_path = original_paths.get("preimage")
+        postimage_original_path = original_paths.get("postimage")
+        if (
+            not isinstance(preimage_original_path, str)
+            or not isinstance(postimage_original_path, str)
+            or Path(preimage_original_path).parent
+            != Path(postimage_original_path).parent
+        ):
+            return None
+    return pair_format, member_receipts
+
+
+def _indexed_evidence_snapshot(
+    root: Path,
+    relative: str,
+    resolved_relative: str,
+    raw: bytes,
+    selected_paths: set[str],
+    json_cache: dict[str, tuple[dict[str, Any], str, int] | None],
+) -> dict[str, Any] | None:
+    """Require content-bound archive and source-pair records before excerpt parsing."""
+    source_path = Path(relative)
+    parts = source_path.parts
+    if (
+        parts[:2] != ("docs", "research")
+        or parts[0] in {"src", "tests", "tools"}
+        or resolved_relative != relative
+        or source_path.is_symlink()
+        or _source_snapshot_role(relative) is None
+    ):
+        return None
+
+    source_sha256 = hashlib.sha256(raw).hexdigest()
+    source_role = _source_snapshot_role(relative)
+    if source_role is None:
+        return None
+
+    index_binding: tuple[str, str, dict[str, Any]] | None = None
+    for evidence_dir in (root / relative).parents:
+        if evidence_dir == root:
+            break
+        if evidence_dir.name != "evidence" or evidence_dir.is_symlink():
+            continue
+        index_relative = (
+            (evidence_dir / "artifact-index.json").relative_to(root).as_posix()
+        )
+        index_path = root / index_relative
+        if index_path.is_symlink():
+            continue
+        loaded_index = _read_selected_json(
+            root, index_relative, selected_paths, json_cache
+        )
+        if loaded_index is None:
+            continue
+        index, index_sha256, _ = loaded_index
+        schema = index.get("schema")
+        artifacts = index.get("artifacts")
+        if (
+            not isinstance(schema, str)
+            or not schema.endswith(".evidence-index.v1")
+            or not isinstance(artifacts, list)
+        ):
+            continue
+        allowed_index_paths = {relative, f"{root.name}/{relative}"}
+        matching_entries = [
+            entry
+            for entry in artifacts
+            if isinstance(entry, dict)
+            and isinstance(entry.get("path"), str)
+            and entry.get("path") in allowed_index_paths
+            and entry.get("sha256") == source_sha256
+            and type(entry.get("bytes")) is int
+            and entry.get("bytes") == len(raw)
+        ]
+        if len(matching_entries) == 1:
+            index_binding = (index_relative, index_sha256, index)
+            break
+    if index_binding is None:
+        return None
+
+    matching_manifests: list[tuple[str, str, str, str, list[dict[str, str]]]] = []
+    parent_path = root / source_path.parent
+    try:
+        candidate_manifests = sorted(parent_path.glob("*.json"))
+    except OSError:
+        return None
+    _, _, index = index_binding
+    for manifest_path in candidate_manifests:
+        manifest_relative = manifest_path.relative_to(root).as_posix()
+        if manifest_relative not in selected_paths or manifest_path.is_symlink():
+            continue
+        loaded_manifest = _read_selected_json(
+            root, manifest_relative, selected_paths, json_cache
+        )
+        if loaded_manifest is None:
+            continue
+        manifest, manifest_sha256, manifest_byte_count = loaded_manifest
+        pair_binding = _source_pair_members(
+            root,
+            relative,
+            source_role,
+            source_sha256,
+            raw,
+            manifest,
+            index,
+            selected_paths,
+        )
+        if pair_binding is None:
+            continue
+        manifest_entries = _indexed_artifact_entries(
+            root, index, manifest_relative, manifest_sha256, manifest_byte_count
+        )
+        if len(manifest_entries) != 1:
+            continue
+        manifest_original_path = manifest_entries[0].get("original_path")
+        member_original_paths = {
+            item["role"]: item["original_path"] for item in pair_binding[1]
+        }
+        preimage_original_path = member_original_paths.get("preimage")
+        postimage_original_path = member_original_paths.get("postimage")
+        if (
+            not isinstance(manifest_original_path, str)
+            or not Path(manifest_original_path).is_absolute()
+            or Path(manifest_original_path).name != manifest_path.name
+            or not isinstance(preimage_original_path, str)
+            or not isinstance(postimage_original_path, str)
+            or Path(manifest_original_path).parent
+            != Path(preimage_original_path).parent
+            or Path(manifest_original_path).parent
+            != Path(postimage_original_path).parent
+        ):
+            continue
+        pair_format, pair_members = pair_binding
+        matching_manifests.append(
+            (
+                manifest_relative,
+                manifest_sha256,
+                manifest_original_path,
+                pair_format,
+                pair_members,
+            )
+        )
+    if len(matching_manifests) != 1:
+        return None
+    (
+        manifest_relative,
+        manifest_sha256,
+        manifest_original_path,
+        pair_format,
+        pair_members,
+    ) = matching_manifests[0]
+    return {
+        "source_type": "content_bound_archived_source_snapshot",
+        "pair_format": pair_format,
+        "source_role": source_role,
+        "source_sha256": source_sha256,
+        "pair_members": pair_members,
+        "source_manifest_path": manifest_relative,
+        "source_manifest_original_path": manifest_original_path,
+        "source_manifest_sha256": manifest_sha256,
+        "artifact_index_path": index_binding[0],
+        "artifact_index_sha256": index_binding[1],
+    }
+
 
 _FQN_PATTERNS = {
     target: re.compile(rf"(?<![A-Za-z0-9_]){re.escape(target)}(?![A-Za-z0-9_])")
@@ -445,15 +897,40 @@ def _literal_target(node: ast.expr | None) -> str | None:
 
 
 def _scan_python(
-    path: str, text: str
-) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[str]]:
+    path: str,
+    text: str,
+    *,
+    source_snapshot: dict[str, str] | None = None,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[str], dict[str, Any] | None]:
     imports: list[dict[str, Any]] = []
     loader_sites: list[dict[str, Any]] = []
     parse_errors: list[str] = []
+    normalization: dict[str, Any] | None = None
     try:
         tree = ast.parse(text, filename=path)
     except (SyntaxError, ValueError, RecursionError) as error:
-        return imports, loader_sites, [f"{path}: {type(error).__name__}: {error}"]
+        if not (
+            isinstance(error, IndentationError)
+            and error.msg == "unexpected indent"
+            and source_snapshot is not None
+        ):
+            return imports, loader_sites, [f"{path}: {type(error).__name__}: {error}"], None
+        normalized_text = textwrap.dedent(text)
+        if normalized_text == text:
+            return imports, loader_sites, [f"{path}: {type(error).__name__}: {error}"], None
+        try:
+            tree = ast.parse(normalized_text, filename=path)
+        except (SyntaxError, ValueError, RecursionError) as normalized_error:
+            return (
+                imports,
+                loader_sites,
+                [
+                    f"{path}: {type(normalized_error).__name__}: "
+                    f"{normalized_error} after evidence excerpt dedent"
+                ],
+                None,
+            )
+        normalization = source_snapshot
 
     module_aliases: dict[str, str] = {}
     imported_aliases: dict[str, str] = {}
@@ -530,7 +1007,7 @@ def _scan_python(
                 else "unresolved_nonliteral_target",
             }
         )
-    return imports, loader_sites, parse_errors
+    return imports, loader_sites, parse_errors, normalization
 
 
 def _package_metadata(root: Path, selected_text: dict[str, str]) -> dict[str, Any]:
@@ -601,6 +1078,8 @@ def collect_census(repo_root: Path) -> tuple[dict[str, Any], int]:
     untracked = sorted(set(untracked))
     ignored = sorted(set(ignored))
     selected = sorted(path for path in set(tracked) | set(untracked) if _is_selected_text(path))
+    selected_path_set = set(selected)
+    evidence_json_cache: dict[str, tuple[dict[str, Any], str, int] | None] = {}
     selected_ignored = sorted(path for path in ignored if _is_selected_text(path))
     excluded = sorted(
         {
@@ -618,6 +1097,8 @@ def collect_census(repo_root: Path) -> tuple[dict[str, Any], int]:
     unsupported: list[dict[str, str]] = []
     package_inputs: dict[str, str] = {}
     decoded_input_count = 0
+    gzip_text_inputs: list[dict[str, object]] = []
+    indented_python_excerpts: list[dict[str, object]] = []
     all_imports: list[dict[str, Any]] = []
     all_loader_sites: list[dict[str, Any]] = []
     all_matches: list[dict[str, Any]] = []
@@ -656,12 +1137,48 @@ def collect_census(repo_root: Path) -> tuple[dict[str, Any], int]:
                 continue
             read_paths.append(relative)
             try:
-                content = raw.decode("utf-8")
+                decoded_bytes, decoding = _decode_selected_bytes(relative, raw)
+            except _GzipTextExpansionLimitError as error:
+                unsupported.append(
+                    {
+                        "path": relative,
+                        "class": "gzip_text_expansion_limit",
+                        "detail": str(error),
+                    }
+                )
+                continue
+            except _CompressedTextWrongSuffixError as error:
+                unsupported.append(
+                    {
+                        "path": relative,
+                        "class": "compressed_text_wrong_suffix",
+                        "detail": str(error),
+                    }
+                )
+                continue
+            except _InvalidCompressedJUnitXmlError as error:
+                unsupported.append(
+                    {
+                        "path": relative,
+                        "class": "invalid_compressed_junit_xml",
+                        "detail": str(error),
+                    }
+                )
+                continue
+            except (OSError, EOFError, zlib.error) as error:
+                unsupported.append(
+                    {"path": relative, "class": "invalid_gzip_text", "detail": str(error)}
+                )
+                continue
+            try:
+                content = decoded_bytes.decode("utf-8")
             except UnicodeDecodeError as error:
                 unsupported.append(
                     {"path": relative, "class": "selected_file_not_utf8", "detail": str(error)}
                 )
                 continue
+            if decoding is not None:
+                gzip_text_inputs.append({"path": relative, **decoding})
             decoded_input_count += 1
             if "/" not in relative:
                 package_inputs[relative] = content
@@ -693,10 +1210,34 @@ def collect_census(repo_root: Path) -> tuple[dict[str, Any], int]:
                             }
                         )
             if Path(relative).suffix.lower() in {".py", ".pyi", ".pyx", ".pxd"}:
-                imports, loader_sites, errors = _scan_python(relative, content)
+                source_snapshot = None
+                if _source_snapshot_role(relative) is not None:
+                    source_snapshot = _indexed_evidence_snapshot(
+                        root,
+                        relative,
+                        resolved_path.relative_to(root).as_posix(),
+                        raw,
+                        selected_path_set,
+                        evidence_json_cache,
+                    )
+                imports, loader_sites, errors, normalization = _scan_python(
+                    relative, content, source_snapshot=source_snapshot
+                )
                 all_imports.extend(imports)
                 all_loader_sites.extend(loader_sites)
                 parse_errors.extend(errors)
+                if normalization is not None:
+                    indented_python_excerpts.append(
+                        {
+                            "path": relative,
+                            "normalization": "textwrap.dedent",
+                            "reason": "content-bound archived source-pair record",
+                            "line_count": len(content.splitlines()),
+                            "line_numbers_preserved": True,
+                            "column_offsets_preserved": False,
+                            **normalization,
+                        }
+                    )
         read_receipt = measurement.snapshot(
             complete_verdict=git_ok and not unreadable and not rejected_paths
         )
@@ -805,6 +1346,10 @@ def collect_census(repo_root: Path) -> tuple[dict[str, Any], int]:
         "read_receipt": read_receipt,
         "unreadable_paths": sorted(unreadable),
         "rejected_outside_root_paths": sorted(rejected_paths),
+        "source_normalizations": {
+            "gzip_text_inputs": gzip_text_inputs,
+            "indented_evidence_python_excerpts": indented_python_excerpts,
+        },
         "unsupported_or_ambiguous_inputs": unsupported
         + [
             {"path": "<python-ast>", "class": "unsupported_syntax_or_ast", "detail": error}

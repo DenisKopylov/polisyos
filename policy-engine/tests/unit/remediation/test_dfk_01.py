@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import gzip
+import hashlib
 import importlib
+import io
 import json
 import os
 import subprocess
@@ -186,7 +189,7 @@ def test_dfk_01_mechanisms_tombstone_is_not_importable() -> None:
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
-def _init_census_repository(root: Path, files: dict[str, str]) -> None:
+def _init_census_repository(root: Path, files: dict[str, str | bytes]) -> None:
     """Create a small Git-visible repository for the census CLI's input contract."""
     subprocess.run(["git", "init", "--quiet"], cwd=root, check=True)
     subprocess.run(
@@ -196,7 +199,10 @@ def _init_census_repository(root: Path, files: dict[str, str]) -> None:
     for relative_path, content in files.items():
         path = root / relative_path
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(content, encoding="utf-8")
+        if isinstance(content, bytes):
+            path.write_bytes(content)
+        else:
+            path.write_text(content, encoding="utf-8")
     subprocess.run(["git", "add", "--all"], cwd=root, check=True)
     subprocess.run(["git", "commit", "--quiet", "-m", "census fixture"], cwd=root, check=True)
 
@@ -1049,3 +1055,592 @@ def test_dfk_01_cli_json_escapes_surrogate_filename_without_changing_value(
     output = capsys.readouterr().out
     assert output.isascii()
     assert json.loads(output)["selection"]["selected_paths"] == [path]
+
+
+def test_dfk_01_census_decodes_valid_junit_and_manifested_source_snapshot(
+    tmp_path: Path,
+) -> None:
+    """Only typed archive records authorize the two supported source normalizations."""
+    report_path = "reports/historical.junit.xml"
+    excerpt_preimage_path = "docs/research/evidence/packet/acceptance-preimage.py"
+    excerpt_path = "docs/research/evidence/packet/acceptance-postimage.py"
+    report = (
+        b"<testsuites><testsuite name='history'><system-out>"
+        b"polisyos.foundry.domain.schema"
+        b"</system-out></testsuite></testsuites>"
+    )
+    compressed_report = gzip.compress(report, mtime=0)
+    excerpt = (
+        b"    # archived source excerpt\n"
+        b"    from polisyos.foundry.domain import schema\n"
+        b"\n"
+        b"    def refer_to_schema():\n"
+        b"        return schema.RegionProfile\n"
+    )
+    excerpt_sha256 = hashlib.sha256(excerpt).hexdigest()
+    excerpt_preimage = (
+        b"    # archived source preimage\n"
+        b"    from polisyos.foundry.domain import schema\n"
+        b"\n"
+        b"    def refer_to_schema():\n"
+        b"        return schema.RegionProfile\n"
+    )
+    excerpt_preimage_sha256 = hashlib.sha256(excerpt_preimage).hexdigest()
+    legacy_excerpt_path = "docs/research/evidence/legacy/acceptance-preimage.py"
+    legacy_postimage_path = "docs/research/evidence/legacy/acceptance-postimage.py"
+    legacy_excerpt = (
+        b"    # original archived source excerpt\n"
+        b"    from polisyos.foundry.domain import schema\n"
+        b"\n"
+        b"    def refer_to_schema():\n"
+        b"        return schema.RegionProfile\n"
+    )
+    legacy_excerpt_sha256 = hashlib.sha256(legacy_excerpt).hexdigest()
+    legacy_postimage = (
+        b"    # original archived postimage source excerpt\n"
+        b"    from polisyos.foundry.domain import schema\n"
+        b"\n"
+        b"    def refer_to_schema():\n"
+        b"        return schema.RegionProfile\n"
+    )
+    legacy_postimage_sha256 = hashlib.sha256(legacy_postimage).hexdigest()
+    manifest_path = "docs/research/evidence/packet/removal-manifest.json"
+    legacy_manifest_path = "docs/research/evidence/legacy/acceptance-removal.json"
+    removal_manifest = {
+        "schema": "ORCH04-B114-matched-property-removal-v1",
+        "changes": [
+            {
+                "method": "acceptance",
+                "preimage": "/archive/packet/acceptance-preimage.py",
+                "preimage_sha256": excerpt_preimage_sha256,
+                "postimage": "/archive/packet/acceptance-postimage.py",
+                "postimage_sha256": excerpt_sha256,
+            }
+        ],
+    }
+    manifest_bytes = json.dumps(removal_manifest).encode("utf-8")
+    legacy_manifest = {
+        "preimage_sha256": legacy_excerpt_sha256,
+        "postimage_sha256": legacy_postimage_sha256,
+        "actual_accepted": 0,
+        "positive_expected_accepted": 8,
+        "semantic_expected_failure": "accepted count differs",
+        "source_files_changed": False,
+        "qualification": "archived source-pair discriminator",
+    }
+    legacy_manifest_bytes = json.dumps(legacy_manifest).encode("utf-8")
+    report_artifact_index = {
+        "schema": "orch04.C11.B114.evidence-index.v1",
+        "artifacts": [
+            {
+                "path": f"{tmp_path.name}/{excerpt_preimage_path}",
+                "original_path": "/archive/packet/acceptance-preimage.py",
+                "sha256": excerpt_preimage_sha256,
+                "bytes": len(excerpt_preimage),
+            },
+            {
+                "path": f"{tmp_path.name}/{excerpt_path}",
+                "original_path": "/archive/packet/acceptance-postimage.py",
+                "sha256": excerpt_sha256,
+                "bytes": len(excerpt),
+            },
+            {
+                "path": f"{tmp_path.name}/{manifest_path}",
+                "original_path": "/archive/packet/removal-manifest.json",
+                "sha256": hashlib.sha256(manifest_bytes).hexdigest(),
+                "bytes": len(manifest_bytes),
+            },
+            {
+                "path": f"{tmp_path.name}/{legacy_excerpt_path}",
+                "original_path": "/archive/legacy/acceptance-preimage.py",
+                "sha256": legacy_excerpt_sha256,
+                "bytes": len(legacy_excerpt),
+            },
+            {
+                "path": f"{tmp_path.name}/{legacy_postimage_path}",
+                "original_path": "/archive/legacy/acceptance-postimage.py",
+                "sha256": legacy_postimage_sha256,
+                "bytes": len(legacy_postimage),
+            },
+            {
+                "path": f"{tmp_path.name}/{legacy_manifest_path}",
+                "original_path": "/archive/legacy/acceptance-removal.json",
+                "sha256": hashlib.sha256(legacy_manifest_bytes).hexdigest(),
+                "bytes": len(legacy_manifest_bytes),
+            },
+        ],
+    }
+    files: dict[str, str | bytes] = {
+        "src/polisyos/foundry/domain/schema.py": "class RegionProfile: ...\n",
+        report_path: compressed_report,
+        excerpt_preimage_path: excerpt_preimage,
+        excerpt_path: excerpt,
+        legacy_excerpt_path: legacy_excerpt,
+        legacy_postimage_path: legacy_postimage,
+        "docs/research/evidence/artifact-index.json": json.dumps(report_artifact_index),
+        manifest_path: manifest_bytes.decode("utf-8"),
+        legacy_manifest_path: legacy_manifest_bytes.decode("utf-8"),
+    }
+    _init_census_repository(tmp_path, files)
+
+    completed, receipt = _run_census(tmp_path)
+
+    assert completed.returncode == 0, completed.stderr
+    assert receipt["result"] == "complete_for_selected_local_text_inputs"
+    assert any(
+        hit["path"] == report_path
+        and hit["evidence_kind"] == "serialized_or_text_reference"
+        for hit in receipt["matches"]
+    )
+    excerpt_import = next(
+        hit
+        for hit in receipt["matches"]
+        if hit["path"] == excerpt_path
+        and hit["target"] == "polisyos.foundry.domain.schema"
+    )
+    assert excerpt_import["line"] == 2
+    legacy_import = next(
+        hit
+        for hit in receipt["matches"]
+        if hit["path"] == legacy_excerpt_path
+        and hit["target"] == "polisyos.foundry.domain.schema"
+    )
+    assert legacy_import["line"] == 2
+    assert receipt["source_normalizations"]["gzip_text_inputs"] == [
+        {
+            "path": report_path,
+            "compression": "gzip",
+            "raw_byte_count": len(compressed_report),
+            "raw_sha256": hashlib.sha256(compressed_report).hexdigest(),
+            "decoded_byte_count": len(report),
+            "decoded_sha256": hashlib.sha256(report).hexdigest(),
+        }
+    ]
+    normalization = receipt["source_normalizations"][
+        "indented_evidence_python_excerpts"
+    ]
+    assert len(normalization) == 4
+    normalization_by_path = {item["path"]: item for item in normalization}
+    assert set(normalization_by_path) == {
+        excerpt_preimage_path,
+        excerpt_path,
+        legacy_excerpt_path,
+        legacy_postimage_path,
+    }
+    assert normalization_by_path[excerpt_path] == {
+        "path": excerpt_path,
+        "normalization": "textwrap.dedent",
+        "reason": "content-bound archived source-pair record",
+        "line_count": 5,
+        "line_numbers_preserved": True,
+        "column_offsets_preserved": False,
+        "source_type": "content_bound_archived_source_snapshot",
+        "pair_format": "ORCH04-B114-matched-property-removal-v1",
+        "source_role": "postimage",
+        "source_sha256": excerpt_sha256,
+        "pair_members": [
+            {
+                "role": "preimage",
+                "path": excerpt_preimage_path,
+                "original_path": "/archive/packet/acceptance-preimage.py",
+                "sha256": excerpt_preimage_sha256,
+            },
+            {
+                "role": "postimage",
+                "path": excerpt_path,
+                "original_path": "/archive/packet/acceptance-postimage.py",
+                "sha256": excerpt_sha256,
+            },
+        ],
+        "source_manifest_path": manifest_path,
+        "source_manifest_original_path": "/archive/packet/removal-manifest.json",
+        "source_manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest(),
+        "artifact_index_path": "docs/research/evidence/artifact-index.json",
+        "artifact_index_sha256": hashlib.sha256(
+            json.dumps(report_artifact_index).encode("utf-8")
+        ).hexdigest(),
+    }
+    legacy_normalization = normalization_by_path[legacy_excerpt_path]
+    assert legacy_normalization["source_role"] == "preimage"
+    assert legacy_normalization["pair_format"] == "legacy-b114-paired-hash-record"
+    assert legacy_normalization["source_sha256"] == legacy_excerpt_sha256
+    assert legacy_normalization["pair_members"] == [
+        {
+            "role": "preimage",
+            "path": legacy_excerpt_path,
+            "original_path": "/archive/legacy/acceptance-preimage.py",
+            "sha256": legacy_excerpt_sha256,
+        },
+        {
+            "role": "postimage",
+            "path": legacy_postimage_path,
+            "original_path": "/archive/legacy/acceptance-postimage.py",
+            "sha256": legacy_postimage_sha256,
+        },
+    ]
+    assert legacy_normalization["source_manifest_path"] == legacy_manifest_path
+    assert legacy_normalization["source_manifest_original_path"] == (
+        "/archive/legacy/acceptance-removal.json"
+    )
+    assert (
+        legacy_normalization["source_manifest_sha256"]
+        == hashlib.sha256(legacy_manifest_bytes).hexdigest()
+    )
+    assert legacy_normalization["artifact_index_path"] == (
+        "docs/research/evidence/artifact-index.json"
+    )
+    assert legacy_normalization["line_numbers_preserved"] is True
+    assert legacy_normalization["column_offsets_preserved"] is False
+    read_paths = {
+        item["path"]
+        for item in receipt["read_receipt"]["inputs"]
+        if item.get("operation") == "read_bytes" and item.get("status") == "read"
+    }
+    assert read_paths == set(receipt["selection"]["selected_paths"])
+    assert receipt["read_receipt"]["complete_verdict"] is True
+
+
+def test_dfk_01_census_rejects_untyped_compressed_and_python_archive_inputs(
+    tmp_path: Path,
+) -> None:
+    """Compression and path markers cannot make malformed or runtime source complete."""
+    runtime_source_path = "src/polisyos/evidence/broken.preimage.py"
+    runtime_postimage_path = "src/polisyos/evidence/broken.postimage.py"
+    runtime_source = "    from polisyos.foundry.domain import schema\n"
+    runtime_source_sha256 = hashlib.sha256(runtime_source.encode("utf-8")).hexdigest()
+    runtime_postimage = "    from polisyos.foundry.domain import schema\n"
+    runtime_postimage_sha256 = hashlib.sha256(
+        runtime_postimage.encode("utf-8")
+    ).hexdigest()
+    runtime_manifest_path = "src/polisyos/evidence/removal-manifest.json"
+    runtime_manifest = {
+        "schema": "ORCH04-B114-matched-property-removal-v1",
+        "changes": [
+            {
+                "preimage": "/archive/broken.preimage.py",
+                "preimage_sha256": runtime_source_sha256,
+                "postimage": "/archive/broken.postimage.py",
+                "postimage_sha256": runtime_postimage_sha256,
+            }
+        ],
+    }
+    runtime_manifest_bytes = json.dumps(runtime_manifest).encode("utf-8")
+    runtime_index = {
+        "schema": "orch04.C11.B114.evidence-index.v1",
+        "artifacts": [
+            {
+                "path": f"{tmp_path.name}/{runtime_source_path}",
+                "sha256": runtime_source_sha256,
+                "bytes": len(runtime_source.encode("utf-8")),
+                "original_path": "/archive/broken.preimage.py",
+            },
+            {
+                "path": f"{tmp_path.name}/{runtime_postimage_path}",
+                "sha256": runtime_postimage_sha256,
+                "bytes": len(runtime_postimage.encode("utf-8")),
+                "original_path": "/archive/broken.postimage.py",
+            },
+            {
+                "path": f"{tmp_path.name}/{runtime_manifest_path}",
+                "sha256": hashlib.sha256(runtime_manifest_bytes).hexdigest(),
+                "bytes": len(runtime_manifest_bytes),
+                "original_path": "/archive/broken/removal-manifest.json",
+            },
+        ],
+    }
+    stale_source_path = "docs/research/evidence/packet/stale.preimage.py"
+    stale_source = "    from polisyos.foundry.domain import schema\n"
+    stale_source_sha256 = hashlib.sha256(stale_source.encode("utf-8")).hexdigest()
+    stale_manifest_path = "docs/research/evidence/packet/removal-manifest.json"
+    stale_manifest = {
+        "schema": "ORCH04-B114-matched-property-removal-v1",
+        "changes": [
+            {
+                "preimage": "/archive/stale.preimage.py",
+                "preimage_sha256": "0" * 64,
+                "postimage": "/archive/stale.postimage.py",
+                "postimage_sha256": "1" * 64,
+            }
+        ],
+    }
+    stale_manifest_bytes = json.dumps(stale_manifest).encode("utf-8")
+    document_index = {
+        "schema": "orch04.C11.B114.evidence-index.v1",
+        "artifacts": [
+            {
+                "path": f"{tmp_path.name}/{stale_source_path}",
+                "sha256": stale_source_sha256,
+                "bytes": len(stale_source.encode("utf-8")),
+            },
+            {
+                "path": f"{tmp_path.name}/{stale_manifest_path}",
+                "sha256": hashlib.sha256(stale_manifest_bytes).hexdigest(),
+                "bytes": len(stale_manifest_bytes),
+            },
+        ],
+    }
+    files: dict[str, str | bytes] = {
+        "reports/corrupt.junit.xml": b"\x1f\x8bnot-a-gzip-stream",
+        "reports/malformed.junit.xml": gzip.compress(
+            b"<testsuites><testsuite>", mtime=0
+        ),
+        "reports/non-utf8.junit.xml": gzip.compress(b"\xff", mtime=0),
+        "reports/non-junit.junit.xml": gzip.compress(b"<not-junit/>", mtime=0),
+        "reports/compressed.xml": gzip.compress(b"<testsuites/>", mtime=0),
+        runtime_source_path: runtime_source,
+        runtime_postimage_path: runtime_postimage,
+        "src/polisyos/evidence/artifact-index.json": json.dumps(runtime_index),
+        runtime_manifest_path: runtime_manifest_bytes.decode("utf-8"),
+        stale_source_path: stale_source,
+        stale_manifest_path: stale_manifest_bytes.decode("utf-8"),
+        "src/polisyos/foundry/domain/broken.py": "    def broken(:\n",
+    }
+    pair_cases = {}
+
+    def add_versioned_pair_control(
+        name: str,
+        *,
+        schema: str,
+        include_postimage: bool,
+        corrupt_postimage: bool = False,
+    ) -> None:
+        directory = f"docs/research/evidence/{name}"
+        preimage_path = f"{directory}/sample.preimage.py"
+        postimage_path = f"{directory}/sample.postimage.py"
+        manifest_path = f"{directory}/removal-manifest.json"
+        preimage = b"    from polisyos.foundry.domain import schema\n"
+        expected_postimage = b"    from polisyos.foundry.domain import schema\n"
+        actual_postimage = (
+            b"    from polisyos.foundry.domain import schemb\n"
+            if corrupt_postimage
+            else expected_postimage
+        )
+        manifest = {
+            "schema": schema,
+            "changes": [
+                {
+                    "method": "sample",
+                    "preimage": f"/archive/{name}/sample.preimage.py",
+                    "preimage_sha256": hashlib.sha256(preimage).hexdigest(),
+                    "postimage": f"/archive/{name}/sample.postimage.py",
+                    "postimage_sha256": hashlib.sha256(expected_postimage).hexdigest(),
+                }
+            ],
+        }
+        manifest_bytes = json.dumps(manifest).encode("utf-8")
+        files[preimage_path] = preimage
+        if include_postimage:
+            files[postimage_path] = actual_postimage
+        files[manifest_path] = manifest_bytes.decode("utf-8")
+        document_index["artifacts"].extend(
+            [
+                {
+                    "path": f"{tmp_path.name}/{preimage_path}",
+                    "sha256": hashlib.sha256(preimage).hexdigest(),
+                    "bytes": len(preimage),
+                    "original_path": f"/archive/{name}/sample.preimage.py",
+                },
+                {
+                    "path": f"{tmp_path.name}/{postimage_path}",
+                    "sha256": hashlib.sha256(expected_postimage).hexdigest(),
+                    "bytes": len(expected_postimage),
+                    "original_path": f"/archive/{name}/sample.postimage.py",
+                },
+                {
+                    "path": f"{tmp_path.name}/{manifest_path}",
+                    "original_path": f"/archive/{name}/removal-manifest.json",
+                    "sha256": hashlib.sha256(manifest_bytes).hexdigest(),
+                    "bytes": len(manifest_bytes),
+                },
+            ]
+        )
+        pair_cases[name] = {
+            "preimage_path": preimage_path,
+            "preimage_sha256": hashlib.sha256(preimage).hexdigest(),
+            "postimage_path": postimage_path,
+            "postimage_sha256": hashlib.sha256(expected_postimage).hexdigest(),
+            "manifest_path": manifest_path,
+            "manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest(),
+            "preimage_original_path": f"/archive/{name}/sample.preimage.py",
+            "postimage_original_path": f"/archive/{name}/sample.postimage.py",
+            "manifest_original_path": f"/archive/{name}/removal-manifest.json",
+            "include_postimage": include_postimage,
+            "corrupt_postimage": corrupt_postimage,
+            "actual_postimage": actual_postimage,
+        }
+
+    add_versioned_pair_control(
+        "missing-mate",
+        schema="ORCH04-B114-matched-property-removal-v1",
+        include_postimage=False,
+    )
+    add_versioned_pair_control(
+        "corrupt-mate",
+        schema="ORCH04-B114-matched-property-removal-v1",
+        include_postimage=True,
+        corrupt_postimage=True,
+    )
+    add_versioned_pair_control(
+        "unknown-schema",
+        schema="ORCH04-B114-matched-property-removal-v999",
+        include_postimage=True,
+    )
+    files["docs/research/evidence/artifact-index.json"] = json.dumps(document_index)
+    artifact_entries = {entry["path"]: entry for entry in document_index["artifacts"]}
+    for case in pair_cases.values():
+        current_entry = artifact_entries[f"{tmp_path.name}/{case['preimage_path']}"]
+        mate_entry = artifact_entries[f"{tmp_path.name}/{case['postimage_path']}"]
+        manifest_entry = artifact_entries[f"{tmp_path.name}/{case['manifest_path']}"]
+        assert current_entry["sha256"] == case["preimage_sha256"]
+        assert current_entry["original_path"] == case["preimage_original_path"]
+        assert mate_entry["sha256"] == case["postimage_sha256"]
+        assert mate_entry["original_path"] == case["postimage_original_path"]
+        assert manifest_entry["sha256"] == case["manifest_sha256"]
+        assert manifest_entry["original_path"] == case["manifest_original_path"]
+    corrupt_case = pair_cases["corrupt-mate"]
+    assert (
+        hashlib.sha256(corrupt_case["actual_postimage"]).hexdigest()
+        != (corrupt_case["postimage_sha256"])
+    )
+    _init_census_repository(tmp_path, files)
+
+    completed, receipt = _run_census(tmp_path)
+
+    assert completed.returncode == 2
+    assert receipt["result"] == "partial_unsupported_or_ambiguous"
+    unsupported = receipt["unsupported_or_ambiguous_inputs"]
+    assert any(
+        item["path"] == "reports/corrupt.junit.xml"
+        and item["class"] == "invalid_gzip_text"
+        for item in unsupported
+    )
+    assert any(
+        item["path"] == "reports/malformed.junit.xml"
+        and item["class"] == "invalid_compressed_junit_xml"
+        for item in unsupported
+    )
+    assert any(
+        item["path"] == "reports/non-utf8.junit.xml"
+        and item["class"] == "invalid_compressed_junit_xml"
+        for item in unsupported
+    )
+    assert any(
+        item["path"] == "reports/non-junit.junit.xml"
+        and item["class"] == "invalid_compressed_junit_xml"
+        for item in unsupported
+    )
+    assert any(
+        item["path"] == "reports/compressed.xml"
+        and item["class"] == "compressed_text_wrong_suffix"
+        for item in unsupported
+    )
+    syntax_details = [
+        item["detail"]
+        for item in unsupported
+        if item["class"] == "unsupported_syntax_or_ast"
+    ]
+    assert any(runtime_source_path in detail for detail in syntax_details)
+    assert any(runtime_postimage_path in detail for detail in syntax_details)
+    assert any(stale_source_path in detail for detail in syntax_details)
+    for case in pair_cases.values():
+        assert any(case["preimage_path"] in detail for detail in syntax_details)
+    selected_paths = set(receipt["selection"]["selected_paths"])
+    assert pair_cases["missing-mate"]["postimage_path"] not in selected_paths
+    assert pair_cases["corrupt-mate"]["postimage_path"] in selected_paths
+    read_paths = {
+        item["path"]
+        for item in receipt["read_receipt"]["inputs"]
+        if item.get("operation") == "read_bytes" and item.get("status") == "read"
+    }
+    assert read_paths == selected_paths
+    assert pair_cases["missing-mate"]["postimage_path"] not in read_paths
+    assert pair_cases["corrupt-mate"]["postimage_path"] in read_paths
+    assert any(
+        "src/polisyos/foundry/domain/broken.py" in detail for detail in syntax_details
+    )
+    assert receipt["source_normalizations"]["gzip_text_inputs"] == []
+    assert receipt["source_normalizations"]["indented_evidence_python_excerpts"] == []
+
+
+def test_dfk_01_census_rejects_gzip_junit_above_expansion_limit(
+    tmp_path: Path,
+) -> None:
+    """Oversized gzip input stays partial while a bounded JUnit report is consumed."""
+    from tools.quality.validation import schema_fqn_census
+
+    maximum = schema_fqn_census._MAX_GZIP_TEXT_BYTES
+    assert maximum == 64 * 1024 * 1024
+    prefix, suffix = b"<testsuites>", b"</testsuites>"
+    remaining = maximum + 1 - len(prefix) - len(suffix)
+    compressed_overflow = io.BytesIO()
+    chunk = b" " * (64 * 1024)
+    with gzip.GzipFile(fileobj=compressed_overflow, mode="wb", mtime=0) as stream:
+        stream.write(prefix)
+        while remaining:
+            piece = chunk[: min(len(chunk), remaining)]
+            stream.write(piece)
+            remaining -= len(piece)
+        stream.write(suffix)
+    overflow_bytes = compressed_overflow.getvalue()
+    assert len(overflow_bytes) < 1024 * 1024
+
+    within_limit_path = "reports/within-limit.junit.xml"
+    overflow_path = "reports/above-limit.junit.xml"
+    decoded_report = (
+        b"<testsuites><testsuite><system-out>"
+        b"polisyos.foundry.domain.schema"
+        b"</system-out></testsuite></testsuites>"
+    )
+    within_limit_bytes = gzip.compress(decoded_report, mtime=0)
+    files: dict[str, str | bytes] = {
+        overflow_path: overflow_bytes,
+        within_limit_path: within_limit_bytes,
+    }
+    _init_census_repository(tmp_path, files)
+
+    completed, receipt = _run_census(tmp_path)
+
+    assert completed.returncode == 2
+    assert receipt["result"] == "partial_unsupported_or_ambiguous"
+    assert receipt["selection"]["selected_paths"] == sorted(files)
+    overflow_findings = [
+        item for item in receipt["unsupported_or_ambiguous_inputs"] if item["path"] == overflow_path
+    ]
+    assert len(overflow_findings) == 1
+    assert overflow_findings[0]["class"] == "gzip_text_expansion_limit"
+    assert "67108864 bytes" in overflow_findings[0]["detail"]
+
+    read_inputs = {
+        item["path"]: item
+        for item in receipt["read_receipt"]["inputs"]
+        if item.get("operation") == "read_bytes" and item.get("status") == "read"
+    }
+    assert set(read_inputs) == set(files)
+    assert read_inputs[overflow_path]["bytes"] == len(overflow_bytes)
+    assert read_inputs[overflow_path]["sha256"] == hashlib.sha256(overflow_bytes).hexdigest()
+    assert read_inputs[within_limit_path]["bytes"] == len(within_limit_bytes)
+    assert (
+        read_inputs[within_limit_path]["sha256"] == hashlib.sha256(within_limit_bytes).hexdigest()
+    )
+    assert receipt["read_receipt"]["complete_verdict"] is True
+    assert receipt["scanned_denominator"]["successful_byte_reads"] == len(files)
+
+    expected_normalization = {
+        "path": within_limit_path,
+        "compression": "gzip",
+        "raw_byte_count": len(within_limit_bytes),
+        "raw_sha256": hashlib.sha256(within_limit_bytes).hexdigest(),
+        "decoded_byte_count": len(decoded_report),
+        "decoded_sha256": hashlib.sha256(decoded_report).hexdigest(),
+    }
+    assert receipt["source_normalizations"]["gzip_text_inputs"] == [expected_normalization]
+    assert overflow_path not in {
+        item["path"] for item in receipt["source_normalizations"]["gzip_text_inputs"]
+    }
+    assert receipt["source_normalizations"]["indented_evidence_python_excerpts"] == []
+    assert any(
+        hit["path"] == within_limit_path
+        and hit["target"] == "polisyos.foundry.domain.schema"
+        and hit["evidence_kind"] == "serialized_or_text_reference"
+        for hit in receipt["matches"]
+    )

@@ -197,3 +197,34 @@ class TestOrdinalMultidimensionalPoverty:
         }
         result = method.pure_step(state, {"k_threshold": 0.33})
         assert isinstance(result, dict)
+
+
+class TestFGTPovertyEstimator:
+    @pytest.mark.parametrize(
+        ("alpha", "expected_fgt"),
+        [(0, 0.4), (1, 0.14), (2, 0.074)],
+    )
+    def test_non_poor_observations_contribute_zero(
+        self, isolated_registry, alpha: int, expected_fgt: float
+    ) -> None:
+        method = _method_or_skip(isolated_registry, "distributional.poverty.fgt@1.0.0")
+        values = np.array([4.0, 9.0, 10.0, 11.0, 12.0], dtype=float)
+        payload = method.pure_step(
+            {"values": values, "poverty_line": 10.0}, {"alpha": alpha}
+        )["result"]
+
+        assert payload["fgt"] == pytest.approx(expected_fgt)
+        assert payload["headcount_ratio"] == pytest.approx(0.4)
+        assert payload["poverty_gap_index"] == pytest.approx(0.14)
+        if alpha == 0:
+            assert payload["fgt"] != float(np.mean(values <= 10.0))
+
+    def test_alpha_zero_is_zero_for_all_non_poor_values(self, isolated_registry) -> None:
+        method = _method_or_skip(isolated_registry, "distributional.poverty.fgt@1.0.0")
+        values = np.array([10.0, 11.0, 12.0], dtype=float)
+        payload = method.pure_step(
+            {"values": values, "poverty_line": 10.0}, {"alpha": 0}
+        )["result"]
+
+        assert payload["headcount_ratio"] == 0.0
+        assert payload["fgt"] == 0.0

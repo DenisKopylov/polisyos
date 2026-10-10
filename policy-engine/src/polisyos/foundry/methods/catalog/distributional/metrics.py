@@ -230,7 +230,7 @@ class GeneralizedEntropyEstimator:
     tags={"distributional", "poverty", "fgt", "cross-section"},
 )
 class FGTPovertyEstimator:
-    """Estimate Foster-Greer-Thorbecke poverty gaps for poverty-oriented policy comparisons."""
+    """Compute FGT poverty measures with zero contribution from non-poor observations."""
 
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
@@ -259,7 +259,12 @@ class FGTPovertyEstimator:
         description="Foster-Greer-Thorbecke poverty measures.",
         tags=frozenset({"distributional", "poverty", "fgt", "cross-section"}),
         when_to_use="Poverty measurement with poverty line; headcount, gap, severity (P0, P1, P2)",
-        output_interpretation="P0=headcount ratio, P1=poverty gap, P2=poverty severity. Policy reduces poverty if post-policy P0/P1/P2 decrease.",
+        output_interpretation=(
+            "P_alpha is the population mean of normalized poverty gaps raised to alpha; "
+            "observations at or above the poverty line contribute zero. P0 is the headcount "
+            "ratio; P1 and P2 are the poverty gap and severity. Policy reduces poverty if "
+            "post-policy P0/P1/P2 decrease."
+        ),
     )
 
     @staticmethod
@@ -271,9 +276,12 @@ class FGTPovertyEstimator:
         if poverty_line <= 0.0:
             raise ValueError("poverty_line must be positive")
         alpha = max(0.0, float(params.get("alpha", 0.0)))
+        poor_mask = values < poverty_line
         poverty_gap = np.clip((poverty_line - values) / poverty_line, 0.0, None)
-        headcount = float(np.mean(poverty_gap > 0))
-        fgt = float(np.mean(poverty_gap**alpha))
+        headcount = float(np.mean(poor_mask))
+        fgt_contributions = np.zeros_like(poverty_gap)
+        fgt_contributions[poor_mask] = poverty_gap[poor_mask] ** alpha
+        fgt = float(np.mean(fgt_contributions))
         return {
             "result": {
                 "fgt": fgt,

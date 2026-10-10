@@ -229,6 +229,26 @@ test("serves source-bound candidate, unknown cost, recursive history limit, and 
     }),
   ).toBe(true);
 
+  const renderedAgentsResponsePromise = page.waitForResponse(
+    (response) =>
+      response.request().method() === "GET" &&
+      new URL(response.url()).pathname ===
+        `/api/v1/runs/${encodeURIComponent(v1RunId as string)}/agents`,
+  );
+  await page.goto(`/runs/${encodeURIComponent(v1RunId as string)}/agents`);
+  const renderedAgentsResponse = await renderedAgentsResponsePromise;
+  expect(renderedAgentsResponse.status()).toBe(200);
+  await waitForDashboardSurface(page, "run-agents");
+  const agentsTab = page.getByTestId("run-tab-agents");
+  await expect(agentsTab).toBeVisible();
+  const visibleCostSummary = agentsTab
+    .getByText("Cost", { exact: true })
+    .first()
+    .locator("..");
+  await expect(
+    visibleCostSummary.getByText("Unknown", { exact: true }),
+  ).toBeVisible();
+
   await page.goto(`/runs/${encodeURIComponent(v1RunId as string)}/overview`);
   await waitForDashboardSurface(page, "run-overview");
   await expect(page.getByTestId("overview-candidate-simulation")).toBeVisible();

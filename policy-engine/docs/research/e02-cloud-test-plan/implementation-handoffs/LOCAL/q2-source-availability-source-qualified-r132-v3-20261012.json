@@ -1,0 +1,392 @@
+{
+  "schema": "e02.q2.source_availability_receipt.r132.v3",
+  "record_kind": "author_source_checkpoint_and_limited_proposal",
+  "closure_ids": [],
+  "formal_adjudication": "not_adjudicated",
+  "source_checkpoint": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_base": "d24fdfc9d79ea109b4aa102cc6856a3cd8985583",
+    "candidate": "b16a69e6f8cae05ed4f97ae8654822810319c062",
+    "tree": "8e92cd8ab1d8bff5d49bb5f099b1fadda3492696",
+    "parents": [
+      "d24fdfc9d79ea109b4aa102cc6856a3cd8985583"
+    ],
+    "footprint": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/sitecustomize.py",
+        "before_sha256": null,
+        "candidate_sha256": "4593febfff4242f5e2004897ed929c97566feab4266b8984a6e23c94a48e37e2",
+        "force_source": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-recipe.md",
+        "before_sha256": "880dfacbaf6f7ff42dcf4db894d71de3acc2f56c773249a8453d36d507b169f4",
+        "candidate_sha256": "f0b87e517eed60cfea94296fe13d990255031b219eff73340df86367e20d3155",
+        "force_source": false
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+        "before_sha256": null,
+        "candidate_sha256": "30524941d2c7b513f282d83fe6be7fd5be2497c288dce214dd79d70060b8e10c",
+        "force_source": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py",
+        "before_sha256": "a64bab2a692e9f3a88b0693887a430aa3ee2f78e2ca4fa847ed5871ec0c7a3b0",
+        "candidate_sha256": "f2eb042773d10570d10a7634ddf42c309e5ad2f39f4fb6f88cd9087f0176b028",
+        "force_source": false
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/supplemental-manifest.json",
+        "before_sha256": null,
+        "candidate_sha256": "1acd43fa91682ca2d8eb8441f8da558d65e2920eb951e01fa693b562c4e9a5a7",
+        "force_source": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/supplemental_run.py",
+        "before_sha256": null,
+        "candidate_sha256": "1af51c9836c3ff4e0ce6fa24ead80832bda9cfddb96f7f42fa3ac25fe9ae3628",
+        "force_source": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py",
+        "before_sha256": null,
+        "candidate_sha256": "0d4306b3cd5fc8df2afd4be0adac29bfa5b2cb25f22cc64d8d53993e5d6b81ff",
+        "force_source": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py",
+        "before_sha256": "ca718253aa63cb1c3ca6aaafd2b9a4e9cf638e921956d76d697d161c6d447203",
+        "candidate_sha256": "4672ecc80e30294a2b636cb1257fd4b1098aac25ba236483b26e8baac1b26be5",
+        "force_source": false
+      }
+    ],
+    "mode_readback": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/sitecustomize.py",
+        "git_mode": "100644",
+        "kind": "blob",
+        "blob_oid": "d7ccd8a670b2161e9044b8a0314b915b300b14ba",
+        "sha256": "4593febfff4242f5e2004897ed929c97566feab4266b8984a6e23c94a48e37e2",
+        "worktree_mode": "0644"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-recipe.md",
+        "git_mode": "100644",
+        "kind": "blob",
+        "blob_oid": "4ceb7f96d8052eeba91e63412ef907c7290981e7",
+        "sha256": "f0b87e517eed60cfea94296fe13d990255031b219eff73340df86367e20d3155",
+        "worktree_mode": "0644"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+        "git_mode": "100644",
+        "kind": "blob",
+        "blob_oid": "326225201e5f981be503a387cc3e844b69fbb179",
+        "sha256": "30524941d2c7b513f282d83fe6be7fd5be2497c288dce214dd79d70060b8e10c",
+        "worktree_mode": "0644"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py",
+        "git_mode": "100644",
+        "kind": "blob",
+        "blob_oid": "632efde209783c0aa2d73ead54ef15ddee5e567d",
+        "sha256": "f2eb042773d10570d10a7634ddf42c309e5ad2f39f4fb6f88cd9087f0176b028",
+        "worktree_mode": "0644"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/supplemental-manifest.json",
+        "git_mode": "100644",
+        "kind": "blob",
+        "blob_oid": "fdd063692225c2933a0c3e457642b0659132fa8e",
+        "sha256": "1acd43fa91682ca2d8eb8441f8da558d65e2920eb951e01fa693b562c4e9a5a7",
+        "worktree_mode": "0644"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/supplemental_run.py",
+        "git_mode": "100644",
+        "kind": "blob",
+        "blob_oid": "2b2457ef8fc5c8c6813505ea2f5df4aa3bee32f7",
+        "sha256": "1af51c9836c3ff4e0ce6fa24ead80832bda9cfddb96f7f42fa3ac25fe9ae3628",
+        "worktree_mode": "0644"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py",
+        "git_mode": "100644",
+        "kind": "blob",
+        "blob_oid": "b5b4d627a108629c4501197932caf1688bf3ba26",
+        "sha256": "0d4306b3cd5fc8df2afd4be0adac29bfa5b2cb25f22cc64d8d53993e5d6b81ff",
+        "worktree_mode": "0644"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py",
+        "git_mode": "100644",
+        "kind": "blob",
+        "blob_oid": "e2c3e46ead7369f6fa4d97e9eff13be3d95e61d0",
+        "sha256": "4672ecc80e30294a2b636cb1257fd4b1098aac25ba236483b26e8baac1b26be5",
+        "worktree_mode": "0644"
+      }
+    ],
+    "source_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-v9-resume-owned-index-r132-20261012/readback.json",
+      "sha256": "d390108aa6db07548311a28ef92e8ebaf6b5c33e6caa9fbd17cfec5d715fbf30"
+    }
+  },
+  "selection": {
+    "input": "Exact six V9 source/recipe postimages, unchanged Linux child-capture source and existing canonical supplemental-manifest bytes.",
+    "source_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-explicit-freeze-source-api-v9-capsule-audit-20261011-r2/manifest-v9-final.json",
+      "sha256": "f11a8e4328217e06617badf201df8da5b7514a0d4810110df7844fcee029ab2e"
+    },
+    "original_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-explicit-freeze-source-api-v9-capsule-audit-20261011-r2/q2-explicit-freeze-source-api-v9-capsule-audit-final.patch",
+      "bytes": 221655,
+      "sha256": "ff40bcdf24a489a0132e0c5fba43ed699f94885ce4a1ececbc8d108c0a78e339",
+      "candidate_commit_sha": null,
+      "candidate_tree_sha": null,
+      "physical_application": "Author manifest is an earlier virtual snapshot; root physical composition/application and committed byte readback are separately cited below.",
+      "files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-recipe.md",
+          "pre_bytes": 13924,
+          "pre_sha256": "880dfacbaf6f7ff42dcf4db894d71de3acc2f56c773249a8453d36d507b169f4",
+          "candidate_bytes": 19905,
+          "candidate_sha256": "f0b87e517eed60cfea94296fe13d990255031b219eff73340df86367e20d3155"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+          "pre_bytes": 47297,
+          "pre_sha256": "8cd4103d3b330dbe84fbb8c8e4aec92640800602fd83a4e586ba29933be9c997",
+          "candidate_bytes": 61995,
+          "candidate_sha256": "30524941d2c7b513f282d83fe6be7fd5be2497c288dce214dd79d70060b8e10c"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py",
+          "pre_bytes": 83214,
+          "pre_sha256": "a64bab2a692e9f3a88b0693887a430aa3ee2f78e2ca4fa847ed5871ec0c7a3b0",
+          "candidate_bytes": 101716,
+          "candidate_sha256": "f2eb042773d10570d10a7634ddf42c309e5ad2f39f4fb6f88cd9087f0176b028"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/supplemental_run.py",
+          "pre_bytes": 29364,
+          "pre_sha256": "4a80f59032665607ff139bf8ed8fbf73e05432f03297b3c82ff78d07d49e5f49",
+          "candidate_bytes": 43102,
+          "candidate_sha256": "1af51c9836c3ff4e0ce6fa24ead80832bda9cfddb96f7f42fa3ac25fe9ae3628"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py",
+          "pre_bytes": 35675,
+          "pre_sha256": "55e390d5214bf55f16e6558476f5883d5a85f7baa03ab80173ed292d734882e7",
+          "candidate_bytes": 80434,
+          "candidate_sha256": "0d4306b3cd5fc8df2afd4be0adac29bfa5b2cb25f22cc64d8d53993e5d6b81ff"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py",
+          "pre_bytes": 26616,
+          "pre_sha256": "ca718253aa63cb1c3ca6aaafd2b9a4e9cf638e921956d76d697d161c6d447203",
+          "candidate_bytes": 27660,
+          "candidate_sha256": "4672ecc80e30294a2b636cb1257fd4b1098aac25ba236483b26e8baac1b26be5"
+        }
+      ],
+      "scope": "Cumulative V8+V9 source-capsule composition across the exact six prior Q2 paths; V9 delta moves the Linux capture-hook byte source from ignored-local inventory into source-SHA inputs and adds property/removal tests."
+    },
+    "root_composition": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-v9-root-source-composition-r128-20261012/composition.json",
+      "sha256": "a09a1f801b5e795fd4589b5f78d61d7c5180876c339a01cef7a2cfae9bbc74e6"
+    },
+    "root_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-v9-root-source-composition-r128-20261012/application-readback.json",
+      "sha256": "08d28dc80af922b38a2985f6427d8d713358d3a7d0e78c4f1a4ce631aa6cc277"
+    },
+    "mode_and_source_freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-v9-actual-source-mode-freeze-r129-20261012/mode-and-source-freeze.json",
+      "sha256": "6794afeec59f2cb1329d4c5c03cd328944fe040cc1bbc819d1f98234a87c9fcb"
+    },
+    "intake": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-v9-actual-source-mode-freeze-r129-20261012/intake.json",
+      "sha256": "1e020c0f2f3d407359e51f2b873466115b19aed78339bf2845ce6ef83b28300a"
+    },
+    "backend_profile": "Source/Git availability only; no selected installed or Linux runtime profile asserted."
+  },
+  "producer_artifact_bridge_consumer": {
+    "producer": "Root exact source-object checkpoint writer; bytes/modes independently read back from ordinary Git commit.",
+    "artifact": "Eight regular Git blobs at the exact candidate/tree, mode100644; five formerly ignored dependencies are now source objects.",
+    "bridge": "The installed-wave source readers and Linux transport can resolve these objects from the selected source SHA instead of local ignored files.",
+    "consumer": "V9 read_commit_blob/input_file_records and the actual tracked Linux check_q2_inputs/copy_capture_hook; their runtime prepare/check/full installed/Linux wave remain unrun on a final freeze.",
+    "limitation": "Canonical supplemental input is deliberately retained in its existing stale version. Its primary/runner bindings are not an accepted freeze; this source checkpoint removes absent-object failure only."
+  },
+  "deciding_commands": {
+    "successful_resume": {
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-v9-resume-owned-index-driver-r132-20261012/command.json",
+        "sha256": "3ddb8fa5eac7db00ab325fd297c067585015f820e837467d40d355837c561ce4"
+      },
+      "result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-v9-resume-owned-index-driver-r132-20261012/result.json",
+        "sha256": "76c149b9b5d13a457a7666f17a885d673a05a8d3d45170ce7f236064b1bc034b"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-v9-resume-owned-index-driver-r132-20261012/stdout.txt",
+        "sha256": "d1c5b72ddb68cdf2d1ebf955222bfbe0ef486f205caf1bf0b0d752fbf1664b1f"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-v9-resume-owned-index-driver-r132-20261012/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "complete_git_commands_and_output_hashes": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-v9-resume-owned-index-r132-20261012/commands.json",
+        "sha256": "f6e4e4870b44942220b53fe88718587b6f71e4afc3fc8f150cbc89875ecc7583"
+      },
+      "source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-v9-resume-owned-index-r132-20261012/resume_owned_checkpoint.py",
+        "sha256": "a572eed8628abbbe972e4cbf565b6f058ae0fa4bd0986017ed74da70ca482ab9"
+      },
+      "result_scope": "All eight exact committed bytes and 100644 modes match R129/worktree; sole parent d24; attached own branch and empty index read back."
+    },
+    "failed_first_writer": {
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-v9-source-checkpoint-driver-r130-20261012/command.json",
+        "sha256": "7105bfc06465eb59cf29f6c0d09d7ce8a0ab1c01b394995d95dadf28741bfed5"
+      },
+      "result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-v9-source-checkpoint-driver-r130-20261012/result.json",
+        "sha256": "8991c570f697ca779a26c11d4e9e0422c54be361cc474efd83694fce6d93d884"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-v9-source-checkpoint-driver-r130-20261012/stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-v9-source-checkpoint-driver-r130-20261012/stderr.txt",
+        "sha256": "028a666f4bac4f982da088e2d590f5e22e3e138f832d80657658c9a93b9ed21a"
+      },
+      "exit_code": 2,
+      "boundary": "Ordinary git add updated the three already-tracked paths but returned ignored-parent error before the five additions or commit.",
+      "ownership_readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-v9-git-add-ancestry-boundary-r131-20261012/readback.json",
+        "sha256": "b9610c5c54523007c5e65eb8453acce05a9a7843cb10269d60301ec56867fb7e"
+      },
+      "repair": "Continued the exact root-owned staged checkpoint with git add -u for the three tracked sources and explicit force-add for the five approved source inputs. No unstaging/history replacement or unknown-byte repair."
+    }
+  },
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q2-explicit-freeze-source-api-v9-independent-review-20261011.md",
+      "sha256": "228d91906cb6512e7ed6129b0692e6ab595f52363bbc847f1dc32d039b3e9df0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q2-source-checkpoint-v4-oracle-20261012.md",
+      "sha256": "c86356ae9bd805c36b55bc4f2c148da78d3332f9662e7776cad32f159bce7aa5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q2-source-checkpoint-v4-postcommit-readback-addendum-20261012.md",
+      "sha256": "e01e6d94b54e29ffb24dcc2a9f0ff8023100a9714eaf47540a11b0cae49300a7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q2-source-checkpoint-v5-oracle-20261012.md",
+      "sha256": "4b7b35dccbfc187a06cab969f0b24c48b4b81789cc1635dd2dabfed2e05f1fd0"
+    }
+  ],
+  "adversarial_controls": {
+    "V9": "Independent 18 focused source-audit/symlink/schema/count/timeout controls; missing canonical manifest/hook objects refuse. Two older selectors were not rerun in the virtual minimal fixture; preserve that qualification.",
+    "writer": "V5 independent actual-Git raw-body probe and 50-case x3 optimized/ordinary preflight matrix; V4 actual commit mode blocked due pretty-format LF. Candidate checksum is integrity evidence, not review authority.",
+    "root_actual": "New actual source-intake byte/mode check and postcommit readback complete; no installed/archive/wheel/runtime behavior claimed."
+  },
+  "status_by_gate": {
+    "PASS": [
+      "source6 exactV9 postimage comparison",
+      "root8 initial0644 modes",
+      "actual8Gitblob/100644/byte/parent/branch/index readback",
+      "separately scoped V9 and V5 independent controls"
+    ],
+    "FAIL": [
+      "R130 ordinary git add ignored-parent error, repaired by source-owned continuation"
+    ],
+    "ERROR": [],
+    "SKIP": [
+      "commit hooks not equivalent to native Python/repository gates"
+    ],
+    "UNRUN": [
+      "complete final source/profile/input/backend freeze",
+      "actual135-ID current collection",
+      "canonical manifest regenerate/check/drift on final source",
+      "actual installed wheel and rebuilt sdist/archive consumers",
+      "actualLinux/UKOPS native rows",
+      "native repository SOTA/gates",
+      "G independent code acceptance and formal adjudication"
+    ]
+  },
+  "remaining_inputs": {
+    "canonical_supplemental_manifest_sha256": "1acd43fa91682ca2d8eb8441f8da558d65e2920eb951e01fa693b562c4e9a5a7",
+    "state": "stale_binding; retained_source_input_not_runtime_receipt",
+    "production_data_or_custody_facts": "not_established by this source-availability receipt"
+  },
+  "next_checks": [
+    "Retain SOURCE inputs as Git objects; no broad raw output commits or source payload copies in receipts.",
+    "Final input/profile/backend freeze must occur after semantic composition, independent reviews and batched blocking fixes.",
+    "Run actual V9 prepare/check and marker-preserving missing-source/drift controls from final source SHA; full outputs retained.",
+    "G independently accepts code, publishes integration and adjudicates findings."
+  ],
+  "finding_proposals": [
+    {
+      "finding_id": "LA-029",
+      "proposal_status": "held/open_for_original_whole_property",
+      "bounded_delivered": "Exact Q2 source capsule dependencies are regular source Git blobs, including actual Linux capture hook and mandatory canonical supplemental input.",
+      "historical_status_changed": false,
+      "next_check": "After all semantic/native changes, freeze complete source/profile/input/backend; collect real135IDs and regenerate primary/supplemental manifests with current15testhashes/11assets; rebind actual Linux pins; run prepare/check/corrupt-field and remove-source controls, exact installed wheel/rebuilt-sdist/archive consumers and UKOPS/Linux rows. Preserve all original occurrences and canonical native row denominator remains separate from this receipt.",
+      "occurrence_identity": {
+        "finding_id": "LA-029",
+        "occurrence_pointer": "#/findings/253/criterion_refs/0",
+        "criterion_sha256": "2ed87700859cf94e802cf950219101451f75ce6294af0cf71bd0fc4f9aa78441"
+      },
+      "original_criterion": {
+        "coverage_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "coverage_pointer": "#/findings/253/criterion_refs/0",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "lines_1_based_inclusive": [
+          1518,
+          1567
+        ],
+        "sha256": "2ed87700859cf94e802cf950219101451f75ce6294af0cf71bd0fc4f9aa78441",
+        "whole_property": "Explicit verified product/workspace root is passed by CLI/composition. Environment provisioning and repository C7 execution migrate to the existing ops-runner owner with domain config/result and orchestration callback preserved; tooling depends on the domain and the domain does not import tools. Preserve environment requirements, heavy-local-run protection, capabilities, stage manifests, reproducible command/cwd/env and failed/skipped semantics; update CLI, shell and CI consumers. Installed wheel without checkout must explicitly report repository gate unavailable; no arbitrary parents[N], removed C7 gate or institutional permission inferred from an environment marker."
+      },
+      "historical_decisions": {
+        "ledger": "partial",
+        "appendix_c": "partial",
+        "formal_closure_now": "not_adjudicated",
+        "changed": false
+      },
+      "capability_label": "bridge_missing",
+      "current_evidence_boundary": "Q2 source-object availability removes five missing Git inputs; no installed UKOPS or Linux lifecycle receipt is established here.",
+      "next_original_criterion_check": {
+        "paths": [
+          "src/polisyos/data_forge/domains/ukraine/cli.py",
+          "src/polisyos/data_forge/domains/ukraine/server.py",
+          "tests/unit/data_forge/domains/ukraine/test_server.py",
+          "tests/unit/remediation/test_udf_04.py"
+        ],
+        "dependency": "Use existing ops-runner owner and the verified product/workspace root from CLI composition; repository gate unavailable is explicit outside checkout.",
+        "positive": "Installed ukraine-data CLI creates, starts, stops, restarts and cleans server under Linux-compatible process fixture; capture exact gate argv/cwd/env.",
+        "oracle": "Observe child PID, bound port, exit/skipped code and explicit root independently at process boundary.",
+        "negative": "Installed wheel without checkout cannot infer root via parents[N]; malformed/absent root returns unavailable, not false PASS. Test double records cleanup after failure.",
+        "command": "UKOPS",
+        "whole_criterion_companions": "Review actual ops-runner ownership and domain import direction; exercise preserved repository C7 command/cwd/env and skipped/failed semantics plus CLI/shell/CI consumers; environment provisioning and server-only policy require their own source-qualified evidence/decision, separate from the installed Linux lifecycle fixture."
+      }
+    }
+  ],
+  "prior_author_draft": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-source-availability-source-qualified-r132-20261012.json",
+    "sha256": "388328f5b0ba0499a022cd25d6be66b13b7ac9d8f3865366ddd1f6c4c82d1f33",
+    "availability": "retained_local_untracked; superseded key spelling and individual original-criterion binding, not a delivered receipt"
+  },
+  "receipt_revision_lineage": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-source-availability-source-qualified-r132-v2-20261012.json",
+      "sha256": "1bd7aaaeaa1ecb868bbfd6c3fbc7d1f7662ad44f9b5c7df82541b2f5a60941c0",
+      "availability": "retained local untracked",
+      "change": "Original whole criterion interpretation widened to include role migration and all command/root/environment/result consumers; prior local bounded proof remains unchanged."
+    }
+  ]
+}

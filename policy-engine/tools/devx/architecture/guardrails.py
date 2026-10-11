@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+import __future__ as _future
 
 import argparse
 import ast
@@ -22,13 +23,14 @@ import tomllib
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import yaml
 
 from polisyos.common.markdown import split_markdown_table_row
 from tools.lib.fs import (
     admitted_file_digest,
+    admitted_is_dir,
     admitted_is_file,
     admitted_read_bytes,
     iter_repository_files,
@@ -183,6 +185,13 @@ class DeepImportEdge:
     source_file: str
     target_module: str
     target_root: str
+    resolution_status: Literal["source_resolved", "not_established"] = "source_resolved"
+    resolution_reason: Literal[
+        "export_manifest_unresolved",
+        "name_not_declared_export",
+        "bound_but_unlisted",
+        "declared_binding_unproven",
+    ] | None = None
 
     @property
     def key(self) -> str:
@@ -566,6 +575,40 @@ def _module_level_nodes(tree: ast.AST) -> Iterator[ast.AST]:
             yield from _module_level_nodes(node)
 
 
+_FUTURE_FEATURE_NAMES = frozenset(_future.all_feature_names)
+
+
+def _future_import_features_are_supported(node: ast.AST) -> bool:
+    """Check the interpreter-supported, named future-import grammar."""
+    return (
+        isinstance(node, ast.ImportFrom)
+        and node.module == "__future__"
+        and node.level == 0
+        and bool(node.names)
+        and all(alias.name != "*" and alias.name in _FUTURE_FEATURE_NAMES for alias in node.names)
+    )
+
+
+def _supported_future_import_is_passive(tree: ast.Module, node: ast.AST) -> bool:
+    """Admit legal top-level compiler directives without executing facade source."""
+    if not _future_import_features_are_supported(node):
+        return False
+    index = next((position for position, statement in enumerate(tree.body) if statement is node), None)
+    if index is None:
+        return False
+    first = tree.body[0] if tree.body else None
+    has_docstring = (
+        isinstance(first, ast.Expr)
+        and isinstance(first.value, ast.Constant)
+        and isinstance(first.value.value, str)
+    )
+    prefix_start = 1 if has_docstring else 0
+    return all(
+        _future_import_features_are_supported(previous)
+        for previous in tree.body[prefix_start:index]
+    )
+
+
 def _symbol_binding_nodes(tree: ast.Module, symbol: str) -> Iterator[ast.AST]:
     """Name every module-level binding or mutation that can affect a selector."""
     for node in _module_level_nodes(tree):
@@ -895,9 +938,15 @@ class _StaticExportResolver:
             elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 self._audit_function_header(source, node)
             elif isinstance(node, ast.ImportFrom):
-                imported = self._import_source(source, node, "")
-                alias = next(alias for alias in node.names if (alias.asname or alias.name) == name)
-                self._passive_binding(imported, alias.name, module_binding=True)
+                if node.module == "__future__":
+                    if not _supported_future_import_is_passive(self._tree(source), node):
+                        self._refuse_effect(source, node)
+                    if not any((alias.asname or alias.name) == name for alias in node.names):
+                        self._refuse_effect(source, node)
+                else:
+                    imported = self._import_source(source, node, "")
+                    alias = next(alias for alias in node.names if (alias.asname or alias.name) == name)
+                    self._passive_binding(imported, alias.name, module_binding=True)
             elif isinstance(node, ast.Import):
                 for alias in node.names:
                     if (alias.asname or alias.name.split(".")[0]) == name:
@@ -1020,6 +1069,10 @@ class _StaticExportResolver:
                 self._refuse_effect(source, node)
             self._audit_function_header(source, node)
         elif isinstance(node, ast.ImportFrom):
+            if node.module == "__future__" and _supported_future_import_is_passive(
+                self._tree(source), node
+            ):
+                return
             if any(alias.name == "*" for alias in node.names):
                 self._refuse_effect(source, node)
             imported = self._import_source(source, node, "")
@@ -1277,6 +1330,194 @@ def build_public_surface_inventory(policies: list[PackagePolicy]) -> list[Packag
     return inventory
 
 
+def _source_tree_for_facade(
+    module: str,
+    cache: dict[str, tuple[Path, ast.Module] | None],
+) -> tuple[Path, ast.Module] | None:
+    """Read a facade source tree without importing or executing it."""
+    if module not in cache:
+        try:
+            source = _facade_source_for(module)
+            tree = ast.parse(admitted_read_bytes(source, REPO_ROOT))
+        except (FileNotFoundError, OSError, ValueError, SyntaxError):
+            cache[module] = None
+        else:
+            cache[module] = (source, tree)
+    return cache[module]
+
+
+def _source_module_exists(module: str) -> bool:
+    """Resolve an importable Python module candidate under the admitted source tree."""
+    if not module.startswith("polisyos."):
+        return False
+    candidate = SRC_ROOT.joinpath(*module.split("."))
+    try:
+        return (
+            admitted_is_file(candidate.with_suffix(".py"), REPO_ROOT)
+            or admitted_is_file(candidate / "__init__.py", REPO_ROOT)
+            or admitted_is_dir(candidate, REPO_ROOT)
+        )
+    except ValueError:
+        # A source-tree symlink that escapes the admitted root is unresolved,
+        # not evidence that the from-list name is only a facade attribute.
+        return True
+
+
+def _source_child_module_names(module: str) -> tuple[str, ...] | None:
+    """List immediate importable source children, preserving an unknown read as unknown."""
+    package_dir = SRC_ROOT.joinpath(*module.split("."))
+    try:
+        if not admitted_is_dir(package_dir, REPO_ROOT):
+            return ()
+        children = list(package_dir.iterdir())
+    except (OSError, ValueError):
+        return None
+
+    names: set[str] = set()
+    for child in children:
+        if child.name == "__pycache__":
+            continue
+        try:
+            if child.suffix == ".py" and child.stem != "__init__":
+                if admitted_is_file(child, REPO_ROOT):
+                    names.add(child.stem)
+            elif admitted_is_dir(child, REPO_ROOT):
+                names.add(child.name)
+        except ValueError:
+            # Keep the import spelling as an unresolved candidate without
+            # reading a symlink target outside the product source root.
+            names.add(child.stem if child.suffix == ".py" else child.name)
+    return tuple(sorted(names))
+
+
+def _module_level_attribute_is_bound(tree: ast.Module, symbol: str) -> bool:
+    """Prove a facade binds one name directly at module level."""
+    bindings = list(_symbol_binding_nodes(tree, symbol))
+    if len(bindings) != 1 or bindings[0] not in tree.body:
+        return False
+    binding = bindings[0]
+    if isinstance(binding, ast.ImportFrom):
+        matches = [
+            alias
+            for alias in binding.names
+            if alias.name != "*" and (alias.asname or alias.name) == symbol
+        ]
+        return len(matches) == 1
+    if isinstance(binding, ast.Import):
+        matches = [
+            alias for alias in binding.names if (alias.asname or alias.name.split(".")[0]) == symbol
+        ]
+        return len(matches) == 1
+    return isinstance(
+        binding,
+        (
+            ast.Assign,
+            ast.AnnAssign,
+            ast.TypeAlias,
+            ast.FunctionDef,
+            ast.AsyncFunctionDef,
+            ast.ClassDef,
+        ),
+    )
+
+
+def _facade_star_exports(
+    module: str,
+    facade: tuple[Path, ast.Module] | None,
+    cache: dict[str, tuple[str, ...] | None],
+) -> tuple[str, ...] | None:
+    """Resolve a facade's star-import names using the existing bounded export grammar."""
+    if module not in cache:
+        if facade is None:
+            cache[module] = None
+        else:
+            source, tree = facade
+            declared = bool(list(_symbol_binding_nodes(tree, "__all__")))
+            dynamic_getattr = any(
+                isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and node.name == "__getattr__"
+                for node in tree.body
+            )
+            if not declared:
+                cache[module] = None if dynamic_getattr else ()
+            else:
+                try:
+                    cache[module] = _extract_exports(tree, source)
+                except (OSError, ValueError, TypeError, SyntaxError):
+                    cache[module] = None
+    return cache[module]
+
+
+def _maybe_add_fromlist_deep_imports(
+    *,
+    aliases: list[ast.alias],
+    target_module: str,
+    source_module: str,
+    source_root: str,
+    source_file: Path,
+    allowed_entrypoints: dict[str, set[str]],
+    edges: dict[str, DeepImportEdge],
+    facade_cache: dict[str, tuple[Path, ast.Module] | None],
+    star_export_cache: dict[str, tuple[str, ...] | None],
+) -> None:
+    """Classify child-module fallbacks hidden by a supported ImportFrom parent."""
+    target_root = _root_for_module(target_module)
+    if target_root is None or target_module not in allowed_entrypoints.get(target_root, set()):
+        return
+
+    facade = _source_tree_for_facade(target_module, facade_cache)
+    if any(alias.name == "*" for alias in aliases):
+        child_names = _source_child_module_names(target_module)
+        if child_names is None:
+            candidate_names = ("*",)
+        else:
+            exports = _facade_star_exports(target_module, facade, star_export_cache)
+            candidate_names = (
+                child_names
+                if exports is None
+                else tuple(name for name in exports if name in child_names)
+            )
+    else:
+        candidate_names = tuple(
+            alias.name
+            for alias in aliases
+            if _source_module_exists(f"{target_module}.{alias.name}")
+        )
+
+    facade_tree = None if facade is None else facade[1]
+    declared_exports = _facade_star_exports(target_module, facade, star_export_cache)
+    for name in candidate_names:
+        directly_bound = (
+            name != "*"
+            and facade_tree is not None
+            and _module_level_attribute_is_bound(facade_tree, name)
+        )
+        if (
+            name != "*"
+            and declared_exports is not None
+            and name in declared_exports
+            and directly_bound
+        ):
+            continue
+        if facade_tree is None or declared_exports is None:
+            reason = "export_manifest_unresolved"
+        elif name not in declared_exports:
+            reason = "bound_but_unlisted" if directly_bound else "name_not_declared_export"
+        else:
+            reason = "declared_binding_unproven"
+        child_module = f"{target_module}.{name}"
+        _maybe_add_deep_import(
+            edges=edges,
+            allowed_entrypoints=allowed_entrypoints,
+            source_module=source_module,
+            source_root=source_root,
+            source_file=source_file,
+            target_module=child_module,
+            resolution_status="not_established",
+            resolution_reason=reason,
+        )
+
+
 def collect_deep_import_edges(policies: list[PackagePolicy]) -> list[DeepImportEdge]:
     allowed_entrypoints: dict[str, set[str]] = {}
     for policy in policies:
@@ -1286,6 +1527,8 @@ def collect_deep_import_edges(policies: list[PackagePolicy]) -> list[DeepImportE
         allowed_entrypoints.setdefault(root, set()).update(policy.supported_entrypoints)
 
     edges: dict[str, DeepImportEdge] = {}
+    facade_cache: dict[str, tuple[Path, ast.Module] | None] = {}
+    star_export_cache: dict[str, tuple[str, ...] | None] = {}
     for file_path in _iter_py_files():
         module_info = _module_name_for_path(file_path)
         if module_info is None:
@@ -1319,6 +1562,17 @@ def collect_deep_import_edges(policies: list[PackagePolicy]) -> list[DeepImportE
                         source_file=file_path,
                         target_module=target_module,
                     )
+                    _maybe_add_fromlist_deep_imports(
+                        aliases=node.names,
+                        target_module=target_module,
+                        source_module=source_module,
+                        source_root=source_root,
+                        source_file=file_path,
+                        allowed_entrypoints=allowed_entrypoints,
+                        edges=edges,
+                        facade_cache=facade_cache,
+                        star_export_cache=star_export_cache,
+                    )
     return sorted(edges.values(), key=lambda edge: (edge.source_module, edge.target_module))
 
 
@@ -1330,6 +1584,13 @@ def _maybe_add_deep_import(
     source_root: str,
     source_file: Path,
     target_module: str,
+    resolution_status: Literal["source_resolved", "not_established"] = "source_resolved",
+    resolution_reason: Literal[
+        "export_manifest_unresolved",
+        "name_not_declared_export",
+        "bound_but_unlisted",
+        "declared_binding_unproven",
+    ] | None = None,
 ) -> None:
     if target_module == "polisyos" or not target_module.startswith("polisyos."):
         return
@@ -1346,8 +1607,15 @@ def _maybe_add_deep_import(
         source_file=str(source_file.relative_to(REPO_ROOT)),
         target_module=target_module,
         target_root=target_root,
+        resolution_status=resolution_status,
+        resolution_reason=resolution_reason,
     )
-    edges[edge.key] = edge
+    previous = edges.get(edge.key)
+    if previous is None or (
+        previous.resolution_status == "not_established"
+        and edge.resolution_status == "source_resolved"
+    ):
+        edges[edge.key] = edge
 
 
 def _parse_registry_ids(path: Path) -> set[str]:
@@ -1654,6 +1922,7 @@ def render_deep_import_baseline_json(edges: list[DeepImportEdge]) -> str:
                 "target_root": edge.target_root,
             }
             for edge in edges
+            if edge.resolution_status == "source_resolved"
         ],
     }
     return json.dumps(payload, indent=2, ensure_ascii=True) + "\n"
@@ -3644,6 +3913,40 @@ def _check_deep_import_creep(
     current_by_key = {edge.key: edge for edge in current_edges}
 
     for key, edge in sorted(current_by_key.items()):
+        if edge.resolution_status == "not_established":
+            violations.append(
+                GuardrailViolation(
+                    check="deep_import_resolution",
+                    subject=edge.source_module,
+                    detail=f"fromlist_resolution_{edge.resolution_reason or 'not_established'}",
+                    source_module=edge.source_module,
+                    target_module=edge.target_module,
+                    message=(
+                        "Unresolved from-list fallback candidate: "
+                        f"{edge.source_module} -> {edge.target_module} "
+                        f"({edge.source_file}). "
+                        + {
+                            "export_manifest_unresolved": (
+                                "A complete facade export manifest could not be resolved; "
+                                "this candidate is not baselinable."
+                            ),
+                            "name_not_declared_export": (
+                                "The complete facade __all__ does not declare this name; "
+                                "runtime lookup may still be dynamic, so this candidate is not baselinable."
+                            ),
+                            "bound_but_unlisted": (
+                                "A unique direct module binding exists, but the complete facade "
+                                "__all__ does not declare it; this candidate is not baselinable."
+                            ),
+                            "declared_binding_unproven": (
+                                "The facade __all__ declares this name, but a unique direct "
+                                "module binding was not established; this candidate is not baselinable."
+                            ),
+                        }.get(edge.resolution_reason or "", "A required facade property is not established.")
+                    ),
+                )
+            )
+            continue
         if key in baseline_edges:
             continue
         violations.append(

@@ -71,6 +71,15 @@ deep-import baseline, workflow policy и README/runbook/ADR templates.
 - `guardrails.py` — source of truth для public-surface inventory, deep-import
   baseline и README freshness policy.
 
+- Deep-import analysis resolves ImportFrom names against importable source-tree
+  children, including relative and star imports. A child is treated as a facade
+  attribute only when complete declared exports include the name and source
+  proves one direct module-level binding. The bounded export resolver admits
+  legal `__future__` compiler directives from the interpreter's supported
+  feature table without executing facade code. Unlisted, dynamic, and lazy-only
+  names with colliding children emit reason-specific `deep_import_resolution`
+  findings; unresolved candidates are never written into the deep-import baseline.
+
 - `scaffold.py` — единый golden-path scaffold surface; новые README/runbook/ADR
   шаблоны должны идти через него, а не через ad hoc copy-paste.
 

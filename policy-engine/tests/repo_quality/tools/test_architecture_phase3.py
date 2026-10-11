@@ -142,6 +142,388 @@ def test_fabric_world_exact_facade_is_shared_by_release_deep_import_classifier(
     assert set(descendant_edges) == {"polisyos.runtime.consumer->polisyos.fabric.world.store"}
 
 
+def _collect_temporary_fromlist_edges(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    facade_source: str,
+    consumer_sources: dict[str, str],
+    child_names: tuple[str, ...],
+) -> list[guardrails.DeepImportEdge]:
+    source_root = tmp_path / "src"
+    package_root = source_root / "polisyos"
+    fabric = package_root / "fabric"
+    runtime = package_root / "runtime"
+    fabric.mkdir(parents=True, exist_ok=True)
+    runtime.mkdir(parents=True, exist_ok=True)
+    (fabric / "__init__.py").write_text(facade_source, encoding="utf-8")
+    (package_root / "__init__.py").write_text("", encoding="utf-8")
+    (runtime / "__init__.py").write_text("", encoding="utf-8")
+    for child_name in child_names:
+        child = fabric / child_name
+        child.mkdir(parents=True, exist_ok=True)
+        (child / "__init__.py").write_text("", encoding="utf-8")
+    for relative, source in consumer_sources.items():
+        consumer = package_root / relative
+        consumer.parent.mkdir(parents=True, exist_ok=True)
+        current = consumer.parent
+        while current != package_root and current != source_root:
+            initializer = current / "__init__.py"
+            if current.is_dir() and not initializer.exists():
+                initializer.write_text("", encoding="utf-8")
+            current = current.parent
+        consumer.write_text(source, encoding="utf-8")
+
+    monkeypatch.setattr(guardrails, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(guardrails, "SRC_ROOT", source_root)
+    monkeypatch.setattr(
+        guardrails,
+        "_iter_py_files",
+        lambda: sorted(source_root.rglob("*.py")),
+    )
+    policies = [
+        guardrails.PackagePolicy(
+            module=module,
+            classification="public_stable",
+            facade_mode="lazy_facade",
+            owner="team-architecture",
+            readme=tmp_path / "README.md",
+            reference_doc=tmp_path / "public-surface.md",
+            supported_entrypoints=(module,),
+            major_subsystem=False,
+            notes="",
+        )
+        for module in ("polisyos.fabric", "polisyos.runtime")
+    ]
+    return guardrails.collect_deep_import_edges(policies)
+
+
+def test_supported_future_feature_grammar_is_passive_and_does_not_execute_facade(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import __future__ as python_future
+
+    future_names = ", ".join(python_future.all_feature_names)
+    edges = _collect_temporary_fromlist_edges(
+        tmp_path,
+        monkeypatch,
+        facade_source=(
+            f"from __future__ import {future_names}\n"
+            '__all__ = ["connectors"]\n'
+            "connectors = None\n"
+        ),
+        consumer_sources={
+            "consumer.py": "from polisyos.fabric import connectors as selected\n"
+        },
+        child_names=("connectors",),
+    )
+
+    assert not edges
+
+
+def test_supported_future_import_alias_is_a_binding_but_unknown_feature_is_not(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    accepted = _collect_temporary_fromlist_edges(
+        tmp_path,
+        monkeypatch,
+        facade_source=(
+            "from __future__ import annotations as compiler_flag\n"
+            '__all__ = ["compiler_flag"]\n'
+        ),
+        consumer_sources={
+            "consumer.py": "from polisyos.fabric import compiler_flag as selected\n"
+        },
+        child_names=("compiler_flag",),
+    )
+    unknown_feature = ast.ImportFrom(
+        module="__future__",
+        names=[ast.alias(name="not_a_supported_feature")],
+        level=0,
+    )
+    assert not guardrails._future_import_features_are_supported(unknown_feature)
+    assert not guardrails._supported_future_import_is_passive(
+        ast.Module(body=[unknown_feature], type_ignores=[]),
+        unknown_feature,
+    )
+    assert not accepted
+    with pytest.raises(SyntaxError, match="future feature not_a_supported_feature"):
+        ast.parse("from __future__ import not_a_supported_feature\n")
+
+def test_supported_fromlist_resolves_child_fallback_and_direct_import(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    edges = _collect_temporary_fromlist_edges(
+        tmp_path,
+        monkeypatch,
+        facade_source='__all__ = ["declared"]\ndeclared = object()\n',
+        consumer_sources={
+            "consumer.py": (
+                "from polisyos.fabric import connectors as selected\n"
+                "import polisyos.fabric.data_plane\n"
+            )
+        },
+        child_names=("connectors", "data_plane"),
+    )
+
+    by_target = {edge.target_module: edge for edge in edges}
+    unresolved = by_target["polisyos.fabric.connectors"]
+    direct = by_target["polisyos.fabric.data_plane"]
+    assert unresolved.resolution_status == "not_established"
+    assert direct.resolution_status == "source_resolved"
+
+    baseline = tmp_path / "deep-import.json"
+    baseline.write_text('{"version": 1, "edges": []}\n', encoding="utf-8")
+    violations = guardrails._check_deep_import_creep(
+        baseline_path=baseline,
+        current_edges=edges,
+    )
+    assert any(
+        violation.check == "deep_import_resolution"
+        and violation.target_module == "polisyos.fabric.connectors"
+        for violation in violations
+    )
+    rendered = guardrails.render_deep_import_baseline_json(edges)
+    assert "polisyos.fabric.connectors" not in rendered
+    assert "polisyos.fabric.data_plane" in rendered
+
+
+def test_supported_fromlist_accepts_a_directly_bound_facade_export_and_star_import(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    edges = _collect_temporary_fromlist_edges(
+        tmp_path,
+        monkeypatch,
+        facade_source=(
+            '__all__ = ["connectors"]\n'
+            "def __getattr__(name):\n"
+            "    raise AttributeError(name)\n"
+            "connectors = None\n"
+        ),
+        consumer_sources={
+            "consumer.py": (
+                "from polisyos.fabric import connectors as selected\n"
+                "from polisyos.fabric import *\n"
+            )
+        },
+        child_names=("connectors",),
+    )
+
+    assert not edges
+    baseline = tmp_path / "deep-import.json"
+    baseline.write_text('{"version": 1, "edges": []}\n', encoding="utf-8")
+    assert not guardrails._check_deep_import_creep(
+        baseline_path=baseline,
+        current_edges=edges,
+    )
+
+
+def test_supported_fromlist_rejects_a_bound_name_omitted_from_declared_exports(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    edges = _collect_temporary_fromlist_edges(
+        tmp_path,
+        monkeypatch,
+        facade_source=(
+            '__all__ = ["other"]\n'
+            "connectors = None\n"
+        ),
+        consumer_sources={
+            "consumer.py": "from polisyos.fabric import connectors as selected\n"
+        },
+        child_names=("connectors",),
+    )
+
+    assert len(edges) == 1
+    assert edges[0].target_module == "polisyos.fabric.connectors"
+    assert edges[0].resolution_status == "not_established"
+    assert edges[0].resolution_reason == "bound_but_unlisted"
+    baseline = tmp_path / "deep-import.json"
+    baseline.write_text('{"version": 1, "edges": []}\n', encoding="utf-8")
+    violations = guardrails._check_deep_import_creep(
+        baseline_path=baseline,
+        current_edges=edges,
+    )
+    assert any(
+        violation.check == "deep_import_resolution"
+        and violation.target_module == "polisyos.fabric.connectors"
+        and "unique direct module binding exists" in violation.message
+        and "does not declare it" in violation.message
+        for violation in violations
+    )
+    assert not any("has no unique direct binding" in violation.message for violation in violations)
+
+
+def test_supported_fromlist_rejects_ambiguous_direct_binding(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    edges = _collect_temporary_fromlist_edges(
+        tmp_path,
+        monkeypatch,
+        facade_source=(
+            '__all__ = ["connectors"]\n'
+            "connectors = None\n"
+            "connectors = None\n"
+        ),
+        consumer_sources={
+            "consumer.py": "from polisyos.fabric import connectors as selected\n"
+        },
+        child_names=("connectors",),
+    )
+
+    assert len(edges) == 1
+    assert edges[0].resolution_status == "not_established"
+    assert edges[0].resolution_reason == "declared_binding_unproven"
+
+
+def test_supported_fromlist_rejects_listed_lazy_name_without_static_binding(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    edges = _collect_temporary_fromlist_edges(
+        tmp_path,
+        monkeypatch,
+        facade_source=(
+            '__all__ = ["connectors"]\n'
+            "def __getattr__(name):\n"
+            "    return resolve_lazy_export(name)\n"
+        ),
+        consumer_sources={
+            "consumer.py": "from polisyos.fabric import connectors as selected\n"
+        },
+        child_names=("connectors",),
+    )
+
+    assert len(edges) == 1
+    assert edges[0].target_module == "polisyos.fabric.connectors"
+    assert edges[0].resolution_status == "not_established"
+    assert edges[0].resolution_reason == "declared_binding_unproven"
+    baseline = tmp_path / "deep-import.json"
+    baseline.write_text('{"version": 1, "edges": []}\n', encoding="utf-8")
+    assert any(
+        violation.check == "deep_import_resolution"
+        and violation.target_module == "polisyos.fabric.connectors"
+        for violation in guardrails._check_deep_import_creep(
+            baseline_path=baseline,
+            current_edges=edges,
+        )
+    )
+
+
+def test_fromlist_binding_removal_keeps_markers_but_fails_closed(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    facade = (
+        '__all__ = ["connectors"]\n'
+        "def __getattr__(name):\n"
+        "    raise AttributeError(name)\n"
+        "connectors = None\n"
+    )
+    consumer = {"consumer.py": "from polisyos.fabric import connectors\n"}
+    accepted = _collect_temporary_fromlist_edges(
+        tmp_path,
+        monkeypatch,
+        facade_source=facade,
+        consumer_sources=consumer,
+        child_names=("connectors",),
+    )
+    rejected = _collect_temporary_fromlist_edges(
+        tmp_path,
+        monkeypatch,
+        facade_source=facade.replace("connectors = None\n", ""),
+        consumer_sources=consumer,
+        child_names=("connectors",),
+    )
+
+    assert not accepted
+    assert '__all__ = ["connectors"]' in facade
+    assert '__all__ = ["connectors"]' in facade.replace("connectors = None\n", "")
+    assert any(
+        edge.target_module == "polisyos.fabric.connectors"
+        and edge.resolution_status == "not_established"
+        for edge in rejected
+    )
+    baseline = tmp_path / "deep-import.json"
+    baseline.write_text('{"version": 1, "edges": []}\n', encoding="utf-8")
+    assert not guardrails._check_deep_import_creep(
+        baseline_path=baseline,
+        current_edges=accepted,
+    )
+    assert any(
+        violation.check == "deep_import_resolution"
+        and violation.target_module == "polisyos.fabric.connectors"
+        for violation in guardrails._check_deep_import_creep(
+            baseline_path=baseline,
+            current_edges=rejected,
+        )
+    )
+
+
+def test_supported_fromlist_covers_relative_and_dynamic_star_forms(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    edges = _collect_temporary_fromlist_edges(
+        tmp_path,
+        monkeypatch,
+        facade_source=(
+            "__all__ = build_export_names()\n"
+            "def __getattr__(name):\n"
+            "    return resolve_export(name)\n"
+        ),
+        consumer_sources={
+            "runtime/deep/relative.py": "from ...fabric import connectors as selected\n",
+            "runtime/star.py": "from polisyos.fabric import *\n",
+        },
+        child_names=("connectors", "data_plane"),
+    )
+
+    unresolved = {
+        (edge.source_module, edge.target_module, edge.resolution_status)
+        for edge in edges
+    }
+    assert (
+        "polisyos.runtime.deep.relative",
+        "polisyos.fabric.connectors",
+        "not_established",
+    ) in unresolved
+    assert (
+        "polisyos.runtime.star",
+        "polisyos.fabric.connectors",
+        "not_established",
+    ) in unresolved
+    assert (
+        "polisyos.runtime.star",
+        "polisyos.fabric.data_plane",
+        "not_established",
+    ) in unresolved
+
+
+def test_catalog_fromlist_children_are_not_hidden_by_supported_parent(
+    current_deep_import_edges: tuple[guardrails.DeepImportEdge, ...],
+) -> None:
+    candidates = {
+        (edge.target_module, edge.resolution_status)
+        for edge in current_deep_import_edges
+        if edge.source_file
+        == "src/polisyos/data_forge/domains/catalog/knowledge/acquisition_authority.py"
+        and edge.target_module
+        in {"polisyos.fabric.connectors", "polisyos.fabric.data_plane"}
+    }
+
+    assert candidates == {
+        ("polisyos.fabric.connectors", "not_established"),
+        ("polisyos.fabric.data_plane", "not_established"),
+    }
+
+
 @pytest.mark.parametrize(
     ("source_module", "private_target"),
     [

@@ -12,6 +12,7 @@ import os
 import platform
 import re
 import shutil
+import stat
 import subprocess
 import sys
 import tarfile
@@ -25,7 +26,6 @@ import xml.etree.ElementTree as ET
 
 HERE = Path(__file__).resolve().parent
 HANDOFF_ROOT = HERE.parent
-MANIFEST_PATH = HANDOFF_ROOT / "installed-wave-manifest.json"
 REQUIRED_PRODUCT = "policy-engine"
 PROFILE_TARGET_ROOT = "polisyos/foundry/methods/catalog/causal/_dowhy_profile/"
 RESOURCE_TARGET_ROOTS = (
@@ -41,6 +41,29 @@ FORBIDDEN_ARCHIVE_SIBLING_ROOTS = (
 
 class WaveFailure(RuntimeError):
     """Raised when a required frozen-wave invariant is not established."""
+
+
+def exact_nonbool_count_matches(value: object, expected: object) -> bool:
+    """Match JSON integer values only when both operands are exact non-boolean integers."""
+    return type(value) is int and type(expected) is int and value == expected
+
+
+def json_values_match_exactly(actual: object, expected: object) -> bool:
+    """Compare JSON-shaped values without Python's bool/int or int/float aliases."""
+    if type(actual) is not type(expected):
+        return False
+    if isinstance(actual, dict):
+        expected_dict = expected
+        return actual.keys() == expected_dict.keys() and all(
+            json_values_match_exactly(actual[key], expected_dict[key]) for key in actual
+        )
+    if isinstance(actual, list):
+        expected_list = expected
+        return len(actual) == len(expected_list) and all(
+            json_values_match_exactly(left, right)
+            for left, right in zip(actual, expected_list, strict=True)
+        )
+    return actual == expected
 
 
 class HashingReader:
@@ -68,6 +91,143 @@ def sha256_file(path: Path) -> str:
         for block in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def _read_regular_without_symlink_components(
+    path_value: str | Path, label: str
+) -> tuple[Path, bytes]:
+    """Read a regular file through a no-follow descriptor walk of every path component."""
+    supplied = Path(path_value)
+    if not supplied.is_absolute():
+        raise WaveFailure(f"{label} path must be absolute: {supplied}")
+    path = Path(os.path.abspath(supplied))
+    if not hasattr(os, "O_NOFOLLOW") or not hasattr(os, "O_DIRECTORY"):
+        raise WaveFailure(f"{label} cannot be opened safely on this platform")
+    if os.open not in os.supports_dir_fd or os.stat not in os.supports_dir_fd:
+        raise WaveFailure(f"{label} cannot be opened safely with directory descriptors")
+    parts = path.parts[1:]
+    if path.anchor != os.sep or not parts:
+        raise WaveFailure(f"{label} must name a file below the filesystem root: {path}")
+
+    directory_flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    directory_fds: list[int] = []
+    directory_identities: list[tuple[int, int]] = []
+    file_descriptor = -1
+    try:
+        current_fd = os.open(path.anchor, directory_flags)
+        directory_fds.append(current_fd)
+        for component in parts[:-1]:
+            next_fd = os.open(component, directory_flags, dir_fd=current_fd)
+            directory_fds.append(next_fd)
+            named = os.stat(component, dir_fd=current_fd, follow_symlinks=False)
+            opened = os.fstat(next_fd)
+            if (
+                not stat.S_ISDIR(named.st_mode)
+                or not stat.S_ISDIR(opened.st_mode)
+                or (named.st_dev, named.st_ino) != (opened.st_dev, opened.st_ino)
+            ):
+                raise WaveFailure(
+                    f"{label} contains a replaced or symlinked directory: {component}"
+                )
+            directory_identities.append((opened.st_dev, opened.st_ino))
+            current_fd = next_fd
+
+        final_name = parts[-1]
+        before = os.stat(final_name, dir_fd=current_fd, follow_symlinks=False)
+        if not stat.S_ISREG(before.st_mode):
+            raise WaveFailure(f"{label} must be a regular non-symlink file: {path}")
+        file_descriptor = os.open(final_name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=current_fd)
+        with os.fdopen(file_descriptor, "rb") as stream:
+            file_descriptor = -1
+            opened = os.fstat(stream.fileno())
+            if not stat.S_ISREG(opened.st_mode) or (opened.st_dev, opened.st_ino) != (
+                before.st_dev,
+                before.st_ino,
+            ):
+                raise WaveFailure(f"{label} changed before open: {path}")
+            data = stream.read()
+            after_open = os.fstat(stream.fileno())
+
+        after_name = os.stat(final_name, dir_fd=current_fd, follow_symlinks=False)
+
+        def file_signature(item: os.stat_result) -> tuple[int, int, int, int, int, int]:
+            return (
+                item.st_dev,
+                item.st_ino,
+                item.st_size,
+                item.st_mtime_ns,
+                item.st_ctime_ns,
+                item.st_mode,
+            )
+
+        if (
+            file_signature(before) != file_signature(opened)
+            or file_signature(opened) != file_signature(after_open)
+            or file_signature(before) != file_signature(after_name)
+            or len(data) != after_open.st_size
+        ):
+            raise WaveFailure(f"{label} changed while being read: {path}")
+
+        cursor = Path(path.anchor)
+        component_index = 0
+        for component in parts:
+            cursor = cursor / component
+            observed = cursor.lstat()
+            if stat.S_ISLNK(observed.st_mode):
+                raise WaveFailure(f"{label} contains a symlinked path component: {cursor}")
+            if component_index < len(directory_identities):
+                expected_identity = directory_identities[component_index]
+                if (
+                    not stat.S_ISDIR(observed.st_mode)
+                    or (observed.st_dev, observed.st_ino) != expected_identity
+                ):
+                    raise WaveFailure(f"{label} path changed while being read: {cursor}")
+            elif file_signature(observed) != file_signature(before):
+                raise WaveFailure(f"{label} path changed while being read: {cursor}")
+            component_index += 1
+        if path.resolve(strict=True) != path:
+            raise WaveFailure(f"{label} path does not resolve to its supplied path: {path}")
+        return path, data
+    except WaveFailure:
+        raise
+    except (OSError, NotImplementedError, TypeError) as error:
+        raise WaveFailure(
+            f"{label} could not be read without following symlinks: {path}: {error}"
+        ) from error
+    finally:
+        if file_descriptor >= 0:
+            os.close(file_descriptor)
+        for descriptor in reversed(directory_fds):
+            os.close(descriptor)
+
+
+def load_verified_json_file(
+    path_value: str | Path,
+    expected_sha256: str,
+    label: str,
+    *,
+    expected_schema_version: int | None = None,
+) -> tuple[Path, dict[str, Any], str]:
+    """Read one absolute, non-symlink JSON input bound by its exact SHA-256."""
+    if not isinstance(expected_sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", expected_sha256):
+        raise WaveFailure(f"{label} SHA-256 must be 64 lowercase hexadecimal characters")
+    path, data = _read_regular_without_symlink_components(path_value, label)
+    actual_sha256 = sha256_bytes(data)
+    if actual_sha256 != expected_sha256:
+        raise WaveFailure(
+            f"{label} content SHA-256 differs: expected={expected_sha256} actual={actual_sha256}"
+        )
+    try:
+        value = json.loads(data)
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise WaveFailure(f"{label} is not valid UTF-8 JSON: {path}") from error
+    if not isinstance(value, dict):
+        raise WaveFailure(f"{label} JSON root must be an object: {path}")
+    if expected_schema_version is not None and not exact_nonbool_count_matches(
+        value.get("schema_version"), expected_schema_version
+    ):
+        raise WaveFailure(f"{label} has an unsupported schema version")
+    return path, value, actual_sha256
 
 
 def json_write(path: Path, value: Any) -> None:
@@ -215,7 +375,9 @@ def frozen_source_preflight(repo: Path, source_sha: str, source_tree: str) -> No
         raise WaveFailure("--source-tree must be the actual full 40-character frozen tree")
     head = git_text(repo, "rev-parse", "HEAD")
     if head != source_sha:
-        raise WaveFailure(f"HEAD differs from the supplied freeze: HEAD={head}, supplied={source_sha}")
+        raise WaveFailure(
+            f"HEAD differs from the supplied freeze: HEAD={head}, supplied={source_sha}"
+        )
     actual_tree = git_text(repo, "rev-parse", f"{source_sha}^{{tree}}")
     if actual_tree != source_tree:
         raise WaveFailure(
@@ -235,7 +397,9 @@ def safe_relative_member(name: str) -> PurePosixPath:
     return path
 
 
-def extract_git_archive(repo: Path, source_sha: str, destination: Path, log_dir: Path) -> dict[str, Any]:
+def extract_git_archive(
+    repo: Path, source_sha: str, destination: Path, log_dir: Path
+) -> dict[str, Any]:
     """Extract the selected committed product without storing a second full tar."""
     destination.mkdir(parents=True, exist_ok=False)
     command = ["git", "-C", str(repo), "archive", source_sha, "--", REQUIRED_PRODUCT]
@@ -250,7 +414,9 @@ def extract_git_archive(repo: Path, source_sha: str, destination: Path, log_dir:
                 member_count += 1
                 relative = safe_relative_member(member.name)
                 if relative.parts[0] != REQUIRED_PRODUCT:
-                    raise WaveFailure(f"git archive emitted a path outside {REQUIRED_PRODUCT}: {member.name}")
+                    raise WaveFailure(
+                        f"git archive emitted a path outside {REQUIRED_PRODUCT}: {member.name}"
+                    )
                 tail = PurePosixPath(*relative.parts[1:])
                 if not tail.parts:
                     continue
@@ -259,7 +425,9 @@ def extract_git_archive(repo: Path, source_sha: str, destination: Path, log_dir:
                     target.mkdir(parents=True, exist_ok=True)
                     continue
                 if not member.isfile():
-                    raise WaveFailure(f"git archive contains unsupported member kind: {member.name}")
+                    raise WaveFailure(
+                        f"git archive contains unsupported member kind: {member.name}"
+                    )
                 target.parent.mkdir(parents=True, exist_ok=True)
                 payload = archive.extractfile(member)
                 if payload is None:
@@ -308,29 +476,57 @@ def extract_git_archive(repo: Path, source_sha: str, destination: Path, log_dir:
         raise
 
 
-def read_asset_manifest(frozen_product: Path) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-    manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
-    assets = manifest["candidate_baseline"]["force_include_assets"]
+def read_asset_manifest(
+    frozen_product: Path, manifest: dict[str, Any]
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    if not exact_nonbool_count_matches(manifest.get("schema_version"), 1):
+        raise WaveFailure("primary manifest has an unsupported schema version")
+    candidate = manifest.get("candidate_baseline")
+    if not isinstance(candidate, dict):
+        raise WaveFailure("manifest omits its candidate asset baseline")
+    assets = candidate.get("force_include_assets")
+    declared_count = candidate.get("force_include_count")
+    if not isinstance(assets, list) or not assets:
+        raise WaveFailure("manifest force-include resources must be a nonempty complete list")
+    if not exact_nonbool_count_matches(declared_count, len(assets)):
+        raise WaveFailure("manifest force-include count differs from its complete resource list")
     config = tomllib.loads((frozen_product / "hatch.toml").read_text(encoding="utf-8"))
     force_include = config["build"]["targets"]["wheel"]["force-include"]
-    expected_mapping = {asset["source"]: asset["wheel"] for asset in assets}
-    if force_include != expected_mapping:
+    expected_mapping: dict[str, str] = {}
+    expected_targets: set[str] = set()
+    for asset in assets:
+        if not isinstance(asset, dict):
+            raise WaveFailure("manifest force-include entries must be objects")
+        source = asset.get("source")
+        archive = asset.get("archive")
+        wheel = asset.get("wheel")
+        byte_count = asset.get("bytes")
+        digest = asset.get("sha256")
+        if not all(isinstance(value, str) and value for value in (source, archive, wheel)):
+            raise WaveFailure("manifest force-include paths must be nonempty strings")
+        source_member = safe_relative_member(source)
+        wheel_member = safe_relative_member(wheel)
+        if source_member.as_posix() != source or wheel_member.as_posix() != wheel:
+            raise WaveFailure("manifest force-include paths must be canonical relative paths")
+        if source in expected_mapping or wheel in expected_targets:
+            raise WaveFailure("manifest force-include source and wheel targets must be unique")
+        if archive != f"policy-engine/{source}":
+            raise WaveFailure(f"manifest GCP archive path does not match source path: {source}")
+        if not exact_nonbool_count_matches(byte_count, byte_count) or byte_count < 0:
+            raise WaveFailure(f"manifest asset byte count is invalid: {source}")
+        if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
+            raise WaveFailure(f"manifest asset SHA-256 is invalid: {source}")
+        expected_mapping[source] = wheel
+        expected_targets.add(wheel)
+    if not isinstance(force_include, dict) or force_include != expected_mapping:
         raise WaveFailure(
-            "frozen hatch.toml force-include map differs from the reviewed 11-row manifest; "
+            "frozen hatch.toml force-include map differs from the complete content-bound manifest; "
             "reconcile the manifest before running the wave"
         )
-    for asset in assets:
-        if asset["archive"] != f"policy-engine/{asset['source']}":
-            raise WaveFailure(f"manifest GCP archive path does not match source path: {asset['source']}")
     sdist_include = set(config["build"]["targets"]["sdist"]["include"])
     missing_sdist = sorted(set(expected_mapping) - sdist_include)
     if missing_sdist:
         raise WaveFailure(f"frozen sdist config omits force-include source files: {missing_sdist}")
-    if (
-        len(assets) != manifest["candidate_baseline"]["force_include_count"]
-        or manifest["candidate_baseline"]["force_include_count"] != 11
-    ):
-        raise WaveFailure("the reviewed force-include denominator is no longer eleven")
     for asset in assets:
         path = frozen_product / asset["source"]
         if not path.is_file() or path.is_symlink():
@@ -338,7 +534,9 @@ def read_asset_manifest(frozen_product: Path) -> tuple[dict[str, Any], list[dict
         data = path.read_bytes()
         observed = {"bytes": len(data), "sha256": sha256_bytes(data)}
         expected = {key: asset[key] for key in ("bytes", "sha256")}
-        if observed != expected:
+        if not exact_nonbool_count_matches(
+            asset.get("bytes"), len(data)
+        ) or not json_values_match_exactly(observed, expected):
             raise WaveFailure(
                 f"frozen asset differs from candidate baseline; reconcile first: {asset['source']} "
                 f"expected={expected} actual={observed}"
@@ -364,10 +562,14 @@ def verify_wheel(wheel_path: Path, assets: list[dict[str, Any]]) -> dict[str, An
             observed = {"bytes": len(data), "sha256": sha256_bytes(data)}
             expected = {key: asset[key] for key in ("bytes", "sha256")}
             if observed != expected:
-                raise WaveFailure(f"wheel asset differs: {wheel_path}!{target}: {observed} != {expected}")
+                raise WaveFailure(
+                    f"wheel asset differs: {wheel_path}!{target}: {observed} != {expected}"
+                )
             rows[target] = observed
         actual_profile = {
-            name for name in names if name.startswith(PROFILE_TARGET_ROOT) and not name.endswith("/")
+            name
+            for name in names
+            if name.startswith(PROFILE_TARGET_ROOT) and not name.endswith("/")
         }
         if actual_profile != profile_target_members(assets):
             raise WaveFailure(
@@ -397,16 +599,14 @@ def verify_tar_assets(
                 f"GCP archive contains symlink/special members: "
                 f"{[(member.name, member.type) for member in special]}"
             )
-        names_by_source = {
-            asset["source"]: f"{member_prefix}{asset['source']}" for asset in assets
-        }
+        names_by_source = {asset["source"]: f"{member_prefix}{asset['source']}" for asset in assets}
         missing = sorted(
-            archive_name
-            for archive_name in names_by_source.values()
-            if archive_name not in regular
+            archive_name for archive_name in names_by_source.values() if archive_name not in regular
         )
         if missing:
-            raise WaveFailure(f"archive omitted force-include sources: {missing} from {archive_path}")
+            raise WaveFailure(
+                f"archive omitted force-include sources: {missing} from {archive_path}"
+            )
         rows = {}
         for asset in assets:
             archive_name = names_by_source[asset["source"]]
@@ -419,11 +619,15 @@ def verify_tar_assets(
             observed = {"bytes": len(data), "sha256": sha256_bytes(data)}
             expected = {key: asset[key] for key in ("bytes", "sha256")}
             if observed != expected:
-                raise WaveFailure(f"archive asset differs: {archive_path}:{member.name}: {observed} != {expected}")
+                raise WaveFailure(
+                    f"archive asset differs: {archive_path}:{member.name}: {observed} != {expected}"
+                )
             rows[member.name] = observed
         if exact_force_directories:
             for root in FORBIDDEN_ARCHIVE_SIBLING_ROOTS:
-                expected = {asset["archive"] for asset in assets if asset["archive"].startswith(root)}
+                expected = {
+                    asset["archive"] for asset in assets if asset["archive"].startswith(root)
+                }
                 observed = {name for name in regular if name.startswith(root)}
                 if observed != expected:
                     raise WaveFailure(
@@ -466,7 +670,9 @@ def product_root_from_sdist(
             relative = safe_relative_member(member.name)
             seen_prefixes.add(relative.parts[0])
             if relative.parts[0] != expected_prefix:
-                raise WaveFailure(f"unexpected sdist root: {member.name}, wanted {expected_prefix}/")
+                raise WaveFailure(
+                    f"unexpected sdist root: {member.name}, wanted {expected_prefix}/"
+                )
             tail = PurePosixPath(*relative.parts[1:])
             if not tail.parts:
                 continue
@@ -745,7 +951,9 @@ def configure_installed_env(
     if not purelib.is_relative_to(prefix):
         raise WaveFailure(f"installed site-packages escapes isolated prefix: {purelib} vs {prefix}")
     if tuple(purelib.glob("*.pth")):
-        raise WaveFailure("fresh installed consumer venv contains a .pth file; refusing to execute it")
+        raise WaveFailure(
+            "fresh installed consumer venv contains a .pth file; refusing to execute it"
+        )
     if not app_dependency_site.is_dir():
         raise WaveFailure(f"locked dependency site is missing: {app_dependency_site}")
     sitecustomize = (
@@ -760,7 +968,7 @@ def configure_installed_env(
         "sys.path.append(_q2_dependency_text)\n"
     )
     (purelib / "sitecustomize.py").write_text(sitecustomize, encoding="utf-8")
-    origin_plugin = '''from __future__ import annotations
+    origin_plugin = """from __future__ import annotations
 import json, os, sys, sysconfig
 from pathlib import Path
 import pytest
@@ -818,7 +1026,7 @@ def pytest_sessionfinish(session, exitstatus):
     if errors:
         print("Q2 installed-origin proof failed: " + json.dumps(errors, sort_keys=True), file=sys.stderr)
         session.exitstatus = pytest.ExitCode.TESTS_FAILED
-'''
+"""
     (purelib / "q2_installed_origin_plugin.py").write_text(origin_plugin, encoding="utf-8")
     json_write(
         run_root / "installed-env-config.json",
@@ -847,8 +1055,10 @@ def installed_runtime_proof(
     env: dict[str, str],
     log_dir: Path,
 ) -> dict[str, Any]:
-    expected = {asset["wheel"]: {"bytes": asset["bytes"], "sha256": asset["sha256"]} for asset in assets}
-    code = '''import hashlib, importlib, importlib.metadata, json, os, sys, sysconfig
+    expected = {
+        asset["wheel"]: {"bytes": asset["bytes"], "sha256": asset["sha256"]} for asset in assets
+    }
+    code = """import hashlib, importlib, importlib.metadata, json, os, sys, sysconfig
 from pathlib import Path
 purelib=Path(sysconfig.get_paths()["purelib"]).resolve()
 prefix=Path(sys.prefix).resolve()
@@ -875,7 +1085,11 @@ for target,expected in assets.items():
     path=purelib/target
     data=path.read_bytes()
     observed={"bytes":len(data),"sha256":hashlib.sha256(data).hexdigest()}
-    assert observed==expected,(target,observed,expected)
+    assert (
+        type(expected.get("bytes")) is int
+        and observed["bytes"] == expected["bytes"]
+    ), (target, observed, expected)
+    assert observed["sha256"]==expected["sha256"],(target,observed,expected)
     asset_rows[target]={**observed,"installed_path":str(path)}
 assert Path(_resources.__file__).resolve().is_relative_to(purelib)
 assert Path(dependency_authority.__file__).resolve().is_relative_to(purelib)
@@ -887,7 +1101,7 @@ assert hashlib.sha256(registry_bytes).hexdigest()==assets["polisyos/foundry/meth
 registry=dependency_authority.load_digest_domain_registry(registry_path)
 assert registry.statement.domains
 print(json.dumps({"python":sys.version,"prefix":str(prefix),"purelib":str(purelib),"policyos_origin":str(Path(polisyos.__file__).resolve()),"tools_origin":str(Path(tools.__file__).resolve()),"module_origins":module_origins,"assets":asset_rows},sort_keys=True))
-'''
+"""
     child_env = clean_child_env()
     child_env.update(
         {
@@ -907,8 +1121,18 @@ print(json.dumps({"python":sys.version,"prefix":str(prefix),"purelib":str(pureli
     proof = json.loads(result.stdout)
     if Path(proof["purelib"]).resolve() != purelib.resolve():
         raise WaveFailure(f"installed proof used unexpected purelib: {proof['purelib']}")
-    if len(proof["assets"]) != 11:
-        raise WaveFailure(f"installed proof did not cover all 11 force-includes: {len(proof['assets'])}")
+    proof_assets = proof.get("assets")
+    if not isinstance(proof_assets, dict) or set(proof_assets) != set(expected):
+        raise WaveFailure("installed proof did not cover the complete manifest resource set")
+    for target, expected_asset in expected.items():
+        actual_asset = proof_assets.get(target)
+        if (
+            not isinstance(actual_asset, dict)
+            or not exact_nonbool_count_matches(actual_asset.get("bytes"), expected_asset["bytes"])
+            or actual_asset.get("sha256") != expected_asset["sha256"]
+            or not isinstance(actual_asset.get("installed_path"), str)
+        ):
+            raise WaveFailure(f"installed proof asset bytes or digest differ: {target}")
     return proof
 
 
@@ -917,10 +1141,14 @@ def baseline_node_ids(source_product: Path, manifest: dict[str, Any]) -> set[str
     baseline_path = source_product / relative
     compressed = baseline_path.read_bytes()
     if sha256_bytes(compressed) != manifest["original_q2_suite"]["baseline_junit_sha256"]:
-        raise WaveFailure("tracked original Q2 JUnit baseline checksum changed; reconcile before running")
+        raise WaveFailure(
+            "tracked original Q2 JUnit baseline checksum changed; reconcile before running"
+        )
     root = ET.fromstring(gzip.decompress(compressed))
     rows = list(root.iter("testcase"))
-    if len(rows) != manifest["original_q2_suite"]["baseline_case_count"]:
+    if not exact_nonbool_count_matches(
+        manifest["original_q2_suite"].get("baseline_case_count"), len(rows)
+    ):
         raise WaveFailure(f"original Q2 baseline denominator differs: {len(rows)}")
     ids: set[str] = set()
     for case in rows:
@@ -930,8 +1158,12 @@ def baseline_node_ids(source_product: Path, manifest: dict[str, Any]) -> set[str
         else:
             dotted = classname.split(".")
             test_path = "/".join(dotted[:-1] + [dotted[-1] + ".py"])
-        if not any(test_path == candidate for candidate in manifest["original_q2_suite"]["test_paths"]):
-            raise WaveFailure(f"baseline JUnit case falls outside declared original suite: {classname}")
+        if not any(
+            test_path == candidate for candidate in manifest["original_q2_suite"]["test_paths"]
+        ):
+            raise WaveFailure(
+                f"baseline JUnit case falls outside declared original suite: {classname}"
+            )
         ids.add(f"{test_path}::{case.attrib['name']}")
     if len(ids) != len(rows):
         raise WaveFailure("original baseline JUnit contains duplicate node IDs")
@@ -961,7 +1193,7 @@ def historical_baseline_subset_ids(
     declaration = manifest.get("current_primary_suite", {}).get("historical_baseline_subset")
     if not isinstance(declaration, dict):
         raise WaveFailure("current primary suite omits the named historical baseline subset")
-    if declaration.get("selected_node_count") != len(expected):
+    if not exact_nonbool_count_matches(declaration.get("selected_node_count"), len(expected)):
         raise WaveFailure(
             "historical baseline subset count differs from its recomputed IDs: "
             f"declared={declaration.get('selected_node_count')} actual={len(expected)}"
@@ -973,10 +1205,41 @@ def historical_baseline_subset_ids(
     return expected
 
 
+def selected_group_node_ids(group: dict[str, Any], candidates: set[str]) -> set[str]:
+    """Resolve every named selector to its complete source-collected node-ID family."""
+    path = group.get("test_path")
+    selectors = group.get("selectors")
+    if not isinstance(path, str) or not path or not isinstance(selectors, list) or not selectors:
+        raise WaveFailure("installed consumer group must have a test path and nonempty selectors")
+    if any(not isinstance(selector, str) or not selector for selector in selectors):
+        raise WaveFailure(f"invalid selector list in {path}")
+    if len(set(selectors)) != len(selectors):
+        raise WaveFailure(f"duplicate selector in {path}")
+    safe_relative_member(path)
+    resolved: set[str] = set()
+    for selector in selectors:
+        if not isinstance(selector, str) or not selector:
+            raise WaveFailure(f"invalid selector in {path}: {selector!r}")
+        stem = f"{path}::{selector}"
+        matches = (
+            {node_id for node_id in candidates if node_id == stem}
+            if "[" in selector
+            else {
+                node_id
+                for node_id in candidates
+                if node_id == stem or node_id.startswith(stem + "[")
+            }
+        )
+        if not matches:
+            raise WaveFailure(f"declared selector has no content-bound node IDs: {stem}")
+        resolved.update(matches)
+    return resolved
+
+
 def current_primary_suite_ids(
     manifest: dict[str, Any], expected_original_ids: set[str]
 ) -> set[str]:
-    """Load the content-bound exact current profile selector set from the manifest."""
+    """Load exact current IDs and reconcile each additional selector to its full family."""
     suite = manifest.get("current_primary_suite")
     if not isinstance(suite, dict):
         raise WaveFailure("manifest omits current_primary_suite")
@@ -989,20 +1252,49 @@ def current_primary_suite_ids(
         raise WaveFailure("current primary suite node IDs must be a nonempty string list")
     if raw_ids != sorted(set(raw_ids)):
         raise WaveFailure("current primary suite node IDs must be sorted and unique")
-    if suite.get("selected_node_count") != len(raw_ids):
+    declared_count = suite.get("selected_node_count")
+    if not exact_nonbool_count_matches(declared_count, len(raw_ids)):
         raise WaveFailure("current primary suite count differs from its complete node-ID list")
     if suite.get("selected_node_ids_sha256") != node_ids_sha256(raw_ids):
         raise WaveFailure("current primary suite digest differs from its complete node-ID list")
 
-    declared_paths = set(manifest["original_q2_suite"]["test_paths"])
-    additional = manifest["additional_installed_consumers"]
-    declared_paths.update(group["test_path"] for group in additional.values())
+    original_suite = manifest.get("original_q2_suite")
+    baseline_path_values = (
+        original_suite.get("test_paths") if isinstance(original_suite, dict) else None
+    )
+    if (
+        not isinstance(baseline_path_values, list)
+        or not baseline_path_values
+        or any(not isinstance(path, str) or not path for path in baseline_path_values)
+    ):
+        raise WaveFailure("manifest original Q2 test paths must be a nonempty string list")
+    baseline_paths = set(baseline_path_values)
+    for path in baseline_paths:
+        safe_relative_member(path)
+    additional = manifest.get("additional_installed_consumers")
+    if (
+        not isinstance(additional, dict)
+        or not additional
+        or any(not isinstance(group, dict) for group in additional.values())
+    ):
+        raise WaveFailure("manifest omits or malforms additional installed consumer selectors")
+    group_path_values = [group.get("test_path") for group in additional.values()]
+    if any(not isinstance(path, str) or not path for path in group_path_values):
+        raise WaveFailure("additional installed consumer paths must be nonempty strings")
+    group_paths = set(group_path_values)
+    if baseline_paths & group_paths:
+        raise WaveFailure(
+            "current primary baseline and additional consumer paths must be complete and disjoint"
+        )
+    declared_paths = baseline_paths | group_paths
     source_hashes = suite.get("source_file_sha256")
     if not isinstance(source_hashes, dict) or set(source_hashes) != declared_paths:
         raise WaveFailure(
             "current primary suite source-hash paths differ from the complete selected path set"
         )
     for path, digest in source_hashes.items():
+        if not isinstance(path, str):
+            raise WaveFailure("current primary suite source-hash paths must be strings")
         safe_relative_member(path)
         if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
             raise WaveFailure(f"current primary suite has an invalid source hash for {path}")
@@ -1010,11 +1302,11 @@ def current_primary_suite_ids(
     ids = set(raw_ids)
     for node_id in raw_ids:
         pieces = node_id.split("::")
-        if len(pieces) != 2 or pieces[0] not in declared_paths:
+        if len(pieces) < 2 or any(not piece for piece in pieces) or pieces[0] not in declared_paths:
             raise WaveFailure(
                 f"current primary suite contains an unbound source-qualified ID: {node_id}"
             )
-        function_name = pieces[1].split("[", 1)[0]
+        function_name = pieces[-1].split("[", 1)[0]
         if not function_name.startswith("test_"):
             raise WaveFailure(f"current primary suite contains a non-test selector: {node_id}")
 
@@ -1024,13 +1316,18 @@ def current_primary_suite_ids(
             "current primary suite omits IDs from the historical 91-plus-nine subset: "
             f"{sorted(historical - ids)}"
         )
+    claimed_group_ids: set[str] = set()
     for group in additional.values():
-        for selector in group["selectors"]:
-            node_id = f"{group['test_path']}::{selector}"
-            if node_id not in ids:
-                raise WaveFailure(
-                    f"current primary suite omits required installed consumer: {node_id}"
-                )
+        claimed_group_ids.update(selected_group_node_ids(group, ids))
+    declared_group_ids = {node_id for node_id in ids if node_id.split("::", 1)[0] in group_paths}
+    if declared_group_ids != claimed_group_ids:
+        raise WaveFailure(
+            "current primary additional-consumer IDs differ from complete selector families: "
+            f"unbound={sorted(declared_group_ids - claimed_group_ids)} "
+            f"missing={sorted(claimed_group_ids - declared_group_ids)}"
+        )
+    if not expected_original_ids <= ids:
+        raise WaveFailure("current primary suite omits original Q2 node IDs")
     return ids
 
 
@@ -1053,7 +1350,9 @@ def verify_current_primary_suite_sources(
     return ids
 
 
-def _module_function_index(tree: ast.Module) -> dict[str, list[ast.FunctionDef | ast.AsyncFunctionDef]]:
+def _module_function_index(
+    tree: ast.Module,
+) -> dict[str, list[ast.FunctionDef | ast.AsyncFunctionDef]]:
     functions: dict[str, list[ast.FunctionDef | ast.AsyncFunctionDef]] = {}
     for node in tree.body:
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
@@ -1121,11 +1420,7 @@ def _verify_fixture_loader_key(
     matching = []
     for expression in env_keys:
         text = ast.unparse(expression)
-        if (
-            "E02_" in text
-            and "_FIXTURE_PATH" in text
-            and f"{kind_parameter}.upper()" in text
-        ):
+        if "E02_" in text and "_FIXTURE_PATH" in text and f"{kind_parameter}.upper()" in text:
             matching.append(text)
     if len(matching) != 1:
         raise WaveFailure(
@@ -1173,6 +1468,74 @@ def _verify_call_arity(
         raise WaveFailure(f"fixture callback omits a required keyword-only argument: {label}")
 
 
+def _class_method_index(
+    tree: ast.Module,
+) -> dict[tuple[str, ...], dict[str, list[ast.FunctionDef | ast.AsyncFunctionDef]]]:
+    """Index methods by their complete nested class path."""
+    result: dict[tuple[str, ...], dict[str, list[ast.FunctionDef | ast.AsyncFunctionDef]]] = {}
+
+    def collect(body: list[ast.stmt], class_path: tuple[str, ...]) -> None:
+        for node in body:
+            if not isinstance(node, ast.ClassDef):
+                continue
+            nested_path = (*class_path, node.name)
+            methods = result.setdefault(nested_path, {})
+            for child in node.body:
+                if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    methods.setdefault(child.name, []).append(child)
+            collect(node.body, nested_path)
+
+    collect(tree.body, ())
+    return result
+
+
+def _class_local_function_closure(
+    root_name: str,
+    class_path: tuple[str, ...],
+    root_function: ast.FunctionDef | ast.AsyncFunctionDef,
+    functions: dict[str, list[ast.FunctionDef | ast.AsyncFunctionDef]],
+    class_methods: dict[tuple[str, ...], dict[str, list[ast.FunctionDef | ast.AsyncFunctionDef]]],
+    *,
+    source_path: str,
+) -> dict[str, ast.FunctionDef | ast.AsyncFunctionDef]:
+    """Follow module helpers and same-class ``self`` helpers from a class test."""
+    root_key = "::".join((*class_path, root_name))
+    closure = {root_key: root_function}
+    pending = [(root_key, root_function, class_path)]
+    while pending:
+        _, function, scope = pending.pop()
+        for node in ast.walk(function):
+            if not isinstance(node, ast.Call):
+                continue
+            callee_key: str | None = None
+            callee_scope: tuple[str, ...] = ()
+            candidates: list[ast.FunctionDef | ast.AsyncFunctionDef] = []
+            if isinstance(node.func, ast.Name):
+                candidates = functions.get(node.func.id, [])
+                if candidates:
+                    callee_key = node.func.id
+            elif (
+                scope
+                and isinstance(node.func, ast.Attribute)
+                and isinstance(node.func.value, ast.Name)
+                and node.func.value.id == "self"
+            ):
+                candidates = class_methods.get(scope, {}).get(node.func.attr, [])
+                if candidates:
+                    callee_scope = scope
+                    callee_key = "::".join((*scope, node.func.attr))
+            if callee_key is None:
+                continue
+            if len(candidates) != 1:
+                raise WaveFailure(
+                    f"selected helper {callee_key!r} in {source_path} is absent or ambiguous"
+                )
+            if callee_key not in closure:
+                closure[callee_key] = candidates[0]
+                pending.append((callee_key, candidates[0], callee_scope))
+    return closure
+
+
 def verify_transitive_test_bindings(
     frozen_product: Path,
     manifest: dict[str, Any],
@@ -1188,29 +1551,47 @@ def verify_transitive_test_bindings(
     if not historical_ids <= selected_ids:
         raise WaveFailure("current transitive selector set omits the historical baseline subset")
 
-    selected_by_path: dict[str, set[str]] = {}
+    selected_by_path: dict[str, set[tuple[tuple[str, ...], str]]] = {}
     for node_id in selected_ids:
         pieces = node_id.split("::")
-        if len(pieces) != 2:
-            raise WaveFailure(f"transitive binding needs a module-level test node ID: {node_id}")
-        test_path, test_case = pieces
-        function_name = test_case.split("[", 1)[0]
+        if len(pieces) < 2 or any(not piece for piece in pieces):
+            raise WaveFailure(
+                f"transitive binding found an invalid source-qualified test ID: {node_id}"
+            )
+        test_path = pieces[0]
+        class_path = tuple(pieces[1:-1])
+        function_name = pieces[-1].split("[", 1)[0]
         if not function_name.startswith("test_"):
             raise WaveFailure(f"transitive binding found an unsupported test node ID: {node_id}")
-        selected_by_path.setdefault(test_path, set()).add(function_name)
+        selected_by_path.setdefault(test_path, set()).add((class_path, function_name))
 
-    module_cache: dict[str, tuple[ast.Module, dict[str, list[ast.FunctionDef | ast.AsyncFunctionDef]]]] = {}
+    module_cache: dict[
+        str,
+        tuple[
+            ast.Module,
+            dict[str, list[ast.FunctionDef | ast.AsyncFunctionDef]],
+            dict[tuple[str, ...], dict[str, list[ast.FunctionDef | ast.AsyncFunctionDef]]],
+        ],
+    ] = {}
     for test_path in selected_by_path:
         relative = safe_relative_member(test_path)
         source = frozen_product.joinpath(*relative.parts)
         if not source.is_file() or source.is_symlink():
             raise WaveFailure(f"selected test source is absent or symlinked: {test_path}")
         tree = ast.parse(source.read_text(encoding="utf-8"), filename=test_path)
-        module_cache[test_path] = (tree, _module_function_index(tree))
-        for function_name in selected_by_path[test_path]:
-            if len(module_cache[test_path][1].get(function_name, [])) != 1:
+        functions = _module_function_index(tree)
+        class_methods = _class_method_index(tree)
+        module_cache[test_path] = (tree, functions, class_methods)
+        for class_path, function_name in selected_by_path[test_path]:
+            candidates = (
+                class_methods.get(class_path, {}).get(function_name, [])
+                if class_path
+                else functions.get(function_name, [])
+            )
+            if len(candidates) != 1:
+                selected = "::".join((*class_path, function_name))
                 raise WaveFailure(
-                    f"selected test node {test_path}::{function_name} has no unique function body"
+                    f"selected test node {test_path}::{selected} has no unique function body"
                 )
 
     fixture_paths = additional["canonical_bridge_and_worker"].get("fixture_paths")
@@ -1222,10 +1603,22 @@ def verify_transitive_test_bindings(
     fixture_kinds: set[str] = set()
     callback_calls: dict[str, list[tuple[str, str, ast.Call]]] = {}
     fixture_details: dict[str, dict[str, Any]] = {}
-    for test_path, test_names in selected_by_path.items():
-        _, functions = module_cache[test_path]
-        for test_name in test_names:
-            closure = _local_function_closure(test_name, functions, source_path=test_path)
+    for test_path, test_targets in selected_by_path.items():
+        _, functions, class_methods = module_cache[test_path]
+        for class_path, test_name in test_targets:
+            test_key = "::".join((*class_path, test_name)) if class_path else test_name
+            if class_path:
+                test_function = class_methods[class_path][test_name][0]
+                closure = _class_local_function_closure(
+                    test_name,
+                    class_path,
+                    test_function,
+                    functions,
+                    class_methods,
+                    source_path=test_path,
+                )
+            else:
+                closure = _local_function_closure(test_name, functions, source_path=test_path)
             loader_names = {
                 name for name, function in closure.items() if _is_file_fixture_loader(function)
             }
@@ -1236,7 +1629,7 @@ def verify_transitive_test_bindings(
                 for name, function in closure.items()
                 if name in loader_names
             }
-            if test_name in loader_names:
+            if test_key in loader_names:
                 raise WaveFailure(
                     f"selected test {test_path}::{test_name} loads a fixture inline; "
                     "the loader-to-callable binding is not statically resolvable"
@@ -1265,9 +1658,7 @@ def verify_transitive_test_bindings(
                     for node in ast.walk(scope):
                         if isinstance(node, ast.Assign) and node.value is call:
                             targets.extend(
-                                target.id
-                                for target in node.targets
-                                if isinstance(target, ast.Name)
+                                target.id for target in node.targets if isinstance(target, ast.Name)
                             )
                         elif isinstance(node, ast.AnnAssign) and node.value is call:
                             if isinstance(node.target, ast.Name):
@@ -1310,7 +1701,9 @@ def verify_transitive_test_bindings(
         functions = _module_function_index(fixture_tree)
         calls = callback_calls.get(kind, [])
         if not calls:
-            raise WaveFailure(f"selected tests load fixture {kind!r} without calling a bound function")
+            raise WaveFailure(
+                f"selected tests load fixture {kind!r} without calling a bound function"
+            )
         callback_receipts = []
         transitive_functions: set[str] = set()
         for test_path, callback_name, call in calls:
@@ -1458,7 +1851,7 @@ def verify_consumer_run(
     origin = json.loads(origin_path.read_text(encoding="utf-8"))
     if not origin.get("verified"):
         raise WaveFailure(f"installed origin/sys.path proof failed: {origin.get('errors')}")
-    if counts["tests"] != len(expected_current_ids):
+    if not exact_nonbool_count_matches(counts["tests"], len(expected_current_ids)):
         raise WaveFailure(
             f"JUnit count differs from content-bound current suite: "
             f"actual={counts['tests']} expected={len(expected_current_ids)}"
@@ -1467,8 +1860,10 @@ def verify_consumer_run(
         raise WaveFailure(f"consumer suite did not complete cleanly: {counts}")
     if result.returncode:
         raise WaveFailure(f"pytest exited {result.returncode}; full output retained in {output}")
-    if counts["tests"] != len(collected):
-        raise WaveFailure(f"JUnit test count differs from collected node IDs: {counts} vs {len(collected)}")
+    if not exact_nonbool_count_matches(counts["tests"], len(collected)):
+        raise WaveFailure(
+            f"JUnit test count differs from collected node IDs: {counts} vs {len(collected)}"
+        )
     return {
         "returncode": result.returncode,
         "counts": counts,
@@ -1541,7 +1936,9 @@ def run_worker_profile(
                 )
         python = worker_env / ".venv" / "bin" / "python"
         if not python.is_file():
-            raise WaveFailure(f"locked worker sync did not produce the requested interpreter: {python}")
+            raise WaveFailure(
+                f"locked worker sync did not produce the requested interpreter: {python}"
+            )
         mode = "one locked profile env; offline first with retained online fallback if needed"
     info = interpreter_info(python, log_dir=log_dir, name="dowhy-worker")
     if info["version"][:2] != [3, 12]:
@@ -1571,8 +1968,16 @@ def run_wave(args: argparse.Namespace) -> Path:
     if platform.system() != "Linux":
         raise WaveFailure("the installed worker profile wave is scoped to the supported Linux host")
     frozen_source_preflight(repo, args.source_sha, args.source_tree)
+    manifest_path, manifest, manifest_sha256 = load_verified_json_file(
+        args.manifest,
+        args.manifest_sha256,
+        "primary source-freeze manifest",
+        expected_schema_version=1,
+    )
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-    output_root = Path(args.output_root).resolve() if args.output_root else HANDOFF_ROOT / "raw" / "runs"
+    output_root = (
+        Path(args.output_root).resolve() if args.output_root else HANDOFF_ROOT / "raw" / "runs"
+    )
     output_root.mkdir(parents=True, exist_ok=True)
     run_root = output_root / f"{args.source_sha}-{stamp}-pid{os.getpid()}"
     run_root.mkdir(parents=False, exist_ok=False)
@@ -1584,7 +1989,8 @@ def run_wave(args: argparse.Namespace) -> Path:
         "repo": str(repo),
         "started_utc": datetime.now(UTC).isoformat(),
         "runner_sha256": sha256_file(Path(__file__).resolve()),
-        "manifest_sha256": sha256_file(MANIFEST_PATH),
+        "manifest_path": str(manifest_path),
+        "manifest_sha256": manifest_sha256,
         "uv": None,
         "profiles": {},
         "retention": "all files are retained; this runner has no cleanup path",
@@ -1602,7 +2008,9 @@ def run_wave(args: argparse.Namespace) -> Path:
         app_python = require_absolute_file(args.app_python, "--app-python")
         app_info = interpreter_info(app_python, log_dir=run_root / "logs", name="app-build")
         if app_info["version"][:2] != [3, 14]:
-            raise WaveFailure(f"application build interpreter must be Python 3.14: {app_info['version']}")
+            raise WaveFailure(
+                f"application build interpreter must be Python 3.14: {app_info['version']}"
+            )
         if app_info["hatchling"] != "1.27.0":
             raise WaveFailure(
                 f"frozen app build environment must retain Hatchling 1.27.0, got {app_info['hatchling']}"
@@ -1628,12 +2036,18 @@ def run_wave(args: argparse.Namespace) -> Path:
         source_root = run_root / "frozen-source"
         archive_receipt = extract_git_archive(repo, args.source_sha, source_root, run_root / "logs")
         frozen_product = source_root / REQUIRED_PRODUCT
-        manifest, assets = read_asset_manifest(frozen_product)
-        project_metadata = tomllib.loads((frozen_product / "pyproject.toml").read_text(encoding="utf-8"))["project"]
-        sdist_prefix = project_metadata["name"].replace("-", "_") + f"-{project_metadata['version']}"
+        manifest, assets = read_asset_manifest(frozen_product, manifest)
+        project_metadata = tomllib.loads(
+            (frozen_product / "pyproject.toml").read_text(encoding="utf-8")
+        )["project"]
+        sdist_prefix = (
+            project_metadata["name"].replace("-", "_") + f"-{project_metadata['version']}"
+        )
         expected_original_ids = baseline_node_ids(frozen_product, manifest)
-        if len(expected_original_ids) != 91:
-            raise WaveFailure(f"original Q2 expected ID denominator changed: {len(expected_original_ids)}")
+        if not exact_nonbool_count_matches(len(expected_original_ids), 91):
+            raise WaveFailure(
+                f"original Q2 expected ID denominator changed: {len(expected_original_ids)}"
+            )
         current_primary_ids = verify_current_primary_suite_sources(
             frozen_product, manifest, expected_original_ids
         )
@@ -1695,7 +2109,9 @@ def run_wave(args: argparse.Namespace) -> Path:
         gcp_output = run_root / "gcp-archive"
         package_script = frozen_product / "ops/cloud/gcp/package_repo.sh"
         package_env = clean_child_env()
-        package_env.update({"OUT_DIR": str(gcp_output), "UPLOAD": "0", "PYTHON_BIN": str(build_python)})
+        package_env.update(
+            {"OUT_DIR": str(gcp_output), "UPLOAD": "0", "PYTHON_BIN": str(build_python)}
+        )
         run_command(
             ["bash", str(package_script)],
             cwd=frozen_product,
@@ -1771,9 +2187,7 @@ def run_wave(args: argparse.Namespace) -> Path:
             ("rebuilt-sdist-wheel", sdist_wheel, sdist_wheel_receipt),
             ("rebuilt-gcp-archive-wheel", gcp_wheel, gcp_wheel_receipt),
         ]
-        bridge_consumers = manifest["additional_installed_consumers"][
-            "canonical_bridge_and_worker"
-        ]
+        bridge_consumers = manifest["additional_installed_consumers"]["canonical_bridge_and_worker"]
         for name, wheel_path, wheel_receipt in profiles:
             output = run_root / "consumer-runs" / name
             output.mkdir(parents=True, exist_ok=False)
@@ -1854,6 +2268,14 @@ def run_wave(args: argparse.Namespace) -> Path:
             "gcp_archive": gcp_receipt,
             "rebuilt_gcp_wheel": gcp_wheel_receipt,
         }
+        _, _, final_manifest_sha256 = load_verified_json_file(
+            manifest_path,
+            manifest_sha256,
+            "primary source-freeze manifest",
+            expected_schema_version=1,
+        )
+        if final_manifest_sha256 != manifest_sha256:
+            raise WaveFailure("primary source-freeze manifest changed during the wave")
         receipt["status"] = "pass"
         receipt["finished_utc"] = datetime.now(UTC).isoformat()
         json_write(receipt_path, receipt)
@@ -1871,9 +2293,19 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--repo", required=True, help="attached, clean repository root")
     parser.add_argument("--source-sha", required=True, help="actual full SHA of the frozen commit")
     parser.add_argument("--source-tree", required=True, help="actual full tree SHA of that commit")
-    parser.add_argument("--app-python", required=True, help="absolute existing Python 3.14 build/test dependency interpreter")
-    parser.add_argument("--worker-python", help="absolute existing Python 3.12 DoWhy 0.14 worker interpreter")
-    parser.add_argument("--output-root", help="optional new-run parent; defaults to this ignored LOCAL raw/runs")
+    parser.add_argument("--manifest", required=True, help="absolute frozen manifest path")
+    parser.add_argument("--manifest-sha256", required=True, help="exact manifest SHA-256")
+    parser.add_argument(
+        "--app-python",
+        required=True,
+        help="absolute existing Python 3.14 build/test dependency interpreter",
+    )
+    parser.add_argument(
+        "--worker-python", help="absolute existing Python 3.12 DoWhy 0.14 worker interpreter"
+    )
+    parser.add_argument(
+        "--output-root", help="optional new-run parent; defaults to this ignored LOCAL raw/runs"
+    )
     return parser.parse_args()
 
 

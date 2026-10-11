@@ -1,0 +1,40 @@
+{
+  "primary_inputs": {
+    "force_include_asset_count_per_profile": 11,
+    "manifest_sha256": "086abec2e167c20e45362d51e926050954467010ce2eb186443056a0b7239366",
+    "primary_suite_manifest_field": "current_primary_suite",
+    "required_profiles": [
+      "source-wheel",
+      "rebuilt-sdist-wheel",
+      "rebuilt-gcp-archive-wheel"
+    ],
+    "required_status": "pass",
+    "runner_sha256": "a64bab2a692e9f3a88b0693887a430aa3ee2f78e2ca4fa847ed5871ec0c7a3b0"
+  },
+  "purpose": "Separate six-test installed-consumer supplement; it consumes the primary runner's content-bound current_primary_suite selector set and preserves the named historical 91-plus-nine baseline subset.",
+  "retention": "The driver reuses the primary run's one installed venv and its three wheels. It creates a new unique supplemental run directory and retains all artifacts; it has no deletion or cleanup path.",
+  "schema_version": 1,
+  "supplemental_suite": {
+    "denominator_properties": {
+      "ast_inventory_unresolved_package_rows": 20,
+      "source_contract_package_definitions": 20,
+      "source_contract_supported_entrypoints": 38
+    },
+    "expected_node_count": 6,
+    "selectors": [
+      "test_public_surface_entrypoints_resolve_declared_exports",
+      "test_workflow_request_rejects_wrong_typed_intake_ref_kind_or_media_type",
+      "test_gate_request_selected_replay_requirement_is_versioned",
+      "test_cas_nondefault_manifest_profile_round_trips_through_fresh_reader",
+      "test_small_monte_carlo_report_is_consumed_from_fresh_cas",
+      "test_scholar_raw_source_binding_survives_fresh_cas_read_and_rejects_invented_quote"
+    ],
+    "test_path": "tests/unit/core/contracts/test_e02_installed_composition.py",
+    "test_sha256": "8f3c269537b8f42b583fcaee4bc5ad7b29fe7456e95dd11a43fd7cb080c1ada7"
+  },
+  "timeout_policy": {
+    "derive_only_after": "previous profile has exact six collected and executed selectors, zero skips/failures/errors, and verified installed origins",
+    "first_profile_consumer_timeout_seconds": null,
+    "later_profile_timeout_seconds": "ceil(2 * immediately_previous_profile_successful_consumer_wall_seconds)"
+  }
+}

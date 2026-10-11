@@ -6,7 +6,44 @@ This runner is prepared but has not been executed. It proves the three actual co
 2. wheel rebuilt from the source distribution after unpacking;
 3. wheel rebuilt from the GCP package archive after unpacking.
 
-The final SHA and tree are not known here. The manifest records `077a572ff5880b3f50a85d3e3db6a232d277659a` as the candidate baseline for the 11 asset byte digests; that baseline is not a freeze parameter and need not equal the branch's current `HEAD`. The caller must pass the final full commit and tree values supplied after source freeze. The runner rejects a detached checkout, a mismatched `HEAD`/tree, or any tracked working-tree edits before it allocates run output.
+The final SHA and tree are not known here. The manifest records `077a572ff5880b3f50a85d3e3db6a232d277659a` as the candidate baseline for the source-derived resource byte digests (11 in this current route); that baseline is not a freeze parameter and need not equal the branch's current `HEAD`. The caller must pass the final full commit and tree values supplied after source freeze. The runner rejects a detached checkout, a mismatched `HEAD`/tree, or any tracked working-tree edits before it allocates run output.
+
+## Exact schema-version admission
+
+The current primary and supplemental source-freeze manifests and the terminal command-evidence sidecar use schema version `1`. Each reader requires the JSON value to be an exact non-boolean integer before proceeding; `true`, `1.0`, `"1"`, `null`, and unsupported integer versions are refused. The source audit applies the same rule when it reads both manifest inputs. This is input validation, not a migration to a newer schema version.
+
+## Source-bound manifest admission
+
+Before a package build, run the source audit against the exact frozen commit. `prepare` recomputes source-selected IDs, resource bytes, and both manifest proposals from that source; it does not build, install, or accept a consumer. If the primary proposal differs from the committed `installed-wave-manifest.json`, review and commit the exact proposed primary bytes, calculate the new source SHA/tree, and repeat `prepare` using the last proposed supplemental file as its explicit input. After the primary manifest matches the proposal for the final source, run `check` against that same source SHA/tree and the newest proposed supplemental file. It must report `source_preflight_exact`, reconcile the source object and actual collection, bind the capsule inputs, and have no runner limitations before the installed wave begins. Use the exact latest proposed supplemental file and SHA for the final `check` and later supplemental run.
+
+```sh
+repo=/absolute/path/to/polisyos
+source_sha=ACTUAL_FULL_FROZEN_COMMIT_SHA
+source_tree=ACTUAL_FULL_FROZEN_TREE_SHA
+app_python="$repo/policy-engine/.venv/bin/python"
+audit="$repo/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py"
+supplemental_manifest=/absolute/path/to/reviewed-versioned-supplemental-manifest.json
+supplemental_manifest_sha256=ACTUAL_SUPPLEMENTAL_MANIFEST_SHA256
+collection_timeout_seconds=MEASURED_COLLECTION_TIMEOUT_SECONDS
+prepare_root="$repo/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/source-freezes/${source_sha}-$(date -u +%Y%m%dT%H%M%SZ)"
+python3 "$audit" prepare \
+  --repo "$repo" --source-sha "$source_sha" --source-tree "$source_tree" \
+  --python "$app_python" --collection-timeout-seconds "$collection_timeout_seconds" \
+  --output-root "$prepare_root" \
+  --supplemental-manifest "$supplemental_manifest" \
+  --supplemental-manifest-sha256 "$supplemental_manifest_sha256"
+```
+
+After the final `prepare` for a source commit, point `supplemental_manifest` at that run's exact `proposed-supplemental-manifest.json`, hash it, and run `check` into a new absent output directory with the same source SHA/tree. The primary manifest is read from the source commit. If any source or manifest changes after `prepare`, recompute the source SHA/tree and repeat `prepare` before `check`.
+
+Every count-bearing JSON field used to admit this source freeze or a consumer result must be an exact JSON integer (`type(value) is int`), not a boolean, equal-valued float, numeric string, negative value, or a mismatched integer. This applies to selected-node and resource counts, the original baseline denominator, supplemental counts, per-asset byte lengths, captured command/stream byte counts, and consumer receipt counts. The source-audit exact-status predicate and the installed runner independently apply the same rule; a count alias must make the audit stale/limited before any build.
+
+```sh
+supplemental_manifest="$prepare_root/proposed-supplemental-manifest.json"
+supplemental_manifest_sha256="$(sha256sum "$supplemental_manifest" | cut -d' ' -f1)"
+check_root="$repo/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/source-freeze-checks/${source_sha}-$(date -u +%Y%m%dT%H%M%SZ)"
+python3 "$audit" check   --repo "$repo" --source-sha "$source_sha" --source-tree "$source_tree"   --python "$app_python" --collection-timeout-seconds "$collection_timeout_seconds"   --output-root "$check_root"   --supplemental-manifest "$supplemental_manifest"   --supplemental-manifest-sha256 "$supplemental_manifest_sha256"
+```
 
 ## Launch after source freeze
 
@@ -16,20 +53,43 @@ Run on the supported Linux build/consumer worker with its existing locked Python
 repo=/absolute/path/to/polisyos
 source_sha=ACTUAL_FULL_FROZEN_COMMIT_SHA
 source_tree=ACTUAL_FULL_FROZEN_TREE_SHA
+manifest_path="$repo/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-manifest.json"
+manifest_sha256="$(sha256sum "$manifest_path" | cut -d' ' -f1)"
 cd "$repo"
-python3 "$repo/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py" \
+python3 "$repo/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py" \
   --repo "$repo" \
   --source-sha "$source_sha" \
   --source-tree "$source_tree" \
+  --manifest "$manifest_path" \
+  --manifest-sha256 "$manifest_sha256" \
   --app-python "$repo/policy-engine/.venv/bin/python" \
   --worker-python /absolute/path/to/existing/dowhy-014/.venv/bin/python
 ```
 
 The two freeze variables must be filled from final-freeze evidence, not inferred from the candidate. If no existing worker interpreter is available, omit `--worker-python` only on Linux: the runner creates one retained environment from the frozen `workers/dowhy-014/uv.lock`, tries `uv sync --locked --offline` first, then retains that failure and makes a locked online fallback. It never skips the worker tests because provisioning failed.
 
+
+## Separate supplemental consumer run
+
+Run the supplemental installed consumers only after the primary run receipt has status `pass`. Supply the exact primary manifest and supplemental manifest bytes used for the primary freeze and source-audit check. `primary_run` is the exact completed run directory printed by the timed driver.
+
+```sh
+primary_run=/absolute/path/from/the-primary-driver-output
+supplemental_manifest=/absolute/path/to/the-source-audit-proposed-supplemental-manifest.json
+supplemental_manifest_sha256="$(sha256sum "$supplemental_manifest" | cut -d' ' -f1)"
+python3 "$repo/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/supplemental_run.py" \
+  --repo "$repo" --source-sha "$source_sha" --source-tree "$source_tree" \
+  --primary-manifest "$manifest_path" --primary-manifest-sha256 "$manifest_sha256" \
+  --supplemental-manifest "$supplemental_manifest" \
+  --supplemental-manifest-sha256 "$supplemental_manifest_sha256" \
+  --primary-run "$primary_run"
+```
+
+The supplemental runner confirms that the primary run receipt, both manifest byte hashes, source SHA/tree, and required three profile names all agree before reinstalling each existing wheel and running the supplemental selected collection. It records exact manifest paths/hashes in its own receipt.
+
 ## Exact artifact chain and checks
 
-The runner executes these steps sequentially, with complete stdout/stderr and command records under the new ignored `LOCAL/q2-packaging/raw/runs/<freeze>-<UTC>-pid<PID>/` directory. It creates one small build-tools venv from the app Python's base interpreter and reuses it for the three builds. Its `sitecustomize.py` appends the already-provisioned app dependency site via `sys.path.append`; no `.pth` from that editable app site is processed. It creates a second, empty Python 3.14 consumer venv and reuses that for the three installs.
+The timed driver verifies the reviewed runner and the exact primary manifest path/hash, then delegates to the primary runner. The runner executes these steps sequentially, with complete stdout/stderr and command records under the new ignored `LOCAL/q2-packaging/raw/runs/<freeze>-<UTC>-pid<PID>/` directory. It creates one small build-tools venv from the app Python's base interpreter and reuses it for the three builds. Its `sitecustomize.py` appends the already-provisioned app dependency site via `sys.path.append`; no `.pth` from that editable app site is processed. It creates a second, empty Python 3.14 consumer venv and reuses that for the three installs.
 
 ```text
 git archive <full-frozen-sha> -- policy-engine
@@ -41,11 +101,11 @@ uv pip install --offline --reinstall --no-deps --python <one-installed-env-pytho
 <one-installed-env-python> -I -m pytest <explicit-Q2-and-installed-consumer-selectors>
 ```
 
-The `git archive` stream is hashed and extracted directly; it is not retained as a second full source tar. The source distribution and GCP archive are retained, unpacked, and rebuilt independently. Unchanged files in those extracted trees are hard-linked to the single frozen source snapshot; only changed/generated archive members are materialized separately. Each install uses `--reinstall`; all 11 declared `hatch.toml` force-includes are checked in the source, sdist, GCP archive, all three wheels, and installed site-packages.
+The `git archive` stream is hashed and extracted directly; it is not retained as a second full source tar. The source distribution and GCP archive are retained, unpacked, and rebuilt independently. Unchanged files in those extracted trees are hard-linked to the single frozen source snapshot; only changed/generated archive members are materialized separately. Each install uses `--reinstall`; every declared `hatch.toml` force-include (11 on this current route) are checked in the source, sdist, GCP archive, all three wheels, and installed site-packages.
 
-`hatch.toml` remains the configuration source of truth. The runner compares its complete force-include mapping with the reviewed 11-row manifest, checks the source-sdist includes every such source, verifies the exact three GCP-selected sibling families (`data/dataset_catalog/`, `architecture/production_quality/`, `workers/dowhy-014/`), and refuses undeclared profile target files. If any frozen asset bytes/mapping changed after the candidate baseline, it stops before building and requires reconciling the manifest.
+`hatch.toml` remains the configuration source of truth. The runner compares its complete force-include mapping with the content-bound manifest, checks the source-sdist includes every such source, verifies the exact three GCP-selected sibling families (`data/dataset_catalog/`, `architecture/production_quality/`, `workers/dowhy-014/`), and refuses undeclared profile target files. If any frozen asset bytes/mapping changed after the candidate baseline, it stops before building and requires reconciling the manifest.
 
-Dependency injection is deliberately isolated: interpreter metadata checks use `-S`; there is no `PYTHONPATH`; both temporary venvs reject `.pth` files. Their `sitecustomize.py` files append the pre-existing app dependency site with `sys.path.append` only and never call `site.addsitedir`, so the app venv's editable `.pth` file is not executed. Python consumers launch with `-I`; pytest uses `--import-mode=importlib` and `--confcutdir <frozen-product>/tests/unit`. The cutoff excludes the root `tests/conftest.py`, which unconditionally inserts the product `src` and `tests` paths, while retaining nested unit conftests needed for fixtures. A pytest plugin writes the complete collected node IDs and verifies after execution that neither the frozen nor live product root entered `sys.path` and every loaded `polisyos` or `tools` module resolves under the installed prefix. A separate isolated installed probe checks all 11 installed asset digests and calls the digest-domain registry loader through the packaged default path.
+Dependency injection is deliberately isolated: interpreter metadata checks use `-S`; there is no `PYTHONPATH`; both temporary venvs reject `.pth` files. Their `sitecustomize.py` files append the pre-existing app dependency site with `sys.path.append` only and never call `site.addsitedir`, so the app venv's editable `.pth` file is not executed. Python consumers launch with `-I`; pytest uses `--import-mode=importlib` and `--confcutdir <frozen-product>/tests/unit`. The cutoff excludes the root `tests/conftest.py`, which unconditionally inserts the product `src` and `tests` paths, while retaining nested unit conftests needed for fixtures. A pytest plugin writes the complete collected node IDs and verifies after execution that neither the frozen nor live product root entered `sys.path` and every loaded `polisyos` or `tools` module resolves under the installed prefix. A separate isolated installed probe checks all manifest-listed installed asset digests and calls the digest-domain registry loader through the packaged default path.
 
 The consumer invocation also uses pytest `-s`. `run_command` streams pytest's complete process stdout and stderr into separate `consumer-suite.stdout.txt` and `consumer-suite.stderr.txt` files, including output that selected passing tests print from their fresh installed-reader subprocesses. The consumer receipt records both paths, byte counts, and SHA-256 digests. JUnit remains the structural record of selected/executed node IDs and outcome counts; it does not duplicate captured output. Nonzero pytest exits still retain both stream files before the runner reports failure. If a caller supplies a timeout, `run_command` records the command as timed out and retains the partial stream files before raising. The consumer timeout remains unset until its wall time is measured.
 
@@ -70,7 +130,7 @@ The run adds 19 explicitly selected installed consumers: six dependency-profile 
 
 The explicit TOML used by the novel-profile test is a test fixture read from the frozen source tree; it is not claimed as a packaged default. The digest-domain TOML, by contrast, is checked as an installed default by its exact package target, byte digest, selected runtime path, and decoder invocation. The profile tests include valid declarations, schema/cross-object rejection, strict unknown-field rejection, CAS corruption controls, and a fail-closed corrupt-registry case. Despite its name, the selected `test_missing_unreadable_or_corrupt_digest_registry_returns_source_not_established` body exercises malformed TOML only; missing and unreadable path cases are not covered by this selected set.
 
-Before the first wheel build, a source-driven AST preflight resolves every selected test node ID to its function body, follows local helper calls, discovers dynamic fixture-module loaders, verifies the manifest's exact kind-to-file binding, and confirms every wrapper callback exists with a compatible call signature in that file. A changed selector, unbound fixture kind, missing file, or missing callback fails before building. The run is green only when actual collection and JUnit each match the complete 135-ID current selector set and preserve the historical 91-plus-nine subset, all selected cases execute with zero skips/failures/errors, each profile has all 11 expected installed asset bytes, GCP selected sibling sets contain no undeclared files, and installed module origins/sys.path checks pass. Any pytest skip is an explicit failure, not an unsupported-profile waiver.
+Before the first wheel build, a source-driven AST preflight resolves every selected test node ID to its function body, follows local helper calls, discovers dynamic fixture-module loaders, verifies the manifest's exact kind-to-file binding, and confirms every wrapper callback exists with a compatible call signature in that file. A changed selector, unbound fixture kind, missing file, or missing callback fails before building. The run is green only when actual collection and JUnit each match the complete 135-ID current selector set and preserve the historical 91-plus-nine subset, all selected cases execute with zero skips/failures/errors, each profile has every manifest-listed installed asset byte, GCP selected sibling sets contain no undeclared files, and installed module origins/sys.path checks pass. Any pytest skip is an explicit failure, not an unsupported-profile waiver.
 
 ## Scope and scratch
 

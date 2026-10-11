@@ -1,0 +1,295 @@
+{
+  "schema": "e02-source-qualified-implementation-handoff/v1",
+  "handoff_id": "B36-source-qualified-r93-20261011",
+  "kind": "source_qualified_candidate_handoff",
+  "authorship_boundary": {
+    "author_role": "candidate author and evidence assembler",
+    "independent_acceptance": "G remains the independent code acceptor and formal finding adjudicator",
+    "integration_publication": "not performed by this handoff",
+    "closure_ids": [],
+    "formal_closure_claimed": false
+  },
+  "source_slice": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_base": "44a72fa7c8f602d555df8a95597b4c27e4953ec9",
+    "slice_base_tree": "f6f9ad1ec89a242f1f5b31fc8848e562079eb3aa",
+    "candidate_commit": "ac7de3f2e445afd7300116072f580319c5c0d519",
+    "candidate_tree": "7117e8d9e5ed149138180bedcac6daaf385d319c",
+    "parents": [
+      "44a72fa7c8f602d555df8a95597b4c27e4953ec9"
+    ],
+    "slice_is_committed": true,
+    "global_e02_source_freeze": "not_established",
+    "later_root_source_delta": "outside this exact slice; this handoff makes no claim about later global freeze or final integration",
+    "source_checkpoint_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b36-source-checkpoint-r93-20261011/readback.json",
+      "sha256": "3a1539f7fd81cf7f662e6d73235e0698a9860962e0e7d35ea834b2b538f37d53"
+    },
+    "source_footprint": [
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+        "role": "selection mechanism",
+        "base_sha256": "939dc81300e48b8815e46c903375add8d48b34b58b6a9af1e55cb30e2381d1eb",
+        "candidate_sha256": "76b50899f75699671509e587d3be3f83ee370ce624e6e05bd42326cd1a198368"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py",
+        "role": "behavioral and adversarial tests",
+        "base_sha256": "21ddee8e0e288f06df5ddd2c87343b511d2797ceaa29b8050e5c9845355ae39a",
+        "candidate_sha256": "430febfc95fc86457ae7d99ed3fadb49915772d2b654294c614faed9b6f8680d"
+      },
+      {
+        "path": "policy-engine/docs/reference/foundry/methods-catalog.md",
+        "role": "contract documentation companion",
+        "base_sha256": "61d48e67ee035c986b31abf0a74086eba584102d8eab79e128c98c4d59c62a2a",
+        "candidate_sha256": "71615eb8cb1779f11080694b6843c0865a9802e8b5ff0ceb5a638d2c95160f91"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-b36-required-modality-explicit-selection.toml",
+        "role": "release companion",
+        "base_sha256": null,
+        "candidate_sha256": "54a7ea817ac39394e8bb72faeec2772fbabffc9e08fa6db4903522a25ac98d0d"
+      }
+    ],
+    "composition_receipts": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b36-v2-root-composition-r89-20261011/composition.json",
+        "sha256": "5f1272e552f0032e357845025932edd168f4df937fc8c7341943170b02849210",
+        "net_patch_sha256": "80743151f48a1d6d0993f3676160800515e47908aaa6f4816b781cff9be22ab4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b36-v2-root-composition-r89-20261011/application-readback.json",
+        "sha256": "f9cb820421ed79bd783c3fe178bceb7c5be6cbccc54c7dbfd8df4891b5f0a69d",
+        "postimages_match": true,
+        "diff_check_exit": 0
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b36-v2-root-composition-r89-20261011/postimage-manifest-reconciliation.json",
+        "sha256": "7eb8e1b6d6935c63b5a817e11aed3dbda62cb9ed4d6daf65bb5f13bb0e19093b",
+        "status": "PASS",
+        "complete_footprint": 4,
+        "candidate_source_bytes_unchanged_from_independently_reviewed_v2": true
+      }
+    ]
+  },
+  "criterion": {
+    "finding_id": "B36",
+    "canonical_occurrence_key": "B_r19_original.md:682-699:0493e6060257ca8b6680154283ca98ea0abba69172a196664e83a4cc3baad90b",
+    "original_criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "original_criterion_file_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "original_criterion_lines": [
+      682,
+      699
+    ],
+    "original_criterion_excerpt_sha256": "0493e6060257ca8b6680154283ca98ea0abba69172a196664e83a4cc3baad90b",
+    "criterion_summary": "Keep explicitly requested value data modalities hard across runtime hints, candidate-derived panel signals, and owner-projected manifest targets. Catalog changes must not weaken the request. A compatible method may be selected; incompatible selection must refuse with the precise modality blocker. A transformation claim requires a real producer, inputs, and verifiable output.",
+    "canonical_coverage_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/161",
+    "coverage_sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+    "coverage_source_fields": {
+      "historical_status": "partial",
+      "appendix_c_status_separate": "closed_bounded",
+      "closure_now": "not_adjudicated",
+      "criterion_specific_acceptance_not_executed": "selector retaining a requirement is not evidence a transform was produced",
+      "historical_capability_label": "producer_missing"
+    },
+    "connected_closeout_row": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json#/rows[id=B36]",
+      "sha256": "590cb7631422175148022217a96fc1c234f8ba4f0d22e83bde46d9636bdd5ce0",
+      "historical_author_proposal": "limited",
+      "G_closure": "not_adjudicated",
+      "next_tasks": [
+        "S1",
+        "Q2"
+      ],
+      "next_decision": "resolve_named_residual_then_G_adjudication"
+    },
+    "task_routes": [
+      {
+        "task_id": "S1",
+        "route_role": "semantic subject/refinement/query route; execution work is not a second occurrence or closure"
+      },
+      {
+        "task_id": "Q2",
+        "route_role": "canonical generated and installed consumer route; execution work is not a second occurrence or closure"
+      }
+    ]
+  },
+  "property_and_result": {
+    "property": "Required modalities are unioned from all supported independent sources and used as hard eligibility constraints in both explicit-FQN and ranked value-method selection; malformed supplied evidence cannot become absent/default evidence.",
+    "p40_bucket": "SAME_CLASS_DEEPER: the repair widened the hard-modality mechanism to the full three-source quantity (runtime hint, candidate-derived panel signal, owner-projected manifest targets), not a per-source patch.",
+    "p37": "recomputed from the supplied modality inputs when constructing the selection query",
+    "p38": "the gate compares the full required modality set against each method's declared data_modalities; the tested divergent case drops panel when only runtime tabular is present, and the removal control fails on that omission.",
+    "established_behavior": "The bounded selection mechanism now preserves and unions all supported modality sources, rejects malformed present values, applies the same hard eligibility to explicit and ranked selection, and gives a typed blocker when an explicit value method is incompatible.",
+    "not_established": "No transformation is produced or executed here; no causal result, institutional authority, permission, publication status, or downstream generation-cycle completion is implied by selection. Full canonical generated/HTTP and installed-wheel/rebuilt-sdist consumer verification remains UNRUN.",
+    "capability_assessment": {
+      "label": "producer_missing",
+      "scope": "transformation/output production is not evidenced by this selection slice; selection consumer behavior itself is tested"
+    }
+  },
+  "verification": {
+    "source_bound_focused_runtime": {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b36-current-actual-consumers-r90-20261011/command.json",
+      "receipt_sha256": "932715aaa374de6e97c3531d4472a5f069fd6e19a61dec7122fc80f0743de9fa",
+      "recorded_head": "44a72fa7c8f602d555df8a95597b4c27e4953ec9",
+      "command_source_state": "candidate advisor and test postimage hashes matched the later committed ac7 slice; all captured before/after source inventory entries were unchanged. Command ran at base HEAD with those candidate bytes in the working tree, so this is postimage-bound evidence, not a claim that ac7 was HEAD during execution.",
+      "environment": {
+        "platform": "Darwin",
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_RUN_INTEGRATION": "1"
+      },
+      "exit_code": 0,
+      "result": "16 passed, 61 deselected in 122.74s; the selector ran 16 tests from a file with 77 collected tests.",
+      "wall_seconds": 125.63456795900129,
+      "complete_deciding_output": {
+        "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b36-current-actual-consumers-r90-20261011/stdout.txt",
+        "stdout_sha256": "024181fbaedc5ba12aec311baa16c41961c13275bf4c6ffff98e270039bb2c61",
+        "stderr_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b36-current-actual-consumers-r90-20261011/stderr.txt",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b36-current-actual-consumers-r90-20261011/junit.xml",
+        "junit_sha256": "e6fb4d55da3763ab56682e6c0ecb574e6093572d677f582784b60598f941cdb5"
+      },
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-c",
+        "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=300.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--maxfail=1",
+        "tests/unit/foundry/methods/test_selection_advisor.py",
+        "-k",
+        "explicit_value_method_respects_hard_panel_modality or explicit_value_method_keeps_all_required_modality_inputs_hard or present_malformed_runtime_modality_input_blocks_without_candidate_fallback or present_malformed_runtime_hints_container_does_not_become_absent or required_modalities_require_one_method_with_the_full_source_union or required_panel_modality_is_preserved_and_only_real_runnable_value_owner_is_selected or registered_singleton_value_denominator_is_accepted_but_fictional_request_is_blocked or value_denominator_rejects_catalog_capability_without_method_owner or phase5_unprojected_nested_manifest_does_not_become_empty_hints or phase5_only_explicit_flat_advisory_shape_can_supply_manifest_hints",
+        "--import-mode=importlib",
+        "-vv",
+        "--maxfail=0",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b36-current-actual-consumers-r90-20261011/fixtures",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b36-current-actual-consumers-r90-20261011/junit.xml"
+      ],
+      "input_denominator": {
+        "count": 6183,
+        "scope": "All keys in command.json before_sha256/after_sha256; complete captured Python and configuration input set, not all file types in the repository.",
+        "before_after_equal": true
+      }
+    },
+    "independent_actual_owner_consumer_probe": {
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b36-required-modalities-all-source-union-v2-independent-review-20261011.md",
+      "review_sha256": "a19dca5866769df087d5ebacaf375b93eb25329086a6301cac84ad25352023d3",
+      "probe_script": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b36-independent-review-v2-20261011/actual-owner-all-sources-consumer-probe.py",
+      "probe_script_sha256": "1e01b5d795c181313342ed5e868b3a5257898294c828cf2f197eadbf0e511476",
+      "probe_command": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b36-independent-review-v2-20261011/actual-owner-all-sources-consumer-probe-command.json",
+      "probe_command_sha256": "1d1f150b700b8b4ece6dcf2c2e0857ea8c48596f90cc7cb9ce862c3087a9e867",
+      "probe_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b36-independent-review-v2-20261011/actual-owner-all-sources-consumer-probe.stdout.txt",
+      "probe_stdout_sha256": "b95a7344e73ab3de4dabc22e2cda6fe296b9d49898cfdac4871bc1e28b989d9d",
+      "probe_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "profile": "read-only local generated owner-backed method catalog built through actual build_method_catalog_snapshot and actual select_value_method_for_problem API; no production payload or external authority inputs",
+      "source_base": "827c709eb926d5bd3a4d7418630ffe56904bc130",
+      "candidate_advisor_sha256": "76b50899f75699671509e587d3be3f83ee370ce624e6e05bd42326cd1a198368",
+      "result": "389 catalog entries, 55 owner-backed value entries, 9 actual owner-backed entries with both panel and tabular. With runtime hint tabular, candidate signal panel, and projected manifest targets panel+tabular, explicit selection chose econometrics.panel.difference_gmm@1.0.0 and ranked selection chose econometrics.panel.fixed_effects@1.0.0; both through the actual API.",
+      "boundary": "Actual selection consumer positive only; neither selected method was executed. Independent reviewer’s separate 16-test replay was interrupted and is not counted as a PASS; see the cited review note.",
+      "actual_head_at_probe_recorded_by_independent_review": "f5412b7e765d355e91b07962dcb69263fab2d652",
+      "source_base_meaning": "827c is the defining preimage/review slice base. The candidate advisor was an overlay at actual f541 HEAD, as the independent review records; unchanged owner modules were resolved from that source cut. This does not assert the probe ran from a checkout at 827c."
+    },
+    "removal_control": {
+      "property_removed": "the old source behavior loses the candidate-derived panel requirement when runtime hint is tabular",
+      "negative_control": "the actual mixed-source required-modality test fails at criteria.required_data_modalities == ('tabular','panel') when run against the old source behavior, which instead yields ('tabular',)",
+      "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b36-required-modalities-all-source-union-v2-20261011/removal-union-source-baseline-v3.stdout.txt",
+      "stdout_sha256": "99b50bf151eedc12bee08c4b703526c500caed566e20c90c708c06349e626aba",
+      "exit_code": 1
+    },
+    "canonical_ruff_format": {
+      "command_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b36-current-canonical-format-r92-20261011/command.json",
+      "command_sha256": "05e580c091ce1d93a0bf8c68ad820586eb1dd08fbec26b5c68983097fb41769d",
+      "argv": [
+        "policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+        "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py"
+      ],
+      "exit_code": 1,
+      "result_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b36-current-canonical-format-r92-20261011/result.json",
+      "result_sha256": "179c77c256db33bda21c0089e461d0bd3e678dead3330a09bfdd0e5a9700357c",
+      "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b36-current-canonical-format-r92-20261011/stdout.txt",
+      "stdout_sha256": "7266a1748f8541877f1f1ed0306d66f23ac3fe25bec49a2f1424b9741559405f",
+      "result": "FAIL: both full source/test files would be reformatted; 2 files would be reformatted.",
+      "p41": "not_established: the changed paths intersect the complete Ruff-format input; do not call the failure inherited",
+      "full_native_repo_gates": "UNRUN"
+    },
+    "focused_product_ruff_check": {
+      "command_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b36-current-canonical-lint-r91-20261011/command.json",
+      "command_sha256": "316874c73ff7d980f1e7b5640de34c5066ca9c54bfbc42b8a48bdab3c7998da8",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--output-format",
+        "json",
+        "src/polisyos/foundry/methods/selection/advisor.py",
+        "tests/unit/foundry/methods/test_selection_advisor.py"
+      ],
+      "exit_code": 0,
+      "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b36-current-canonical-lint-r91-20261011/stdout.txt",
+      "stdout_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "configuration_boundary": "Focused product-cwd Ruff discovery through policy-engine/ruff.toml; no explicit workspace_root.toml was supplied. This is not the native full-repository gate."
+    }
+  },
+  "proposal": {
+    "finding_id": "B36",
+    "occurrence_key": "B_r19_original.md:682-699:0493e6060257ca8b6680154283ca98ea0abba69172a196664e83a4cc3baad90b",
+    "author_proposal": "limited",
+    "proposal_basis": "The requested-modality selection defect is repaired at the full three-source input quantity and has focused adversarial, removal, and actual owner-backed selection-consumer evidence. The whole criterion is not closed: no transform producer/output is evidenced, full-file canonical Ruff formatting fails, the full native gates and Q2 installed/generated consumer route remain UNRUN, and independent G adjudication remains pending.",
+    "historical_status_preserved": "partial",
+    "historical_appendix_c_status_preserved": "closed_bounded",
+    "g_closure": "not_adjudicated",
+    "closure_ids": [],
+    "next_checks": [
+      "Resolve the two-file canonical Ruff format failure and rerun the canonical format/check and affected source-bound consumers after the resulting source freeze.",
+      "Run Q2 canonical regeneration and validators including corrupt-field drift controls, parsed normal served readers, and exact installed-wheel/rebuilt-sdist consumers against the final frozen bytes.",
+      "Have G independently review the exact frozen source, receipts, occurrence proposal, and any remaining transformation-producer limitation before adjudication/publication."
+    ]
+  },
+  "evidence_integrity": {
+    "raw_evidence_policy": "Raw deciding outputs remain at the cited ignored raw paths; this handoff contains references and hashes only, not copied source or raw dumps.",
+    "no_external_authority_asserted": true,
+    "no_future_receipt_sha_claimed": true
+  },
+  "metadata_corrigendum": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b36-v2-owner-backed-modalities-corrigendum-20261011.md",
+    "sha256": "95b57991f804003a3a64871208704360b083deb0b8275c65b4128a6f01cbb9a5",
+    "meaning": "Append-only correction of the immutable V2 false owner-backed availability limitation; original patch and manifest retained."
+  },
+  "selected_input_profile_backend": {
+    "input": "Locally generated test candidates, runtime hint inputs, projected flat manifest targets and the actual generated owner-backed method catalog; no production payload.",
+    "profile": "Modality eligibility inputs and existing method selection configuration. Candidate-derived modality signals do not establish authority.",
+    "backend": "Darwin Python 3.14.3 source environment; actual registered catalog and selection API; method execution, installed consumers and Linux replay UNRUN.",
+    "production_custody_currentness": "not_established"
+  },
+  "producer_artifact_bridge_consumer": {
+    "contract": "Full required modality set is conjunctive and independent of the catalog population; malformed supplied values refuse.",
+    "producer": "Existing build_method_catalog_snapshot builds the actual owner-backed catalog from registered method producers. No modality transformation is produced by this selector.",
+    "artifact": "Typed catalog entries, MethodSelectionCriteria/Query and selection receipt/result in the existing API; this slice does not persist a transformed data artifact.",
+    "bridge": "select_value_method_for_problem uses the same eligibility predicate before explicit and ranked selection. The existing generation-cycle caller checks the result status; its composed HTTP replay is UNRUN here.",
+    "consumer": "Actual explicit and ranked API paths exercised in the independent real-catalog probe; focused tests include incompatible and malformed inputs.",
+    "surface": "Existing selection API and diagnostic method receipt; canonical served HTTP/generated/installed consumers remain UNRUN.",
+    "authority_boundary": "Compatible selection is candidate routing, not a causal result, transformation permission or publication authority."
+  }
+}

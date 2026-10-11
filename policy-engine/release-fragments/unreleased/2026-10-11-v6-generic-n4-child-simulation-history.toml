@@ -1,0 +1,32 @@
+id = "2026-10-11-v6-generic-n4-child-simulation-history"
+title = "Expose candidate-only generic cycle simulation history"
+type = "changed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Preserve source-bound generic N4 child-profile lineage and successful N5 observations when a later recursive sibling fails. A fresh run-details read resolves the persisted generic parent profile, full N4 child-profile family and set, N5 request/result lineage, and conditional value projection; per-sibling failures remain visible beside any independently replayed successful child observation."
+evidence = [
+  "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+]
+compatibility = "RunDetails adds an optional generic_cycle_simulation projection. Existing runs without the generic compiled history keep the field absent. Consumers can ignore the field when it is absent."
+change_class = "schema-openapi-abi"
+surface_classification = "public-api: RunDetails.generic_cycle_simulation"
+migration = "Regenerate the runtime API OpenAPI snapshot and client types from the additive RunDetails field."
+api = "GET /api/v1/runs/{run_id} exposes source-bound generic cycle history, complete child-profile bindings, candidate-only N5 observations, typed sibling limitations, and the recursive checkpoint."
+limitations = "The projection is candidate-only. It does not establish live currentness, world truth, external authority, or publication eligibility. Historical reads verify persisted CAS/profile/source lineage; unresolved lineage remains not_established with a typed limitation."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/api/runs.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "generic-cycle-simulation-history-additive-projection"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "api: GET /api/v1/runs/{run_id}"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Run details retain candidate-only generic N4/N5 child history across later sibling failures."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["docs/reference/api/runs.md"]
+runbook_docs = []

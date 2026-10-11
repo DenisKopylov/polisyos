@@ -12,6 +12,7 @@ from typing import Any
 
 from tools.lib.imports import repo_root_from
 from tools.ops_runners.release.build_release_notes import (
+    SECTION_TITLES,
     load_fragments,
     structured_compatibility_changes,
 )
@@ -468,6 +469,32 @@ def _validate_release_template(
     return errors
 
 
+def _field_values(value: object, field_name: str, path: str = "") -> list[tuple[str, object]]:
+    found: list[tuple[str, object]] = []
+    if isinstance(value, dict):
+        for key, child in value.items():
+            child_path = f"{path}.{key}" if path else str(key)
+            if key == field_name:
+                found.append((child_path, child))
+            found.extend(_field_values(child, field_name, child_path))
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            found.extend(_field_values(child, field_name, f"{path}[{index}]"))
+    return found
+
+
+def _required_fragment_field_is_missing(field: str, value: object) -> bool:
+    if field in {"id", "title", "type", "owner", "summary"}:
+        return not isinstance(value, str) or not value.strip()
+    if field == "evidence":
+        return (
+            not isinstance(value, list)
+            or not value
+            or any(not isinstance(item, str) or not item.strip() for item in value)
+        )
+    return value in (None, "", [], {})
+
+
 def _validate_fragments(
     repo_root: Path,
     policy: dict[str, Any],
@@ -481,6 +508,45 @@ def _validate_fragments(
     required = tuple(str(field) for field in header.get("required_structured_fields", []))
     errors: list[Finding] = []
     findings: list[Finding] = []
+    fragment_policy_path = _resolve(
+        repo_root, str(header.get("release_fragment_policy", ""))
+    )
+    fragment_policy = (
+        _read_toml(fragment_policy_path).get("release_fragments", {})
+        if fragment_policy_path.is_file()
+        else {}
+    )
+    required_fragment_fields = tuple(
+        str(field) for field in fragment_policy.get("required_fields", [])
+    )
+    typed_root_fields = {"id", "title", "type", "owner", "summary", "evidence"}
+    if set(required_fragment_fields) != typed_root_fields:
+        errors.append(
+            Finding(
+                "fragment-schema-policy",
+                "error",
+                _relative(fragment_policy_path, repo_root),
+                "required fragment fields do not match the typed root schema",
+                f"policy={sorted(set(required_fragment_fields))}; schema={sorted(typed_root_fields)}",
+            )
+        )
+    allowed_fragment_types = {
+        str(item).strip().lower() for item in fragment_policy.get("allowed_types", [])
+    }
+    allowed_generated_client_values = {
+        str(item) for item in fragment_policy.get("generated_client_compatibility_values", [])
+    }
+    renderer_fragment_types = {str(item).strip().lower() for item in SECTION_TITLES}
+    if allowed_fragment_types != renderer_fragment_types:
+        errors.append(
+            Finding(
+                "fragment-schema-policy",
+                "error",
+                _relative(fragment_policy_path, repo_root),
+                "allowed fragment types do not match release-note renderer categories",
+                f"policy={sorted(allowed_fragment_types)}; renderer={sorted(renderer_fragment_types)}",
+            )
+        )
     structured_changes = structured_compatibility_changes(fragments)
 
     breaking_seen = {
@@ -501,6 +567,52 @@ def _validate_fragments(
 
     for fragment in fragments:
         fragment_path = str(fragment.get("__path__", ""))
+        for field in required_fragment_fields:
+            value = fragment.get(field)
+            if _required_fragment_field_is_missing(field, value):
+                errors.append(
+                    Finding(
+                        "fragment-schema",
+                        "error",
+                        fragment_path,
+                        (
+                            f"invalid `{field}`; expected a non-empty list of non-empty strings"
+                            if field == "evidence" and value not in (None, "", [], {})
+                            else f"missing `{field}`"
+                        ),
+                    )
+                )
+        fragment_type_value = fragment.get("type")
+        fragment_type = (
+            fragment_type_value.strip().lower()
+            if isinstance(fragment_type_value, str)
+            else ""
+        )
+        if fragment_type not in allowed_fragment_types:
+            errors.append(
+                Finding(
+                    "fragment-schema",
+                    "error",
+                    fragment_path,
+                    "unsupported fragment type",
+                    fragment_type,
+                )
+            )
+
+        for field_path, value in _field_values(
+            fragment, "generated_client_compatibility"
+        ):
+            if not isinstance(value, str) or value not in allowed_generated_client_values:
+                errors.append(
+                    Finding(
+                        "generated-client-enum",
+                        "error",
+                        f"{fragment_path}:{field_path}",
+                        "unsupported generated_client_compatibility",
+                        repr(value),
+                    )
+                )
+
         changes = fragment.get("compatibility_change", [])
         if isinstance(changes, dict):
             changes = [changes]

@@ -1,0 +1,32 @@
+id = "2026-10-11-v4-v7-limited-predictive-diagnostic-candidate"
+title = "Add a held limited predictive coverage diagnostic route"
+type = "changed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "A fresh selected-manifest read can recompute a bounded predictive interval coverage projection without returning report bytes. The server-side candidate surface defaults off; enabling it requires a separate governance decision and server-composition change. The projection is based on the exact selected backtest-report manifest, while raw artifact surfaces stay behind their existing gates."
+evidence = [
+  "tests/unit/remediation/test_frc_02_owner.py",
+]
+compatibility = "The additive endpoint is disabled by default. The generated API description includes the GET operation, but the server refuses requests until a separate governance decision enables the internal candidate-surface gate."
+change_class = "schema-openapi-abi"
+surface_classification = "public-api: GET /api/v1/artifacts/{artifact_id}/predictive-coverage-diagnostic"
+migration = "Regenerate the runtime API OpenAPI snapshot and generated clients from the canonical runtime OpenAPI exporter."
+api = "GET /api/v1/artifacts/{artifact_id}/predictive-coverage-diagnostic returns the strict PredictiveCoverageDiagnosticPreview for the exact selected manifest view."
+limitations = "This is a reader-materialized limited predictive diagnostic only. It establishes no producer attestation, S10 mapping or threshold, issuer, effective time, counterfactual credibility, causal effect, promotion, publication, or currentness. The endpoint remains 409 by default; `/content` and `/download` remain protected by their existing gates."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/api/artifacts.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "limited-predictive-diagnostic-route"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "api: GET /api/v1/artifacts/{artifact_id}/predictive-coverage-diagnostic"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "A server-gated endpoint exposes only recomputed limited predictive interval observations."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["docs/reference/api/artifacts.md"]
+runbook_docs = []

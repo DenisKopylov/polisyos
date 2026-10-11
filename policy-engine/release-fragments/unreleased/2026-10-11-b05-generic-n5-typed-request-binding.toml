@@ -1,0 +1,20 @@
+id = "2026-10-11-b05-generic-n5-typed-request-binding"
+title = "Preserve typed generic N5 request bindings"
+type = "fixed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "New generic N5 writes use a pinned Core canonical profile for the complete JointSimulationRequest; exact typed readback is required before the request can be bound to an execution."
+evidence = [
+  "tests/unit/runtime/quality/test_generic_n5_v3_binding.py",
+  "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+]
+compatibility = "Existing request-binding v1 and execution v1/v2 payloads, hashes, and schemas remain readable without rewriting. New request-binding v2 and execution v3 are additive internal CAS versions."
+change_class = "internal"
+surface_classification = "internal: generic N5 request and execution CAS artifacts"
+migration = "No in-place migration is performed. New candidate N5 executions use the typed v3 schema; historical artifacts retain their original bytes and version."
+api = "No HTTP shape changes. Fresh candidate-only N5 history resolves only when its complete request, selected profile, source, result, and CAS canon metadata replay exactly."
+limitations = "Core tags preserve supported canonical values such as Decimal and explicit nulls, but the codec is not lossless for every open Any value. New typed bindings refuse public request values that normalize or change type, including tuple/list changes, embedded model flattening, signed-zero collapse, datetime normalization, and unsupported values. Historical JSON artifacts can remain parseable while limited if their complete typed request cannot be replayed. No world evidence, causal authority, or publication eligibility is conferred."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

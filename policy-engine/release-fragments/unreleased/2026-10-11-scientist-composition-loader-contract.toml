@@ -1,0 +1,41 @@
+id = "2026-10-11-scientist-composition-loader-contract"
+title = "Expose a typed contract for declared Scientist builtin loaders"
+type = "changed"
+component = "scientist"
+owner = "team-polisyos"
+summary = "Core exposes a typed declared builtin loader carrying its import target and entry-point group; Scientist and Foundry default builtin discovery use that contract. Empty and failed declarations retain source identity, while explicit legacy callable-loader overrides keep their v1 shape."
+evidence = [
+  "tests/unit/scientist/nodes/test_extension_registration.py",
+  "tests/unit/foundry/methods/test_catalog_snapshot.py",
+  "tests/unit/runtime/quality/test_value_gate.py",
+  "tests/unit/scientist/evidence/claims/test_models.py",
+]
+compatibility = "Callers may use DeclaredBuiltinLoader(target, group), with group selecting the expected ComponentKind; existing builtin callable and (name, callable) forms remain accepted. The exported Foundry BUILTIN_LOADER tuple and callable remain available; the ordinary default dispatch uses the same target as a typed declaration. Explicit replacement callables keep their v1 discovery shape. The old DecisionReadiness import and pickle identity is preserved for new and legacy payloads."
+change_class = "python-public-api"
+surface_classification = "public-api"
+migration = "Existing callable-loader APIs remain accepted. The frozen Layer 3 value-gate remains v1 and is not refreshed here; the default Foundry candidate now emits provenance v2 and must be separately admitted by the value-gate contract owner. Readers accept established v1 data and compare v2 declared-loader records against live typed discovery."
+api = "The existing Foundry target and entry-point group are passed through the public Core DeclaredBuiltinLoader in the canonical default path, then resolved through the existing discovery, kind validation, registry bridge, and catalog/value-gate consumer. The public compatibility tuple remains callable. DecisionReadiness has one shared evidence source owner and a stable legacy module identity for pickle writes."
+limitations = "The public-surface snapshot collector now resolves statically imported public aliases; the frozen pre-decomposition snapshot has not been regenerated or accepted, so that gate is not claimed green. The declared-loader v2 source profile remains candidate evidence and does not itself establish authority or execution quality."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = [
+  "src/polisyos/core/components/README.md",
+  "src/polisyos/foundry/methods/catalog/README.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "typed-declared-builtin-loader"
+change_class = "python-public-api"
+impact = "additive"
+surface = "python: polisyos.core.components"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "The existing Scientist and Foundry default builtin producers are reconciled through the typed Core loader contract; the frozen Layer 3 v1 contract remains unchanged pending its separate admission decision."
+generated_client_compatibility = "not_applicable"
+migration_docs = [
+  "src/polisyos/core/components/README.md",
+  "src/polisyos/foundry/methods/catalog/README.md",
+]
+runbook_docs = []

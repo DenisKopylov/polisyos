@@ -1,0 +1,34 @@
+id = "2026-10-11-e02-s3-selected-profile-followup"
+title = "Expose profile-bound artifact refs through the Core facade"
+type = "changed"
+component = "core"
+owner = "team-polisyos"
+summary = "Carry selected CAS manifest identity through producers, authority admission, trace timeline lineage, and run inspector links; revalidate unqualified default-profile responses."
+evidence = [
+  "tests/unit/core/artifacts/test_profiled_ref.py",
+  "tests/unit/scientist/adapters/test_fabric_bridge.py",
+  "tests/unit/scientist/nodes/builtins/data/test_build_data_snapshot.py",
+]
+compatibility = "The profile-bound reference helper is additive. Existing profileless refs remain accepted and bind only the current default view at this producer boundary."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.artifacts.profile_bound_ref"
+migration = "Use the profile-bound reference helper through the canonical polisyos.core.artifacts facade where a producer selects a manifest view."
+api = "Core re-exports profile_bound_ref through polisyos.core.artifacts and its __all__; the Fabric adapter and snapshot node use that facade."
+limitations = "A profileless ref binds the current default view at this producer boundary; it does not attest historical selection or authority/currentness."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "profile-bound-artifact-ref"
+change_class = "python-public-api"
+impact = "additive"
+surface = "python: polisyos.core.artifacts.profile_bound_ref"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "The canonical Core artifacts facade exposes the profile-bound artifact-reference helper for selected manifest views."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

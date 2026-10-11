@@ -1,0 +1,34 @@
+id = "2026-10-11-v6-candidate-credal-source-attempt"
+title = "Expose an unresolved candidate source attempt"
+type = "changed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "When enabled for contract testing, a fresh run-details read can replay a candidate-only attempt after the original N4 source terminates with generation_unavailable before creating children; status and currentness remain not_established."
+evidence = [
+  "src/polisyos/runtime/http/services/control/generation_cycle.py",
+  "src/polisyos/runtime/http/routes/runs.py",
+  "tests/integration/runtime_quality/test_generic_credal_source_attempt_served.py",
+]
+compatibility = "The server setting remains server-only, dev-only, and default-off. A missing child-family reference is accepted only on the actual terminal no-child path; supplied family bytes and members still receive full replay, and malformed or wrong-kind references refuse."
+change_class = "schema-openapi-abi"
+surface_classification = "public-api: RunDetails.generic_cycle_simulation"
+migration = "Regenerate the runtime API OpenAPI snapshot and generated client types from the additive projection fields."
+api = "GET /api/v1/runs/{run_id} may expose a typed candidate-only source-attempt reference and not_established limitation when server-only contract testing is enabled; it exposes no child-family reference or N5 observations."
+limitations = "A missing child-family reference is permitted only when the original N4 source terminates with generation_unavailable before child creation. Parent source, context-job, and selected-profile manifest/content replay remain required. Present family lineage receives complete historical family/member replay; malformed or wrong-kind present references refuse. This attempt establishes no K_ref, CredalReference, N5 observation, confidence, currentness receipt, publication authority, or external authority. The original successful two-child criterion remains held for genuine L2/K_ref custody and issuer evidence."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/api/runs.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "candidate-source-attempt-terminal-zero-child"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "api: GET /api/v1/runs/{run_id}"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Run details can retain a candidate-only source attempt after the actual N4 producer terminates before child creation, while parent, context, and profile replay remain mandatory."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["docs/reference/api/runs.md"]
+runbook_docs = []

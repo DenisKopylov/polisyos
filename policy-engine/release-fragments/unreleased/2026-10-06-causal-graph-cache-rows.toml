@@ -8,7 +8,7 @@ change_class = "internal"
 surface_classification = "internal: causal graph row preparation and cache provider"
 compatibility = "Existing tuple-of-dictionaries consumer values and graph schema 1.0 are unchanged. Row mutations affect only the caller's detached values; this fragment does not promote the provider to a public facade."
 migration = "Keep mutations in the returned row values; use model_copy(update=...) to create a new published graph version."
-generated_client_compatibility = "not_required"
+generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = true
 migration_docs = ["docs/reference/ir/causal-graph-cache-rows.md"]
 runbook_docs = ["docs/reference/ir/causal-graph-cache-rows.md"]
@@ -23,6 +23,6 @@ owner = "team-ir"
 version_owner = "team-ir"
 deprecation_window = "not_applicable"
 release_note = "Causal graph export readers retain tuple/plain-dict values and isolate caller mutations from cached row preparations."
-generated_client_compatibility = "declared_compatible"
+generated_client_compatibility = "not_applicable"
 migration_docs = ["docs/reference/ir/causal-graph-cache-rows.md"]
 runbook_docs = ["docs/reference/ir/causal-graph-cache-rows.md"]

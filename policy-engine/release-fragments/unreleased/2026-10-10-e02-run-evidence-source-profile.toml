@@ -1,0 +1,37 @@
+id = "2026-10-10-e02-run-evidence-source-profile"
+title = "Preserve selected Fabric source context in run evidence"
+type = "changed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Fabric snapshots preserve columnar SQL rows and selected CAS lineage; run evidence, run lineage, artifact inspection, bureaucratic rendering, and dashboard consumers retain selected manifest profiles."
+evidence = [
+  "tests/unit/scientist/adapters/test_fabric_bridge.py",
+  "tests/unit/runtime/http/test_run_evidence_context_promotions.py",
+  "tests/unit/runtime/http/test_artifact_inspector_api.py",
+  "tests/unit/runtime/http/test_bureaucratic_rendering_api.py",
+  "tests/unit/runtime/http/test_timeline_api.py",
+  "tests/integration/scientist/test_res_03_real_simulation_route.py",
+]
+compatibility = "The evidence-context response adds an optional data_view_request_ref field. Older clients may ignore the profile-bound source request reference."
+change_class = "schema-openapi-abi"
+surface_classification = "public-api"
+migration = "Regenerate runtime API clients and dashboard types from the updated OpenAPI snapshot."
+api = "Artifact manifest, content, schema, lineage, download, bureaucratic render, and export preserve the selected manifest-profile digest; persisted run root refs retain their complete typed identity through lineage and dashboard consumers."
+limitations = "A request ref requires an exact snapshot lineage edge. Profile-less refs remain explicitly unqualified and do not establish live source currentness or external catalog custody. Persisted legacy run roots without a profile remain unqualified."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/api/runs.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "run-evidence-source-profile-join"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "api: GET /api/v1/runs/{run_id}/evidence-context"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Run evidence carries the selected Fabric request ref when its source lineage is exactly bound."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["docs/reference/api/runs.md"]
+runbook_docs = []

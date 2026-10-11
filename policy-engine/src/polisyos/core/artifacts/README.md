@@ -186,3 +186,9 @@ local cache. It preserves an unrelated first-writer local default and copies the
 selected manifest's actual bytes, including its creation time, instead of generating a
 second manifest from write options. Cache degradation follows the configured warn/raise
 policy; the durable-owner reference remains the write-through result.
+
+### Import outcome reporting
+
+`ImportReport.imported_artifacts` remains the legacy count of unique artifact IDs recognized in incoming members. It is not a count of verified or newly published views. `received_artifact_ids`, `published_refs`, `reused_refs`, and `integrity_verified_refs` expose those separate facts. Default and explicit selectors for the same manifest profile share one canonical profile identity in these new views; the legacy `imported_refs` tuple keeps its original selector values.
+
+A published view is one whose manifest has a non-null stage in the durable owner transaction intent that completed. This includes recovery of an earlier pending intent and does not claim that the current invocation wrote the bytes. A reused view was admitted as an exact existing owner view or had no manifest stage in the completed owner transaction. When integrity verification is requested, the importer invokes the real verifier for staged members and exact reused views; the returned verified-ref set contains only successful verifier results. With verification disabled, that set is empty. These fields report local CAS state, not external custody, signature trust, provenance authority, or production currentness.

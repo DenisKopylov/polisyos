@@ -75,6 +75,7 @@ from ._signature_ops import (
 )
 from ._transfer_ops import (
     ExportReport,
+    ImportPublication,
     ImportReport,
     TransferAdmission,
     TransferMemberSnapshot,
@@ -1411,7 +1412,7 @@ class FileSystemCAS:
                         staging_root,
                         members,
                         {str(aid)},
-                    )
+                    ).refs
                 finally:
                     if staging_root.exists() and not staging_root.is_symlink():
                         shutil.rmtree(staging_root)
@@ -3016,6 +3017,7 @@ class FileSystemCAS:
             self._require_import_input_owners(source_by_artifact, owner)
 
             exact_refs: list[ArtifactRef] = []
+            canonical_exact_refs: list[ArtifactRef] = []
             pending_artifact_ids: set[str] = set()
             for value, artifact_members in grouped.items():
                 artifact_id = ArtifactID.model_validate(value)
@@ -3060,6 +3062,14 @@ class FileSystemCAS:
                             manifest_profile_sha256=selected_profile,
                         )
                     )
+                    canonical_exact_refs.append(
+                        ArtifactRef(
+                            artifact_id=artifact_id,
+                            kind=view["manifest"].kind,
+                            media_type=view["manifest"].media_type,
+                            manifest_profile_sha256=profile,
+                        )
+                    )
                 for member, snapshot in artifact_members.items():
                     path = self.root / Path(*member.split("/"))
                     if self._ownership_index._path_has_symlink_component(path):
@@ -3087,17 +3097,19 @@ class FileSystemCAS:
                         raise ArtifactOwnershipError(
                             "Claimed import omits its exact owned signature"
                         )
-            yield TransferAdmission(
-                exact_refs=tuple(
-                    sorted(
-                        exact_refs,
-                        key=lambda ref: (
-                            ref.artifact_id.hex,
-                            ref.manifest_profile_sha256 or "",
-                        ),
-                    )
+            exact_order = sorted(
+                range(len(exact_refs)),
+                key=lambda index: (
+                    exact_refs[index].artifact_id.hex,
+                    exact_refs[index].manifest_profile_sha256 or "",
+                    exact_refs[index].kind,
+                    exact_refs[index].media_type,
                 ),
+            )
+            yield TransferAdmission(
+                exact_refs=tuple(exact_refs[index] for index in exact_order),
                 pending_artifact_ids=frozenset(pending_artifact_ids),
+                canonical_exact_refs=tuple(canonical_exact_refs[index] for index in exact_order),
             )
 
     def _publish_staged_import(
@@ -3105,7 +3117,7 @@ class FileSystemCAS:
         staging_root: Path,
         members: set[str],
         artifact_refs: set[str],
-    ) -> tuple[ArtifactRef, ...]:
+    ) -> ImportPublication:
         """Re-admit staged bytes before the durable owner transaction publishes them."""
         try:
             staging_root.relative_to(self.root)
@@ -3132,7 +3144,11 @@ class FileSystemCAS:
                 intake[member] = _snapshot_transfer_member(member, stream)
         with self._admit_import_members(intake) as admission:
             if not admission.pending_artifact_ids:
-                return admission.exact_refs
+                return ImportPublication(
+                    refs=admission.exact_refs,
+                    published_refs=(),
+                    reused_refs=admission.canonical_exact_refs or admission.exact_refs,
+                )
             if set(artifact_refs) != set(admission.pending_artifact_ids):
                 raise ArtifactIntegrityError("Admitted import set differs from staged artifacts")
             return self._publish_admitted_staged_import(staging_root, members, artifact_refs)
@@ -3142,7 +3158,7 @@ class FileSystemCAS:
         staging_root: Path,
         members: set[str],
         artifact_refs: set[str],
-    ) -> tuple[ArtifactRef, ...]:
+    ) -> ImportPublication:
         """Publish already-admitted members through durable owner transactions."""
         try:
             staging_root.relative_to(self.root)
@@ -3257,6 +3273,24 @@ class FileSystemCAS:
             }
 
         published_views: dict[tuple[str, str | None], ArtifactRef] = {}
+        manifest_published: dict[tuple[str, str, str, str], ArtifactRef] = {}
+        manifest_reused: dict[tuple[str, str, str, str], ArtifactRef] = {}
+
+        def remember_view(entry: dict[str, Any], *, staged_by_intent: bool) -> None:
+            reference = ArtifactRef(
+                artifact_id=entry["artifact_id"],
+                kind=entry["manifest"].kind,
+                media_type=entry["manifest"].media_type,
+                manifest_profile_sha256=entry["profile"],
+            )
+            key = (
+                reference.artifact_id.hex,
+                reference.kind,
+                reference.media_type,
+                reference.manifest_profile_sha256 or "",
+            )
+            (manifest_published if staged_by_intent else manifest_reused)[key] = reference
+
         with self._coordinator.artifact_leases(lock_ids.values(), exclusive=True) as leases:
             tenant_id: str | None = None
             cell_id: str | None = None
@@ -3354,6 +3388,7 @@ class FileSystemCAS:
                             manifest = source_manifest
                         digest = content_hash(manifest_data, prefix=True)
                         entry = {
+                            "artifact_id": artifact_id,
                             "selector": selector,
                             "path": target_path,
                             "manifest": manifest,
@@ -3652,6 +3687,7 @@ class FileSystemCAS:
                                 manifest_profile_sha256=selected_profile,
                             )
                             published_views[(str(artifact_id), selected_profile)] = reference
+                            remember_view(entry, staged_by_intent=False)
                         continue
                     self._ownership_index.write_transaction_intent(
                         artifact_id,
@@ -3750,6 +3786,11 @@ class FileSystemCAS:
                     lease=leases[artifact_id.hex],
                 )
                 self._remove_transaction_stage(operation_id)
+                staged_selectors = {
+                    spec["selector"]
+                    for spec in intent["views"]
+                    if spec["manifest_stage"] is not None
+                }
                 for selector, entry in desired_views.items():
                     selected_profile = None if selector == "default" else entry["profile"]
                     reference = ArtifactRef(
@@ -3759,10 +3800,17 @@ class FileSystemCAS:
                         manifest_profile_sha256=selected_profile,
                     )
                     published_views[(str(artifact_id), selected_profile)] = reference
+                    remember_view(entry, staged_by_intent=selector in staged_selectors)
 
-        return tuple(
-            published_views[key]
-            for key in sorted(published_views, key=lambda item: (item[0], item[1] or ""))
+        for key in manifest_published:
+            manifest_reused.pop(key, None)
+        return ImportPublication(
+            refs=tuple(
+                published_views[key]
+                for key in sorted(published_views, key=lambda item: (item[0], item[1] or ""))
+            ),
+            published_refs=tuple(manifest_published[key] for key in sorted(manifest_published)),
+            reused_refs=tuple(manifest_reused[key] for key in sorted(manifest_reused)),
         )
 
     @staticmethod

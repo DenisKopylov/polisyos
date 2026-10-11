@@ -1,0 +1,40 @@
+id = "2026-10-11-e02-b148-import-report-dispositions-v4"
+title = "Report CAS import view dispositions"
+type = "fixed"
+component = "core-artifacts"
+owner = "team-polisyos"
+summary = "CAS imports distinguish unique received IDs from profile-qualified views published, reused, and successfully verified across the replay CLI."
+evidence = [
+  "tests/unit/core/artifacts/test_import_admission_noop.py",
+  "tests/unit/core/artifacts/test_bound_import_preservation.py",
+  "tests/unit/core/artifacts/test_transfer_import_fresh_process.py",
+  "tests/unit/core/components/test_cli_replay.py",
+  "tests/unit/remediation/test_cas_02.py",
+  "src/polisyos/core/artifacts/README.md",
+  "docs/reference/operations/cas-storage.md",
+  "src/polisyos/core/artifacts/__init__.py",
+  "architecture/public_surface/inventory.json",
+]
+compatibility = "ImportReport retains its existing constructor fields and the meanings of imported_artifacts and imported_refs; added receipt fields are defaulted. Existing CLI JSON keys remain, with additive outcome detail in all four JSON and four text replay routes."
+change_class = "Additive Python API and replay CLI reporting"
+surface_classification = "public_stable: polisyos.core.artifacts"
+migration = "No CAS manifest or stored-byte migration is required. Existing callers may keep using the legacy fields; consumers adopting the new receipt fields must carry disposition_basis with the outcome."
+api = "ImportReport separates unique recognized received_artifact_ids from canonical-profile published_refs, reused_refs, and verifier-positive integrity_verified_refs, plus the requested flag and disposition_basis. The default profile and its explicit canonical-profile alias count as one view; genuinely distinct profiles remain distinct."
+limitations = "The report describes local archive intake, local CAS owner-transaction stage intent, exact profile views, and the configured integrity verifier only. It does not establish law, signer trust, external custody, provenance truth, owner authority beyond existing CAS admission, or production currentness. When integrity verification is not requested, integrity_verified_refs is empty."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "b148-import-report-additive-python-api"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core.artifacts"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "ImportReport keeps its legacy fields and adds defaulted receipt fields for received IDs, canonical published and reused views, verifier-positive refs, and disposition basis."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

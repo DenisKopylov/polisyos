@@ -132,3 +132,9 @@ Runtime behavior:
 - [Configuration Reference](../configuration.md)
 - [ADR-0098: CAS Abstraction Boundary](../../adr/0098-cas-abstraction-boundary.md)
 - [ADR-0103: Async CAS Adapter Roadmap](../../adr/0103-async-cas-adapter-roadmap.md)
+
+## Transfer import disposition
+
+The legacy `imported_artifacts` field counts unique artifact IDs recognized from received CAS members. It does not mean those IDs were verified or published. The typed import report separately carries received IDs, content-profile-canonical published and reused views, successful integrity-verifier results, and whether verification was requested. A default selector and an explicit alias of the same manifest profile normalize to one identity in these added view lists; `imported_refs` retains its compatibility selectors.
+
+Published views are derived from manifest-stage entries in the durable owner transaction intent that completed, including an exact recovery retry. They do not mean this call wrote the member. Reused views are exact admitted existing views or completed transaction views without a manifest stage. The replay CLI exposes the same report in every JSON and text route. No disposition field asserts signature trust, external custody, provenance authority, or production currentness.

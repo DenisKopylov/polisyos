@@ -16,7 +16,7 @@ from contextlib import ExitStack, contextmanager, suppress
 from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path, PurePosixPath
-from typing import TYPE_CHECKING, BinaryIO, Protocol
+from typing import TYPE_CHECKING, BinaryIO, Literal, Protocol
 
 from polisyos.common.serialization import fast_json_dumps, fast_json_dumps_bytes
 
@@ -73,6 +73,17 @@ class TransferAdmission:
 
     exact_refs: tuple[ArtifactRef, ...]
     pending_artifact_ids: frozenset[str]
+    canonical_exact_refs: tuple[ArtifactRef, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
+class ImportPublication:
+    """Refs returned by the owner transaction and its measured view disposition."""
+
+    refs: tuple[ArtifactRef, ...]
+    published_refs: tuple[ArtifactRef, ...]
+    reused_refs: tuple[ArtifactRef, ...]
+    basis: Literal["durable_owner_manifest_stage_intent"] = "durable_owner_manifest_stage_intent"
 
 
 def snapshot_transfer_member(member: str, stream: _TransferReadStream) -> TransferMemberSnapshot:
@@ -227,7 +238,7 @@ class ExportReport:
 
 @dataclass(frozen=True)
 class ImportReport:
-    """Summarize a CAS bundle import and integrity verification results."""
+    """Summarize received identities, persisted-view outcomes, and verification."""
 
     imported_files: int
     imported_artifacts: int
@@ -236,6 +247,34 @@ class ImportReport:
     skipped_entries: list[str]
     verification_failed: list[str]
     imported_refs: tuple[ArtifactRef, ...] = ()
+    received_artifact_ids: tuple[str, ...] = ()
+    published_refs: tuple[ArtifactRef, ...] = ()
+    reused_refs: tuple[ArtifactRef, ...] = ()
+    integrity_verified_refs: tuple[ArtifactRef, ...] = ()
+    integrity_verification_requested: bool = False
+    disposition_basis: Literal[
+        "received_members_rejected_before_admission",
+        "exact_owned_view_admission",
+        "durable_owner_manifest_stage_intent",
+        "verification_failed_before_publication",
+        "legacy_callback_refs_without_transaction_disposition",
+    ] = "received_members_rejected_before_admission"
+
+
+def _canonical_import_refs(
+    refs: tuple[ArtifactRef, ...] | list[ArtifactRef],
+) -> tuple[ArtifactRef, ...]:
+    """Deduplicate selected views by a total order over their canonical profile identity."""
+    by_identity: dict[tuple[str, str, str, str], ArtifactRef] = {}
+    for ref in refs:
+        key = (
+            ref.artifact_id.hex,
+            ref.kind,
+            ref.media_type,
+            ref.manifest_profile_sha256 or "",
+        )
+        by_identity[key] = ref
+    return tuple(by_identity[key] for key in sorted(by_identity))
 
 
 def _member_digest(path: Path) -> tuple[str, int]:
@@ -769,7 +808,9 @@ def import_subgraph(
     *,
     root: Path,
     verify_artifact: Callable[[ArtifactID | ArtifactRef, Path], IntegrityVerificationReport],
-    publish_staged: Callable[[Path, set[str], set[str]], tuple[ArtifactRef, ...]],
+    publish_staged: Callable[
+        [Path, set[str], set[str]], ImportPublication | tuple[ArtifactRef, ...]
+    ],
     admit_members: Callable[
         [dict[str, TransferMemberSnapshot]],
         AbstractContextManager[TransferAdmission],
@@ -782,6 +823,7 @@ def import_subgraph(
     binding_failures: set[str] = set()
     skipped_entries: list[str] = []
     verification_failed: list[str] = []
+    verified_refs: list[ArtifactRef] = []
     staged_members: set[str] = set()
     seen_members: set[str] = set()
     total_bytes = [0]
@@ -907,10 +949,38 @@ def import_subgraph(
                 source=source,
                 skipped_entries=skipped_entries,
                 verification_failed=sorted(binding_failures),
+                received_artifact_ids=tuple(sorted(imported_artifacts)),
+                integrity_verification_requested=verify_integrity,
+                disposition_basis="received_members_rejected_before_admission",
             )
 
         admission = source_handles.enter_context(admit_members(intake))
+        canonical_exact_refs = admission.canonical_exact_refs or admission.exact_refs
         if not admission.pending_artifact_ids:
+            exact_failures: set[str] = set()
+            if verify_integrity:
+                for ref, canonical_ref in zip(
+                    admission.exact_refs, canonical_exact_refs, strict=True
+                ):
+                    verification = verify_artifact(ref, root)
+                    if verification.ok:
+                        verified_refs.append(canonical_ref)
+                    else:
+                        exact_failures.add(str(ref.artifact_id))
+            if exact_failures:
+                return ImportReport(
+                    imported_files=0,
+                    imported_artifacts=len(imported_artifacts),
+                    total_bytes=intake_total_bytes,
+                    source=source,
+                    skipped_entries=skipped_entries,
+                    verification_failed=sorted(exact_failures),
+                    received_artifact_ids=tuple(sorted(imported_artifacts)),
+                    reused_refs=_canonical_import_refs(canonical_exact_refs),
+                    integrity_verified_refs=_canonical_import_refs(verified_refs),
+                    integrity_verification_requested=verify_integrity,
+                    disposition_basis="verification_failed_before_publication",
+                )
             return ImportReport(
                 imported_files=0,
                 imported_artifacts=len(imported_artifacts),
@@ -919,6 +989,11 @@ def import_subgraph(
                 skipped_entries=skipped_entries,
                 verification_failed=[],
                 imported_refs=admission.exact_refs,
+                received_artifact_ids=tuple(sorted(imported_artifacts)),
+                reused_refs=_canonical_import_refs(canonical_exact_refs),
+                integrity_verified_refs=_canonical_import_refs(verified_refs),
+                integrity_verification_requested=verify_integrity,
+                disposition_basis="exact_owned_view_admission",
             )
 
         staging_root = Path(tempfile.mkdtemp(prefix=".cas-import-", dir=root))
@@ -984,15 +1059,15 @@ def import_subgraph(
                     verification_failed.append(artifact_ref)
                     continue
                 for manifest_member in manifest_members:
-                    profile_sha256 = member_profile_sha256(manifest_member)
-                    if profile_sha256 is None:
-                        selected: ArtifactID | ArtifactRef = artifact_id
+                    encoded_profile = member_profile_sha256(manifest_member)
+                    manifest = ArtifactManifest.model_validate_json(
+                        (staging_root / Path(*PurePosixPath(manifest_member).parts)).read_bytes()
+                    )
+                    profile_sha256 = ManifestLifecycle.profile_sha256(manifest)
+                    selected: ArtifactID | ArtifactRef
+                    if encoded_profile is None:
+                        selected = artifact_id
                     else:
-                        manifest = ArtifactManifest.model_validate_json(
-                            (
-                                staging_root / Path(*PurePosixPath(manifest_member).parts)
-                            ).read_bytes()
-                        )
                         selected = ArtifactRef(
                             artifact_id=artifact_id,
                             kind=manifest.kind,
@@ -1000,9 +1075,25 @@ def import_subgraph(
                             manifest_profile_sha256=profile_sha256,
                         )
                     report = verify_artifact(selected, staging_root)
-                    if not report.ok:
+                    if report.ok:
+                        verified_refs.append(
+                            ArtifactRef(
+                                artifact_id=artifact_id,
+                                kind=manifest.kind,
+                                media_type=manifest.media_type,
+                                manifest_profile_sha256=profile_sha256,
+                            )
+                        )
+                    else:
                         verification_failed.append(artifact_ref)
-                        break
+
+        if verify_integrity:
+            for ref, canonical_ref in zip(admission.exact_refs, canonical_exact_refs, strict=True):
+                verification = verify_artifact(ref, root)
+                if verification.ok:
+                    verified_refs.append(canonical_ref)
+                else:
+                    verification_failed.append(str(ref.artifact_id))
 
         verification_failed = sorted(set(verification_failed) | binding_failures)
         _validate_staged_signatures(staging_root, staged_artifacts, staged_members)
@@ -1014,13 +1105,30 @@ def import_subgraph(
                 source=source,
                 skipped_entries=skipped_entries,
                 verification_failed=verification_failed,
+                received_artifact_ids=tuple(sorted(imported_artifacts)),
+                reused_refs=_canonical_import_refs(canonical_exact_refs),
+                integrity_verified_refs=_canonical_import_refs(verified_refs),
+                integrity_verification_requested=verify_integrity,
+                disposition_basis="verification_failed_before_publication",
             )
 
-        imported_refs = admission.exact_refs + publish_staged(
-            staging_root,
-            staged_members,
-            staged_artifacts,
-        )
+        publication = publish_staged(staging_root, staged_members, staged_artifacts)
+        if isinstance(publication, ImportPublication):
+            callback_refs = publication.refs
+            published_refs = publication.published_refs
+            reused_refs = _canonical_import_refs(
+                list(canonical_exact_refs) + list(publication.reused_refs)
+            )
+            disposition_basis: Literal[
+                "durable_owner_manifest_stage_intent",
+                "legacy_callback_refs_without_transaction_disposition",
+            ] = publication.basis
+        else:
+            callback_refs = publication
+            published_refs = ()
+            reused_refs = _canonical_import_refs(canonical_exact_refs)
+            disposition_basis = "legacy_callback_refs_without_transaction_disposition"
+        imported_refs = admission.exact_refs + callback_refs
         return ImportReport(
             imported_files=len(staged_members),
             imported_artifacts=len(imported_artifacts),
@@ -1029,6 +1137,12 @@ def import_subgraph(
             skipped_entries=skipped_entries,
             verification_failed=[],
             imported_refs=imported_refs,
+            received_artifact_ids=tuple(sorted(imported_artifacts)),
+            published_refs=_canonical_import_refs(published_refs),
+            reused_refs=reused_refs,
+            integrity_verified_refs=_canonical_import_refs(verified_refs),
+            integrity_verification_requested=verify_integrity,
+            disposition_basis=disposition_basis,
         )
     finally:
         source_handles.close()

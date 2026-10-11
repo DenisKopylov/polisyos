@@ -21,6 +21,46 @@ __all__ = [
 ]
 
 
+def _artifact_ref_payload(ref: Any) -> dict[str, str | None]:
+    """Project one selected CAS view without dropping its profile identity."""
+    return {
+        "artifact_id": str(ref.artifact_id),
+        "kind": ref.kind,
+        "media_type": ref.media_type,
+        "manifest_profile_sha256": ref.manifest_profile_sha256,
+    }
+
+
+def _bundle_import_payload(report: Any) -> dict[str, Any]:
+    """Project every import outcome from the same typed report fields."""
+    return {
+        "imported_files": report.imported_files,
+        "imported_artifacts": report.imported_artifacts,
+        "received_artifact_ids": list(report.received_artifact_ids),
+        "received_artifact_count_basis": "unique recognized IDs from incoming CAS members",
+        "published_refs": [_artifact_ref_payload(ref) for ref in report.published_refs],
+        "reused_refs": [_artifact_ref_payload(ref) for ref in report.reused_refs],
+        "integrity_verification_requested": report.integrity_verification_requested,
+        "integrity_verified_refs": [
+            _artifact_ref_payload(ref) for ref in report.integrity_verified_refs
+        ],
+        "verification_failed": report.verification_failed,
+        "disposition_basis": report.disposition_basis,
+    }
+
+
+def _bundle_import_summary(report: Any) -> str:
+    """Render the same outcome fields for every human-readable CLI branch."""
+    requested = "requested" if report.integrity_verification_requested else "not_requested"
+    return (
+        f"bundle_import received_unique_ids={report.imported_artifacts} "
+        f"published_views={len(report.published_refs)} reused_views={len(report.reused_refs)} "
+        f"integrity={requested}:{len(report.integrity_verified_refs)} "
+        f"verification_failed={len(report.verification_failed)} "
+        f"disposition_basis={report.disposition_basis}"
+    )
+
+
 def _cmd_replay(args: Any) -> int:
     scientist_replay = importlib.import_module("polisyos.scientist.replay.deterministic")
     normalize_artifact_id = scientist_replay.normalize_artifact_id
@@ -80,14 +120,12 @@ def _cmd_replay_with_store(
             if args.json:
                 payload: dict[str, Any] = {"error": "dependency graph is unavailable"}
                 if import_report is not None:
-                    payload["bundle_import"] = {
-                        "imported_files": import_report.imported_files,
-                        "imported_artifacts": import_report.imported_artifacts,
-                        "verification_failed": import_report.verification_failed,
-                    }
+                    payload["bundle_import"] = _bundle_import_payload(import_report)
                 print(json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True))
             else:
                 print("ERROR: dependency graph is unavailable", file=sys.stderr)
+                if import_report is not None:
+                    print(_bundle_import_summary(import_report), file=sys.stderr)
             return 1
         export_report = store.export_subgraph(
             completeness.graph.all_artifact_ids(),
@@ -104,11 +142,7 @@ def _cmd_replay_with_store(
                 "missing_manifests": export_report.missing_manifests,
             }
             if import_report is not None:
-                payload["bundle_import"] = {
-                    "imported_files": import_report.imported_files,
-                    "imported_artifacts": import_report.imported_artifacts,
-                    "verification_failed": import_report.verification_failed,
-                }
+                payload["bundle_import"] = _bundle_import_payload(import_report)
             print(json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True))
         else:
             print(
@@ -116,6 +150,8 @@ def _cmd_replay_with_store(
                 f"bytes={export_report.total_bytes} "
                 f"path={export_report.output_path}"
             )
+            if import_report is not None:
+                print(_bundle_import_summary(import_report))
         return 0 if not export_report.missing_artifacts else 1
 
     if args.check_only:
@@ -146,14 +182,12 @@ def _cmd_replay_with_store(
                 "reason_codes": completeness.reason_codes,
             }
             if import_report is not None:
-                payload["bundle_import"] = {
-                    "imported_files": import_report.imported_files,
-                    "imported_artifacts": import_report.imported_artifacts,
-                    "verification_failed": import_report.verification_failed,
-                }
+                payload["bundle_import"] = _bundle_import_payload(import_report)
             print(json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True))
         else:
             print(completeness.summary())
+            if import_report is not None:
+                print(_bundle_import_summary(import_report))
         return 0 if completeness.ok else 1
 
     mode_map = {
@@ -204,11 +238,7 @@ def _cmd_replay_with_store(
             else None,
         }
         if import_report is not None:
-            payload["bundle_import"] = {
-                "imported_files": import_report.imported_files,
-                "imported_artifacts": import_report.imported_artifacts,
-                "verification_failed": import_report.verification_failed,
-            }
+            payload["bundle_import"] = _bundle_import_payload(import_report)
         print(json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True))
     else:
         status = "SUCCESS" if result.success else "FAILED"
@@ -221,6 +251,8 @@ def _cmd_replay_with_store(
             print(f"warning: {warning}")
         for error in result.errors:
             print(f"error: {error}")
+        if import_report is not None:
+            print(_bundle_import_summary(import_report))
 
     return 0 if result.success else 1
 

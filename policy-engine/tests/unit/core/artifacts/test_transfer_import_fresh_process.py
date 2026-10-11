@@ -67,6 +67,9 @@ def test_imported_view_survives_fresh_process_and_rejects_disk_corruption(
     target = FileSystemCAS(target_root, tenant_id="tenant-b", cell_id="cell-a")
     imported = target.import_subgraph(bundle.output_path, verify_integrity=True)
     assert imported.verification_failed == []
+    assert imported.integrity_verification_requested is True
+    assert imported.integrity_verified_refs == imported.published_refs
+    assert imported.received_artifact_ids == (str(produced_ref.artifact_id),)
     selected_ref = next(
         ref for ref in imported.imported_refs if ref.artifact_id == produced_ref.artifact_id
     )

@@ -206,6 +206,10 @@ def test_bad_bound_inventory_preserves_the_readable_claimed_view(
     assert report.imported_files == 0
     assert report.imported_refs == ()
     assert report.verification_failed == [str(owned.artifact_id)]
+    assert report.integrity_verification_requested is True
+    assert report.integrity_verified_refs == ()
+    assert report.published_refs == ()
+    assert report.reused_refs == ()
     assert _persisted_bytes(target.root) == before
     reopened = FileSystemCAS(target.root, tenant_id="tenant-a", cell_id="cell-a")
     assert reopened.get_bytes(owned) == PAYLOAD

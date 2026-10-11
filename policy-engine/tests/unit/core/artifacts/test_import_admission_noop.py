@@ -10,7 +10,13 @@ from typing import Any
 
 import pytest
 
-from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
+from polisyos.core.artifacts import _transfer_ops as transfer
+from polisyos.core.artifacts import store as store_module
+from polisyos.core.artifacts.manifest import (
+    ArtifactTenantContextInfo,
+    ProducerInfo,
+    SchemaInfo,
+)
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.signing import Ed25519Signer, KeyPair
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -355,5 +361,77 @@ def test_mixed_package_stages_only_unclaimed_artifact_members(tmp_path: Path) ->
         assert (target.root / member).read_bytes() == content
 
 
-from polisyos.core.artifacts import _transfer_ops as transfer
-from polisyos.core.artifacts import store as store_module
+def test_mixed_import_reports_profile_identity_and_actual_manifest_disposition(
+    tmp_path: Path,
+) -> None:
+    """Default aliases collapse by profile; only the new selected profile is published."""
+    payload = b"same blob with two immutable manifest profiles"
+    source = FileSystemCAS(tmp_path / "source")
+    default = source.put_bytes(payload, _options(None))
+    alias = source.put_bytes(payload, _options(None), return_selected_profile=True)
+    distinct = source.put_bytes(
+        payload,
+        PutOptions(
+            kind="tests.import.distinct-profile",
+            media_type="application/octet-stream",
+            schema=SchemaInfo(name="tests.import.distinct-profile", version="1"),
+            producer=ProducerInfo(component="tests.import", version="1"),
+        ),
+        return_selected_profile=True,
+    )
+    default_profile = source._manifests.profile_sha256(source.get_manifest(default))
+    distinct_profile = distinct.manifest_profile_sha256
+    assert alias.manifest_profile_sha256 == default_profile
+    assert distinct_profile is not None and distinct_profile != default_profile
+
+    target = FileSystemCAS(tmp_path / "target")
+    first_bundle = source.export_subgraph([default], tmp_path / "default-only", compress=False)
+    first = target.import_subgraph(first_bundle.output_path, verify_integrity=True)
+    assert first.published_refs == (
+        type(default)(
+            artifact_id=default.artifact_id,
+            kind=default.kind,
+            media_type=default.media_type,
+            manifest_profile_sha256=default_profile,
+        ),
+    )
+    assert first.reused_refs == ()
+    assert first.integrity_verified_refs == first.published_refs
+    assert first.disposition_basis == "durable_owner_manifest_stage_intent"
+
+    full_bundle = source.export_subgraph(
+        [default, alias, distinct], tmp_path / "all-profiles", compress=False
+    )
+    report = target.import_subgraph(full_bundle.output_path, verify_integrity=True)
+    assert report.imported_artifacts == 1
+    assert report.received_artifact_ids == (str(default.artifact_id),)
+    assert len(report.imported_refs) == 3  # Compatibility: preserve request selectors.
+    assert {ref.manifest_profile_sha256 for ref in report.published_refs} == {distinct_profile}
+    assert {ref.manifest_profile_sha256 for ref in report.reused_refs} == {default_profile}
+    assert {ref.manifest_profile_sha256 for ref in report.integrity_verified_refs} == {
+        default_profile,
+        distinct_profile,
+    }
+    assert target.get_manifest(distinct).kind == "tests.import.distinct-profile"
+
+
+def test_exact_noop_verification_is_real_and_false_is_not_a_positive(
+    tmp_path: Path,
+) -> None:
+    """A requested no-op verifies the stored pair; an unrequested one stays unverified."""
+    target = FileSystemCAS(tmp_path / "target", tenant_id="tenant-a")
+    ref = target.put_bytes(b"same-owner no-op", _options("tenant-a"))
+    export = target.export_subgraph([ref], tmp_path / "package", compress=False)
+
+    verified = target.import_subgraph(export.output_path, verify_integrity=True)
+    assert verified.imported_refs == (ref,)
+    assert verified.published_refs == ()
+    assert len(verified.reused_refs) == 1
+    assert len(verified.integrity_verified_refs) == 1
+    assert verified.integrity_verification_requested is True
+    assert verified.disposition_basis == "exact_owned_view_admission"
+
+    unverified = target.import_subgraph(export.output_path, verify_integrity=False)
+    assert unverified.reused_refs == verified.reused_refs
+    assert unverified.integrity_verified_refs == ()
+    assert unverified.integrity_verification_requested is False

@@ -1,0 +1,478 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "LOCAL",
+  "slice": "B148-import-outcome-source-qualified-r75-20261011",
+  "branch": "codex/e02-unified-local-20261009",
+  "role": "LOCAL candidate handoff author; not G acceptance or formal adjudicator",
+  "slice_base_sha": "827c709eb926d5bd3a4d7418630ffe56904bc130",
+  "implementation_commits": [
+    "f5412b7e765d355e91b07962dcb69263fab2d652"
+  ],
+  "candidate_commit_sha": "f5412b7e765d355e91b07962dcb69263fab2d652",
+  "candidate_tree_sha": "4e2c9715a892dbcae9ee883298890af647dd746d",
+  "parents": [
+    "827c709eb926d5bd3a4d7418630ffe56904bc130"
+  ],
+  "entry_status": "The source candidate is committed at the stated SHA/tree on the named branch. The r75 readback matched all 12 candidate paths to committed candidate blobs; unrelated worktree changes outside this B148 slice are not part of this handoff.",
+  "source_preimage_base": {
+    "commit": "cd5651c3a6897f12d32212e3521e73bb570f137b",
+    "tree": "bb7186c24000b54fdb0ab8ce8d16b55c3658995c",
+    "parent": "c19e502ddfa9dec45e5de72b380003250a2d676c",
+    "meaning": "The B148 cumulative candidate patches were derived from these exact committed B148 preimages. The implementation slice itself was composed on 827c."
+  },
+  "source_checkpoint": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-source-checkpoint-r75-20261011/readback.json",
+    "sha256": "a7c0c57cb6b0789d26f8140d9600d10ce00a2eb58d888c7f9c958c8146b9d08b",
+    "candidate": "f5412b7e765d355e91b07962dcb69263fab2d652",
+    "tree": "4e2c9715a892dbcae9ee883298890af647dd746d",
+    "parents": [
+      "827c709eb926d5bd3a4d7418630ffe56904bc130"
+    ],
+    "readback_result": "All 12 candidate blobs matched the committed candidate. No future receipt SHA is asserted."
+  },
+  "source_composition": {
+    "composition_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-r11-metadata-composition-r70-20261011/composition.json",
+    "composition_sha256": "65697df51783563203ff662c1e129af5ceb8aafc85b9662df7903979a5687c5e",
+    "application_readback_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-r11-metadata-composition-r70-20261011/application-readback.json",
+    "application_readback_sha256": "2fc229a5353ca6603bad0e185b1b0b657e036c982f645bab531bd5daa2bb8384",
+    "net_patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-r11-metadata-composition-r70-20261011/net.patch",
+    "net_patch_sha256": "006c54d1269dc7794b28e7935a439442e72c6bb24582d069b1252f36b7adcaa1",
+    "stages": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-import-report-dispositions-v4-r11-cas02-recovery-oracle-20261011/candidate.patch",
+        "sha256": "d2a8ef3e24cac4e0008d068b9263615b14c2b054ab2f089ca5bea07cec198f70"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-r11-release-recipe-delta-v2-20261011/candidate.patch",
+        "sha256": "758a3e9221128f13d79878af1ab6a61ad00aabb0c7dad36c7673917007d9ed19"
+      }
+    ],
+    "postimages_match": true,
+    "diff_check_exit": 0,
+    "lineage_limit": "An earlier composer/candidate capture had unexpected bytes; its ownership and lineage remain not_established. The source here is a fresh composition from the exact committed preimages above using the two cited immutable patches; the earlier unknown bytes were not imported or represented as predecessor source."
+  },
+  "footprint": [
+    {
+      "path": "policy-engine/docs/reference/operations/cas-storage.md",
+      "role": "public API / owner-boundary documentation",
+      "preimage_sha256_at_slice_base_827c": "89115e3e0297912b6edd015d9d8018f0fdce93d793dc75afee8163768ecbface",
+      "candidate_sha256": "986f2a5e1a15fac3bd5c8f27034a0f06662e6588c81e90f01e67fb8879c3ba3b",
+      "committed_candidate_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b148-import-report-disposition-v4-20261011.md",
+      "role": "decision or release companion",
+      "preimage_sha256_at_slice_base_827c": null,
+      "candidate_sha256": "bb1ff82d084d0b7c1600c43f263b3b51f18e64bd6c68b04e9135edbd4676981a",
+      "committed_candidate_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-b148-import-report-dispositions-v4.toml",
+      "role": "decision or release companion",
+      "preimage_sha256_at_slice_base_827c": null,
+      "candidate_sha256": "8d5f0a5045c3caa3f682c3e1006348656f97136d055b1bb8db3dc9bfb213a131",
+      "committed_candidate_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/README.md",
+      "role": "public API / owner-boundary documentation",
+      "preimage_sha256_at_slice_base_827c": "30dc7000347cf78a60d97e5781efdf02770535ba0e66946134b1e18772766d9a",
+      "candidate_sha256": "d9d55b94182c3849eef579befa98f838b0393b281c40eca516a12acae699d668",
+      "committed_candidate_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "role": "owner transaction / admission / transfer implementation",
+      "preimage_sha256_at_slice_base_827c": "0881b924e2bb9d9f602df7d2643dddf09fdbf9d04d0de49ce92e139dd60c09d8",
+      "candidate_sha256": "aae65c96045a8116cf141f64d85e9a2069c9cb32a62d372bdf64dc7f0a2aada1",
+      "committed_candidate_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "role": "owner transaction / admission / transfer implementation",
+      "preimage_sha256_at_slice_base_827c": "587c26e6825ab4209faafd2b5934b62d2b2247f00c152887e5ccaca13217b603",
+      "candidate_sha256": "7b964d711d62e47f662d78c43a0ee1ee4dcc8f77f0c545eddc583d5e397c0426",
+      "committed_candidate_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/_cli_replay.py",
+      "role": "typed import report projection consumer",
+      "preimage_sha256_at_slice_base_827c": "44519d13c82169a16e61bfe0eab31dd4139a41888595657f91bd78124a49a138",
+      "candidate_sha256": "cb433628d1eedacde5ced5d768a501d95222639764fb9be4a8d93245f7c973eb",
+      "committed_candidate_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_bound_import_preservation.py",
+      "role": "behavioral, consumer, or regression test",
+      "preimage_sha256_at_slice_base_827c": "571d047d47955e3263306ac01a1a7aec728a5efc02421af9a48d0c4cfd213639",
+      "candidate_sha256": "a2f0b9833b0b286e7904cc429c0db695a499e5bf906c3ab1572b1c2529721140",
+      "committed_candidate_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+      "role": "behavioral, consumer, or regression test",
+      "preimage_sha256_at_slice_base_827c": "96990ccdff37f8568c9b9a78fc779f6e04972a3443a47d42f1140c3e922d6523",
+      "candidate_sha256": "fc7a3995ac2f3283541dd302390e0fba79d926f1b0a7fdd5765fa471fb53b2b4",
+      "committed_candidate_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_transfer_import_fresh_process.py",
+      "role": "behavioral, consumer, or regression test",
+      "preimage_sha256_at_slice_base_827c": "cda47f5f162c6a44c55af01606489b1d822ac5b2bf8125ad9fb7c59d0fa011c5",
+      "candidate_sha256": "97e00acc9d8374c73a6b2bc5d8afb776b545d4ae272b9239c5fd7345cfd0f89c",
+      "committed_candidate_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/tests/unit/core/components/test_cli_replay.py",
+      "role": "typed import report projection consumer",
+      "preimage_sha256_at_slice_base_827c": "3939b4a97e39b957ae859b7dd9e0e1176c24db763427fd19ac04301570c8533e",
+      "candidate_sha256": "26b9f8488b69389bdfbf886c4edff6cc4afb7c50fca052abcbfffc069e46b65c",
+      "committed_candidate_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cas_02.py",
+      "role": "behavioral, consumer, or regression test",
+      "preimage_sha256_at_slice_base_827c": "373709e376b1985a49ac884812280952aff204a7aa7ee4537115bb42a9c99e1c",
+      "candidate_sha256": "e93cc5988daa523bc75c7080c33c9d7370427d524262c413d26f5f2f0f045eea",
+      "committed_candidate_bytes_verified": true
+    }
+  ],
+  "mechanism_path_count": 3,
+  "mandatory_companions_outside_mechanism_count": 9,
+  "defining_criterion": {
+    "id": "B148",
+    "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "source_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "section": "§51, “B148. Импорт меняет действующее хранилище раньше, чем проверяет входящий набор”",
+    "source_occurrence_range": "C14-P01–P06 (six original records; P01–P03 are the adverse reproductions, P04–P06 are controls; the source groups their evidence in these ranges).",
+    "whole_property": "Incoming content must be staged and checked before publication so corrupt, incomplete, conflicting, or interrupted imports cannot destroy an already-readable accepted view; exact repeats remain no-ops, selected manifest/profile identity is preserved, and the report separately states received, published, reused, verified, refused, and failed outcomes rather than using copied-file count as a proxy.",
+    "historical_record": "The coverage record retains its historical bounded/partial decision state; this handoff does not reopen or rewrite that decision. Current formal adjudication remains not_adjudicated."
+  },
+  "occurrence_outcomes": [
+    {
+      "id": "C14-P01",
+      "outcome": "Candidate-limited local PASS",
+      "basis": "Corrupt directory member with verify_integrity=True yields no publication, no verified/ref result, and preserves the preexisting bytes and manifest.",
+      "evidence": [
+        "policy-engine/tests/unit/core/artifacts/test_bound_import_preservation.py::test_bad_bound_inventory_preserves_the_readable_claimed_view[different_bytes-directory]",
+        "policy-engine/tests/unit/remediation/test_cas_02.py::test_import_verifies_before_publication_and_preserves_prior_generation[False-directory]"
+      ],
+      "boundary": "Synthetic temporary FileSystemCAS only; not an external authority or production receipt."
+    },
+    {
+      "id": "C14-P02",
+      "outcome": "Candidate-limited local PASS",
+      "basis": "Corrupt tar member and physically interrupted archive read preserve existing bytes/manifest and do not yield an integrity-positive report.",
+      "evidence": [
+        "policy-engine/tests/unit/core/artifacts/test_bound_import_preservation.py::test_bad_bound_inventory_preserves_the_readable_claimed_view[different_bytes-archive]",
+        "policy-engine/tests/unit/core/artifacts/test_bound_import_preservation.py::test_physically_interrupted_bound_archive_read_preserves_existing_custody",
+        "policy-engine/tests/unit/remediation/test_cas_02.py::test_import_verifies_before_publication_and_preserves_prior_generation[True-tar]"
+      ],
+      "boundary": "Synthetic temporary filesystem/tar fixtures; real external signer/custody is not tested."
+    },
+    {
+      "id": "C14-P03",
+      "outcome": "Locally bounded; external owner/authority portion not established",
+      "basis": "Exact metadata/signature admission, exact owner no-op, profile aliases, and distinct manifest-profile views are exercised. A same content ID can retain separate profile-specific views without replacing the prior view; these local tests do not establish external producer authority or the criterion’s broad signer/owner decision in production.",
+      "evidence": [
+        "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py::test_claimed_view_requires_exact_metadata_and_signature",
+        "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py::test_mixed_import_reports_profile_identity_and_actual_manifest_disposition",
+        "policy-engine/tests/unit/remediation/test_cas_02.py::test_import_preserves_distinct_manifest_profile_as_selected_view"
+      ],
+      "boundary": "Profile and current owner semantics are local CAS observations only."
+    },
+    {
+      "id": "C14-P04",
+      "outcome": "Candidate-limited local PASS",
+      "basis": "Staging and intake-to-stage mutation controls show a changed source cannot publish a scoped view and leaves the prior readable view intact.",
+      "evidence": [
+        "policy-engine/tests/unit/core/artifacts/test_bound_import_preservation.py::test_changed_directory_bytes_after_intake_never_publish_a_scoped_view",
+        "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py::test_import_keeps_its_actual_artifact_lease_through_staging_and_publication"
+      ],
+      "boundary": "Local staged admission and owner transaction; no multi-host concurrency claim."
+    },
+    {
+      "id": "C14-P05",
+      "outcome": "Candidate-limited local PASS",
+      "basis": "Valid import/round trip and exact repeat work; default-profile aliases collapse to one canonical view while distinct profiles remain explicit.",
+      "evidence": [
+        "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py::test_exact_same_owner_import_is_a_real_noop",
+        "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py::test_mixed_package_stages_only_unclaimed_artifact_members",
+        "policy-engine/tests/unit/remediation/test_cas_02.py::test_transfer_round_trip_preserves_each_selected_view_and_signature"
+      ],
+      "boundary": "Controlled local fixtures with a generated local key/verifier where signature behavior is exercised; no trusted external issuer is represented."
+    },
+    {
+      "id": "C14-P06",
+      "outcome": "Candidate-limited local PASS",
+      "basis": "Unlisted or malformed members, path escape, symlinked parent/member, tenant mismatch, malformed signature, and mismatched selected-view bindings are refused without modifying the protected external target or prior selected view.",
+      "evidence": [
+        "policy-engine/tests/unit/remediation/test_cas_02.py::test_import_rejects_valid_but_unlisted_member_from_export_inventory",
+        "policy-engine/tests/unit/remediation/test_cas_02.py::test_invalid_tar_member_is_reported_without_path_escape_or_user_directory_deletion",
+        "policy-engine/tests/unit/remediation/test_cas_02.py::test_import_rejects_symlinked_parent_without_touching_external_target",
+        "policy-engine/tests/unit/remediation/test_cas_02.py::test_import_rejects_symlinked_owned_member_without_unlinking_external_file"
+      ],
+      "boundary": "Local filesystem adversarial tests; does not imply a production authorization or custody fact."
+    }
+  ],
+  "producer_consumer_chain": {
+    "steps": [
+      "Existing FileSystemCAS owner writer creates content-addressed blob and manifest/profile views in isolated test roots.",
+      "Existing directory/archive transfer producer creates bounded inventory; ordinary import intake validates members and stages bytes before owner publication.",
+      "Owner transaction yields actual completed transaction refs and stage-intent disposition; recovery is described as completion of durable intent, not as bytes written by this call.",
+      "Typed additive ImportReport preserves legacy imported_artifacts/imported_refs meaning and adds received IDs, actual published/reused profile views, verification basis, and verifier-positive refs.",
+      "Four JSON and four text replay branches share the typed projection. Unit tests exercise these consumers through the CLI replay route functions; no live production CLI service was claimed.",
+      "A distinct fresh process reopens the local CAS, reads persisted bytes and manifests, and rejects subsequent blob corruption through the actual integrity path."
+    ],
+    "consumer_surface": [
+      "FileSystemCAS import/export API",
+      "ImportReport / public Core artifact facade",
+      "CLI replay JSON projections (four branches)",
+      "CLI replay text projections (four branches)",
+      "fresh-process CAS consumer"
+    ],
+    "evidence_classification": {
+      "local_producer_and_bytes": "recomputed in isolated tests",
+      "manifest/profile identity": "recomputed from local owner bytes",
+      "CLI projection": "consumer-asserted route tests over actual typed report projection",
+      "external signer/issuer/custody/currentness": "not_established"
+    }
+  },
+  "selected_inputs_profile_backend": {
+    "input_origin": "Generated portable fixtures in pytest temporary roots; no production payload, private locator, live store, or real authority input was read.",
+    "backend": "FileSystemCAS using temporary local filesystem roots and real archive/directory members.",
+    "profile": "One artifact ID with default-profile and explicit-default-alias selectors plus a genuinely distinct canonical manifest profile; the mixed-report control expects three selector refs, one received ID, one newly published distinct-profile view, one reused default-profile view, and only verifier-returned refs in integrity_verified_refs.",
+    "runtime": "macOS Darwin, Python 3.14.3, pytest 9.0.2, local policy-engine .venv as recorded in full output.",
+    "integrity_semantics": "Integrity verification was explicitly enabled for corruption controls; when verify_integrity=False, integrity_verified_refs remains empty. The handoff does not claim unchecked input is integrity-positive."
+  },
+  "verification": [
+    {
+      "name": "Composed actual source/consumer replay r72",
+      "status": "PASS",
+      "result": "76 passed in 8.24s; no failures, errors, or skips in this bounded five-module run.",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-c",
+        "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=180.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--maxfail=1",
+        "tests/unit/core/artifacts/test_import_admission_noop.py",
+        "tests/unit/core/artifacts/test_bound_import_preservation.py",
+        "tests/unit/core/artifacts/test_transfer_import_fresh_process.py",
+        "tests/unit/core/components/test_cli_replay.py",
+        "tests/unit/remediation/test_cas_02.py",
+        "--import-mode=importlib",
+        "-vv",
+        "--maxfail=0",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-r11-actual-consumers-r72-20261011/fixtures",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-r11-actual-consumers-r72-20261011/junit.xml"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "tools:src:.",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "POLISYOS_RUN_INTEGRATION": "1"
+      },
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-r11-actual-consumers-r72-20261011/command.json",
+        "sha256": "6968c4a3cc10547a6fe2ffd6596d3f716c87fffb80cf3c4d8ba4139d2ac585bd"
+      },
+      "full_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-r11-actual-consumers-r72-20261011/stdout.txt",
+        "sha256": "6d4eb92f843d6e181034d67f31ef5b9588b60cbf6c14a42267908a15cd4ddacc"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-r11-actual-consumers-r72-20261011/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-r11-actual-consumers-r72-20261011/junit.xml",
+        "sha256": "8626bd3b991df352fd00fb42af048570105621720584efc1d7b8fbbae65502e2"
+      },
+      "source_state_at_run": "HEAD 827c with candidate source composition materialized; command record binds actual source origins and input hashes. Final committed source readback is separately bound by source_checkpoint."
+    },
+    {
+      "name": "Focused Ruff check for all 8 changed Python paths (r73)",
+      "status": "PASS",
+      "result": "Exit 0; JSON diagnostics output is [] and stderr is empty.",
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-r11-canonical-lint-r73-20261011/command.json",
+        "sha256": "b36d80c960e80126095468a28c9b5b03832c70692f4c170395d50df3bdde340e"
+      },
+      "full_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-r11-canonical-lint-r73-20261011/stdout.txt",
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-r11-canonical-lint-r73-20261011/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "scope_limit": "The recorded invocation discovers the generated product-root Ruff config from the policy-engine cwd and targets the 8 changed Python files. It is not the full repository native Ruff gate."
+    },
+    {
+      "name": "Focused Ruff format check for all 8 changed Python paths (r74)",
+      "status": "PASS",
+      "result": "Exit 0; output says 8 files already formatted; stderr is empty.",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-r11-canonical-format-r74-20261011/receipt.json",
+        "sha256": "f40d4c07d894d7bcde5726e048f5dc3b6cf0ab35b233fefe0d722378004b6ea2"
+      },
+      "full_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-r11-canonical-format-r74-20261011/stdout.txt",
+        "sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-r11-canonical-format-r74-20261011/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "scope_limit": "Focused changed-file format check; not a full repository gate."
+    },
+    {
+      "name": "Source composition and exact commit readback r70/r75",
+      "status": "PASS",
+      "result": "All 12 postimages match the composition and candidate commit; git apply --check/diff-check exit 0.",
+      "composition": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-r11-metadata-composition-r70-20261011/composition.json",
+        "sha256": "65697df51783563203ff662c1e129af5ceb8aafc85b9662df7903979a5687c5e"
+      },
+      "application_readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-r11-metadata-composition-r70-20261011/application-readback.json",
+        "sha256": "2fc229a5353ca6603bad0e185b1b0b657e036c982f645bab531bd5daa2bb8384"
+      },
+      "source_checkpoint": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-source-checkpoint-r75-20261011/readback.json",
+        "sha256": "a7c0c57cb6b0789d26f8140d9600d10ce00a2eb58d888c7f9c958c8146b9d08b"
+      }
+    }
+  ],
+  "adversarial_and_removal_controls": [
+    "Foreign, unbound, tenant/cell-mismatched, malformed metadata/signature, omitted signature, wrong selected profile, and passive cache are tested as negative admission cases before claims/publication.",
+    "Corrupt directory/tar bytes, truncation, physical archive interruption, and source mutation after intake preserve the previous byte-complete view and do not yield integrity-positive refs.",
+    "Exact owner repeats are tested as true no-ops; default profile alias and distinct profile controls retain canonical identity and full profile-specific views.",
+    "Fresh-process readback is followed by corrupt persisted-blob rejection.",
+    "CAS-02 injects a one-shot failure at the actual generation swap boundary and checks old-generation bytes plus cleanup. The cited removal control deletes rollback restoration while retaining the test and markers and fails at the expected property assertion; it covers this rollback property only, not every ImportReport field."
+  ],
+  "removal_control_evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-r11-independent-review/removal-control.stdout.txt",
+      "sha256": "a98d5e84c21dd6e72835edf6f157c0c9756bab9dc0fa56d32ec720bc6728697a",
+      "result": "Removing rollback restoration while keeping the test and markers caused the expected prior-generation property assertion to fail; this is a CAS-02 property-removal control, not a universal ImportReport field-removal test."
+    }
+  ],
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b148-import-report-dispositions-v4-r11-cas02-independent-review-20261011.md",
+      "sha256": "9e66ff6367fc879353ced2c07f4a8fcd3e5d1e6b7e852bbd00949c09726c0b41",
+      "verdict": "GO for r11 source delta at its exact boundary; not review of the full final composition, not G acceptance, no closure IDs."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b148-r11-release-recipe-delta-v2-independent-review-20261011.md",
+      "sha256": "67d0908f9378012f15a90550a6154555f19f46c9a867425eb06615f6383e0cee",
+      "verdict": "GO for the two-path release/decision metadata delta only; not full source acceptance or formal adjudication."
+    }
+  ],
+  "decision_pointers": {
+    "local_semantic_choice": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b148-import-report-disposition-v4-20261011.md",
+      "sha256": "bb1ff82d084d0b7c1600c43f263b3b51f18e64bd6c68b04e9135edbd4676981a"
+    },
+    "original_finding_coverage": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    "execution_task_denominator": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+    },
+    "prepared_B_input_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/INPUTS.json",
+      "sha256": "b000d61906fc0d732287f1a50cbb1ca902c23f4d08a292e4330734f5147431da",
+      "refs": [
+        "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+        "a0ee451fb287d9666c620defd01fdc87ff864c60"
+      ]
+    }
+  },
+  "proposal_fields": [
+    {
+      "id": "B148",
+      "role": "proposal",
+      "status": "candidate_limited_held_for_G",
+      "reason": "The bounded local producer→staged owner transaction→typed report→JSON/text consumer→fresh-process read chain now has a real composed replay, but original whole-property adjudication, all affected prepared-B contours, complete native gates, and any external authority facts remain outside this receipt."
+    }
+  ],
+  "closure_ids": [],
+  "capability_state": {
+    "state": "limited",
+    "locally_demonstrated": [
+      "producer",
+      "artifact bytes and manifests",
+      "staged import/owner transaction bridge",
+      "typed report",
+      "four JSON plus four text CLI projection routes",
+      "fresh-process consumer",
+      "negative and recovery tests"
+    ],
+    "remaining_labels": [
+      "verification_missing: full native repository gates, wheel/sdist consumers, supported Linux worker, and final composed prepared-B routes are unrun",
+      "surface_out_of_scope_or_not_established: complete public-surface inventory verdict remains false; this handoff does not claim the inventory is complete"
+    ],
+    "authority": "external signer/issuer authority, production custody, live-root/profile/currentness, and production workload qualification are not_established and not claimed."
+  },
+  "p40": {
+    "bucket": "same class, widened at the transaction/profile identity boundary",
+    "property": "A single canonical profile identity and disposition basis must govern owner admission, staging, publication/recovery, reuse, integrity verification, and every consumer projection.",
+    "repair": "The final source carries the selected canonical profile through that full report path, preserves received-ID compatibility, derives published/reused views from owner transaction state, normalizes report ordering before publication can complete, and shares one report projection across all eight CLI outputs.",
+    "residual": "No instance-only additional code repair was proposed after the independent r11 and metadata reviews. External owner/issuer semantics remain a declared bounded limitation with a falsifier: present a source-qualified protected owner/profile input and verify the same admission/publication/readback path without synthesizing authority."
+  },
+  "patterns": [
+    "P04",
+    "P05",
+    "P12",
+    "P29",
+    "P32",
+    "P33",
+    "P38",
+    "P40"
+  ],
+  "remaining_verification": [
+    "Re-run the complete composed source freeze after every related E02 source change; this five-module B148 replay is not the all-E02 replay.",
+    "Run the prepared-B defining baseline and all 13 affected contours with matched property-removal controls on the final composition; the older 0bf replay is not a receipt for this source.",
+    "Run the required full native gates, canonical repository Ruff/architecture checks, exact installed wheel and rebuilt-sdist consumers, and supported Linux worker profile.",
+    "G independently reviews the exact source ref and packets, accepts or rejects implementation, publishes integration if warranted, and adjudicates B148 and all formal finding rows. No G decision is implied here."
+  ],
+  "historical_decisions": [
+    {
+      "id": "B198",
+      "treatment": "preserved unchanged; this B148 slice does not revise it."
+    }
+  ],
+  "proposal_ids": [
+    "B148"
+  ],
+  "formal_adjudication": "pending_G",
+  "source_or_environment_skips": [],
+  "unrun_scopes": [
+    "all 13 Prepared-B affected contours on this composition",
+    "full native repository gates",
+    "installed wheel consumer",
+    "rebuilt sdist consumer",
+    "supported Linux worker",
+    "global E02 replay",
+    "G acceptance and formal adjudication"
+  ]
+}

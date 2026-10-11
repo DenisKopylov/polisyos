@@ -5,6 +5,12 @@ from pathlib import Path
 
 import pytest
 
+from polisyos.core.artifacts import (
+    ArtifactIntegrityError,
+    ArtifactRef,
+    ProducerInfo,
+    PutOptions,
+)
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
@@ -12,12 +18,11 @@ from polisyos.core.run.context import RunContext
 from polisyos.scientist.orchestration.engine.checkpoint import (
     CASCheckpointHook,
     CheckpointCorruptedError,
+    CheckpointWriteResult,
     WorkflowMismatchError,
     compute_workflow_fingerprint,
-    create_checkpoint,
     resolve_latest_checkpoint,
     resume_from_checkpoint,
-    update_checkpoint_head,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
@@ -57,10 +62,10 @@ def test_cache_seed_deduplicates_exact_refs_and_does_not_mark_failed_load(
     reads = 0
     original_get_bytes = store.get_bytes
 
-    def counted_get_bytes(artifact_id):
+    def counted_get_bytes(artifact_ref: ArtifactRef):
         nonlocal reads
         reads += 1
-        return original_get_bytes(artifact_id)
+        return original_get_bytes(artifact_ref)
 
     monkeypatch.setattr(store, "get_bytes", counted_get_bytes)
     restored = NodeResultCache(store, run_id=run_id).seed_from_entry_refs(
@@ -93,31 +98,29 @@ def test_cache_seed_does_not_mix_different_content_under_same_key(
         outcome=_journaled_outcome(run_id, "second"),
     )
 
-    reads: list[str] = []
+    reads: list[ArtifactRef] = []
     original_get_bytes = store.get_bytes
 
-    def counted_get_bytes(artifact_id):
-        reads.append(str(artifact_id))
-        return original_get_bytes(artifact_id)
+    def counted_get_bytes(artifact_ref: ArtifactRef):
+        reads.append(artifact_ref)
+        return original_get_bytes(artifact_ref)
 
     monkeypatch.setattr(store, "get_bytes", counted_get_bytes)
     replay = NodeResultCache(store, run_id=run_id)
     assert replay.seed_from_entry_refs([first, second]) == 1
-    assert str(first.artifact_id) in reads
-    assert str(second.artifact_id) in reads
+    assert reads == [first, second]
     loaded = replay.get(key)
     assert loaded is not None
     assert loaded.state.params["marker"] == "first"
 
 
 @pytest.mark.parametrize(
-    ("field", "value"),
-    [("kind", "scientist.other_cache_entry"), ("media_type", "text/plain")],
+    "mismatch_field",
+    ["artifact_id", "kind", "media_type", "manifest_profile_sha256"],
 )
-def test_cache_seed_revalidates_full_ref_identity(
+def test_cache_load_rejects_altered_ref_identity_without_admission_or_eviction(
     tmp_path: Path,
-    field: str,
-    value: str,
+    mismatch_field: str,
 ) -> None:
     store = FileSystemCAS(tmp_path)
     run_id = "R_res_01_ref_identity"
@@ -129,12 +132,87 @@ def test_cache_seed_revalidates_full_ref_identity(
         outcome=_journaled_outcome(run_id, "identity"),
     )
 
+    if mismatch_field == "manifest_profile_sha256":
+        entry_bytes = store.get_bytes(entry_ref)
+        entry_manifest = store.get_manifest(entry_ref)
+        foreign_producer = ProducerInfo(
+            component="tests.res_01.foreign_cache_epoch",
+            version="1.0.0",
+        )
+        altered_ref = store.put_bytes(
+            entry_bytes,
+            PutOptions(
+                kind=entry_ref.kind,
+                media_type=entry_ref.media_type,
+                schema=entry_manifest.artifact_schema,
+                producer=foreign_producer,
+            ),
+            return_selected_profile=True,
+        )
+        assert altered_ref.artifact_id == entry_ref.artifact_id
+        assert altered_ref.kind == entry_ref.kind
+        assert altered_ref.media_type == entry_ref.media_type
+        assert altered_ref.manifest_profile_sha256 is not None
+        assert altered_ref.manifest_profile_sha256 != entry_ref.manifest_profile_sha256
+        assert store.get_bytes(altered_ref) == entry_bytes
+        assert store.get_manifest(altered_ref).producer == foreign_producer
+    elif mismatch_field == "artifact_id":
+        altered_ref = entry_ref.model_copy(
+            update={"artifact_id": "sha256:" + "f" * 64},
+        )
+    else:
+        altered_ref = entry_ref.model_copy(
+            update={
+                "kind": "scientist.other_cache_entry"
+                if mismatch_field == "kind"
+                else entry_ref.kind,
+                "media_type": "text/plain"
+                if mismatch_field == "media_type"
+                else entry_ref.media_type,
+            }
+        )
+    assert altered_ref != entry_ref
+
+    fresh = NodeResultCache(store, run_id=run_id)
+    if mismatch_field == "artifact_id":
+        with pytest.raises(FileNotFoundError):
+            fresh.load_entry(altered_ref)
+    elif mismatch_field == "manifest_profile_sha256":
+        with pytest.raises(ValueError, match="cache_custody: immutable_epoch_mismatch"):
+            fresh.load_entry(altered_ref)
+    else:
+        with pytest.raises(
+            ArtifactIntegrityError,
+            match="Artifact reference type does not match selected manifest",
+        ):
+            fresh.load_entry(altered_ref)
+    assert fresh.size == 0
+    assert not fresh.has(key)
+    assert fresh.get(key) is None
+
     replay = NodeResultCache(store, run_id=run_id)
     assert replay.load_entry(entry_ref) is True
-    altered_ref = entry_ref.model_copy(update={field: value})
-    with pytest.raises(ValueError, match="immutable_epoch_mismatch"):
-        replay.load_entry(altered_ref)
-    assert replay.get(key) is not None
+    if mismatch_field == "artifact_id":
+        with pytest.raises(FileNotFoundError):
+            replay.load_entry(altered_ref)
+    elif mismatch_field == "manifest_profile_sha256":
+        with pytest.raises(ValueError, match="cache_custody: immutable_epoch_mismatch"):
+            replay.load_entry(altered_ref)
+    else:
+        with pytest.raises(
+            ArtifactIntegrityError,
+            match="Artifact reference type does not match selected manifest",
+        ):
+            replay.load_entry(altered_ref)
+    preserved = replay.get(key)
+    assert preserved is not None
+    assert preserved.state.params["marker"] == "identity"
+
+    reopened = NodeResultCache(store, run_id=run_id)
+    assert reopened.load_entry(entry_ref) is True
+    reloaded = reopened.get(key)
+    assert reloaded is not None
+    assert reloaded.state.params["marker"] == "identity"
 
 
 def _meta(raw: str, name: str) -> ComponentMetadata:
@@ -247,6 +325,33 @@ def _context(store: FileSystemCAS, run_id: str) -> tuple[ExecutionContext, objec
     return ExecutionContext(store=store, run=run, logger=logging.getLogger("res_01")), bundle.bundle_ref
 
 
+def _write_known_successful_frontier_checkpoint(
+    store: FileSystemCAS,
+    *,
+    run_dir: Path,
+    state: ExperimentState,
+    completed_node_alias: str,
+    completed_node_id: str,
+    completed_nodes: list[str],
+    workflow: WorkflowSpec,
+) -> CheckpointWriteResult:
+    """Persist a successful test frontier through the canonical checkpoint hook."""
+    hook = CASCheckpointHook(store=store, run_dir=run_dir)
+    # These fixtures represent prior nodes whose native outcomes were successful.
+    hook.mark_completed_node_status_established(prior_completed_nodes=[])
+    result = hook.on_node_complete(
+        state=state,
+        alias=completed_node_alias,
+        node_id=completed_node_id,
+        completed_nodes=completed_nodes,
+        workflow_id=workflow.workflow_id,
+        workflow_fingerprint=compute_workflow_fingerprint(workflow),
+        cache_entry_ref=None,
+    )
+    assert result is not None
+    return result
+
+
 def test_resume_preserves_origin_fingerprint_across_two_stops(tmp_path: Path) -> None:
     store = FileSystemCAS(tmp_path)
     workflow = _resume_workflow()
@@ -302,27 +407,14 @@ def test_full_valid_state_resumes_without_unnecessary_cache_seed(tmp_path: Path)
         run_id=run_id,
         params={"a": 1, "b": 2},
     )
-    created = create_checkpoint(
+    _write_known_successful_frontier_checkpoint(
         store,
-        run_id=run_id,
-        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
-        sequence_number=1,
+        run_dir=tmp_path / "runs" / run_id,
+        state=state,
         completed_node_alias="b",
         completed_node_id="scientist.node_res_b@1.0.0",
         completed_nodes=["a", "b"],
-        workflow_id=workflow.workflow_id,
-        workflow_fingerprint=compute_workflow_fingerprint(workflow),
-        fsm_phase="EXECUTE",
-        cache_entry_refs=[],
-    )
-    update_checkpoint_head(
-        tmp_path / "runs" / run_id,
-        run_id=run_id,
-        checkpoint_ref=created.checkpoint_ref,
-        sequence_number=1,
-        node_alias="b",
-        writer_pid=123,
-        writer_hostname="localhost",
+        workflow=workflow,
     )
 
     ctx, bundle_ref = _context(store, run_id)
@@ -345,27 +437,14 @@ def test_resume_rejects_missing_state_written_by_completed_node(tmp_path: Path) 
     registry = _resume_registry()
     run_id = "R_res_01_missing_state"
     state = ExperimentState(run_id=run_id, params={"a": 1})
-    created = create_checkpoint(
+    _write_known_successful_frontier_checkpoint(
         store,
-        run_id=run_id,
-        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
-        sequence_number=1,
+        run_dir=tmp_path / "runs" / run_id,
+        state=state,
         completed_node_alias="b",
         completed_node_id="scientist.node_res_b@1.0.0",
         completed_nodes=["a", "b"],
-        workflow_id=workflow.workflow_id,
-        workflow_fingerprint=compute_workflow_fingerprint(workflow),
-        fsm_phase="EXECUTE",
-        cache_entry_refs=[],
-    )
-    update_checkpoint_head(
-        tmp_path / "runs" / run_id,
-        run_id=run_id,
-        checkpoint_ref=created.checkpoint_ref,
-        sequence_number=1,
-        node_alias="b",
-        writer_pid=123,
-        writer_hostname="localhost",
+        workflow=workflow,
     )
 
     with pytest.raises(CheckpointCorruptedError, match=r"params\.b"):
@@ -386,27 +465,14 @@ def test_allow_replay_rebuilds_completed_nodes_for_missing_state(tmp_path: Path)
     registry.get(ComponentId.parse("scientist.node_res_c@1.0.0")).fail_once = False
     run_id = "R_res_01_allow_replay"
     state = ExperimentState(run_id=run_id, params={"a": 1})
-    created = create_checkpoint(
+    _write_known_successful_frontier_checkpoint(
         store,
-        run_id=run_id,
-        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
-        sequence_number=1,
+        run_dir=tmp_path / "runs" / run_id,
+        state=state,
         completed_node_alias="b",
         completed_node_id="scientist.node_res_b@1.0.0",
         completed_nodes=["a", "b"],
-        workflow_id=workflow.workflow_id,
-        workflow_fingerprint=compute_workflow_fingerprint(workflow),
-        fsm_phase="EXECUTE",
-        cache_entry_refs=[],
-    )
-    update_checkpoint_head(
-        tmp_path / "runs" / run_id,
-        run_id=run_id,
-        checkpoint_ref=created.checkpoint_ref,
-        sequence_number=1,
-        node_alias="b",
-        writer_pid=123,
-        writer_hostname="localhost",
+        workflow=workflow,
     )
 
     ctx, bundle_ref = _context(store, run_id)
@@ -436,27 +502,14 @@ def test_changed_functional_input_remains_incompatible_with_checkpoint(tmp_path:
     )
     run_id = "R_res_01_changed_input"
     state = ExperimentState(run_id=run_id)
-    created = create_checkpoint(
+    _write_known_successful_frontier_checkpoint(
         store,
-        run_id=run_id,
-        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
-        sequence_number=0,
+        run_dir=tmp_path / "runs" / run_id,
+        state=state,
         completed_node_alias="a",
         completed_node_id="scientist.node_res_a@1.0.0",
         completed_nodes=["a"],
-        workflow_id=workflow.workflow_id,
-        workflow_fingerprint=compute_workflow_fingerprint(workflow),
-        fsm_phase="EXECUTE",
-        cache_entry_refs=[],
-    )
-    update_checkpoint_head(
-        tmp_path / "runs" / run_id,
-        run_id=run_id,
-        checkpoint_ref=created.checkpoint_ref,
-        sequence_number=0,
-        node_alias="a",
-        writer_pid=123,
-        writer_hostname="localhost",
+        workflow=workflow,
     )
     changed = workflow.model_copy(
         update={

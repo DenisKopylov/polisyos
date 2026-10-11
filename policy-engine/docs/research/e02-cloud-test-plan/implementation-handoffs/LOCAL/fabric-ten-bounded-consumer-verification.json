@@ -1,0 +1,355 @@
+{
+  "consumer_test_run": {
+    "argv": [
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-ra",
+      "--maxfail=1",
+      "tests/unit/fabric/test_quality_indicators.py::TestDuckDBQualityComputation",
+      "tests/unit/fabric/test_safety.py",
+      "tests/unit/fabric/test_semantic_group_imports.py::test_fabric_quality_group_preserves_report_and_processing_contract_behavior",
+      "tests/unit/fabric/test_observability_governance_quality_phase4.py::test_fabric_slo_contract_covers_phase4_slis_and_blocks_burned_budget",
+      "tests/unit/fabric/catalog/test_data_requirement_adapter.py",
+      "tests/unit/runtime/quality/test_production_data_contract_index.py::test_contract_index_can_bind_directly_against_compiled_data_requirement_specs",
+      "tests/unit/runtime/quality/test_wave7_requirement_pipeline_integration.py::test_requirement_spec_pipeline_runs_real_w7_adapters_and_acquisition_bridge",
+      "tests/unit/runtime/quality/test_producer_pipeline.py::test_second_pass_requires_selected_rejected_or_blocked_requirement_binding",
+      "tests/unit/remediation/test_dfi_02.py",
+      "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_core_sources_facade_does_not_broadcast_new_globals_to_leaf_group",
+      "tests/unit/remediation/test_dur_02.py",
+      "tests/unit/remediation/test_dur_02_process.py::test_actual_handler_loses_every_protected_write_after_expiry_and_takeover",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/fabric-quality-adapter-durable-real-consumers-20261011/fixtures",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/fabric-quality-adapter-durable-real-consumers-20261011/junit.xml"
+    ],
+    "argv_receipt": {
+      "bytes": 1614583,
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/fabric-quality-adapter-durable-real-consumers-20261011/command.json",
+      "sha256": "fc50ae59c1ce7992dba2be329919b42b4ce9f34df4254c095b03e5651a685b27"
+    },
+    "bounded_properties": [
+      {
+        "area": "DuckDB quality and identifier safety",
+        "evidence": "The four TestDuckDBQualityComputation cases executed without skips; they include unsafe table identifier refusal, malicious catalog-column refusal, and table-row preservation after refusal, plus non-finite-as-missingness and injected-metrics behavior. The separate Fabric SQL identifier tests also passed.",
+        "limits": [
+          "A safe table row-count query and DESCRIBE occur before discovered column validation; the negative proves the column-derived dynamic expressions are not executed with the unsafe identifier.",
+          "No production caller of compute_quality_from_duckdb exists in the current source tree; this verifies the helper, not a QualityGatePass bridge. Broader route state: bridge_missing.",
+          "The injected-metrics test proves the explicit injected registry receives a score; its package-alias monkeypatch does not prove absence of a module-global lookup."
+        ],
+        "selector_ref": "tests/unit/fabric/test_quality_indicators.py::TestDuckDBQualityComputation"
+      },
+      {
+        "area": "Fabric source-contract requirements and runtime consumers",
+        "evidence": "The real adapter tests exercise selected and rejected capability bindings with source refs/assets and rejection context; the compiled-requirement DataContractIndex selector and real Wave 7 adapter/acquisition bridge selector passed. A second-pass selector verifies the selected/rejected/blocked binding decision is consumed.",
+        "limits": [
+          "This run does not establish a source-contract artifact/CAS persistence round-trip."
+        ],
+        "selector_refs": [
+          "tests/unit/fabric/catalog/test_data_requirement_adapter.py",
+          "tests/unit/runtime/quality/test_production_data_contract_index.py::test_contract_index_can_bind_directly_against_compiled_data_requirement_specs",
+          "tests/unit/runtime/quality/test_wave7_requirement_pipeline_integration.py::test_requirement_spec_pipeline_runs_real_w7_adapters_and_acquisition_bridge",
+          "tests/unit/runtime/quality/test_producer_pipeline.py::test_second_pass_requires_selected_rejected_or_blocked_requirement_binding"
+        ]
+      },
+      {
+        "area": "Quality facade, SLO, DFI, and DUR behavior",
+        "evidence": "The selected import/semantic tests exercise report/processing behavior and the Fabric SLO budget gate; the DFI tests exercise pipeline counters, scoped facade override, and no-broadcast behavior; DUR unit and process tests exercise stale-worker fencing, atomic terminal updates, dispatch fallback rules, and protected-write loss after expiry/takeover for expired, new-running, and new-completed states.",
+        "limits": [
+          "The observability change preserves the exported names; this receipt does not specify or prove __all__ list ordering as an API contract. It does not prove authority, currentness, or waiver semantics beyond the selected tests."
+        ]
+      }
+    ],
+    "candidate_commit_was_execution_head": false,
+    "capture_source_sha256": "080a695e7f712a31e30acb47654b27f87ba4f82e82d4981e3d67b0a34093ec88",
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "environment": {
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "POLISYOS_RUN_INTEGRATION": "1",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "src:."
+    },
+    "execution_head": "3bbb76a03a2e6896176de07b15dbf9df5a00e4e1",
+    "execution_input_hash_inventory": {
+      "captured_in_command_receipt": true,
+      "path_count": 6163,
+      "paths_changed_during_run": 0,
+      "pre_post_maps_equal": true,
+      "target_candidate_paths_equal_before_and_after": true
+    },
+    "exit_code": 0,
+    "interpretation": "The test run was captured at a different HEAD; all ten changed target files matched the committed candidate by SHA-256 in the run pre/post inventory, and the complete recorded test input hash map was unchanged during execution.",
+    "junit_summary": {
+      "duration_seconds": 77.25,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "tests": 32
+    },
+    "raw_outputs": {
+      "junit": {
+        "bytes": 5213,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/fabric-quality-adapter-durable-real-consumers-20261011/junit.xml",
+        "sha256": "7cd53f1685cc4bb0078623466c9855456578a8340d70eae16257cabbdcdd7e33"
+      },
+      "stderr": {
+        "bytes": 0,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/fabric-quality-adapter-durable-real-consumers-20261011/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 707,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/fabric-quality-adapter-durable-real-consumers-20261011/stdout.txt",
+        "sha256": "03c3e50ac9dcb13bc3c897fe9b62758da9e9a4c4cea32add504cc8792276a61e"
+      }
+    },
+    "status": "PASS",
+    "wall_seconds": 81.56469754106365,
+    "warnings": [
+      {
+        "category": "DeprecationWarning",
+        "count": 2,
+        "origin": "torch.jit._script under Python 3.14"
+      }
+    ]
+  },
+  "not_established": [
+    {
+      "path": "tools/archive/migrate_to_trinity.py",
+      "reason": "The imported polisyos.ir.legacy.migrations.surface_to_trinity module is absent from the current source tree. The runtime Iterator binding is preserved, but no CLI functionality is claimed.",
+      "status": "UNRUN"
+    },
+    {
+      "path": "tools/ops_runners/experiments/run_msme_final_fresg_suite_v3.py",
+      "reason": "No focused command was run; no experiment output or equivalence claim is made.",
+      "status": "UNRUN"
+    },
+    {
+      "path": "tools/quality/diagnostics/check_setup.py",
+      "reason": "No setup/bootstrap command was run; import reorder alone does not establish bootstrap behavior.",
+      "status": "UNRUN"
+    }
+  ],
+  "p40": {
+    "bucket": "SAME_CLASS_DEEPER",
+    "class": "I001 import-order/binding and initialization-observability cohort",
+    "scope_note": "The source preserves the runtime Iterator binding and existing exported names. The archived tool dependency is a bounded execution limit, not an additional import-order repair instance."
+  },
+  "record_type": "bounded_consumer_verification",
+  "ruff_run": {
+    "argv": [
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "ruff",
+      "check",
+      "--output-format",
+      "json",
+      "src/polisyos/fabric/_adapters/observability.py",
+      "src/polisyos/fabric/quality/__init__.py",
+      "src/polisyos/fabric/quality/quality.py",
+      "tests/unit/fabric/catalog/test_data_requirement_adapter.py",
+      "tests/unit/fabric/test_quality_indicators.py",
+      "tests/unit/remediation/test_dfi_02.py",
+      "tests/unit/remediation/test_dur_02.py",
+      "tools/archive/migrate_to_trinity.py",
+      "tools/ops_runners/experiments/run_msme_final_fresg_suite_v3.py",
+      "tools/quality/diagnostics/check_setup.py"
+    ],
+    "argv_receipt": {
+      "bytes": 4618,
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/fabric-ten-canonical-ruff-20261011/command.json",
+      "sha256": "656079a5b52d74fa4ab5afbfb7023bdcbe1e37b5415484053e859681068d3ed3"
+    },
+    "candidate_commit_was_execution_head": false,
+    "capture_source_sha256": "080a695e7f712a31e30acb47654b27f87ba4f82e82d4981e3d67b0a34093ec88",
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "diagnostics": 0,
+    "execution_head": "afa5e5cccd50889beb9f5a0424118a11f0b194a7",
+    "exit_code": 0,
+    "input_hash_inventory": {
+      "configuration_inputs": {
+        "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+        "ruff.generated.toml": "3e9528c1d2c0ce1767f73e567feaeefb2e78f139b96b00f3a9b26270d31496b9",
+        "ruff.toml": "8887d0a15457d44ebb1a5b5aee8110dd5101dc9e952649cd0490b845af2d933e"
+      },
+      "path_count": 13,
+      "paths_changed_during_run": 0,
+      "pre_post_maps_equal": true,
+      "target_candidate_paths_equal_before_and_after": true
+    },
+    "interpretation": "Ruff ran at the base HEAD with the ten candidate files already present as worktree bytes; all ten target hashes match the candidate commit. The three Ruff/project configuration inputs were stable across the run.",
+    "raw_outputs": {
+      "stderr": {
+        "bytes": 0,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/fabric-ten-canonical-ruff-20261011/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 2,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/fabric-ten-canonical-ruff-20261011/stdout.txt",
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    "status": "PASS_ZERO_DIAGNOSTICS",
+    "wall_seconds": 0.09014333295635879
+  },
+  "schema": "polisyos.e02.fabric-ten-bounded-consumer-verification.v1",
+  "scope": {
+    "formal_closure_ids": [],
+    "formal_g_acceptance": false,
+    "prior_independent_review": {
+      "bytes": 14045,
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/fabric-quality-sql-adapter-focused-verification-20261011.md",
+      "sha256": "1320f00697c9f8ac2f2914f46fd2b3844edfd098dac80b4b726116d342dd5f0f"
+    },
+    "statement": "Records the committed ten-path source candidate, its exact per-path byte identity at the bounded consumer run, and the focused pytest/Ruff receipts. It is not a formal G closure or a broader Fabric quality capability claim."
+  },
+  "source_candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "changed_paths": 10,
+    "commit": "347e61b84694986bf7fdc5adea0054326c05a213",
+    "deletions": 37,
+    "insertions": 69,
+    "observed_checkout_at_record_creation": {
+      "branch": "codex/e02-unified-local-20261009",
+      "candidate_commit_is_ancestor_of_observed_head": true,
+      "current_worktree_target_bytes_match_candidate": true,
+      "head": "afd5f4aaf7da86e242c2b5cd46f9f85d8ea60dd8",
+      "remote_tracking_tip": "afd5f4aaf7da86e242c2b5cd46f9f85d8ea60dd8",
+      "tree": "4b8b84331a979ba5b208d905503c716f27bd3c4b"
+    },
+    "parent": "afa5e5cccd50889beb9f5a0424118a11f0b194a7",
+    "slice_base": "afa5e5cccd50889beb9f5a0424118a11f0b194a7",
+    "source_checkpoint": {
+      "readback": {
+        "bytes": 3034,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fabric-ten-source-checkpoint-20261011/readback.json",
+        "sha256": "7245f62f844b432d3a5a710d685241444f4eb1f2f719476a5daea469a9b4ea40"
+      },
+      "remote_readback": {
+        "bytes": 1922,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fabric-ten-source-checkpoint-20261011/remote-readback.json",
+        "sha256": "71a3781c0c857db1064cc119ccd05be0dc5166eca83e21116fb1a1e53e5bddc4"
+      },
+      "remote_readback_matches_all_ten_candidate_path_hashes": true,
+      "remote_readback_names_same_candidate_and_tree": true,
+      "selected_footprint": {
+        "bytes": 2854,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fabric-ten-source-checkpoint-20261011/selected-footprint.json",
+        "sha256": "a295bcffb7a7a874d99243a5725125e5b7a029857f206960f36418a5d0fff2ed"
+      }
+    },
+    "source_paths": [
+      {
+        "base_sha256": "7ed4578be91e2d28b201c05e19bfbac0eb3f355635aa78fbb3b669fa34673502",
+        "candidate_sha256": "85744adcedbe5bb1a1d6cb026096598f1f49678219146d40982fafa1b294c457",
+        "current_worktree_matches_candidate": true,
+        "git_repository_path": "policy-engine/src/polisyos/fabric/_adapters/observability.py",
+        "path": "src/polisyos/fabric/_adapters/observability.py",
+        "verified_in_ruff_pre_post_hashes": true,
+        "verified_in_source_commit": true,
+        "verified_in_test_pre_post_hashes": true
+      },
+      {
+        "base_sha256": "9600f49bb3ac6915eb41017f2f5ccbeee4b67ea1b7777697dc796bca6cb69151",
+        "candidate_sha256": "f8d579044b9143c63012912f2bea947712c9a644d9089696076fd5243ac3c0ff",
+        "current_worktree_matches_candidate": true,
+        "git_repository_path": "policy-engine/src/polisyos/fabric/quality/__init__.py",
+        "path": "src/polisyos/fabric/quality/__init__.py",
+        "verified_in_ruff_pre_post_hashes": true,
+        "verified_in_source_commit": true,
+        "verified_in_test_pre_post_hashes": true
+      },
+      {
+        "base_sha256": "8dc607b2fd88a44f796e81dd6eb62e0b7f8098a06af742d4392d4e8fcd632ea9",
+        "candidate_sha256": "cd288a354f471ff5cf8f2ad6369b922295081a77dea994254f5949ca4e155a76",
+        "current_worktree_matches_candidate": true,
+        "git_repository_path": "policy-engine/src/polisyos/fabric/quality/quality.py",
+        "path": "src/polisyos/fabric/quality/quality.py",
+        "verified_in_ruff_pre_post_hashes": true,
+        "verified_in_source_commit": true,
+        "verified_in_test_pre_post_hashes": true
+      },
+      {
+        "base_sha256": "aeda0665c3df07c2575c57f91ea6c07c7deeb662d04f76f8c00ed31e7d332702",
+        "candidate_sha256": "24c1c187c6eba363dc5a653b0e5fab1bf89c9603963a0d03ee6df98a7e092f10",
+        "current_worktree_matches_candidate": true,
+        "git_repository_path": "policy-engine/tests/unit/fabric/catalog/test_data_requirement_adapter.py",
+        "path": "tests/unit/fabric/catalog/test_data_requirement_adapter.py",
+        "verified_in_ruff_pre_post_hashes": true,
+        "verified_in_source_commit": true,
+        "verified_in_test_pre_post_hashes": true
+      },
+      {
+        "base_sha256": "6602f58b4d87a6b74b040e883c0d1c56d649827cd79e4f73b5297ff30a8359cf",
+        "candidate_sha256": "27bb3f801e5fca5d65c703657934baf08df1a016377615ea30576a3542c11437",
+        "current_worktree_matches_candidate": true,
+        "git_repository_path": "policy-engine/tests/unit/fabric/test_quality_indicators.py",
+        "path": "tests/unit/fabric/test_quality_indicators.py",
+        "verified_in_ruff_pre_post_hashes": true,
+        "verified_in_source_commit": true,
+        "verified_in_test_pre_post_hashes": true
+      },
+      {
+        "base_sha256": "f72982b622be5d5bdf5eb67f77370312796f6ee40049d0617c4200dc4677cc18",
+        "candidate_sha256": "f2c8e6cb2e80138bd21c7835f39dfd4d8776df0ef5c4c340f0e84c282042be30",
+        "current_worktree_matches_candidate": true,
+        "git_repository_path": "policy-engine/tests/unit/remediation/test_dfi_02.py",
+        "path": "tests/unit/remediation/test_dfi_02.py",
+        "verified_in_ruff_pre_post_hashes": true,
+        "verified_in_source_commit": true,
+        "verified_in_test_pre_post_hashes": true
+      },
+      {
+        "base_sha256": "22aa14c0d4e8a3ad6c0bcc0ae1101bfeff551f2fb69c89610507cf80210449a8",
+        "candidate_sha256": "9e9e1eeb0eab109210a27b422267c7973ff0364efde915c33afb1b4a2469e162",
+        "current_worktree_matches_candidate": true,
+        "git_repository_path": "policy-engine/tests/unit/remediation/test_dur_02.py",
+        "path": "tests/unit/remediation/test_dur_02.py",
+        "verified_in_ruff_pre_post_hashes": true,
+        "verified_in_source_commit": true,
+        "verified_in_test_pre_post_hashes": true
+      },
+      {
+        "base_sha256": "7376bd594c637bae7962a2ba7cc73ac2fe48cc1268b1b85cb191ef058279cd9e",
+        "candidate_sha256": "dec998baa9e959b50ab1dd18aba76724eee670a185c3e7dcc79056ce79a0b473",
+        "current_worktree_matches_candidate": true,
+        "git_repository_path": "policy-engine/tools/archive/migrate_to_trinity.py",
+        "path": "tools/archive/migrate_to_trinity.py",
+        "verified_in_ruff_pre_post_hashes": true,
+        "verified_in_source_commit": true,
+        "verified_in_test_pre_post_hashes": true
+      },
+      {
+        "base_sha256": "07a9d4d94c478895d0763079c9686006f5e7c5eaa9268ec68337b333af93558d",
+        "candidate_sha256": "589606102888b3c7685222175c371b1e8bc57a9ab8503e4c1fc864be55bca38a",
+        "current_worktree_matches_candidate": true,
+        "git_repository_path": "policy-engine/tools/ops_runners/experiments/run_msme_final_fresg_suite_v3.py",
+        "path": "tools/ops_runners/experiments/run_msme_final_fresg_suite_v3.py",
+        "verified_in_ruff_pre_post_hashes": true,
+        "verified_in_source_commit": true,
+        "verified_in_test_pre_post_hashes": true
+      },
+      {
+        "base_sha256": "30dc443f37ba7e55a6cd37ec4854b1db25c91064163e0ddf16062c02abe76a80",
+        "candidate_sha256": "19a14fd32a2216a53fa6dae5d08753b08428983c55efcfb314f805388ff14e75",
+        "current_worktree_matches_candidate": true,
+        "git_repository_path": "policy-engine/tools/quality/diagnostics/check_setup.py",
+        "path": "tools/quality/diagnostics/check_setup.py",
+        "verified_in_ruff_pre_post_hashes": true,
+        "verified_in_source_commit": true,
+        "verified_in_test_pre_post_hashes": true
+      }
+    ],
+    "tree": "685c8c655c47bd9fdedd085e52b1e81e71aa0c46"
+  },
+  "verification_status": "EXECUTED_BOUNDED_PASS"
+}

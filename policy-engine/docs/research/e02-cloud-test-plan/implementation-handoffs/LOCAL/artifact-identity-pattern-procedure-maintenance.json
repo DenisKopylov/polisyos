@@ -1,0 +1,73 @@
+{
+  "behavioral_tests": "NOT_RUN",
+  "evidence": {
+    "application_readback": {
+      "path": "raw/artifact-identity-pattern-root-application-20261011/readback.json",
+      "sha256": "b81bc57fe0bf183002c40a81d37baf1a863be612fae1adc96f884c638d1e2c28"
+    },
+    "applied_patch": {
+      "path": "raw/artifact-identity-pattern-companion-20261011/artifact-identity-pattern-companion.patch",
+      "sha256": "b1dd76862a27d509e8f7e950af93b552e923ea9911c996878bd9f66658740cd5"
+    },
+    "checks": {
+      "application_postimage_matches_commit": true,
+      "commit_contains_only_register_path": true,
+      "local_remote_path_hashes_match": true
+    },
+    "local_source_readback": {
+      "path": "raw/artifact-identity-pattern-source-checkpoint-20261011/readback.json",
+      "sha256": "fe44e50cd6465ec724785a2edc2e884cbd8fb8681bc6dbb9bb85bc1f2826fe97"
+    },
+    "pre_application_decision": {
+      "path": "decisions/artifact-identity-pattern-companion-20261011.md",
+      "sha256": "7a7f68f772f0bfddaff942c17f10fa78d2ac9cfb2c52bf6f421d6c5c706fd510",
+      "status_note": "Its unapplied proposal status is superseded by the committed source and application readback."
+    },
+    "remote_source_readback": {
+      "path": "raw/artifact-identity-pattern-source-checkpoint-20261011/remote-readback.json",
+      "sha256": "31f3cd3b91cc11c66354e988e60a10979ca44d449a0267eee1006ea7228157c2"
+    },
+    "selected_footprint": {
+      "path": "raw/artifact-identity-pattern-source-checkpoint-20261011/selected-footprint.json",
+      "sha256": "6cdb49b7fa1d3c80eb3c1bff839f03f15ffbf8a8e34ec64c937d0bbc34433ec1"
+    }
+  },
+  "formal_closures": [],
+  "formal_g_acceptance": false,
+  "kind": "applied_register_procedure_maintenance",
+  "maintenance": {
+    "falsifier": "Rewrite at the old artifact path without rebinding the report, or assign two reviewers the same output path; stale acceptance or a lost result shows locator-as-identity remains.",
+    "limits": [
+      "Documentation only: no automated guard, behavior run, or actor-compliance evidence.",
+      "No capability closure or formal G acceptance.",
+      "No set-level claim beyond the one-path commit diff."
+    ],
+    "p40_bucket": "SAME_CLASS_DEEPER",
+    "patterns": [
+      "P30",
+      "P35",
+      "P38",
+      "P40"
+    ],
+    "summary": "The register now requires immutable issued-artifact identity (owner, role, version, path, SHA-256), reviewer readback bound to those bytes, a new identity/review after later edits, unique reviewer-output paths, and honest retention of unavailable prior bytes."
+  },
+  "schema": "polisyos.e02.artifact_identity_procedure.v1",
+  "source": {
+    "base_sha256": "a64956e284b411276a16a612afffb1fb42daf03ffef8f7ef1c3f3f9bc25d0349",
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate_is_ancestor": true,
+    "candidate_sha256": "b6588bbbadf949379a3779cea1ca4758df085aed290003c473ee7679e537dd8e",
+    "commit": "6eb0feb0d5759f01aa5ae73302720f179c900688",
+    "current_worktree_matches_commit": true,
+    "diff": {
+      "deletions": 0,
+      "hunks": 1,
+      "insertions": 18,
+      "paths": 1
+    },
+    "observed_head": "afd5f4aaf7da86e242c2b5cd46f9f85d8ea60dd8",
+    "parent_and_base": "347e61b84694986bf7fdc5adea0054326c05a213",
+    "path": "docs/reference/policy-design-case-failure-patterns.md",
+    "tree": "039ed105727f73e328942c4e40f01b08e7ac78c8"
+  }
+}

@@ -40,6 +40,7 @@ from .models import (
     MetricDirection,
     MutationArtifact,
     PromotionPolicy,
+    PydanticMutationCodec,
     SearchLoopSpec,
     default_store,
     load_json_artifact,
@@ -53,19 +54,6 @@ if TYPE_CHECKING:
     from .execution_work import MethodJobExecutionWorkPacket
 
 ModelT = TypeVar("ModelT", bound=MutationArtifact)
-
-
-class PydanticMutationCodec(Generic[ModelT]):
-    """Pydantic mutation codec public type."""
-
-    def __init__(self, model_cls: type[ModelT]) -> None:
-        self._model_cls = model_cls
-
-    def encode(self, payload: MutationArtifact) -> MutationArtifact:
-        return self._model_cls.model_validate(payload)
-
-    def decode(self, payload: dict[str, Any]) -> MutationArtifact:
-        return self._model_cls.model_validate(payload)
 
 
 def seed_loop_baseline(

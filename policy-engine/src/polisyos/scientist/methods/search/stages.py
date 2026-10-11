@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -14,56 +13,10 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.scientist.methods.search.stage_contracts import SearchStage, StageResult
 from polisyos.scientist.orchestration.workflows.engine_base import WorkflowEngine
 
 logger = get_logger(__name__)
-
-
-@dataclass
-class StageResult:
-    """Result from a search stage evaluation."""
-
-    policy_candidate: dict[str, Any]
-    objective_value: float
-    is_promising: bool
-
-    stage_name: str
-    duration_seconds: float = 0.0
-    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
-
-    simulation_results: dict[str, Any] = field(default_factory=dict)
-    feedback: dict[str, Any] = field(default_factory=dict)
-
-    predicted_score: float | None = None
-    actual_score: float | None = None
-
-
-class SearchStage(ABC):
-    """Abstract search stage for policy evaluation."""
-
-    @property
-    @abstractmethod
-    def stage_name(self) -> str:
-        """Unique identifier for this stage."""
-        ...
-
-    @abstractmethod
-    def evaluate(
-        self,
-        candidate: dict[str, Any],
-        context: dict[str, Any],
-    ) -> StageResult:
-        """
-        Evaluate a policy candidate.
-
-        Args:
-            candidate: Policy IR or policy-like dict
-            context: Additional context (user_request, etc.)
-
-        Returns:
-            StageResult with evaluation details
-        """
-        ...
 
 
 class CheapStage(SearchStage):

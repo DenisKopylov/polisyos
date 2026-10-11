@@ -16,16 +16,12 @@ from polisyos.common.logger import get_logger
 from polisyos.scientist.methods.search.contracts import (
     CandidateProposal,
     EvaluationBundle,
-    TellResult,
-)
-from polisyos.scientist.methods.search.controller import (
-    SearchController,
+    GenerationTransition,
     SearchResult,
     SearchStatus,
-)
-from polisyos.scientist.methods.search.run_state import (
-    GenerationTransition,
+    TellResult,
     _EvaluationDisposition,
+    _NativeSearchControllerPort,
 )
 
 logger = get_logger(__name__)
@@ -40,7 +36,7 @@ class _NativeSearchServiceDriver:
     consumer no longer calls the legacy full-loop implementation directly.
     """
 
-    def __init__(self, controller: SearchController) -> None:
+    def __init__(self, controller: _NativeSearchControllerPort) -> None:
         self.controller = controller
         self._pending_candidates: dict[str, dict[str, Any]] = {}
         self._completed_candidate_ids: set[str] = set()

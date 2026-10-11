@@ -8,7 +8,6 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from decimal import Decimal
-from enum import Enum
 from functools import wraps
 from math import isfinite
 from threading import Lock
@@ -18,7 +17,14 @@ from uuid import uuid4
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
-from polisyos.scientist.methods.search.contracts import ParetoViewProjection
+from polisyos.scientist.methods.search.contracts import (
+    ParetoViewProjection,
+    SearchIteration,
+    SearchResult,
+    SearchStatus,
+    _EvaluationDisposition,
+    _EvaluationTransition,
+)
 from polisyos.scientist.methods.search.frontier import (
     FrontierPoint,
     dominates,
@@ -26,11 +32,7 @@ from polisyos.scientist.methods.search.frontier import (
     update_legacy_pareto_front,
 )
 from polisyos.scientist.methods.search.objective import CompositeObjective, ObjectiveValue
-from polisyos.scientist.methods.search.run_state import (
-    SearchRunState,
-    _EvaluationDisposition,
-    _EvaluationTransition,
-)
+from polisyos.scientist.methods.search.run_state import SearchRunState
 from polisyos.scientist.methods.search.sentinels import extract_sentinel_metadata
 from polisyos.scientist.methods.search.stopping import StoppingCriterion
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
@@ -84,34 +86,6 @@ def _as_bool(raw: str | None, default: bool = False) -> bool:
     return raw.strip().lower() in {"1", "true", "yes", "on"}
 
 
-class SearchStatus(str, Enum):
-    """Track the lifecycle state of a legacy search loop run."""
-
-    NOT_STARTED = "not_started"
-    RUNNING = "running"
-    CONVERGED = "converged"
-    STOPPED = "stopped"
-    FAILED = "failed"
-
-
-@dataclass
-class SearchIteration:
-    """Record one ask/evaluate step and the evaluator feedback used for future proposals."""
-
-    iteration: int
-    candidate: dict[str, Any]
-    objective_value: float
-    objective_details: list[ObjectiveValue]
-    is_promising: bool
-    stage_a_passed: bool
-    stage_b_result: dict[str, Any] | None
-    duration_seconds: float
-    policy_evaluation: Any | None = None
-    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
-    policy_evaluation_status: str = "missing"
-    policy_evaluation_error: str | None = None
-
-
 @dataclass(frozen=True)
 class _PolicyEvaluationResolution:
     """Keep absent, valid, and invalid typed results distinct at the consumer."""
@@ -119,25 +93,6 @@ class _PolicyEvaluationResolution:
     value: Any | None
     status: str
     reason: str | None = None
-
-
-@dataclass
-class SearchResult:
-    """Return the final champion candidate, full history, and evaluation counters."""
-
-    search_id: str
-    status: SearchStatus
-    best_candidate: dict[str, Any] | None
-    best_objective: float
-    iterations_completed: int
-    history: list[SearchIteration]
-    stopping_reason: str | None
-    total_duration_seconds: float
-    stage_a_evaluations: int
-    stage_b_evaluations: int
-    pareto_front: list[dict[str, Any]] = field(default_factory=list)
-    telemetry: dict[str, Any] = field(default_factory=dict)
-    pareto_projection: ParetoViewProjection | None = None
 
 
 def _non_reentrant_run(

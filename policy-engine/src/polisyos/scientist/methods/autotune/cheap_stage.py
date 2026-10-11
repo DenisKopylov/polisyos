@@ -18,12 +18,13 @@ from .models import (
     MetricDirection,
     MutationArtifact,
     PromotionPolicy,
+    PydanticMutationCodec,
     SearchLoopSpec,
     default_cas_root,
     load_model_artifact,
 )
 from .registry import ChampionRegistry
-from .runtime import ChampionBackedRuntimeLoader, PydanticMutationCodec
+from .runtime import ChampionBackedRuntimeLoader
 
 CHEAP_STAGE_LOOP_ID = "cheap_stage"
 

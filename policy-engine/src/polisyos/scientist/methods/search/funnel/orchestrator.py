@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Callable, Iterable, Mapping
-from dataclasses import dataclass, field, replace
+from dataclasses import replace
 from decimal import Decimal
 from enum import Enum
 from typing import Any, Literal
@@ -15,16 +15,19 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.scientist.methods.search.funnel.types import (
+    DegradationMode,
     FunnelCostOrigin,
     FunnelEvaluationStatus,
     FunnelExecutedWorkPacket,
+    FunnelOutcome,
     FunnelStage,
     FunnelStageResult,
+    FunnelTicket,
+    FunnelTraceStep,
     FunnelWorkPacketStatus,
+    RoutingAction,
     TypedFailureCard,
     UncertaintyEnvelope,
-    _validate_funnel_cost,
-    _validate_funnel_work_packet,
 )
 from polisyos.scientist.methods.search.lessons import (
     LessonRegistry,
@@ -48,23 +51,6 @@ from polisyos.scientist.orchestration.engine.budget import BudgetState
 
 logger = get_logger(__name__)
 
-RoutingAction = Literal[
-    "advance",
-    "defer",
-    "reject",
-    "retry_cheaper",
-    "complete",
-    "defer_to_human",
-]
-DegradationMode = Literal[
-    "normal",
-    "conservative_routing",
-    "no_promotion",
-    "reduced_judge",
-    "freeze_frontier",
-    "prior_free",
-    "auto_cap",
-]
 AdvancePolicy = Literal["stage_a", "full", "burn_in"]
 _CONTINUABLE_ACTIONS = frozenset({"defer", "retry_cheaper"})
 _CACHE_VOLATILE_CONTEXT_KEYS = frozenset(
@@ -212,98 +198,6 @@ def _stable_context_identity(context: Mapping[str, Any]) -> dict[str, Any]:
         if projected is not _UNSERIALIZABLE_CACHE_VALUE:
             identity[key] = projected
     return identity
-
-
-@dataclass(slots=True)
-class FunnelTraceStep:
-    """Trace record for one stage execution."""
-
-    fidelity_level: int
-    stage_name: str
-    objective_value: float
-    is_promising: bool
-    duration_seconds: float
-    compute_cost_usd: float | None
-    compute_cost_origin: FunnelCostOrigin
-    executed_work_packet_ref: ArtifactRef | None = None
-    executed_work_packet_status: FunnelWorkPacketStatus = "unavailable"
-    routing_decision: str | None = None
-    voi_action: str | None = None
-    voi_priority: float | None = None
-    failure_count: int = 0
-    blocker_count: int = 0
-
-    def __post_init__(self) -> None:
-        _validate_funnel_cost(self.compute_cost_usd, self.compute_cost_origin)
-        _validate_funnel_work_packet(
-            self.executed_work_packet_ref,
-            self.executed_work_packet_status,
-        )
-
-
-@dataclass(slots=True)
-class FunnelTicket:
-    """Stateful handle for one candidate moving through the funnel."""
-
-    ticket_id: str
-    candidate_hash: str
-    candidate: dict[str, Any]
-    context: dict[str, Any]
-    submitted_via_cache: bool = False
-    stage_results: dict[int, FunnelStageResult] = field(default_factory=dict)
-    trace: list[FunnelTraceStep] = field(default_factory=list)
-    current_level: int | None = None
-    next_level: int | None = None
-    final_action: RoutingAction = "advance"
-    degradation_mode: DegradationMode = "normal"
-    is_terminal: bool = False
-    last_scheduling_decision: SchedulingDecision | None = None
-    lesson_refs: list[ArtifactRef] = field(default_factory=list)
-    correlation_recorded: bool = False
-    lessons_finalized: bool = False
-    cache_key: str = ""
-    parent_ticket_id: str | None = None
-    lineage: tuple[str, ...] = ()
-    continuation_reason: str | None = None
-    terminal_basis: str | None = None
-
-    @property
-    def last_result(self) -> FunnelStageResult | None:
-        if not self.stage_results:
-            return None
-        return self.stage_results[max(self.stage_results)]
-
-
-@dataclass(slots=True)
-class FunnelOutcome:
-    """Aggregated view of one ticket's funnel execution state."""
-
-    ticket_id: str
-    candidate_hash: str
-    trace: list[FunnelTraceStep]
-    stage_results: dict[int, FunnelStageResult]
-    final_result: FunnelStageResult | None
-    failure_cards: list[TypedFailureCard]
-    uncertainty_envelope: UncertaintyEnvelope
-    compute_cost_usd: float | None
-    compute_cost_origin: FunnelCostOrigin
-    degradation_mode: DegradationMode
-    final_action: RoutingAction
-    completed: bool
-    last_scheduling_decision: SchedulingDecision | None = None
-    lesson_refs: list[ArtifactRef] = field(default_factory=list)
-    audit_refs: list[ArtifactRef] = field(default_factory=list)
-    actionable_side_information_refs: list[ArtifactRef] = field(default_factory=list)
-    parent_ticket_id: str | None = None
-    lineage: tuple[str, ...] = ()
-    continuation_reason: str | None = None
-    evaluation_status: FunnelEvaluationStatus = "evaluated"
-    current_uncertainty_envelope: UncertaintyEnvelope | None = None
-    uncertainty_observation_refs: list[ArtifactRef] = field(default_factory=list)
-    uncertainty_intake_failures: list[str] = field(default_factory=list)
-
-    def __post_init__(self) -> None:
-        _validate_funnel_cost(self.compute_cost_usd, self.compute_cost_origin)
 
 
 def _aggregate_funnel_cost(

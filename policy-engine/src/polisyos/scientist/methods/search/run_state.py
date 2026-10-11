@@ -7,29 +7,12 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
-from polisyos.scientist.methods.search.contracts import ParetoViewProjection
-
-
-class GenerationTransition(str, Enum):
-    """Typed transitions emitted by the candidate-generation boundary."""
-
-    TRANSIENT_EMPTY = "transient_empty"
-    EXHAUSTED = "exhausted"
-
-
-class _EvaluationDisposition(str, Enum):
-    """Classify one evaluated candidate at the run-state boundary."""
-
-    ORDINARY = "ordinary"
-    SENTINEL = "sentinel"
-
-
-@dataclass(frozen=True)
-class _EvaluationTransition:
-    """Carry one internal candidate disposition and its detached history record."""
-
-    disposition: _EvaluationDisposition
-    record: Any
+from polisyos.scientist.methods.search.contracts import (
+    GenerationTransition,
+    ParetoViewProjection,
+    _EvaluationDisposition,
+    _EvaluationTransition,
+)
 
 
 @dataclass

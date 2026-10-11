@@ -2,8 +2,8 @@
 
 Eager exports cover objective/stage/stopping contracts and registries that are
 pure Python and safe to import in planners. Heavy or cyclic surfaces are
-lazy-loaded through `__getattr__`: ask/tell adapters, portfolio search helpers,
-promotion/readiness artifacts, and VOI schedulers.
+lazy-loaded through `__getattr__`: adversarial evaluation, controller/funnel adapters, burn-in and
+calibration reports, strategies, portfolio helpers, promotion/readiness artifacts, and VOI schedulers.
 """
 
 from __future__ import annotations
@@ -16,18 +16,6 @@ from polisyos.scientist.methods.search.actionable_side_information import (
     load_actionable_side_information,
     persist_actionable_side_information,
     resolve_actionable_store,
-)
-from polisyos.scientist.methods.search.adversarial import (
-    NegatedCompositeObjective,
-    PlatformAttackResult,
-    PlatformMetaEvaluationConfig,
-    PlatformMetaEvaluationInput,
-    PlatformMetaEvaluationReport,
-    PlatformMetaEvaluator,
-    VulnerabilityFound,
-    load_platform_meta_evaluation_report,
-    persist_platform_meta_evaluation_report,
-    run_stress_test,
 )
 from polisyos.scientist.methods.search.benchmark_registry import (
     BenchmarkRegistry,
@@ -75,7 +63,6 @@ from polisyos.scientist.methods.search.registry_contracts import (
     LessonRegistryContract,
     ParetoRegistryContract,
 )
-from polisyos.scientist.methods.search.sensitivity_adapter import SensitivityAwareCandidateGenerator
 from polisyos.scientist.methods.search.sentinels import (
     SENTINEL_METADATA_KEY,
     SentinelCandidate,
@@ -114,6 +101,46 @@ from polisyos.scientist.methods.search.transfer_context import (
     TransferContext,
     TransferPolicy,
 )
+
+_LAZY_EXPORT_MODULES: dict[str, str] = {
+    "NegatedCompositeObjective": "polisyos.scientist.methods.search.adversarial",
+    "PlatformAttackResult": "polisyos.scientist.methods.search.adversarial",
+    "PlatformMetaEvaluationConfig": "polisyos.scientist.methods.search.adversarial",
+    "PlatformMetaEvaluationInput": "polisyos.scientist.methods.search.adversarial",
+    "PlatformMetaEvaluationReport": "polisyos.scientist.methods.search.adversarial",
+    "PlatformMetaEvaluator": "polisyos.scientist.methods.search.adversarial",
+    "VulnerabilityFound": "polisyos.scientist.methods.search.adversarial",
+    "load_platform_meta_evaluation_report": "polisyos.scientist.methods.search.adversarial",
+    "persist_platform_meta_evaluation_report": "polisyos.scientist.methods.search.adversarial",
+    "run_stress_test": "polisyos.scientist.methods.search.adversarial",
+    "SensitivityAwareCandidateGenerator": "polisyos.scientist.methods.search.sensitivity_adapter",
+    "BurnInCohort": "polisyos.scientist.methods.search.cold_start",
+    "BurnInConfig": "polisyos.scientist.methods.search.cold_start",
+    "BurnInRunReport": "polisyos.scientist.methods.search.cold_start",
+    "build_default_burn_in_orchestrator": "polisyos.scientist.methods.search.cold_start",
+    "load_burn_in_report": "polisyos.scientist.methods.search.cold_start",
+    "persist_burn_in_report": "polisyos.scientist.methods.search.cold_start",
+    "run_burn_in": "polisyos.scientist.methods.search.cold_start",
+    "AcceptanceCriterionStatus": "polisyos.scientist.methods.search.calibration_report",
+    "FunnelCalibrationReport": "polisyos.scientist.methods.search.calibration_report",
+    "build_calibration_report": "polisyos.scientist.methods.search.calibration_report",
+    "load_funnel_calibration_report": "polisyos.scientist.methods.search.calibration_report",
+    "persist_funnel_calibration_report": "polisyos.scientist.methods.search.calibration_report",
+    "render_calibration_report": "polisyos.scientist.methods.search.calibration_report",
+    "AcquisitionType": "polisyos.scientist.methods.search.strategies",
+    "BaseSearchStrategy": "polisyos.scientist.methods.search.strategies",
+    "Evaluation": "polisyos.scientist.methods.search.strategies",
+    "EvaluationStatus": "polisyos.scientist.methods.search.strategies",
+    "GridSearchStrategy": "polisyos.scientist.methods.search.strategies",
+    "ParameterBounds": "polisyos.scientist.methods.search.strategies",
+    "ParameterType": "polisyos.scientist.methods.search.strategies",
+    "PolicyCandidate": "polisyos.scientist.methods.search.strategies",
+    "RandomSearchStrategy": "polisyos.scientist.methods.search.strategies",
+    "ScalarParameterCodec": "polisyos.scientist.methods.search.strategies",
+    "SearchSpace": "polisyos.scientist.methods.search.strategies",
+    "StrategyAdapter": "polisyos.scientist.methods.search.strategies",
+    "StrategyState": "polisyos.scientist.methods.search.strategies",
+}
 
 __all__ = [
     "SENTINEL_METADATA_KEY",
@@ -246,94 +273,16 @@ __all__ = [
     "scheduling_decision_to_voi_record",
 ]
 
-try:
-    from polisyos.scientist.methods.search.cold_start import (
-        BurnInCohort,
-        BurnInConfig,
-        BurnInRunReport,
-        build_default_burn_in_orchestrator,
-        load_burn_in_report,
-        persist_burn_in_report,
-        run_burn_in,
-    )
-
-    __all__.extend(
-        [
-            "BurnInCohort",
-            "BurnInConfig",
-            "BurnInRunReport",
-            "build_default_burn_in_orchestrator",
-            "load_burn_in_report",
-            "persist_burn_in_report",
-            "run_burn_in",
-        ]
-    )
-except Exception:  # pragma: no cover - import guard for package init cycles
-    pass
-
-try:
-    from polisyos.scientist.methods.search.calibration_report import (
-        AcceptanceCriterionStatus,
-        FunnelCalibrationReport,
-        build_calibration_report,
-        load_funnel_calibration_report,
-        persist_funnel_calibration_report,
-        render_calibration_report,
-    )
-
-    __all__.extend(
-        [
-            "AcceptanceCriterionStatus",
-            "FunnelCalibrationReport",
-            "build_calibration_report",
-            "load_funnel_calibration_report",
-            "persist_funnel_calibration_report",
-            "render_calibration_report",
-        ]
-    )
-except Exception:  # pragma: no cover - import guard for package init cycles
-    pass
-
-try:
-    from polisyos.scientist.methods.search.strategies import (
-        AcquisitionType,
-        BaseSearchStrategy,
-        Evaluation,
-        EvaluationStatus,
-        GridSearchStrategy,
-        ParameterBounds,
-        ParameterType,
-        PolicyCandidate,
-        RandomSearchStrategy,
-        ScalarParameterCodec,
-        SearchSpace,
-        StrategyAdapter,
-        StrategyState,
-    )
-
-    __all__.extend(
-        [
-            "AcquisitionType",
-            "BaseSearchStrategy",
-            "Evaluation",
-            "EvaluationStatus",
-            "GridSearchStrategy",
-            "ParameterBounds",
-            "ParameterType",
-            "PolicyCandidate",
-            "RandomSearchStrategy",
-            "ScalarParameterCodec",
-            "SearchSpace",
-            "StrategyAdapter",
-            "StrategyState",
-        ]
-    )
-except Exception:  # pragma: no cover - optional dependency path
-    pass
-
+__all__.extend(name for name in _LAZY_EXPORT_MODULES if name not in __all__)
 
 def __getattr__(name: str) -> Any:
     """Resolve heavy or cyclic search exports lazily from their owning modules."""
+    module_name = _LAZY_EXPORT_MODULES.get(name)
+    if module_name is not None:
+        module = importlib.import_module(module_name)
+        value = getattr(module, name)
+        globals()[name] = value
+        return value
     if name in {
         "CandidateProposal",
         "EvaluationBundle",

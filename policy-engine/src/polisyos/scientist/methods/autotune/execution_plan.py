@@ -34,12 +34,12 @@ from .models import (
     MetricDirection,
     MutationArtifact,
     PromotionPolicy,
+    PydanticMutationCodec,
     SearchLoopSpec,
     load_model_artifact,
     read_split_manifest,
 )
 from .registry import ChampionRegistry
-from .runtime import PydanticMutationCodec
 
 EXECUTION_PLAN_LOOP_ID = "execution_plan"
 

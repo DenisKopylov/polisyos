@@ -14,7 +14,7 @@ logic used by policy-design and promotion workflows.
 - Root facade and lazy exports: [`__init__.py`](__init__.py)
 - Legacy ask/evaluate controller: [`controller.py`](controller.py)
 - Native internal service bridge: [`service.py`](service.py)
-- Root contracts and evaluation primitives: [`contracts.py`](contracts.py), [`objective.py`](objective.py), [`stages.py`](stages.py), and [`stopping.py`](stopping.py)
+- Shared contract/type leaf and evaluation primitives: [`contracts.py`](contracts.py), [`objective.py`](objective.py), [`stages.py`](stages.py), and [`stopping.py`](stopping.py)
 - Promotion funnel and rollout logic: [`funnel/`](funnel/), [`readiness.py`](readiness.py), and [`promotion_evidence.py`](promotion_evidence.py)
 - Strategy implementations: [`strategies/`](strategies/)
 
@@ -26,6 +26,12 @@ logic used by policy-design and promotion workflows.
 - Registry and lesson surfaces in [`benchmark_registry.py`](benchmark_registry.py), [`lessons.py`](lessons.py), [`pareto_registry.py`](pareto_registry.py), and [`registry_contracts.py`](registry_contracts.py)
 - Rollout helpers in [`adversarial.py`](adversarial.py), [`latent_governance.py`](latent_governance.py), [`promotion_evidence.py`](promotion_evidence.py), and [`compliance_audit.py`](compliance_audit.py)
 - Search strategies in [`strategies/`](strategies/): random, grid, Bayesian, multi-objective, neural, and arbitration helpers
+
+
+The contracts module is the import-safe type leaf for search DTOs, run/result
+records, transitions, and the native controller port. Compatibility imports
+retain historical controller/run-state class identities; concrete adapters and
+funnel implementations are not statically imported by this leaf.
 
 ## Pareto Assessment Projection (B111)
 
@@ -79,7 +85,7 @@ uv run pytest tests/unit/scientist/search/test_controller_api.py tests/unit/scie
 
 ## Last Updated
 
-- Last updated: 2026-10-09
+- Last updated: 2026-10-11
 
 ## Configured uncertainty observation intake
 
@@ -106,3 +112,13 @@ eligible reported-cost history, then uses estimated history only with the explic
 `estimated_history_heuristic` basis, and otherwise uses configured stage cost as an
 estimate. These cost signals do not establish native evaluator work counts or
 scientific price calibration.
+
+
+## Import-safe contracts and funnel DTO ownership
+
+The canonical dotted import of `contracts.py` is kept free of the controller and funnel runtime.
+Adversarial exports on the package facade remain available through lazy lookup. The concrete
+`FunnelTicket`, `FunnelOutcome`, and `FunnelTraceStep` dataclasses are owned by `funnel/types.py`;
+`funnel/orchestrator.py` re-exports the same classes under their historical module path so existing
+imports and pickle resolution remain stable. The contracts use those concrete DTOs for their
+static service signatures instead of a reduced outcome view.

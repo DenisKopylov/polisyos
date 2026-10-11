@@ -9,7 +9,7 @@ dependencies or import-cycle-prone modules.
 from __future__ import annotations
 
 import importlib
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from .models import (
     BayesianSourceProfile,
@@ -70,7 +70,19 @@ __all__ = [
     "resolve_item_split",
 ]
 
-try:
+__all__.extend(
+    [
+        "ChampionBackedRuntimeLoader",
+        "MethodJobBenchmarkEvaluator",
+        "PydanticMutationCodec",
+        "SearchLoopRunner",
+        "SequenceCandidateGenerator",
+        "read_method_job_execution_work_packet",
+        "seed_loop_baseline",
+    ]
+)
+
+if TYPE_CHECKING:
     from .runtime import (
         ChampionBackedRuntimeLoader,
         MethodJobBenchmarkEvaluator,
@@ -80,20 +92,6 @@ try:
         read_method_job_execution_work_packet,
         seed_loop_baseline,
     )
-
-    __all__.extend(
-        [
-            "ChampionBackedRuntimeLoader",
-            "MethodJobBenchmarkEvaluator",
-            "PydanticMutationCodec",
-            "SearchLoopRunner",
-            "SequenceCandidateGenerator",
-            "read_method_job_execution_work_packet",
-            "seed_loop_baseline",
-        ]
-    )
-except Exception:  # pragma: no cover - optional import guard for package init cycles
-    pass
 
 _OPTIONAL_LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "MethodDispatchBinding": (

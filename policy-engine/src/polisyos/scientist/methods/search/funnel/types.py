@@ -6,7 +6,7 @@ from abc import abstractmethod
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from math import isfinite
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
@@ -17,15 +17,35 @@ from polisyos.scientist.methods.search.artifact_minimality import (
     ArtifactMinimalityMixin,
     artifact_functions_field,
 )
-from polisyos.scientist.methods.search.stages import SearchStage, StageResult
+from polisyos.scientist.methods.search.stage_contracts import SearchStage, StageResult
 from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope,
     UncertaintyEstimate,
 )
 
+if TYPE_CHECKING:
+    from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
+
 FunnelEvaluationStatus = Literal["not_evaluated", "partial", "evaluated"]
 FunnelCostOrigin = Literal["reported", "estimated", "unknown"]
 FunnelWorkPacketStatus = Literal["available", "unavailable", "rejected"]
+RoutingAction = Literal[
+    "advance",
+    "defer",
+    "reject",
+    "retry_cheaper",
+    "complete",
+    "defer_to_human",
+]
+DegradationMode = Literal[
+    "normal",
+    "conservative_routing",
+    "no_promotion",
+    "reduced_judge",
+    "freeze_frontier",
+    "prior_free",
+    "auto_cap",
+]
 
 
 def _validate_funnel_cost(amount: float | None, origin: FunnelCostOrigin) -> None:
@@ -321,6 +341,105 @@ def _validate_funnel_work_packet(
         raise ValueError("available executed-work status requires a packet reference")
     if status == "unavailable" and ref is not None:
         raise ValueError("unavailable executed-work status cannot carry a packet reference")
+
+
+@dataclass(slots=True)
+class FunnelTraceStep:
+    """Trace record for one stage execution."""
+
+    fidelity_level: int
+    stage_name: str
+    objective_value: float
+    is_promising: bool
+    duration_seconds: float
+    compute_cost_usd: float | None
+    compute_cost_origin: FunnelCostOrigin
+    executed_work_packet_ref: ArtifactRef | None = None
+    executed_work_packet_status: FunnelWorkPacketStatus = "unavailable"
+    routing_decision: str | None = None
+    voi_action: str | None = None
+    voi_priority: float | None = None
+    failure_count: int = 0
+    blocker_count: int = 0
+
+    def __post_init__(self) -> None:
+        _validate_funnel_cost(self.compute_cost_usd, self.compute_cost_origin)
+        _validate_funnel_work_packet(
+            self.executed_work_packet_ref,
+            self.executed_work_packet_status,
+        )
+
+
+@dataclass(slots=True)
+class FunnelTicket:
+    """Stateful handle for one candidate moving through the funnel."""
+
+    ticket_id: str
+    candidate_hash: str
+    candidate: dict[str, Any]
+    context: dict[str, Any]
+    submitted_via_cache: bool = False
+    stage_results: dict[int, FunnelStageResult] = field(default_factory=dict)
+    trace: list[FunnelTraceStep] = field(default_factory=list)
+    current_level: int | None = None
+    next_level: int | None = None
+    final_action: RoutingAction = "advance"
+    degradation_mode: DegradationMode = "normal"
+    is_terminal: bool = False
+    last_scheduling_decision: SchedulingDecision | None = None
+    lesson_refs: list[ArtifactRef] = field(default_factory=list)
+    correlation_recorded: bool = False
+    lessons_finalized: bool = False
+    cache_key: str = ""
+    parent_ticket_id: str | None = None
+    lineage: tuple[str, ...] = ()
+    continuation_reason: str | None = None
+    terminal_basis: str | None = None
+
+    @property
+    def last_result(self) -> FunnelStageResult | None:
+        if not self.stage_results:
+            return None
+        return self.stage_results[max(self.stage_results)]
+
+
+@dataclass(slots=True)
+class FunnelOutcome:
+    """Aggregated view of one ticket's funnel execution state."""
+
+    ticket_id: str
+    candidate_hash: str
+    trace: list[FunnelTraceStep]
+    stage_results: dict[int, FunnelStageResult]
+    final_result: FunnelStageResult | None
+    failure_cards: list[TypedFailureCard]
+    uncertainty_envelope: UncertaintyEnvelope
+    compute_cost_usd: float | None
+    compute_cost_origin: FunnelCostOrigin
+    degradation_mode: DegradationMode
+    final_action: RoutingAction
+    completed: bool
+    last_scheduling_decision: SchedulingDecision | None = None
+    lesson_refs: list[ArtifactRef] = field(default_factory=list)
+    audit_refs: list[ArtifactRef] = field(default_factory=list)
+    actionable_side_information_refs: list[ArtifactRef] = field(default_factory=list)
+    parent_ticket_id: str | None = None
+    lineage: tuple[str, ...] = ()
+    continuation_reason: str | None = None
+    evaluation_status: FunnelEvaluationStatus = "evaluated"
+    current_uncertainty_envelope: UncertaintyEnvelope | None = None
+    uncertainty_observation_refs: list[ArtifactRef] = field(default_factory=list)
+    uncertainty_intake_failures: list[str] = field(default_factory=list)
+
+    def __post_init__(self) -> None:
+        _validate_funnel_cost(self.compute_cost_usd, self.compute_cost_origin)
+
+
+# Keep import, repr, and pickle resolution at the historical owner module.
+_HISTORICAL_FUNNEL_MODULE = "polisyos.scientist.methods.search.funnel.orchestrator"
+FunnelTraceStep.__module__ = _HISTORICAL_FUNNEL_MODULE
+FunnelTicket.__module__ = _HISTORICAL_FUNNEL_MODULE
+FunnelOutcome.__module__ = _HISTORICAL_FUNNEL_MODULE
 
 
 class FunnelStage(SearchStage):

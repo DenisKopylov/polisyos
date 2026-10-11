@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar, Literal, Protocol, Self, TypeVar, cast
+from typing import TYPE_CHECKING, Any, ClassVar, Generic, Literal, Protocol, Self, TypeVar, cast
 
 from pydantic import (
     ConfigDict,
@@ -351,6 +351,27 @@ class MutationCodec(Protocol):
     def encode(self, payload: MutationArtifact) -> MutationArtifact: ...
 
     def decode(self, payload: dict[str, Any]) -> MutationArtifact: ...
+
+
+_MutationModelT = TypeVar("_MutationModelT", bound=MutationArtifact)
+
+
+class PydanticMutationCodec(Generic[_MutationModelT]):
+    """Pydantic mutation codec public type."""
+
+    def __init__(self, model_cls: type[_MutationModelT]) -> None:
+        self._model_cls = model_cls
+
+    def encode(self, payload: MutationArtifact) -> MutationArtifact:
+        return self._model_cls.model_validate(payload)
+
+    def decode(self, payload: dict[str, Any]) -> MutationArtifact:
+        return self._model_cls.model_validate(payload)
+
+
+PydanticMutationCodec.__module__ = (
+    "polisyos.scientist.methods.autotune.runtime"
+)
 
 
 class RuntimeLoader(Protocol):

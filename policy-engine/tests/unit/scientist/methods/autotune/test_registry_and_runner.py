@@ -759,3 +759,15 @@ def test_search_loop_runner_rejects_evaluator_from_foreign_suite(tmp_path) -> No
     assert stage_b_result is not None
     assert stage_b_result["feedback"]["promotion_decision"]["reason"] == "suite_mismatch"
     assert registry.get("dummy_loop") is None
+
+
+def test_pydantic_mutation_codec_keeps_runtime_identity_after_modeling() -> None:
+    from polisyos.scientist.methods.autotune.models import (
+        PydanticMutationCodec as ModelCodec,
+    )
+    from polisyos.scientist.methods.autotune.runtime import (
+        PydanticMutationCodec as RuntimeCodec,
+    )
+
+    assert RuntimeCodec is ModelCodec
+    assert RuntimeCodec.__module__ == "polisyos.scientist.methods.autotune.runtime"

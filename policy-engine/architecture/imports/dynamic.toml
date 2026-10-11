@@ -148,10 +148,10 @@ allowed_targets = []
 notes = "User/plugin supplied module name; call site is inventoried for review."
 
 [[pattern]]
-id = "dynamic-c3f82894d9fa"
+id = "dynamic-ff547b873f94"
 pattern = "google.cloud.storage"
 source_file = "src/polisyos/core/artifacts/backends/gcs_store.py"
-line = 82
+line = 85
 call = "importlib.import_module"
 owner = "team-architecture"
 target = "google.cloud.storage"
@@ -160,10 +160,10 @@ allowed_targets = []
 notes = "Dynamic pattern has no static in-repo target."
 
 [[pattern]]
-id = "dynamic-e97fb3c5d335"
+id = "dynamic-d2d5d43d1214"
 pattern = "boto3"
 source_file = "src/polisyos/core/artifacts/backends/s3_store.py"
-line = 87
+line = 90
 call = "importlib.import_module"
 owner = "team-architecture"
 target = "boto3"
@@ -292,10 +292,10 @@ allowed_targets = ["polisyos.scientist.replay.deterministic"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-39a981a4a254"
+id = "dynamic-edce2aa4f2fe"
 pattern = "polisyos.scientist.replay.backend"
 source_file = "src/polisyos/core/components/_cli_replay.py"
-line = 163
+line = 172
 call = "importlib.import_module"
 owner = "team-architecture"
 target = "polisyos.scientist.replay.backend"
@@ -304,10 +304,10 @@ allowed_targets = ["polisyos.scientist.replay.backend"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-8c3eae4b7ae8"
+id = "dynamic-36b00f710631"
 pattern = "polisyos.scientist.orchestration.engine.checkpoint"
 source_file = "src/polisyos/core/components/_cli_replay.py"
-line = 220
+line = 229
 call = "importlib.import_module"
 owner = "team-architecture"
 target = "polisyos.scientist.orchestration.engine.checkpoint"
@@ -412,10 +412,10 @@ allowed_targets = []
 notes = "Entry-point group is registered; no in-repo target is declared in pyproject."
 
 [[pattern]]
-id = "dynamic-676e14908c96"
+id = "dynamic-440885d5b9e4"
 pattern = "f'polisyos.core.contracts.{name}'"
 source_file = "src/polisyos/core/contracts/__init__.py"
-line = 1406
+line = 1410
 call = "importlib.import_module"
 owner = "team-architecture"
 target = "f'polisyos.core.contracts.{name}'"
@@ -424,10 +424,10 @@ allowed_targets = []
 notes = "Dynamic pattern has no static in-repo target."
 
 [[pattern]]
-id = "dynamic-f69d3138a8fd"
+id = "dynamic-dd04e9dfef77"
 pattern = "_LAZY_IMPORTS[name]"
 source_file = "src/polisyos/core/contracts/__init__.py"
-line = 1411
+line = 1415
 call = "importlib.import_module"
 owner = "team-architecture"
 target = "_LAZY_IMPORTS[name]"
@@ -2080,10 +2080,10 @@ allowed_targets = []
 notes = "User/plugin supplied module name; call site is inventoried for review."
 
 [[pattern]]
-id = "dynamic-eed7e7d45b5c"
+id = "dynamic-64c8acf428f2"
 pattern = "module_name"
 source_file = "src/polisyos/scientist/methods/autotune/__init__.py"
-line = 160
+line = 158
 call = "importlib.import_module"
 owner = "team-scientist"
 target = "module_name"
@@ -2128,10 +2128,22 @@ allowed_targets = []
 notes = "User/plugin supplied module name; call site is inventoried for review."
 
 [[pattern]]
-id = "dynamic-a2f851ad6e1f"
+id = "dynamic-9b7cb19bacb6"
+pattern = "module_name"
+source_file = "src/polisyos/scientist/methods/search/__init__.py"
+line = 282
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-3bc2d50e659b"
 pattern = "polisyos.scientist.methods.search.contracts"
 source_file = "src/polisyos/scientist/methods/search/__init__.py"
-line = 344
+line = 293
 call = "importlib.import_module"
 owner = "team-scientist"
 target = "polisyos.scientist.methods.search.contracts"
@@ -2140,10 +2152,10 @@ allowed_targets = ["polisyos.scientist.methods.search.contracts"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-b6864952cfd4"
+id = "dynamic-8b5b4148ce09"
 pattern = "polisyos.scientist.methods.search.portfolio"
 source_file = "src/polisyos/scientist/methods/search/__init__.py"
-line = 357
+line = 306
 call = "importlib.import_module"
 owner = "team-scientist"
 target = "polisyos.scientist.methods.search.portfolio"
@@ -2152,10 +2164,10 @@ allowed_targets = ["polisyos.scientist.methods.search.portfolio"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-bc2550a64c39"
+id = "dynamic-3c0ab4b9ae70"
 pattern = "module_name"
 source_file = "src/polisyos/scientist/methods/search/__init__.py"
-line = 379
+line = 328
 call = "importlib.import_module"
 owner = "team-scientist"
 target = "module_name"
@@ -2164,10 +2176,10 @@ allowed_targets = []
 notes = "User/plugin supplied module name; call site is inventoried for review."
 
 [[pattern]]
-id = "dynamic-9d5f2594eef0"
+id = "dynamic-7ab369351cc7"
 pattern = "module_name"
 source_file = "src/polisyos/scientist/methods/search/__init__.py"
-line = 409
+line = 358
 call = "importlib.import_module"
 owner = "team-scientist"
 target = "module_name"
@@ -2176,10 +2188,10 @@ allowed_targets = []
 notes = "User/plugin supplied module name; call site is inventoried for review."
 
 [[pattern]]
-id = "dynamic-ca8ae74c968d"
+id = "dynamic-66bb6ef121ce"
 pattern = "polisyos.scientist.methods.search.sbi_scheduler"
 source_file = "src/polisyos/scientist/methods/search/__init__.py"
-line = 425
+line = 374
 call = "importlib.import_module"
 owner = "team-scientist"
 target = "polisyos.scientist.methods.search.sbi_scheduler"
@@ -2188,10 +2200,10 @@ allowed_targets = ["polisyos.scientist.methods.search.sbi_scheduler"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-f25dfa2a8d3d"
+id = "dynamic-1d41fa09b4fd"
 pattern = "polisyos.scientist.methods.search.adapters"
 source_file = "src/polisyos/scientist/methods/search/contracts.py"
-line = 265
+line = 464
 call = "importlib.import_module"
 owner = "team-scientist"
 target = "polisyos.scientist.methods.search.adapters"
@@ -2212,10 +2224,10 @@ allowed_targets = []
 notes = "User/plugin supplied module name; call site is inventoried for review."
 
 [[pattern]]
-id = "dynamic-e2b57ebf361c"
+id = "dynamic-41b955d2d4e3"
 pattern = "polisyos.scientist.policy_design.objectives"
 source_file = "src/polisyos/scientist/nodes/builtins/decide/run_policy_translation.py"
-line = 268
+line = 273
 call = "__import__"
 owner = "team-scientist"
 target = "polisyos.scientist.policy_design.objectives"
@@ -2464,10 +2476,10 @@ allowed_targets = []
 notes = "User/plugin supplied module name; call site is inventoried for review."
 
 [[pattern]]
-id = "dynamic-4c1044ce8d7b"
+id = "dynamic-424def3df540"
 pattern = "mod"
 source_file = "tools/ops_runners/experiments/run_msme_deadline_suite.py"
-line = 1773
+line = 1777
 call = "__import__"
 owner = "team-devx"
 target = "mod"
@@ -2488,22 +2500,22 @@ allowed_targets = []
 notes = "Tooling dynamic import; inventoried but no decomposition target."
 
 [[pattern]]
-id = "dynamic-c4a260706ab1"
-pattern = "candidate"
+id = "dynamic-e06c95e79376"
+pattern = "module_name"
 source_file = "tools/ops_runners/experiments/run_msme_final_fresg_suite_v2.py"
-line = 1683
+line = 1679
 call = "__import__"
 owner = "team-devx"
-target = "candidate"
+target = "module_name"
 verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
 allowed_targets = []
-notes = "Tooling dynamic import; inventoried but no decomposition target."
+notes = "User/plugin supplied module name; call site is inventoried for review."
 
 [[pattern]]
-id = "dynamic-1832c56a797e"
+id = "dynamic-a535c98e6648"
 pattern = "module"
 source_file = "tools/ops_runners/experiments/run_msme_grand_tournament_v2.py"
-line = 1835
+line = 1834
 call = "__import__"
 owner = "team-devx"
 target = "module"

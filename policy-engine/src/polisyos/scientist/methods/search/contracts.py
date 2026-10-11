@@ -10,21 +10,21 @@ safe for planners and import-boundary checks.
 from __future__ import annotations
 
 import importlib
+from collections.abc import Sequence
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from enum import Enum
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 if TYPE_CHECKING:
-    from polisyos.scientist.methods.search.adapters import (
-        LegacySearchServiceAdapter as LegacySearchServiceAdapter,
-    )
-    from polisyos.scientist.methods.search.adapters import (
-        OrchestratorFunnelService as OrchestratorFunnelService,
-    )
-    from polisyos.scientist.methods.search.funnel.orchestrator import (
-        FunnelOutcome,
-        FunnelTicket,
-    )
+    from polisyos.scientist.methods.search.funnel.types import FunnelOutcome, FunnelTicket
+    from polisyos.scientist.methods.search.objective import ObjectiveValue
+
+    # Runtime aliases resolve through __getattr__; avoid importing concrete adapters.
+    LegacySearchServiceAdapter: type[Any]
+    OrchestratorFunnelService: type[Any]
 
 
 class CandidateProposal(BaseModel):
@@ -254,8 +254,201 @@ class FunnelService(Protocol):
         context: dict[str, Any] | None = None,
     ) -> FunnelTicket: ...
 
-    def get_result(self, ticket: FunnelTicket | str) -> FunnelOutcome: ...
+    def get_result(
+        self, ticket: FunnelTicket | str
+    ) -> FunnelOutcome: ...
 
+
+class SearchStatus(str, Enum):
+    """Track the lifecycle state of a legacy search loop run."""
+
+    NOT_STARTED = "not_started"
+    RUNNING = "running"
+    CONVERGED = "converged"
+    STOPPED = "stopped"
+    FAILED = "failed"
+
+
+@dataclass
+class SearchIteration:
+    """Record one ask/evaluate step and the evaluator feedback for later proposals."""
+
+    iteration: int
+    candidate: dict[str, Any]
+    objective_value: float
+    objective_details: list[ObjectiveValue]
+    is_promising: bool
+    stage_a_passed: bool
+    stage_b_result: dict[str, Any] | None
+    duration_seconds: float
+    policy_evaluation: Any | None = None
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+    policy_evaluation_status: str = "missing"
+    policy_evaluation_error: str | None = None
+
+
+@dataclass
+class SearchResult:
+    """Return the final champion candidate, history, and evaluation counters."""
+
+    search_id: str
+    status: SearchStatus
+    best_candidate: dict[str, Any] | None
+    best_objective: float
+    iterations_completed: int
+    history: list[SearchIteration]
+    stopping_reason: str | None
+    total_duration_seconds: float
+    stage_a_evaluations: int
+    stage_b_evaluations: int
+    pareto_front: list[dict[str, Any]] = field(default_factory=list)
+    telemetry: dict[str, Any] = field(default_factory=dict)
+    pareto_projection: ParetoViewProjection | None = None
+
+
+class GenerationTransition(str, Enum):
+    """Typed transitions emitted by the candidate-generation boundary."""
+
+    TRANSIENT_EMPTY = "transient_empty"
+    EXHAUSTED = "exhausted"
+
+
+class _EvaluationDisposition(str, Enum):
+    """Classify one evaluated candidate at the run-state boundary."""
+
+    ORDINARY = "ordinary"
+    SENTINEL = "sentinel"
+
+
+@dataclass(frozen=True)
+class _EvaluationTransition:
+    """Carry one candidate disposition and its detached history record."""
+
+    disposition: _EvaluationDisposition
+    record: SearchIteration
+
+
+class _NativeSearchRunStatePort(Protocol):
+    """Expose only the run-state fields used by the native driver."""
+
+    evaluation_iterations: int
+    generation_attempts: int
+    empty_generation_attempts: int
+    generation_transition: GenerationTransition | None
+
+    def apply_evaluation_transition(self, transition: _EvaluationTransition) -> None: ...
+
+
+class _StoppingCheckView(Protocol):
+    """Expose the stop decision fields consumed by the native search driver."""
+
+    @property
+    def should_stop(self) -> bool: ...
+
+    @property
+    def reason(self) -> str | None: ...
+
+
+class _StoppingCriterionPort(Protocol):
+    """Describe the configured stop check without importing its implementation."""
+
+    def check(
+        self, history: list[dict[str, Any]], state: dict[str, Any]
+    ) -> _StoppingCheckView: ...
+
+
+class _NativeSearchConfigPort(Protocol):
+    """Expose only configuration consumed by the native search service."""
+
+    @property
+    def max_iterations_hard_limit(self) -> int: ...
+
+    @property
+    def max_empty_generation_attempts(self) -> int: ...
+
+    @property
+    def stopping(self) -> _StoppingCriterionPort: ...
+
+
+class _NonReentrantLockPort(Protocol):
+    """Expose the nonblocking acquisition and release used for one run."""
+
+    def acquire(self, blocking: bool = True) -> bool: ...
+
+    def release(self) -> None: ...
+
+
+class _NativeSearchControllerPort(Protocol):
+    """Describe controller-owned operations consumed by the native service driver."""
+
+    @property
+    def _config(self) -> _NativeSearchConfigPort: ...
+
+    @property
+    def _history(self) -> Sequence[SearchIteration]: ...
+
+    @property
+    def _run_lock(self) -> _NonReentrantLockPort: ...
+
+    @property
+    def _run_state(self) -> _NativeSearchRunStatePort: ...
+
+    _status: SearchStatus
+
+    def _prepare_service_run(self) -> None: ...
+
+    def _generate_candidates(
+        self,
+        *,
+        iteration: int,
+        initial_candidate: dict[str, Any] | None,
+        context: dict[str, Any],
+    ) -> list[dict[str, Any]]: ...
+
+    def _accept_tell(
+        self,
+        *,
+        candidate: dict[str, Any],
+        objective_value: float,
+        objective_details: list[Any],
+        is_promising: bool,
+        stage_a_passed: bool,
+        stage_b_result: dict[str, Any],
+        duration_seconds: float,
+    ) -> SearchIteration: ...
+
+    def _service_tell_snapshot(self) -> dict[str, Any]: ...
+
+    def _begin_native_run(self, initial_context: dict[str, Any]) -> datetime: ...
+
+    def _finish_native_run(
+        self,
+        *,
+        start_time: datetime,
+        stopping_reason: str | None,
+    ) -> SearchResult: ...
+
+    def _refresh_budget_snapshot(self, context: dict[str, Any]) -> None: ...
+
+    def _stopping_state(self) -> dict[str, Any]: ...
+
+    def _to_history_dict(self, iteration: SearchIteration) -> dict[str, Any]: ...
+
+    def _evaluate_candidate(
+        self,
+        candidate: dict[str, Any],
+        iteration: int,
+        context: dict[str, Any],
+    ) -> _EvaluationTransition: ...
+
+
+# Preserve the historic lookup paths for serialized search records.
+SearchStatus.__module__ = "polisyos.scientist.methods.search.controller"
+SearchIteration.__module__ = "polisyos.scientist.methods.search.controller"
+SearchResult.__module__ = "polisyos.scientist.methods.search.controller"
+GenerationTransition.__module__ = "polisyos.scientist.methods.search.run_state"
+_EvaluationDisposition.__module__ = "polisyos.scientist.methods.search.run_state"
+_EvaluationTransition.__module__ = "polisyos.scientist.methods.search.run_state"
 
 _LAZY_ADAPTER_EXPORTS = frozenset(
     {

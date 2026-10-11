@@ -76,46 +76,118 @@ def _build_adapter(
 
 
 def test_contracts_import_without_runtime_controller_or_funnel() -> None:
-    """Importing DTOs must not load either concrete runtime implementation."""
-    contracts_path = (
-        Path(__file__).resolve().parents[3]
-        / "src"
-        / "polisyos"
-        / "scientist"
-        / "methods"
-        / "search"
-        / "contracts.py"
-    )
+    """Canonical imports keep runtime code deferred until the facade is used."""
+    source_root = Path(__file__).resolve().parents[3] / "src"
     script = """
-import importlib.util
+import importlib
 import sys
-from pathlib import Path
+import traceback
 
+blocked = {
+    'polisyos.scientist.methods.search.controller',
+    'polisyos.scientist.methods.search.funnel.orchestrator',
+}
 class _Trap:
+    def __init__(self):
+        self.attempts = []
     def find_spec(self, fullname, path=None, target=None):
-        if fullname in {
-            'polisyos.scientist.methods.search.controller',
-            'polisyos.scientist.methods.search.funnel.orchestrator',
-        }:
+        if fullname in blocked:
+            self.attempts.append({'fullname': fullname, 'stack': traceback.format_stack()})
             raise AssertionError(f'eager runtime import: {fullname}')
         return None
 
-sys.meta_path.insert(0, _Trap())
-contracts_path = Path(__CONTRACTS_PATH__)
-spec = importlib.util.spec_from_file_location('_contracts_probe', contracts_path)
-module = importlib.util.module_from_spec(spec)
-assert spec is not None and spec.loader is not None
-spec.loader.exec_module(module)
-CandidateProposal = module.CandidateProposal
-SearchService = module.SearchService
-
-assert CandidateProposal.__name__ == 'CandidateProposal'
-assert SearchService.__name__ == 'SearchService'
-assert 'polisyos.scientist.methods.search.controller' not in sys.modules
-assert 'polisyos.scientist.methods.search.funnel.orchestrator' not in sys.modules
+trap = _Trap()
+sys.meta_path.insert(0, trap)
+contracts = importlib.import_module('polisyos.scientist.methods.search.contracts')
+search = importlib.import_module('polisyos.scientist.methods.search')
+autotune = importlib.import_module('polisyos.scientist.methods.autotune')
+runtime_module = 'polisyos.scientist.methods.autotune.runtime'
+assert runtime_module not in sys.modules
+assert contracts.CandidateProposal.__name__ == 'CandidateProposal'
+assert contracts.SearchService.__name__ == 'SearchService'
+lazy_exports = {
+    'polisyos.scientist.methods.search.adversarial': (
+        'NegatedCompositeObjective', 'PlatformAttackResult', 'PlatformMetaEvaluationConfig',
+        'PlatformMetaEvaluationInput', 'PlatformMetaEvaluationReport', 'PlatformMetaEvaluator',
+        'VulnerabilityFound', 'load_platform_meta_evaluation_report',
+        'persist_platform_meta_evaluation_report', 'run_stress_test',
+    ),
+    'polisyos.scientist.methods.search.sensitivity_adapter': (
+        'SensitivityAwareCandidateGenerator',
+    ),
+    'polisyos.scientist.methods.search.cold_start': (
+        'BurnInCohort', 'BurnInConfig', 'BurnInRunReport', 'build_default_burn_in_orchestrator',
+        'load_burn_in_report', 'persist_burn_in_report', 'run_burn_in',
+    ),
+    'polisyos.scientist.methods.search.calibration_report': (
+        'AcceptanceCriterionStatus', 'FunnelCalibrationReport', 'build_calibration_report',
+        'load_funnel_calibration_report', 'persist_funnel_calibration_report',
+        'render_calibration_report',
+    ),
+    'polisyos.scientist.methods.search.strategies': (
+        'AcquisitionType', 'BaseSearchStrategy', 'Evaluation', 'EvaluationStatus',
+        'GridSearchStrategy', 'ParameterBounds', 'ParameterType', 'PolicyCandidate',
+        'RandomSearchStrategy', 'ScalarParameterCodec', 'SearchSpace', 'StrategyAdapter',
+        'StrategyState',
+    ),
+}
+assert trap.attempts == []
+assert not (blocked & set(sys.modules))
+for owner, names in lazy_exports.items():
+    assert owner not in sys.modules
+    assert all(name in search.__all__ for name in names)
+sys.meta_path.remove(trap)
+runtime = importlib.import_module(runtime_module)
+runtime_exports = (
+    'ChampionBackedRuntimeLoader', 'MethodJobBenchmarkEvaluator',
+    'PydanticMutationCodec', 'SearchLoopRunner', 'SequenceCandidateGenerator',
+    'read_method_job_execution_work_packet', 'seed_loop_baseline',
+)
+assert all(name in autotune.__all__ for name in runtime_exports)
+assert all(getattr(autotune, name) is getattr(runtime, name) for name in runtime_exports)
+for owner, names in lazy_exports.items():
+    module = importlib.import_module(owner)
+    for name in names:
+        assert getattr(search, name) is getattr(module, name)
 """
-    script = script.replace("__CONTRACTS_PATH__", repr(str(contracts_path)))
     env = dict(os.environ)
+    env["PYTHONPATH"] = os.pathsep.join(
+        value for value in (str(source_root), env.get("PYTHONPATH", "")) if value
+    )
+    completed = subprocess.run(
+        [sys.executable, "-c", script],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+    assert completed.returncode == 0, completed.stderr or completed.stdout
+
+
+def test_autotune_runtime_export_is_loaded_on_cold_first_use() -> None:
+    """Resolve a runtime facade export only on its first access in a fresh process."""
+    source_root = Path(__file__).resolve().parents[3] / "src"
+    script = """
+import importlib
+import sys
+
+facade_name = 'polisyos.scientist.methods.autotune'
+runtime_name = facade_name + '.runtime'
+export_name = 'ChampionBackedRuntimeLoader'
+facade = importlib.import_module(facade_name)
+assert runtime_name not in sys.modules
+assert export_name in facade.__all__
+assert export_name not in facade.__dict__
+resolved = getattr(facade, export_name)
+assert runtime_name in sys.modules
+runtime = sys.modules[runtime_name]
+assert resolved is runtime.ChampionBackedRuntimeLoader
+assert facade.__dict__[export_name] is resolved
+"""
+    env = dict(os.environ)
+    env["PYTHONPATH"] = os.pathsep.join(
+        value for value in (str(source_root), env.get("PYTHONPATH", "")) if value
+    )
     completed = subprocess.run(
         [sys.executable, "-c", script],
         check=False,

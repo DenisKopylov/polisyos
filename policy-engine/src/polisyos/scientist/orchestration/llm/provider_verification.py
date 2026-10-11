@@ -9,7 +9,9 @@ import os
 import re
 import time
 from collections.abc import Mapping
+from contextlib import nullcontext
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
 from urllib.error import HTTPError
@@ -19,9 +21,19 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.common.logger import get_logger
+from polisyos.core.llm.settlement import LLMProducerEvent
+from polisyos.core.llm.traced_client import TracedLLMClient
 from polisyos.scholar.search.service import ScholarDeepSearchService
+from polisyos.scientist.orchestration.engine.budget_ledger import (
+    BudgetLedgerProducerRecord,
+    BudgetLedgerProducerRunBinding,
+)
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
+from polisyos.scientist.orchestration.llm.prompt_cache import (
+    CachingLLMClient,
+    InMemoryPromptCache,
+)
 
 logger = get_logger(__name__)
 
@@ -213,7 +225,436 @@ def _redact_preflight_report_urls(value: Any, *, field_name: str | None = None) 
     return value
 
 
-_PREFLIGHT_CACHE: dict[tuple[str, tuple[str, ...], str], tuple[float, ProviderPreflightReport]] = {}
+def _is_preflight_digest(value: Any) -> bool:
+    return (
+        isinstance(value, str)
+        and len(value) == 64
+        and all(character in "0123456789abcdef" for character in value)
+    )
+
+
+def _preflight_event_from_reference(reference: Mapping[str, Any]) -> LLMProducerEvent | None:
+    """Rebuild a typed producer payload before trusting a retained cache reference."""
+    required = {
+        "amount",
+        "budget_key",
+        "cache_scope_digest",
+        "cost_origin",
+        "cost_usd",
+        "durability",
+        "event_id",
+        "event_kind",
+        "model",
+        "origin_event_id",
+        "origin_event_reference",
+        "payload_digest",
+        "producer_scope_digest",
+        "provider",
+        "receipts",
+        "request_digest",
+        "response_digest",
+        "run_binding",
+        "settlement_status",
+        "version",
+    }
+    if set(reference) != required or reference.get("version") != 1:
+        return None
+    amount_wire = reference.get("amount")
+    if amount_wire is None:
+        amount = None
+    elif isinstance(amount_wire, str):
+        try:
+            amount = Decimal(amount_wire)
+        except (InvalidOperation, ValueError):
+            return None
+        if not amount.is_finite() or str(amount) != amount_wire:
+            return None
+    else:
+        return None
+    try:
+        event = LLMProducerEvent(
+            event_id=reference["event_id"],
+            request_digest=reference["request_digest"],
+            response_digest=reference["response_digest"],
+            model=reference["model"],
+            provider=reference["provider"],
+            amount=amount,
+            cost_origin=reference["cost_origin"],
+            kind=reference["event_kind"],
+            origin_event_id=reference["origin_event_id"],
+        )
+    except (TypeError, ValueError):
+        return None
+    expected_cost_usd = float(amount) if amount is not None else None
+    if (
+        event.payload_digest != reference.get("payload_digest")
+        or reference.get("cost_usd") != expected_cost_usd
+    ):
+        return None
+    return event
+
+
+def _preflight_record_matches_event(
+    record: Any,
+    event: LLMProducerEvent,
+    *,
+    settlement_status: Any,
+    run_binding: BudgetLedgerProducerRunBinding,
+    budget_key: str,
+) -> bool:
+    if type(record) is not BudgetLedgerProducerRecord:
+        return False
+    if event.kind == "provider" and (
+        event.cost_origin == "reuse" or event.origin_event_id is not None
+    ):
+        return False
+    if event.kind == "reuse" and (
+        event.cost_origin != "reuse"
+        or event.amount != Decimal(0)
+        or not isinstance(event.origin_event_id, str)
+        or not event.origin_event_id.strip()
+        or settlement_status != "committed"
+    ):
+        return False
+    if event.kind == "provider" and (
+        event.cost_origin not in {"reported", "estimated", "unknown"}
+        or (event.amount is None) != (event.cost_origin == "unknown")
+    ):
+        return False
+    if settlement_status not in {"committed", "unknown"}:
+        return False
+    if (settlement_status == "committed") != (event.amount is not None):
+        return False
+    return (
+        record.event_id == event.event_id
+        and record.request_digest == event.request_digest
+        and record.payload_digest == event.payload_digest
+        and record.key == budget_key
+        and record.model == event.model
+        and record.provider == event.provider
+        and record.amount == event.amount
+        and record.cost_origin == event.cost_origin
+        and record.origin_event_id == event.origin_event_id
+        and record.status == settlement_status
+        and record.run_binding == run_binding
+    )
+
+
+def _preflight_event_reference_is_current(
+    reference: Mapping[str, Any],
+    *,
+    producer_settlement_store: Any,
+    expected_model: str,
+    expected_provider: str,
+    expected_budget_key: str,
+    expected_run_binding: BudgetLedgerProducerRunBinding,
+    expected_producer_scope_digest: str,
+    expected_cache_scope_digest: str,
+    expected_request_digest: str | None,
+    required_event_kind: str | None = None,
+) -> bool:
+    """Resolve exact current ledger bytes before a preflight cache can authorize reuse."""
+    if (
+        reference.get("model") != expected_model
+        or reference.get("provider") != expected_provider
+        or reference.get("budget_key") != expected_budget_key
+        or reference.get("run_binding") != expected_run_binding.model_dump(mode="json")
+        or reference.get("producer_scope_digest") != expected_producer_scope_digest
+        or reference.get("cache_scope_digest") != expected_cache_scope_digest
+        or reference.get("durability") != "ledger"
+        or reference.get("settlement_status") not in {"committed", "unknown"}
+        or not isinstance(reference.get("receipts"), list)
+        or any(not isinstance(item, str) for item in reference.get("receipts", []))
+        or not _is_preflight_digest(reference.get("request_digest"))
+        or not _is_preflight_digest(reference.get("payload_digest"))
+        or not _is_preflight_digest(reference.get("response_digest"))
+        or (
+            expected_request_digest is not None
+            and reference.get("request_digest") != expected_request_digest
+        )
+    ):
+        return False
+    event = _preflight_event_from_reference(reference)
+    if event is None or event.model != expected_model or event.provider != expected_provider:
+        return False
+    if required_event_kind is not None and event.kind != required_event_kind:
+        return False
+    if not _preflight_record_matches_event(
+        producer_settlement_store.resolve_producer_event_safe(event.event_id),
+        event,
+        settlement_status=reference.get("settlement_status"),
+        run_binding=expected_run_binding,
+        budget_key=expected_budget_key,
+    ):
+        return False
+    expected_receipts = [event.event_id] if reference["settlement_status"] == "committed" else []
+    if reference.get("receipts") != expected_receipts:
+        return False
+    origin_reference = reference.get("origin_event_reference")
+    if event.kind == "provider":
+        return origin_reference is None
+    if not isinstance(origin_reference, Mapping):
+        return False
+    origin = _preflight_event_from_reference(origin_reference)
+    return (
+        origin is not None
+        and origin.kind == "provider"
+        and origin.event_id == event.origin_event_id
+        and origin.request_digest == event.request_digest
+        and origin.model == event.model
+        and origin.provider == event.provider
+        and origin_reference.get("run_binding") == reference.get("run_binding")
+        and origin_reference.get("budget_key") == reference.get("budget_key")
+        and _preflight_event_reference_is_current(
+            origin_reference,
+            producer_settlement_store=producer_settlement_store,
+            expected_model=expected_model,
+            expected_provider=expected_provider,
+            expected_budget_key=expected_budget_key,
+            expected_run_binding=expected_run_binding,
+            expected_producer_scope_digest=expected_producer_scope_digest,
+            expected_cache_scope_digest=expected_cache_scope_digest,
+            expected_request_digest=expected_request_digest,
+            required_event_kind="provider",
+        )
+    )
+
+
+def _preflight_producer_event_reference(
+    event: Mapping[str, Any],
+    *,
+    expected_model: str,
+    expected_provider: str,
+    expected_budget_key: str,
+    expected_run_binding: BudgetLedgerProducerRunBinding,
+    expected_producer_scope_digest: str,
+    expected_cache_scope_digest: str,
+    expected_request_digest: str | None,
+    producer_settlement_store: Any,
+    origin_event_reference: Mapping[str, Any] | None = None,
+) -> dict[str, Any] | None:
+    """Project one observed typed event only after resolving its exact durable ledger record."""
+    producer_event = event.get("producer_event")
+    if type(producer_event) is not LLMProducerEvent:
+        return None
+    if (
+        event.get("event_id") != producer_event.event_id
+        or event.get("producer_payload_digest") != producer_event.payload_digest
+        or event.get("amount") != producer_event.amount
+        or event.get("model") != expected_model
+        or event.get("provider") != expected_provider
+        or event.get("cost_origin") != producer_event.cost_origin
+        or event.get("cost_usd")
+        != (float(producer_event.amount) if producer_event.amount is not None else None)
+        or event.get("origin_event_id") != producer_event.origin_event_id
+        or event.get("durability") != "ledger"
+    ):
+        return None
+    status = event.get("settlement_status")
+    receipts = event.get("receipts")
+    if not isinstance(receipts, (list, tuple)) or any(
+        not isinstance(item, str) for item in receipts
+    ):
+        return None
+    source_reference = None
+    if producer_event.kind == "reuse":
+        if not isinstance(origin_event_reference, Mapping):
+            return None
+        source_event = _preflight_event_from_reference(origin_event_reference)
+        if (
+            source_event is None
+            or source_event.kind != "provider"
+            or source_event.event_id != producer_event.origin_event_id
+        ):
+            return None
+        source_reference = dict(origin_event_reference)
+    reference = {
+        "amount": str(producer_event.amount) if producer_event.amount is not None else None,
+        "budget_key": expected_budget_key,
+        "cache_scope_digest": expected_cache_scope_digest,
+        "cost_origin": producer_event.cost_origin,
+        "cost_usd": float(producer_event.amount) if producer_event.amount is not None else None,
+        "durability": event.get("durability"),
+        "event_id": producer_event.event_id,
+        "event_kind": producer_event.kind,
+        "model": producer_event.model,
+        "origin_event_id": producer_event.origin_event_id,
+        "origin_event_reference": source_reference,
+        "payload_digest": producer_event.payload_digest,
+        "producer_scope_digest": expected_producer_scope_digest,
+        "provider": producer_event.provider,
+        "receipts": list(receipts),
+        "request_digest": producer_event.request_digest,
+        "response_digest": producer_event.response_digest,
+        "run_binding": expected_run_binding.model_dump(mode="json"),
+        "settlement_status": status,
+        "version": 1,
+    }
+    try:
+        current = _preflight_event_reference_is_current(
+            reference,
+            producer_settlement_store=producer_settlement_store,
+            expected_model=expected_model,
+            expected_provider=expected_provider,
+            expected_budget_key=expected_budget_key,
+            expected_run_binding=expected_run_binding,
+            expected_producer_scope_digest=expected_producer_scope_digest,
+            expected_cache_scope_digest=expected_cache_scope_digest,
+            expected_request_digest=expected_request_digest,
+        )
+    except Exception:
+        current = False
+    if not current:
+        return None
+    return reference
+
+
+_PREFLIGHT_CACHE: dict[
+    tuple[str, tuple[str, ...], str, str | None], tuple[float, ProviderPreflightReport]
+] = {}
+_PREFLIGHT_COMPLETION_CACHE: dict[
+    tuple[str, tuple[str, ...], str, str | None], tuple[CachingLLMClient, dict[str, Any]]
+] = {}
+
+
+def _preflight_completion_request_kwargs() -> dict[str, Any]:
+    return {
+        "system": "Return compact JSON only.",
+        "user": 'Return {"status":"ok"} now.',
+        "response_format": {"type": "json_object"},
+        "max_tokens": 32,
+        "temperature": 0.0,
+    }
+
+
+def _preflight_prompt_cache_settings(ttl_s: int) -> tuple[int, float] | None:
+    """Mirror the existing gateway cache environment with a bounded preflight lifetime."""
+    try:
+        configured_ttl = float(os.getenv("POLISYOS_LLM_CACHE_TTL_S", "300").strip())
+    except (TypeError, ValueError):
+        configured_ttl = 300.0
+    try:
+        configured_size = int(os.getenv("POLISYOS_LLM_CACHE_MAXSIZE", "128").strip())
+    except (TypeError, ValueError):
+        configured_size = 128
+    if configured_size <= 0 or not (configured_ttl > 0):
+        return None
+    effective_ttl = min(max(float(ttl_s), 0.0), configured_ttl)
+    return (min(configured_size, 128), effective_ttl) if effective_ttl > 0 else None
+
+
+class _PreflightGatewayClientAdapter:
+    """Create and close the existing gateway client only when a prompt-cache miss occurs."""
+
+    def __init__(
+        self,
+        *,
+        client_factory: Any,
+        base_url: str,
+        api_key: str,
+        model: str,
+        provider: str,
+        timeout_s: float,
+    ) -> None:
+        self._client_factory = client_factory
+        self._base_url = base_url
+        self._api_key = api_key
+        self.model = model
+        self.provider = provider
+        self.timeout_s = timeout_s
+
+    async def generate(self, *args: Any, **kwargs: Any) -> Any:
+        client = self._client_factory(
+            base_url=self._base_url,
+            api_key=self._api_key,
+            model=self.model,
+            provider_hint=self.provider,
+            max_retries=0,
+            timeout_s=self.timeout_s,
+        )
+        try:
+            return await client.generate(*args, **kwargs)
+        finally:
+            await client.aclose()
+
+
+def _new_preflight_cached_client(
+    *,
+    client_factory: Any,
+    base_url: str,
+    api_key: str,
+    model: str,
+    provider: str,
+    timeout_s: float,
+    cache_settings: tuple[int, float],
+) -> CachingLLMClient:
+    maxsize, cache_ttl = cache_settings
+    adapter = _PreflightGatewayClientAdapter(
+        client_factory=client_factory,
+        base_url=base_url,
+        api_key=api_key,
+        model=model,
+        provider=provider,
+        timeout_s=timeout_s,
+    )
+    return CachingLLMClient(
+        adapter,
+        cache=InMemoryPromptCache(maxsize=maxsize, default_ttl_s=cache_ttl),
+        model=model,
+        ttl_s=cache_ttl,
+        inflight_timeout_s=timeout_s,
+    )
+
+
+def _store_preflight_cached_client(
+    cache_key: tuple[str, tuple[str, ...], str, str | None],
+    client: CachingLLMClient,
+    producer_event_reference: dict[str, Any],
+    *,
+    max_entries: int,
+) -> None:
+    _PREFLIGHT_COMPLETION_CACHE.pop(cache_key, None)
+    _PREFLIGHT_COMPLETION_CACHE[cache_key] = (
+        client,
+        json.loads(json.dumps(producer_event_reference)),
+    )
+    while len(_PREFLIGHT_COMPLETION_CACHE) > max_entries:
+        del _PREFLIGHT_COMPLETION_CACHE[next(iter(_PREFLIGHT_COMPLETION_CACHE))]
+
+
+def _preflight_unknown_report(
+    *,
+    provider: str,
+    base_url: str,
+    models: list[str],
+    checked_at: datetime,
+    api_key_env: str,
+    api_key_fingerprint: str | None,
+    message: str,
+    checks: list[ProviderPreflightCheck] | None = None,
+) -> ProviderPreflightReport:
+    failure = _preflight_failure_payload(
+        message=message,
+        provider=provider,
+        model=models[0] if models else None,
+        retryable=False,
+    )
+    failure["code"] = "llm_provider_preflight_settlement_unknown"
+    failure["next_action"] = (
+        "Reopen the durable producer event and reconcile its exact run binding before retrying."
+    )
+    return ProviderPreflightReport(
+        status="unknown",
+        provider=provider,
+        base_url=base_url,
+        models=models,
+        checks=checks or [],
+        checked_at=checked_at,
+        retryable=False,
+        failure=failure,
+        api_key_env=api_key_env,
+        api_key_fingerprint=api_key_fingerprint,
+    )
 
 
 def provider_verification_path(
@@ -498,14 +939,20 @@ async def run_provider_preflight(
     ttl_s: int = 300,
     fetch_json: Any | None = None,
     client_factory: Any = GatewayLLMClient,
+    producer_settlement_store: Any | None = None,
+    producer_run_binding: BudgetLedgerProducerRunBinding | None = None,
+    producer_budget_key: str | None = None,
+    require_producer_settlement: bool = False,
 ) -> ProviderPreflightReport:
     """Run a short real-provider gate before expensive NL workflows."""
     resolved_provider = (
         provider or os.getenv("POLISYOS_LLM_GATEWAY_PROVIDER") or "gateway"
     ).strip()
     resolved_base_url = (
-        base_url or os.getenv("POLISYOS_LLM_GATEWAY_BASE_URL") or "https://proxy.gonka.gg/v1"
-    ).strip().rstrip("/")
+        (base_url or os.getenv("POLISYOS_LLM_GATEWAY_BASE_URL") or "https://proxy.gonka.gg/v1")
+        .strip()
+        .rstrip("/")
+    )
     requested_models = [item.strip() for item in models if isinstance(item, str) and item.strip()]
     checked_at = datetime.now(UTC)
     if not requested_models:
@@ -565,15 +1012,170 @@ async def run_provider_preflight(
             api_key_fingerprint=api_key_fingerprint,
         )
 
+    producer_accounting_requested = (
+        require_producer_settlement
+        or producer_settlement_store is not None
+        or producer_run_binding is not None
+        or producer_budget_key is not None
+    )
+    accounting_failure: str | None = None
+    resolved_producer_budget_key: str | None = None
+    producer_scope_key: str | None = None
+    if producer_accounting_requested:
+        if (
+            producer_settlement_store is None
+            or type(producer_run_binding) is not BudgetLedgerProducerRunBinding
+        ):
+            accounting_failure = (
+                "Provider preflight requires a durable producer ledger and a "
+                "server-issued run binding."
+            )
+        else:
+            expected_budget_key = f"nl-run:{producer_run_binding.run_id}"
+            resolved_producer_budget_key = producer_budget_key or expected_budget_key
+            if resolved_producer_budget_key != expected_budget_key:
+                accounting_failure = (
+                    "Provider preflight producer budget key does not match its run."
+                )
+            else:
+                required_store_operations = (
+                    "begin_producer_event_safe",
+                    "settle_producer_event_safe",
+                    "resolve_producer_event_safe",
+                    "producer_run_binding_scope",
+                )
+                try:
+                    owner_identity = producer_settlement_store.settlement_owner_identity
+                    has_store_operations = all(
+                        callable(getattr(producer_settlement_store, operation, None))
+                        for operation in required_store_operations
+                    )
+                except Exception:
+                    owner_identity = None
+                    has_store_operations = False
+                if (
+                    not isinstance(owner_identity, tuple)
+                    or len(owner_identity) != 3
+                    or any(not isinstance(item, str) or not item.strip() for item in owner_identity)
+                    or not has_store_operations
+                ):
+                    accounting_failure = (
+                        "Provider preflight durable producer settlement is unavailable."
+                    )
+                else:
+                    binding_bytes = json.dumps(
+                        {
+                            "provider": resolved_provider,
+                            "run_binding": producer_run_binding.model_dump(mode="json"),
+                            "settlement_owner_identity": owner_identity,
+                        },
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    ).encode("utf-8")
+                    producer_scope_key = hashlib.sha256(binding_bytes).hexdigest()
+    if accounting_failure is not None:
+        failure = _preflight_failure_payload(
+            message=accounting_failure,
+            provider=resolved_provider,
+            model=requested_models[0],
+            retryable=False,
+        )
+        return ProviderPreflightReport(
+            status="failed",
+            provider=resolved_provider,
+            base_url=resolved_base_url,
+            models=requested_models,
+            checked_at=checked_at,
+            retryable=False,
+            failure=failure,
+            api_key_env=resolved_env,
+            api_key_fingerprint=api_key_fingerprint,
+        )
+
     cache_key = (
         resolved_base_url,
         tuple(requested_models),
         api_key_fingerprint or "",
+        producer_scope_key,
     )
-    cached = _PREFLIGHT_CACHE.get(cache_key)
+    accounting_enabled = producer_scope_key is not None
+    cache_scope_bytes = json.dumps(
+        {
+            "api_key_fingerprint": api_key_fingerprint or "",
+            "base_url": resolved_base_url,
+            "models": requested_models,
+            "producer_scope_key": producer_scope_key,
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    cache_scope_digest = hashlib.sha256(cache_scope_bytes).hexdigest()
+    cached = _PREFLIGHT_CACHE.get(cache_key) if not accounting_enabled else None
     now_monotonic = time.monotonic()
     if cached is not None and now_monotonic - cached[0] <= max(0, ttl_s):
         return cached[1].model_copy(update={"cache_hit": True})
+
+    completion_cache_settings = (
+        _preflight_prompt_cache_settings(ttl_s)
+        if accounting_enabled and client_factory is GatewayLLMClient
+        else None
+    )
+    completion_cache_key = cache_key if completion_cache_settings is not None else None
+    completion_cache_client: CachingLLMClient | None = None
+    prior_completion_reference: dict[str, Any] | None = None
+    completion_request_kwargs = _preflight_completion_request_kwargs()
+    expected_completion_request_digest: str | None = None
+    if completion_cache_key is not None:
+        completion_entry = _PREFLIGHT_COMPLETION_CACHE.get(completion_cache_key)
+        if completion_entry is not None:
+            try:
+                completion_cache_client, prior_completion_reference = completion_entry
+                if type(completion_cache_client) is not CachingLLMClient or not isinstance(
+                    prior_completion_reference, Mapping
+                ):
+                    raise TypeError("cached producer event reference is malformed")
+                expected_completion_request_digest = completion_cache_client._request_digest(
+                    (), completion_request_kwargs
+                )
+                current_reference = _preflight_event_reference_is_current(
+                    prior_completion_reference,
+                    producer_settlement_store=producer_settlement_store,
+                    expected_model=requested_models[0],
+                    expected_provider=resolved_provider,
+                    expected_budget_key=resolved_producer_budget_key or "run",
+                    expected_run_binding=producer_run_binding,
+                    expected_producer_scope_digest=producer_scope_key or "",
+                    expected_cache_scope_digest=cache_scope_digest,
+                    expected_request_digest=expected_completion_request_digest,
+                )
+            except Exception:
+                current_reference = False
+            if not current_reference:
+                return _preflight_unknown_report(
+                    provider=resolved_provider,
+                    base_url=resolved_base_url,
+                    models=requested_models,
+                    checked_at=checked_at,
+                    api_key_env=resolved_env,
+                    api_key_fingerprint=api_key_fingerprint,
+                    message=(
+                        "The retained preflight producer event is missing, malformed, or no longer "
+                        "matches the exact durable run, request, provider, and profile scope."
+                    ),
+                )
+        else:
+            completion_cache_client = _new_preflight_cached_client(
+                client_factory=client_factory,
+                base_url=resolved_base_url,
+                api_key=resolved_api_key,
+                model=requested_models[0],
+                provider=resolved_provider,
+                timeout_s=timeout_s,
+                cache_settings=completion_cache_settings,
+            )
+            expected_completion_request_digest = completion_cache_client._request_digest(
+                (), completion_request_kwargs
+            )
 
     fetch = fetch_json or _default_fetch_json
     root_url = _provider_root_url(resolved_base_url)
@@ -620,10 +1222,13 @@ async def run_provider_preflight(
     try:
         await _run_json_check("health", _join_url(root_url, "/health"))
         models_payload = await _run_json_check("models", _join_url(resolved_base_url, "/models"))
-        capabilities = await _run_json_check(
-            "capabilities",
-            _join_url(root_url, "/api/models/capabilities"),
-        ) or {}
+        capabilities = (
+            await _run_json_check(
+                "capabilities",
+                _join_url(root_url, "/api/models/capabilities"),
+            )
+            or {}
+        )
         pricing = await _run_json_check("pricing", _join_url(root_url, "/api/pricing")) or {}
     except RuntimeError as exc:
         try:
@@ -698,28 +1303,41 @@ async def run_provider_preflight(
         )
     )
 
-    client = client_factory(
-        base_url=resolved_base_url,
-        api_key=resolved_api_key,
-        model=requested_models[0],
-        provider_hint=resolved_provider,
-        max_retries=0,
-        timeout_s=timeout_s,
+    client: Any = completion_cache_client
+    if client is None:
+        client = client_factory(
+            base_url=resolved_base_url,
+            api_key=resolved_api_key,
+            model=requested_models[0],
+            provider_hint=resolved_provider,
+            max_retries=0,
+            timeout_s=timeout_s,
+        )
+    observed_producer_events: list[dict[str, Any]] = []
+    preflight_client: Any = client
+    if accounting_enabled:
+        preflight_client = TracedLLMClient(
+            client,
+            model_name=requested_models[0],
+            run_id=producer_run_binding.run_id,
+            provider_name=resolved_provider,
+            prompt_mode="user",
+            producer_settlement_store=producer_settlement_store,
+            producer_budget_key=resolved_producer_budget_key or "run",
+            call_observer=observed_producer_events.append,
+        )
+    producer_scope = (
+        producer_settlement_store.producer_run_binding_scope(producer_run_binding)
+        if accounting_enabled
+        else nullcontext()
     )
     try:
         started = time.perf_counter()
-        response = await client.generate(
-            system="Return compact JSON only.",
-            user='Return {"status":"ok"} now.',
-            response_format={"type": "json_object"},
-            max_tokens=32,
-            temperature=0.0,
-        )
+        with producer_scope:
+            response = await preflight_client.generate(**completion_request_kwargs)
         raw_response = getattr(response, "raw", None)
         degraded_events = (
-            raw_response.get("_gateway_degraded_events")
-            if isinstance(raw_response, dict)
-            else None
+            raw_response.get("_gateway_degraded_events") if isinstance(raw_response, dict) else None
         )
         details: dict[str, Any] = {
             "request_id": getattr(response, "request_id", None),
@@ -730,6 +1348,54 @@ async def run_provider_preflight(
             details["response_format_mode"] = "fallback_plain_json"
         else:
             details["response_format_mode"] = "json_object"
+        origin_reference = None
+        if prior_completion_reference is not None:
+            if prior_completion_reference.get("event_kind") == "provider":
+                origin_reference = prior_completion_reference
+            else:
+                origin_reference = prior_completion_reference.get("origin_event_reference")
+        producer_event_reference = (
+            _preflight_producer_event_reference(
+                observed_producer_events[0],
+                expected_model=requested_models[0],
+                expected_provider=resolved_provider,
+                expected_budget_key=resolved_producer_budget_key or "run",
+                expected_run_binding=producer_run_binding,
+                expected_producer_scope_digest=producer_scope_key or "",
+                expected_cache_scope_digest=cache_scope_digest,
+                expected_request_digest=expected_completion_request_digest,
+                producer_settlement_store=producer_settlement_store,
+                origin_event_reference=origin_reference,
+            )
+            if accounting_enabled and len(observed_producer_events) == 1
+            else None
+        )
+        if accounting_enabled and producer_event_reference is not None:
+            details["producer_event"] = producer_event_reference
+        if accounting_enabled and producer_event_reference is None:
+            message = (
+                "Provider preflight completion has no exact durable producer settlement; "
+                "reconcile the ledger before launching the run."
+            )
+            checks.append(
+                ProviderPreflightCheck(
+                    name="tiny_completion",
+                    status="unknown",
+                    latency_ms=int((time.perf_counter() - started) * 1000),
+                    details=details,
+                    error=message,
+                )
+            )
+            return _preflight_unknown_report(
+                provider=resolved_provider,
+                base_url=resolved_base_url,
+                models=requested_models,
+                checked_at=checked_at,
+                api_key_env=resolved_env,
+                api_key_fingerprint=api_key_fingerprint,
+                message=message,
+                checks=checks,
+            )
         checks.append(
             ProviderPreflightCheck(
                 name="tiny_completion",
@@ -746,10 +1412,51 @@ async def run_provider_preflight(
             model=requested_models[0] if requested_models else None,
             retryable=retryable,
         )
+        failure_details: dict[str, Any] = {}
+        if accounting_enabled:
+            producer_event_reference = None
+            if len(observed_producer_events) == 1:
+                producer_event_reference = _preflight_producer_event_reference(
+                    observed_producer_events[0],
+                    expected_model=requested_models[0],
+                    expected_provider=resolved_provider,
+                    expected_budget_key=resolved_producer_budget_key or "run",
+                    expected_run_binding=producer_run_binding,
+                    expected_producer_scope_digest=producer_scope_key or "",
+                    expected_cache_scope_digest=cache_scope_digest,
+                    expected_request_digest=expected_completion_request_digest,
+                    producer_settlement_store=producer_settlement_store,
+                )
+            if producer_event_reference is None:
+                message = (
+                    "Provider preflight completion failed without an exact durable producer "
+                    "settlement; reconcile the event before retrying."
+                )
+                checks.append(
+                    ProviderPreflightCheck(
+                        name="tiny_completion",
+                        status="unknown",
+                        latency_ms=int((time.perf_counter() - started) * 1000),
+                        details={},
+                        error=message,
+                    )
+                )
+                return _preflight_unknown_report(
+                    provider=resolved_provider,
+                    base_url=resolved_base_url,
+                    models=requested_models,
+                    checked_at=checked_at,
+                    api_key_env=resolved_env,
+                    api_key_fingerprint=api_key_fingerprint,
+                    message=message,
+                    checks=checks,
+                )
+            failure_details["producer_event"] = producer_event_reference
         checks.append(
             ProviderPreflightCheck(
                 name="tiny_completion",
                 status="failed",
+                details=failure_details,
                 error=str(exc),
             )
         )
@@ -768,7 +1475,7 @@ async def run_provider_preflight(
             api_key_fingerprint=api_key_fingerprint,
         )
     finally:
-        aclose = getattr(client, "aclose", None)
+        aclose = getattr(preflight_client, "aclose", None)
         if callable(aclose):
             await aclose()
 
@@ -784,7 +1491,16 @@ async def run_provider_preflight(
         api_key_env=resolved_env,
         api_key_fingerprint=api_key_fingerprint,
     )
-    _PREFLIGHT_CACHE[cache_key] = (now_monotonic, report)
+    if accounting_enabled:
+        if completion_cache_key is not None and completion_cache_client is not None:
+            _store_preflight_cached_client(
+                completion_cache_key,
+                completion_cache_client,
+                producer_event_reference,
+                max_entries=completion_cache_settings[0],
+            )
+    else:
+        _PREFLIGHT_CACHE[cache_key] = (now_monotonic, report)
     return report
 
 

@@ -809,9 +809,7 @@ async def test_provider_preflight_follows_same_origin_redirect_with_bearer(
     assert report.status == "ok"
     assert report.failure is None
     assert report.checks[0].status == "ok"
-    assert report.checks[0].details["url"] == (
-        f"http://127.0.0.1:{server.server_port}/health"
-    )
+    assert report.checks[0].details["url"] == (f"http://127.0.0.1:{server.server_port}/health")
     assert [path for path, _authorization in observed] == [
         "/health",
         "/health-ready",
@@ -821,3 +819,517 @@ async def test_provider_preflight_follows_same_origin_redirect_with_bearer(
     ]
     assert all(authorization == f"Bearer {api_key}" for _, authorization in observed)
     assert api_key not in report.model_dump_json()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("usage", "expected_origin", "expected_amount_wire", "expected_status"),
+    [
+        (
+            {"prompt_tokens": 2, "completion_tokens": 1, "cost_usd": 0.0},
+            "reported",
+            "0.0",
+            "committed",
+        ),
+        (
+            {"prompt_tokens": 2, "completion_tokens": 1},
+            "estimated",
+            "0.000015000000000000002",
+            "committed",
+        ),
+        (None, "unknown", None, "unknown"),
+    ],
+)
+async def test_provider_preflight_records_bound_gateway_completion_and_reuses_exact_event(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+    usage: dict[str, Any] | None,
+    expected_origin: str,
+    expected_amount_wire: str | None,
+    expected_status: str,
+) -> None:
+    import json as json_module
+    from decimal import Decimal
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from threading import Thread
+
+    from polisyos.core.llm.settlement import LLMProducerEvent
+    from polisyos.scientist.orchestration.engine.budget import BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRunBinding,
+        FileBudgetLedger,
+    )
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+    expected_amount = Decimal(expected_amount_wire) if expected_amount_wire is not None else None
+    module = importlib.import_module("polisyos.scientist.orchestration.llm.provider_verification")
+    _isolate_loopback_preflight_environment(monkeypatch)
+    monkeypatch.setattr(module, "_PREFLIGHT_CACHE", {})
+    monkeypatch.setattr(module, "_PREFLIGHT_COMPLETION_CACHE", {})
+    monkeypatch.setenv("POLISYOS_LLM_CACHE_TTL_S", "300")
+    monkeypatch.setenv("POLISYOS_LLM_CACHE_MAXSIZE", "128")
+    observed: list[tuple[str, str | None]] = []
+    completions: list[dict[str, Any]] = []
+    api_key = "sk-provider-preflight-test-key"
+
+    class _Handler(BaseHTTPRequestHandler):
+        def do_GET(self) -> None:
+            observed.append((self.path, self.headers.get("Authorization")))
+            if self.path == "/health":
+                payload: dict[str, Any] = {"status": "ok"}
+            elif self.path == "/v1/models":
+                payload = {"data": [{"id": "gpt-4o"}]}
+            elif self.path == "/api/models/capabilities":
+                payload = {"models": [{"model": "gpt-4o"}]}
+            elif self.path == "/api/pricing":
+                payload = {"gpt-4o": {"source": "loopback fixture"}}
+            else:
+                self.send_error(404)
+                return
+            body = json_module.dumps(payload).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def do_POST(self) -> None:
+            observed.append((self.path, self.headers.get("Authorization")))
+            request_body = json_module.loads(self.rfile.read(int(self.headers["Content-Length"])))
+            completions.append(request_body)
+            payload: dict[str, Any] = {
+                "model": "response-self-label-is-not-authority",
+                "provider": "response-self-label-is-not-authority",
+                "id": f"loopback-request-{len(completions)}",
+                "choices": [
+                    {
+                        "index": 0,
+                        "message": {"role": "assistant", "content": '{"status":"ok"}'},
+                        "finish_reason": "stop",
+                    }
+                ],
+            }
+            if usage is not None:
+                payload["usage"] = usage
+            body = json_module.dumps(payload).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("x-request-id", f"loopback-request-{len(completions)}")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, _format: str, *_args: object) -> None:
+            return None
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
+    thread = Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    ledger_path = tmp_path / "preflight-ledger.json"
+    store = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+    binding = BudgetLedgerProducerRunBinding(
+        run_id=f"preflight-{expected_origin}-run",
+        tenant_id="tenant-fixture",
+        cell_id="cell-fixture",
+        profile_id="research",
+        control_job_id=f"preflight-{expected_origin}-job",
+    )
+    base_url = f"http://127.0.0.1:{server.server_port}/v1"
+    kwargs = {
+        "models": ["gpt-4o"],
+        "base_url": base_url,
+        "provider": "configured-loopback-gateway",
+        "api_key": api_key,
+        "producer_settlement_store": store,
+        "producer_run_binding": binding,
+        "producer_budget_key": f"nl-run:{binding.run_id}",
+        "require_producer_settlement": True,
+        "ttl_s": 300,
+    }
+    try:
+        report = await run_provider_preflight(**kwargs)
+        cached_report = await run_provider_preflight(**kwargs)
+        another_binding = binding.model_copy(
+            update={
+                "run_id": f"{binding.run_id}-other",
+                "control_job_id": f"{binding.control_job_id}-other",
+            }
+        )
+        other_report = await run_provider_preflight(
+            **{
+                **kwargs,
+                "producer_run_binding": another_binding,
+                "producer_budget_key": f"nl-run:{another_binding.run_id}",
+            }
+        )
+        other_owner_store = BudgetMiddleware(
+            BudgetState(),
+            ledger=FileBudgetLedger(tmp_path / "other-owner-ledger.json"),
+        )
+        other_owner_report = await run_provider_preflight(
+            **{**kwargs, "producer_settlement_store": other_owner_store}
+        )
+        alternate_provider_report = await run_provider_preflight(
+            **{**kwargs, "provider": "configured-loopback-alias"}
+        )
+        valid_request_count = len(observed)
+        cached_event_id = next(
+            check.details["producer_event"]["event_id"]
+            for check in cached_report.checks
+            if check.name == "tiny_completion"
+        )
+        first_event_id = next(
+            check.details["producer_event"]["event_id"]
+            for check in report.checks
+            if check.name == "tiny_completion"
+        )
+        original_ledger = ledger_path.read_bytes()
+        try:
+            ledger_payload = json_module.loads(original_ledger)
+            ledger_payload["producer_settlements"][cached_event_id]["provider"] = "altered-provider"
+            ledger_path.write_text(json_module.dumps(ledger_payload), encoding="utf-8")
+            changed_event_report = await run_provider_preflight(**kwargs)
+            assert changed_event_report.status == "unknown"
+            assert len(observed) == valid_request_count
+            assert len(completions) == 4
+
+            ledger_payload = json_module.loads(original_ledger)
+            del ledger_payload["producer_settlements"][first_event_id]
+            ledger_path.write_text(json_module.dumps(ledger_payload), encoding="utf-8")
+            missing_origin_report = await run_provider_preflight(**kwargs)
+            assert missing_origin_report.status == "unknown"
+            assert len(observed) == valid_request_count
+            assert len(completions) == 4
+        finally:
+            ledger_path.write_bytes(original_ledger)
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+    assert report.status == "ok"
+    assert cached_report.cache_hit is False
+    assert other_report.status == "ok"
+    assert other_owner_report.status == "ok"
+    assert alternate_provider_report.status == "ok"
+    assert other_owner_report.cache_hit is False
+    assert alternate_provider_report.cache_hit is False
+    first_tiny = next(check for check in report.checks if check.name == "tiny_completion")
+    cached_tiny = next(check for check in cached_report.checks if check.name == "tiny_completion")
+    other_tiny = next(check for check in other_report.checks if check.name == "tiny_completion")
+    other_owner_tiny = next(
+        check for check in other_owner_report.checks if check.name == "tiny_completion"
+    )
+    alternate_provider_tiny = next(
+        check for check in alternate_provider_report.checks if check.name == "tiny_completion"
+    )
+    first_ref = first_tiny.details["producer_event"]
+    cached_ref = cached_tiny.details["producer_event"]
+    event_ids = {
+        first_ref["event_id"],
+        cached_ref["event_id"],
+        other_tiny.details["producer_event"]["event_id"],
+        other_owner_tiny.details["producer_event"]["event_id"],
+        alternate_provider_tiny.details["producer_event"]["event_id"],
+    }
+    assert len(event_ids) == 5
+    assert cached_ref["event_id"] != first_ref["event_id"]
+    assert cached_ref["event_kind"] == "reuse"
+    assert cached_ref["cost_origin"] == "reuse"
+    assert cached_ref["amount"] == "0"
+    assert cached_ref["settlement_status"] == "committed"
+    assert cached_ref["origin_event_id"] == first_ref["event_id"]
+    assert cached_ref["origin_event_reference"]["event_id"] == first_ref["event_id"]
+    assert alternate_provider_tiny.details["producer_event"]["provider"] == (
+        "configured-loopback-alias"
+    )
+    assert first_ref["model"] == "gpt-4o"
+    assert first_ref["provider"] == "configured-loopback-gateway"
+    assert first_ref["cost_origin"] == expected_origin
+    assert first_ref["amount"] == expected_amount_wire
+    if expected_origin == "estimated":
+        assert first_ref["cost_usd"] == pytest.approx(float(expected_amount), rel=1e-15, abs=0.0)
+    elif expected_amount is None:
+        assert first_ref["cost_usd"] is None
+    else:
+        assert first_ref["cost_usd"] == float(expected_amount)
+    assert first_ref["settlement_status"] == expected_status
+    assert first_ref["durability"] == "ledger"
+    assert first_ref["receipts"] == (
+        [first_ref["event_id"]] if expected_status == "committed" else []
+    )
+    assert len(completions) == 4
+    assert [path for path, _authorization in observed].count("/v1/chat/completions") == 4
+    assert all(authorization == f"Bearer {api_key}" for _, authorization in observed)
+    assert all(item["model"] == "gpt-4o" for item in completions)
+
+    reopened = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+    first_records = reopened.list_producer_events_for_run_safe(binding)
+    other_records = reopened.list_producer_events_for_run_safe(another_binding)
+    assert len(first_records) == 3
+    assert len(other_records) == 1
+    first_record = next(
+        record for record in first_records if record.event_id == first_ref["event_id"]
+    )
+    ledger_wire = json_module.loads(ledger_path.read_bytes())
+    stored_event = ledger_wire["producer_settlements"][first_ref["event_id"]]
+    if expected_amount_wire is None:
+        assert "amount" not in stored_event
+    else:
+        assert stored_event["amount"] == expected_amount_wire
+    assert stored_event["payload_digest"] == first_ref["payload_digest"]
+    recomputed_event = LLMProducerEvent(
+        event_id=first_ref["event_id"],
+        request_digest=first_ref["request_digest"],
+        response_digest=first_ref["response_digest"],
+        model=first_ref["model"],
+        provider=first_ref["provider"],
+        amount=expected_amount,
+        cost_origin=expected_origin,
+    )
+    assert recomputed_event.payload_digest == first_ref["payload_digest"]
+    assert first_record.payload_digest == recomputed_event.payload_digest
+    other_record = other_records[0]
+    alternate_provider_record = next(
+        record
+        for record in first_records
+        if record.event_id == alternate_provider_tiny.details["producer_event"]["event_id"]
+    )
+    assert alternate_provider_record.provider == "configured-loopback-alias"
+    owner_two_reopened = BudgetMiddleware(
+        BudgetState(),
+        ledger=FileBudgetLedger(tmp_path / "other-owner-ledger.json"),
+    )
+    owner_two_records = owner_two_reopened.list_producer_events_for_run_safe(binding)
+    assert len(owner_two_records) == 1
+    assert owner_two_records[0].event_id == other_owner_tiny.details["producer_event"]["event_id"]
+    assert first_record.event_id == first_ref["event_id"]
+    reuse_record = next(
+        record for record in first_records if record.event_id == cached_ref["event_id"]
+    )
+    assert reuse_record.cost_origin == "reuse"
+    assert reuse_record.amount == Decimal(0)
+    assert reuse_record.origin_event_id == first_ref["event_id"]
+    assert reuse_record.run_binding == binding
+    assert first_record.key == f"nl-run:{binding.run_id}"
+    assert first_record.run_binding == binding
+    assert first_record.model == "gpt-4o"
+    assert first_record.provider == "configured-loopback-gateway"
+    assert first_record.cost_origin == expected_origin
+    assert first_record.amount == expected_amount
+    assert first_record.status == expected_status
+    assert other_record.event_id == other_tiny.details["producer_event"]["event_id"]
+    assert other_record.run_binding == another_binding
+    assert len(FileBudgetLedger(ledger_path).snapshot().producer_settlements) == 4
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("ledger_configured", "producer_budget_key", "expected_failure_message"),
+    [
+        (
+            False,
+            "nl-run:preflight-unavailable-run",
+            "durable producer settlement is unavailable",
+        ),
+        (True, "nl-run:other-run", "budget key does not match its run"),
+    ],
+)
+async def test_provider_preflight_required_accounting_refuses_before_provider_io(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+    ledger_configured: bool,
+    producer_budget_key: str,
+    expected_failure_message: str,
+) -> None:
+    from polisyos.scientist.orchestration.engine.budget import BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRunBinding,
+        FileBudgetLedger,
+    )
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+    module = importlib.import_module("polisyos.scientist.orchestration.llm.provider_verification")
+    monkeypatch.delenv("POLISYOS_LLM_SIMULATION_MODE", raising=False)
+    monkeypatch.setattr(module, "_PREFLIGHT_CACHE", {})
+    fetch_calls: list[str] = []
+    client_calls: list[str] = []
+    store = (
+        BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(tmp_path / "ledger.json"))
+        if ledger_configured
+        else BudgetMiddleware(BudgetState())
+    )
+    binding = BudgetLedgerProducerRunBinding(
+        run_id="preflight-unavailable-run",
+        tenant_id="tenant-fixture",
+        cell_id="cell-fixture",
+        profile_id="research",
+        control_job_id="preflight-unavailable-job",
+    )
+
+    async def _fetch_json(url: str, **_kwargs: Any) -> dict[str, Any]:
+        fetch_calls.append(url)
+        return {"data": [{"id": "model-a"}]}
+
+    def _client_factory(**_kwargs: Any) -> object:
+        client_calls.append("constructed")
+        raise AssertionError("provider client must not be constructed")
+
+    report = await run_provider_preflight(
+        models=["model-a"],
+        base_url="http://127.0.0.1:1/v1",
+        provider="configured-gateway",
+        api_key="sk-provider-preflight-test-key",
+        producer_settlement_store=store,
+        producer_run_binding=binding,
+        producer_budget_key=producer_budget_key,
+        require_producer_settlement=True,
+        fetch_json=_fetch_json,
+        client_factory=_client_factory,
+    )
+
+    assert report.status == "failed"
+    assert report.failure is not None
+    assert expected_failure_message in report.failure["message"]
+    assert fetch_calls == []
+    assert client_calls == []
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("ledger_settlement_fails", "expected_status"),
+    [(False, "failed"), (True, "unknown")],
+)
+async def test_provider_preflight_gateway_exception_preserves_unknown_settlement(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+    ledger_settlement_fails: bool,
+    expected_status: str,
+) -> None:
+    import json as json_module
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from threading import Thread
+
+    from polisyos.scientist.orchestration.engine.budget import BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRunBinding,
+        FileBudgetLedger,
+    )
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+    _isolate_loopback_preflight_environment(monkeypatch)
+    monkeypatch.setattr(
+        importlib.import_module("polisyos.scientist.orchestration.llm.provider_verification"),
+        "_PREFLIGHT_CACHE",
+        {},
+    )
+    observed: list[tuple[str, str | None]] = []
+
+    class _Handler(BaseHTTPRequestHandler):
+        def do_GET(self) -> None:
+            observed.append((self.path, self.headers.get("Authorization")))
+            if self.path == "/health":
+                payload: dict[str, Any] = {"status": "ok"}
+            elif self.path == "/v1/models":
+                payload = {"data": [{"id": "gpt-4o"}]}
+            elif self.path == "/api/models/capabilities":
+                payload = {"models": [{"model": "gpt-4o"}]}
+            elif self.path == "/api/pricing":
+                payload = {"gpt-4o": {"source": "loopback fixture"}}
+            else:
+                self.send_error(404)
+                return
+            body = json_module.dumps(payload).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def do_POST(self) -> None:
+            observed.append((self.path, self.headers.get("Authorization")))
+            self.rfile.read(int(self.headers["Content-Length"]))
+            body = json_module.dumps(
+                {"error": {"message": "controlled loopback provider exception"}}
+            ).encode("utf-8")
+            self.send_response(503)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, _format: str, *_args: object) -> None:
+            return None
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
+    thread = Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    ledger_path = tmp_path / "preflight-exception-ledger.json"
+    store = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+    binding = BudgetLedgerProducerRunBinding(
+        run_id=f"preflight-exception-{ledger_settlement_fails}",
+        tenant_id="tenant-fixture",
+        cell_id="cell-fixture",
+        profile_id="research",
+        control_job_id=f"preflight-exception-job-{ledger_settlement_fails}",
+    )
+    api_key = "sk-provider-preflight-test-key"
+    base_url = f"http://127.0.0.1:{server.server_port}/v1"
+    if ledger_settlement_fails:
+
+        def _fail_settlement(*_args: object, **_kwargs: object) -> object:
+            raise OSError("controlled ledger append failure")
+
+        monkeypatch.setattr(store, "settle_producer_event_safe", _fail_settlement)
+
+    try:
+        report = await run_provider_preflight(
+            models=["gpt-4o"],
+            base_url=base_url,
+            provider="configured-loopback-gateway",
+            api_key=api_key,
+            producer_settlement_store=store,
+            producer_run_binding=binding,
+            producer_budget_key=f"nl-run:{binding.run_id}",
+            require_producer_settlement=True,
+            ttl_s=300,
+        )
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+    assert len(observed) == 5
+    assert [path for path, _authorization in observed[:4]] == [
+        "/health",
+        "/v1/models",
+        "/api/models/capabilities",
+        "/api/pricing",
+    ]
+    assert observed[4][0].endswith("/chat/completions")
+    assert all(authorization == f"Bearer {api_key}" for _, authorization in observed)
+    tiny = next(check for check in report.checks if check.name == "tiny_completion")
+
+    assert report.status == expected_status
+    if ledger_settlement_fails:
+        assert tiny.status == "unknown"
+        assert report.failure is not None
+        assert report.failure["code"] == "llm_provider_preflight_settlement_unknown"
+        assert "producer_event" not in tiny.details
+        records = store.list_producer_events_for_run_safe(binding)
+        assert len(records) == 1
+        assert records[0].status == "pending"
+        assert records[0].payload_digest is None
+        assert records[0].run_binding == binding
+    else:
+        assert tiny.status == "failed"
+        event_reference = tiny.details["producer_event"]
+        assert event_reference["event_kind"] == "provider"
+        assert event_reference["cost_origin"] == "unknown"
+        assert event_reference["settlement_status"] == "unknown"
+        assert event_reference["durability"] == "ledger"
+        assert event_reference["run_binding"] == binding.model_dump(mode="json")
+        records = store.list_producer_events_for_run_safe(binding)
+        assert len(records) == 1
+        assert records[0].status == "unknown"
+        assert records[0].run_binding == binding

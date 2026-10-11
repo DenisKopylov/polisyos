@@ -1595,12 +1595,20 @@ class TestLaunchNlRun:
         assert resp.status_code == 422
 
     @pytest.mark.asyncio
-    async def test_launch_nl_run_research_red_preflight_creates_short_failed_job(
+    @pytest.mark.parametrize("preflight_status", ["failed", "unknown"])
+    async def test_launch_nl_run_research_non_ok_preflight_creates_short_failed_job(
         self,
         monkeypatch: pytest.MonkeyPatch,
         tmp_path,
+        preflight_status: str,
     ):
         from polisyos.runtime.http.execution_policy import RuntimePrincipal
+        from polisyos.scientist.orchestration.engine.budget import BudgetState
+        from polisyos.scientist.orchestration.engine.budget_ledger import (
+            BudgetLedgerProducerRunBinding,
+            FileBudgetLedger,
+        )
+        from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
         from tests.unit.runtime.http.control_service_test_support import (
             bound_nl_authorization_proof,
         )
@@ -1608,24 +1616,48 @@ class TestLaunchNlRun:
 
         monkeypatch.setenv("POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE", "1")
         execute_called = False
+        preflight_inputs: dict[str, object] = {}
+        settlement_store = BudgetMiddleware(
+            BudgetState(),
+            ledger=FileBudgetLedger(tmp_path / "preflight-ledger.json"),
+        )
 
-        async def _red_preflight(**_kwargs):
+        async def _red_preflight(**kwargs):
+            preflight_inputs.update(kwargs)
+            assert kwargs["producer_settlement_store"] is settlement_store
+            assert kwargs["require_producer_settlement"] is True
+            assert (
+                kwargs["producer_budget_key"] == f"nl-run:{kwargs['producer_run_binding'].run_id}"
+            )
+            assert type(kwargs["producer_run_binding"]) is BudgetLedgerProducerRunBinding
             return ProviderPreflightReport(
-                status="failed",
+                status=preflight_status,
                 provider="gonka_proxy",
                 base_url="https://proxy.gonka.gg/v1",
                 models=["missing-model"],
                 checks=[],
                 retryable=False,
                 failure={
-                    "code": "llm_provider_preflight_failed",
+                    "code": (
+                        "llm_provider_preflight_settlement_unknown"
+                        if preflight_status == "unknown"
+                        else "llm_provider_preflight_failed"
+                    ),
                     "layer": "llm_gateway",
                     "phase": "provider_preflight",
-                    "message": "missing-model not returned by /v1/models",
+                    "message": (
+                        "Producer settlement is unknown."
+                        if preflight_status == "unknown"
+                        else "missing-model not returned by /v1/models"
+                    ),
                     "retryable": False,
                     "model": "missing-model",
                     "provider": "gonka_proxy",
-                    "next_action": "Check provider credentials and model configuration.",
+                    "next_action": (
+                        "Reconcile the producer event before retrying."
+                        if preflight_status == "unknown"
+                        else "Check provider credentials and model configuration."
+                    ),
                 },
             )
 
@@ -1665,6 +1697,7 @@ class TestLaunchNlRun:
                 binding_profiles=registry,
                 model_profiles=registry,
             ),
+            llm_producer_settlement_store=settlement_store,
         )
         try:
             request = NaturalLanguageRunRequest(
@@ -1685,11 +1718,112 @@ class TestLaunchNlRun:
 
         assert response.status == "rejected"
         assert execute_called is False
+        binding = preflight_inputs["producer_run_binding"]
+        assert binding.run_id == response.run_id
+        assert binding.control_job_id == response.job_id
+        assert binding.tenant_id == "tenant-fixture"
+        assert binding.cell_id == "cell-fixture"
+        assert binding.profile_id == "research"
         assert record is not None
         assert record.state == "failed"
         assert record.progress["phase"] == "provider_preflight"
-        assert record.progress["failure"]["code"] == "llm_provider_preflight_failed"
+        assert record.progress["failure"]["code"] == (
+            "llm_provider_preflight_settlement_unknown"
+            if preflight_status == "unknown"
+            else "llm_provider_preflight_failed"
+        )
         assert record.to_response().failure is not None
+
+    def test_launch_nl_run_simulation_preflight_skipped_is_durable_refusal(
+        self,
+        runtime_api_env,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        provider = importlib.import_module(
+            "polisyos.scientist.orchestration.llm.provider_verification"
+        )
+        real_preflight = provider.run_provider_preflight
+        observed_reports: list[ProviderPreflightReport] = []
+        execute_called = False
+        provider_io_calls: list[str] = []
+
+        async def _no_provider_fetch(*_args: object, **_kwargs: object) -> object:
+            provider_io_calls.append("fetch_json")
+            raise AssertionError("simulation preflight attempted provider I/O")
+
+        def _no_provider_client(*_args: object, **_kwargs: object) -> object:
+            provider_io_calls.append("client_factory")
+            raise AssertionError("simulation preflight attempted provider I/O")
+
+        async def _observe_real_preflight(**kwargs: object) -> ProviderPreflightReport:
+            report = await real_preflight(
+                **kwargs,
+                fetch_json=_no_provider_fetch,
+                client_factory=_no_provider_client,
+            )
+            observed_reports.append(report)
+            return report
+
+        def _execute(*_args: object, **_kwargs: object) -> None:
+            nonlocal execute_called
+            execute_called = True
+
+        monkeypatch.setenv("POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE", "1")
+        monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "true")
+        monkeypatch.setenv("POLISYOS_LLM_GATEWAY_API_KEY", "sk-provider-preflight-test-key")
+        monkeypatch.setattr(
+            "polisyos.runtime.http.services.control.run_lifecycle.run_provider_preflight",
+            _observe_real_preflight,
+        )
+        monkeypatch.setattr(ControlPlaneService, "_execute_nl_pipeline", _execute)
+
+        client, _cell_id, headers = _secure_control_client(
+            runtime_api_env,
+            role=PolicyOSRole.ADMIN,
+            case_id="nl-simulation-preflight-skip",
+        )
+        request_body = NaturalLanguageRunRequest(
+            request="Evaluate Ukraine MSME support.",
+            execution_profile="research",
+            llm_models=["gpt-4o"],
+            policy_flags={"allow_mock_fallback": False},
+        ).model_dump(mode="json", exclude_unset=True)
+        assert (
+            NaturalLanguageRunRequest.model_validate(request_body).model_dump(
+                mode="json", exclude_unset=True
+            )
+            == request_body
+        )
+        with client:
+            response = client.post(
+                "/api/v1/control/runs/nl",
+                headers=headers,
+                json=request_body,
+            )
+            assert response.status_code == 200, response.text
+            launch = response.json()
+            job_response = client.get(
+                f"/api/v1/control/jobs/{launch['job_id']}",
+                headers=headers,
+            )
+        assert launch["status"] == "rejected"
+        assert launch["job_id"]
+        assert len(observed_reports) == 1
+        produced = observed_reports[0]
+        assert produced.status == "skipped"
+        assert produced.checks[0].status == "skipped"
+        assert produced.checks[0].details["reason"] == ("POLISYOS_LLM_SIMULATION_MODE is enabled")
+        assert provider_io_calls == []
+        assert execute_called is False
+
+        assert job_response.status_code == 200, job_response.text
+        job = job_response.json()
+        assert job["state"] == "failed"
+        assert job["failure"]["code"] == "llm_provider_preflight_failed"
+        assert job["progress"]["phase"] == "provider_preflight"
+        assert job["progress"]["provider_preflight_ref"]
+        assert job["progress"]["provider_preflight"] == produced.model_dump(mode="json")
+        assert job["progress"]["provider_preflight"]["status"] == "skipped"
 
 
 class TestDataIngestion:

@@ -3546,15 +3546,41 @@ class ControlPlaneService(
                 raise ValueError("nl_route_authorization_actor_binding_mismatch")
         provider_preflight_payload: dict[str, Any] | None = None
         if requested_models and policy.effective_profile in {"research", "governed", "production"}:
-            preflight_report = await run_provider_preflight(models=requested_models)
+            from polisyos.scientist.orchestration.engine.budget_ledger import (
+                BudgetLedgerProducerRunBinding,
+            )
+
+            preflight_execution_scope = self._execution_scope_for_policy(policy)
+            producer_settlement_store = self._llm_producer_settlement_store
+            producer_run_binding = None
+            if (
+                producer_settlement_store is not None
+                and preflight_execution_scope.status == "established"
+                and preflight_execution_scope.tenant_id is not None
+                and preflight_execution_scope.cell_id is not None
+            ):
+                producer_run_binding = BudgetLedgerProducerRunBinding(
+                    run_id=run_id,
+                    tenant_id=preflight_execution_scope.tenant_id,
+                    cell_id=preflight_execution_scope.cell_id,
+                    profile_id=policy.effective_profile,
+                    control_job_id=job_id,
+                )
+            preflight_report = await run_provider_preflight(
+                models=requested_models,
+                producer_settlement_store=producer_settlement_store,
+                producer_run_binding=producer_run_binding,
+                producer_budget_key=f"nl-run:{run_id}",
+                require_producer_settlement=True,
+            )
             provider_preflight_payload = preflight_report.model_dump(mode="json")
-            if preflight_report.status == "failed":
+            if preflight_report.status != "ok":
                 preflight_ref = self._put_json_artifact(
                     provider_preflight_payload,
                     kind="runtime.provider_preflight_report",
                     schema_name="polisyos.runtime.ProviderPreflightReport",
                 )
-                execution_scope = self._execution_scope_for_policy(policy)
+                execution_scope = preflight_execution_scope
                 policy = self._policy_with_execution_scope(policy, execution_scope)
                 submitted_by = execution_scope.actor_subject or "anonymous"
                 capability_manifest_ref = self._persist_capability_manifest(

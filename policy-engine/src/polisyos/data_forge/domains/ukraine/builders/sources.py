@@ -1386,12 +1386,12 @@ def _iter_observation_metric_frames(
                 batch_index += 1
                 emitted_metric_ids.clear()
                 del frame
-        except (ImportError, OSError):
+        except (ImportError, OSError) as read_error:
             if sha256_file(artifact_path) != snapshot_sha256:
                 raise RuntimeError(
                     "normalized observation artifact changed during streaming; "
                     "cannot resume from an unconfirmed snapshot"
-                )
+                ) from read_error
 
             if row_offset == 0 and not emitted_metric_ids:
                 # Before publication there is no cursor to preserve, so the
@@ -1441,11 +1441,11 @@ def _iter_observation_metric_frames(
             if pending_metric_ids:
                 raise RuntimeError(
                     "stream restart ended before the pending observation metric cursor"
-                )
+                ) from read_error
             if resumed_row_offset < row_offset:
                 raise RuntimeError(
                     "stream restart ended before the confirmed observation cursor"
-                )
+                ) from read_error
 
 
 def _build_observation_frame(config: PipelineConfig) -> pd.DataFrame:

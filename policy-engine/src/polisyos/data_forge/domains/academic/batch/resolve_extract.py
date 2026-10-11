@@ -7,9 +7,10 @@ from __future__ import annotations
 
 import inspect
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from types import ModuleType
 
 from polisyos.common.logger import get_logger

@@ -10,9 +10,10 @@ from __future__ import annotations
 import inspect
 from contextlib import contextmanager
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Iterator
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from types import ModuleType
 
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (

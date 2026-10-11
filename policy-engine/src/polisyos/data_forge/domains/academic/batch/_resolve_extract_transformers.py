@@ -1849,13 +1849,17 @@ def _apply_publish_gate(result: ArticleExtractionResult) -> ArticleExtractionRes
         # Abstract-only is a blocker ONLY for weak designs (tier 3-4 or None).
         # Strong designs (RCT, IV, DID, RDD, SC, meta-analysis) can publish
         # from abstracts — confidence penalty is applied downstream in skg_store.
-        _ABSTRACT_PUBLISHABLE_TIERS = frozenset({1, 2})
-        if result.source_basis != SourceBasis.FULLTEXT:
-            if design_tier not in _ABSTRACT_PUBLISHABLE_TIERS:
-                blockers.append("source_basis_not_fulltext")
-        if claim.source_basis != SourceBasis.FULLTEXT:
-            if design_tier not in _ABSTRACT_PUBLISHABLE_TIERS:
-                blockers.append("claim_source_basis_not_fulltext")
+        abstract_publishable_tiers = frozenset({1, 2})
+        if (
+            result.source_basis != SourceBasis.FULLTEXT
+            and design_tier not in abstract_publishable_tiers
+        ):
+            blockers.append("source_basis_not_fulltext")
+        if (
+            claim.source_basis != SourceBasis.FULLTEXT
+            and design_tier not in abstract_publishable_tiers
+        ):
+            blockers.append("claim_source_basis_not_fulltext")
         if claim.claim_type not in {ClaimType.CAUSAL_CLAIM, ClaimType.CAUSAL_ASSERTION}:
             blockers.append("claim_type_not_causal")
         if not claim.claim_text:

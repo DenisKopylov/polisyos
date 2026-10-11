@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "slice": "b190-b197-metrics-binding-v4-20261011",
+  "author": "unified-local-root; independent semantic reviewer custody_independent_r3",
+  "slice_base": "cd5651c3a6897f12d32212e3521e73bb570f137b",
+  "candidate": "468269dc5d26e2d85e217bc63b7f92ba073db12b",
+  "tree": "52532f1813936ec185685175a005ab06c81ec713",
+  "parents": [
+    "cd5651c3a6897f12d32212e3521e73bb570f137b"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "actual_entry": {
+    "sha": "cd5651c3a6897f12d32212e3521e73bb570f137b",
+    "tree": "bb7186c24000b54fdb0ab8ce8d16b55c3658995c"
+  },
+  "footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/B190-source-unit-binding-options-2026-10-11.md",
+      "before_sha256": null,
+      "candidate_sha256": "d8dac946cd56fc176461ba99ee2f60934ff6dea6ffffacb970103fbb82c5ecfe"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "before_sha256": "7e7a2aa1042d43d85b1abae3536e7c6117e240b7e9b9e98f15bff4ad1b6c5a20",
+      "candidate_sha256": "c147b152e10703343c60e881720cfc45a649cc955c6821d05c194f460710f28f"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/contracts/test_e02_installed_composition.py",
+      "before_sha256": "8f3c269537b8f42b583fcaee4bc5ad7b29fe7456e95dd11a43fd7cb080c1ada7",
+      "candidate_sha256": "4d72aed9c9d01d535b1c65467961155c6ec9ac4736f570f1928710c7dd063a2c"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+      "before_sha256": "dbb0c2cec0b6a38ae3f9839f048647c5d59b91ba9f662d115021715ce4935231",
+      "candidate_sha256": "aeefa90b5e3d54b23e9fb5dde6fed54ca12a41e8ff4fbf64b8f47bf488e88374"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+      "before_sha256": "c25eb001bcb4af04bdec3828c360b50c54b46acd04c88f8da53f6ba6e2c6610a",
+      "candidate_sha256": "3a1783e7c2f3606ba4ac1619e26039ef6a72509d61b9e4b89d958071aaa7695c"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+      "before_sha256": "404e8d3217f581bfe2a6bf63b8a5c3d1a299f54cbf15c17647a9df9cf38d3280",
+      "candidate_sha256": "1394897450bc302f5cb18809f03efefd9f014c9a6fcad2e9499f6a60b17fa7f6"
+    }
+  ],
+  "selected_input_profile_backend": {
+    "profile": "controlled source-bound local fixture; raw caller sensitivity maps",
+    "backend": "Darwin CPython 3.14.3; selected existing repository venv; numerical threads 1",
+    "calibration_law": "not_established; no production/currentness/authority input",
+    "b197_fixture_profile": "unprofiled controlled tied Calibrator fixture; runtime UNRUN"
+  },
+  "implementation_identity": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-source-checkpoint-r52-20261011/readback.json",
+    "sha256": "d02d70ac0667eae34f672808523ddec9f65491b80d5f94c770e0195fcb9d3fe3",
+    "bytes": 2046,
+    "availability": "local retained; raw ignored"
+  },
+  "composition": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-v4-root-composition-r50-20261011/composition.json",
+    "sha256": "5dc1aae6f3d879bfcd0ed1fddd4f5235ad967c884ca27c12913365ac39e0c80b",
+    "bytes": 4512,
+    "availability": "local retained; raw ignored"
+  },
+  "application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-v4-root-composition-r50-20261011/application-readback.json",
+    "sha256": "b3dcd0cf4902c5ce43bccab8ddb76c73266fef0f9323061ef82256778fe18441",
+    "bytes": 2239,
+    "availability": "local retained; raw ignored"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b190-b197-metrics-binding-v3-independent-review-20261011.md",
+    "sha256": "c3654b6b70c82f05d2d78856653b68fcc9590c6bd3e869d6afb1c3eb71824ee9",
+    "bytes": 6766,
+    "availability": "tracked source or review input retained"
+  },
+  "formatting_delta": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-v4-root-composition-r50-20261011/root-v3-v4-semantic-reconciliation.json",
+    "sha256": "f06813b42eab8968b92b99e2a80370e87bf4fedaaaea774d620827df1d307165",
+    "bytes": 2057,
+    "availability": "local retained; raw ignored"
+  },
+  "source_bound_checks": [
+    {
+      "kind": "actual intake and metric collision",
+      "command_and_full_input_binding": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-intake-partial-actual-r51-20261011/command.json",
+        "sha256": "c7231a98033ee3eab3d414fe137e32f7ca892b29c21efbc58fece30228c82e20",
+        "bytes": 1832604,
+        "availability": "local retained; raw ignored"
+      },
+      "deciding_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-intake-partial-actual-r51-20261011/stdout.txt",
+        "sha256": "2e9544cab6b37d18ca503a911d4e18282650e0966fd3f096ddd19abf74e8244d",
+        "bytes": 3685,
+        "availability": "local retained; raw ignored"
+      },
+      "deciding_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-intake-partial-actual-r51-20261011/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local retained; raw ignored"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-intake-partial-actual-r51-20261011/junit.xml",
+        "sha256": "8712850ad346425736c432d1e400cc7770b24946ddc07bde0d40275a9459ff19",
+        "bytes": 2220,
+        "availability": "local retained; raw ignored"
+      },
+      "result": "11 PASS / 0 FAIL / 0 ERROR / 0 SKIP",
+      "full_input_count": 6183,
+      "source_stable": true
+    },
+    {
+      "kind": "normal implementation commit hooks",
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-source-checkpoint-r52-driver-20261011/command.json",
+        "sha256": "9ccf53d429e13c8a2ca2ff7be46bef38fed6544710a5e69b992c4e3b16878362",
+        "bytes": 1642,
+        "availability": "local retained; raw ignored"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-source-checkpoint-r52-driver-20261011/stdout.txt",
+        "sha256": "eca74be7ae24be606dbc9894838f37dd0ff8f3458ce9faab708483fbe7f2cedd",
+        "bytes": 584,
+        "availability": "local retained; raw ignored"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-source-checkpoint-r52-driver-20261011/stderr.txt",
+        "sha256": "4e9af040781740f3a8dcccd9598530531f7ff76a229013d7f74d1e5785e3e496",
+        "bytes": 653,
+        "availability": "local retained; raw ignored"
+      },
+      "result": "PASS; Python gate SKIP is not a native green receipt"
+    }
+  ],
+  "real_chain": {
+    "b190": "supplied maps -> strict typed intake -> actual propagation artifact -> per-output candidate/status guard; actual metric producer collision refuses source/unit authority",
+    "b197": "authored actual Calibrator -> CalibrationReport v2 -> welfare Delta/MC -> persisted report/samples/bundle -> fresh FileSystemCAS reader; authored runtime is UNRUN"
+  },
+  "adversarial_controls": [
+    "present-null/wrong/empty/malformed metric maps refused before CAS",
+    "unknown output/input IDs and string/bool/nonfinite coefficients refused",
+    "partial mapped and unmapped outputs all candidate_only/gate_eligible=false",
+    "real step_latency_ms counter shares key with response but cannot supply USD response derivative"
+  ],
+  "consumer_surface": "Scientist node and welfare/report consumers; raw caller maps confer no authority",
+  "limitations": [
+    "B190 metric-source/unit relationship is not established; narrow existing-contract alternatives and executable distinguishing probe in tracked decision packet",
+    "B197 tied coordinate implementation source accepted for candidate review; actual numerical Calibrator/Delta/MC/fresh reader run remains UNRUN",
+    "Native repository gates and installed/archive/Linux consumers are UNRUN for this composition",
+    "No original whole criterion or canonical repeated occurrence formally closed"
+  ],
+  "decision_pointers": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/B190-source-unit-binding-options-2026-10-11.md",
+      "commit": "468269dc5d26e2d85e217bc63b7f92ba073db12b"
+    }
+  ],
+  "closure_ids": [],
+  "finding_proposals": [
+    {
+      "id": "B190",
+      "proposal_status": "limited",
+      "scope": "raw-map input safety and honest candidate-only propagation",
+      "next_check": "G chooses typed producer source/unit binding; run final composed numeric/installed consumers and original criterion reconciliation"
+    },
+    {
+      "id": "B197",
+      "proposal_status": "open",
+      "scope": "authored actual tied Calibrator -> persisted artifact -> fresh consumer test",
+      "next_check": "Run tied numeric consumer on final source/input/backend freeze; preserve controlled fixture vs production-law boundary"
+    },
+    {
+      "id": "B194",
+      "proposal_status": "open",
+      "scope": "affected test/consumer safety only; no automatic whole-property closure",
+      "next_check": "Final composed full sampling/retry/denominator/fresh consumer and canonical occurrence-by-occurrence checks"
+    }
+  ],
+  "formal_adjudication_owner": "G",
+  "receipt_commit_sha": "not embedded; this receipt is prepared before its own commit"
+}

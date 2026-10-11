@@ -1,12 +1,17 @@
 from __future__ import annotations
 
+import sys
+from types import ModuleType
+
 import pytest
 
 from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
+from polisyos.core.artifacts.backends.caching_store import CachingArtifactStore
 from polisyos.core.artifacts.backends.gcs_store import GCSArtifactStore
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import CanonInfo as CoreCanonInfo
 from polisyos.core.artifacts.manifest import ProducerInfo
-from polisyos.core.artifacts.store import ArtifactIntegrityError, PutOptions
+from polisyos.core.artifacts.store import ArtifactIntegrityError, FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec as CoreCanonSpec
 from polisyos.core.canon import CanonViolation as CoreCanonViolation
 
@@ -24,9 +29,17 @@ class _PreconditionFailedError(Exception):
 
 
 class _FakeBlob:
-    def __init__(self, name: str, objects: dict[str, bytes]) -> None:
+    def __init__(
+        self,
+        name: str,
+        objects: dict[str, bytes],
+        download_errors: dict[str, Exception],
+        download_calls: list[str],
+    ) -> None:
         self.name = name
         self._objects = objects
+        self._download_errors = download_errors
+        self._download_calls = download_calls
 
     def exists(self) -> bool:
         return self.name in self._objects
@@ -44,6 +57,10 @@ class _FakeBlob:
         self._objects[self.name] = data
 
     def download_as_bytes(self) -> bytes:
+        self._download_calls.append(self.name)
+        error = self._download_errors.get(self.name)
+        if error is not None:
+            raise error
         if self.name not in self._objects:
             raise FileNotFoundError(self.name)
         return self._objects[self.name]
@@ -52,14 +69,41 @@ class _FakeBlob:
 class _FakeBucket:
     def __init__(self) -> None:
         self.objects: dict[str, bytes] = {}
+        self.download_errors: dict[str, Exception] = {}
+        self.download_calls: list[str] = []
+        self.reload_error: Exception | None = None
+        self.reload_calls = 0
+
+    def reload(self) -> None:
+        self.reload_calls += 1
+        if self.reload_error is not None:
+            raise self.reload_error
 
     def blob(self, name: str) -> _FakeBlob:
-        return _FakeBlob(name, self.objects)
+        return _FakeBlob(name, self.objects, self.download_errors, self.download_calls)
 
     def list_blobs(self, prefix: str):
         for key in sorted(self.objects):
             if key.startswith(prefix):
-                yield _FakeBlob(key, self.objects)
+                yield _FakeBlob(key, self.objects, self.download_errors, self.download_calls)
+
+
+def _install_fake_google_api_not_found(monkeypatch: pytest.MonkeyPatch) -> type[Exception]:
+    class NotFoundError(Exception):
+        """Model google.api_core.exceptions.NotFound for the optional SDK seam."""
+
+    exceptions_module = ModuleType("google.api_core.exceptions")
+    exceptions_module.NotFound = NotFoundError
+    api_core_module = ModuleType("google.api_core")
+    api_core_module.__path__ = []
+    api_core_module.exceptions = exceptions_module
+    google_module = ModuleType("google")
+    google_module.__path__ = []
+    google_module.api_core = api_core_module
+    monkeypatch.setitem(sys.modules, "google", google_module)
+    monkeypatch.setitem(sys.modules, "google.api_core", api_core_module)
+    monkeypatch.setitem(sys.modules, "google.api_core.exceptions", exceptions_module)
+    return NotFoundError
 
 
 def test_gcs_store_refuses_canon_spec_mismatch_before_upload() -> None:
@@ -97,6 +141,162 @@ def test_gcs_store_get_bytes_rehashes_blob_on_read() -> None:
         store.get_bytes(ref.artifact_id)
 
     assert metrics.events == [("gcs", "ArtifactIntegrityError")]
+
+
+def test_gcs_missing_object_and_profile_are_typed_absence_across_direct_and_cached_reads(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    not_found_type = _install_fake_google_api_not_found(monkeypatch)
+    store = GCSArtifactStore(bucket="test-bucket")
+    bucket = _FakeBucket()
+    store._bucket = bucket
+    cached = CachingArtifactStore(
+        remote=store,
+        local=FileSystemCAS(tmp_path / "local"),
+        write_through=False,
+    )
+    missing_id = "sha256:" + "ab" * 32
+    missing_aid = ArtifactID.from_sha256_hex("ab" * 32)
+    missing_profile = "sha256:" + "f" * 64
+    bucket.download_errors[store._blob_key(missing_aid)] = not_found_type("missing blob")
+
+    with pytest.raises(FileNotFoundError):
+        store.get_bytes(missing_id)
+    with pytest.raises(FileNotFoundError):
+        cached.get_bytes(missing_id)
+
+    ref = store.put_bytes(
+        b"existing GCS blob with one manifest view",
+        PutOptions(kind="test.gcs_missing_selected_view", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    assert ref.manifest_profile_sha256 is not None
+    assert store.get_manifest_by_profile(ref.artifact_id, ref.manifest_profile_sha256).kind == (
+        "test.gcs_missing_selected_view"
+    )
+    assert cached.get_manifest_by_profile(ref.artifact_id, ref.manifest_profile_sha256).kind == (
+        "test.gcs_missing_selected_view"
+    )
+
+    before_malformed = len(bucket.download_calls)
+    with pytest.raises(ValueError, match="manifest_profile_sha256 must be"):
+        store.get_manifest_by_profile(ref.artifact_id, "malformed-profile")
+    assert len(bucket.download_calls) == before_malformed
+
+    absent_manifest_key = store._manifest_key(ref.artifact_id, missing_profile)
+    bucket.download_errors[absent_manifest_key] = not_found_type("missing manifest profile")
+    with pytest.raises(FileNotFoundError):
+        store.get_manifest_by_profile(ref.artifact_id, missing_profile)
+    with pytest.raises(FileNotFoundError):
+        cached.get_manifest_by_profile(ref.artifact_id, missing_profile)
+
+    wrong_refs = (
+        ref.model_copy(update={"kind": "test.wrong-kind"}),
+        ref.model_copy(update={"media_type": "text/plain"}),
+    )
+    for wrong_ref in wrong_refs:
+        with pytest.raises(ArtifactIntegrityError, match="reference type does not match"):
+            store.get_manifest(wrong_ref)
+        with pytest.raises(ArtifactIntegrityError, match="reference type does not match"):
+            cached.get_manifest(wrong_ref)
+
+
+def test_gcs_missing_object_has_is_false_only_after_bucket_reload(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _install_fake_google_api_not_found(monkeypatch)
+    store = GCSArtifactStore(bucket="test-bucket")
+    bucket = _FakeBucket()
+    store._bucket = bucket
+
+    assert store.has("sha256:" + "ab" * 32) is False
+    assert bucket.reload_calls == 1
+
+
+def test_gcs_missing_bucket_is_not_reclassified_by_read_or_has(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    not_found_type = _install_fake_google_api_not_found(monkeypatch)
+    store = GCSArtifactStore(bucket="missing-bucket")
+    bucket = _FakeBucket()
+    store._bucket = bucket
+    bucket_missing = not_found_type("bucket does not exist")
+    bucket.reload_error = bucket_missing
+    missing_id = "sha256:" + "ab" * 32
+    from polisyos.core.artifacts.ids import ArtifactID
+
+    key = store._blob_key(ArtifactID.model_validate(missing_id))
+    bucket.download_errors[key] = not_found_type("object lookup returned 404")
+    manifest_key = store._manifest_key(ArtifactID.model_validate(missing_id))
+    bucket.download_errors[manifest_key] = not_found_type("manifest lookup returned 404")
+    cached = CachingArtifactStore(
+        remote=store,
+        local=FileSystemCAS(tmp_path / "local-missing-bucket"),
+        write_through=True,
+    )
+
+    with pytest.raises(not_found_type) as read_error:
+        store.get_bytes(missing_id)
+    assert read_error.value is bucket_missing
+    with pytest.raises(not_found_type) as cached_read_error:
+        cached.get_bytes(missing_id)
+    assert cached_read_error.value is bucket_missing
+
+    with pytest.raises(not_found_type) as has_error:
+        store.has(missing_id)
+    assert has_error.value is bucket_missing
+    with pytest.raises(not_found_type) as cached_has_error:
+        cached.has(missing_id)
+    assert cached_has_error.value is bucket_missing
+
+
+def test_gcs_bucket_permission_failure_blocks_false_absence(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    not_found_type = _install_fake_google_api_not_found(monkeypatch)
+    store = GCSArtifactStore(bucket="test-bucket")
+    bucket = _FakeBucket()
+    store._bucket = bucket
+    denied = PermissionError("bucket metadata permission denied")
+    bucket.reload_error = denied
+    key = store._blob_key(ArtifactID.from_sha256_hex("ab" * 32))
+    bucket.download_errors[key] = not_found_type("object lookup returned 404")
+
+    with pytest.raises(PermissionError) as raised:
+        store.get_bytes("sha256:" + "ab" * 32)
+    assert raised.value is denied
+
+
+@pytest.mark.parametrize("error", [TimeoutError("GCS timeout"), PermissionError("GCS denied")])
+def test_gcs_transport_and_permission_errors_are_not_reclassified_as_missing(
+    monkeypatch: pytest.MonkeyPatch,
+    error: Exception,
+    tmp_path,
+) -> None:
+    _install_fake_google_api_not_found(monkeypatch)
+    store = GCSArtifactStore(bucket="test-bucket")
+    bucket = _FakeBucket()
+    store._bucket = bucket
+    ref = store.put_bytes(
+        b"GCS transport error object",
+        PutOptions(kind="test.gcs_transport_error", media_type="application/octet-stream"),
+        return_selected_profile=True,
+    )
+    bucket.download_errors[store._blob_key(ref.artifact_id)] = error
+    cached = CachingArtifactStore(
+        remote=store,
+        local=FileSystemCAS(tmp_path / "local-error"),
+        write_through=False,
+    )
+
+    with pytest.raises(type(error)) as direct:
+        store.get_bytes(ref)
+    assert direct.value is error
+    with pytest.raises(type(error)) as through_cache:
+        cached.get_bytes(ref)
+    assert through_cache.value is error
 
 
 def test_gcs_write_can_return_the_exact_profile_for_a_first_write() -> None:

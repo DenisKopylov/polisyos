@@ -347,9 +347,7 @@ def write_authority_artifact(
             "producer_version": producer.version,
             "owner": owner,
             "runtime_event_ref": str(diagnostic_event_ref.artifact_id),
-            "runtime_event_manifest_profile_sha256": (
-                diagnostic_event_ref.manifest_profile_sha256
-            ),
+            "runtime_event_manifest_profile_sha256": (diagnostic_event_ref.manifest_profile_sha256),
             "cas_ref": cas_ref_value,
             "payload_sha256": payload_sha256,
             "schema_name": schema.name,
@@ -406,9 +404,7 @@ def write_authority_artifact(
             same_input_closure=closure,
             authority_envelope_ref=authority_envelope_ref,
             diagnostic_event_ref=str(diagnostic_event_ref.artifact_id),
-            diagnostic_event_manifest_profile_sha256=(
-                diagnostic_event_ref.manifest_profile_sha256
-            ),
+            diagnostic_event_manifest_profile_sha256=(diagnostic_event_ref.manifest_profile_sha256),
             manifest_ref=manifest_ref,
             payload_sha256=payload_sha256,
         ),
@@ -588,7 +584,7 @@ def write_runtime_authority_artifact(
         reconcile_authority_ref(
             artifact_store=store,
             event_log=event_log,
-            cas_ref=str(existing.cas_ref.artifact_id),
+            cas_ref=existing.cas_ref,
             expected_tenant_id=authority_fields.get("tenant_id"),
             expected_cell_id=authority_fields.get("cell_id"),
             expected_run_id=authority_fields.get("run_id"),
@@ -620,11 +616,12 @@ def _existing_authority_result_for_visible_views(
     expected_context: AuthorityArtifactIdentityContext,
     allow_new_canon_profile: bool = False,
 ) -> AuthorityArtifactWriteResult | None:
-    """Reconcile every inventory-visible authority view before selecting or writing.
+    """Reconcile every inventory-visible authority profile before selecting or writing.
 
-    Backends without the optional filtered inventory capability retain the
-    historical exact-default check; they do not establish absence of sibling
-    non-default views.
+    Default and explicit selectors may name the same verified manifest profile;
+    selector spelling is not a second authority view. Distinct canonical profiles
+    that both match the requested authority identity remain ambiguous and fail closed.
+    Backends without filtered inventory retain the historical exact-default check.
     """
     snapshotter = getattr(store, "inventory_snapshot", None)
     if not callable(snapshotter):
@@ -645,6 +642,8 @@ def _existing_authority_result_for_visible_views(
         raise ValueError("authority_profile_inventory_unverified")
 
     selected: AuthorityArtifactWriteResult | None = None
+    selected_profile: str | None = None
+    selected_projection: dict[str, object] | None = None
     for entry in getattr(snapshot, "entries", ()):
         manifest = getattr(entry, "manifest", None)
         if manifest is None or manifest.artifact_id != artifact_id:
@@ -660,6 +659,13 @@ def _existing_authority_result_for_visible_views(
             )
         if not isinstance(candidate_ref, ArtifactRef):
             raise ValueError("authority_profile_inventory_ref_untyped")
+        canonical_profile = core_artifacts.artifact_manifest_profile_sha256(manifest)
+        if (
+            candidate_ref.manifest_profile_sha256 is not None
+            and candidate_ref.manifest_profile_sha256 != canonical_profile
+        ):
+            raise ValueError("authority_profile_inventory_identity_mismatch")
+        profile_projection = core_artifacts.artifact_manifest_profile_projection(manifest)
         candidate = _existing_authority_result(
             store,
             cas_ref_value=cas_ref_value,
@@ -669,9 +675,23 @@ def _existing_authority_result_for_visible_views(
             selected_ref=candidate_ref,
             allow_new_canon_profile=allow_new_canon_profile,
         )
-        if candidate is not None:
-            if selected is not None and candidate != selected:
-                raise ValueError("authority_profile_inventory_multiple_matches")
+        if candidate is None:
+            continue
+        if selected is None:
+            selected = candidate
+            selected_profile = canonical_profile
+            selected_projection = profile_projection
+            continue
+        if (
+            canonical_profile != selected_profile
+            or profile_projection != selected_projection
+            or replace(candidate, cas_ref=selected.cas_ref) != selected
+        ):
+            raise ValueError("authority_profile_inventory_multiple_matches")
+        if (
+            candidate.cas_ref.manifest_profile_sha256 is None
+            and selected.cas_ref.manifest_profile_sha256 is not None
+        ):
             selected = candidate
     return selected
 
@@ -1208,9 +1228,7 @@ def _authority_payload_write_options(
                 authority_envelope_ref.manifest_profile_sha256
             ),
             diagnostic_event_ref=diagnostic_event_ref,
-            diagnostic_event_manifest_profile_sha256=(
-                diagnostic_event_manifest_profile_sha256
-            ),
+            diagnostic_event_manifest_profile_sha256=(diagnostic_event_manifest_profile_sha256),
             manifest_ref=manifest_ref,
             payload_sha256=payload_sha256,
         ),
@@ -1321,9 +1339,7 @@ def _assert_authority_manifest_linkage(
         authority_envelope_ref=str(authority_envelope_ref.artifact_id),
         authority_envelope_manifest_profile_sha256=(authority_envelope_ref.manifest_profile_sha256),
         diagnostic_event_ref=str(diagnostic_event_ref.artifact_id),
-        diagnostic_event_manifest_profile_sha256=(
-            diagnostic_event_ref.manifest_profile_sha256
-        ),
+        diagnostic_event_manifest_profile_sha256=(diagnostic_event_ref.manifest_profile_sha256),
         manifest_ref=manifest_ref,
         payload_sha256=payload_sha256,
     )

@@ -1114,9 +1114,40 @@ def _resolve_artifact_manifest(
     artifact_id: ArtifactID,
     manifest_profile_sha256: str | None,
 ) -> ArtifactManifest:
-    """Resolve an explicit manifest profile or the legacy default view."""
+    """Resolve one exact profile, including the exact profile behind a default view.
+
+    A profile-less request uses the default manifest only to discover its digest. It
+    must still pass exact-view ownership and content verification before any
+    consumer receives the selected manifest.
+    """
     if manifest_profile_sha256 is None:
-        return store.get_manifest(artifact_id)
+        try:
+            default_manifest = store.get_manifest(artifact_id)
+        except ArtifactOwnershipError as exc:
+            raise not_found(
+                "Selected artifact manifest profile is unavailable",
+                code="artifact_manifest_profile_not_found",
+            ) from exc
+        manifest_profile_sha256 = artifact_manifest_profile_sha256(default_manifest)
+        try:
+            return resolve_manifest_by_profile(
+                store,
+                artifact_id,
+                manifest_profile_sha256,
+            )
+        except FileNotFoundError as exc:
+            if not store.has(artifact_id):
+                raise not_found(str(exc), code="artifact_not_found") from exc
+            raise not_found(
+                "Selected artifact manifest profile is unavailable",
+                code="artifact_manifest_profile_not_found",
+            ) from exc
+        except (ArtifactOwnershipError, TypeError, ValueError) as exc:
+            raise not_found(
+                "Selected artifact manifest profile is unavailable",
+                code="artifact_manifest_profile_not_found",
+            ) from exc
+
     try:
         return resolve_manifest_by_profile(
             store,

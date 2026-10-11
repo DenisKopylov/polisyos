@@ -197,7 +197,7 @@ class S3ArtifactStore:
                 self.get_manifest(ref)
             return True
         except self._s3().exceptions.ClientError as exc:
-            if self._is_missing_error(exc):
+            if self._is_missing_object_error(exc):
                 return False
             raise
 
@@ -206,8 +206,7 @@ class S3ArtifactStore:
         selected = ref or aid
         cached = self._cache_read(aid, ".blob")
         if cached is None:
-            resp = self._s3().get_object(Bucket=self._bucket, Key=self._blob_key(aid))
-            data = cast("bytes", resp["Body"].read())
+            data = self._get_object_bytes(self._blob_key(aid))
             self._cache_write(aid, ".blob", data)
         else:
             data = cached
@@ -242,11 +241,7 @@ class S3ArtifactStore:
                 self._record_integrity_failure(reason=type(exc).__name__)
                 raise
             return bytes(cached), manifest
-        resp = self._s3().get_object(
-            Bucket=self._bucket,
-            Key=self._manifest_key(aid, profile_sha256),
-        )
-        raw = resp["Body"].read()
+        raw = self._get_object_bytes(self._manifest_key(aid, profile_sha256))
         self._cache_write(aid, cache_suffix, raw)
         manifest = ArtifactManifest.model_validate_json(raw.decode("utf-8"))
         try:
@@ -311,8 +306,7 @@ class S3ArtifactStore:
         except self._s3().exceptions.ClientError as exc:
             if not self._is_precondition_error(exc):
                 raise
-            response = self._s3().get_object(Bucket=self._bucket, Key=key)
-            return cast("bytes", response["Body"].read())
+            return self._get_object_bytes(key)
 
     def put_bytes(
         self,
@@ -341,7 +335,7 @@ class S3ArtifactStore:
         try:
             self._s3().head_object(Bucket=self._bucket, Key=self._manifest_key(aid))
         except self._s3().exceptions.ClientError as exc:
-            if not self._is_missing_error(exc):
+            if not self._is_missing_object_error(exc):
                 raise
             persisted_default = self._put_immutable_once(
                 key=self._manifest_key(aid),
@@ -349,15 +343,7 @@ class S3ArtifactStore:
                 content_type="application/json",
             )
         else:
-            persisted_default = cast(
-                "bytes",
-                self._s3()
-                .get_object(
-                    Bucket=self._bucket,
-                    Key=self._manifest_key(aid),
-                )["Body"]
-                .read(),
-            )
+            persisted_default = self._get_object_bytes(self._manifest_key(aid))
         default_manifest = ArtifactManifest.model_validate_json(persisted_default)
         validate_manifest_identity(aid, default_manifest)
         validate_read_integrity(aid, persisted_blob, default_manifest)
@@ -426,16 +412,36 @@ class S3ArtifactStore:
             load_manifest=lambda _aid: self.get_manifest(selected),
         )
 
-    @staticmethod
-    def _is_missing_error(exc: Exception) -> bool:
+    def _is_missing_object_error(self, exc: Exception) -> bool:
+        """Classify object absence without treating a missing S3 bucket as empty."""
         response = getattr(exc, "response", {})
         error = response.get("Error", {}) if isinstance(response, dict) else {}
-        code = str(error.get("Code", "")).strip()
-        status_code = None
+        code = str(error.get("Code", "")).strip() if isinstance(error, dict) else ""
         metadata = response.get("ResponseMetadata", {}) if isinstance(response, dict) else {}
-        if isinstance(metadata, dict):
-            status_code = metadata.get("HTTPStatusCode")
-        return code in {"404", "NotFound", "NoSuchKey"} or status_code == 404
+        status_code = metadata.get("HTTPStatusCode") if isinstance(metadata, dict) else None
+
+        if code in {"NoSuchBucket", "AccessDenied", "Forbidden"}:
+            return False
+        if code == "NoSuchKey" and status_code == 404:
+            return True
+        if status_code != 404 or code not in {"", "404", "NotFound"}:
+            return False
+
+        # S3 can report an ambiguous 404 for an absent key or an absent bucket.
+        # Prove the configured namespace before converting it to object absence.
+        self._s3().head_bucket(Bucket=self._bucket)
+        return True
+
+    def _get_object_bytes(self, key: str) -> bytes:
+        """Read one S3 object, normalizing only provider not-found responses."""
+        client = self._s3()
+        try:
+            response = client.get_object(Bucket=self._bucket, Key=key)
+        except client.exceptions.ClientError as exc:
+            if self._is_missing_object_error(exc):
+                raise FileNotFoundError(f"S3 object not found: {key}") from exc
+            raise
+        return cast("bytes", response["Body"].read())
 
     @staticmethod
     def _is_precondition_error(exc: Exception) -> bool:

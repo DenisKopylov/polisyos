@@ -1,16 +1,20 @@
 from __future__ import annotations
 
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
 
 from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
+from polisyos.core.artifacts.backends.caching_store import CachingArtifactStore
 from polisyos.core.artifacts.backends.s3_store import S3ArtifactStore
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import CanonInfo as CoreCanonInfo
 from polisyos.core.artifacts.manifest import ProducerInfo
-from polisyos.core.artifacts.store import ArtifactIntegrityError, PutOptions
+from polisyos.core.artifacts.store import ArtifactIntegrityError, FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec as CoreCanonSpec
 from polisyos.core.canon import CanonViolation as CoreCanonViolation
+from polisyos.core.canon import content_hash
 
 
 class _MetricsStub:
@@ -23,7 +27,9 @@ class _MetricsStub:
 
 class _FakeClientError(Exception):
     def __init__(self, code: str, *, status_code: int | None = None) -> None:
-        http_status = status_code or (404 if code in {"404", "NotFound", "NoSuchKey"} else 403)
+        http_status = status_code or (
+            404 if code in {"404", "NotFound", "NoSuchKey", "NoSuchBucket"} else 403
+        )
         self.response = {
             "Error": {"Code": code},
             "ResponseMetadata": {"HTTPStatusCode": http_status},
@@ -45,7 +51,21 @@ class _FakeS3Client:
     def __init__(self) -> None:
         self.objects: dict[str, bytes] = {}
         self.head_errors: dict[str, _FakeClientError] = {}
+        self.get_errors: dict[str, Exception] = {}
+        self.get_calls: list[str] = []
         self.put_calls: list[str] = []
+        self.bucket_exists = True
+        self.head_bucket_error: Exception | None = None
+        self.head_bucket_calls = 0
+
+    def head_bucket(self, **kwargs) -> dict[str, object]:
+        del kwargs
+        self.head_bucket_calls += 1
+        if self.head_bucket_error is not None:
+            raise self.head_bucket_error
+        if not self.bucket_exists:
+            raise _FakeClientError("NoSuchBucket")
+        return {}
 
     def head_object(self, **kwargs) -> dict[str, object]:
         key = str(kwargs["Key"])
@@ -53,13 +73,21 @@ class _FakeS3Client:
         if error is not None:
             raise error
         if key not in self.objects:
-            raise _FakeClientError("NotFound")
+            if not self.bucket_exists:
+                raise _FakeClientError("NoSuchBucket")
+            raise _FakeClientError("404", status_code=404)
         return {}
 
     def get_object(self, **kwargs) -> dict[str, object]:
         key = str(kwargs["Key"])
+        self.get_calls.append(key)
+        error = self.get_errors.get(key)
+        if error is not None:
+            raise error
         if key not in self.objects:
-            raise _FakeClientError("NotFound")
+            if not self.bucket_exists:
+                raise _FakeClientError("NoSuchBucket")
+            raise _FakeClientError("NoSuchKey")
         return {"Body": _FakeBody(self.objects[key])}
 
     def put_object(self, **kwargs) -> dict[str, object]:
@@ -130,6 +158,216 @@ def test_s3_store_get_bytes_rehashes_blob_on_read() -> None:
         store.get_bytes(ref.artifact_id)
 
     assert metrics.events == [("s3", "ArtifactIntegrityError")]
+
+
+def test_s3_missing_object_and_profile_are_typed_absence_across_direct_and_cached_reads(
+    tmp_path,
+) -> None:
+    store = S3ArtifactStore(bucket="test-bucket")
+    client = _FakeS3Client()
+    store._client = client
+    cached = CachingArtifactStore(
+        remote=store,
+        local=FileSystemCAS(tmp_path / "local"),
+        write_through=False,
+    )
+    missing_id = "sha256:" + "ab" * 32
+    missing_profile = "sha256:" + "f" * 64
+
+    with pytest.raises(FileNotFoundError):
+        store.get_bytes(missing_id)
+    with pytest.raises(FileNotFoundError):
+        store.get_manifest_by_profile(missing_id, missing_profile)
+    with pytest.raises(FileNotFoundError):
+        cached.get_bytes(missing_id)
+    with pytest.raises(FileNotFoundError):
+        cached.get_manifest_by_profile(missing_id, missing_profile)
+
+    ref = store.put_bytes(
+        b"existing blob with one manifest view",
+        PutOptions(kind="test.s3_missing_selected_view", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    assert ref.manifest_profile_sha256 is not None
+    assert store.get_manifest_by_profile(ref.artifact_id, ref.manifest_profile_sha256).kind == (
+        "test.s3_missing_selected_view"
+    )
+    assert cached.get_manifest_by_profile(ref.artifact_id, ref.manifest_profile_sha256).kind == (
+        "test.s3_missing_selected_view"
+    )
+
+    before_malformed = len(client.get_calls)
+    with pytest.raises(ValueError, match="manifest_profile_sha256 must be"):
+        store.get_manifest_by_profile(ref.artifact_id, "malformed-profile")
+    assert len(client.get_calls) == before_malformed
+
+    with pytest.raises(FileNotFoundError):
+        store.get_manifest_by_profile(ref.artifact_id, missing_profile)
+    with pytest.raises(FileNotFoundError):
+        cached.get_manifest_by_profile(ref.artifact_id, missing_profile)
+
+    wrong_refs = (
+        ref.model_copy(update={"kind": "test.wrong-kind"}),
+        ref.model_copy(update={"media_type": "text/plain"}),
+    )
+    for wrong_ref in wrong_refs:
+        with pytest.raises(ArtifactIntegrityError, match="reference type does not match"):
+            store.get_manifest(wrong_ref)
+        with pytest.raises(ArtifactIntegrityError, match="reference type does not match"):
+            cached.get_manifest(wrong_ref)
+
+
+def test_s3_ambiguous_404_is_absent_only_after_bucket_verification() -> None:
+    store = S3ArtifactStore(bucket="test-bucket")
+    client = _FakeS3Client()
+    store._client = client
+    missing_id = "sha256:" + "ab" * 32
+    key = store._blob_key(ArtifactID.model_validate(missing_id))
+    client.get_errors[key] = _FakeClientError("404", status_code=404)
+
+    with pytest.raises(FileNotFoundError):
+        store.get_bytes(missing_id)
+    assert client.head_bucket_calls == 1
+    assert store.has(missing_id) is False
+    assert client.head_bucket_calls == 2
+
+
+def test_s3_missing_bucket_404_is_not_reclassified_by_read_or_has(tmp_path) -> None:
+    store = S3ArtifactStore(bucket="missing-bucket")
+    client = _FakeS3Client()
+    client.bucket_exists = False
+    store._client = client
+    missing_id = "sha256:" + "ab" * 32
+    from polisyos.core.artifacts.ids import ArtifactID
+
+    aid = ArtifactID.model_validate(missing_id)
+    key = store._blob_key(aid)
+    ambiguous = _FakeClientError("404", status_code=404)
+    client.get_errors[key] = ambiguous
+    manifest_key = store._manifest_key(ArtifactID.model_validate(missing_id))
+    client.get_errors[manifest_key] = _FakeClientError("404", status_code=404)
+    cached = CachingArtifactStore(
+        remote=store,
+        local=FileSystemCAS(tmp_path / "local-missing-bucket"),
+        write_through=True,
+    )
+
+    with pytest.raises(_FakeClientError, match="NoSuchBucket"):
+        store.get_bytes(missing_id)
+    assert client.head_bucket_calls == 1
+    with pytest.raises(_FakeClientError, match="NoSuchBucket"):
+        cached.get_bytes(missing_id)
+    assert client.head_bucket_calls == 2
+
+    client.head_errors[key] = _FakeClientError("404", status_code=404)
+    with pytest.raises(_FakeClientError, match="NoSuchBucket"):
+        store.has(missing_id)
+    assert client.head_bucket_calls == 3
+    with pytest.raises(_FakeClientError, match="NoSuchBucket"):
+        cached.has(missing_id)
+    assert client.head_bucket_calls == 4
+
+
+def test_s3_namespace_and_permission_errors_are_not_missing_objects(tmp_path: Path) -> None:
+    store = S3ArtifactStore(bucket="test-bucket")
+    client = _FakeS3Client()
+    store._client = client
+    data = b"existing selected remote artifact"
+    ref = store.put_bytes(
+        data,
+        PutOptions(kind="test.s3_provider_error", media_type="application/octet-stream"),
+        return_selected_profile=True,
+    )
+    if ref.manifest_profile_sha256 is None:
+        pytest.fail("the remote error control requires an exact selected manifest view")
+    if store.get_bytes(ref) != data:
+        pytest.fail("the selected S3 fixture did not read back its stored bytes")
+    cached = CachingArtifactStore(
+        remote=store,
+        local=FileSystemCAS(tmp_path / "local-provider-error"),
+        write_through=True,
+    )
+    key = store._blob_key(ref.artifact_id)
+    head_bucket_calls_before_errors = client.head_bucket_calls
+
+    for error in (
+        _FakeClientError("NoSuchBucket"),
+        _FakeClientError("NoSuchKey", status_code=403),
+        _FakeClientError("AccessDenied", status_code=403),
+        _FakeClientError("AccessDenied", status_code=404),
+        _FakeClientError("NoSuchObject", status_code=404),
+        _FakeClientError("UnrecognizedProviderError", status_code=404),
+    ):
+        client.get_errors[key] = error
+        client.head_errors[key] = error
+        with pytest.raises(type(error)) as raised:
+            store.get_bytes(ref)
+        if raised.value is not error:
+            pytest.fail("direct GET changed the provider error instance")
+        with pytest.raises(type(error)) as raised_cached:
+            cached.get_bytes(ref)
+        if raised_cached.value is not error:
+            pytest.fail("cached GET changed the provider error instance")
+        with pytest.raises(type(error)) as raised_head:
+            store.has(ref)
+        if raised_head.value is not error:
+            pytest.fail("direct HEAD changed the provider error instance")
+        with pytest.raises(type(error)) as raised_cached_head:
+            cached.has(ref)
+        if raised_cached_head.value is not error:
+            pytest.fail("cached HEAD changed the provider error instance")
+    if client.head_bucket_calls != head_bucket_calls_before_errors:
+        pytest.fail("provider errors triggered ambiguous-404 bucket verification")
+
+
+@pytest.mark.parametrize("code", ["NoSuchObject", "UnrecognizedProviderError"])
+def test_s3_unknown_404_during_default_manifest_probe_is_not_absence(code: str) -> None:
+    store = S3ArtifactStore(bucket="test-bucket")
+    client = _FakeS3Client()
+    store._client = client
+    data = b"unknown S3 response during default manifest probe"
+    artifact_id = ArtifactID.from_sha256_hex(content_hash(data))
+    manifest_key = store._manifest_key(artifact_id)
+    error = _FakeClientError(code, status_code=404)
+    client.head_errors[manifest_key] = error
+
+    with pytest.raises(_FakeClientError) as raised:
+        store.put_bytes(
+            data,
+            PutOptions(kind="test.s3_unknown_not_found", media_type="application/octet-stream"),
+        )
+
+    assert raised.value is error
+    assert client.put_calls == [store._blob_key(artifact_id)]
+    assert manifest_key not in client.objects
+
+
+@pytest.mark.parametrize("error", [TimeoutError("S3 timeout"), _FakeClientError("AccessDenied")])
+def test_s3_transport_and_permission_errors_are_not_reclassified_as_missing(
+    error: Exception,
+    tmp_path,
+) -> None:
+    store = S3ArtifactStore(bucket="test-bucket")
+    client = _FakeS3Client()
+    store._client = client
+    ref = store.put_bytes(
+        b"transport error object",
+        PutOptions(kind="test.s3_transport_error", media_type="application/octet-stream"),
+        return_selected_profile=True,
+    )
+    client.get_errors[store._blob_key(ref.artifact_id)] = error
+    cached = CachingArtifactStore(
+        remote=store,
+        local=FileSystemCAS(tmp_path / "local-error"),
+        write_through=False,
+    )
+
+    with pytest.raises(type(error)) as direct:
+        store.get_bytes(ref)
+    assert direct.value is error
+    with pytest.raises(type(error)) as through_cache:
+        cached.get_bytes(ref)
+    assert through_cache.value is error
 
 
 def test_s3_write_can_return_the_exact_profile_for_a_first_write() -> None:

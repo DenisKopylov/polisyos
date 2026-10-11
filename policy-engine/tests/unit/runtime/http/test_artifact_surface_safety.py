@@ -8,7 +8,14 @@ pytest.importorskip("fastapi")
 
 from fastapi.testclient import TestClient
 
-from polisyos.core.artifacts import FileSystemCAS, PutOptions, SchemaInfo
+from polisyos.core.artifacts import (
+    ArtifactOwnershipError,
+    ArtifactRef,
+    FileSystemCAS,
+    PutOptions,
+    SchemaInfo,
+    artifact_manifest_profile_sha256,
+)
 from polisyos.core.artifacts.manifest import ProducerInfo
 from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.http.services.temporal import (
@@ -23,7 +30,7 @@ FIXTURE_CELL_ID = "cell-a"
 
 def test_raw_and_manifest_artifact_surfaces_block_secret_pii(tmp_path) -> None:
     cas_root = tmp_path / ".polisyos"
-    store = FileSystemCAS(cas_root)
+    store = FileSystemCAS(cas_root, tenant_id=FIXTURE_TENANT_ID, cell_id=FIXTURE_CELL_ID)
     clean_ref = store.put_json(
         {**_authority_payload(), "fixture": "clean-public-route"},
         PutOptions(
@@ -49,17 +56,8 @@ def test_raw_and_manifest_artifact_surfaces_block_secret_pii(tmp_path) -> None:
             producer=ProducerInfo(component=FIXTURE_EMAIL, version="1.0"),
         ),
     )
-    for artifact_id in (
-        clean_ref.artifact_id,
-        raw_secret_ref.artifact_id,
-        manifest_secret_ref.artifact_id,
-    ):
-        store.record_artifact_owner(
-            artifact_id,
-            tenant_id=FIXTURE_TENANT_ID,
-            cell_id=FIXTURE_CELL_ID,
-            writer="artifact-surface-safety-test",
-        )
+    for artifact_ref in (clean_ref, raw_secret_ref, manifest_secret_ref):
+        _assert_selected_view_is_owned(store, artifact_ref)
 
     app = create_runtime_api_app(
         cas_root=cas_root,
@@ -70,7 +68,7 @@ def test_raw_and_manifest_artifact_surfaces_block_secret_pii(tmp_path) -> None:
         enable_security_middlewares=False,
     )
 
-    with TestClient(app, raise_server_exceptions=False) as client:
+    with TestClient(app, raise_server_exceptions=True) as client:
         clean = client.get(f"/api/v1/artifacts/{clean_ref.artifact_id}/content")
         raw = client.get(
             f"/api/v1/artifacts/{raw_secret_ref.artifact_id}/content",
@@ -122,7 +120,7 @@ def test_composed_gate_blocks_declared_inconsistent_time_source_on_raw_and_expor
         },
     )
 
-    with TestClient(app, raise_server_exceptions=False) as client:
+    with TestClient(app, raise_server_exceptions=True) as client:
         raw = client.get(
             f"/api/v1/artifacts/{ref}/content",
             headers={"Accept": "application/octet-stream"},
@@ -149,7 +147,7 @@ def test_composed_gate_blocks_s12_deref_bypass_on_raw_and_export(tmp_path) -> No
         },
     )
 
-    with TestClient(app, raise_server_exceptions=False) as client:
+    with TestClient(app, raise_server_exceptions=True) as client:
         raw = client.get(
             f"/api/v1/artifacts/{ref}/content",
             headers={"Accept": "application/octet-stream"},
@@ -160,12 +158,143 @@ def test_composed_gate_blocks_s12_deref_bypass_on_raw_and_export(tmp_path) -> No
     assert export.status_code == 409
 
 
+def test_default_owner_only_is_not_a_selected_profile_grant_across_surfaces(tmp_path) -> None:
+    cas_root = tmp_path / ".polisyos"
+    writer = FileSystemCAS(cas_root)
+    payload_marker = "selected-profile-boundary-marker"
+    ref = writer.put_json(
+        {"fixture": "legacy-default-owner-only", "payload_marker": payload_marker},
+        PutOptions(
+            kind="surface.legacy_default_owner_only",
+            media_type="application/json",
+            schema=SchemaInfo(name="surface.legacy_default_owner_only", version="1.0"),
+        ),
+    )
+    writer.record_artifact_owner(
+        ref.artifact_id,
+        tenant_id=FIXTURE_TENANT_ID,
+        cell_id=FIXTURE_CELL_ID,
+        writer="artifact-surface-safety-test-legacy-owner",
+    )
+    scoped_reader = FileSystemCAS(cas_root, tenant_id=FIXTURE_TENANT_ID, cell_id=FIXTURE_CELL_ID)
+    default_manifest = scoped_reader.get_manifest(ref.artifact_id)
+    with pytest.raises(ArtifactOwnershipError):
+        scoped_reader.get_manifest_by_profile(
+            ref.artifact_id,
+            artifact_manifest_profile_sha256(default_manifest),
+        )
+
+    app = create_runtime_api_app(
+        cas_root=cas_root,
+        core_runs_root=cas_root / "runs",
+        allow_unscoped_artifacts=True,
+        allow_fixture_identity=True,
+        enable_response_compression=False,
+        enable_security_middlewares=False,
+    )
+    with TestClient(app, raise_server_exceptions=True) as client:
+        responses = (
+            client.get(f"/api/v1/artifacts/{ref.artifact_id}"),
+            client.get(
+                f"/api/v1/artifacts/{ref.artifact_id}/content",
+                headers={"Accept": "application/octet-stream"},
+            ),
+            client.get(
+                f"/api/v1/artifacts/{ref.artifact_id}/download",
+                headers={"Accept": "application/octet-stream"},
+            ),
+            client.get(f"/api/v1/artifacts/{ref.artifact_id}/export"),
+        )
+    for response in responses:
+        assert response.status_code == 404, response.text
+        assert response.json()["code"] == "artifact_manifest_profile_not_found"
+        assert payload_marker not in response.text
+
+
+def test_default_route_hides_an_exact_view_owned_by_another_tenant(tmp_path) -> None:
+    cas_root = tmp_path / ".polisyos"
+    foreign_tenant_id = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+    foreign_cell_id = "cell-foreign"
+    foreign_store = FileSystemCAS(cas_root, tenant_id=foreign_tenant_id, cell_id=foreign_cell_id)
+    payload_marker = "foreign-selected-profile-marker"
+    ref = foreign_store.put_json(
+        {"fixture": "foreign-profile-owner", "payload_marker": payload_marker},
+        PutOptions(
+            kind="surface.foreign_profile_owner",
+            media_type="application/json",
+            schema=SchemaInfo(name="surface.foreign_profile_owner", version="1.0"),
+        ),
+    )
+    app = create_runtime_api_app(
+        cas_root=cas_root,
+        core_runs_root=cas_root / "runs",
+        allow_unscoped_artifacts=True,
+        allow_fixture_identity=True,
+        enable_response_compression=False,
+        enable_security_middlewares=False,
+    )
+    with TestClient(app, raise_server_exceptions=True) as client:
+        responses = (
+            client.get(
+                f"/api/v1/artifacts/{ref.artifact_id}/content",
+                headers={"Accept": "application/octet-stream"},
+            ),
+            client.get(
+                f"/api/v1/artifacts/{ref.artifact_id}/download",
+                headers={"Accept": "application/octet-stream"},
+            ),
+            client.get(f"/api/v1/artifacts/{ref.artifact_id}/export"),
+        )
+    for response in responses:
+        assert response.status_code == 404, response.text
+        assert response.json()["code"] == "artifact_manifest_profile_not_found"
+        assert payload_marker not in response.text
+        assert foreign_tenant_id not in response.text
+
+
+def test_default_route_keeps_missing_blob_distinct_from_missing_profile(tmp_path) -> None:
+    cas_root = tmp_path / ".polisyos"
+    store = FileSystemCAS(cas_root, tenant_id=FIXTURE_TENANT_ID, cell_id=FIXTURE_CELL_ID)
+    ref = store.put_json(
+        {"fixture": "missing-blob", "value": 1},
+        PutOptions(
+            kind="surface.missing_blob",
+            media_type="application/json",
+            schema=SchemaInfo(name="surface.missing_blob", version="1.0"),
+        ),
+    )
+    blob_paths = list((cas_root / "artifacts" / "sha256").glob("*/*/*.blob"))
+    assert len(blob_paths) == 1
+    blob_path = blob_paths[0]
+    original_blob_bytes = blob_path.read_bytes()
+    quarantine = tmp_path / "fixture-quarantine"
+    quarantine.mkdir()
+    quarantined_blob = quarantine / blob_path.name
+    blob_path.replace(quarantined_blob)
+    assert not blob_path.exists()
+    assert quarantined_blob.read_bytes() == original_blob_bytes
+
+    app = create_runtime_api_app(
+        cas_root=cas_root,
+        core_runs_root=cas_root / "runs",
+        allow_unscoped_artifacts=True,
+        allow_fixture_identity=True,
+        enable_response_compression=False,
+        enable_security_middlewares=False,
+    )
+    with TestClient(app, raise_server_exceptions=True) as client:
+        response = client.get(f"/api/v1/artifacts/{ref.artifact_id}/content")
+    assert response.status_code == 404
+    assert response.json()["code"] == "artifact_not_found"
+    assert quarantined_blob.read_bytes() == original_blob_bytes
+
+
 def _app_with_surface_payload(
     tmp_path,
     payload: dict[str, object],
 ) -> tuple[str, object]:
     cas_root = tmp_path / ".polisyos"
-    store = FileSystemCAS(cas_root)
+    store = FileSystemCAS(cas_root, tenant_id=FIXTURE_TENANT_ID, cell_id=FIXTURE_CELL_ID)
     ref = store.put_json(
         payload,
         PutOptions(
@@ -174,12 +303,7 @@ def _app_with_surface_payload(
             schema=SchemaInfo(name="surface.composed_admission_payload", version="1.0"),
         ),
     )
-    store.record_artifact_owner(
-        ref.artifact_id,
-        tenant_id=FIXTURE_TENANT_ID,
-        cell_id=FIXTURE_CELL_ID,
-        writer="artifact-surface-safety-test",
-    )
+    _assert_selected_view_is_owned(store, ref)
     app = create_runtime_api_app(
         cas_root=cas_root,
         core_runs_root=cas_root / "runs",
@@ -206,6 +330,16 @@ def test_lineage_routes_block_clean_no_authority(tmp_path) -> None:
     assert get.status_code == 409
     assert openlineage.status_code == 409
     assert prov.status_code == 409
+
+
+def _assert_selected_view_is_owned(store: FileSystemCAS, ref: ArtifactRef) -> None:
+    """Prove the fixture writer owns the exact profile selected by HTTP readers."""
+    manifest = store.get_manifest(ref)
+    selected = store.get_manifest_by_profile(
+        ref.artifact_id,
+        artifact_manifest_profile_sha256(manifest),
+    )
+    assert selected == manifest
 
 
 def _authority_payload() -> dict[str, object]:

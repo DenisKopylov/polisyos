@@ -187,7 +187,7 @@ class GCSArtifactStore:
             return True
         blob = self._gcs_bucket().blob(self._blob_key(aid))
         manifest = self._gcs_bucket().blob(self._manifest_key(aid, profile_sha256))
-        exists = bool(blob.exists() and manifest.exists())
+        exists = self._blob_exists(blob) and self._blob_exists(manifest)
         if exists and ref is not None:
             try:
                 self.get_manifest(ref)
@@ -203,7 +203,7 @@ class GCSArtifactStore:
             data = cached
         else:
             blob = self._gcs_bucket().blob(self._blob_key(aid))
-            data = blob.download_as_bytes()
+            data = self._download_blob_bytes(blob)
             self._cache_write(aid, ".blob", data)
         manifest = self.get_manifest(selected)
         try:
@@ -231,7 +231,7 @@ class GCSArtifactStore:
             manifest = ArtifactManifest.model_validate_json(cached.decode("utf-8"))
         else:
             blob = self._gcs_bucket().blob(self._manifest_key(aid, profile_sha256))
-            raw = blob.download_as_bytes()
+            raw = self._download_blob_bytes(blob)
             self._cache_write(aid, cache_suffix, raw)
             manifest = ArtifactManifest.model_validate_json(raw.decode("utf-8"))
         try:
@@ -285,6 +285,43 @@ class GCSArtifactStore:
             code = response.get("code", code)
         return code == 412 or str(code) in {"412", "PreconditionFailed"}
 
+    @staticmethod
+    def _is_missing_error(exc: Exception) -> bool:
+        """Recognize only the Google API client's typed provider 404."""
+        try:
+            exceptions_module = importlib.import_module("google.api_core.exceptions")
+        except ImportError:
+            return False
+        not_found = getattr(exceptions_module, "NotFound", None)
+        return isinstance(not_found, type) and isinstance(exc, not_found)
+
+    def _confirm_bucket_exists(self) -> None:
+        """Require a successful namespace read before treating a GCS 404 as object absence."""
+        self._gcs_bucket().reload()
+
+    def _blob_exists(self, blob: Any) -> bool:
+        """Return object presence only after resolving an ambiguous GCS 404."""
+        try:
+            exists = bool(blob.exists())
+        except Exception as exc:
+            if not self._is_missing_error(exc):
+                raise
+            self._confirm_bucket_exists()
+            return False
+        if not exists:
+            self._confirm_bucket_exists()
+        return exists
+
+    def _download_blob_bytes(self, blob: Any) -> bytes:
+        """Normalize object absence only after the configured bucket is verified."""
+        try:
+            return blob.download_as_bytes()
+        except Exception as exc:
+            if self._is_missing_error(exc):
+                self._confirm_bucket_exists()
+                raise FileNotFoundError(f"GCS object not found: {blob.name}") from exc
+            raise
+
     def _upload_once(self, blob: Any, data: bytes, *, content_type: str) -> bytes:
         try:
             blob.upload_from_string(
@@ -296,7 +333,7 @@ class GCSArtifactStore:
         except Exception as exc:
             if not self._is_precondition_error(exc):
                 raise
-            return blob.download_as_bytes()
+            return self._download_blob_bytes(blob)
 
     def put_bytes(
         self,
@@ -320,14 +357,14 @@ class GCSArtifactStore:
         profile_sha256 = ManifestLifecycle.profile_sha256(manifest)
 
         manifest_obj = self._gcs_bucket().blob(self._manifest_key(aid))
-        if not manifest_obj.exists():
+        if not self._blob_exists(manifest_obj):
             persisted_default = self._upload_once(
                 manifest_obj,
                 manifest_bytes,
                 content_type="application/json",
             )
         else:
-            persisted_default = manifest_obj.download_as_bytes()
+            persisted_default = self._download_blob_bytes(manifest_obj)
         default_manifest = ArtifactManifest.model_validate_json(persisted_default)
         validate_manifest_identity(aid, default_manifest)
         validate_read_integrity(aid, persisted_blob, default_manifest)

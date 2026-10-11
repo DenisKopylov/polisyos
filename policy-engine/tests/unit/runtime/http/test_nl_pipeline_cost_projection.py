@@ -11,7 +11,11 @@ from typing import Any, ClassVar
 import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.contracts.control import CatalogRunProfile, DataResolveRequest
+from polisyos.core.contracts.control import (
+    CatalogRunProfile,
+    ControlJobResponse,
+    DataResolveRequest,
+)
 from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot, MethodCatalogSnapshotRef
 from polisyos.core.llm.traced_client import TracedLLMClient
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
@@ -674,7 +678,37 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         creation_payload = ordinary_run["creation_payload"]
         creation_outbox = ordinary_run["creation_outbox"]
         assert creation_outbox.payload == creation_payload
-        assert creation_payload.get("execution_scope", {}).get("status") == "established"
+        execution_scope = creation_payload.get("execution_scope")
+        assert isinstance(execution_scope, dict)
+        assert execution_scope.get("status") == "established"
+
+        job_response = client.get(f"/api/v1/control/jobs/{job_id}")
+        assert job_response.status_code == 200, job_response.text
+        received_job = ControlJobResponse.model_validate(job_response.json())
+        progress = received_job.progress
+        assert progress["execution_intent_band"] == "candidate_only"
+        assert progress["status"] == "candidate_limited"
+        assert progress["stage"] == "n4_proposal_only"
+        assert progress["candidate_computation_status"] == "completed"
+        assert progress["limitation_code"] == "cycle_substrate_context_unavailable"
+        assert progress["candidate_proposal_limitation_code"] == (
+            "cycle_substrate_context_unavailable"
+        )
+        candidate_proposal_ref = progress.get("candidate_proposal_ref")
+        assert isinstance(candidate_proposal_ref, dict)
+        candidate_artifact_ref = candidate_proposal_ref.get("artifact_ref")
+        assert isinstance(candidate_artifact_ref, dict)
+        assert candidate_artifact_ref.get("kind") == "runtime.quality.n4_candidate_proposal"
+        assert progress["n5_status"] == "not_run"
+        assert progress["n9_status"] == "not_run"
+        assert progress["target_world_scope_currentness"] == "not_established"
+
+        from polisyos.runtime.quality.refs import RuntimeQualityAuthorityRefs
+
+        authority_refs = RuntimeQualityAuthorityRefs.from_runtime_payloads(
+            job_payload=received_job.model_dump(mode="json")
+        )
+        assert authority_refs.get_selected_ref("security_assurance_report_ref") is None
         completed = job
         core_run_id = str(ordinary_run["run_id"])
         runtime_context = ordinary_run["runtime_context"]
@@ -691,6 +725,13 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         assert records
         assert all(record.key == f"nl-run:{job.run_id}" for record in records)
         assert all(record.run_binding == binding for record in records)
+        assert binding.run_id == str(job.run_id)
+        assert binding.control_job_id == job_id
+        assert binding.profile_id == details.execution_profile == job.effective_execution_profile
+        assert binding.tenant_id == execution_scope.get("tenant_id")
+        assert binding.cell_id == execution_scope.get("cell_id")
+        record_ids = [record.event_id for record in records]
+        assert len(record_ids) == len(set(record_ids))
         assert details.root_artifacts
 
         ledger_path = Path(env["cas_root"]) / "runs" / ".runtime" / "llm-cost-ledger.json"
@@ -719,7 +760,6 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         assert rejected_steps == []
         assert rejection == "llm_producer_control_job_owner_not_established"
 
-        runtime_context.debug.get_run_agents(run)
         response = client.get(f"/api/v1/runs/{core_run_id}/agents")
         assert response.status_code == 200, response.text
         pipeline = response.json()["pipeline"]
@@ -730,7 +770,24 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
             for event in step.get("cost_events", [])
         ]
         served_by_id = {event["event_id"]: event for event in served_events}
+        assert len(served_by_id) == len(served_events)
+        assert set(record_ids).issubset(served_by_id)
         assert pending.event_id in served_by_id
+        for record in records:
+            served_record = served_by_id[record.event_id]
+            assert served_record["origin_event_id"] == record.origin_event_id
+            assert served_record["cost_origin"] == record.cost_origin
+            assert served_record["settlement_status"] == record.status
+            assert served_record["durability"] == "ledger"
+            assert served_record["receipts"] == (
+                [record.event_id] if record.status == "committed" else []
+            )
+            assert served_record["amount"] == (
+                str(record.amount) if record.amount is not None else None
+            )
+            assert served_record["payload_digest"] == record.payload_digest
+            assert served_record["model"] == record.model
+            assert served_record["provider"] == record.provider
         pending_view = served_by_id[pending.event_id]
         assert pending_view["settlement_status"] == "pending"
         assert pending_view["cost_origin"] == "unknown"

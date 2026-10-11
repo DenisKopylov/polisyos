@@ -1,0 +1,28 @@
+# R3 provider preflight V4r6 independent delta review — 2026-10-11
+
+**Verdict: GO for candidate composition, subject to the parent’s composed runtime replay.** This is source/static review of the immutable R6 virtual patch. It is not a G acceptance, formal closure, or runtime receipt. `closure_ids: []`; candidate proposals remain `B10`, `B66`, `B67`, and `B68`.
+
+## Frozen candidate and boundary
+
+- Patch: `LOCAL/raw/r3-preflight-producer-ledger-v4-r6-20261011/r3-preflight-producer-ledger-v4-r6.patch` — SHA-256 `dbcbdfeb48cfd8df6072d6d6008fc3d2b247b36475c7b4908e0f59f716fd9ed2` (65,024 bytes).
+- Manifest: `.../manifest-r6.json` — SHA-256 `e35c2b13df45625b9324183105e29a0a69cad21be21bc723b8cecc9a86c25cc7`.
+- Decision packet: `.../decision-packet-r6.md` — SHA-256 `767b2d0538e449c5e6bef860a0058261be65474d3cac6b142d177c4fa490c633`.
+- Exact candidate base: branch `codex/e02-unified-local-20261009`, HEAD `022c70f26f5cdb3c9aa6c4af87dc13f7071a5064`, tree `9f704ff908760509858d73ad2905c7ff1476e057`, parent `09f2ae7633b9990ed305e2d28111b5d45b33e89f`; source remains virtual/unapplied.
+- All four current source preimages independently match the manifest. Full pre/post SHA-256s and byte counts are in the manifest. The worktree was already dirty; this review made no product, index, or history changes.
+- R6 addresses the sole R5 review blocker: the provider-exception path omitted required bindings when invoking the shared producer-event resolver. The prior unchanged V4 source/property review is carried from the exact R5 review note `LOCAL/reviews/r3-preflight-producer-ledger-v4-r5-independent-review-20261011.md` (SHA-256 `4082d7ead458af62e812e0e6e4fba48af824495915522fe7f072128183312ec8`). This delta review does not re-claim a new full runtime review.
+
+## Independent findings
+
+The exact `_preflight_producer_event_reference` signature requires eight scope/store keywords: expected budget key, run binding, producer scope digest, cache scope digest, request digest, durable settlement store, model, and provider. An AST walk over the complete virtual provider module found exactly two callers. The normal completion caller and the exception caller each provide all eight; neither has a missing required keyword. `origin_event_reference` remains optional for the ordinary provider-event case. Callset details and lines are in `LOCAL/raw/r3-preflight-producer-ledger-v4-r6-independent-review-20261011/helper-callset-and-test-source-audit.json` (SHA-256 `31a2950edd147cc04117fabca1c06ecf99f9bca2aa9c7eed76ef8bff83e98136`). This closes the same producer-event admission class across the whole callset, rather than adding defaults or catching a TypeError.
+
+The exception branch returns typed `status=unknown` when no exactly resolved durable event is available. When the real trace supplies an exactly resolved durable unknown-cost provider event, the branch retains that event under the failed tiny-completion check and returns overall `status=failed`; it does not turn the failed provider call into successful readiness. The added controlled test source uses the normal `GatewayLLMClient` factory path, the existing cache/tracing wrappers, a loopback HTTP 503, and a real `FileBudgetLedger`. Its two cases assert one completion POST after four setup GETs, a durable `cost_origin=unknown` event when settlement succeeds, or a retained pending begin intent and typed unknown report when settlement append is forced to fail. The observed test source is at virtual `test_provider_verification.py:1162–1294` (line numbers from the candidate AST audit); pytest was not run here.
+
+The ordinary Natural Language launch control is separate: its source injects `failed` and `unknown` preflight reports, then asserts a rejected job and `execute_called is False` (`test_control_api.py:1599–1735` in the virtual postimage). It shows the consumer gate rejects unknown preflight before pipeline execution, but it is not itself a single producer-to-consumer runtime test. The parent’s composed replay remains necessary.
+
+## Verification and remaining limits
+
+Independent scratch application from the four exact preimages passed `git apply --check`; all four materialized postimages matched their manifest SHA-256 and parsed with Python AST. Canonical Ruff check and format-check passed on all four complete virtual postimages using `policy-engine/architecture/tooling/ruff/workspace_root.toml` and repository-relative stdin filenames. Full commands and stdout/stderr are retained at `LOCAL/raw/r3-preflight-producer-ledger-v4-r6-independent-review-20261011/independent-checks.json` (SHA-256 `5ee3142f11949164c320cf6564c4b046a71a24ace0f8e91675f4e8532de095e9`) and per-command output files in the same directory. The apply check and candidate’s other frozen receipts remain in the source packet directory.
+
+Runtime pytest, the composed ordinary-POST replay, installed/Linux consumers, and production currentness are **UNRUN / not established** by this review. The loopback fixture is a bounded source-bound witness only; it supplies no external pricing, invoice, provider idempotency, or institutional authority. Concurrency/singleflight, cancellation/retry/reopen, and external provider idempotency remain outside this candidate claim. The parent should run the designated composed replay before recording a runtime receipt.
+
+P40 classification: **SAME class, one level deeper** (the exception caller missed the producer-event binding already required by the success caller). R6 widens the fix to both actual callers, and the complete callset audit finds no remaining missing binding. No new source blocker remains in this delta.

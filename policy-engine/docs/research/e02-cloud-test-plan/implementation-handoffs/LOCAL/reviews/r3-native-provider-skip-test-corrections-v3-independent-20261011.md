@@ -1,0 +1,28 @@
+# Independent review: R3 provider-ledger and API SKIP test companions (v3)
+
+Decision: **GO for this test-only candidate at the stated boundary.** `closure_ids: []`; this is an author proposal and test evidence, not a G finding or formal closure. No product source, index, or history was changed by this review.
+
+## Frozen identity and scope
+
+- Checkout/branch: `/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos`, `codex/e02-unified-local-20261009`; HEAD `cd5651c3a6897f12d32212e3521e73bb570f137b`, tree `bb7186c24000b54fdb0ab8ce8d16b55c3658995c`.
+- Candidate patch: `implementation-handoffs/LOCAL/raw/r3-native-provider-skip-test-corrections-v3-20261011/candidate.patch` @ SHA-256 `f2474812e3f8f304c8d0896cead73c01f362fb426a1bd14c2c04d3eebdbe7345`.
+- Candidate manifest: sibling `candidate-manifest.json` @ SHA-256 `364f3670a872eab0b8a59c008f657a88c05ad66c00525bed65216921f4f9fd74`.
+- Both named dirty test preimages match the manifest byte-for-byte; the patch applies with `git apply --check`. The candidate modifies only `tests/unit/scientist/orchestration/llm/test_provider_verification.py` and `tests/unit/runtime/http/test_control_api.py`. Its postimage hashes match the manifest: `67a2bf99604b9abc92815dc9c06af52d7e7eedc9786220f02f766a8f1ffb5783` and `84192fb78f68482c50b001e301ba9a65844f13d860d828a1c491bb48aab1de28`.
+
+## Property review
+
+The provider test now distinguishes exact Decimal wire values from the lossy `cost_usd` float projection. Reported zero is exact (`"0.0"`); the estimated amount is pinned as the exact existing Decimal wire string, and only its float projection uses `pytest.approx`; unknown is `None` in the typed reference but absent from the persisted ledger JSON. The test reconstructs an `LLMProducerEvent`, checks its payload digest against the returned reference and persisted record, opens the ledger afresh, and retains the reuse-origin/reference assertions. That exercises producer → report/reference → file ledger → fresh reader, rather than only checking a returned scalar. Current source contracts support those assertions: `LLMProducerEvent.payload_digest` binds the Decimal string (`core/llm/settlement.py:18–60`), and preflight reference parsing enforces canonical Decimal text and digest agreement (`scientist/orchestration/llm/provider_verification.py:260–293`).
+
+Required-accounting negatives now represent two distinct invalid premises: a matching binding/key with no durable ledger and a configured ledger with a mismatched run budget key. Both assert failure before fetch or client construction. The valid ledger/valid key remains a positive loopback path in the first parameterized test. The production guard checks the key and store before the provider checks begin (`provider_verification.py:1015–1093`), matching the test boundary.
+
+The API test uses the secured Admin helper and a typed `NaturalLanguageRunRequest` serialized/validated as JSON, with the requested `research` profile. It invokes the real `run_provider_preflight` under simulation mode and traps both provider-fetch and client construction; it also asserts the NL pipeline is not executed. POST and GET both run while the `TestClient` lifespan is active. The fresh GET by the returned job ID checks the durable job state, failure code, phase, stored report reference, and exact report payload. This is a real consumer route: `/jobs/{job_id}` delegates to `get_job_status` (`runtime/http/routes/control.py:492–509`), which reads the exact job ID from the control store (`runtime/http/services/control/run_lifecycle.py:2455–2465`); the rejected preflight path persists the report and failed job before returning the launch response (`run_lifecycle.py:3569–3654`).
+
+P40 classification: the earlier escapes were the same test-oracle/property-boundary class one level deeper: persisted null amounts are omitted by the ledger codec, and the GET had been made after the TestClient lifespan ended. V3 widens the amount test across reported/estimated/unknown and exercises the complete secure POST → stored refusal → in-lifespan GET route. It also replaces the single “ledger configured” refusal case with the actual absent-ledger and wrong-key causes while retaining a valid-ledger positive. This is a class-level correction, not a one-value expectation patch.
+
+One non-blocking strengthening would be to assert `job["job_id"] == launch["job_id"]` (and optionally the returned effective profile) explicitly. The request path already uses the launch ID and the current service reads that exact key, so this does not block the candidate; it would make the API identity assertion more direct.
+
+## Independent verification and limits
+
+A temporary overlay was built from the exact current dirty test preimages; the candidate was applied only there. The three targeted selectors passed: **6 passed in 6.15s**. Full output and command record are retained under `implementation-handoffs/LOCAL/raw/r3-native-provider-skip-test-corrections-v3-independent-20261011/`; `focused-pytest-stdout.txt` SHA-256 `734e5b6f0802be5111beddbe24f1b244c65987fcd806109bd5f35cb0342ab741`, stderr empty. Both files pass canonical workspace Ruff lint and format checks; command/output hashes are in `review-manifest.json` (SHA-256 `05755870dc37689729fd8f8a1b3fa1c7b7d80a1fa99d44e8f79ee98f01078adf`).
+
+This review does not claim the complete R3 suite was rerun after v3, does not use an external provider, and does not adjudicate the source capability or any finding IDs. The positive provider is loopback; the SKIP path intentionally makes no provider request. G still owns code acceptance, integration publication, and formal finding adjudication.

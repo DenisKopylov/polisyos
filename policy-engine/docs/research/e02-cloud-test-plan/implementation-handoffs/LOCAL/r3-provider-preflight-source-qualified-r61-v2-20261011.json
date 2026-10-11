@@ -1,0 +1,333 @@
+{
+  "artifact_type": "implementation_handoff",
+  "schema": "policyos.e02.local_source_qualified_handoff.v1",
+  "candidate_id": "r3-provider-preflight-source-qualified-r61-v2-20261011",
+  "author_role": "local candidate author; not G code acceptance, integration publication, or formal finding adjudication",
+  "created_on": "2026-10-11",
+  "task": {
+    "id": "R3",
+    "title": "Configured monetary producer/ledger/A/D composition",
+    "canonical_task": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/R3",
+    "original_task": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/R3",
+    "original_exit": "reported/estimated/reuse/unknown events and durable outcomes remain distinct; provider/cache/retry/reopen/cancel",
+    "dependencies": [
+      "BOOT0",
+      "Q1"
+    ],
+    "scope_status": "candidate source and focused real-consumer evidence delivered; complete R3 capability and finding closures remain unadjudicated"
+  },
+  "base": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "91dfa30d18aa089984f71d48099491cccc9d1afa",
+    "tree": "2e1f270436b96c320085eeb27c0af595dd402dba",
+    "candidate_commit_parent": "91dfa30d18aa089984f71d48099491cccc9d1afa",
+    "scope_note": "The shared checkout contains unrelated dirty/untracked E02 work. This slice is bound to the exact five-file before/postimage readback below; no reset, rebase, stash, or unrelated path change was made for this handoff."
+  },
+  "candidate_source": {
+    "state": "committed local candidate; not G accepted",
+    "commit": "e2681fd7ac10eabb8acf06d0470abeadce31a146",
+    "tree": "5f8b1cd1242539c51e9900f3da2f554182be45bc",
+    "parents": [
+      "91dfa30d18aa089984f71d48099491cccc9d1afa"
+    ],
+    "subject": "fix(e02): bind launch provider settlement to durable run identity",
+    "normal_commit_hooks": "PASS as reported by root; this is not a full Python-native repository gate",
+    "source_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-source-checkpoint-r61-20261011/readback.json",
+      "sha256": "0907975fc05dc4b85b837c46b01af6a327317d2f0e4be6fc39caaf5581abdbe3",
+      "readback_confirms_candidate_commit_tree_parent_and_all_five_target_hashes": true
+    }
+  },
+  "footprint": {
+    "all_candidate_paths": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/provider_verification.py",
+        "role": "configured provider preflight producer, report/event validation and durable settlement binding",
+        "before_sha256": "2eb2925f48a30d605165c932fa7d8ef2524a99773020f9656334eb72c37181f3",
+        "candidate_sha256": "d8514efd9b75c829b3708d61329a3c1cac061cbbeccb659514f780d7e302d749"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "role": "ordinary NL launch bridge: server-created run/job/scope binding, fail-closed preflight, persisted report/job refusal",
+        "before_sha256": "abe856c96482420193f5444a7bf161c981ca80a186bb2a93321f1016751993fd",
+        "candidate_sha256": "2391fa8367a381b558e6ea9e4c92ed26a78204b6531d29e434ff4dca98d6baaf"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_provider_verification.py",
+        "role": "configured loopback producer, usage-origin, event-reference, ledger reopen and adversarial controls",
+        "before_sha256": "ad0ba627e79271dd8b9409a15d0e8e4879cf19928e97e581b1e12b26b666d011",
+        "candidate_sha256": "67a2bf99604b9abc92815dc9c06af52d7e7eedc9786220f02f766a8f1ffb5783"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_control_api.py",
+        "role": "secure ordinary POST simulation-SKIP refusal, durable job and fresh GET consumer control",
+        "before_sha256": "1e0de5d59694aa30a9562efd4b14999e295af371af9e3ca4f05c4ab62806e72f",
+        "candidate_sha256": "84192fb78f68482c50b001e301ba9a65844f13d860d828a1c491bb48aab1de28"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-09-e02-r3-llm-cost-status.toml",
+        "role": "release summary and explicit boundary/compatibility/limitations",
+        "before_sha256": "55ce6706643785750296cb73c22844e35d986be8b6daca343f89d4ccdba6c3be",
+        "candidate_sha256": "4a9fcdac181903ecca8ee00bbb8aa67d57cdbe2199ecc3af420e4ffbfd08c785"
+      }
+    ],
+    "footprint_note": "The four Python files and TOML are exactly the five paths in source_readback. The candidate commit contains no claim that the larger historical/related LLM monetary suite has been replayed in full."
+  },
+  "producer_artifact_bridge_consumer": {
+    "contract": "When a configured ordinary NL launch requests a provider preflight, settlement is required and bound to the server-created run, tenant, cell, effective profile, control job, and nl-run budget key. Only an exact, current producer event reference matching configured request/model/provider and cache scope can support the successful report. reported, estimated, reuse, unknown, and terminal settlement states remain distinct.",
+    "producer": "run_provider_preflight in provider_verification.py calls a configured HTTP provider path; the test producer uses a real localhost HTTP server and response payloads, not a returned report stub. Response-declared model/provider labels are not treated as authority for configured identity.",
+    "artifact_and_event": "The preflight report carries a producer event reference. The loopback positive writes LLMProducerEvent producer_settlements to FileBudgetLedger; the report/reference digest is recomputed and compared to the stored event. A reuse event is distinct from its origin event and has amount zero. The launch refusal path writes a runtime.provider_preflight_report artifact and embeds its reference and payload into a failed control-job progress record.",
+    "bridge": "ControlPlaneService ordinary POST /api/v1/control/runs/nl computes execution scope and server IDs, binds the selected app-scoped producer settlement store, requires settlement, and treats every non-ok report (including skipped) as a launch refusal before NL pipeline enqueue.",
+    "consumer": "Tests reopen FileBudgetLedger and resolve selected run records; the secure POST test fetches GET /api/v1/control/jobs/{job_id} while TestClient lifespan is active and compares the persisted report reference, full payload, failed state and provider_preflight phase.",
+    "surface": "HTTP control API POST /api/v1/control/runs/nl and GET /api/v1/control/jobs/{job_id}; no dashboard or external billing surface is established by this R3 slice.",
+    "bounded_witness": "Loopback provider and file-backed temporary ledger are controlled source-bound witnesses. They establish local producer/event/readback mechanics only, not a real provider invoice, current market price or production configuration."
+  },
+  "verification": {
+    "selected_source_binding": {
+      "source_commit": "e2681fd7ac10eabb8acf06d0470abeadce31a146",
+      "note": "Runtime commands were executed against the candidate worktree before its source commit, and their command records name slice base 91dfa30. The four Python target hashes in both commands equal the postimages in the committed source readback; the release fragment hash is verified by the format/TOML receipt. Thus evidence is exact-byte bound to the committed candidate but the commands did not run with HEAD already at e2681fd.",
+      "captured_input_map": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-v3-current-actual-consumers-r56-20261011/command.json",
+        "sha256": "8fa6816094d309bc0d4dc4859221ee2d60ba6268255aac31c7c540896d95cee7",
+        "paths_hashed_before_and_after": 6183,
+        "maps_identical": true,
+        "capture_source_sha256": "080a695e7f712a31e30acb47654b27f87ba4f82e82d4981e3d67b0a34093ec88",
+        "note": "The complete path/hash maps are retained in the raw command JSON; they were not copied into this tracked receipt. The R57 command independently records the same 6,183-path stable map."
+      }
+    },
+    "runtime_commands": [
+      {
+        "id": "R3-PROVIDER-35",
+        "status": "PASS",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-v3-current-actual-consumers-r56-20261011/command.json",
+          "sha256": "8fa6816094d309bc0d4dc4859221ee2d60ba6268255aac31c7c540896d95cee7"
+        },
+        "full_stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-v3-current-actual-consumers-r56-20261011/stdout.txt",
+          "sha256": "fc801a9e0232086220fb21b88ed5d17485e4e5d1e305b1a7afee619eec8c8a89"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-v3-current-actual-consumers-r56-20261011/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-v3-current-actual-consumers-r56-20261011/junit.xml",
+          "sha256": "f1d295189c6f96f145b00965ac0ca43f5f99f32d895601a99e0ecea26c9b3861"
+        },
+        "summary": "35 passed in 5.72s; full tests/unit/scientist/orchestration/llm/test_provider_verification.py",
+        "exact_argv_is_in_command_record": true,
+        "environment": {
+          "platform": "macOS Darwin",
+          "python": "3.14.3",
+          "pytest": "9.0.2",
+          "PYTHONPATH": "tools:src:.",
+          "OPENBLAS_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "POLISYOS_RUN_INTEGRATION": "1"
+        },
+        "selected_source_and_config_hashes": {
+          "provider_verification.py": "d8514efd9b75c829b3708d61329a3c1cac061cbbeccb659514f780d7e302d749",
+          "run_lifecycle.py": "2391fa8367a381b558e6ea9e4c92ed26a78204b6531d29e434ff4dca98d6baaf",
+          "test_provider_verification.py": "67a2bf99604b9abc92815dc9c06af52d7e7eedc9786220f02f766a8f1ffb5783",
+          "test_control_api.py": "84192fb78f68482c50b001e301ba9a65844f13d860d828a1c491bb48aab1de28",
+          "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "ruff.toml": "8887d0a15457d44ebb1a5b5aee8110dd5101dc9e952649cd0490b845af2d933e",
+          "ruff.generated.toml": "3e9528c1d2c0ce1767f73e567feaeefb2e78f139b96b00f3a9b26270d31496b9"
+        }
+      },
+      {
+        "id": "R3-SKIP-POST-FRESH-GET",
+        "status": "PASS",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-v3-skip-post-persisted-fresh-get-actual-r57-20261011/command.json",
+          "sha256": "7794a4364fdee5f9336bb069cbe34eef16ed2cd70fee5948f316d47ab0802341"
+        },
+        "full_stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-v3-skip-post-persisted-fresh-get-actual-r57-20261011/stdout.txt",
+          "sha256": "3b4098d8233693f763271b06b0994a80e009c0a8a99eb3565779bba50c85a6fd"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-v3-skip-post-persisted-fresh-get-actual-r57-20261011/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-v3-skip-post-persisted-fresh-get-actual-r57-20261011/junit.xml",
+          "sha256": "dec92c0d9441fb3a3cfe88329daeac09f7c8e84531d1837564f5ad2c2d1e8caa"
+        },
+        "summary": "1 passed, 70 deselected in 4.27s; selected test TestLaunchNlRun.test_launch_nl_run_simulation_preflight_skipped_is_durable_refusal in tests/unit/runtime/http/test_control_api.py",
+        "exact_argv_is_in_command_record": true,
+        "environment": {
+          "platform": "macOS Darwin",
+          "python": "3.14.3",
+          "pytest": "9.0.2",
+          "PYTHONPATH": "tools:src:.",
+          "OPENBLAS_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "POLISYOS_RUN_INTEGRATION": "1"
+        },
+        "selected_source_and_config_hashes": {
+          "same_four_Python_targets_and_four_config_hashes_as_R3-PROVIDER-35": true
+        }
+      }
+    ],
+    "static_and_release_checks": [
+      {
+        "id": "CANONICAL-RUFF-LINT",
+        "status": "PASS",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-v3-canonical-lint-r59-20261011/command.json",
+          "sha256": "e660add22d90d7017674d5039466cca8c55c8d8e8e3fd3e8eec11f05b15f1dca"
+        },
+        "full_stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-v3-canonical-lint-r59-20261011/stdout.txt",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-v3-canonical-lint-r59-20261011/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "summary": "Ruff JSON output []; exit 0 on all four changed Python paths using .venv/bin/python -B -m ruff check."
+      },
+      {
+        "id": "CANONICAL-RUFF-FORMAT-AND-RELEASE-TOML",
+        "status": "PASS",
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-v3-canonical-format-r60-20261011/receipt.json",
+          "sha256": "7168d727c4f9f43385a30dfc3f03ffa5685b6a7c7098387b5267f1433ec58906"
+        },
+        "full_stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-v3-canonical-format-r60-20261011/stdout.txt",
+          "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-v3-canonical-format-r60-20261011/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "summary": "4 files already formatted; release fragment TOML parse true; exit 0; exact target hashes are in the receipt."
+      }
+    ],
+    "historical_run_not_promoted": {
+      "status": "historical failure; final full replay UNRUN",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-ledger-caller-future-native-consumers-r45-20261011/stdout.txt",
+      "sha256": "cac081072be327480aa5193659a12d74fe23eeb74c4f0c01e9e862d64de75de7",
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-ledger-caller-future-native-consumers-r45-20261011/command.json",
+        "sha256": "5504f72a92b11b7f4e7bc29b3a09c7a4466fc3246296697ff1e4c37b69c9f849"
+      },
+      "summary": "Earlier broader 208-case run had 205 passed and 3 failed before final test corrections; its complete selected suite was not rerun after V3. The final evidence is the two narrower source-qualified R56/R57 commands above; neither makes the old whole-suite result inherited or green."
+    }
+  },
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r3-preflight-producer-ledger-v4-r6-independent-review-20261011.md",
+      "sha256": "5b92bc0bf29d824151e02cd01eefd5eb563b3957ad580eb4ceb8f38026454017",
+      "verdict": "GO on exact four-file source patch; static/source review only; reviewer explicitly left runtime and external currentness UNRUN"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r3-preflight-skipped-launch-consumer-v1-independent-20261011.md",
+      "sha256": "63a3496b38dc27afe3f663305ad2d9f591823e623c5218ae25c95663a6bf1ac5",
+      "verdict": "GO on test-only SKIP consumer control against reviewed virtual source; not a runtime receipt; R57 now adds the actual selected consumer replay"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r3-preflight-release-fragment-v1-independent-review-20261011.md",
+      "sha256": "282ead6b10ea653b08138c7828bb038f2d948c456dd935756dee8af288589a3e",
+      "verdict": "GO on fragment content/scope; earlier freeze/runtime caveats are superseded only by the later exact R61 source checkpoint and R56/R57 evidence, not by formal G acceptance"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r3-native-provider-skip-test-corrections-v3-independent-20261011.md",
+      "sha256": "9156582662ad43ea7eafaf5d7bc50899686fee7cb306f871ac5081d4b1ad69f4",
+      "verdict": "GO on test-only corrections and exact postimages; reviewer ran a narrow disposable overlay, not the final complete R3 suite"
+    }
+  ],
+  "adversarial_controls": [
+    "The loopback producer exercises reported zero, estimated Decimal wire amount, unknown amount, and distinct reuse event; it compares event payload digest, producer reference, persisted record, and fresh FileBudgetLedger readback.",
+    "Same configured request under a separate run/control-job binding, separate ledger owner, and provider alias creates distinct producer event identities; response self-labels cannot replace configured model/provider identity.",
+    "Mutating the selected ledger event provider under the original reference and deleting the referenced origin event both yield status=unknown without additional provider calls/completions.",
+    "Required-accounting controls refuse before fetch/client construction when the durable ledger is unavailable or the producer budget key does not match the bound run.",
+    "Gateway exception with no ledger settlement preserves unknown settlement; failure remains distinct from unknown.",
+    "The secure Admin ordinary POST path sets simulation mode, exercises the real preflight to status=skipped, asserts no fetch/client/pipeline execution, and fresh-GETs the stored failed job/report while the TestClient lifespan remains active."
+  ],
+  "property_removal_probe": {
+    "status": "reasoned by independent reviewer; not executed as a mutation",
+    "probe": "Narrowing the route's non-ok gate from status != ok to status == failed would admit the real simulation-mode status=skipped result. The R57 route test is expected to fail because it asserts POST rejection, durable failed job, report reference and no pipeline call.",
+    "scope": "A behavioral route test is present; this removal probe does not establish the untested provider-success HTTP route or the wider R3 family."
+  },
+  "finding_proposals": [
+    {
+      "finding_id": "B10",
+      "original_criterion": {
+        "source": "198076863e143dea9f89f02734b13d50dae3eed5:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          313,
+          324
+        ],
+        "sha256": "9fc056a6b1bbde89fd8ffb6f7da36b6f8d7cdf81480f0ef395adec5e6ef1c246"
+      },
+      "current_route": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/owner-A-current-property-review.md; R3 and V1 are required routes",
+      "author_proposal": "limited",
+      "evidence_boundary": "R3 proves local run-bound settlement/report mechanics only. It does not exercise the planner's complete candidate denominator, the high-score-impossible/second-usable-candidate case, or explicit diversity basis.",
+      "next_check": "On the selected full candidate producer→settlement→scheduler composition, preserve the first candidate and stop reason, then actually compute the second candidate when the first lacks a required input; keep common budget and diversity explicit."
+    },
+    {
+      "finding_id": "B66",
+      "original_criterion": {
+        "source": "198076863e143dea9f89f02734b13d50dae3eed5:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          1689,
+          1708
+        ],
+        "sha256": "397fc3ab86c9c5243288fde7c7396afd3146df75bf74bb39973870a9d22c47a5"
+      },
+      "author_proposal": "limited",
+      "evidence_boundary": "The source-bound loopback R56 test proves configured preflight event and reuse-origin identity survive fresh local ledger readback for reported/estimated/unknown cases. It does not exercise provider response completion followed by caller cancellation or prove no duplicate real provider charge.",
+      "next_check": "Exercise an actual admitted producer miss, cache hit/reuse, followers and caller cancellation with durable ledger reopen; require one provider-origin event, separate reuse events and exact-once settlement after lost acknowledgement."
+    },
+    {
+      "finding_id": "B67",
+      "original_criterion": {
+        "source": "198076863e143dea9f89f02734b13d50dae3eed5:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          1709,
+          1728
+        ],
+        "sha256": "b3d2e0fe856b77f9c1388e795a0f15adeab905c5b60d4d627e83ce23ca4c3278"
+      },
+      "author_proposal": "held",
+      "evidence_boundary": "This R3 provider-preflight path is not the prompt-cache authorization chain. It supplies no independent principal/scope/purpose/epoch authorizer or bound evidence/model/request permission for cache reuse.",
+      "next_check": "Obtain the named permission/authority owner input and bind an independent authorization decision to the exact stored evidence references, model/request identity and epoch at read and publication; changed version or denied actor must refuse. No such authority fact is inferred here."
+    },
+    {
+      "finding_id": "B68",
+      "original_criterion": {
+        "source": "198076863e143dea9f89f02734b13d50dae3eed5:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          1729,
+          1748
+        ],
+        "sha256": "444a26030aad6d955907fee063845e8938c8348c5c7d970d3d4da6a1c2e3da62"
+      },
+      "author_proposal": "open",
+      "evidence_boundary": "The R56 test's sequential repeated preflight and reuse-origin path is not the original concurrent prompt-cache miss/follower property. No owner cancellation, follower cancellation, failure, deadline, retry, or distinct intentional stochastic repetition matrix was run.",
+      "next_check": "For exactly equivalent authorized requests, run competing misses through the actual selected cache caller and prove one owner/event plus N usable results; cancel one follower and separately test owner failure/deadline cleanup. Different actor/ref/version/seed or intentional independent repeat must remain a distinct call."
+    }
+  ],
+  "closure_ids": [],
+  "external_inputs_and_limits": [
+    "No external invoice, provider-side billing receipt, independently authoritative price schedule, or production currentness/custody input was read. Local configured/loopback pricing and usage payloads are fixtures, not external evidence.",
+    "No named institutional principal/permission issuer supplied the principal/scope/purpose/epoch authorization fact required by B67.",
+    "No qualifying production provider workload, provider idempotency confirmation, production retry/cancel/follower workload, or monetary reconciliation was established.",
+    "No full final 208-case combined replay; no full backend/native repo gate, Linux worker, installed wheel/sdist, browser, or composed dashboard run is claimed. These are UNRUN, not inherited and not PASS.",
+    "The previous 208-case R45 run was 205 PASS / 3 FAIL before test corrections. R56 and R57 fix and exercise the affected narrow consumers, but do not make that full broad denominator green."
+  ],
+  "decision_and_adjudication": {
+    "decision_packet": "No new architecture decision is needed to describe this source slice. Any new price-authority, external permission, or distributed single-flight semantics remain for the named owner/G; this packet does not invent them.",
+    "G_review": "independent code acceptance, composition/publication and formal finding adjudication remain outstanding",
+    "proposal_semantics": "The finding_proposals above are author proposals only. They do not populate closure_ids and do not alter the historical ledger."
+  }
+}

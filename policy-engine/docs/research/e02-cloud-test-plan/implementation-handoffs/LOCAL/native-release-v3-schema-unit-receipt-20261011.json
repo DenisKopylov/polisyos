@@ -1,0 +1,177 @@
+{
+  "schema": "e02.local.handoff.v1",
+  "slice": "DX0/native-release-fragment-schema-v3",
+  "slice_base": "2ace03593a28a6bb5cc4688602fc731444f7408f",
+  "candidate": "fd32abcfe399438abc28ce6c312724fed09290bd",
+  "tree": "d5081ab32f46b64d27e63efc49d8fd3a7f980a29",
+  "parents": [
+    "2ace03593a28a6bb5cc4688602fc731444f7408f"
+  ],
+  "full_implementation_footprint": [
+    {
+      "path": "policy-engine/release-fragments/README.md",
+      "before_sha256": "3ab289f21282a7a450a3f404b99ff9750636a7188d103ea868125d9236aa78ff",
+      "candidate_sha256": "48a209ea6ee59d6389e1117e6a4fee395f715e99c8f2c2e34c1e6bd27477205e"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-09-08-corr-capability.toml",
+      "before_sha256": "4f68cdaa2eb0108f5a09e486e268fc1bb135ea4c118ba301ecb63a85aec67e93",
+      "candidate_sha256": "33b6493be1c501b1d13d92f83265dfb8e09ba9788628cea69a3bd3f9e2352c48"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-09-08-gy-d1-fetch-measurement-custody.toml",
+      "before_sha256": "1bd0a7404c8264d6e543d43974c4c0ce76fe952ce7a1baa114d962a4c2a7f717",
+      "candidate_sha256": "adb4d352f699973b7aa23bf6a96a194b01acfe47ae06c4a34e5ec3e4a74732ec"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-09-08-gy-pa1-generation-disposition.toml",
+      "before_sha256": "1f7932b4354ec99994098806f5f5b6a5e5b2b7474e098e5053247659fdb24421",
+      "candidate_sha256": "3c5365c18853231f7ffe7b5f208b7f5484f8cb4c46bdfbf46780c012bc906faf"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-09-08-gy-pa1-normative-evidence-intake.toml",
+      "before_sha256": "7ec0e120c52af2a7432b25aea08b559e7d2a2be3309b574ba3773f014459b522",
+      "candidate_sha256": "376011d10c73090da0243d61efef681735bff890a8531cb66026638230455a51"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-09-12-epoch-positive-path.toml",
+      "before_sha256": "ff9edaf9c02e37c1a25b87e9b05d8f7f7e57eb948f14cce47880d57bdd2d65a8",
+      "candidate_sha256": "4b19073c798142fd60fbbdba7206aa4f0b03b1510a81d8de192ba021f242222d"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-09-13-promotion-conjunction.toml",
+      "before_sha256": "caf2965a8355ed79f1ef932ea0bcb941c68758db9a655cbf29ae238ad17b03cc",
+      "candidate_sha256": "ea4110b375ffebf4901bd696ccdd70d282b7ceb794a0b1b34240fdb8ac8364cc"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-cache-rows.toml",
+      "before_sha256": "c5a4614af0cae6a8534ebbb85d050af57d6a16ebfe05377b5e8646ccddaebe55",
+      "candidate_sha256": "6a3fd40bdcf7d85f5944c73212cad81547308ec171064ffca70f831de0e71dd5"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-catalog-default-resources.toml",
+      "before_sha256": "8f7a53c9e1f75fd69d5e223854764d1e26d59ba29d3c74a62ee88e597cc2c13c",
+      "candidate_sha256": "2274132e69c99d5e048030d3097745c1f8c4c27c2af12dac773d88bbf08d8d00"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+      "before_sha256": "d10fed9fe9b5941c775f46a9b1749f56eb1778f7a5393043be91b18df39639a2",
+      "candidate_sha256": "f35313624af0a1902eab19486484b81bcc2b560f3b94dbefb8fb94f21e7ffc4a"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-installed-graph-contract-reconciliation.toml",
+      "before_sha256": "850307f46070a9b3b1efc3acd24d9d2283738838f9df8e0dc53c791c6e280902",
+      "candidate_sha256": "6bc239d0cbab9aa99e42e833149ee28d98619ad9a9801e2db75b86b477aae578"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-10-e02-run-evidence-source-profile.toml",
+      "before_sha256": null,
+      "candidate_sha256": "77ee78d874036d54111de35e4654b973d2d2154e33997aff168663e25fa4c3b2"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-10-observability-rule-loading-and-core-sli.toml",
+      "before_sha256": "c2c8a76293334b708552afaade6d7c84c9dce55ca77cc2e08a08f5a096661caf",
+      "candidate_sha256": "9e2e34ba6926a901cc642968d3ed0b98f8872137018b1a3a5856a6ff9356830b"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-11-b05-generic-n5-typed-request-binding.toml",
+      "before_sha256": null,
+      "candidate_sha256": "ca770ae380b15f4e8a154358886025d9ed4a8b055fccc8d585e225a3ebcaac67"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-s3-selected-profile-followup.toml",
+      "before_sha256": null,
+      "candidate_sha256": "7948fb889cad61511eed347ecd7ac012feabca0a7bddd842cc1a75bbfaac098e"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-11-scientist-composition-loader-contract.toml",
+      "before_sha256": null,
+      "candidate_sha256": "49b260b65c051e110194697be5850a3d926193a621eb74a045eaca7806425d06"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-11-v4-v7-limited-predictive-diagnostic-candidate.toml",
+      "before_sha256": null,
+      "candidate_sha256": "3df637217b1dc0502a0fb169030a22a6ce0c4a9d065fc397c54a03ca1c5e44ed"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-11-v6-candidate-credal-source-attempt.toml",
+      "before_sha256": null,
+      "candidate_sha256": "00b457a6c06413f619a4f005afb83173f2bc9ed14662778b9f39083d81562346"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-11-v6-generic-n4-child-simulation-history.toml",
+      "before_sha256": null,
+      "candidate_sha256": "6e7688c012106b8110c4ce5a574ca3137d2608ead0c36b1be1add276768c0806"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase5_10_compatibility_release_gates.py",
+      "before_sha256": "412ddb3e0978fe6ae2a1661deafff770f36fe91057507e0fe04c1063192c8f78",
+      "candidate_sha256": "089ec41368a61e4fd4dcac976288f8bcb703425c331b971ff003af9cb5813257"
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/release/check_compatibility_release_gates.py",
+      "before_sha256": "2b7ce18983e59a02ddeef457dfc5a39f83129514707b03da45099018f0104b75",
+      "candidate_sha256": "5535ccb600986f144ef9990ec6c9c0db5ca4685f8b4952e977ff7d0ebfe36528"
+    }
+  ],
+  "source_scope": "Exact 21-path committed slice; unit replay captured complete Python source/testing/tooling plus five configs in shared candidate before commit. Other WIP source remains outside a final composed source freeze.",
+  "selected_backend": ".venv Python; one numerical thread",
+  "command": [
+    ".venv/bin/python",
+    "-B",
+    "-c",
+    "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=60.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-ra",
+    "--maxfail=1",
+    "tests/repo_quality/architecture/test_repository_best_in_class_phase5_10_compatibility_release_gates.py",
+    "--import-mode=importlib",
+    "--maxfail=0",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/native-release-v3-generic-root-schema-behavior-20261011/fixtures",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/native-release-v3-generic-root-schema-behavior-20261011/junit.xml"
+  ],
+  "deciding_output": {
+    "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/native-release-v3-generic-root-schema-behavior-20261011/stdout.txt",
+    "stdout_sha256": "df6ea1e5fb7a413e887dc5464efedff3af0a16337b9e65f4767bdbcfd923c62e",
+    "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/native-release-v3-generic-root-schema-behavior-20261011/stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/native-release-v3-generic-root-schema-behavior-20261011/junit.xml",
+    "junit_sha256": "121d78da8a522f7bdec2edbd618bc434ec522c37f6808f407d23abce32547f80",
+    "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/native-release-v3-generic-root-schema-behavior-20261011/command.json",
+    "command_receipt_sha256": "36c788a530922b7b85837ce5e3ed052f95eb4f0ce431bf554a7a72be9467ceb8",
+    "exit_code": 0,
+    "wall_seconds": 3.7855275840265676,
+    "source_stable": true,
+    "source_input_count": 6176,
+    "outcome": "12 PASS; generic shape/type/structured-status behavioral unit controls only"
+  },
+  "chain": "Actual release-fragment checker consumes required fields and normalized type plus generated-client structured enum values; negative fixtures reach genuine validator errors. Historical descriptive root change_class is preserved and is not authority for structured rows.",
+  "adversarial_controls": "Full error-set equality rejects malformed root fields/type/structured enum rows and admits descriptive legacy root change_class. Source and review packets enumerate retained controls.",
+  "consumer_surface": "Native release CLI validator/test; whole SOTA row and final generated/installed surfaces remain UNRUN on final freeze.",
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/native-release-schema-final-v3-independent-delta-20261011.md",
+    "sha256": "704972db4e6aa4ff39a07c307736bbb4362fac35013c1e7334a18ac11c4097bd"
+  },
+  "remote_readback": {
+    "sha256": "ab507a1c67cca57124c54ab507e52b2ca27fda6f2756d30df3127c11076ea956",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-release-v3-implementation-checkpoint-20261011/remote-readback.json"
+  },
+  "limitations": [
+    "Unit replay is not full native green and does not establish final source/input/profile/backend composition.",
+    "Actual release CLI retained three public-surface-review holds for C12, S3, Scientist typed loader; no issuer or G acceptance invented.",
+    "Release TOML/config/resource final denominator must be frozen and checked in native row-by-row replay."
+  ],
+  "closure_ids": [],
+  "proposal_fields": {
+    "DX0": "bounded schema implementation delivered; full native verification pending"
+  },
+  "next_check": "Freeze source/inputs/profiles then run complete native release compatibility gate with all actual fragment/contract inputs and retain all holds."
+}

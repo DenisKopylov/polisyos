@@ -2,29 +2,40 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from collections.abc import Sequence
+from typing import Protocol, cast
 
 import numpy as np
 
-if TYPE_CHECKING:
-    from .designs import SensitivityPlan
+
+class _MorrisParameterSpec(Protocol):
+    """Read-only parameter-grid fields consumed by the Morris geometry leaf."""
+
+    @property
+    def num_levels(self) -> int: ...
+
+
+class _MorrisPlan(Protocol):
+    """Read-only plan fields needed to validate Morris samples."""
+
+    @property
+    def num_parameters(self) -> int: ...
+
+    @property
+    def parameter_specs(self) -> Sequence[_MorrisParameterSpec]: ...
 
 
 def _validate_morris_plan_samples(
-    plan: SensitivityPlan,
+    plan: _MorrisPlan,
     samples: np.ndarray,
-    problem: dict[str, object] | None = None,
+    problem: dict[str, object],
 ) -> None:
     """Admit a plan's complete design before consumers may resample its blocks."""
-    from .designs import _build_salib_problem
-
     if samples.ndim != 2 or samples.shape[1] != plan.num_parameters:
         raise ValueError("Morris samples must have one column per declared parameter")
     num_levels = plan.parameter_specs[0].num_levels
     if any(spec.num_levels != num_levels for spec in plan.parameter_specs):
         raise ValueError("Morris parameters must declare the same num_levels")
-    if problem is None:
-        problem, _ = _build_salib_problem(plan)
     _validate_morris_trajectories(
         samples,
         num_parameters=plan.num_parameters,

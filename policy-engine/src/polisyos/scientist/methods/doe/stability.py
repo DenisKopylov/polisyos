@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from .designs import SensitivityMethod, SensitivityPlan
+from .designs import SensitivityMethod, SensitivityPlan, _build_salib_problem
 from .morris_geometry import _validate_morris_plan_samples
 
 
@@ -53,7 +53,8 @@ class RankingStabilityChecker:
 
         rng = np.random.default_rng(self._seed)
         if plan.method == SensitivityMethod.MORRIS:
-            _validate_morris_plan_samples(plan, samples)
+            problem, _ = _build_salib_problem(plan)
+            _validate_morris_plan_samples(plan, samples, problem)
             prepared = _prepare_analysis_inputs(plan, samples, outputs)
             if prepared.failed_runs:
                 raise ValueError(

@@ -1,0 +1,89 @@
+# EconML profile and LA-029 criterion boundary
+
+**Disposition:** source-bound research for the local E02 candidate, not a product change, final source freeze, G acceptance, or formal finding adjudication. This note records a reusable Python 3.12 EconML environment and keeps LA-029's original finite-gate scope distinct from a listener lifecycle claim.
+
+## Observation boundary
+
+Repository paths below are relative to policy-engine unless shown as absolute paths. Environment discovery was limited to the named LOCAL EconML profile/receipt and the existing product .venv; it was not a host-wide scan.
+
+Checkout: /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos
+Branch: codex/e02-unified-local-20261009
+Observed HEAD: 0390c44e7f9871122c21afa78af844cbafaa1d0e
+Observed tree: 33e1305efb43bb01960faf65808449cc4bd7a891
+Parent: 37a22cc3655bb35784cca5213e177e33d55bbbc5
+
+The branch was attached and the worktree already contained extensive modified and untracked E02 work. This snapshot is not clean or frozen. The source and test hashes below are observations to rebind at the eventual source freeze. This packet adds only this handoff document; it does not change product code, profile locks, runtime inputs, or tests. No tests, fits, builds, package installs, container commands, or production reads were run here.
+
+## EconML: a reusable Python 3.12 worker exists
+
+The exact named environment is already present at:
+
+- docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-macos-arm64-worker-env/
+- Profile recipe: docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/pyproject.toml@bd25749dfdb5a7bcf8833d2c23916a823e61cdf09d874c336e033b599fb1c15b
+- Locked graph: docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/uv.lock@5016a249a7dbe37ad22a3e0e15ab495b9e63a5a2d7c3f68cbcba04ad09fbfb0d
+- Python pin: docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/.python-version@7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d
+
+The recipe pins EconML 0.16.0 and Python >=3.12,<3.13, with a Darwin/arm64 environment. The extant environment's docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-macos-arm64-worker-env/pyvenv.cfg@429644baa6c4085160d59342a5d377dbf1034ecece48174d078b987dd7d8971a records CPython 3.12.12. The light import probe runs on macOS 27.0.1 arm64 and imports EconML 0.16.0. It has no pytest or Hypothesis. Its observed size was about 431 MiB, so keep and reuse it instead of provisioning the same dependencies again. This is a locked prototype worker profile, not a selected product runtime profile.
+
+The exact light, no-fit command and complete captured output are retained here:
+
+- Command: docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-supported-profile-research-20261011/econml-probe.command.txt@aaccd7ff219a8b6c353653552a092b5c89e87cc97328b2cacf3cfe4f9c49b201
+- Complete stdout: docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-supported-profile-research-20261011/econml-probe.stdout.txt@c3456754b72e13d0fc4b89f71a45873fcc33e9cee3c2672143c050f17433cca6
+- stderr is empty: docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-supported-profile-research-20261011/econml-probe.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+
+The captured constructor signature is (*, model_y='auto', model_t='auto', featurizer=None, treatment_featurizer=None, fit_cate_intercept=True, linear_first_stages='deprecated', discrete_outcome=False, discrete_treatment=False, categories='auto', cv=2, mc_iters=None, mc_agg='mean', random_state=None, allow_missing=False, enable_federation=False, use_ray=False, ray_remote_func_options=None). It has no constructor inference argument; the probe confirms LinearDML.fit does have one. This is an import/signature observation, not a causal fit or calibration result.
+
+The current product environment is different:
+
+- Product pyproject.toml@b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267 requires Python >=3.14,<3.15.
+- Product uv.lock@e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463 is locked for ==3.14.*; the EconML optional dependency marker excludes Python 3.14.
+- The local product .venv probe records Python 3.14.3, pytest 9.0.2, Hypothesis 6.151.2, and EconML absent. Its full command and stdout are docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-supported-profile-research-20261011/app-profile-probe.command.txt@a3a27af5aac95f1e1b9641375ba6c8f3279e143cbcbd0f789bd61b338199d876 and docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-supported-profile-research-20261011/app-profile-probe.stdout.txt@d4d450df16a1be8ddc50baa0f67ac6845eb03e85a9b4717f9f403731d5db70b6.
+
+A Python 3.12 DoWhy environment is also present, but it is not an EconML substitute: workers/dowhy-014/pyproject.toml@df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447 and workers/dowhy-014/uv.lock@c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a select DoWhy 0.14 and do not include EconML.
+
+## Canonical consumer versus private worker prototype
+
+The canonical registered method is causal.hte.double_ml@1.0.0, implemented by src/polisyos/foundry/methods/catalog/causal/dml.py@5bc3d414227c426f2ab1df973196ffe6891905a70782d14a36cb3110f56f4885. Its DoubleMachineLearning.pure_step calls require_econml() and imports KernelDML, LinearDML, and SparseLinearDML in-process. The precise existing property consumer is tests/property/foundry/methods/catalog/causal/test_causal_properties.py::TestDMLProperties::test_output_dict_not_empty; the currently observed working-tree file hash is 150ff71029fd697dcb05910f70019004700e2fb8e46652759dba43fd7fbc645f and that file is dirty, so rebind it at freeze. It accepts a real successful result or the method's typed NUMERICAL_FAILURE with the “Double ML backend unavailable” reason. On the available product Python 3.14 environment this is a refusal-path consumer check, not a positive backend demonstration.
+
+The extant V4 worker is a separate private FQN, causal.hte.double_ml_worker_prototype@0.2.0, with profile econml-0.16.0-py312-macos-arm64-v4-prototype. Its harness is docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-worker-profile-prototype-macos-arm64-v4-20261010/method_job_harness.py@f59cda52d2178abc0eb3ef7d576ec186356aa0e2366a1cb47960baf94e166a6d. Historical V4 source-bound computation passed MethodJob → isolated worker → CAS artifacts → fresh reader and compared a direct reference fit; its 400-row run exited 0 and took 27.455 seconds, with command receipt docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-mac-real-methodjob-cas-fresh-reader-prototype-v4/command.json@b8bc85c2112a3c67e509b5a6c3abcdbe3670c1f67d7fd781f2b18867cca54c4 and stdout docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/econml-mac-real-methodjob-cas-fresh-reader-prototype-v4/stdout.txt@f0db572c7f91dac982d392673fce26646e73bfc731dc90c52530468007062486. This is prior candidate evidence on historical source, not a runtime receipt for the current composition. The private harness does not call the canonical DoubleMachineLearning.pure_step, so it cannot be cited as that consumer's positive.
+
+If the composed DX0 route already runs the whole property module, do not add a duplicate site run. If the root freeze explicitly selects this single consumer as an additional route, its reproducible invocation is:
+
+~~~sh
+cd /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine
+FINAL_RAW=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-mac-final-replay-20261011-r7-v3
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 BLIS_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src \
+  .venv/bin/python -B -m pytest -o addopts= -q -ra --tb=short --color=no \
+  --junitxml="$FINAL_RAW/native/dml-property/junit.xml" \
+  tests/property/foundry/methods/catalog/causal/test_causal_properties.py::TestDMLProperties::test_output_dict_not_empty
+~~~
+
+This command uses the root product interpreter and checks the canonical consumer's real selected behavior, including its typed refusal when EconML is unavailable. It cannot turn the private worker into a canonical positive. Do not install or sync packages in the 3.14 product environment to make this command green; use the existing locked 3.12 worker profile for prototype work until a selected producer/bridge/consumer contract composes it.
+
+### Available engineering choices
+
+1. **Reuse the current 3.12 worker profile as a bounded candidate backend.** Re-run its locked harness only after source freeze and bind worker/profile/bridge/code/lock/request/result/CAS/fresh-reader identities. This retains the existing MethodJob path and avoids a reinstall. Status: worker-level prototype available; canonical DML consumer remains unconnected and its positive is not established. Migration: explicit selected profile plus canonical producer/bridge/consumer integration and actual consumer-bound replay. Cost: one serialized worker execution plus integration work; wall time for the frozen source is unknown. Authority: none beyond candidate computation; no calibrated, identified, external-validity, or production claim. Next check: at final freeze, compare profile and harness hashes with the pinned profile record, execute once in the existing venv, then prove the actual selected canonical consumer uses that result or records a typed refusal. Inputs are the exact lock/profile above and a frozen request/source artifact.
+
+2. **Wire the existing worker into the canonical method path.** Extend the existing MethodJob/CAS seam with an explicit typed request/result and selected profile; keep DoubleMachineLearning as the declared consumer and make any worker refusal explicit. Status: not implemented by this profile; absent canonical bridge. Migration: contract and identity first, worker invocation and persisted artifact second, canonical consumer binding and negative/substitution/fresh-reader tests third. Cost and schedule: unknown until an owner reviews the exact cross-package footprint; do not infer an estimate from the historical 27.455-second fixture. Authority: method execution remains candidate-grade. Next check: freeze the source and prepare an independently reviewable pathwise contract proposal; G acceptance is still required for any new architecture semantics. Inputs: current MethodJob/CAS API and the V4 worker sources as path@sha, without copying or importing its old recovery branch.
+
+3. **Keep the 3.14 canonical refusal as the current honest product behavior.** Run the selected property consumer in the product profile and preserve its typed unavailable result; keep the 3.12 prototype separate. Status: executable refusal path, but no positive EconML behavior through the canonical consumer. Migration: none for the refusal; a later positive requires choice 1's source-bound selection and choice 2's bridge. Cost/time: the selected test is a light property check; exact composed run time remains unmeasured. Authority: no backend/causal support claim. Next check: rebind the current consumer source, test output, product lock, and refusal reason at freeze; leave positive capability not_established until producer → artifact → bridge → canonical consumer is demonstrated.
+
+The present evidence disproves “there is no usable Python 3.12 EconML profile.” It does **not** prove the product chose that profile or that the canonical method consumes its output. Bucket any further API/profile mismatch as the same backend-to-selected-consumer class one level deeper; do not patch each test separately (P29/P32/P38/P40).
+
+## LA-029: preserve the original finite C7 criterion
+
+The original occurrence is in docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md lines 1518–1567, full-file SHA-256 2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727. Its canonical binding is closure-decisions/coverage.json#/findings/253/criterion_refs/0, coverage SHA 97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01, occurrence-ref SHA 2ed87700859cf94e802cf950219101451f75ce6294af0cf71bd0fc4f9aa78441. The original scope identifies Ukraine server bootstrap/environment capability checks, explicit workspace-root composition, preservation of the server-only guard, and a typed passed/skipped/failed/unavailable C7 repository-gate result with stage evidence/reproducibility. It names server.py, orchestrator.py, and cli.py. It does not define an application listener, readiness endpoint, or start/stop/restart service API. Existing ServerConfig.port=22 is SSH configuration, not a PolicyOS application listener.
+
+The current source-of-truth route successor is implementation-handoffs/LOCAL/r4-workload/composed-mac-r7-delta-current-routes-20261011-v3.json@8758714ee1d6ac031de82aeaeeb7c7345cf8e146f207f40a29cd29c6164bb8b9. Its LA-029 route is LA029_UKOPS_FINITE_C7_GATE_AND_FRESH_D1_CONSUMER, status UNRUN_REQUIRES_FINAL_SOURCE_FREEZE_AND_ATTACHED_LINUX_SLOT. It carries the seven ordered Linux transport/helper/native-guard/empty-root/consumer/positive-C7 commands by reference and explicitly keeps the application-listener extension absent/unallocated pending G. The route's canonical denominator says all current evaluations are UNRUN, formal closure IDs are empty, and this route adds no occurrence or closure. Use this v3 packet; its superseded v2 and the older lifecycle-readiness narrative are historical context, not the current route selection.
+
+The Linux recipe and provisioned worker details are in implementation-handoffs/LOCAL/linux-profile/la029-ukops-linux-lifecycle-readiness-20261011.md@6125f4b45ead7071dd6bbe3da364404e2b86536b781883799e3693a5c968b8fa, with helper sources under ignored implementation-handoffs/LOCAL/linux-profile/raw/la029-ukops-lifecycle/. That file was prepared on an earlier candidate SHA and says to rebind all source/profile inputs after freeze. Root should run the route's seven ordered commands only after final freeze, the existing dedicated colima-e02-local worker/profile checks, and authorization of the single heavy slot. The prepared positive's actual consumer is fresh D1 after C7 gate manifest readback; its negative controls exercise the native server-only guard and malformed/empty workspace. No listener process is part of that route.
+
+### Boundary options
+
+1. **Use the finite Ops-owned gate for original LA-029.** Run the existing R7 seven-command recipe against frozen sources, persist complete output, re-read the typed gate and fresh D1 consumer, and preserve per-occurrence result as candidate evidence. Status: prepared, currently unrun; current capability label remains bridge_missing, closure not_adjudicated. Migration: rebind source/profile/helper hashes and execute. Authority: repository-gate evidence only. Time: unknown until the final source/profile command is measured. Next check: attached Linux worker inventory and final freeze, then the v3 sequence. No new lifecycle semantic decision is needed to execute this original criterion.
+
+2. **Integrate a real external supervisor's lifecycle receipt if G separately requires listener evidence.** Reuse the external supervisor as owner; PolicyOS consumes typed, provenance-bound process identity, action, outcome, time, and root, plus endpoint/health only if the owner attests those facts. Status: no named supervisor, no receipt, no contract; absent/unallocated. Migration: G/owner supplies the supervisor identity and genuine receipt, then define the narrow typed intake/consumer and test its refusal and admitted lifecycle evidence on Linux. Authority: external supervisor signs execution facts; PolicyOS only admits and scopes them. Time: unknown until owner and contract exist. Next check/input: named supervisor plus one genuine custody-bound receipt. Do not fabricate one from process observation.
+
+3. **Build a PolicyOS-owned listener controller.** This would create a new executor/service surface, unlike the original finite repository gate and outside the current route. Status: absent; would require an explicit G custody-boundary decision and product owner. Migration: define port ownership/readiness/stop/restart/cleanup, failure and partial semantics, persisted typed lifecycle evidence, consumer/audit surface, and Linux adversarial tests before implementing. Authority: unresolved and not to be inferred from the word “server” or port 22. Time: unknown before scope/owner/authority. Next check: a G decision explicitly authorizing the boundary plus named owner. Keep out of current finite-gate implementation meanwhile.
+
+The older readiness note explored a stronger listener interpretation, but the latest route packet deliberately preserved the finite C7 scope and states the listener extension is absent/unallocated. Treat listener lifecycle as a separate G choice, not a failure of the original criterion, and do not hold the finite route on that choice. Record any future demand as a new class relative to the exact original criterion (P40). The correct proof is behavior at the Ops command → typed gate artifact → fresh D1 consumer; exit code or marker alone is insufficient (P29/P33/P37/P38). No external law, issuer, custody, listener, or service authority is established here.
